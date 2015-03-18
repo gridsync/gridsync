@@ -7,5 +7,5 @@ setup(
     version = "0.0.1",
     packages = find_packages(),
     scripts = ['gridsync/scripts/gridsync'],
-    install_requires = ['allmydata-tahoe', 'watchdog'],
+    install_requires = ['allmydata-tahoe', 'watchdog', 'wxPython'],
 )
