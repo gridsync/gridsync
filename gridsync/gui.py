@@ -1,6 +1,10 @@
 #!/usr/bin/env python2
 
+import sys
+
 import wx
+#from twisted.internet import wxreactor
+#wxreactor.install()
 
 TRAY_ICON = '../images/systray.png'
 
@@ -31,13 +35,18 @@ class TaskBarIcon(wx.TaskBarIcon):
         print 'open'
     def on_exit(self, event):
         wx.CallAfter(self.Destroy)
+        wx.GetApp().ExitMainLoop()
+        #sys.exit()
 
 class App(wx.App):
     def OnInit(self):
         self.SetTopWindow(wx.Frame(None, -1))
         TaskBarIcon()
-
         return True
+    def onClose(self, evt):
+        self.Destroy()
+        wx.GetApp().ExitMainLoop()
+
 
 def main():
     app = App()

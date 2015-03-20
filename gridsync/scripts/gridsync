@@ -7,12 +7,57 @@ import os
 import sys
 import time
 
+import wx
+
 from gridsync.config import Config
 from gridsync.tahoe import Tahoe
 from gridsync.watcher import Watcher
 
 
-def main():
+TRAY_ICON = '../images/systray.png'
+
+def create_menu_item(menu, label, func):
+    item = wx.MenuItem(menu, -1, label)
+    menu.Bind(wx.EVT_MENU, func, id=item.GetId())
+    menu.AppendItem(item)
+    return item
+
+
+class TaskBarIcon(wx.TaskBarIcon):
+    def __init__(self):
+        super(TaskBarIcon, self).__init__()
+        self.set_icon(TRAY_ICON)
+        self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.on_left_down)
+    def CreatePopupMenu(self):
+        menu = wx.Menu()
+        create_menu_item(menu, 'Open', self.on_open)
+        menu.AppendSeparator()
+        create_menu_item(menu, 'Exit', self.on_exit)
+        return menu
+    def set_icon(self, path):
+        icon = wx.IconFromBitmap(wx.Bitmap(path))
+        self.SetIcon(icon, "Gridsync")
+    def on_left_down(self, event):
+        print 'Tray icon was left-clicked.'
+    def on_open(self, event):
+        print 'open'
+    def on_exit(self, event):
+        wx.CallAfter(self.Destroy)
+        wx.GetApp().ExitMainLoop()
+        #sys.exit()
+
+class App(wx.App):
+    def OnInit(self):
+        self.SetTopWindow(wx.Frame(None, -1))
+        TaskBarIcon()
+        init()
+        return True
+    def onClose(self, evt):
+        self.Destroy()
+        wx.GetApp().ExitMainLoop()
+
+
+def init():
     config = Config()
     settings = config.load()
     tahoe_objects = []
@@ -31,7 +76,7 @@ def main():
     for w in watcher_objects:
         w.sync()
         w.start()
-    
+         
     try:
         while True:
             time.sleep(1)
@@ -53,5 +98,6 @@ if __name__ == "__main__":
     #    print("Usage: {} <local dir> <remote URI>".format(sys.argv[0]))
     #    print()
     #else:
-    main()
+    app = App()
+    app.MainLoop()
 
