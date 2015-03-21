@@ -75,6 +75,8 @@ class Watcher():
         shutil.copy2(file, newname)
 
     def sync(self, snapshot='Latest'):
+        global STATE
+        STATE = 'yup'
         local_dir = os.path.expanduser(self.local_dir)
         remote_dircap = '/'.join([self.remote_dircap, snapshot])
         local_mtimes = self._get_local_mtimes()
@@ -103,4 +105,6 @@ class Watcher():
                     os.utime(file, (-1, metadata['mtime']))
         if do_backup:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
+        global STATE
+        STATE = ''
 
