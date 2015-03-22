@@ -40,6 +40,8 @@ class Watcher():
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
+        if not os.path.isdir(self.local_dir):
+            os.makedirs(self.local_dir)
 
     def start(self):
         print("*** Starting observer in %s" % self.local_dir)
@@ -75,8 +77,6 @@ class Watcher():
         shutil.copy2(file, newname)
 
     def sync(self, snapshot='Latest'):
-        global STATE
-        STATE = 'yup'
         local_dir = os.path.expanduser(self.local_dir)
         remote_dircap = '/'.join([self.remote_dircap, snapshot])
         local_mtimes = self._get_local_mtimes()
@@ -86,7 +86,6 @@ class Watcher():
             if metadata['type'] == 'dirnode':
                 dir = os.path.join(local_dir, file)
                 if not os.path.isdir(dir):
-                    print('mkidir ', dir)
                     os.makedirs(dir)
         for file, metadata in remote_mtimes.items():
             if metadata['type'] == 'filenode':
@@ -95,16 +94,25 @@ class Watcher():
                     local_mtime = int(local_mtimes[file])
                     remote_mtime = int(metadata['mtime']) # :/
                     if remote_mtime > local_mtime:
+                        print("[@] %s older than stored version, downloading" % file)
                         self._create_conflicted_copy(file, local_mtime)
-                        self.tahoe.get(metadata['uri'], file)
-                        os.utime(file, (-1, remote_mtime))
+                        self.tahoe.get(metadata['uri'], file, remote_mtime)
+                        #self.tahoe.get(metadata['uri'], file)
+                        #os.utime(file, (-1, remote_mtime))
                     elif remote_mtime < local_mtime:
+                        print("[*] %s is newer than stored version, scheduling backup" % file)
                         do_backup = True
+                    else:
+                        print "[✓] %s is up to date." % file 
                 else:
-                    self.tahoe.get(metadata['uri'], file)
-                    os.utime(file, (-1, metadata['mtime']))
+                    print("[?] %s is missing, downloading" % file)
+                    self.tahoe.get(metadata['uri'], file, metadata['mtime'])
+                    #self.tahoe.get(metadata['uri'], file)
+                    #os.utime(file, (-1, metadata['mtime']))
+        for file, metadata in local_mtimes.items():
+            if file.split(local_dir + os.path.sep)[1] not in remote_mtimes:
+                print("[!] %s isn't stored, scheduling backup" % file)
+                do_backup = True
         if do_backup:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
-        global STATE
-        STATE = ''
 

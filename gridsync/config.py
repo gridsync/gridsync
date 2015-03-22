@@ -6,8 +6,6 @@ from __future__ import unicode_literals
 import os
 import json
 
-import watcher
-from tahoe import Tahoe
 
 class Config():
     def __init__(self, config_file=None):
@@ -17,7 +15,7 @@ class Config():
             self.config_dir = os.path.join(os.path.expanduser('~'), '.config', 'gridsync')
         if not os.path.isdir(self.config_dir):
             #first run
-            os.makedirs(config_dir)
+            os.makedirs(self.config_dir)
         if config_file:
             self.config_file = config_file
         else:

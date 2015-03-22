@@ -1,0 +1,57 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8:ft=python
+
+from __future__ import unicode_literals
+
+import os
+import sys
+import time
+import threading
+
+from config import Config
+from tahoe import Tahoe
+from watcher import Watcher
+
+
+def main():
+    config = Config()
+    settings = config.load()
+    tahoe_objects = []
+    watcher_objects = []
+    for node_name, node_settings in settings['tahoe_nodes'].items():
+        t = Tahoe(os.path.join(config.config_dir, node_name), node_settings)
+        tahoe_objects.append(t)
+        for sync_name, sync_settings in settings['sync'].items():
+            if sync_settings[0] == node_name:
+                w = Watcher(t, os.path.expanduser(sync_settings[1]), sync_settings[2])
+                watcher_objects.append(w)
+
+    for t in tahoe_objects:
+        t.start()
+    for w in watcher_objects:
+        w.sync()
+        w.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print('\nshutting down!')
+        for w in watcher_objects:
+            w.stop()
+        for t in tahoe_objects:
+            t.stop()
+        config.save(settings)
+        sys.exit()
+
+
+if __name__ == "__main__":
+    #if len(sys.argv) < 3:
+    #    print()
+    #    print("{} - synchronize local directories with Tahoe-LAFS storage grids".format(sys.argv[0]))
+    #    print()
+    #    print("Usage: {} <local dir> <remote URI>".format(sys.argv[0]))
+    #    print()
+    #else:
+    main()
+

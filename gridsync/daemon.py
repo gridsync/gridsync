@@ -68,15 +68,6 @@ class Daemon():
 
 
 
-
-
-
-
-
-
-
-
-
 def main():
     config = Config()
     settings = config.load()

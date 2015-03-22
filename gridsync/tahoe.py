@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8:ft=python
-# bin/tahoe wrapper
 
 from __future__ import unicode_literals
 
@@ -24,7 +23,7 @@ class Tahoe():
         return config.get(section, option)
     
     def set_config(self, section, option, value):
-        print("*** Setting %s option %s to: %s" % (section, option, value))
+        #print("*** Setting %s option %s to: %s" % (section, option, value))
         config = ConfigParser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.tahoe_path, 'tahoe.cfg'))
         config.set(section, option, value)
@@ -69,11 +68,13 @@ class Tahoe():
     def backup(self, local_dir, remote_dircap):
         self.command("backup -v %s %s" % (local_dir, remote_dircap))
 
-    def get(self, remote_uri, local_file):
+    def get(self, remote_uri, local_file, mtime=None):
         args = ['tahoe', '-d', self.tahoe_path, 'get', remote_uri, local_file]
-        print("*** Running: %s" % ' '.join(args))
+        #print("*** Running: %s" % ' '.join(args))
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
+        if mtime:
+            os.utime(local_file, (-1, mtime))
         return ret
         
     def get_metadata(self, dircap, basedir='/', metadata={}):
