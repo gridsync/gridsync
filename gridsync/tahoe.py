@@ -7,6 +7,7 @@ import os
 import subprocess
 import ConfigParser
 import json
+import threading
 
 
 class Tahoe():
@@ -69,8 +70,8 @@ class Tahoe():
         self.command("backup -v %s %s" % (local_dir, remote_dircap))
 
     def get(self, remote_uri, local_file, mtime=None):
+        print(threading.current_thread().name)
         args = ['tahoe', '-d', self.tahoe_path, 'get', remote_uri, local_file]
-        #print("*** Running: %s" % ' '.join(args))
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
         if mtime:
@@ -78,6 +79,8 @@ class Tahoe():
         return ret
         
     def get_metadata(self, dircap, basedir='/', metadata={}):
+        print(threading.current_thread().name)
+        #print metadata
         out = self.command_output("ls --json %s" % dircap)
         j = json.loads(out)
         for k, v in j[1]['children'].items():
@@ -95,6 +98,8 @@ class Tahoe():
                     'size': 0
                 }
                 self.get_metadata(dircap, path, metadata)
+                #t = threading.Thread(target=self.get_metadata, args=(dircap, path, metadata))
+                #t.start()
             elif v[0] == 'filenode':
                 path = os.path.join(basedir, k).strip('/')
                 for a, m in v[1]['metadata'].items():

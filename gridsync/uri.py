@@ -8,7 +8,11 @@ from pycryptopp.cipher import aes
 
 i = "gridsync://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@162.243.228.43:46210/DIR2:ud4yxj5zmyyxr2ue23u3kuzjwu:qc6inqijwur7xmhmovh7iovwmwykok6ibtefkpbhbe2inktytnma?n=test"
 
+def uri_to_settings(uri):
+    pass
 
+def settings_to_uri(settings):
+    pass
 
 def encrypt_link(data, key):
     pass

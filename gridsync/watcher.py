@@ -82,6 +82,7 @@ class Watcher():
         local_mtimes = self._get_local_mtimes()
         remote_mtimes = self.tahoe.get_metadata(remote_dircap, metadata={})
         do_backup = False
+        threads = []
         for file, metadata in remote_mtimes.items():
             if metadata['type'] == 'dirnode':
                 dir = os.path.join(local_dir, file)
@@ -94,21 +95,27 @@ class Watcher():
                     local_mtime = int(local_mtimes[file])
                     remote_mtime = int(metadata['mtime']) # :/
                     if remote_mtime > local_mtime:
-                        print("[@] %s older than stored version, downloading" % file)
+                        print("[@] %s older than stored version, scheduling download" % file)
                         self._create_conflicted_copy(file, local_mtime)
-                        self.tahoe.get(metadata['uri'], file, remote_mtime)
-                        #self.tahoe.get(metadata['uri'], file)
-                        #os.utime(file, (-1, remote_mtime))
+                        threads.append(
+                                threading.Thread(
+                                    target=self.tahoe.get, 
+                                    args=(metadata['uri'], file, remote_mtime)))
                     elif remote_mtime < local_mtime:
                         print("[*] %s is newer than stored version, scheduling backup" % file)
                         do_backup = True
                     else:
                         print "[✓] %s is up to date." % file 
                 else:
-                    print("[?] %s is missing, downloading" % file)
-                    self.tahoe.get(metadata['uri'], file, metadata['mtime'])
-                    #self.tahoe.get(metadata['uri'], file)
-                    #os.utime(file, (-1, metadata['mtime']))
+                    print("[?] %s is missing, scheduling download" % file)
+                    threads.append(
+                            threading.Thread(
+                                target=self.tahoe.get, 
+                                args=(metadata['uri'], file, metadata['mtime'])))
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
         for file, metadata in local_mtimes.items():
             if file.split(local_dir + os.path.sep)[1] not in remote_mtimes:
                 print("[!] %s isn't stored, scheduling backup" % file)
