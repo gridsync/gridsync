@@ -80,9 +80,9 @@ class Tahoe():
         
     def get_metadata(self, dircap, basedir='/', metadata={}):
         print(threading.current_thread().name)
-        #print metadata
         out = self.command_output("ls --json %s" % dircap)
         j = json.loads(out)
+        threads = []
         for k, v in j[1]['children'].items():
             if v[0] == 'dirnode':
                 path = os.path.join(basedir, k).strip('/')
@@ -97,9 +97,10 @@ class Tahoe():
                     'mtime': 0,
                     'size': 0
                 }
-                self.get_metadata(dircap, path, metadata)
-                #t = threading.Thread(target=self.get_metadata, args=(dircap, path, metadata))
-                #t.start()
+                threads.append(
+                        threading.Thread(
+                            target=self.get_metadata, args=(dircap, path, metadata)))
+                #self.get_metadata(dircap, path, metadata)
             elif v[0] == 'filenode':
                 path = os.path.join(basedir, k).strip('/')
                 for a, m in v[1]['metadata'].items():
@@ -116,5 +117,9 @@ class Tahoe():
                     'uri': dircap,
                     'size': v[1]['size']
                 }
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
         return metadata
 

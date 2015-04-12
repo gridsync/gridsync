@@ -112,14 +112,14 @@ class Watcher():
                             threading.Thread(
                                 target=self.tahoe.get, 
                                 args=(metadata['uri'], file, metadata['mtime'])))
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
         for file, metadata in local_mtimes.items():
             if file.split(local_dir + os.path.sep)[1] not in remote_mtimes:
                 print("[!] %s isn't stored, scheduling backup" % file)
                 do_backup = True
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
         if do_backup:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
 
