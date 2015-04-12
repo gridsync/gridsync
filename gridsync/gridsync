@@ -26,32 +26,32 @@ def main():
                 w = Watcher(t, os.path.expanduser(sync_settings[1]), sync_settings[2])
                 watcher_objects.append(w)
 
-    for t in tahoe_objects:
-        t.start()
-    for w in watcher_objects:
-        w.sync()
-        w.start()
+    threads = [threading.Thread(target=o.start) for o in tahoe_objects]
+    [t.start() for t in threads]
+    [t.join() for t in threads]
+
+    threads = [threading.Thread(target=o.start) for o in watcher_objects]
+    [t.start() for t in threads]
+    [t.join() for t in threads]
 
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print('\nshutting down!')
-        for w in watcher_objects:
-            w.stop()
-        for t in tahoe_objects:
-            t.stop()
+        print('\n*** Shutting down!')
+
+        threads = [threading.Thread(target=o.stop) for o in watcher_objects]
+        [t.start() for t in threads]
+        [t.join() for t in threads]
+        
+        threads = [threading.Thread(target=o.stop) for o in tahoe_objects]
+        [t.start() for t in threads]
+        [t.join() for t in threads]
+        
         config.save(settings)
         sys.exit()
 
 
 if __name__ == "__main__":
-    #if len(sys.argv) < 3:
-    #    print()
-    #    print("{} - synchronize local directories with Tahoe-LAFS storage grids".format(sys.argv[0]))
-    #    print()
-    #    print("Usage: {} <local dir> <remote URI>".format(sys.argv[0]))
-    #    print()
-    #else:
     main()
 

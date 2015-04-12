@@ -44,6 +44,7 @@ class Watcher():
             os.makedirs(self.local_dir)
 
     def start(self):
+        self.sync()
         print("*** Starting observer in %s" % self.local_dir)
         event_handler = LocalEventHandler(self.tahoe, self.local_dir, self.remote_dircap)
         self.observer = Observer()
@@ -116,10 +117,10 @@ class Watcher():
             if file.split(local_dir + os.path.sep)[1] not in remote_mtimes:
                 print("[!] %s isn't stored, scheduling backup" % file)
                 do_backup = True
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
+        
+        [t.start() for t in threads]
+        [t.join() for t in threads]
+        
         if do_backup:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
 
