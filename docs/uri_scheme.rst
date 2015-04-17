@@ -1,3 +1,4 @@
+===================
 Gridsync URI Scheme
 ===================
 
@@ -26,4 +27,6 @@ sn, k = shares.needed
 sh, h = shares.happy
 
 
+Examples
+--------
 
