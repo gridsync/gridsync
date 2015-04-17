@@ -4,7 +4,7 @@ Gridsync URI Scheme
 Generic syntax
 --------------
 
-`gridsync://<introducer_key>@<introducer_address>:<introducer_port>/<cap>`
+``gridsync://<introducer_key>@<introducer_address>:<introducer_port>/<cap>``
 
 
 Valid queries
