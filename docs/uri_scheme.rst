@@ -4,7 +4,7 @@ Gridsync URI Scheme
 Generic syntax
 --------------
 
-gridsync://<introducer_key>@<introducer_address>:<introducer_port>/<cap>
+`gridsync://<introducer_key>@<introducer_address>:<introducer_port>/<cap>`
 
 
 Valid queries
@@ -12,12 +12,18 @@ Valid queries
 
 
 i = introducer (in format <key>@<address>:<port>; "pb://" prefix and "/introducer" suffix are not required)
+
 s = storage server
+
 c = cap
+
 f = name
-n = shares.total
-k = shares.needed
-h = shares.happy
+
+st, n = shares.total
+
+sn, k = shares.needed
+
+sh, h = shares.happy
 
 
 
