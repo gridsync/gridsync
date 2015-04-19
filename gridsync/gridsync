@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import time
+import argparse
 import threading
 
 from config import Config
@@ -53,5 +54,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+            description='Synchronize local directories with a Tahoe-LAFS storage grid.',
+            epilog='Example: ')
+    parser.add_argument('-c', metavar='<config file>', help='load settings from config file')
+    args = parser.parse_args()
+    #parser.print_help()
+    #main()
 
