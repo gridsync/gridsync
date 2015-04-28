@@ -13,5 +13,5 @@ setup(
     entry_points = {
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
-    install_requires = ['allmydata-tahoe', 'watchdog', 'wxPython'],
+    install_requires = ['watchdog', 'wxPython'],
 )
