@@ -6,6 +6,8 @@ setup(
     name = "gridsync",
     version = "0.0.1",
     packages = find_packages(),
-    scripts = ['gridsync/scripts/gridsync'],
+    entry_points = {
+        'console_scripts': ['gridsync=gridsync.cli:main'],
+    },
     install_requires = ['allmydata-tahoe', 'watchdog', 'wxPython'],
 )

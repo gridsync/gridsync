@@ -6,14 +6,21 @@ from __future__ import unicode_literals
 import os
 import sys
 import time
+import argparse
 import threading
 
-from gridsync.config import Config
-from gridsync.tahoe import Tahoe
-from gridsync.watcher import Watcher
+from config import Config
+from tahoe import Tahoe
+from watcher import Watcher
 
 
 def main():
+    parser = argparse.ArgumentParser(
+            description='Synchronize local directories with a Tahoe-LAFS storage grid.',
+            epilog='Example: ')
+    parser.add_argument('-c', metavar='<config file>', help='load settings from config file')
+    args = parser.parse_args()
+    #parser.print_help()
     config = Config()
     settings = config.load()
     tahoe_objects = []
