@@ -14,6 +14,14 @@ Current features
 Planned features
 ----------------
 
-One click sharing of storage resources via "gridsync://" URI scheme
-Grid-discovery
-Tor integration
+-One click sharing of storage resources via "gridsync://" URI scheme
+-Grid-discovery
+-Tor integration
+
+TODO
+----
+
+-don't backup until filewrites finish
+-logging
+-client/server architecture
+-tor integration

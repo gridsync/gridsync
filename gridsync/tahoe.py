@@ -77,7 +77,7 @@ class Tahoe():
         if mtime:
             os.utime(local_file, (-1, mtime))
         return ret
-        
+
     def get_metadata(self, dircap, basedir='/', metadata={}):
         print(threading.current_thread().name)
         out = self.command_output("ls --json %s" % dircap)
