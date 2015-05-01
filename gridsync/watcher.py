@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 
 import os
+import time
 import shutil
 import datetime
 import threading
@@ -27,12 +28,14 @@ class LocalEventHandler(FileSystemEventHandler):
         print(event)
 
     def check_for_backup(self):
+        if self.do_backup:
+            self.do_backup = False
+            time.sleep(1) 
+            if not self.do_backup:
+                self.tahoe.backup(self.local_dir, self.remote_dircap)
         t = threading.Timer(1.0, self.check_for_backup)
         t.setDaemon(True)
         t.start()
-        if self.do_backup:
-            self.do_backup = False
-            self.tahoe.backup(self.local_dir, self.remote_dircap)
 
 
 class Watcher():
@@ -117,10 +120,8 @@ class Watcher():
             if file.split(local_dir + os.path.sep)[1] not in remote_mtimes:
                 print("[!] %s isn't stored, scheduling backup" % file)
                 do_backup = True
-        
         [t.start() for t in threads]
         [t.join() for t in threads]
-        
         if do_backup:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
 
