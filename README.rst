@@ -2,8 +2,9 @@
 Gridsync
 ========
 
-Gridsync is a cross-platform desktop client for the Tahoe-LAFS, the Least-Authority File Store. It is intended to simplify the management and configuration of locally-running Tahoe-LAFS nodes and to provide user-friendly mechanisms for automating backup tasks and sharing stored files.
+Gridsync is a cross-platform desktop client for `Tahoe-LAFS`_, the Least-Authority File Store. It is intended to simplify the management and configuration of locally-running Tahoe-LAFS nodes and to provide user-friendly mechanisms for automating backup tasks and sharing stored files.
 
+.. _Tahoe-LAFS: https://tahoe-lafs.org
 
 Current features
 ----------------
