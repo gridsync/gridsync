@@ -21,9 +21,19 @@ Planned features
 * Grid-discovery
 
 
+Installation
+------------
+
+Stable versions from PyPI:
+
+``pip install gridsync``
+
+
+
 TODO
 ----
 
 * Logging
-* Client/server architecture
 * Tor integration
+* Client/server architecture
+* Packaging
