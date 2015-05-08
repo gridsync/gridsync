@@ -3,33 +3,30 @@
 import os
 import base64
 
-from allmydata.util import base32
-from pycryptopp.cipher import aes
-
 i = "gridsync://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@162.243.228.43:46210/DIR2:ud4yxj5zmyyxr2ue23u3kuzjwu:qc6inqijwur7xmhmovh7iovwmwykok6ibtefkpbhbe2inktytnma?n=test"
 
+
 def uri_to_settings(uri):
-    pass
+    uri = uri.lower()
+    settings = { 'client': {} }
+    if uri.startswith("gridsync://"):
+        content = uri[11:]
+        if '@' in content.split('/')[0]:
+            introducer = "pb://{}/introducer".format(content.split('/')[0])
+            settings['client'] = { 'introducer.furl': introducer }
+            #if len(content.split('/')) > 1:
+
+             #   settings
+
+    elif uri.startswith("gridsync:"):
+        content = uri[9:]
+    return settings
+     
+
+print uri_to_settings(i)
 
 def settings_to_uri(settings):
     pass
-
-def encrypt_link(data, key):
-    pass
-
-def decrypt_link(link, key):
-    pass
-
-
-def decode(string, passphrase=None):
-    pass
-
-def encode(introducer_furl, cap=None, name=None):
-    pass
-
-
-#cryptor = aes.AES(key='test')
-
 
 def encode_link(introducer_furl, cap=None, name=None):
     s = introducer_furl.split('pb://')[1].split(',')[0]

@@ -10,9 +10,10 @@ def readme():
 setup(
     name="gridsync",
     version="0.0.1",
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests", "docs")),
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
     install_requires=['watchdog', 'wxPython'],
+    test_suite="tests"
 )
