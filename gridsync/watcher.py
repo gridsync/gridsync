@@ -30,7 +30,7 @@ class LocalEventHandler(FileSystemEventHandler):
     def check_for_backup(self):
         if self.do_backup:
             self.do_backup = False
-            time.sleep(1) 
+            time.sleep(1)
             if not self.do_backup:
                 self.tahoe.backup(self.local_dir, self.remote_dircap)
         t = threading.Timer(1.0, self.check_for_backup)
