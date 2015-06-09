@@ -20,7 +20,7 @@ Planned features
 * One click sharing of storage resources via "gridsync://" URI scheme
 * Full Tor integration, for anonymous sharing of files and storage resources
 * Grid-discovery
-
+* i18n/L10n
 
 Installation
 ------------

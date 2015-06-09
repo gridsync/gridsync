@@ -14,6 +14,6 @@ setup(
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
-    install_requires=['watchdog', 'wxPython'],
+    install_requires=['watchdog'],
     test_suite="tests"
 )
