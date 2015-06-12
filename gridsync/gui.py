@@ -9,10 +9,6 @@ class Example(QtGui.QWidget):
     def __init__(self):
         super(Example, self).__init__()
         
-        #self.initUI()
-        
-        
-    #def initUI(self):
         #self.setToolTip('This is a <b>QWidget</b> widget')    
         self.setGeometry(300, 300, 250, 150)
         #self.setWindowTitle('Icon')
