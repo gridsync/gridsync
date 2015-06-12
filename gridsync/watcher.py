@@ -39,7 +39,7 @@ class LocalEventHandler(FileSystemEventHandler):
 
 
 class Watcher():
-    def __init__(self, tahoe, local_dir, remote_dircap):
+    def __init__(self, tahoe, local_dir, remote_dircap, polling_frequency=60):
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
