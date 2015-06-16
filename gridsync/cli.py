@@ -32,7 +32,10 @@ def main():
             if sync_settings[0] == node_name:
                 w = Watcher(t, os.path.expanduser(sync_settings[1]), sync_settings[2])
                 watcher_objects.append(w)
-
+    
+    g = threading.Thread(target=main_window.main)
+    g.start()
+    
     threads = [threading.Thread(target=o.start) for o in tahoe_objects]
     [t.start() for t in threads]
     [t.join() for t in threads]
@@ -40,6 +43,8 @@ def main():
     threads = [threading.Thread(target=o.start) for o in watcher_objects]
     [t.start() for t in threads]
     [t.join() for t in threads]
+    
+
 
     try:
         while True:

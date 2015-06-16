@@ -45,6 +45,7 @@ class Watcher():
         self.remote_dircap = remote_dircap
         if not os.path.isdir(self.local_dir):
             os.makedirs(self.local_dir)
+        self.polling_frequency = polling_frequency
 
     def start(self):
         self.sync()
