@@ -33,8 +33,8 @@ def main():
                 w = Watcher(t, os.path.expanduser(sync_settings[1]), sync_settings[2])
                 watcher_objects.append(w)
     
-    g = threading.Thread(target=main_window.main)
-    g.start()
+    #g = threading.Thread(target=main_window.main)
+    #g.start()
     
     threads = [threading.Thread(target=o.start) for o in tahoe_objects]
     [t.start() for t in threads]
