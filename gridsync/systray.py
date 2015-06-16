@@ -40,7 +40,7 @@ class RightClickMenu(QMenu):
 class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self):
         super(SystemTrayIcon, self).__init__()
-        self.setIcon(QIcon("circle.png"))
+        self.setIcon(QIcon("images/circle.png"))
         
         self.right_menu = RightClickMenu()
         self.setContextMenu(self.right_menu)
@@ -50,7 +50,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.activated.connect(self.on_click)
 
         self.movie = QMovie()
-        self.movie.setFileName("sync.gif")
+        self.movie.setFileName("images/sync.gif")
         self.movie.setSpeed(150)
         self.movie.updated.connect(self.on_systray_update)
         self.movie.start()
