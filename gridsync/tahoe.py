@@ -38,14 +38,14 @@ class Tahoe():
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
-        print("*** Running: %s" % ' '.join(args))
+        #print("*** Running: %s" % ' '.join(args))
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
         return ret
     
     def command_output(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
-        print("*** Running: %s" % ' '.join(args))
+        #print("*** Running: %s" % ' '.join(args))
         out = subprocess.check_output(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
         return out
@@ -79,6 +79,7 @@ class Tahoe():
         return ret
 
     def get_metadata(self, dircap, basedir='/', metadata={}):
+        print("*** Getting remote metadata...")
         print(threading.current_thread().name)
         out = self.command_output("ls --json %s" % dircap)
         j = json.loads(out)
@@ -121,5 +122,7 @@ class Tahoe():
             t.start()
         for t in threads:
             t.join()
+        print("Done.")
         return metadata
+
 

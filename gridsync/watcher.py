@@ -24,7 +24,6 @@ class LocalEventHandler(FileSystemEventHandler):
         if not os.path.isdir(self.local_dir):
             os.makedirs(self.local_dir)
         self.do_backup = False
-        self.latest_snapshot = 0
         self.check_for_backup()
 
     def on_modified(self, event):
@@ -50,9 +49,11 @@ class Watcher():
         if not os.path.isdir(self.local_dir):
             os.makedirs(self.local_dir)
         self.polling_frequency = polling_frequency
+        self.latest_snapshot = 0
 
     def start(self):
-        self.sync()
+        #self.sync()
+        self.check_for_updates()
         print("*** Starting observer in %s" % self.local_dir)
         event_handler = LocalEventHandler(self.tahoe, self.local_dir, self.remote_dircap)
         self.observer = Observer()
@@ -66,6 +67,18 @@ class Watcher():
             self.observer.join()
         except:
             pass
+
+    def check_for_updates(self):
+        latest_snapshot = self.get_latest_snapshot()
+        if latest_snapshot == self.latest_snapshot:
+            print("Up to date ({}); nothing to do.".format(latest_snapshot))
+        else:
+            print("New snapshot available ({}); syncing...".format(latest_snapshot))
+            self.sync()
+            self.latest_snapshot = latest_snapshot
+        t = threading.Timer(self.polling_frequency, self.check_for_updates)
+        t.setDaemon(True)
+        t.start()
 
     def _get_local_mtimes(self):
         local_mtimes = {}
@@ -93,16 +106,12 @@ class Watcher():
         for snapshot in j[1]['children']:
             snapshots.append(snapshot)
         snapshots.sort()
-        latest = snapshots[-1:][0]
-        return utils.utc_to_epoch(latest) 
-
-    #def _local_time(self, ztime):
-        #date_object = datetime.strptime("2015-06-16_02:48:40Z"[:-1], "%Y-%m-%d_%H:%M:%S")
+        return snapshots[-1:][0]
+        #latest = snapshots[-1:][0]
+        #return utils.utc_to_epoch(latest) 
 
     def sync(self, snapshot='Latest'):
-        print('#########')
-        print(self.get_latest_snapshot())
-        print('#########')
+        print("*** Syncing {}...".format(self.local_dir))
         local_dir = os.path.expanduser(self.local_dir)
         remote_dircap = '/'.join([self.remote_dircap, snapshot])
         local_mtimes = self._get_local_mtimes()
