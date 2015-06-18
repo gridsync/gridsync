@@ -25,10 +25,16 @@ Planned features
 Installation
 ------------
 
-Stable versions from PyPI:
+1. Install `Tahoe-LAFS`_
+2. Install `Qt4`_
+3. Install `PyQt4`_
+4. Install pip
+5. ``pip install gridsync``
 
-``pip install gridsync``
+.. _Qt4: http://download.qt.io/archive/qt/4.8/4.8.6/
+.. _PyQT4: http://www.riverbankcomputing.com/software/pyqt/download
 
+(If installing Tahoe-LAFS from pip on GNU/Linux, ``apt-get install python-dev build-essential libffi-dev libssl-dev``)
 
 
 TODO
