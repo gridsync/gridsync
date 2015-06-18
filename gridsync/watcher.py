@@ -8,6 +8,9 @@ import time
 import shutil
 import datetime
 import threading
+import json
+
+import utils
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -21,6 +24,7 @@ class LocalEventHandler(FileSystemEventHandler):
         if not os.path.isdir(self.local_dir):
             os.makedirs(self.local_dir)
         self.do_backup = False
+        self.latest_snapshot = 0
         self.check_for_backup()
 
     def on_modified(self, event):
@@ -81,7 +85,24 @@ class Watcher():
         newname = base + tag + extension
         shutil.copy2(file, newname)
 
+    def get_latest_snapshot(self):
+        dircap = self.remote_dircap + "/Archives"
+        out = self.tahoe.command_output("ls --json %s" % dircap)
+        j = json.loads(out)
+        snapshots = []
+        for snapshot in j[1]['children']:
+            snapshots.append(snapshot)
+        snapshots.sort()
+        latest = snapshots[-1:][0]
+        return utils.utc_to_epoch(latest) 
+
+    #def _local_time(self, ztime):
+        #date_object = datetime.strptime("2015-06-16_02:48:40Z"[:-1], "%Y-%m-%d_%H:%M:%S")
+
     def sync(self, snapshot='Latest'):
+        print('#########')
+        print(self.get_latest_snapshot())
+        print('#########')
         local_dir = os.path.expanduser(self.local_dir)
         remote_dircap = '/'.join([self.remote_dircap, snapshot])
         local_mtimes = self._get_local_mtimes()

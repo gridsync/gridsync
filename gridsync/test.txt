@@ -1,0 +1,3653 @@
+*** Starting Tahoe nodes...
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid start
+*** Running: tahoe -d /home/c/.config/gridsync/Public Test Grid start
+*** Starting Watchers...
+@@@@ getting latest snapshot
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid ls --json URI:DIR2:zur7boh22764fihbtghboimyt4:fryozypslk75p4vqgcpiy7rg52qx2qefpv57yvgsd5xzszee2ufa/Archives
+@@@@ getting latest snapshot
+*** Running: tahoe -d /home/c/.config/gridsync/Public Test Grid ls --json URI:DIR2:ud4yxj5zmyyxr2ue23u3kuzjwu:qc6inqijwur7xmhmovh7iovwmwykok6ibtefkpbhbe2inktytnma/Archives
+[
+ "dirnode",
+ {
+  "rw_uri": "URI:DIR2:kwknm7j5qwu4pjbosmktwzbwka:aylrxwmon4r7yivkud2doqqnvxksa4n72vane2x3637alpb2ep7a",
+  "verify_uri": "URI:DIR2-Verifier:gdel7x4awjc7acblyexfqq3fke:aylrxwmon4r7yivkud2doqqnvxksa4n72vane2x3637alpb2ep7a",
+  "ro_uri": "URI:DIR2-RO:nkb62bnrwlvvkgngfo2nfqvlli:aylrxwmon4r7yivkud2doqqnvxksa4n72vane2x3637alpb2ep7a",
+  "children": {
+   "2015-03-06_20:14:23Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:etsepfjsuyyrjnv4kbcz7znl6q:yexzrgnwe3djqnpvtmvwwm3kw24mjhtx2ntexub622walfwpujmq:2:6:1124",
+     "ro_uri": "URI:DIR2-CHK:lz4v6zhrznuv7v6mbdvd3rnmmi:yexzrgnwe3djqnpvtmvwwm3kw24mjhtx2ntexub622walfwpujmq:2:6:1124",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425672864.07888,
+       "linkcrtime": 1425672864.07888
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:59:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wkcbc7vin2mopooefrhs6dw3jy:33sj7vzckdjbichchx5z37o2iz6nhw6qmstpe2vrc2go46j3d4wa:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:727lyrwj5fpzkierarzcfma63u:33sj7vzckdjbichchx5z37o2iz6nhw6qmstpe2vrc2go46j3d4wa:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426391958.127939,
+       "linkcrtime": 1426391958.127939
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:01:38Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395699.447038,
+       "linkcrtime": 1426395699.447038
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:28:11Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397292.430807,
+       "linkcrtime": 1426397292.430807
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:16:16Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705376.901105,
+       "linkcrtime": 1425705376.901105
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:01:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hsal7gddasyullehqknynkaxqm:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "ro_uri": "URI:DIR2-CHK:eofk2n4nkqtvphhq3cj46x3wiu:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426399281.022013,
+       "linkcrtime": 1426399281.022013
+      }
+     }
+    }
+   ],
+   "2015-03-09_06:53:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:vukbd623hvjqjnmxk6uyxofmd4:vcekhiu5dhnw4qxwut5yyiqjcatlxkilg2okmouzj6zvxddf77ha:2:6:6322",
+     "ro_uri": "URI:DIR2-CHK:2f3dmzeyqczokp7suculeledse:vcekhiu5dhnw4qxwut5yyiqjcatlxkilg2okmouzj6zvxddf77ha:2:6:6322",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425884033.167521,
+       "linkcrtime": 1425884033.167521
+      }
+     }
+    }
+   ],
+   "2015-03-06_20:23:56Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hzrf7d52tp2ma52xc4od6x7b5u:oxf34qedmatzj6v7omohbfkkphiatfadhet66eoxofvsekfcoyvq:2:6:2335",
+     "ro_uri": "URI:DIR2-CHK:xfre72a6rrjs6dsbseumac6qr4:oxf34qedmatzj6v7omohbfkkphiatfadhet66eoxofvsekfcoyvq:2:6:2335",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425673436.973539,
+       "linkcrtime": 1425673436.973539
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:04:06Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:vikkoocel6h6x5cur6krpjc76m:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:e5ld7i2isiorgslnkndscqk3tm:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426381446.868468,
+       "linkcrtime": 1426381446.868468
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:01:31Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:g4ic5oi5wsyx334spla3og362a:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:s56x7qmyy37t334h3mfnod5kiq:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506892.470266,
+       "linkcrtime": 1430506892.470266
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:50:42Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ra7vnmrd4zc6k6deh4kxuzhaey:tqmfbxzg3bfklwe4edfkt2wtjmls6dh5zecxkgyf5dwkuogle3ma:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:zwhko3xmzzcwzsr3jjq5k5vd3a:tqmfbxzg3bfklwe4edfkt2wtjmls6dh5zecxkgyf5dwkuogle3ma:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387843.142375,
+       "linkcrtime": 1426387843.142375
+      }
+     }
+    }
+   ],
+   "2015-03-09_04:59:47Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:bjwsnotohx2v5e3pnzq6forng4:nvrpnycubkxxqsvs66fcqtbxxapmsihzv6lhznqadeeztvgtq66a:2:6:5960",
+     "ro_uri": "URI:DIR2-CHK:itjnatmnu4izuus25vg7yxse4m:nvrpnycubkxxqsvs66fcqtbxxapmsihzv6lhznqadeeztvgtq66a:2:6:5960",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425877188.149083,
+       "linkcrtime": 1425877188.149083
+      }
+     }
+    }
+   ],
+   "2015-03-14_05:01:11Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:kqcdf2tbqax2rzupmz7jtqiqh4:tqwmfh7udmgu6hdsmx2ejaymxx5av4sdnrkvkeflri5mkpisq6hq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:tep4c2jjhjl3wvbbwqunpgomnq:tqwmfh7udmgu6hdsmx2ejaymxx5av4sdnrkvkeflri5mkpisq6hq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426309271.728723,
+       "linkcrtime": 1426309271.728723
+      }
+     }
+    }
+   ],
+   "2015-03-09_08:02:49Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pj334kdgutn6rihvk5idzj23p4:xibezvwpsab4sd53qfxixfaxzgo5v7oagwoomzkix5p45eaajg5q:2:6:7421",
+     "ro_uri": "URI:DIR2-CHK:vdnxlzra44kh67op5m44giy5e4:xibezvwpsab4sd53qfxixfaxzgo5v7oagwoomzkix5p45eaajg5q:2:6:7421",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425888170.289005,
+       "linkcrtime": 1425888170.289005
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703143.743857,
+       "linkcrtime": 1425703143.743857
+      }
+     }
+    }
+   ],
+   "2015-05-27_00:55:32Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:xxcyqcyse4kp5rrudslz6mj26a:72rym2y53a4hr27by7jfspu56wcncfarupdp4772dl5sboebh5cq:2:6:3031",
+     "ro_uri": "URI:DIR2-CHK:kbqnhtertnldqhx64xb3yphybm:72rym2y53a4hr27by7jfspu56wcncfarupdp4772dl5sboebh5cq:2:6:3031",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1432688175.104837,
+       "linkcrtime": 1432688175.104837
+      }
+     }
+    }
+   ],
+   "2015-03-14_23:43:16Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3pksslskoosra7lspxpk5df7hu:6sga23upkttlwz4aep7hvfr4nwgxhqkxgvrqq3z5dme2sbt6ogta:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:hpnlmzbaq7jle6oh6r6lyx5pcq:6sga23upkttlwz4aep7hvfr4nwgxhqkxgvrqq3z5dme2sbt6ogta:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426376596.990186,
+       "linkcrtime": 1426376596.990186
+      }
+     }
+    }
+   ],
+   "2015-04-11_22:57:01Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ilr57sliu2zphnxe66ngwavule:3vspwhkncbybk4ktcokvfn74gu5x4h7iagwhoblvijohp3l6hamq:2:6:843",
+     "ro_uri": "URI:DIR2-CHK:7x3uu74je5sxv5sgvxpluhyaq4:3vspwhkncbybk4ktcokvfn74gu5x4h7iagwhoblvijohp3l6hamq:2:6:843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428793021.962546,
+       "linkcrtime": 1428793021.962546
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:58:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:shzwyeuvjjwrqzcbqxr5yxi66y:q5ucd6ki3nhhph5ph45jcemnxrnpr5zmoy4s7cv3fcea5ku5qowa:2:6:749",
+     "ro_uri": "URI:DIR2-CHK:kdblm46u4hev6kbu4d4tyghgp4:q5ucd6ki3nhhph5ph45jcemnxrnpr5zmoy4s7cv3fcea5ku5qowa:2:6:749",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395483.948053,
+       "linkcrtime": 1426395483.948053
+      }
+     }
+    }
+   ],
+   "2015-03-06_20:18:19Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:axwsqh6bvivweoshgrmwz67vgy:cwub6iip2qmlbhuwu6myanyiejoznl3j32bd7u4coe2wyp4q4uga:2:6:1301",
+     "ro_uri": "URI:DIR2-CHK:ci2mxphj6l4cdie23yugjmupcy:cwub6iip2qmlbhuwu6myanyiejoznl3j32bd7u4coe2wyp4q4uga:2:6:1301",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425673099.451509,
+       "linkcrtime": 1425673099.451509
+      }
+     }
+    }
+   ],
+   "2015-03-14_03:07:45Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ymj3yavqzflddnfcuj62crsqna:lw6ah2n3dog5bzea4woqeltzkurxgflo73s6oqvylks4vn3tv6za:2:6:476",
+     "ro_uri": "URI:DIR2-CHK:6kete4xnklxkscwiswdycvdp4y:lw6ah2n3dog5bzea4woqeltzkurxgflo73s6oqvylks4vn3tv6za:2:6:476",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426302466.37023,
+       "linkcrtime": 1426302466.37023
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:49:18Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506171.09534,
+       "linkcrtime": 1430506171.09534
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:36:21Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430505382.923837,
+       "linkcrtime": 1430505382.923837
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:27:13Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wgxvuftyhmrublr7ypdxctsby:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "ro_uri": "URI:DIR2-CHK:g76g6itjvt3i27gm2t4ete4bmq:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702433.906385,
+       "linkcrtime": 1425702433.906385
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:54:01Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4r62s5vcck3zxjmun26rq4odti:zql4dbpynchbe6rqrp5vfslqthslvgyratoogqkhthb3f3o44adq:2:6:563",
+     "ro_uri": "URI:DIR2-CHK:m4l344ynbhnk7oyk7vvkzsnuwu:zql4dbpynchbe6rqrp5vfslqthslvgyratoogqkhthb3f3o44adq:2:6:563",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395242.438971,
+       "linkcrtime": 1426395242.438971
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:09:42Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396183.402017,
+       "linkcrtime": 1426396183.402017
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:16Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703157.315087,
+       "linkcrtime": 1425703157.315087
+      }
+     }
+    }
+   ],
+   "2015-03-07_02:24:59Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:gc4k5dz4citezoknmfmd2i6edq:ear6b6ufc7watrdqnqvswturqpl4pwnhude3ggoalm6wohtpmmwa:2:6:3643",
+     "ro_uri": "URI:DIR2-CHK:4nquq4wefknegk3wwveekh5c3u:ear6b6ufc7watrdqnqvswturqpl4pwnhude3ggoalm6wohtpmmwa:2:6:3643",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425695099.91221,
+       "linkcrtime": 1425695099.91221
+      }
+     }
+    }
+   ],
+   "2015-06-16_01:30:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:axerizgtqak6dclps6s25mk2sq:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "ro_uri": "URI:DIR2-CHK:5wpriw5a7ojw2fuanqw7esjfcy:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434418221.360281,
+       "linkcrtime": 1434418221.360281
+      }
+     }
+    }
+   ],
+   "2015-03-07_06:12:39Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rmhjwsh3sk2wgl3wtorr7zgbae:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "ro_uri": "URI:DIR2-CHK:2wr6elqoypa2f6baoe6vk3pfia:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425708760.187177,
+       "linkcrtime": 1425708760.187177
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:49:19Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506173.613242,
+       "linkcrtime": 1430506173.613242
+      }
+     }
+    }
+   ],
+   "2015-03-21_04:22:18Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:tmnso54rxn7lx7mwo6a5m27lju:5r32tlv4tyn3ixnyl4637kcamizbpfpampiabufzzq56dchikntq:2:6:1392",
+     "ro_uri": "URI:DIR2-CHK:s23mfkbw2wcwcrrmywf7dvjzhq:5r32tlv4tyn3ixnyl4637kcamizbpfpampiabufzzq56dchikntq:2:6:1392",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426911738.992308,
+       "linkcrtime": 1426911738.992308
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:52:13Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hsal7gddasyullehqknynkaxqm:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "ro_uri": "URI:DIR2-CHK:eofk2n4nkqtvphhq3cj46x3wiu:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426398734.332705,
+       "linkcrtime": 1426398734.332705
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:00:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:fl67zgr3jnwewid6zucsskkn4m:ccvjivcfnoc5zkou7e25dz73tujz5vrkf5mzhuhxfcc5x7fgoggq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:nkqbpqehudz7wwulldcgw2kgrm:ccvjivcfnoc5zkou7e25dz73tujz5vrkf5mzhuhxfcc5x7fgoggq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426392018.295507,
+       "linkcrtime": 1426392018.295507
+      }
+     }
+    }
+   ],
+   "2015-03-09_08:09:27Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pj334kdgutn6rihvk5idzj23p4:xibezvwpsab4sd53qfxixfaxzgo5v7oagwoomzkix5p45eaajg5q:2:6:7421",
+     "ro_uri": "URI:DIR2-CHK:vdnxlzra44kh67op5m44giy5e4:xibezvwpsab4sd53qfxixfaxzgo5v7oagwoomzkix5p45eaajg5q:2:6:7421",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425888568.807667,
+       "linkcrtime": 1425888568.807667
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:45:22Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:xu4456suriqf2ecahjjh5g7z4q:qesz76jsbxnepeggmyxaqtpeylclox4wjm3ikatrjzxp6e7zfeoq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:tmzoien5y4ojtm3yivitlddbzi:qesz76jsbxnepeggmyxaqtpeylclox4wjm3ikatrjzxp6e7zfeoq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387523.059444,
+       "linkcrtime": 1426387523.059444
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:01:14Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7nmk7cvyiocxuwbroia6p4h3d4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:patzv37z7zpous35kvxuvo3op4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426388474.754264,
+       "linkcrtime": 1426388474.754264
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:21:05Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:abaiquyp5mipj7pcljattx2t3a:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "ro_uri": "URI:DIR2-CHK:orx6wtihfrqyoz3eyloeq6heau:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705666.249083,
+       "linkcrtime": 1425705666.249083
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:20:04Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nwbmvxgxdtdkslmr2zrgcxjq4i:4plsmbhne5lusddefaa6mi5i7326wukj6qasgn3i5uv47lo43u5a:2:6:5087",
+     "ro_uri": "URI:DIR2-CHK:uj4uehqwqdw65axsg2oossn6pm:4plsmbhne5lusddefaa6mi5i7326wukj6qasgn3i5uv47lo43u5a:2:6:5087",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705605.783685,
+       "linkcrtime": 1425705605.783685
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:25:48Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:k72w3mhbnskiq7lxhahj7ji7tu:2vnspivntbq6hgxrwuh7juvtdeclygivapcy6s2rb3lyp23oy4uq:2:6:1489",
+     "ro_uri": "URI:DIR2-CHK:bqgv3cpn23d4yjhgmjrmoknrfa:2vnspivntbq6hgxrwuh7juvtdeclygivapcy6s2rb3lyp23oy4uq:2:6:1489",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426400749.065255,
+       "linkcrtime": 1426400749.065255
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:54:01Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7nmk7cvyiocxuwbroia6p4h3d4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:patzv37z7zpous35kvxuvo3op4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426388042.242265,
+       "linkcrtime": 1426388042.242265
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:18:14Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wve7qgfmeztbbupd6gntvam5ha:3zjpjwmamwh2c6pvh2vq4bct266tzv5w7qu5jzslffldzf6d4tma:2:6:1311",
+     "ro_uri": "URI:DIR2-CHK:jo2h24y4rlha5gsgzf2ns4dcl4:3zjpjwmamwh2c6pvh2vq4bct266tzv5w7qu5jzslffldzf6d4tma:2:6:1311",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426400294.891429,
+       "linkcrtime": 1426400294.891429
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:48:02Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ihvpicd7d2uu4tykk4f2rre4iu:ammfm55elb23iexep3wecsoj6lngwhux5yw23hb5va3th4vpqqja:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:334cpd5h5vhr5g6vb6d6lgykdu:ammfm55elb23iexep3wecsoj6lngwhux5yw23hb5va3th4vpqqja:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387682.954825,
+       "linkcrtime": 1426387682.954825
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:48:23Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rmhjwsh3sk2wgl3wtorr7zgbae:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "ro_uri": "URI:DIR2-CHK:2wr6elqoypa2f6baoe6vk3pfia:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425707303.953926,
+       "linkcrtime": 1425707303.953926
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:00:43Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:fl67zgr3jnwewid6zucsskkn4m:ccvjivcfnoc5zkou7e25dz73tujz5vrkf5mzhuhxfcc5x7fgoggq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:nkqbpqehudz7wwulldcgw2kgrm:ccvjivcfnoc5zkou7e25dz73tujz5vrkf5mzhuhxfcc5x7fgoggq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426392044.561851,
+       "linkcrtime": 1426392044.561851
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:12:21Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396342.389812,
+       "linkcrtime": 1426396342.389812
+      }
+     }
+    }
+   ],
+   "2015-03-09_05:55:38Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:bjwsnotohx2v5e3pnzq6forng4:nvrpnycubkxxqsvs66fcqtbxxapmsihzv6lhznqadeeztvgtq66a:2:6:5960",
+     "ro_uri": "URI:DIR2-CHK:itjnatmnu4izuus25vg7yxse4m:nvrpnycubkxxqsvs66fcqtbxxapmsihzv6lhznqadeeztvgtq66a:2:6:5960",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425880539.181128,
+       "linkcrtime": 1425880539.181128
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:45:42Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:vikkoocel6h6x5cur6krpjc76m:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:e5ld7i2isiorgslnkndscqk3tm:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383944.274449,
+       "linkcrtime": 1426383944.274449
+      }
+     }
+    }
+   ],
+   "2015-04-28_15:16:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:abc4lpffegfitylwxandy4snym:he6fowpsraa2pgsfaeycdoimrq5os4mnejajsboii5dfhveea6wq:2:6:1664",
+     "ro_uri": "URI:DIR2-CHK:nlrzlh2bwrvja5upn5xxamuxky:he6fowpsraa2pgsfaeycdoimrq5os4mnejajsboii5dfhveea6wq:2:6:1664",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430234181.789483,
+       "linkcrtime": 1430234181.789483
+      }
+     }
+    }
+   ],
+   "2015-03-09_06:14:35Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:kylqxviogael35b3vxsc3pw5ty:nbcmjhu32cvaxsalcco2rbyadu3wferb5vyac4nwavosdt7puwsa:2:6:6138",
+     "ro_uri": "URI:DIR2-CHK:2wnoa4vu7hwwjnokrtvqebjhve:nbcmjhu32cvaxsalcco2rbyadu3wferb5vyac4nwavosdt7puwsa:2:6:6138",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425881676.414819,
+       "linkcrtime": 1425881676.414819
+      }
+     }
+    }
+   ],
+   "2015-06-15_00:17:22Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:axerizgtqak6dclps6s25mk2sq:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "ro_uri": "URI:DIR2-CHK:5wpriw5a7ojw2fuanqw7esjfcy:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434327443.650205,
+       "linkcrtime": 1434327443.650205
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:41Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:l27xlqh7o4zosxfa6bscz5y7gm:zi5jtlargffnk6et32mu7dtonkwznlocmkya6qpckw5xxubspa7a:2:6:2022",
+     "ro_uri": "URI:DIR2-CHK:6ftjlyrguxtydrxocmu3xj2ole:zi5jtlargffnk6et32mu7dtonkwznlocmkya6qpckw5xxubspa7a:2:6:2022",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807642.17312,
+       "linkcrtime": 1428807642.17312
+      }
+     }
+    }
+   ],
+   "2015-06-16_02:29:48Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:2mz225gtlir6c7fnuowcic7hme:ilkrs3qsunawmclocd6oapcjjpm37h7xg3irhofpzyctsraotvlq:2:6:2242",
+     "ro_uri": "URI:DIR2-CHK:zqtpxdsks5ht7vzw2kumtzzuva:ilkrs3qsunawmclocd6oapcjjpm37h7xg3irhofpzyctsraotvlq:2:6:2242",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434421789.245233,
+       "linkcrtime": 1434421789.245233
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:49:12Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506154.315972,
+       "linkcrtime": 1430506154.315972
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:48:18Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ra7vnmrd4zc6k6deh4kxuzhaey:tqmfbxzg3bfklwe4edfkt2wtjmls6dh5zecxkgyf5dwkuogle3ma:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:zwhko3xmzzcwzsr3jjq5k5vd3a:tqmfbxzg3bfklwe4edfkt2wtjmls6dh5zecxkgyf5dwkuogle3ma:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387699.365537,
+       "linkcrtime": 1426387699.365537
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:16:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705381.360588,
+       "linkcrtime": 1425705381.360588
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:35:38Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:2aihdhpum6jzsq4zdzm2yucqxe:t6l6seqs3rehjmdwzwywpbuoqubrtkdp5jln5y52gg6o7tcyf4ta:2:6:1396",
+     "ro_uri": "URI:DIR2-CHK:cizy6apcbhu22c3g5rfcclfb24:t6l6seqs3rehjmdwzwywpbuoqubrtkdp5jln5y52gg6o7tcyf4ta:2:6:1396",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331739.429117,
+       "linkcrtime": 1429331739.429117
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:58:29Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7nmk7cvyiocxuwbroia6p4h3d4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:patzv37z7zpous35kvxuvo3op4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426388309.828012,
+       "linkcrtime": 1426388309.828012
+      }
+     }
+    }
+   ],
+   "2015-05-17_21:04:38Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:bokwn7tws36vbk2zhp5pf723qe:nkena6gyodqi5jh5e4cztb65y3skbzgtka2usgzvzsimsomthuya:2:6:2761",
+     "ro_uri": "URI:DIR2-CHK:mcpuy4luxxrpooynnkbzljfggm:nkena6gyodqi5jh5e4cztb65y3skbzgtka2usgzvzsimsomthuya:2:6:2761",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1431896679.97342,
+       "linkcrtime": 1431896679.97342
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:20:02Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396802.85478,
+       "linkcrtime": 1426396802.85478
+      }
+     }
+    }
+   ],
+   "2015-03-07_02:22:42Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:gc4k5dz4citezoknmfmd2i6edq:ear6b6ufc7watrdqnqvswturqpl4pwnhude3ggoalm6wohtpmmwa:2:6:3643",
+     "ro_uri": "URI:DIR2-CHK:4nquq4wefknegk3wwveekh5c3u:ear6b6ufc7watrdqnqvswturqpl4pwnhude3ggoalm6wohtpmmwa:2:6:3643",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425694963.581141,
+       "linkcrtime": 1425694963.581141
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:22:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pcvvzg3y7jkqwfokisrolin2jq:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:b6d4ripqqqkrropirynevl5k4a:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426389724.269528,
+       "linkcrtime": 1426389724.269528
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:05:10Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pcvvzg3y7jkqwfokisrolin2jq:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:b6d4ripqqqkrropirynevl5k4a:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426388710.830393,
+       "linkcrtime": 1426388710.830393
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:45:19Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703520.307633,
+       "linkcrtime": 1425703520.307633
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:17:26Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705447.020109,
+       "linkcrtime": 1425705447.020109
+      }
+     }
+    }
+   ],
+   "2015-03-14_04:28:45Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wwenxjtpss4cs2ufrruuh2imzi:qcqg6b6ianszcidgq5seruqshftntiimfukeldqqygxdj4kyp6tq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:h45w3tzksqyauzr5obokjrxjxe:qcqg6b6ianszcidgq5seruqshftntiimfukeldqqygxdj4kyp6tq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426307325.707269,
+       "linkcrtime": 1426307325.707269
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:49:30Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506190.398492,
+       "linkcrtime": 1430506187.217318
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:54:49Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hsal7gddasyullehqknynkaxqm:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "ro_uri": "URI:DIR2-CHK:eofk2n4nkqtvphhq3cj46x3wiu:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426398890.133789,
+       "linkcrtime": 1426398890.133789
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:03:02Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ltmwgo65rktaodmryxkpnnuwyq:twr55f4o243fv7ugyaugkqrofrf7w3c3w4zmqgsglewjkqo3cy2a:2:6:565",
+     "ro_uri": "URI:DIR2-CHK:eyjnqwvroau3kir5x5oioscthe:twr55f4o243fv7ugyaugkqrofrf7w3c3w4zmqgsglewjkqo3cy2a:2:6:565",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426388583.128088,
+       "linkcrtime": 1426388583.128088
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:46:24Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbyxm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426398385.390028,
+       "linkcrtime": 1426398385.390028
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:37:10Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbyxm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397831.630929,
+       "linkcrtime": 1426397831.630929
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:05:26Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:2yvxivgkpw45duu5nluhyaoiee:mcb2rra7pncwcwtlwkfcw5efqdiams6qay6rqangafqrqvcupx6a:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:qyqijuefavxs2xkgbohp63kauq:mcb2rra7pncwcwtlwkfcw5efqdiams6qay6rqangafqrqvcupx6a:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426392326.981054,
+       "linkcrtime": 1426392326.981054
+      }
+     }
+    }
+   ],
+   "2015-03-21_01:34:48Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wh2xelgbqb6dtrhrfjpw2e5tc4:gfbbgidzkihqy7bxzeklkrfvfbwcmotmugfx4kz43lwccso5j6kq:2:6:1486",
+     "ro_uri": "URI:DIR2-CHK:yky2nhhyoj2qxj6l5jmdgabnfi:gfbbgidzkihqy7bxzeklkrfvfbwcmotmugfx4kz43lwccso5j6kq:2:6:1486",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426901689.865354,
+       "linkcrtime": 1426901689.865354
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:14:15Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wve7qgfmeztbbupd6gntvam5ha:3zjpjwmamwh2c6pvh2vq4bct266tzv5w7qu5jzslffldzf6d4tma:2:6:1311",
+     "ro_uri": "URI:DIR2-CHK:jo2h24y4rlha5gsgzf2ns4dcl4:3zjpjwmamwh2c6pvh2vq4bct266tzv5w7qu5jzslffldzf6d4tma:2:6:1311",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426400056.377801,
+       "linkcrtime": 1426400056.377801
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:06Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703147.037223,
+       "linkcrtime": 1425703147.037223
+      }
+     }
+    }
+   ],
+   "2015-03-14_00:11:08Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:uldk3pmng4l62aktqi36nd2lte:dirblryimsipsilaqiriwmgokszxxsxjaz2u7isr5j57ceflzpfa:2:6:294",
+     "ro_uri": "URI:DIR2-CHK:43xnutwcqqo2wvmcnpzvz2hf5y:dirblryimsipsilaqiriwmgokszxxsxjaz2u7isr5j57ceflzpfa:2:6:294",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426291868.734929,
+       "linkcrtime": 1426291868.734929
+      }
+     }
+    }
+   ],
+   "2015-03-21_01:35:39Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wh2xelgbqb6dtrhrfjpw2e5tc4:gfbbgidzkihqy7bxzeklkrfvfbwcmotmugfx4kz43lwccso5j6kq:2:6:1486",
+     "ro_uri": "URI:DIR2-CHK:yky2nhhyoj2qxj6l5jmdgabnfi:gfbbgidzkihqy7bxzeklkrfvfbwcmotmugfx4kz43lwccso5j6kq:2:6:1486",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426901740.333773,
+       "linkcrtime": 1426901740.333773
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:58:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pcvvzg3y7jkqwfokisrolin2jq:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:b6d4ripqqqkrropirynevl5k4a:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426391883.988053,
+       "linkcrtime": 1426391883.988053
+      }
+     }
+    }
+   ],
+   "2015-03-15_00:38:29Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:uvj2ompu5tl3rcmqhpcn765tty:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:qr42z5d5jpmzhg6cxwkzejodmy:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426379909.96725,
+       "linkcrtime": 1426379909.96725
+      }
+     }
+    }
+   ],
+   "2015-04-12_04:08:01Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:43oqwgrybojbezuc35omt3xbc4:yzrkuwtye5ybztc5zsjiylvltubuezpzzncmdbtu5v3fszqagx3a:2:6:1933",
+     "ro_uri": "URI:DIR2-CHK:co55ihegwemzou5qrr74plmecy:yzrkuwtye5ybztc5zsjiylvltubuezpzzncmdbtu5v3fszqagx3a:2:6:1933",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428811682.365796,
+       "linkcrtime": 1428811682.365796
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:18:55Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3oi4suhjwca4ueqat3c2hen6du:gia26a64ejnruw7x3izfygnt5nkmujmunac6vd2vyewl7gj3n2ba:2:6:1487",
+     "ro_uri": "URI:DIR2-CHK:a6v4wk577n42emzxpi35wwxhqa:gia26a64ejnruw7x3izfygnt5nkmujmunac6vd2vyewl7gj3n2ba:2:6:1487",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426400336.282083,
+       "linkcrtime": 1426400336.282083
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:22:26Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396946.790579,
+       "linkcrtime": 1426396946.790579
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:21:02Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wgxvuftyhmrublr7ypdxctsby:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "ro_uri": "URI:DIR2-CHK:g76g6itjvt3i27gm2t4ete4bmq:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702062.673878,
+       "linkcrtime": 1425702062.673878
+      }
+     }
+    }
+   ],
+   "2015-03-21_04:41:50Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pxpxhykm2xpy6m5ctftz34u3n4:lzkpyychngdhvryrvmxlh6y27vhgyo5rgdyrdlktljrnhzwc75zq:2:6:293",
+     "ro_uri": "URI:DIR2-CHK:siax3cnm2r5uj4j7s72z3fbtca:lzkpyychngdhvryrvmxlh6y27vhgyo5rgdyrdlktljrnhzwc75zq:2:6:293",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426912911.253911,
+       "linkcrtime": 1426912911.253911
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:58:08Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hsal7gddasyullehqknynkaxqm:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "ro_uri": "URI:DIR2-CHK:eofk2n4nkqtvphhq3cj46x3wiu:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426399088.802689,
+       "linkcrtime": 1426399088.802689
+      }
+     }
+    }
+   ],
+   "2015-03-15_00:20:15Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:uvj2ompu5tl3rcmqhpcn765tty:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:qr42z5d5jpmzhg6cxwkzejodmy:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426378816.540293,
+       "linkcrtime": 1426378816.540293
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:24Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703165.275255,
+       "linkcrtime": 1425703165.275255
+      }
+     }
+    }
+   ],
+   "2015-04-12_04:09:14Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:tfubfsnmrqplhqyjhslwwb5vwe:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "ro_uri": "URI:DIR2-CHK:tnnpcpf2zep3odtz6lwja546re:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428811755.819298,
+       "linkcrtime": 1428811755.819298
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:29:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbyxm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397393.688542,
+       "linkcrtime": 1426397393.688542
+      }
+     }
+    }
+   ],
+   "2015-05-27_01:26:46Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:xxnszlttpgqjqzldr5xlwqnsry:yjvjctsjqvvjdxbx4pdxtun2natozau7lhmgruywn22g5lrntkbq:2:6:3204",
+     "ro_uri": "URI:DIR2-CHK:kpirzckaeg5utsl35karhauvbe:yjvjctsjqvvjdxbx4pdxtun2natozau7lhmgruywn22g5lrntkbq:2:6:3204",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1432690021.111791,
+       "linkcrtime": 1432690021.111791
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:01:27Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:fl67zgr3jnwewid6zucsskkn4m:ccvjivcfnoc5zkou7e25dz73tujz5vrkf5mzhuhxfcc5x7fgoggq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:nkqbpqehudz7wwulldcgw2kgrm:ccvjivcfnoc5zkou7e25dz73tujz5vrkf5mzhuhxfcc5x7fgoggq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426392087.998959,
+       "linkcrtime": 1426392087.998959
+      }
+     }
+    }
+   ],
+   "2015-04-12_04:08:36Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:l5zw5icmg5aa24sy7wlaac2yq4:ry2fvcr7mos54hrfwab43slobdhxqsydqlvuyq2eevxv3etjc2iq:2:6:2121",
+     "ro_uri": "URI:DIR2-CHK:mdtf5w4rseek3nbi5x4gjsup6e:ry2fvcr7mos54hrfwab43slobdhxqsydqlvuyq2eevxv3etjc2iq:2:6:2121",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428811717.771448,
+       "linkcrtime": 1428811717.771448
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:59:38Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395579.412869,
+       "linkcrtime": 1426395579.412869
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:06:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wve7qgfmeztbbupd6gntvam5ha:3zjpjwmamwh2c6pvh2vq4bct266tzv5w7qu5jzslffldzf6d4tma:2:6:1311",
+     "ro_uri": "URI:DIR2-CHK:jo2h24y4rlha5gsgzf2ns4dcl4:3zjpjwmamwh2c6pvh2vq4bct266tzv5w7qu5jzslffldzf6d4tma:2:6:1311",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426399613.572416,
+       "linkcrtime": 1426399613.572416
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:53:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:cgop2a6qez76xngxejox3iynb4:qlsze2xe6glq33wruyvkdm7thnw4vyjqo3fx5amfmnv6xsb7fziq:2:6:475",
+     "ro_uri": "URI:DIR2-CHK:6dlfy6ttzloblgd2aesasvdufi:qlsze2xe6glq33wruyvkdm7thnw4vyjqo3fx5amfmnv6xsb7fziq:2:6:475",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395198.398547,
+       "linkcrtime": 1426395198.398547
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:01:49Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ky6hajohusnqe2zpj6chx5cgta:hszp7a33bwpigktykg7dmxxd6i2owedugmx2xax6hwkb5lcmxgiq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:e2as5xewvkz7pfkw3jnf4qtrrm:hszp7a33bwpigktykg7dmxxd6i2owedugmx2xax6hwkb5lcmxgiq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426388509.828234,
+       "linkcrtime": 1426388509.828234
+      }
+     }
+    }
+   ],
+   "2015-04-11_22:56:58Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rak5sonrs2xgfm4a7jr4vzaely:yrgbbak7pjxqooy3nmhy5llmh5gxrps7rjsta56gqlb725txwtnq:2:6:755",
+     "ro_uri": "URI:DIR2-CHK:3tme7r6yoqnduti7fdm55g72am:yrgbbak7pjxqooy3nmhy5llmh5gxrps7rjsta56gqlb725txwtnq:2:6:755",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428793019.75917,
+       "linkcrtime": 1428793019.75917
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:52:27Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506348.228017,
+       "linkcrtime": 1430506348.228017
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:00:42Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hsal7gddasyullehqknynkaxqm:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "ro_uri": "URI:DIR2-CHK:eofk2n4nkqtvphhq3cj46x3wiu:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426399243.234919,
+       "linkcrtime": 1426399243.234919
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:34:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:abaiquyp5mipj7pcljattx2t3a:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "ro_uri": "URI:DIR2-CHK:orx6wtihfrqyoz3eyloeq6heau:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425706460.693206,
+       "linkcrtime": 1425706460.693206
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:39:47Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbyxm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397988.7279,
+       "linkcrtime": 1426397988.7279
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:45:12Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703513.288482,
+       "linkcrtime": 1425703513.288482
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:33:30Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702810.952014,
+       "linkcrtime": 1425702810.952014
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:29:41Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lkytif6vbtewuw7sqrtndb6qra:65uofnxtvfy2l4b3ldh4alcni7wyctky6cuzh7vk3mcvvz6vs76q:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:47padg4lwk56gugctz2ap4jysu:65uofnxtvfy2l4b3ldh4alcni7wyctky6cuzh7vk3mcvvz6vs76q:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397382.792424,
+       "linkcrtime": 1426397382.792424
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:51:27Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ra7vnmrd4zc6k6deh4kxuzhaey:tqmfbxzg3bfklwe4edfkt2wtjmls6dh5zecxkgyf5dwkuogle3ma:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:zwhko3xmzzcwzsr3jjq5k5vd3a:tqmfbxzg3bfklwe4edfkt2wtjmls6dh5zecxkgyf5dwkuogle3ma:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387888.321158,
+       "linkcrtime": 1426387888.321158
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:20:26Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:p5h7wuciwta5vegs33zivgacty:4zbfuie3mm5wrok775px6zylacct2ppgcddqcib4gsea4cb3qw2q:2:6:4001",
+     "ro_uri": "URI:DIR2-CHK:eaw3fz3hiampxd3mivrst2zzru:4zbfuie3mm5wrok775px6zylacct2ppgcddqcib4gsea4cb3qw2q:2:6:4001",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702027.069108,
+       "linkcrtime": 1425702027.069108
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:49:38Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hsal7gddasyullehqknynkaxqm:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "ro_uri": "URI:DIR2-CHK:eofk2n4nkqtvphhq3cj46x3wiu:wv2duzbhlosdwz2iiaezeb3hr5ukl3w5cegsbywwj7hngscgyn7q:2:6:1310",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426398579.194953,
+       "linkcrtime": 1426398579.194953
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:34:09Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:jsohjewzeamlbsep6jaebsuddq:ansar2pxeskx4muvawse5riwhwzbodmudiq7t6rydbc7ogxzytqq:2:6:1844",
+     "ro_uri": "URI:DIR2-CHK:ful4otpc7jwnp4bv7i6xasxyf4:ansar2pxeskx4muvawse5riwhwzbodmudiq7t6rydbc7ogxzytqq:2:6:1844",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331649.969478,
+       "linkcrtime": 1429331649.969478
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:24:00Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:p5h7wuciwta5vegs33zivgacty:4zbfuie3mm5wrok775px6zylacct2ppgcddqcib4gsea4cb3qw2q:2:6:4001",
+     "ro_uri": "URI:DIR2-CHK:eaw3fz3hiampxd3mivrst2zzru:4zbfuie3mm5wrok775px6zylacct2ppgcddqcib4gsea4cb3qw2q:2:6:4001",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702241.016737,
+       "linkcrtime": 1425702241.016737
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:05:35Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wjs37j47hv5nru37q7npjc5cy:qfoguj7ec32ps7w7dkbpv2kuvdavqpdcnahm5f23yu5p3yj7yvdq:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:7zzxzxj6kc65eyq352kn4sv6ua:qfoguj7ec32ps7w7dkbpv2kuvdavqpdcnahm5f23yu5p3yj7yvdq:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507136.521381,
+       "linkcrtime": 1430507136.521381
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:34:01Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:gyg2uyqgnio66ymmlar7zxgvcu:qybuisgj6jjuumforszbiaq5xeljqyeq2hyb6fke3edlryu6wcpa:2:6:2113",
+     "ro_uri": "URI:DIR2-CHK:iqjkc3lrd3py7vvb4sjtryrdai:qybuisgj6jjuumforszbiaq5xeljqyeq2hyb6fke3edlryu6wcpa:2:6:2113",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331642.760793,
+       "linkcrtime": 1429331642.760793
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:55:46Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:shzwyeuvjjwrqzcbqxr5yxi66y:q5ucd6ki3nhhph5ph45jcemnxrnpr5zmoy4s7cv3fcea5ku5qowa:2:6:749",
+     "ro_uri": "URI:DIR2-CHK:kdblm46u4hev6kbu4d4tyghgp4:q5ucd6ki3nhhph5ph45jcemnxrnpr5zmoy4s7cv3fcea5ku5qowa:2:6:749",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395346.936585,
+       "linkcrtime": 1426395346.936585
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:32:21Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wgxvuftyhmrublr7ypdxctsby:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "ro_uri": "URI:DIR2-CHK:g76g6itjvt3i27gm2t4ete4bmq:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702742.252552,
+       "linkcrtime": 1425702742.252552
+      }
+     }
+    }
+   ],
+   "2015-04-11_22:57:45Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:y6kb6ve7oyebb7mc7uqlp3vwzq:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "ro_uri": "URI:DIR2-CHK:mss47nq7wuuq72pl5okgmbs7f4:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428793066.480699,
+       "linkcrtime": 1428793066.480699
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:09Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703150.373627,
+       "linkcrtime": 1425703150.373627
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:50:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506257.735337,
+       "linkcrtime": 1430506257.735337
+      }
+     }
+    }
+   ],
+   "2015-03-09_04:49:57Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rmhjwsh3sk2wgl3wtorr7zgbae:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "ro_uri": "URI:DIR2-CHK:2wr6elqoypa2f6baoe6vk3pfia:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425876597.879698,
+       "linkcrtime": 1425876597.879698
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:44:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ccwos3vusxu4yh26vd2w6sijgi:2vtpneipdqe2s6nf2qm742chds5i36z7277j2oqgj6vcqeydotoa:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:mj5kpiod76vsknvargrcd4f4va:2vtpneipdqe2s6nf2qm742chds5i36z7277j2oqgj6vcqeydotoa:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383892.748193,
+       "linkcrtime": 1426383892.748193
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:53:24Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4r62s5vcck3zxjmun26rq4odti:zql4dbpynchbe6rqrp5vfslqthslvgyratoogqkhthb3f3o44adq:2:6:563",
+     "ro_uri": "URI:DIR2-CHK:m4l344ynbhnk7oyk7vvkzsnuwu:zql4dbpynchbe6rqrp5vfslqthslvgyratoogqkhthb3f3o44adq:2:6:563",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395205.019533,
+       "linkcrtime": 1426395205.019533
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:13:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:cpl6awu6lx4tecd27zwqe2kcni:rhuwqlgzmmnfcwbcrheq76cu3mw436eojhp655xagvumosmgvfdq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:s3qefzkxviuk3eku6s5veyfitq:rhuwqlgzmmnfcwbcrheq76cu3mw436eojhp655xagvumosmgvfdq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426385632.736972,
+       "linkcrtime": 1426385632.736972
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:46:00Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ihvpicd7d2uu4tykk4f2rre4iu:ammfm55elb23iexep3wecsoj6lngwhux5yw23hb5va3th4vpqqja:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:334cpd5h5vhr5g6vb6d6lgykdu:ammfm55elb23iexep3wecsoj6lngwhux5yw23hb5va3th4vpqqja:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387560.754438,
+       "linkcrtime": 1426387560.754438
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:18:42Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nwbmvxgxdtdkslmr2zrgcxjq4i:4plsmbhne5lusddefaa6mi5i7326wukj6qasgn3i5uv47lo43u5a:2:6:5087",
+     "ro_uri": "URI:DIR2-CHK:uj4uehqwqdw65axsg2oossn6pm:4plsmbhne5lusddefaa6mi5i7326wukj6qasgn3i5uv47lo43u5a:2:6:5087",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705523.02466,
+       "linkcrtime": 1425705523.02466
+      }
+     }
+    }
+   ],
+   "2015-04-12_00:11:55Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:y6kb6ve7oyebb7mc7uqlp3vwzq:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "ro_uri": "URI:DIR2-CHK:mss47nq7wuuq72pl5okgmbs7f4:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428797516.229192,
+       "linkcrtime": 1428797516.229192
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:20:14Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:awj57ulsirfzo36jidqxy6dcwa:7lmdms5iumw62yihewk2q75skavlr4mzwu6ow7os4dj6a7ylpftq:2:6:4174",
+     "ro_uri": "URI:DIR2-CHK:yeufqsul6oc6hi4bajyhl5lacq:7lmdms5iumw62yihewk2q75skavlr4mzwu6ow7os4dj6a7ylpftq:2:6:4174",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702014.980578,
+       "linkcrtime": 1425702014.980578
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:24Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3j3wroyzkqap67uwxwy53phunu:u7hervzdl2lgksjcapwxqdhphautnmm3amihqjyqpiwihin45wrq:2:6:1488",
+     "ro_uri": "URI:DIR2-CHK:a52b3bzmgegv6c7dwyzdaslhke:u7hervzdl2lgksjcapwxqdhphautnmm3amihqjyqpiwihin45wrq:2:6:1488",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807625.947917,
+       "linkcrtime": 1428807625.947917
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:19:14Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396754.803187,
+       "linkcrtime": 1426396754.803187
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:15:13Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hzpxqx25jwbsehk3kajxfde5ki:ubqi7by6gu2qd6mc3pj6fa3hr4ugf6lv4waqhcwmvbigvzy35lpa:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:2ufrpmgmphv6np5z3lipenggru:ubqi7by6gu2qd6mc3pj6fa3hr4ugf6lv4waqhcwmvbigvzy35lpa:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507714.615248,
+       "linkcrtime": 1430507714.615248
+      }
+     }
+    }
+   ],
+   "2015-03-17_21:32:06Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wh2xelgbqb6dtrhrfjpw2e5tc4:gfbbgidzkihqy7bxzeklkrfvfbwcmotmugfx4kz43lwccso5j6kq:2:6:1486",
+     "ro_uri": "URI:DIR2-CHK:yky2nhhyoj2qxj6l5jmdgabnfi:gfbbgidzkihqy7bxzeklkrfvfbwcmotmugfx4kz43lwccso5j6kq:2:6:1486",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426627927.395066,
+       "linkcrtime": 1426627927.395066
+      }
+     }
+    }
+   ],
+   "2015-06-16_02:30:27Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:5e7khmbfkzja6fmmcj2wnt42pi:ew57zac2es7bzpbjlnym4ge23xq33bzxhpdrcrkwo2a4h5lpaf5a:2:6:2243",
+     "ro_uri": "URI:DIR2-CHK:r3meme72zm53r2x5bggbf7gz6y:ew57zac2es7bzpbjlnym4ge23xq33bzxhpdrcrkwo2a4h5lpaf5a:2:6:2243",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434421828.336346,
+       "linkcrtime": 1434421828.336346
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:34:26Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x6ztlvpfhjcdtsc4qr56q5k5nu:orhllu6xougrejp32lffzvmohlvidilfmsniayzpxbiezjelpu2q:2:6:1394",
+     "ro_uri": "URI:DIR2-CHK:yxt5shwnrrcums2d4jg5twgvjm:orhllu6xougrejp32lffzvmohlvidilfmsniayzpxbiezjelpu2q:2:6:1394",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331666.872935,
+       "linkcrtime": 1429331666.872935
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:55:01Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4ce3v4uggcas6nc4ypkludlppa:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "ro_uri": "URI:DIR2-CHK:6aymlg355kwiabiemote7lbdpy:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506502.422722,
+       "linkcrtime": 1430506502.422722
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:21:58Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396919.356282,
+       "linkcrtime": 1426396919.356282
+      }
+     }
+    }
+   ],
+   "2015-04-12_02:59:40Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x7j7riogowupjvvl62gkrg4fmy:ai5o4hbvfo637xlp7yvsysr64apzs6y2rf7wfz7wa6aoto4d7qyq:2:6:1134",
+     "ro_uri": "URI:DIR2-CHK:jmhvkjir3mazn245zrmm6wswx4:ai5o4hbvfo637xlp7yvsysr64apzs6y2rf7wfz7wa6aoto4d7qyq:2:6:1134",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807581.661217,
+       "linkcrtime": 1428807581.661217
+      }
+     }
+    }
+   ],
+   "2015-06-13_02:18:05Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:axerizgtqak6dclps6s25mk2sq:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "ro_uri": "URI:DIR2-CHK:5wpriw5a7ojw2fuanqw7esjfcy:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434161886.912679,
+       "linkcrtime": 1434161886.912679
+      }
+     }
+    }
+   ],
+   "2015-06-15_00:18:35Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:axerizgtqak6dclps6s25mk2sq:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "ro_uri": "URI:DIR2-CHK:5wpriw5a7ojw2fuanqw7esjfcy:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434327516.452868,
+       "linkcrtime": 1434327516.452868
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:43:50Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbyxm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426398231.452789,
+       "linkcrtime": 1426398231.452789
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:35:34Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7tukkwbrtd2odcv4niqmr6mnha:gii2v4ozs6rbzbdgknostyrpgyaiyjcscd6e5lrtrhpp2eq7esyq:2:6:1396",
+     "ro_uri": "URI:DIR2-CHK:vtndkpiwbzwwtcp7anqd66pqqa:gii2v4ozs6rbzbdgknostyrpgyaiyjcscd6e5lrtrhpp2eq7esyq:2:6:1396",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331735.008158,
+       "linkcrtime": 1429331735.008158
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:59:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pcvvzg3y7jkqwfokisrolin2jq:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:b6d4ripqqqkrropirynevl5k4a:htjrnujpggof4sgqcup5oypjqlbhs5mclldr2tjgzqmva2ylfs6q:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426391944.626321,
+       "linkcrtime": 1426391944.626321
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:28:30Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397311.027747,
+       "linkcrtime": 1426397311.027747
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:57:29Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:g4ic5oi5wsyx334spla3og362a:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:s56x7qmyy37t334h3mfnod5kiq:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506650.432154,
+       "linkcrtime": 1430506650.432154
+      }
+     }
+    }
+   ],
+   "2015-03-14_03:07:54Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wwenxjtpss4cs2ufrruuh2imzi:qcqg6b6ianszcidgq5seruqshftntiimfukeldqqygxdj4kyp6tq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:h45w3tzksqyauzr5obokjrxjxe:qcqg6b6ianszcidgq5seruqshftntiimfukeldqqygxdj4kyp6tq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426302475.452749,
+       "linkcrtime": 1426302475.452749
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:07:39Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396059.877874,
+       "linkcrtime": 1426396059.877874
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:50:51Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506254.570405,
+       "linkcrtime": 1430506254.570405
+      }
+     }
+    }
+   ],
+   "2015-04-12_04:19:34Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:tfubfsnmrqplhqyjhslwwb5vwe:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "ro_uri": "URI:DIR2-CHK:tnnpcpf2zep3odtz6lwja546re:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428812375.151439,
+       "linkcrtime": 1428812375.151439
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:31:05Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbyxm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397466.443808,
+       "linkcrtime": 1426397466.443808
+      }
+     }
+    }
+   ],
+   "2015-05-08_21:32:36Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:hs22zw66svpeaq5jp63eqidzdm:5muhzm2wdiafud2wdekw5rj5ely6jjjm6leikfzbqth5ump5u7uq:2:6:2482",
+     "ro_uri": "URI:DIR2-CHK:necz4c6jx2g6rsufzgaxw4fip4:5muhzm2wdiafud2wdekw5rj5ely6jjjm6leikfzbqth5ump5u7uq:2:6:2482",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1431120758.149739,
+       "linkcrtime": 1431120758.149739
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:34:02Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:c7usb2p7sm72aptbo66s7aur3y:rqwsc6xkryciomotcr4lzkhph5n2c4qcwedwydbdkco7hlakk2bq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:7dvujtqhbiefp3onlyqx4ae4qa:rqwsc6xkryciomotcr4lzkhph5n2c4qcwedwydbdkco7hlakk2bq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383243.28855,
+       "linkcrtime": 1426383243.28855
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:30:02Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4k4kxtywlkqqfrghsly7mbqgbe:ybkloopcvk25r7fuieoepvaaqea4qnredhcmlgvm3rabnumgzmaq:2:6:1489",
+     "ro_uri": "URI:DIR2-CHK:asakjp44kr7x3ps2rv5aexpao4:ybkloopcvk25r7fuieoepvaaqea4qnredhcmlgvm3rabnumgzmaq:2:6:1489",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426401003.45529,
+       "linkcrtime": 1426401003.45529
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:30Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ngoymgyzhqzpfhcvyde6ciwwea:lbvgdekjmqca7vellwzys5f7fdrjz5lwdu5vvusn6grp2xrabvmq:2:6:1664",
+     "ro_uri": "URI:DIR2-CHK:oxqyfhhlc33wh6mbszx24uqmha:lbvgdekjmqca7vellwzys5f7fdrjz5lwdu5vvusn6grp2xrabvmq:2:6:1664",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807631.597565,
+       "linkcrtime": 1428807631.597565
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:33:33Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702814.204609,
+       "linkcrtime": 1425702814.204609
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:28:37Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lkytif6vbtewuw7sqrtndb6qra:65uofnxtvfy2l4b3ldh4alcni7wyctky6cuzh7vk3mcvvz6vs76q:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:47padg4lwk56gugctz2ap4jysu:65uofnxtvfy2l4b3ldh4alcni7wyctky6cuzh7vk3mcvvz6vs76q:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397318.274843,
+       "linkcrtime": 1426397318.274843
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:53:53Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4ce3v4uggcas6nc4ypkludlppa:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "ro_uri": "URI:DIR2-CHK:6aymlg355kwiabiemote7lbdpy:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506434.913937,
+       "linkcrtime": 1430506434.913937
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703161.535389,
+       "linkcrtime": 1425703161.535389
+      }
+     }
+    }
+   ],
+   "2015-03-14_02:49:55Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:i7mwscbx5bh5iirpkg3e3ez7wq:u6zg6itspebxqsqssxonefqdilwncbkrwysin6ejttyfarzktdja:2:6:476",
+     "ro_uri": "URI:DIR2-CHK:by57w7a7fsakfllpokxwz44c2u:u6zg6itspebxqsqssxonefqdilwncbkrwysin6ejttyfarzktdja:2:6:476",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426301395.844232,
+       "linkcrtime": 1426301395.844232
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:10:56Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:grxqwfddxkyykhzjcwlt22d4bi:aefebnltksfnw34qoorst34dslusjiulmzaxdoduttqesb6eayba:2:6:2188",
+     "ro_uri": "URI:DIR2-CHK:cmwniosx5tmvttmd5r2eumyx4a:aefebnltksfnw34qoorst34dslusjiulmzaxdoduttqesb6eayba:2:6:2188",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507457.993784,
+       "linkcrtime": 1430507457.993784
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ari44k5t7pgguzi4un76wd2nue:vhuremvamx5z7wqvc4g5enmqnm7z2tllzw2lu7ixxip7tjgjhdsq:2:6:1128",
+     "ro_uri": "URI:DIR2-CHK:zdbeb7yqe5fqgnie37cpj3eayy:vhuremvamx5z7wqvc4g5enmqnm7z2tllzw2lu7ixxip7tjgjhdsq:2:6:1128",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807618.194941,
+       "linkcrtime": 1428807618.194941
+      }
+     }
+    }
+   ],
+   "2015-03-14_23:49:25Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:uvj2ompu5tl3rcmqhpcn765tty:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:qr42z5d5jpmzhg6cxwkzejodmy:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426376966.328359,
+       "linkcrtime": 1426376966.328359
+      }
+     }
+    }
+   ],
+   "2015-03-14_23:43:14Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3pksslskoosra7lspxpk5df7hu:6sga23upkttlwz4aep7hvfr4nwgxhqkxgvrqq3z5dme2sbt6ogta:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:hpnlmzbaq7jle6oh6r6lyx5pcq:6sga23upkttlwz4aep7hvfr4nwgxhqkxgvrqq3z5dme2sbt6ogta:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426376595.333258,
+       "linkcrtime": 1426376595.333258
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:52:28Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:2yvxivgkpw45duu5nluhyaoiee:mcb2rra7pncwcwtlwkfcw5efqdiams6qay6rqangafqrqvcupx6a:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:qyqijuefavxs2xkgbohp63kauq:mcb2rra7pncwcwtlwkfcw5efqdiams6qay6rqangafqrqvcupx6a:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395149.079819,
+       "linkcrtime": 1426395149.079819
+      }
+     }
+    }
+   ],
+   "2015-03-14_23:41:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:kqcdf2tbqax2rzupmz7jtqiqh4:tqwmfh7udmgu6hdsmx2ejaymxx5av4sdnrkvkeflri5mkpisq6hq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:tep4c2jjhjl3wvbbwqunpgomnq:tqwmfh7udmgu6hdsmx2ejaymxx5av4sdnrkvkeflri5mkpisq6hq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426376477.865284,
+       "linkcrtime": 1426376477.865284
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:51:22Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:2yvxivgkpw45duu5nluhyaoiee:mcb2rra7pncwcwtlwkfcw5efqdiams6qay6rqangafqrqvcupx6a:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:qyqijuefavxs2xkgbohp63kauq:mcb2rra7pncwcwtlwkfcw5efqdiams6qay6rqangafqrqvcupx6a:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395083.0535,
+       "linkcrtime": 1426395083.0535
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:11:49Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:njk6tjoemmldwpnbz235nysysy:yarkigykqoaftgbxnxn4rvoocbyselyw4bjsd3ok6tn44bopljiq:2:6:2192",
+     "ro_uri": "URI:DIR2-CHK:ladm2sszhvcyz6jprtmevbpxha:yarkigykqoaftgbxnxn4rvoocbyselyw4bjsd3ok6tn44bopljiq:2:6:2192",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507510.404459,
+       "linkcrtime": 1430507510.404459
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:20:59Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wgxvuftyhmrublr7ypdxctsby:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "ro_uri": "URI:DIR2-CHK:g76g6itjvt3i27gm2t4ete4bmq:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702059.507116,
+       "linkcrtime": 1425702059.507116
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:21:51Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396912.189675,
+       "linkcrtime": 1426396912.189675
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:20:15Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396816.759303,
+       "linkcrtime": 1426396816.759303
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:13:23Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396404.208099,
+       "linkcrtime": 1426396404.208099
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:34:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rnk7uxgfo7egpxegnbzu4msb7a:glghwwoj422ke27q5alnbqoxpmnda45sagqn2joxmppgmqs42rea:2:6:1662",
+     "ro_uri": "URI:DIR2-CHK:u3xbbbgf7fz6pbyfh7ief7sxse:glghwwoj422ke27q5alnbqoxpmnda45sagqn2joxmppgmqs42rea:2:6:1662",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331660.974015,
+       "linkcrtime": 1429331660.974015
+      }
+     }
+    }
+   ],
+   "2015-06-16_02:26:15Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:axerizgtqak6dclps6s25mk2sq:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "ro_uri": "URI:DIR2-CHK:5wpriw5a7ojw2fuanqw7esjfcy:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434421576.416092,
+       "linkcrtime": 1434421576.416092
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:35:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:c7usb2p7sm72aptbo66s7aur3y:rqwsc6xkryciomotcr4lzkhph5n2c4qcwedwydbdkco7hlakk2bq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:7dvujtqhbiefp3onlyqx4ae4qa:rqwsc6xkryciomotcr4lzkhph5n2c4qcwedwydbdkco7hlakk2bq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383321.675257,
+       "linkcrtime": 1426383321.675257
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:35:51Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ck3vforsojdwl5ekhiwccejwpa:zccmxt26z5dwjmbalucdxnwuxwome4wz6mqznkkfwcrr65wwcmhq:2:6:1396",
+     "ro_uri": "URI:DIR2-CHK:nzu5av3ir4e44uwt6wd2oma7ly:zccmxt26z5dwjmbalucdxnwuxwome4wz6mqznkkfwcrr65wwcmhq:2:6:1396",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331752.712885,
+       "linkcrtime": 1429331752.712885
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:46:55Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:vikkoocel6h6x5cur6krpjc76m:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:e5ld7i2isiorgslnkndscqk3tm:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426384016.273334,
+       "linkcrtime": 1426384016.273334
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:14:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:l2h7s2vx5ie7vljpj36c2sjr5y:l4eha5lv3x54bxybdxgb37x2c4453mxhrpsjfzzoytm6bvkpebsa:2:6:2462",
+     "ro_uri": "URI:DIR2-CHK:pmexkezhf6pu7kddqk5k3pmrtm:l4eha5lv3x54bxybdxgb37x2c4453mxhrpsjfzzoytm6bvkpebsa:2:6:2462",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507644.59473,
+       "linkcrtime": 1430507644.59473
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:42:11Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:c7usb2p7sm72aptbo66s7aur3y:rqwsc6xkryciomotcr4lzkhph5n2c4qcwedwydbdkco7hlakk2bq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:7dvujtqhbiefp3onlyqx4ae4qa:rqwsc6xkryciomotcr4lzkhph5n2c4qcwedwydbdkco7hlakk2bq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383731.888852,
+       "linkcrtime": 1426383731.888852
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:52:51Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7nmk7cvyiocxuwbroia6p4h3d4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:patzv37z7zpous35kvxuvo3op4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387971.718276,
+       "linkcrtime": 1426387971.718276
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:32:48Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wgxvuftyhmrublr7ypdxctsby:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "ro_uri": "URI:DIR2-CHK:g76g6itjvt3i27gm2t4ete4bmq:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702768.559667,
+       "linkcrtime": 1425702768.559667
+      }
+     }
+    }
+   ],
+   "2015-04-12_00:13:55Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:y6kb6ve7oyebb7mc7uqlp3vwzq:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "ro_uri": "URI:DIR2-CHK:mss47nq7wuuq72pl5okgmbs7f4:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428797636.243323,
+       "linkcrtime": 1428797636.243323
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:27:10Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wgxvuftyhmrublr7ypdxctsby:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "ro_uri": "URI:DIR2-CHK:g76g6itjvt3i27gm2t4ete4bmq:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702430.850366,
+       "linkcrtime": 1425702430.850366
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:20:09Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396809.872583,
+       "linkcrtime": 1426396809.872583
+      }
+     }
+    }
+   ],
+   "2015-04-11_22:57:23Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:527ypbvbpr26zcgwx5vvgzgnoi:qxbnqhncac57jsjdorkheezvychv4r3ylepiq544xqhrplfflkta:2:6:1128",
+     "ro_uri": "URI:DIR2-CHK:zvxtizrx5vhki53silhzsg2edu:qxbnqhncac57jsjdorkheezvychv4r3ylepiq544xqhrplfflkta:2:6:1128",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428793044.802968,
+       "linkcrtime": 1428793044.802968
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:34:45Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3x7gahcko32ktfu4y7jddgnkpe:qtaogdajwjpy6ovrtmtkp3i4qfu2qjxzocrwn2zximcod3smquwa:2:6:5014",
+     "ro_uri": "URI:DIR2-CHK:n43ozmd57hbxndzff4loagmufq:qtaogdajwjpy6ovrtmtkp3i4qfu2qjxzocrwn2zximcod3smquwa:2:6:5014",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425706485.702286,
+       "linkcrtime": 1425706485.702286
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:45:41Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:vikkoocel6h6x5cur6krpjc76m:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:e5ld7i2isiorgslnkndscqk3tm:37opxtvboqmljrznid7kwxmhotllfh7h7blrlntv5zrsalp7e5ga:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383943.290217,
+       "linkcrtime": 1426383943.290217
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:50:47Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506248.767158,
+       "linkcrtime": 1430506248.767158
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:22Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3j3wroyzkqap67uwxwy53phunu:u7hervzdl2lgksjcapwxqdhphautnmm3amihqjyqpiwihin45wrq:2:6:1488",
+     "ro_uri": "URI:DIR2-CHK:a52b3bzmgegv6c7dwyzdaslhke:u7hervzdl2lgksjcapwxqdhphautnmm3amihqjyqpiwihin45wrq:2:6:1488",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807623.331232,
+       "linkcrtime": 1428807623.331232
+      }
+     }
+    }
+   ],
+   "2015-03-07_06:11:35Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rmhjwsh3sk2wgl3wtorr7zgbae:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "ro_uri": "URI:DIR2-CHK:2wr6elqoypa2f6baoe6vk3pfia:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425708696.196106,
+       "linkcrtime": 1425708696.196106
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:32Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ngoymgyzhqzpfhcvyde6ciwwea:lbvgdekjmqca7vellwzys5f7fdrjz5lwdu5vvusn6grp2xrabvmq:2:6:1664",
+     "ro_uri": "URI:DIR2-CHK:oxqyfhhlc33wh6mbszx24uqmha:lbvgdekjmqca7vellwzys5f7fdrjz5lwdu5vvusn6grp2xrabvmq:2:6:1664",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807633.359389,
+       "linkcrtime": 1428807633.359389
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:19:40Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:abaiquyp5mipj7pcljattx2t3a:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "ro_uri": "URI:DIR2-CHK:orx6wtihfrqyoz3eyloeq6heau:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705581.202296,
+       "linkcrtime": 1425705581.202296
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:42:06Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbyxm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426398127.187034,
+       "linkcrtime": 1426398127.187034
+      }
+     }
+    }
+   ],
+   "2015-03-21_01:49:25Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:vilqgbgz7fvanjvbjv7276mqbq:7tpuswlvrsxvmkn6ryexrf6efxttuxlgaaukzerfoxq3rhdoazcq:2:6:1661",
+     "ro_uri": "URI:DIR2-CHK:b3wrxj6niwx6vyuxpsymoirw54:7tpuswlvrsxvmkn6ryexrf6efxttuxlgaaukzerfoxq3rhdoazcq:2:6:1661",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426902566.084903,
+       "linkcrtime": 1426902566.084903
+      }
+     }
+    }
+   ],
+   "2015-03-07_06:43:26Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rmhjwsh3sk2wgl3wtorr7zgbae:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "ro_uri": "URI:DIR2-CHK:2wr6elqoypa2f6baoe6vk3pfia:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425710606.822054,
+       "linkcrtime": 1425710606.822054
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:06:37Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395998.705145,
+       "linkcrtime": 1426395998.705145
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:45Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:tfubfsnmrqplhqyjhslwwb5vwe:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "ro_uri": "URI:DIR2-CHK:tnnpcpf2zep3odtz6lwja546re:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807646.607216,
+       "linkcrtime": 1428807646.607216
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:14:32Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396473.319226,
+       "linkcrtime": 1426396473.319226
+      }
+     }
+    }
+   ],
+   "2015-04-12_04:09:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:dokuarl66ypkebpl427ivlmjo4:tuavfzpcyls7wkcg7seyjxhe63mbfbplliq3y5xil3gl5z7qa3sa:2:6:2211",
+     "ro_uri": "URI:DIR2-CHK:lmiuaq5zyo4lj6o2eco56zobzq:tuavfzpcyls7wkcg7seyjxhe63mbfbplliq3y5xil3gl5z7qa3sa:2:6:2211",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428811744.335752,
+       "linkcrtime": 1428811744.335752
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:19:51Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:awj57ulsirfzo36jidqxy6dcwa:7lmdms5iumw62yihewk2q75skavlr4mzwu6ow7os4dj6a7ylpftq:2:6:4174",
+     "ro_uri": "URI:DIR2-CHK:yeufqsul6oc6hi4bajyhl5lacq:7lmdms5iumw62yihewk2q75skavlr4mzwu6ow7os4dj6a7ylpftq:2:6:4174",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425701992.04498,
+       "linkcrtime": 1425701992.04498
+      }
+     }
+    }
+   ],
+   "2015-03-14_02:50:02Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:uldk3pmng4l62aktqi36nd2lte:dirblryimsipsilaqiriwmgokszxxsxjaz2u7isr5j57ceflzpfa:2:6:294",
+     "ro_uri": "URI:DIR2-CHK:43xnutwcqqo2wvmcnpzvz2hf5y:dirblryimsipsilaqiriwmgokszxxsxjaz2u7isr5j57ceflzpfa:2:6:294",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426301403.225845,
+       "linkcrtime": 1426301403.225845
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:59:32Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:wkcbc7vin2mopooefrhs6dw3jy:33sj7vzckdjbichchx5z37o2iz6nhw6qmstpe2vrc2go46j3d4wa:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:727lyrwj5fpzkierarzcfma63u:33sj7vzckdjbichchx5z37o2iz6nhw6qmstpe2vrc2go46j3d4wa:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426391973.654772,
+       "linkcrtime": 1426391973.654772
+      }
+     }
+    }
+   ],
+   "2015-03-22_02:03:06Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7kijh2ye37iikwspu4qoxye6lu:d5vdy3mhhl7fl6cucbbec7yjewrpi3u2nabnu3xf3o43mvkoinyq:2:6:568",
+     "ro_uri": "URI:DIR2-CHK:2btryz3l5okr5dp5dpsu5gfelu:d5vdy3mhhl7fl6cucbbec7yjewrpi3u2nabnu3xf3o43mvkoinyq:2:6:568",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426989787.021764,
+       "linkcrtime": 1426989787.021764
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:21:49Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3x7gahcko32ktfu4y7jddgnkpe:qtaogdajwjpy6ovrtmtkp3i4qfu2qjxzocrwn2zximcod3smquwa:2:6:5014",
+     "ro_uri": "URI:DIR2-CHK:n43ozmd57hbxndzff4loagmufq:qtaogdajwjpy6ovrtmtkp3i4qfu2qjxzocrwn2zximcod3smquwa:2:6:5014",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705709.919912,
+       "linkcrtime": 1425705709.919912
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:44:20Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3tu2df4lsz7ywrb77qo25aqkty:42psd4p33zi6iin7rwleadhrrrxglqomsb76qdja7h3jkipuuiiq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:6eg7s6xksknt7rhbu3m6fm2fdy:42psd4p33zi6iin7rwleadhrrrxglqomsb76qdja7h3jkipuuiiq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383861.703846,
+       "linkcrtime": 1426383861.703846
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:45:09Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703509.813347,
+       "linkcrtime": 1425703509.813347
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:18:29Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396710.618808,
+       "linkcrtime": 1426396710.618808
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:32:18Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3wgxvuftyhmrublr7ypdxctsby:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "ro_uri": "URI:DIR2-CHK:g76g6itjvt3i27gm2t4ete4bmq:cqlolhgq2rweexcjkeoicefn5tutvslebfwbvdufxzsol3rpbl4a:2:6:4271",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702738.925646,
+       "linkcrtime": 1425702738.925646
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:05:11Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:yr3jyqga7bbhboddkktwz2bwhq:4crljxaorpl2f2kxlas2nv4vfegtet56ckws3alraxhwzhwjkveq:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:sblwk6xcvmzkpe5hw5dmpuvqye:4crljxaorpl2f2kxlas2nv4vfegtet56ckws3alraxhwzhwjkveq:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507112.99722,
+       "linkcrtime": 1430507112.99722
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:50:57Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506266.06357,
+       "linkcrtime": 1430506266.06357
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:00:47Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395648.506962,
+       "linkcrtime": 1426395648.506962
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:08:42Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396123.518389,
+       "linkcrtime": 1426396123.518389
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:37:32Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703052.965381,
+       "linkcrtime": 1425703052.965381
+      }
+     }
+    }
+   ],
+   "2015-03-15_02:52:21Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7nmk7cvyiocxuwbroia6p4h3d4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "ro_uri": "URI:DIR2-CHK:patzv37z7zpous35kvxuvo3op4:nrmiswo2qfm34m4zs55bxwzfvrpel3g5fyn6rtrrsb6ijye6j3iq:2:6:562",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426387941.93415,
+       "linkcrtime": 1426387941.93415
+      }
+     }
+    }
+   ],
+   "2015-03-09_04:46:38Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:rmhjwsh3sk2wgl3wtorr7zgbae:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "ro_uri": "URI:DIR2-CHK:2wr6elqoypa2f6baoe6vk3pfia:xwjvskbn34dkmkjtgc3a5z2g2eskcpqix3tlefaz5fnkcofsrbpa:2:6:6579",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425876398.659051,
+       "linkcrtime": 1425876398.659051
+      }
+     }
+    }
+   ],
+   "2015-04-12_00:13:09Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:y6kb6ve7oyebb7mc7uqlp3vwzq:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "ro_uri": "URI:DIR2-CHK:mss47nq7wuuq72pl5okgmbs7f4:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428797590.292207,
+       "linkcrtime": 1428797590.292207
+      }
+     }
+    }
+   ],
+   "2015-06-16_02:48:40Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7e45gd46m33hwsr6qc4i2bfjea:mhjxc2oyrg3qg7a6yaplfn744csbw3z6owmadbu2ftluctbknu3q:2:6:2523",
+     "ro_uri": "URI:DIR2-CHK:toqltdluugnx4ryyl7sazzoxue:mhjxc2oyrg3qg7a6yaplfn744csbw3z6owmadbu2ftluctbknu3q:2:6:2523",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434422921.837458,
+       "linkcrtime": 1434422921.837458
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:49:21Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506177.616391,
+       "linkcrtime": 1430506177.616391
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:16:19Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705380.828895,
+       "linkcrtime": 1425705380.828895
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:45:16Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703516.80395,
+       "linkcrtime": 1425703516.80395
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:50:27Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506228.700801,
+       "linkcrtime": 1430506228.700801
+      }
+     }
+    }
+   ],
+   "2015-04-12_00:12:33Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:y6kb6ve7oyebb7mc7uqlp3vwzq:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "ro_uri": "URI:DIR2-CHK:mss47nq7wuuq72pl5okgmbs7f4:d2w5peh4kiuh6hpbxbyp4jyegk63vaardfz6lsf5qxp54jjdposq:2:6:1137",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428797554.596197,
+       "linkcrtime": 1428797554.596197
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:38:11Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703092.213918,
+       "linkcrtime": 1425703092.213918
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:55:36Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4ce3v4uggcas6nc4ypkludlppa:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "ro_uri": "URI:DIR2-CHK:6aymlg355kwiabiemote7lbdpy:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506537.185629,
+       "linkcrtime": 1430506537.185629
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:43:13Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:j3sk6wjqiv52kc3zoxs67em7we:velj3zkfn3hthacm4jhtvtfsjmyrrrenamuaf7tmbgte5olfotma:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:kx4zsagfrn2jv3vq43myhdms44:velj3zkfn3hthacm4jhtvtfsjmyrrrenamuaf7tmbgte5olfotma:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426383794.683844,
+       "linkcrtime": 1426383794.683844
+      }
+     }
+    }
+   ],
+   "2015-03-09_08:00:51Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:cwykfmf6jqum5tdxslrntakggq:cqnmcyl26kjwqnfpqtsknaaycxgcwcvdvgbzyqu7jbr5anpezj5q:2:6:6698",
+     "ro_uri": "URI:DIR2-CHK:odffwwyvwpgh7tjpa5guknrwji:cqnmcyl26kjwqnfpqtsknaaycxgcwcvdvgbzyqu7jbr5anpezj5q:2:6:6698",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425888052.246432,
+       "linkcrtime": 1425888052.246432
+      }
+     }
+    }
+   ],
+   "2015-06-12_20:16:29Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:f2rufd67lq7syuuajr3do4ww7i:7cfftdo747c2o7chzjiu5u2uezg7ti4s4rpdmdxo2lggmk26sx7a:2:6:2942",
+     "ro_uri": "URI:DIR2-CHK:p6q6pm6tcy5zkk7rvjrygraakq:7cfftdo747c2o7chzjiu5u2uezg7ti4s4rpdmdxo2lggmk26sx7a:2:6:2942",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434140190.799591,
+       "linkcrtime": 1434140190.799591
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:54:36Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4r62s5vcck3zxjmun26rq4odti:zql4dbpynchbe6rqrp5vfslqthslvgyratoogqkhthb3f3o44adq:2:6:563",
+     "ro_uri": "URI:DIR2-CHK:m4l344ynbhnk7oyk7vvkzsnuwu:zql4dbpynchbe6rqrp5vfslqthslvgyratoogqkhthb3f3o44adq:2:6:563",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395276.76067,
+       "linkcrtime": 1426395276.76067
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:48:22Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506103.150346,
+       "linkcrtime": 1430506103.150346
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:37Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:5qgzeykbav3cdbjbtj7eddrksq:viixmvx52dp2a4zhezipspb3rfneyezlg7f2rqjlke4ol5r56cwa:2:6:1845",
+     "ro_uri": "URI:DIR2-CHK:k7h5fsbv4gvet23srv2rrveifa:viixmvx52dp2a4zhezipspb3rfneyezlg7f2rqjlke4ol5r56cwa:2:6:1845",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807638.053661,
+       "linkcrtime": 1428807638.053661
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:16:21Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705382.799599,
+       "linkcrtime": 1425705382.799599
+      }
+     }
+    }
+   ],
+   "2015-03-15_06:39:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nhtippugrzzlrdsdjwjbr4hioi:umzvs7vv46rbwz2l25dywo6ynllnidwk6lwlorzxzz257s7za3za:2:6:1489",
+     "ro_uri": "URI:DIR2-CHK:kglqltudcjm4qqgkjlvpmx5nde:umzvs7vv46rbwz2l25dywo6ynllnidwk6lwlorzxzz257s7za3za:2:6:1489",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426401544.856019,
+       "linkcrtime": 1426401544.856019
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:49:29Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506184.03943,
+       "linkcrtime": 1430506181.509581
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:52:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:4ce3v4uggcas6nc4ypkludlppa:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "ro_uri": "URI:DIR2-CHK:6aymlg355kwiabiemote7lbdpy:oaonkt4u4bljilcyhimz6st47ks5q35rignykhlyn6xobsp6ywyq:2:6:1931",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506373.585028,
+       "linkcrtime": 1430506373.585028
+      }
+     }
+    }
+   ],
+   "2015-04-12_02:59:54Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ede3m773dulcmikyaql3kaggxa:2m237aihj3as2kpscybumt2w56nlr7tsxux3hupkelo2kvwdiijq:2:6:1136",
+     "ro_uri": "URI:DIR2-CHK:rzhpn47s3ma6yasivah5jy6rhm:2m237aihj3as2kpscybumt2w56nlr7tsxux3hupkelo2kvwdiijq:2:6:1136",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807595.291949,
+       "linkcrtime": 1428807595.291949
+      }
+     }
+    }
+   ],
+   "2015-03-15_00:38:31Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:uvj2ompu5tl3rcmqhpcn765tty:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:qr42z5d5jpmzhg6cxwkzejodmy:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426379911.654389,
+       "linkcrtime": 1426379911.654389
+      }
+     }
+    }
+   ],
+   "2015-03-15_04:53:00Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lae22k7wmmxoqqntaoalwn74xm:2nvcgodd2hlly5o7rqyy6shqx4tkrb2t7ujsnubrnyxbcygtdcaq:2:6:294",
+     "ro_uri": "URI:DIR2-CHK:rwpy44lajsts2icerwbsdp7pru:2nvcgodd2hlly5o7rqyy6shqx4tkrb2t7ujsnubrnyxbcygtdcaq:2:6:294",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426395181.442982,
+       "linkcrtime": 1426395181.442982
+      }
+     }
+    }
+   ],
+   "2015-04-18_04:33:57Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7dl4wkk5j7vlxmsvgr7qcwferi:assyx55yy7bafepzuzmr2yp5prvlfhi4xzpncnr7txxe3b67veta:2:6:2201",
+     "ro_uri": "URI:DIR2-CHK:qxa3epydp7nvbzmtwgnyar2xrq:assyx55yy7bafepzuzmr2yp5prvlfhi4xzpncnr7txxe3b67veta:2:6:2201",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1429331638.345982,
+       "linkcrtime": 1429331638.345982
+      }
+     }
+    }
+   ],
+   "2015-03-21_05:33:03Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:esuap2qw6vlshydw7w5uiu7eqa:cqxqa54sz4llopvtaij6zgwxomvx4ywaskv3ddjxfhb6jcpctqia:2:6:479",
+     "ro_uri": "URI:DIR2-CHK:i3pb7paqxip2n3uuelarx5h7se:cqxqa54sz4llopvtaij6zgwxomvx4ywaskv3ddjxfhb6jcpctqia:2:6:479",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426915984.024362,
+       "linkcrtime": 1426915984.024362
+      }
+     }
+    }
+   ],
+   "2015-03-09_08:01:26Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:7ulgw7alp5jjdaa4gydc3eejxi:tlpv3jcsmjaduispkchurzcxdwa23r4pnizqtpoan6gcuzyenyma:2:6:7245",
+     "ro_uri": "URI:DIR2-CHK:blhznrnhgadodsmtmehn5vc7py:tlpv3jcsmjaduispkchurzcxdwa23r4pnizqtpoan6gcuzyenyma:2:6:7245",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425888087.177557,
+       "linkcrtime": 1425888087.177557
+      }
+     }
+    }
+   ],
+   "2015-03-09_06:14:54Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:vukbd623hvjqjnmxk6uyxofmd4:vcekhiu5dhnw4qxwut5yyiqjcatlxkilg2okmouzj6zvxddf77ha:2:6:6322",
+     "ro_uri": "URI:DIR2-CHK:2f3dmzeyqczokp7suculeledse:vcekhiu5dhnw4qxwut5yyiqjcatlxkilg2okmouzj6zvxddf77ha:2:6:6322",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425881694.979098,
+       "linkcrtime": 1425881694.979098
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:49:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506165.550385,
+       "linkcrtime": 1430506162.529915
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:18:11Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:abaiquyp5mipj7pcljattx2t3a:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "ro_uri": "URI:DIR2-CHK:orx6wtihfrqyoz3eyloeq6heau:fpap4rwwvfvoo33nzh2dvv4xdc27jwn4v5pzv3abnwgtihwhgqoa:2:6:3920",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705492.190765,
+       "linkcrtime": 1425705492.190765
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:04:23Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:g4ic5oi5wsyx334spla3og362a:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:s56x7qmyy37t334h3mfnod5kiq:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507064.62403,
+       "linkcrtime": 1430507064.62403
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:04:55Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ltmwgo65rktaodmryxkpnnuwyq:twr55f4o243fv7ugyaugkqrofrf7w3c3w4zmqgsglewjkqo3cy2a:2:6:565",
+     "ro_uri": "URI:DIR2-CHK:eyjnqwvroau3kir5x5oioscthe:twr55f4o243fv7ugyaugkqrofrf7w3c3w4zmqgsglewjkqo3cy2a:2:6:565",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426388696.256717,
+       "linkcrtime": 1426388696.256717
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:56:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:g4ic5oi5wsyx334spla3og362a:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:s56x7qmyy37t334h3mfnod5kiq:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506578.227917,
+       "linkcrtime": 1430506578.227917
+      }
+     }
+    }
+   ],
+   "2015-04-12_04:08:48Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:43oqwgrybojbezuc35omt3xbc4:yzrkuwtye5ybztc5zsjiylvltubuezpzzncmdbtu5v3fszqagx3a:2:6:1933",
+     "ro_uri": "URI:DIR2-CHK:co55ihegwemzou5qrr74plmecy:yzrkuwtye5ybztc5zsjiylvltubuezpzzncmdbtu5v3fszqagx3a:2:6:1933",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428811729.195599,
+       "linkcrtime": 1428811729.195599
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:28Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703168.737001,
+       "linkcrtime": 1425703168.737001
+      }
+     }
+    }
+   ],
+   "2015-03-14_23:41:52Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:3pksslskoosra7lspxpk5df7hu:6sga23upkttlwz4aep7hvfr4nwgxhqkxgvrqq3z5dme2sbt6ogta:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:hpnlmzbaq7jle6oh6r6lyx5pcq:6sga23upkttlwz4aep7hvfr4nwgxhqkxgvrqq3z5dme2sbt6ogta:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426376513.768908,
+       "linkcrtime": 1426376513.768908
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:17:31Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:nnj4rwwjf6sxd6sfvnarc5fpxm:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "ro_uri": "URI:DIR2-CHK:lyxocbhht3api3ptrzwaq2jyr4:yyrqybqngh5pdfswfld55x24kftjy2m2b7l7b6is6q4w26l2fj3a:2:6:939",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426396651.951541,
+       "linkcrtime": 1426396651.951541
+      }
+     }
+    }
+   ],
+   "2015-03-07_05:16:17Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:qt2s6arspmrlzi4xicvbxlalai:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "ro_uri": "URI:DIR2-CHK:yzdjnw3ulwmc6g3wbrzzasvqae:z7tfkpjpknlseltgof3muoalo5l6gydipvwbhxzkzthkfy4drfdq:2:6:4543",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425705378.821983,
+       "linkcrtime": 1425705378.821983
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:06:37Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lek4sd5adc3m6vgwm2ateymzky:vjfidio3alvquzdnfjlalvfpw6makmjyofcokbnyviu3mec64vgq:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:qjpmlxhr3mmnfqs3cxdvcntllq:vjfidio3alvquzdnfjlalvfpw6makmjyofcokbnyviu3mec64vgq:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507198.356982,
+       "linkcrtime": 1430507198.356982
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:59:35Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:g4ic5oi5wsyx334spla3og362a:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:s56x7qmyy37t334h3mfnod5kiq:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506776.731584,
+       "linkcrtime": 1430506776.731584
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:39:13Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:x3ahkq2alabtir2dfikej6xfay:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "ro_uri": "URI:DIR2-CHK:w3lr35clwencohs6fabxesdnqi:lnclukmn4m6qcudfambkoxhyyzh32ohzrjx5akqzeot3jjy4kr5a:2:6:5708",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425703153.85619,
+       "linkcrtime": 1425703153.85619
+      }
+     }
+    }
+   ],
+   "2015-06-15_00:18:49Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:axerizgtqak6dclps6s25mk2sq:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "ro_uri": "URI:DIR2-CHK:5wpriw5a7ojw2fuanqw7esjfcy:3yylqngipzcuinrz2ug3ozdboovqunb7z227cop2qa7ezikmkaxq:2:6:3118",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1434327531.447235,
+       "linkcrtime": 1434327531.447235
+      }
+     }
+    }
+   ],
+   "2015-03-07_04:27:33Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:p5h7wuciwta5vegs33zivgacty:4zbfuie3mm5wrok775px6zylacct2ppgcddqcib4gsea4cb3qw2q:2:6:4001",
+     "ro_uri": "URI:DIR2-CHK:eaw3fz3hiampxd3mivrst2zzru:4zbfuie3mm5wrok775px6zylacct2ppgcddqcib4gsea4cb3qw2q:2:6:4001",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1425702453.576045,
+       "linkcrtime": 1425702453.576045
+      }
+     }
+    }
+   ],
+   "2015-03-15_00:20:14Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:uvj2ompu5tl3rcmqhpcn765tty:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:qr42z5d5jpmzhg6cxwkzejodmy:s54wjvts2tlu5d237magzsfi54d7s4dptbdfkvafgjkl4la5fvcq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426378815.01571,
+       "linkcrtime": 1426378815.01571
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:10:21Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:sbpifzatoxx4z5rmbfcmc4gudu:efxryukg4hdiaigxj7hynba2kgtc2vzywsfl6t6ria7l7rc7hfia:2:6:2128",
+     "ro_uri": "URI:DIR2-CHK:vmmehcdu4l3vm3ogjf3yy4ba7e:efxryukg4hdiaigxj7hynba2kgtc2vzywsfl6t6ria7l7rc7hfia:2:6:2128",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507422.197579,
+       "linkcrtime": 1430507422.197579
+      }
+     }
+    }
+   ],
+   "2015-03-15_05:34:00Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:lcijbvlfbmdt4wtirzbzbySTOPPING '/home/c/.config/gridsync/Public Test Grid'
+process 14374 is dead
+STOPPING '/home/c/.config/gridsync/mygrid'
+process 14380 is dead
+xm4q:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "ro_uri": "URI:DIR2-CHK:htbc66v2kefigqqiwowvme6gvy:65dflvc23pqzzgbvwofpvondkljwyvvaa57dzfluql45a2yo4esa:2:6:1126",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426397641.265978,
+       "linkcrtime": 1426397641.265978
+      }
+     }
+    }
+   ],
+   "2015-03-15_01:47:18Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:cpl6awu6lx4tecd27zwqe2kcni:rhuwqlgzmmnfcwbcrheq76cu3mw436eojhp655xagvumosmgvfdq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:s3qefzkxviuk3eku6s5veyfitq:rhuwqlgzmmnfcwbcrheq76cu3mw436eojhp655xagvumosmgvfdq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426384039.131555,
+       "linkcrtime": 1426384039.131555
+      }
+     }
+    }
+   ],
+   "2015-05-01_18:50:53Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:pkujzcgrvszwkvigwbto73j62e:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "ro_uri": "URI:DIR2-CHK:npeqxkqoajenk2eikdmhxwakbe:lsbbqyx3lpfbw5xmd56y3kqaf5p5qjuqe7iwm357wxboqlwpd6aq:2:6:1843",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430506262.646773,
+       "linkcrtime": 1430506262.646773
+      }
+     }
+    }
+   ],
+   "2015-04-12_03:00:47Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:tfubfsnmrqplhqyjhslwwb5vwe:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "ro_uri": "URI:DIR2-CHK:tnnpcpf2zep3odtz6lwja546re:hlfes52ov5o6v6amwj5ru6rlm2btalapn2572by4xclknkmxylva:2:6:2198",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1428807648.951776,
+       "linkcrtime": 1428807648.951776
+      }
+     }
+    }
+   ],
+   "2015-03-15_03:59:54Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:ngb24p6h5qyq6h3srygr5hgjia:x5t6usw64iwp7bu4ifqxvbpk3mdumya7r77splpm25mrxd72r7uq:2:6:564",
+     "ro_uri": "URI:DIR2-CHK:5eimjt3bykwslj4y3llahh2oky:x5t6usw64iwp7bu4ifqxvbpk3mdumya7r77splpm25mrxd72r7uq:2:6:564",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1426391995.267823,
+       "linkcrtime": 1426391995.267823
+      }
+     }
+    }
+   ],
+   "2015-05-01_19:03:32Z": [
+    "dirnode",
+    {
+     "mutable": false,
+     "verify_uri": "URI:DIR2-CHK-Verifier:g4ic5oi5wsyx334spla3og362a:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "ro_uri": "URI:DIR2-CHK:s56x7qmyy37t334h3mfnod5kiq:rxxf4joyog62dksu6a7tpebyeoebqonefqt47uyincmuibafnq6q:2:6:2194",
+     "metadata": {
+      "tahoe": {
+       "linkmotime": 1430507013.703402,
+       "linkcrtime": 1430507013.703402
+      }
+     }
+    }
+   ]
+  },
+  "mutable": true
+ }
+]
+
+
+Thread-4
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid ls --json URI:DIR2:zur7boh22764fihbtghboimyt4:fryozypslk75p4vqgcpiy7rg52qx2qefpv57yvgsd5xzszee2ufa/Latest
+Thread-6
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid ls --json URI:DIR2-CHK:hhoddowvcbxwdx5jjfa2lg6t3e:p6fsntef6i5q6mwntc7ccnudoy2aus4qxusuyevhvtnzknilm6uq:2:6:883
+Thread-7
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid ls --json URI:DIR2-CHK:o52lc5t577eof6zhkufw7g2orq:4e533jbnhcg6tvoql56ph2kqxxcxhp7qhehni4uiruwm5alwcy4q:2:6:291
+Thread-8
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid ls --json URI:DIR2-CHK:5jl73wgutccgjde5afjm5xqboq:a23ztq4mlgttzaomcv2khg5mfa72zxgme5gf5zjnpm7q2eeqsrna:2:6:565
+Thread-9
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid ls --json URI:DIR2-CHK:u2ad5dmewcyedprtbeyrwjrtba:3izfpfjj2bap74lgsaek4xmcfnmmu25exjmry26g43oyka6lojwq:2:6:266
+
+*** Shutting down!
+*** Stopping observer in /home/c/test
+*** Stopping observer in /home/c/pubgrid
+*** Running: tahoe -d /home/c/.config/gridsync/mygrid stop
+*** Running: tahoe -d /home/c/.config/gridsync/Public Test Grid stop

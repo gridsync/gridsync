@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 import sys
-import signal
+#import signal
 
 from systray import SystemTrayIcon
 
@@ -20,7 +20,7 @@ class MainWindow(QtGui.QMainWindow):
         btn.resize(btn.sizeHint())
         btn.move(50, 50)
         btn.clicked.connect(QtCore.QCoreApplication.instance().quit)
-        #self.show()
+        self.show()
         exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), '&Quit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Quit')
@@ -34,14 +34,14 @@ class MainWindow(QtGui.QMainWindow):
 
 
 def main():
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    #signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QtGui.QApplication(sys.argv)
 
     tray = SystemTrayIcon()
     tray.show()
 
-    mw = MainWindow()
-    mw.show()
+    #mw = MainWindow()
+    #mw.show()
 
     sys.exit(app.exec_())
 
