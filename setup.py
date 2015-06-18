@@ -14,6 +14,6 @@ setup(
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
-    install_requires=['allmydata-tahoe', 'watchdog', 'PyQt4'],
+    install_requires=['allmydata-tahoe', 'watchdog'],
     test_suite="tests"
 )
