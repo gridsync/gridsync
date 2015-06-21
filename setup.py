@@ -14,6 +14,6 @@ setup(
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
-    install_requires=['allmydata-tahoe', 'watchdog'],
+    install_requires=['allmydata-tahoe', 'watchdog', 'qt4reactor'],
     test_suite="tests"
 )
