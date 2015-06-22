@@ -40,7 +40,7 @@ setup(
         "Topic :: Security",
         "Topic :: System :: Archiving",
         "Topic :: System :: Archiving :: Backup",
-        "Topic :: System :: Archiving :: Mirroring"
+        "Topic :: System :: Archiving :: Mirroring",
         "Topic :: System :: Clustering",
         "Topic :: System :: Distributed Computing",
         "Topic :: System :: Filesystems",
