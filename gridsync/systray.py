@@ -1,11 +1,8 @@
-from __future__ import unicode_literals
+from PyQt4.QtGui import *
 
-import sys
-import signal
+import resources
 
 from wizard import Wizard
-
-from PyQt4.QtGui import *
 
 
 class LeftClickMenu(QMenu):
@@ -40,7 +37,7 @@ class RightClickMenu(QMenu):
 class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self):
         super(SystemTrayIcon, self).__init__()
-        self.setIcon(QIcon("/home/c/code/gridsync/images/circle.png"))
+        self.setIcon(QIcon(":/images/icon.png"))
         
         self.right_menu = RightClickMenu()
         self.setContextMenu(self.right_menu)
@@ -50,7 +47,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.activated.connect(self.on_click)
 
         self.movie = QMovie()
-        self.movie.setFileName("/home/c/code/gridsync/images/sync.gif")
+        self.movie.setFileName(":/images/sync.gif")
         self.movie.setSpeed(150)
         self.movie.updated.connect(self.on_systray_update)
         self.movie.start()
@@ -62,6 +59,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def on_click(self, value):
         if value == QSystemTrayIcon.Trigger:
+            #self.movie.stop()
+            #self.setIcon(QIcon(":/images/icon.png"))
             #self.movie.stop()
             #if not self.movie.MovieState():
             #    self.movie.setPaused(True)
@@ -75,19 +74,4 @@ class SystemTrayIcon(QSystemTrayIcon):
 def show_wizard(self):
     w = Wizard()
     w.exec_()
-    print('k')
 
-
-def main():
-    #signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QApplication(sys.argv)
-
-    m_icon = SystemTrayIcon()
-    m_icon.show()
-#m_icon.setVisible(True)
-
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

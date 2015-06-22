@@ -25,7 +25,7 @@ class ServerFactory(Factory):
     def __init__(self, parent):
         self.parent = parent
 
-
+#XXX Change to twisted service?
 class Server():
     def __init__(self, args):
         self.args = args
