@@ -1,8 +1,3 @@
-#!/usr/bin/env python2
-# vim:fileencoding=utf-8:ft=python
-
-from __future__ import unicode_literals
-
 import os
 import json
 
@@ -16,8 +11,9 @@ class Config():
         if not os.path.isdir(self.config_dir):
             #first run
             os.makedirs(self.config_dir)
+
         if config_file:
-            self.config_file = config_file
+            self.config_file = config_file[0]
         else:
             self.config_file = os.path.join(self.config_dir, 'settings.json')
 
