@@ -4,12 +4,12 @@
 #pygtk.require('2.0')
 import pynotify
 import sys
- 
-if __name__ == '__main__':
+
+def notify(text):
     if not pynotify.init("Basics"):
         sys.exit(1)
  
-    n = pynotify.Notification("Summary", "This is some sample content")
+    n = pynotify.Notification("Gridsync", text)
  
     if not n.show():
         print "Failed to send notification"

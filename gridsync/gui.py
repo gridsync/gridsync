@@ -8,7 +8,7 @@ class Gui():
 
     def show(self):
         self.tray.show()
-        self.mw.show()
+        #self.mw.show()
 
     def start_animation(self):
         self.tray.start_animation()

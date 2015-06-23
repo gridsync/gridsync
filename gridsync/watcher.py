@@ -5,9 +5,8 @@ import json
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-
 import sync
-
+import notify
 
 class Watcher(FileSystemEventHandler):
     def __init__(self, parent, tahoe, local_dir, remote_dircap, polling_frequency=60):
@@ -21,6 +20,7 @@ class Watcher(FileSystemEventHandler):
         self.latest_snapshot = 0
         self.do_backup = False
         self.check_for_backup()
+        print 'k'
 
     def check_for_backup(self):
         if self.do_backup and not self.parent.sync_state:
@@ -36,13 +36,14 @@ class Watcher(FileSystemEventHandler):
                 # XXX Race condition!
                 self.latest_snapshot = self.get_latest_snapshot()
                 self.parent.sync_state -= 1
+                notify.notify("Sync finished.")
         t = threading.Timer(1.0, self.check_for_backup)
         t.setDaemon(True)
         t.start()
     
     def on_modified(self, event):
         self.do_backup = True
-        #print(event)
+        print(event)
 
     def start(self):
         #self.sync()

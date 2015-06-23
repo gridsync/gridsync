@@ -1,8 +1,3 @@
-#!/usr/bin/env python2
-# vim:fileencoding=utf-8:ft=python
-
-from __future__ import unicode_literals
-
 import os
 import subprocess
 import ConfigParser

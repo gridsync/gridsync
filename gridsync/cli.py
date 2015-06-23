@@ -20,7 +20,6 @@ def send_command(command):
 
 def main():
     #signal.signal(signal.SIGINT, signal.SIG_DFL)
-    
     parser = argparse.ArgumentParser(
             description='Synchronize local directories with remote Tahoe-LAFS storage grids.',
             epilog='Example: %(prog)s <URI>')
