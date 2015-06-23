@@ -60,7 +60,7 @@ class Server():
 
 
     def check_state(self):
-        print "SYNC STATE IS: " + str(self.sync_state)
+        #print "SYNC STATE IS: " + str(self.sync_state)
         if self.sync_state:
             self.gui.start_animation()
         else:

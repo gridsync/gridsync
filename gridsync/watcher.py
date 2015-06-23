@@ -14,33 +14,7 @@ from watchdog.events import FileSystemEventHandler
 import sync
 
 
-class LocalEventHandler(FileSystemEventHandler):
-    def __init__(self, tahoe, local_dir, remote_dircap):
-        self.tahoe = tahoe
-        self.local_dir = local_dir
-        self.remote_dircap = remote_dircap
-        if not os.path.isdir(self.local_dir):
-            os.makedirs(self.local_dir)
-        self.do_backup = False
-        self.check_for_backup()
-
-    def on_modified(self, event):
-        self.do_backup = True
-        print(event)
-
-    def check_for_backup(self):
-        if self.do_backup:
-            self.do_backup = False
-            time.sleep(1)
-            if not self.do_backup:
-                self.tahoe.backup(self.local_dir, self.remote_dircap)
-        t = threading.Timer(1.0, self.check_for_backup)
-        t.setDaemon(True)
-        t.start()
-
-#XXX Combine these two classes?
-
-class Watcher():
+class Watcher(FileSystemEventHandler):
     def __init__(self, parent, tahoe, local_dir, remote_dircap, polling_frequency=60):
         self.parent = parent
         self.tahoe = tahoe
@@ -50,14 +24,31 @@ class Watcher():
             os.makedirs(self.local_dir)
         self.polling_frequency = polling_frequency
         self.latest_snapshot = 0
+        self.do_backup = False
+        self.check_for_backup()
+
+    def check_for_backup(self):
+        if self.do_backup:
+            self.do_backup = False
+            time.sleep(1)
+            if not self.do_backup:
+                self.parent.sync_state += 1
+                self.tahoe.backup(self.local_dir, self.remote_dircap)
+                self.parent.sync_state -= 1
+        t = threading.Timer(1.0, self.check_for_backup)
+        t.setDaemon(True)
+        t.start()
+    
+    def on_modified(self, event):
+        self.do_backup = True
+        print(event)
 
     def start(self):
         #self.sync()
         self.check_for_updates()
         print("*** Starting observer in %s" % self.local_dir)
-        event_handler = LocalEventHandler(self.tahoe, self.local_dir, self.remote_dircap)
         self.observer = Observer()
-        self.observer.schedule(event_handler, self.local_dir, recursive=True)
+        self.observer.schedule(self, self.local_dir, recursive=True)
         self.observer.start()
 
     def stop(self):
@@ -76,10 +67,8 @@ class Watcher():
             print("New snapshot available ({}); syncing...".format(latest_snapshot))
             
             self.parent.sync_state += 1
-            print "@@@@@@@@ sync state is: " +str(self.parent.sync_state)
             sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
             self.parent.sync_state -= 1
-            print "@@@@@@@@ sync state is NOW: " +str(self.parent.sync_state)
 
             self.latest_snapshot = latest_snapshot
         t = threading.Timer(self.polling_frequency, self.check_for_updates)
