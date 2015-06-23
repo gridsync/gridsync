@@ -40,10 +40,11 @@ Installation
 TODO
 ----
 
+
 * Logging
-* Tor integration
-* Client/server architecture
+* Better icons
 * Packaging
+* Tor integration
 
 
 FAQ

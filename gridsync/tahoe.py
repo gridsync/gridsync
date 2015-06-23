@@ -70,7 +70,7 @@ class Tahoe():
         self.command("backup -v %s %s" % (local_dir, remote_dircap))
 
     def get(self, remote_uri, local_file, mtime=None):
-        print(threading.current_thread().name)
+        #print(threading.current_thread().name)
         args = ['tahoe', '-d', self.tahoe_path, 'get', remote_uri, local_file]
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
@@ -80,7 +80,7 @@ class Tahoe():
 
     def get_metadata(self, dircap, basedir='/', metadata={}):
         print("*** Getting remote metadata...")
-        print(threading.current_thread().name)
+        #print(threading.current_thread().name)
         out = self.command_output("ls --json %s" % dircap)
         j = json.loads(out)
         threads = []
@@ -122,7 +122,7 @@ class Tahoe():
             t.start()
         for t in threads:
             t.join()
-        print("Done.")
+        #print("Done.")
         return metadata
 
 

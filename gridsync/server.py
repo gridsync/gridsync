@@ -31,6 +31,8 @@ class Server():
         self.args = args
         self.tahoe_objects = []
         self.watcher_objects = []
+        self.sync_state = 0
+        self.gui = Gui(self)
         print "Server initialized: " +str(args)
         
         self.config = Config(self.args.config)
@@ -42,7 +44,7 @@ class Server():
             self.tahoe_objects.append(t)
             for sync_name, sync_settings in self.settings['sync_targets'].items():
                 if sync_settings[0] == node_name:
-                    w = Watcher(t, os.path.expanduser(sync_settings[1]), sync_settings[2])
+                    w = Watcher(self, t, os.path.expanduser(sync_settings[1]), sync_settings[2])
                     self.watcher_objects.append(w)
 
         print self.tahoe_objects
@@ -56,11 +58,24 @@ class Server():
         else:
             print("Invalid command")
 
+
+    def check_state(self):
+        print "SYNC STATE IS: " + str(self.sync_state)
+        if self.sync_state:
+            self.gui.start_animation()
+        else:
+            self.gui.stop_animation()
+        t = threading.Timer(1.0, self.check_state)
+        t.setDaemon(True)
+        t.start()
+
+
+
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
 
-        gui = Gui()
-        gui.show()
+        self.gui.show()
+        self.check_state()
 
         #XXX Defer this
         threads = [threading.Thread(target=o.start) for o in self.tahoe_objects]
