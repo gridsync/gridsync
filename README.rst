@@ -18,10 +18,10 @@ The Gridsync project intends to overcome some of Tahoe-LAFS' barriers-to-adoptio
 * Local filesystem monitoring -- Gridsync watches for local changes to files and directories (via inotify/FSEvents/kqueue/ReadDirectoryChangesW) and can automate backup operations.
 * Remote filesystem monitoring -- Gridsync periodically polls for changes in remote storage grids, providing basic synchronization functionality.
 * Status indicators and desktop notifications -- the user will know, at a glance, when files are being uploaded or downloaded (via system tray icon animations) and will optionally receive notifications (via DBus on GNU/Linux, Growl/Nofication Center on OS X, etc.) when operations have completed.
-* 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the `Gridsync URI`_ specification allows users to easily join friends' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
+* 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the IANA-friendly `Gridsync URI specification`_ allows users to easily join friends' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
 * OS/Desktop-level integration -- Gridsync will (optionally) run at startup, install URI-handlers, provide context menus for file-sharing in file managers, etc.
 
-.. _Gridsync URI: https://github.com/gridsync/gridsync/blob/master/docs/uri_scheme.rst
+.. _Gridsync URI specification: https://github.com/gridsync/gridsync/blob/master/docs/uri_scheme.rst
 
 
 Current (complete -- or nearly complete) features:
@@ -55,6 +55,7 @@ Planned features (after first release):
 
 * Packaging (PyPI, Debian, RPM, ebuild, pyinstaller)
 * i18n/L10n
+* File manager/context menu integration
 * Tor/I2P integration
 * NAT traversal (via UPnP?)
 
