@@ -59,7 +59,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.movie = QMovie()
         self.movie.setFileName(":/images/sync.gif")
-        self.movie.setSpeed(100)
+        self.movie.setSpeed(150)
         self.movie.updated.connect(self.on_systray_update)
         self.movie.setCacheMode(True)
         self.paused = True

@@ -28,12 +28,18 @@ class Watcher(FileSystemEventHandler):
         self.check_for_backup()
 
     def check_for_backup(self):
-        if self.do_backup:
+        if self.do_backup and not self.parent.sync_state:
             self.do_backup = False
             time.sleep(1)
             if not self.do_backup:
                 self.parent.sync_state += 1
-                self.tahoe.backup(self.local_dir, self.remote_dircap)
+                latest_snapshot = self.get_latest_snapshot()
+                if latest_snapshot == self.latest_snapshot:
+                    self.tahoe.backup(self.local_dir, self.remote_dircap)
+                else:
+                    sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
+                # XXX Race condition!
+                self.latest_snapshot = self.get_latest_snapshot()
                 self.parent.sync_state -= 1
         t = threading.Timer(1.0, self.check_for_backup)
         t.setDaemon(True)
@@ -41,7 +47,7 @@ class Watcher(FileSystemEventHandler):
     
     def on_modified(self, event):
         self.do_backup = True
-        print(event)
+        #print(event)
 
     def start(self):
         #self.sync()
@@ -65,11 +71,13 @@ class Watcher(FileSystemEventHandler):
             print("Up to date ({}); nothing to do.".format(latest_snapshot))
         else:
             print("New snapshot available ({}); syncing...".format(latest_snapshot))
-            
+            # XXX self.parent.sync_state should probably be a list of syncpair 
+            #objects
+            # check here for sync_state
             self.parent.sync_state += 1
             sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
             self.parent.sync_state -= 1
-
+            # XXX Race condition!
             self.latest_snapshot = latest_snapshot
         t = threading.Timer(self.polling_frequency, self.check_for_updates)
         t.setDaemon(True)

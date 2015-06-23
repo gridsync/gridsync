@@ -28,7 +28,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     print("*** Syncing {}...".format(local_dir))
     local_dir = os.path.expanduser(local_dir)
     remote_dircap = '/'.join([remote_dircap, snapshot])
-    local_mtimes = _get_local_mtimes(local_dir)
+    local_mtimes = _get_local_mtimes(local_dir) # store this in Watcher()?
     remote_mtimes = tahoe.get_metadata(remote_dircap, metadata={})
     do_backup = False
     threads = []
