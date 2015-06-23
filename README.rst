@@ -12,6 +12,7 @@ Why Gridsync?
 Tahoe-LAFS already provides a number of desirable properties for file-storage: it is secure, decentralized, highly robust, free (as in both beer and speech), stable and mature, and written by a small team of very talented developers. Unfortunately -- and despite all of its merits -- Tahoe-LAFS lacks where many of its competitors excel: its installatation requires heavy-usage of the command line, its configuration consists in hand-editing text files, and many of its fundamental concepts (e.g., "dircap", "servers-of-happiness") are opaque or otherwise demand additional reading of the project's extensive documentation. Accordingly, Tahoe-LAFS' userbase consists primarily in seasoned developers and system administrators; average users are naturally excluded from enjoying Tahoe-LAFS' aferomentioned advantages.
 
 The Gridsync project intends to overcome some of Tahoe-LAFS' barriers-to-adoption by means of following features:
+
 * A graphical user interface for managing all primary Tahoe-LAFS gateway functionality (e.g., starting, stopping, configuring nodes) -- the user will never have to edit a text file by hand.
 * Native look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
 * Local filesystem monitoring -- Gridsync watches for local changes to files and directories (via inotify/FSEvents/kqueue/ReadDirectoryChangesW) and can automate backup operations.
