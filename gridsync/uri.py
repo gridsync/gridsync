@@ -7,7 +7,6 @@ i = "gridsync://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@162.243.228.43:46210/DIR2:ud4yx
 
 
 def uri_to_settings(uri):
-    uri = uri.lower()
     settings = { 'client': {} }
     if uri.startswith("gridsync://"):
         content = uri[11:]
@@ -27,6 +26,7 @@ print uri_to_settings(i)
 
 def settings_to_uri(settings):
     pass
+
 
 def encode_link(introducer_furl, cap=None, name=None):
     s = introducer_furl.split('pb://')[1].split(',')[0]

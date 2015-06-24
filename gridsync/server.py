@@ -14,7 +14,6 @@ from config import Config
 from tahoe import Tahoe
 from watcher import Watcher
 
-
 class ServerProtocol(Protocol):
     def dataReceived(self, data):
         self.factory.parent.handle_command(data)
@@ -46,9 +45,6 @@ class Server():
                 if sync_settings[0] == node_name:
                     w = Watcher(self, t, os.path.expanduser(sync_settings[1]), sync_settings[2])
                     self.watcher_objects.append(w)
-
-        print self.tahoe_objects
-        print self.watcher_objects
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):

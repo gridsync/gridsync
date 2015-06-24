@@ -2,15 +2,15 @@
  
 #import pygtk
 #pygtk.require('2.0')
-import pynotify
+#import pynotify
 import sys
+import notify2
 
-def notify(text):
-    if not pynotify.init("Basics"):
-        sys.exit(1)
- 
-    n = pynotify.Notification("Gridsync", text)
- 
-    if not n.show():
-        print "Failed to send notification"
-        sys.exit(1)
+notify2.init('app name')
+
+n = notify2.Notification("Summary",
+                         "Some body text",
+                         "notification-message-im"   # Icon name
+                        )
+n.show()
+

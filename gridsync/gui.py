@@ -4,7 +4,7 @@ from main_window import MainWindow
 class Gui():
     def __init__(self, parent):
         self.tray = SystemTrayIcon(parent)
-        self.mw = MainWindow()
+        #self.mw = MainWindow()
 
     def show(self):
         self.tray.show()
