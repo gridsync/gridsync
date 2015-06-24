@@ -1,11 +1,27 @@
 #!/usr/bin/env python2
 
+import sys
+
 from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
 
 
 def readme():
     with open('README.rst') as f:
         return f.read()
+
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errcode = pytest.main(self.test_args)
+        sys.exit(errcode)
+
 
 setup(
     name="gridsync",
@@ -52,5 +68,7 @@ setup(
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
     install_requires=['allmydata-tahoe', 'watchdog', 'qt4reactor'],
-    test_suite="tests"
+    test_suite="tests",
+    tests_require=['pytest'],
+    cmdclass={'test': PyTest},
 )
