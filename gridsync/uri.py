@@ -30,8 +30,3 @@ def uri_to_settings(uri):
     return settings
      
 
-print uri_to_settings(i)
-print uri_to_settings(i2)
-print uri_to_settings(i3)
-sys.exit()
-
