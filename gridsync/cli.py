@@ -1,5 +1,5 @@
-import socket
 import argparse
+import socket
 
 from twisted.internet.error import CannotListenError
 
