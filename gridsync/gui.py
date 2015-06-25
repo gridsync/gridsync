@@ -15,3 +15,6 @@ class Gui():
 
     def stop_animation(self):
         self.tray.stop_animation()
+
+    def show_message(self, title, text):
+        self.tray.show_message(title, text)

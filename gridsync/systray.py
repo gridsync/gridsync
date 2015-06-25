@@ -58,12 +58,13 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.activated.connect(self.on_click)
 
         self.movie = QMovie()
+        self.show_message('blah', 'blah')
         self.movie.setFileName(":/images/sync.gif")
         self.movie.setSpeed(150)
         self.movie.updated.connect(self.on_systray_update)
         self.movie.setCacheMode(True)
         self.paused = True
-        self.start_animation()
+        #self.start_animation()
         
     # The paused state needs to be set manually since QMovie.MovieState 
     # always returns 0 for movies rendered off-screen. This may be a bug.
@@ -78,7 +79,10 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.movie.setPaused(True)
             self.paused = True
             self.setIcon(QIcon(":/images/icon.png"))
-        
+    
+    def show_message(self, title, text):
+        self.showMessage(title, text)
+
     def on_systray_update(self):
         icon = self.movie.currentPixmap()
         self.setIcon(QIcon(icon))

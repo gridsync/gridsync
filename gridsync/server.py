@@ -4,8 +4,11 @@ import threading
 
 from PyQt4.QtGui import QApplication
 app = QApplication(sys.argv)
+
+del sys.modules['twisted.internet.reactor'] # Workaround for PyInstaller
 from qtreactor import pyqt4reactor
 pyqt4reactor.install()
+
 from twisted.internet.protocol import Protocol, Factory
 from twisted.internet import reactor
 
@@ -66,11 +69,14 @@ class Server():
         t.start()
 
 
+    def notify(self, title, message):
+        self.gui.show_message('Sync complete', 'blah')
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
 
         self.gui.show()
+
         self.check_state()
 
         #XXX Defer this
@@ -98,3 +104,6 @@ class Server():
         self.config.save(self.settings)
 
         reactor.stop()
+
+if __name__ == '__main__':
+    print 'k'

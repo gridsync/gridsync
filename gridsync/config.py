@@ -9,7 +9,6 @@ class Config():
         else:
             self.config_dir = os.path.join(os.path.expanduser('~'), '.config', 'gridsync')
         if not os.path.isdir(self.config_dir):
-            #first run
             os.makedirs(self.config_dir)
 
         if config_file:

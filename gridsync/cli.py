@@ -1,7 +1,19 @@
-import argparse
+import sys
 import socket
+import argparse
+import subprocess
 
 from twisted.internet.error import CannotListenError
+
+#import allmydata
+#import zfec
+#import simplejson
+#import foolscap
+#import Crypto
+#import mock
+#import pycryptopp
+#import nevow
+#import twisted.python.reflect
 
 from server import Server
 
@@ -32,6 +44,14 @@ def main():
     #print args
 
     try:
+        output = subprocess.check_output(["tahoe", "-V"])
+        tahoe = output.split('\n')[0]
+        print("Found: " + tahoe)
+    except OSError:
+        sys.exit('Tahoe-LAFS installation not found.')
+
+
+    try:
         gridsync = Server(args)
         gridsync.start()
     except CannotListenError:
@@ -44,4 +64,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

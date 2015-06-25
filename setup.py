@@ -23,6 +23,11 @@ class PyTest(TestCommand):
         sys.exit(errcode)
 
 
+dependencies = ['allmydata-tahoe', 'watchdog', 'qt4reactor']
+if sys.platform == 'linux2':
+    dependencies.append('notify2')
+
+
 setup(
     name="gridsync",
     version="0.0.1",
@@ -67,7 +72,7 @@ setup(
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
-    install_requires=['allmydata-tahoe', 'watchdog', 'qt4reactor'],
+    install_requires=dependencies,
     test_suite="tests",
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
