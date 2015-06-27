@@ -13,7 +13,10 @@ resources:
 	pyrcc4 -py2 resources.qrc -o gridsync/resources.py
 
 install: clean
-	python setup.py install
+	python setup.py install --user
 
 app: clean
 	pyinstaller --clean --onefile --windowed gridsync.spec
+
+uninstall:
+	pip uninstall -y gridsync

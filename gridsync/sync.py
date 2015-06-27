@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import os
 import shutil
 import datetime
-
+import threading
 
 def _get_local_mtimes(basedir):
     local_mtimes = {}
@@ -54,7 +54,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                     print("[*] %s is newer than stored version, scheduling backup" % file)
                     do_backup = True
                 else:
-                    print "[✓] %s is up to date." % file 
+                    print "[v] %s is up to date." % file 
             else:
                 print("[?] %s is missing, scheduling download" % file)
                 threads.append(

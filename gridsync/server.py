@@ -5,7 +5,11 @@ import threading
 from PyQt4.QtGui import QApplication
 app = QApplication(sys.argv)
 
-del sys.modules['twisted.internet.reactor'] # Workaround for PyInstaller
+try:
+    del sys.modules['twisted.internet.reactor'] # Workaround for PyInstaller
+except KeyError:
+    pass
+
 from qtreactor import pyqt4reactor
 pyqt4reactor.install()
 
@@ -16,9 +20,11 @@ from gui import Gui
 from config import Config
 from tahoe import Tahoe
 from watcher import Watcher
+from systray import SystemTrayIcon
 
 class ServerProtocol(Protocol):
     def dataReceived(self, data):
+        print("Received command: " + str(data))
         self.factory.parent.handle_command(data)
 
 
@@ -34,7 +40,8 @@ class Server():
         self.tahoe_objects = []
         self.watcher_objects = []
         self.sync_state = 0
-        self.gui = Gui(self)
+        #self.gui = Gui(self)
+        self.tray = SystemTrayIcon(self)
         print "Server initialized: " +str(args)
         
         self.config = Config(self.args.config)
@@ -61,9 +68,9 @@ class Server():
     def check_state(self):
         #print "SYNC STATE IS: " + str(self.sync_state)
         if self.sync_state:
-            self.gui.start_animation()
+            self.tray.start_animation()
         else:
-            self.gui.stop_animation()
+            self.tray.stop_animation()
         t = threading.Timer(1.0, self.check_state)
         t.setDaemon(True)
         t.start()
@@ -75,7 +82,8 @@ class Server():
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
 
-        self.gui.show()
+        #self.gui.show()
+        self.tray.show()
 
         self.check_state()
 

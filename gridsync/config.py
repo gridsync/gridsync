@@ -1,11 +1,14 @@
 import os
+import sys
 import json
 
 
 class Config():
     def __init__(self, config_file=None):
-        if os.name == 'nt':
-            self.config_dir = os.path.join(os.getenv('APPDATA'), 'gridsync')
+        #if 'win' in sys.platform:
+        #    self.config_dir = os.path.join(os.getenv('APPDATA'), 'Gridsync')
+        if sys.platform == 'darwin':
+            self.config_dir = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', 'Gridsync')
         else:
             self.config_dir = os.path.join(os.path.expanduser('~'), '.config', 'gridsync')
         if not os.path.isdir(self.config_dir):

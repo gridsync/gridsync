@@ -29,4 +29,13 @@ def uri_to_settings(uri):
 
     return settings
      
+def decode_uri(uri):
+    if len(uri) % 8 != 0:
+        while len(uri) % 8 != 0:
+            uri = uri + "="
+        return base64.b32decode(uri)
+    else:
+        return base64.b32decode(uri)
 
+def encode_uri(uri):
+    return base64.b32encode(uri).replace('=', '')

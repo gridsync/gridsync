@@ -36,7 +36,7 @@ class Watcher(FileSystemEventHandler):
                 # XXX Race condition
                 self.latest_snapshot = self.get_latest_snapshot()
                 self.parent.sync_state -= 1
-                notify.notify("Sync finished.")
+                #notify.notify("Sync finished.")
         t = threading.Timer(1.0, self.check_for_backup)
         t.setDaemon(True)
         t.start()
