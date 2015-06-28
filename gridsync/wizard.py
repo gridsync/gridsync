@@ -16,6 +16,15 @@ class Wizard(QtGui.QWizard):
         self.createConclusionPage()
         self.setWindowTitle("Gridsync - Welcome")
 
+
+        self.setPixmap(QtGui.QWizard.BannerPixmap, QtGui.QPixmap(':/images/gridsync.png'))
+        #self.setPixmap(QtGui.QWizard.BackgroundPixmap, QtGui.QPixmap(':/images/gridsync.png'))
+
+        #self.setWizardStyle(self.MacStyle)
+        self.setOption(self.HaveHelpButton, True)
+
+        self.setPixmap(QtGui.QWizard.LogoPixmap, QtGui.QPixmap(":/images/gridsync.png"))
+
     def create_welcome_page(self):
         page = QtGui.QWizardPage()
         page.setTitle("Welcome to Gridsync!")
@@ -64,6 +73,7 @@ class Wizard(QtGui.QWizard):
         
         warning_label = QtGui.QLabel('\n\n(If you do not have a Gridsync storage address, you may use the Gridsync project\'s "Public Test Grid" at the address specified above -- but be warned: as this grid is for testing purposes only, it may not always be online and there is no guarantee that your stored files will be available in the future; do not use this service to store anything important!)')
         warning_label.setWordWrap(True)
+        warning_label.setFont(QtGui.QFont('', 10))
         #nameLabel = QtGui.QLabel("Gridsync storage address:")
         #gridsync_link = QtGui.QLineEdit("gridsync:MNWXE2BTOQ2HM43FNRUHOY3SMR5HINJWOJTXQ3DDO42XGMT2MF5EA5DFON2C4Z3SNFSHG6LOMMXGS3Z2GIYDINI")
         #emailLabel = QtGui.QLabel("Email address:")
