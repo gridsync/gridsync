@@ -18,7 +18,7 @@ from qtreactor import pyqt4reactor
 pyqt4reactor.install()
 
 from twisted.internet.protocol import Protocol, Factory
-from twisted.internet import reactor
+from twisted.internet import reactor, task
 
 from config import Config
 from tahoe import Tahoe
@@ -86,27 +86,22 @@ class Server():
         else:
             logging.info("Invalid command: " + command)
 
-
     def check_state(self):
         if self.sync_state:
             self.tray.start_animation()
         else:
             self.tray.stop_animation()
-        t = threading.Timer(1.0, self.check_state)
-        t.setDaemon(True)
-        t.start()
-
 
     def notify(self, title, message):
-        self.gui.show_message('Sync complete', 'blah')
+        self.tray.show_message(title, message)
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
 
-        #self.gui.show()
         self.tray.show()
 
-        self.check_state()
+        loop = task.LoopingCall(self.check_state)
+        loop.start(1.0)
 
         #XXX Defer this
         threads = [threading.Thread(target=o.start) for o in self.tahoe_objects]
@@ -117,7 +112,7 @@ class Server():
         threads = [threading.Thread(target=o.start) for o in self.watcher_objects]
         [t.start() for t in threads]
         #[t.join() for t in threads]
-
+        self.notify('test', '123')
         reactor.run()
         #sys.exit(app.exec_())
 
