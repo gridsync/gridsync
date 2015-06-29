@@ -9,13 +9,15 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="219.1926mm"
-   height="190.97037mm"
-   viewBox="0 0 776.66668 676.66666"
+   width="776.66669"
+   height="776.66669"
+   viewBox="0 0 776.66668 776.66671"
    id="svg4223"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="gridsync60.svg">
+   sodipodi:docname="gridsync.svg"
+   inkscape:export-xdpi="118.66094"
+   inkscape:export-ydpi="118.66094">
   <defs
      id="defs4225" />
   <sodipodi:namedview
@@ -26,8 +28,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.49497475"
-     inkscape:cx="-375.45644"
-     inkscape:cy="308.33335"
+     inkscape:cx="-123.51986"
+     inkscape:cy="358.33327"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -40,17 +42,18 @@
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     fit-margin-top="0"
+     fit-margin-top="50"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0">
+     fit-margin-bottom="50"
+     units="px">
     <inkscape:grid
        type="xygrid"
        id="grid4233"
        spacingx="10"
        spacingy="10"
-       originx="38.333341"
-       originy="-211.66666" />
+       originx="38.33334"
+       originy="-161.66674" />
   </sodipodi:namedview>
   <metadata
      id="metadata4228">
@@ -68,7 +71,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(38.333344,-164.02889)">
+     transform="translate(38.333344,-114.02889)">
     <path
        style="fill:none;fill-rule:evenodd;stroke:#009cff;stroke-width:60;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 500,252.36222 c -300,0 -300,0 -300,0 l -150,250 150,249.99999 300,0 149.99999,-249.99999 -299.99999,0 0,0"

@@ -1,24 +1,24 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+import os
 import sys
 import socket
 import argparse
 import subprocess
+import logging
 
 from twisted.internet.error import CannotListenError
 
-#import allmydata
-#import zfec
-#import simplejson
-#import foolscap
-#import Crypto
-#import mock
-#import pycryptopp
-#import nevow
-#import twisted.python.reflect
-
 from server import Server
+
 
 __version_info__ = ('0', '0', '1')
 __version__ = '.'.join(__version_info__)
+
+
+#if sys.platform == 'darwin':
+#    os.chdir(os.path.expanduser('~'))
 
 
 def send_command(command):
@@ -28,7 +28,7 @@ def send_command(command):
         s.send(command)
         #sys.exit()
     except Exception as e:
-        print(str(e))
+        logging.error(str(e))
 
 def main():
     #signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -41,15 +41,6 @@ def main():
     parser.add_argument('-c', '--config', metavar='', nargs=1, help='Load settings from config file.')
     parser.add_argument('--version', action="version", version='%(prog)s ' + __version__)
     args = parser.parse_args()
-    #print args
-
-    try:
-        output = subprocess.check_output(["tahoe", "-V"])
-        tahoe = output.split('\n')[0]
-        print("Found: " + tahoe)
-    except OSError:
-        sys.exit('Tahoe-LAFS installation not found.')
-
 
     try:
         gridsync = Server(args)
@@ -58,8 +49,7 @@ def main():
         if args.command:
             send_command(args.command)
         else:
-            pass
-            #sys.exit("Gridsync already running.")
+            sys.exit("Gridsync already running.")
 
 
 if __name__ == "__main__":

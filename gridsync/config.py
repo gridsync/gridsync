@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import json
-
+import logging
 
 class Config():
     def __init__(self, config_file=None):
@@ -24,8 +26,6 @@ class Config():
             return json.load(f)
 
     def save(self, dict):
-        print('*** Saving config')
+        logging.info('Saving config to ' + self.config_file)
         with open(self.config_file, 'w') as f:
             json.dump(dict, f, indent=4)
-
-

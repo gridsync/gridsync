@@ -1,10 +1,19 @@
-from PyQt4.QtGui import *
+# -*- coding: utf-8 -*-
 
+import sys
 import resources
 import threading
+import logging
+
+from PyQt4.QtGui import *
 
 from wizard import Wizard
 
+
+def show_wizard(self):
+    w = Wizard()
+    w.exec_()
+    w.raise_()
 
 class LeftClickMenu(QMenu):
     def __init__(self, parent):
@@ -49,7 +58,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, parent):
         super(SystemTrayIcon, self).__init__()
         self.parent = parent
-        self.setIcon(QIcon(":/images/icon.png"))
+        self.setIcon(QIcon(":/images/gridsync64.png"))
 
         self.right_menu = RightClickMenu()
         self.setContextMenu(self.right_menu)
@@ -70,7 +79,8 @@ class SystemTrayIcon(QSystemTrayIcon):
     # always returns 0 for movies rendered off-screen. This may be a bug.
     # http://pyqt.sourceforge.net/Docs/PyQt4/qmovie.html#MovieState-enum
     def start_animation(self):
-        if self.paused:
+        if self.paused and sys.platform != 'darwin':
+            # https://bugreports.qt.io/browse/QTBUG-42910
             self.movie.setPaused(False)
             self.paused = False
 
@@ -78,7 +88,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         if not self.paused:
             self.movie.setPaused(True)
             self.paused = True
-            self.setIcon(QIcon(":/images/icon.png"))
+            self.setIcon(QIcon(":/images/gridsync64.png"))
     
     def show_message(self, title, text):
         self.showMessage(title, text)
@@ -98,8 +108,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         if value == QSystemTrayIcon.Trigger:
             self.left_menu.exec_(QCursor.pos())
 
-def show_wizard(self):
-    w = Wizard()
-    w.exec_()
 
-
+if __name__ == '__main__':
+    app = QApplication([])
+    tray = SystemTrayIcon(None)
+    tray.show()
+    sys.exit(app.exec_())

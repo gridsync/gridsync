@@ -1,13 +1,10 @@
-#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 
 import os
 import sys
 import urllib
 import base64
 
-i = "gridsync://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@162.243.228.43:46210/DIR2:ud4yxj5zmyyxr2ue23u3kuzjwu:qc6inqijwur7xmhmovh7iovwmwykok6ibtefkpbhbe2inktytnma?n=test"
-i2 = "gridsync:cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@162.243.228.43:46210/DIR2:ud4yxj5zmyyxr2ue23u3kuzjwu:qc6inqijwur7xmhmovh7iovwmwykok6ibtefkpbhbe2inktytnma?n=test"
-i3 = "gridsync:cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@162.243.228.43:46210"
 
 def remove_prefix(uri):
     if uri.startswith("gridsync://"):
@@ -25,8 +22,6 @@ def uri_to_settings(uri):
         introducer = "pb://{}/introducer".format(uri.split('/')[0])
         settings['client'] = { 'introducer.furl': introducer }
         #if len(content.split('/')) > 1:
-
-
     return settings
      
 def decode_uri(uri):

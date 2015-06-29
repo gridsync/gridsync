@@ -1,10 +1,11 @@
-# vim:fileencoding=utf-8:ft=python
-from __future__ import unicode_literals
+# -*- coding: utf-8 -*-
 
 import os
 import shutil
 import datetime
 import threading
+import logging
+
 
 def _get_local_mtimes(basedir):
     local_mtimes = {}
@@ -25,7 +26,7 @@ def _create_conflicted_copy(file, mtime):
     shutil.copy2(file, newname)
 
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
-    print("*** Syncing {}...".format(local_dir))
+    logging.info("*** Syncing {}...".format(local_dir))
     local_dir = os.path.expanduser(local_dir)
     remote_dircap = '/'.join([remote_dircap, snapshot])
     local_mtimes = _get_local_mtimes(local_dir) # store this in Watcher()?
@@ -44,26 +45,26 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                 local_mtime = int(local_mtimes[file])
                 remote_mtime = int(metadata['mtime']) # :/
                 if remote_mtime > local_mtime:
-                    print("[@] %s older than stored version, scheduling download" % file)
+                    logging.debug("[@] %s older than stored version, scheduling download" % file)
                     _create_conflicted_copy(file, local_mtime)
                     threads.append(
                             threading.Thread(
                                 target=tahoe.get, 
                                 args=(metadata['uri'], file, remote_mtime)))
                 elif remote_mtime < local_mtime:
-                    print("[*] %s is newer than stored version, scheduling backup" % file)
+                    logging.debug("[*] %s is newer than stored version, scheduling backup" % file)
                     do_backup = True
                 else:
-                    print "[v] %s is up to date." % file 
+                    logging.debug("[v] %s is up to date." % file)
             else:
-                print("[?] %s is missing, scheduling download" % file)
+                logging.debug("[?] %s is missing, scheduling download" % file)
                 threads.append(
                         threading.Thread(
                             target=tahoe.get, 
                             args=(metadata['uri'], file, metadata['mtime'])))
     for file, metadata in local_mtimes.items():
         if file.split(local_dir + os.path.sep)[1] not in remote_mtimes:
-            print("[!] %s isn't stored, scheduling backup" % file)
+            logging.debug("[!] %s isn't stored, scheduling backup" % file)
             do_backup = True
     [t.start() for t in threads]
     [t.join() for t in threads]

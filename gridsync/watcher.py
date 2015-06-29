@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
+
 import os
 import time
 import threading
 import json
+import logging
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -43,18 +46,18 @@ class Watcher(FileSystemEventHandler):
     
     def on_modified(self, event):
         self.do_backup = True
-        print(event)
+        logging.debug(event)
 
     def start(self):
         #self.sync()
         self.check_for_updates()
-        print("*** Starting observer in %s" % self.local_dir)
+        logging.info("Starting observer in %s" % self.local_dir)
         self.observer = Observer()
         self.observer.schedule(self, self.local_dir, recursive=True)
         self.observer.start()
 
     def stop(self):
-        print("*** Stopping observer in %s" % self.local_dir)
+        logging.info("Stopping observer in %s" % self.local_dir)
         try:
             self.observer.stop()
             self.observer.join()
@@ -64,9 +67,9 @@ class Watcher(FileSystemEventHandler):
     def check_for_updates(self):
         latest_snapshot = self.get_latest_snapshot()
         if latest_snapshot == self.latest_snapshot:
-            print("Up to date ({}); nothing to do.".format(latest_snapshot))
+            logging.debug("Up to date ({}); nothing to do.".format(latest_snapshot))
         else:
-            print("New snapshot available ({}); syncing...".format(latest_snapshot))
+            logging.debug("New snapshot available ({}); syncing...".format(latest_snapshot))
             # XXX self.parent.sync_state should probably be a list of syncpair 
             #objects
             # check here for sync_state

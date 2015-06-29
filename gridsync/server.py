@@ -1,6 +1,10 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import threading
+import subprocess
+import logging
 
 from PyQt4.QtGui import QApplication
 app = QApplication(sys.argv)
@@ -16,15 +20,15 @@ pyqt4reactor.install()
 from twisted.internet.protocol import Protocol, Factory
 from twisted.internet import reactor
 
-from gui import Gui
 from config import Config
 from tahoe import Tahoe
 from watcher import Watcher
 from systray import SystemTrayIcon
 
+
 class ServerProtocol(Protocol):
     def dataReceived(self, data):
-        print("Received command: " + str(data))
+        logging.debug("Received command: " + str(data))
         self.factory.parent.handle_command(data)
 
 
@@ -40,14 +44,32 @@ class Server():
         self.tahoe_objects = []
         self.watcher_objects = []
         self.sync_state = 0
-        #self.gui = Gui(self)
-        self.tray = SystemTrayIcon(self)
-        print "Server initialized: " +str(args)
+
         
         self.config = Config(self.args.config)
         self.settings = self.config.load()
-        print "Config loaded: " +self.config.config_file
         #self.load_config()
+        logfile = os.path.join(self.config.config_dir, 'gridsync.log')
+        logging.basicConfig(
+                format='%(asctime)s %(message)s', 
+                filename=logfile, 
+                #filemode='w',
+                level=logging.DEBUG)
+        logging.info("Server initialized: " + str(args))
+        if sys.platform == 'darwin': # Workaround for PyInstaller
+            os.environ["PATH"] += os.pathsep + "/usr/local/bin"
+        logging.info("PATH is: " + os.getenv('PATH'))
+        self.tray = SystemTrayIcon(self)
+
+        try:
+            output = subprocess.check_output(["tahoe", "-V"])
+            tahoe = output.split('\n')[0]
+            logging.info("Found: " + tahoe)
+        except OSError:
+            logging.error('Tahoe-LAFS installation not found; exiting')
+            sys.exit()
+
+
         for node_name, node_settings in self.settings['tahoe_nodes'].items():
             t = Tahoe(os.path.join(self.config.config_dir, node_name), node_settings)
             self.tahoe_objects.append(t)
@@ -58,15 +80,14 @@ class Server():
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
-            print('got gridsync uri')
+            logging.info('got gridsync uri')
         elif command == "stop" or command == "quit":
             self.stop()
         else:
-            print("Invalid command")
+            logging.info("Invalid command: " + command)
 
 
     def check_state(self):
-        #print "SYNC STATE IS: " + str(self.sync_state)
         if self.sync_state:
             self.tray.start_animation()
         else:
@@ -113,5 +134,3 @@ class Server():
 
         reactor.stop()
 
-if __name__ == '__main__':
-    print 'k'

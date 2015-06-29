@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import os
 import subprocess
 import ConfigParser
 import json
 import threading
+import logging
 
 
 class Tahoe():
@@ -19,7 +22,7 @@ class Tahoe():
         return config.get(section, option)
     
     def set_config(self, section, option, value):
-        #print("*** Setting %s option %s to: %s" % (section, option, value))
+        logging.debug("Setting %s option %s to: %s" % (section, option, value))
         config = ConfigParser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.tahoe_path, 'tahoe.cfg'))
         config.set(section, option, value)
@@ -33,14 +36,14 @@ class Tahoe():
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
-        #print("*** Running: %s" % ' '.join(args))
+        logging.debug("Running: %s" % ' '.join(args))
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
         return ret
     
     def command_output(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
-        #print("*** Running: %s" % ' '.join(args))
+        logging.debug("Running: %s" % ' '.join(args))
         out = subprocess.check_output(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
         return out
@@ -65,7 +68,6 @@ class Tahoe():
         self.command("backup -v %s %s" % (local_dir, remote_dircap))
 
     def get(self, remote_uri, local_file, mtime=None):
-        #print(threading.current_thread().name)
         args = ['tahoe', '-d', self.tahoe_path, 'get', remote_uri, local_file]
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
@@ -74,8 +76,7 @@ class Tahoe():
         return ret
 
     def get_metadata(self, dircap, basedir='/', metadata={}):
-        print("*** Getting remote metadata...")
-        #print(threading.current_thread().name)
+        logging.debug("Getting remote metadata...")
         out = self.command_output("ls --json %s" % dircap)
         j = json.loads(out)
         threads = []
@@ -117,7 +118,4 @@ class Tahoe():
             t.start()
         for t in threads:
             t.join()
-        #print("Done.")
         return metadata
-
-
