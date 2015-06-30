@@ -57,7 +57,7 @@ class Server():
                 level=logging.DEBUG)
         logging.info("Server initialized: " + str(args))
         if sys.platform == 'darwin': # Workaround for PyInstaller
-            os.environ["PATH"] += os.pathsep + "/usr/local/bin"
+            os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep + "/Applications/tahoe.app/bin"
         logging.info("PATH is: " + os.getenv('PATH'))
         self.tray = SystemTrayIcon(self)
 
