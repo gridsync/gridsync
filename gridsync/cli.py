@@ -10,11 +10,8 @@ import logging
 
 from twisted.internet.error import CannotListenError
 
+from _version import __version__
 from server import Server
-
-
-__version_info__ = ('0', '0', '1')
-__version__ = '.'.join(__version_info__)
 
 
 #if sys.platform == 'darwin':
@@ -33,7 +30,7 @@ def send_command(command):
 def main():
     #signal.signal(signal.SIGINT, signal.SIG_DFL)
     parser = argparse.ArgumentParser(
-            description='Synchronize local directories with remote Tahoe-LAFS storage grids.',
+            description='Synchronize local directories with Tahoe-LAFS storage grids.',
             epilog='Example: %(prog)s <URI>')
     parser.add_argument('command', nargs='?', help='Command to send (e.g., "stop", "reload", "sync").')
     parser.add_argument('-g', '--no-gui', action='store_true', help='Run without GUI.')

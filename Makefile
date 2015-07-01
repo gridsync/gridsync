@@ -4,6 +4,7 @@ test:
 clean:
 	rm -rf build/
 	rm -rf dist/
+	rm -rf .eggs/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -f {} +
 	find . -name '*.pyc' -exec rm -f {} +

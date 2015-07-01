@@ -1,36 +1,50 @@
 #!/usr/bin/env python2
 
+import os
 import sys
 
-from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
+from setuptools import setup, find_packages, Command
+#from setuptools.command.test import test as TestCommand
 
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
+class PyTest(Command):
+    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
+    def initialize_options(self):
+        self.pytest_args = []
 
-class PyTest(TestCommand):
     def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
+        pass
 
-    def run_tests(self):
+    def run(self):
         import pytest
-        errcode = pytest.main(self.test_args)
-        sys.exit(errcode)
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
+
+#class PyTest(TestCommand):
+#    def finalize_options(self):
+#        TestCommand.finalize_options(self)
+#        self.test_args = []
+#        self.test_suite = True
+
+#    def run_tests(self):
+#        import pytest
+#        errcode = pytest.main(self.test_args)
+#        sys.exit(errcode)
 
 
-dependencies = ['allmydata-tahoe', 'watchdog', 'qt4reactor']
+requirements = ['allmydata-tahoe', 'watchdog', 'qt4reactor']
 if sys.platform == 'linux2':
-    dependencies.append('notify2')
+    requirements.append('notify2')
 
+exec(open(os.path.join('gridsync' ,'_version.py')).read())
 
 setup(
     name="gridsync",
-    version="0.0.1",
+    version=__version__,
+    description="Synchronize local directories with Tahoe-LAFS storage grids.",
+    long_description=open('README.rst').read(),
+    keywords="gridsync tahoe-lafs tahoe lafs allmydata-tahoe",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Console",
@@ -68,11 +82,11 @@ setup(
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",
         ],
-    packages=find_packages(exclude=("tests", "docs")),
+    packages=["gridsync"],
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
-    install_requires=dependencies,
+    install_requires=requirements,
     test_suite="tests",
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
