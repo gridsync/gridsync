@@ -1,10 +1,10 @@
 #!/usr/bin/env python2
 
 import os
+import re
 import sys
 
 from setuptools import setup, find_packages, Command
-#from setuptools.command.test import test as TestCommand
 
 
 class PyTest(Command):
@@ -37,13 +37,19 @@ requirements = ['allmydata-tahoe', 'watchdog', 'qt4reactor']
 if sys.platform == 'linux2':
     requirements.append('notify2')
 
-exec(open(os.path.join('gridsync' ,'_version.py')).read())
+execfile("gridsync/_version.py")
+
+module_file = open("gridsync/__init__.py").read()
+metadata = dict(re.findall("__([a-z]+)__\s*=\s*'([^']+)'", module_file))
 
 setup(
     name="gridsync",
     version=__version__,
     description="Synchronize local directories with Tahoe-LAFS storage grids.",
     long_description=open('README.rst').read(),
+    author=metadata["author"],
+    url=metadata["url"],
+    license=metadata["license"],
     keywords="gridsync tahoe-lafs tahoe lafs allmydata-tahoe",
     classifiers=[
         "Development Status :: 3 - Alpha",
