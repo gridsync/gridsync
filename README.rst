@@ -63,7 +63,6 @@ In development / TODO before first release (July 2015):
 * More unit-tests / better test coverage, CI
 * OS X, Windows desktop notifications
 * Improve Tahoe configuration dialog, first-run wizard
-* Better logging
 * Better icons
 * Upload to PyPI/Github
 
