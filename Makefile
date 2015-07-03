@@ -25,9 +25,9 @@ icns: pngs
 	mkdir -p build/gridsync.iconset
 	sips -s format png --resampleWidth 1024 build/gridsync.png --out build/gridsync.iconset/icon_512x512@2x.png
 	sips -s format png --resampleWidth 512 build/gridsync.png --out build/gridsync.iconset/icon_512x512.png
-	cp build/gridsync.iconset/icon_512x512.png  build/gridsync.iconset/icon_256x256@2x.png
+	cp build/gridsync.iconset/icon_512x512.png build/gridsync.iconset/icon_256x256@2x.png
 	sips -s format png --resampleWidth 256 build/gridsync.png --out build/gridsync.iconset/icon_256x256.png
-	cp build/gridsync.iconset/icon_256x256.png  build/gridsync.iconset/icon_128x128@2x.png
+	cp build/gridsync.iconset/icon_256x256.png build/gridsync.iconset/icon_128x128@2x.png
 	sips -s format png --resampleWidth 128 build/gridsync.png --out build/gridsync.iconset/icon_128x128.png
 	sips -s format png --resampleWidth 64 build/gridsync.png --out build/gridsync.iconset/icon_32x32@2x.png
 	sips -s format png --resampleWidth 32 build/gridsync.png --out build/gridsync.iconset/icon_32x32.png
@@ -47,6 +47,14 @@ install: clean
 
 app: clean icns
 	pyinstaller --clean --onefile --windowed gridsync.spec
+
+dmg: app
+	mkdir -p dist/dmg
+	mv dist/Gridsync.app dist/dmg
+	create-dmg --volname "Gridsync" \
+		--app-drop-link 320 2 \
+		dist/Gridsync.dmg \
+		dist/dmg
 
 uninstall:
 	pip uninstall -y gridsync
