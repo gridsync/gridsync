@@ -34,7 +34,7 @@ resources: gif
 install: clean
 	python setup.py install --user
 
-app: clean
+app: clean icns
 	pyinstaller --clean --onefile --windowed gridsync.spec
 
 uninstall:
