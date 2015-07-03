@@ -13,7 +13,7 @@ import sync
 
 
 class Watcher(FileSystemEventHandler):
-    def __init__(self, parent, tahoe, local_dir, remote_dircap, polling_frequency=60):
+    def __init__(self, parent, tahoe, local_dir, remote_dircap, polling_frequency=20):
         self.parent = parent
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
