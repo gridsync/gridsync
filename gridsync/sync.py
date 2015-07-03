@@ -28,9 +28,9 @@ def _create_conflicted_copy(file, mtime):
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     logging.info("*** Syncing {}...".format(local_dir))
     local_dir = os.path.expanduser(local_dir)
-    remote_dircap = '/'.join([remote_dircap, snapshot])
+    remote_path = '/'.join([remote_dircap, snapshot])
     local_mtimes = _get_local_mtimes(local_dir) # store this in Watcher()?
-    remote_mtimes = tahoe.get_metadata(remote_dircap, metadata={})
+    remote_mtimes = tahoe.get_metadata(remote_path, metadata={})
     do_backup = False
     threads = []
     for file, metadata in remote_mtimes.items():

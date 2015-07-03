@@ -58,7 +58,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, parent):
         super(SystemTrayIcon, self).__init__()
         self.parent = parent
-        self.setIcon(QIcon(":/images/gridsync64.png"))
+        self.setIcon(QIcon(":gridsync.png"))
 
         self.right_menu = RightClickMenu()
         self.setContextMenu(self.right_menu)
@@ -67,8 +67,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.activated.connect(self.on_click)
 
         self.movie = QMovie()
-        self.movie.setFileName(":/images/sync.gif")
-        self.movie.setSpeed(150)
+        self.movie.setFileName(":sync.gif")
         self.movie.updated.connect(self.on_systray_update)
         self.movie.setCacheMode(True)
         self.paused = True
@@ -86,7 +85,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         if not self.paused:
             self.movie.setPaused(True)
             self.paused = True
-            self.setIcon(QIcon(":/images/gridsync64.png"))
+            self.setIcon(QIcon(":gridsync.png"))
             self.show_message('', 'Sync complete')
     
     def show_message(self, title, text):

@@ -1,8 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>images/gridsync.png</file>
-    <file>images/gridsync64.png</file>
-    <file>images/icon.png</file>
-    <file>images/sync.gif</file>
+    <file alias="gridsync.png">build/gridsync.png</file>
+    <file alias="sync.gif">build/sync.gif</file>
 </qresource>
 </RCC>

@@ -2,18 +2,18 @@
 
 import os
 import sys
+import time
 import threading
 import subprocess
 import logging
-
-from PyQt4.QtGui import QApplication
-app = QApplication(sys.argv)
 
 try:
     del sys.modules['twisted.internet.reactor'] # Workaround for PyInstaller
 except KeyError:
     pass
 
+from PyQt4.QtGui import QApplication
+app = QApplication(sys.argv)
 from qtreactor import pyqt4reactor
 pyqt4reactor.install()
 
@@ -41,8 +41,8 @@ class ServerFactory(Factory):
 class Server():
     def __init__(self, args):
         self.args = args
-        self.tahoe_objects = []
-        self.watcher_objects = []
+        self.gateways = []
+        self.watchers = []
         self.sync_state = 0
 
         
@@ -57,7 +57,8 @@ class Server():
                 level=logging.DEBUG)
         logging.info("Server initialized: " + str(args))
         if sys.platform == 'darwin': # Workaround for PyInstaller
-            os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep + "/Applications/tahoe.app/bin"
+            os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
+                    + "/Applications/tahoe.app/bin"
         logging.info("PATH is: " + os.getenv('PATH'))
         self.tray = SystemTrayIcon(self)
 
@@ -69,14 +70,13 @@ class Server():
             logging.error('Tahoe-LAFS installation not found; exiting')
             sys.exit()
 
-
         for node_name, node_settings in self.settings['tahoe_nodes'].items():
             t = Tahoe(os.path.join(self.config.config_dir, node_name), node_settings)
-            self.tahoe_objects.append(t)
+            self.gateways.append(t)
             for sync_name, sync_settings in self.settings['sync_targets'].items():
                 if sync_settings[0] == node_name:
                     w = Watcher(self, t, os.path.expanduser(sync_settings[1]), sync_settings[2])
-                    self.watcher_objects.append(w)
+                    self.watchers.append(w)
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
@@ -95,37 +95,43 @@ class Server():
     def notify(self, title, message):
         self.tray.show_message(title, message)
 
-    def start(self):
-        reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
-
-        self.tray.show()
-
-        loop = task.LoopingCall(self.check_state)
-        loop.start(1.0)
-
-        #XXX Defer this
-        threads = [threading.Thread(target=o.start) for o in self.tahoe_objects]
+    def start_gateways(self):
+        threads = [threading.Thread(target=o.start) for o in self.gateways]
         [t.start() for t in threads]
         [t.join() for t in threads]
-        #time.sleep(1)
 
-        threads = [threading.Thread(target=o.start) for o in self.watcher_objects]
+    def start_watchers(self):
+        threads = [threading.Thread(target=o.start) for o in self.watchers]
         [t.start() for t in threads]
         #[t.join() for t in threads]
-        self.notify('test', '123')
+
+    def start(self):
+        reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
+        self.tray.show()
+        loop = task.LoopingCall(self.check_state)
+        loop.start(1.0)
+        reactor.addSystemEventTrigger("before", "shutdown", self.stop)
+        self.start_gateways()
+        time.sleep(3)
+        self.start_watchers()
         reactor.run()
         #sys.exit(app.exec_())
 
     def stop(self):
-        threads = [threading.Thread(target=o.stop) for o in self.watcher_objects]
+        self.stop_watchers()
+        self.stop_gateways()
+        self.config.save(self.settings)
+    
+    def stop_watchers(self):
+        threads = [threading.Thread(target=o.stop) for o in self.watchers]
         [t.start() for t in threads]
         [t.join() for t in threads]
         
-        threads = [threading.Thread(target=o.stop) for o in self.tahoe_objects]
+    def stop_gateways(self):
+        threads = [threading.Thread(target=o.stop) for o in self.gateways]
         [t.start() for t in threads]
         [t.join() for t in threads]
 
-        self.config.save(self.settings)
 
-        reactor.stop()
+        #reactor.stop()
 

@@ -15,7 +15,7 @@
    id="svg4223"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="gridsync.svg"
+   sodipodi:docname="gridsync03.svg"
    inkscape:export-xdpi="118.66094"
    inkscape:export-ydpi="118.66094">
   <defs
@@ -28,8 +28,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.3285716"
-     inkscape:cx="390.03282"
-     inkscape:cy="392.34249"
+     inkscape:cx="221.06541"
+     inkscape:cy="392.29394"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -38,9 +38,9 @@
      inkscape:bbox-nodes="true"
      inkscape:snap-bbox-midpoints="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1080"
+     inkscape:window-height="1058"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="22"
      inkscape:window-maximized="0"
      fit-margin-top="50"
      fit-margin-left="0"
@@ -123,7 +123,7 @@
        id="path4167-0"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#009cff;stroke-width:60;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#00ffff;stroke-width:60;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 650,502.36233 c -300,0 -300,0 -300,0"
        id="path4167-4"
        inkscape:connector-curvature="0" />
@@ -142,14 +142,14 @@
        rx="58.333351"
        ry="58.333324" />
     <ellipse
-       style="fill:#000000;stroke:#009cff;stroke-width:60;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#000000;stroke:#00ffff;stroke-width:60;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path4791-12-6-8-36"
        cy="502.36234"
        cx="350"
        rx="58.333351"
        ry="58.333324" />
     <ellipse
-       style="fill:#000000;stroke:#009cff;stroke-width:60;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#000000;stroke:#00ffff;stroke-width:60;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path4791-12-6-8-2"
        cy="502.36234"
        cx="650"
