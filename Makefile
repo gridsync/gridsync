@@ -47,6 +47,7 @@ install: clean
 
 app: clean icns
 	pyinstaller --clean --onefile --windowed gridsync.spec
+	cp Info.plist dist/Gridsync.app/Contents
 
 dmg: app
 	mkdir -p dist/dmg

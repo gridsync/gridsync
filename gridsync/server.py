@@ -37,18 +37,16 @@ class ServerFactory(Factory):
     def __init__(self, parent):
         self.parent = parent
 
-#XXX Change to twisted service?
+
 class Server():
     def __init__(self, args):
         self.args = args
         self.gateways = []
         self.watchers = []
         self.sync_state = 0
-
         
         self.config = Config(self.args.config)
         self.settings = self.config.load()
-        #self.load_config()
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
         logging.basicConfig(
                 format='%(asctime)s %(message)s', 
@@ -58,7 +56,8 @@ class Server():
         logging.info("Server initialized: " + str(args))
         if sys.platform == 'darwin': # Workaround for PyInstaller
             os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
-                    + "/Applications/tahoe.app/bin"
+                    + "/Applications/tahoe.app/bin" + os.pathsep \
+                    + os.path.expanduser("~/Library/Python/2.7/bin")
         logging.info("PATH is: " + os.getenv('PATH'))
         self.tray = SystemTrayIcon(self)
 
