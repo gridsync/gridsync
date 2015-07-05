@@ -8,7 +8,9 @@ import logging
 from PyQt4.QtGui import *
 
 from wizard import Wizard
-from grid_editor import Ui_MainWindow
+#from grid_editor import Ui_MainWindow
+
+from gui.grid_editor import Ui_MainWindow as MW
 
 def show_wizard(self):
     w = Wizard()
@@ -16,7 +18,7 @@ def show_wizard(self):
     w.raise_()
 
 def show_main(self):
-    w = Ui_MainWindow()
+    w = MW()
     w.show()
     w.raise_()
 

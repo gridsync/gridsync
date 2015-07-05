@@ -1,3 +1,5 @@
+.PHONY: ui
+
 test:
 	python setup.py test
 
@@ -41,6 +43,12 @@ gif: pngs
 resources: gif
 	convert -scale 256x256 -gravity center -extent 256x256 -background transparent images/gridsync.svg build/gridsync.png
 	pyrcc4 -py2 resources.qrc -o gridsync/resources.py
+
+ui:
+	for i in ui/*.ui; do \
+		filename=$$(basename $$i); \
+		pyuic4 $$i -o gridsync/gui/$${filename%%.*}.py; \
+	done
 
 install: clean
 	python setup.py install --user

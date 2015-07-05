@@ -26,14 +26,16 @@ def _create_conflicted_copy(filename, mtime):
     shutil.copy2(filename, newname)
 
 def _create_versioned_copy(local_dir, filename, mtime):
-    basedir = os.path.join(local_dir, '.gridsync-versions')
-    if not os.path.isdir(basedir):
-        os.makedirs(basedir)
+    versions_dir = os.path.join(local_dir, '.gridsync-versions')
+    local_filepath = os.path.join(local_dir, filename)
     base, extension = os.path.splitext(filename)
     t = datetime.datetime.fromtimestamp(mtime)
     tag = t.strftime('.(%Y-%m-%d %H-%M-%S)')
-    newname = os.path.join(basedir, base + tag + extension)
-    shutil.copy2(filename, newname)
+    versioned_filepath = os.path.join(versions_dir, base + tag + extension)
+    if not os.path.isdir(os.path.dirname(versioned_filepath)):
+        os.makedirs(os.path.dirname(versioned_filepath))
+    logging.info("Copying version of {} to {}".format(local_filepath, versioned_filepath))
+    shutil.copy2(local_filepath, versioned_filepath)
 
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     # XXX Here be dragons!
@@ -51,6 +53,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                 os.makedirs(dir)
     for file, metadata in remote_mtimes.items():
         if metadata['type'] == 'filenode':
+            remote_filepath = file
             file = os.path.join(local_dir, file)
             if file in local_mtimes:
                 local_mtime = int(local_mtimes[file])
@@ -58,7 +61,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                 if remote_mtime > local_mtime:
                     logging.debug("[@] %s older than stored version, scheduling download" % file)
                     #_create_conflicted_copy(file, local_mtime)
-                    _create_versioned_copy(local_dir, file, local_mtime)
+                    _create_versioned_copy(local_dir, remote_filepath, local_mtime)
                     threads.append(
                             threading.Thread(
                                 target=tahoe.get, 
@@ -76,6 +79,9 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                             args=(metadata['uri'], file, metadata['mtime'])))
     for file, metadata in local_mtimes.items():
         if file.split(local_dir + os.path.sep)[1] not in remote_mtimes:
+            # TODO: Distinguish between local files that haven't been stored
+            # and intentional (remote) deletions (perhaps only polled syncs 
+            # should delete?)
             logging.debug("[!] %s isn't stored, scheduling backup" % file)
             do_backup = True
     [t.start() for t in threads]

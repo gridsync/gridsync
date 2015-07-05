@@ -88,7 +88,7 @@ setup(
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",
         ],
-    packages=["gridsync"],
+    packages=["gridsync", "gridsync.gui"],
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
