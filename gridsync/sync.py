@@ -18,14 +18,25 @@ def _get_local_mtimes(basedir):
             local_mtimes[fn] = os.path.getmtime(fn)
     return local_mtimes
 
-def _create_conflicted_copy(file, mtime):
-    base, extension = os.path.splitext(file)
+def _create_conflicted_copy(filename, mtime):
+    base, extension = os.path.splitext(filename)
     t = datetime.datetime.fromtimestamp(mtime)
     tag = t.strftime('.(conflicted copy %Y-%m-%d %H-%M-%S)')
     newname = base + tag + extension
-    shutil.copy2(file, newname)
+    shutil.copy2(filename, newname)
+
+def _create_versioned_copy(local_dir, filename, mtime):
+    basedir = os.path.join(local_dir, '.gridsync-versions')
+    if not os.path.isdir(basedir):
+        os.makedirs(basedir)
+    base, extension = os.path.splitext(filename)
+    t = datetime.datetime.fromtimestamp(mtime)
+    tag = t.strftime('.(%Y-%m-%d %H-%M-%S)')
+    newname = os.path.join(basedir, base + tag + extension)
+    shutil.copy2(filename, newname)
 
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
+    # XXX Here be dragons!
     logging.info("*** Syncing {}...".format(local_dir))
     local_dir = os.path.expanduser(local_dir)
     remote_path = '/'.join([remote_dircap, snapshot])
@@ -46,7 +57,8 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                 remote_mtime = int(metadata['mtime']) # :/
                 if remote_mtime > local_mtime:
                     logging.debug("[@] %s older than stored version, scheduling download" % file)
-                    _create_conflicted_copy(file, local_mtime)
+                    #_create_conflicted_copy(file, local_mtime)
+                    _create_versioned_copy(local_dir, file, local_mtime)
                     threads.append(
                             threading.Thread(
                                 target=tahoe.get, 
@@ -55,7 +67,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                     logging.debug("[*] %s is newer than stored version, scheduling backup" % file)
                     do_backup = True
                 else:
-                    logging.debug("[v] %s is up to date." % file)
+                    logging.debug("[.] %s is up to date." % file)
             else:
                 logging.debug("[?] %s is missing, scheduling download" % file)
                 threads.append(

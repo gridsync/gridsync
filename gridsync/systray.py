@@ -8,11 +8,16 @@ import logging
 from PyQt4.QtGui import *
 
 from wizard import Wizard
-
+from grid_editor import Ui_MainWindow
 
 def show_wizard(self):
     w = Wizard()
     w.exec_()
+    w.raise_()
+
+def show_main(self):
+    w = Ui_MainWindow()
+    w.show()
     w.raise_()
 
 class LeftClickMenu(QMenu):
@@ -42,7 +47,7 @@ class RightClickMenu(QMenu):
 
         icon = QIcon("")
         wizard_action = QAction(icon, '&Wizard', self)
-        wizard_action.triggered.connect(show_wizard)
+        wizard_action.triggered.connect(show_main)
         self.addAction(wizard_action)
 
         self.addSeparator()
