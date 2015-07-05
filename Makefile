@@ -46,7 +46,9 @@ install: clean
 	python setup.py install --user
 
 app: clean icns
-	pyinstaller --clean --onefile --windowed gridsync.spec
+	#pyinstaller --clean --onefile --windowed gridsync.spec
+	pyinstaller --clean --onefile --windowed --icon=build/gridsync.icns --name=gridsync gridsync/cli.py
+	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
 
 dmg: app
