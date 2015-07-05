@@ -2,27 +2,33 @@
 Gridsync
 ========
 
-Gridsync is a cross-platform, graphical user interface for `Tahoe-LAFS`_, the Least Authority File Store. It is intended to simplify the configuration and management of locally-running Tahoe-LAFS gateways and to provide user-friendly mechanisms for backing up local files, synchronizing directories between devices, and sharing files and storage resources with other users across all major desktop platforms (GNU/Linux, Mac OS X, and Windows). More simply, Gridsync aims to duplicate most of the core functionality provided by other, proprietary "cloud" backup/synchronization services and utilities (such as Dropbox and BitTorrent Sync) but without demanding any sacrifice of the user's privacy or freedom -- and without requiring usage or knowledge of the command line.
+Gridsync is a cross-platform, graphical user interface for `Tahoe-LAFS`_, the Least Authority File Store. It is intended to simplify the configuration and management of locally-running Tahoe-LAFS gateways and to provide user-friendly mechanisms for seemlessly backing up local files, synchronizing directories between devices, and sharing files and storage resources with other users across all major desktop platforms (GNU/Linux, Mac OS X, and Windows). More simply, Gridsync aims to duplicate most of the core functionality provided by other, proprietary "cloud" backup/synchronization services and utilities (such as Dropbox and BitTorrent Sync) but without demanding any sacrifice of the user's privacy or freedom -- and without requiring usage or knowledge of the command line. Accordingly, Gridsync is developed under the principle that secure file storage and backups should be freely available to everyone, without exception, without added barriers, and regardless of one's operating system choice.
 
 .. _Tahoe-LAFS: https://tahoe-lafs.org
+
+``WARNING: At present, Gridsync is in the very early stages of development and, like many other Free and Open Source projects, is severely lacking development resources; so long as this notice remains, all code should be considered broken, incomplete, bug-ridden, or in an extreme alpha state and should not be relied upon by anyone. Do not use this software for anything important!``
+
 
 Why Gridsync?
 -------------
 
-Tahoe-LAFS already provides a number of desirable properties for file-storage: it is secure, decentralized, highly robust, free (as in both beer and speech), stable and mature, and written by a group of very talented developers. Unfortunately -- and despite all of its technical merits -- Tahoe-LAFS lacks where many of its competitors excel: its installatation requires heavy-usage of the command line, its configuration consists in hand-editing text files, and many of its fundamental concepts (e.g., "dircap", "servers-of-happiness") are opaque or otherwise demand additional reading of the project's extensive documentation. Accordingly, Tahoe-LAFS' userbase consists primarily in seasoned developers and system administrators; average users are naturally excluded from enjoying Tahoe-LAFS' aferomentioned advantages.
+Tahoe-LAFS already provides a number of desirable properties for file-storage: it is secure, decentralized, highly robust, free (as in both beer and speech), stable and mature, and written by a group of very talented developers. Unfortunately -- and despite all of its technical merits -- Tahoe-LAFS lacks where many of its competitors excel: its installatation requires heavy-usage of the command line, its configuration consists in hand-editing text files, and many of its fundamental concepts (e.g., "dircap", "servers-of-happiness") are opaque or otherwise demand additional reading of the project's extensive documentation. Accordingly, Tahoe-LAFS' userbase consists primarily in seasoned developers and system administrators; "average" users are naturally excluded from enjoying Tahoe-LAFS' aforementioned advantages.
 
 The Gridsync project intends to overcome some of Tahoe-LAFS' barriers-to-adoption by means of following features:
 
 * A graphical user interface for managing all primary Tahoe-LAFS gateway functionality (e.g., starting, stopping, configuring nodes) -- the user will never have to edit a text file by hand.
 * Native look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
-* Local filesystem monitoring -- Gridsync watches for local changes to files and directories (via inotify/FSEvents/kqueue/ReadDirectoryChangesW) and can automate backup operations.
+* Local filesystem monitoring -- Gridsync watches for local changes to files and directories (via inotify/FSEvents/kqueue/ReadDirectoryChangesW) and can automate backup operations[*]_.
 * Remote filesystem monitoring -- Gridsync periodically polls for changes in remote storage grids, providing basic synchronization functionality.
-* Status indicators and desktop notifications -- the user will know, at a glance, when files are being uploaded or downloaded (via system tray icon animations) and will optionally receive notifications (via DBus on GNU/Linux, Growl/Nofication Center on OS X, etc.) when operations have completed.
+* Status indicators and desktop notifications -- the user will know, at a glance, when files are being uploaded or downloaded (via system tray icon animations) and will optionally receive notifications (via DBus on GNU/Linux, Notification Center on OS X, etc.) when operations have completed.
 * 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the IANA-friendly `Gridsync URI specification`_ allows users to easily join friends' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
 * OS/Desktop-level integration -- Gridsync will (optionally) run at startup, install URI-handlers, provide context menus for file-sharing in file managers, etc.
 
 .. _Gridsync URI specification: https://github.com/gridsync/gridsync/blob/master/docs/uri_scheme.rst
 
+.. [*] It is worth mentioning that `Least Authority`_ has recently received OTF funding to develop Magic Folders, "a 'Dropbox-esque', friendly file-syncing utility," for Tahoe-LAFS. According to their own stated objectives, however, Magic Folders will only target Linux and Windows (omitting, at least implicitly, Mac OS X and other BSD-based operating systems). It is also presently unknown whether the completed implementation of Magic Folders will include a desktop-oriented interface. As a result, the goals of the Gridsync project are likely to remain relevant and useful beyond the completion of Magic Folders' stated objectives.
+
+.. _Least Authority: https://leastauthority.com/
 
 Brief UX sketch/outline
 -----------------------
