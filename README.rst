@@ -96,7 +96,7 @@ Linux (Debian-based systems):
 Mac OS X[*]_:
 
 1. `Manually install Tahoe-LAFS`_ (*or* download/run the pre-built installer available `here`_)
-2. Download `Gridsync (dmg)` and drag the contained Gridsync.app into your Applications folder (or anywhere)
+2. Download `Gridsync (dmg)`_ and drag the contained Gridsync.app into your Applications folder (or anywhere)
 
 Windows[*]_:
 
@@ -106,7 +106,7 @@ Windows[*]_:
 .. _here: https://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
 .. _Gridsync: https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
 
-.. _[*]: In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled with Gridsync in a single, unified installer.
+.. _[*] In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled with Gridsync in a single, unified installer.
 
 
 Running:
@@ -128,7 +128,7 @@ Windows:
 Contributing:
 -------------
 
-Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requests) are more than welcome! Any persons interested in aiding the development of Gridsync are encouraged to do so by opening a `GitHub Issue_` or by contacting its primary developeri at `chris@gridsync.io`_.
+Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requests) are more than welcome! Any persons interested in aiding the development of Gridsync are encouraged to do so by opening a `GitHub Issue_` or by contacting its primary developer: `chris@gridsync.io`_
 
 .. _GitHub Issue: https://github.com/crwood/gridsync/issues
 .. _chris@gridsync.io: mailto:chris@gridsync.io
