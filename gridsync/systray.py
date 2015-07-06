@@ -2,57 +2,55 @@
 
 import sys
 import resources
-import threading
 import logging
 
 from PyQt4.QtGui import *
 
 from wizard import Wizard
-#from grid_editor import Ui_MainWindow
 
-from gui.grid_editor import Ui_MainWindow as MW
+from gui.grid_editor import Ui_MainWindow
+
 
 def show_wizard(self):
     w = Wizard()
     w.exec_()
     w.raise_()
 
-def show_main(self):
-    w = MW()
-    w.show()
-    w.raise_()
+
+class MainWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
 
 class LeftClickMenu(QMenu):
     def __init__(self, parent):
         super(LeftClickMenu, self).__init__()
 
-        icon = QIcon.fromTheme("document-new")
-        self.addAction(QAction(icon, "&New", self))
-
-        icon = QIcon("")
-        start_action = QAction(icon, '&Start', self)
-        start_action.triggered.connect(parent.start_animation)
-        self.addAction(start_action)
-
-        icon = QIcon("")
-        stop_action = QAction(icon, '&Stop', self)
-        stop_action.triggered.connect(parent.stop_animation)
-        self.addAction(stop_action)
-
 
 class RightClickMenu(QMenu):
-    def __init__(self):
+    def __init__(self, parent):
         super(RightClickMenu, self).__init__()
 
         icon = QIcon("")
-        self.addAction(QAction(icon, "&Show main window", self))
+        mw_action = QAction(icon, "Preferences", self)
+        mw_action.triggered.connect(parent.mw.show)
+        self.addAction(mw_action)
+
 
         icon = QIcon("")
         wizard_action = QAction(icon, '&Wizard', self)
-        wizard_action.triggered.connect(show_main)
+        wizard_action.triggered.connect(show_wizard)
         self.addAction(wizard_action)
 
         self.addSeparator()
+        # Help
+        # --Online documentation...
+        # --GitHub Issues...
+        # -----
+        # --About Gridsync
+
 
         icon = QIcon("")
         quit_action = QAction(icon, '&Quit', self)
@@ -65,9 +63,12 @@ class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, parent):
         super(SystemTrayIcon, self).__init__()
         self.parent = parent
+        
+        self.mw = MainWindow()
+        
         self.setIcon(QIcon(":gridsync.png"))
 
-        self.right_menu = RightClickMenu()
+        self.right_menu = RightClickMenu(self)
         self.setContextMenu(self.right_menu)
 
         self.left_menu = LeftClickMenu(self)
@@ -93,7 +94,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.movie.setPaused(True)
             self.paused = True
             self.setIcon(QIcon(":gridsync.png"))
-            self.show_message('', 'Sync complete')
+            self.show_message('Sync complete', '<information goes here>')
     
     def show_message(self, title, text):
         self.showMessage(title, text)
@@ -110,7 +111,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def on_click(self, value):
         if value == QSystemTrayIcon.Trigger:
-            self.left_menu.exec_(QCursor.pos())
+            self.mw.show()
+            #self.left_menu.exec_(QCursor.pos())
 
 
 if __name__ == '__main__':

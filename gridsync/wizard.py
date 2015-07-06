@@ -14,12 +14,9 @@ class Wizard(QtGui.QWizard):
         self.createConclusionPage()
         self.setWindowTitle("Gridsync - Welcome")
 
-
-        self.setPixmap(QtGui.QWizard.BannerPixmap, QtGui.QPixmap(':/images/gridsync.png'))
+        #self.setPixmap(QtGui.QWizard.BannerPixmap, QtGui.QPixmap(':/images/gridsync.png'))
         #self.setPixmap(QtGui.QWizard.BackgroundPixmap, QtGui.QPixmap(':/images/gridsync.png'))
-
         #self.setWizardStyle(self.MacStyle)
-        self.setOption(self.HaveHelpButton, True)
 
         self.setPixmap(QtGui.QWizard.LogoPixmap, QtGui.QPixmap(":/images/gridsync.png"))
 
@@ -27,7 +24,7 @@ class Wizard(QtGui.QWizard):
         page = QtGui.QWizardPage()
         page.setTitle("Welcome to Gridsync!")
 
-        label = QtGui.QLabel('Gridsync is a Free Software application based on Tahoe-LAFS, the Least Authority File Store. It allows you to safely store all of your important files into a storage "grid" -- a distributed cluster of computers connected to the Internet.\n\nUnlike most other traditional "Cloud" services, any data stored by Gridsync is safe and secure by default; nobody can read or alter the files stored in your grid without your permission -- not even the owners of the computers that store them.')
+        label = QtGui.QLabel('Gridsync is a Free Software application based on Tahoe-LAFS, the Least Authority File Store. It allows you to safely store all of your important files into a storage "grid" -- a distributed cluster of servers connected to the Internet.\n\nUnlike most other traditional "Cloud" services, any data stored by Gridsync is safe and secure by default; nobody can read or alter the files stored in your grid without your permission -- not even the owners of the servers that store them.')
         label.setWordWrap(True)
 
         layout = QtGui.QVBoxLayout()
@@ -39,10 +36,14 @@ class Wizard(QtGui.QWizard):
 
     def create_systray_page(self):
         page = QtGui.QWizardPage()
-        #page.setTitle("Welcome to Gridsync!")
-        label = QtGui.QLabel('[INSERT SYSTRAY IMAGE HERE]\n\n\nLike many other popular applications, Gridsync runs in the background of your computer and works while you do. If you ever need to change your settings, you can do so by clicking the Gridsync icon in your system tray.')
+        img = QtGui.QLabel()
+        pixmap = QtGui.QPixmap(":osx-tray.png")
+        img.setPixmap(pixmap)
+
+        label = QtGui.QLabel('Like many other popular applications, Gridsync runs in the background of your computer and works while you do. If you ever need to change your settings, you can do so by clicking the Gridsync icon in your system tray.')
         label.setWordWrap(True)
         layout = QtGui.QVBoxLayout()
+        layout.addWidget(img, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
         layout.addWidget(label)
         page.setLayout(layout)
         self.addPage(page)
@@ -63,8 +64,11 @@ class Wizard(QtGui.QWizard):
         page = QtGui.QWizardPage()
         page.setTitle("Configuration")
         #page.setSubTitle("Please fill both fields.")
+
         label = QtGui.QLabel('To get started, please enter a Gridsync storage address below:\n')
         label.setWordWrap(True)
+
+        #self.dir = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
 
         gridsync_link = QtGui.QLineEdit("gridsync://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@test.gridsync.io:2045")
         self.gridsync_link = gridsync_link.text()
@@ -77,17 +81,13 @@ class Wizard(QtGui.QWizard):
         #emailLabel = QtGui.QLabel("Email address:")
         #emailLineEdit = QtGui.QLineEdit()
 
+
         layout = QtGui.QVBoxLayout()
-        #layout = QtGui.QGridLayout()
         layout.addWidget(label)
         layout.addWidget(gridsync_link)
         layout.addWidget(warning_label)
-        #layout.addWidget(nameLabel)
-
-        #layout.addWidget(nameLabel, 1, 0)
-        #layout.addWidget(gridsync_link, 1, 1)
+        
         page.setLayout(layout)
-
         self.addPage(page)
 
     def createConclusionPage(self):

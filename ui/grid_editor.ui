@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>665</width>
-    <height>401</height>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="statusTip">
+       <string/>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -281,14 +284,51 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="statusTip">
-           <string>Save settings and reload.</string>
-          </property>
-          <property name="text">
-           <string>Apply</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="pushButton_4">
+            <property name="statusTip">
+             <string>Share this grid with a friend (NOT YET IMPLEMENTED).</string>
+            </property>
+            <property name="text">
+             <string>Share...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_13">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_3">
+            <property name="statusTip">
+             <string>Close without saving changes.</string>
+            </property>
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="statusTip">
+             <string>Save settings and reload.</string>
+            </property>
+            <property name="text">
+             <string>Apply</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -553,11 +593,42 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
-          <property name="text">
-           <string>Apply</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="pushButton_6">
+            <property name="text">
+             <string>Share...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_14">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_5">
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="text">
+             <string>Apply</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -566,87 +637,6 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>665</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>&amp;File</string>
-    </property>
-    <addaction name="actionAdd_new_connection"/>
-    <addaction name="actionShare"/>
-    <addaction name="separator"/>
-    <addaction name="actionQuit_2"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="actionGitHub_Issues"/>
-    <addaction name="actionAbout"/>
-    <addaction name="separator"/>
-    <addaction name="actionAbout_Gridsync"/>
-   </widget>
-   <widget class="QMenu" name="menu_Edit">
-    <property name="title">
-     <string>&amp;Edit</string>
-    </property>
-    <addaction name="actionPreferences"/>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menu_Edit"/>
-   <addaction name="menuHelp"/>
-  </widget>
-  <action name="actionAdd_new_connection">
-   <property name="text">
-    <string>Add new connection...</string>
-   </property>
-  </action>
-  <action name="actionQuit">
-   <property name="icon">
-    <iconset>
-     <normaloff>code/gridsync/images/gridsync.svg</normaloff>code/gridsync/images/gridsync.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Quit</string>
-   </property>
-  </action>
-  <action name="actionGitHub_Issues">
-   <property name="text">
-    <string>Online documentation...</string>
-   </property>
-  </action>
-  <action name="actionAbout">
-   <property name="text">
-    <string>GitHub issues...</string>
-   </property>
-  </action>
-  <action name="actionAbout_Gridsync">
-   <property name="text">
-    <string>About Gridsync</string>
-   </property>
-  </action>
-  <action name="actionShare">
-   <property name="text">
-    <string>Share this connection...</string>
-   </property>
-  </action>
-  <action name="actionQuit_2">
-   <property name="text">
-    <string>Quit</string>
-   </property>
-  </action>
-  <action name="actionPreferences">
-   <property name="text">
-    <string>Preferences...</string>
-   </property>
-  </action>
  </widget>
  <tabstops>
   <tabstop>lineEdit_5</tabstop>

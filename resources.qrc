@@ -2,5 +2,6 @@
 <qresource>
     <file alias="gridsync.png">build/gridsync.png</file>
     <file alias="sync.gif">build/sync.gif</file>
+    <file alias="osx-tray.png">images/screenshots/osx-tray.png</file>
 </qresource>
 </RCC>

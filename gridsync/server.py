@@ -118,7 +118,7 @@ class Server():
 
     def stop(self):
         self.stop_watchers()
-        self.stop_gateways()
+        #self.stop_gateways()
         self.config.save(self.settings)
     
     def stop_watchers(self):
