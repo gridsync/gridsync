@@ -104,7 +104,7 @@ Windows:
 
 .. _Manually install Tahoe-LAFS: https://tahoe-lafs.org/trac/tahoe-lafs/browser/trunk/docs/quickstart.rst
 .. _here: https://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
-.. _Gridsync: https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
+.. _Gridsync (dmg): https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
 
 .. [*] In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled along with Gridsync in a single, unified installer.
 
