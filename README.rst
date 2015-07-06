@@ -112,8 +112,8 @@ Linux (Debian-based systems):
 
 Mac OS X:
 
-1. `Manually install Tahoe-LAFS_` (*or* run the pre-built installer available `here_`)
-2. Download `Gridsync (dmg)` and drag Gridsync.app into your Applications folder (or anywhere)
+1. `Manually install Tahoe-LAFS`_ (*or* download/run the pre-built installer available `here`_)
+2. Download `Gridsync (dmg)` and drag the contained Gridsync.app into your Applications folder (or anywhere)
 
 Windows:
 
@@ -121,7 +121,7 @@ Windows:
 
 .. _Manually install Tahoe-LAFS: https://tahoe-lafs.org/trac/tahoe-lafs/browser/trunk/docs/quickstart.rst
 .. _here: http://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
-.. _Gridsync: 
+.. _Gridsync: http://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
 
 
 Running:
