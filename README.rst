@@ -93,12 +93,12 @@ Linux (Debian-based systems):
 1. ``apt-get install tahoe-lafs python-qt4 python-pip``
 2. ``pip install git+https://github.com/gridsync/gridsync.git``
 
-Mac OS X[*]_.:
+Mac OS X[*]_:
 
 1. `Manually install Tahoe-LAFS`_ (*or* download/run the pre-built installer available `here`_)
 2. Download `Gridsync (dmg)`_ and drag the contained Gridsync.app into your Applications folder (or anywhere)
 
-Windows[*]_.:
+Windows[*]_:
 
 (Coming soon)
 
@@ -106,7 +106,7 @@ Windows[*]_.:
 .. _here: https://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
 .. _Gridsync: https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
 
-.. _[*]: In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled with Gridsync in a single, unified installer.
+.. [*] In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled with Gridsync in a single, unified installer.
 
 
 Running:
