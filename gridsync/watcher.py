@@ -7,13 +7,14 @@ import json
 import logging
 
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import PatternMatchingEventHandler
 
 import sync
 
 
-class Watcher(FileSystemEventHandler):
+class Watcher(PatternMatchingEventHandler):
     def __init__(self, parent, tahoe, local_dir, remote_dircap, polling_frequency=20):
+        super(Watcher, self).__init__(ignore_patterns=["*.gridsync-versions*"])
         self.parent = parent
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
@@ -47,6 +48,7 @@ class Watcher(FileSystemEventHandler):
     def on_modified(self, event):
         self.do_backup = True
         logging.debug(event)
+        print event.src_path
 
     def start(self):
         #self.sync()

@@ -65,7 +65,7 @@ class Tahoe():
         self.command('stop')
     
     def backup(self, local_dir, remote_dircap):
-        self.command("backup -v %s %s" % (local_dir, remote_dircap))
+        self.command("backup -v --exclude=*.gridsync-versions* %s %s" % (local_dir, remote_dircap))
 
     def get(self, remote_uri, local_file, mtime=None):
         args = ['tahoe', '-d', self.tahoe_path, 'get', remote_uri, local_file]
