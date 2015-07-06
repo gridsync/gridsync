@@ -4,6 +4,8 @@ import sys
 
 from PyQt4 import QtGui, QtCore
 
+def done():
+    print 'done '
 
 class Wizard(QtGui.QWizard):
     def __init__(self):
@@ -13,12 +15,13 @@ class Wizard(QtGui.QWizard):
         self.createRegistrationPage()
         self.createConclusionPage()
         self.setWindowTitle("Gridsync - Welcome")
+        self.finished.connect(done)
+        #self.completeChanged.connect(done)
 
         #self.setPixmap(QtGui.QWizard.BannerPixmap, QtGui.QPixmap(':/images/gridsync.png'))
         #self.setPixmap(QtGui.QWizard.BackgroundPixmap, QtGui.QPixmap(':/images/gridsync.png'))
         #self.setWizardStyle(self.MacStyle)
-
-        self.setPixmap(QtGui.QWizard.LogoPixmap, QtGui.QPixmap(":/images/gridsync.png"))
+        #self.setPixmap(QtGui.QWizard.LogoPixmap, QtGui.QPixmap(":/images/gridsync.png"))
 
     def create_welcome_page(self):
         page = QtGui.QWizardPage()

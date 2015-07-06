@@ -44,9 +44,9 @@ class Server():
         self.gateways = []
         self.watchers = []
         self.sync_state = 0
-        
+
         self.config = Config(self.args.config)
-        self.settings = self.config.load()
+
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
         logging.basicConfig(
                 format='%(asctime)s %(message)s', 
@@ -54,21 +54,30 @@ class Server():
                 #filemode='w',
                 level=logging.DEBUG)
         logging.info("Server initialized: " + str(args))
+
         if sys.platform == 'darwin': # Workaround for PyInstaller
             os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
                     + "/Applications/tahoe.app/bin" + os.pathsep \
                     + os.path.expanduser("~/Library/Python/2.7/bin")
         logging.info("PATH is: " + os.getenv('PATH'))
+
+        try:
+            self.settings = self.config.load()
+        except IOError:
+            self.first_run = True
+            self.settings = {}
+
         self.tray = SystemTrayIcon(self)
 
         try:
             output = subprocess.check_output(["tahoe", "-V"])
             tahoe = output.split('\n')[0]
-            logging.info("Found: " + tahoe)
+            logging.info("Found bin/tahoe: " + tahoe)
         except OSError:
             logging.error('Tahoe-LAFS installation not found; exiting')
             sys.exit()
 
+    def build_objects(self):
         for node_name, node_settings in self.settings['tahoe_nodes'].items():
             t = Tahoe(os.path.join(self.config.config_dir, node_name), node_settings)
             self.gateways.append(t)
@@ -104,15 +113,28 @@ class Server():
         [t.start() for t in threads]
         #[t.join() for t in threads]
 
+    def welcome_wizard(self):
+        from wizard import Wizard
+        w = Wizard()
+        w.exec_()
+        print 'this is the first run' 
+
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
         self.tray.show()
         loop = task.LoopingCall(self.check_state)
         loop.start(1.0)
+        #self.start_gateways()
+        #time.sleep(3)
+        #self.start_watchers()
+        if not self.settings:
+            print 'first'
+            reactor.callLater(0, self.welcome_wizard)
+        else:
+            self.build_objects()
+            reactor.callLater(0, self.start_gateways)
+            reactor.callLater(3, self.start_watchers)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
-        self.start_gateways()
-        time.sleep(3)
-        self.start_watchers()
         reactor.run()
         #sys.exit(app.exec_())
 
