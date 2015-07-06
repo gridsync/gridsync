@@ -48,7 +48,6 @@ class Watcher(PatternMatchingEventHandler):
     def on_modified(self, event):
         self.do_backup = True
         logging.debug(event)
-        print event.src_path
 
     def start(self):
         #self.sync()
