@@ -18,7 +18,7 @@ The Gridsync project intends to overcome some of Tahoe-LAFS' barriers-to-adoptio
 
 * A graphical user interface for managing all primary Tahoe-LAFS gateway functionality (e.g., starting, stopping, configuring nodes) -- the user will never have to edit a text file by hand.
 * Native look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
-* Local filesystem monitoring -- Gridsync watches for local changes to files and directories (via inotify/FSEvents/kqueue/ReadDirectoryChangesW) and can automate backup operations[*]_.
+* Local filesystem monitoring -- Gridsync watches for local changes to files and directories (via inotify/FSEvents/kqueue/ReadDirectoryChangesW) and can automate backup operations [*]_ .
 * Remote filesystem monitoring -- Gridsync periodically polls for changes in remote storage grids, providing basic synchronization functionality.
 * Status indicators and desktop notifications -- the user will know, at a glance, when files are being uploaded or downloaded (via system tray icon animations) and will optionally receive notifications (via DBus on GNU/Linux, Notification Center on OS X, etc.) when operations have completed.
 * 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the IANA-friendly `Gridsync URI specification`_ allows users to easily join friends' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
@@ -98,7 +98,7 @@ Mac OS X [*]_ :
 1. `Manually install Tahoe-LAFS`_ (*or* download/run the pre-built installer available `here`_)
 2. Download `Gridsync (dmg)`_ and drag the contained Gridsync.app into your Applications folder (or anywhere)
 
-Windows [*]_ :
+Windows:
 
 (Coming soon)
 
@@ -106,7 +106,7 @@ Windows [*]_ :
 .. _here: https://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
 .. _Gridsync: https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
 
-.. [*] In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled with Gridsync in a single, unified installer.
+.. [*] In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled along with Gridsync in a single, unified installer.
 
 
 Running:
