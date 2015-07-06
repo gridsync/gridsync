@@ -85,23 +85,6 @@ Planned features / coming later:
 * Mobile/Android client
 
 
-Dependencies:
--------------
-
-At present, Gridsync has three major dependencies which must be installed manually. In the future, these will (hopefully) be bundled along with the primary application in a single graphical installer.
-
-* `Tahoe-LAFS`_
-* `Qt4`_
-* `PyQt4`_
-
-Gridsync's two minor dependencies (`qt4reactor`_ and `watchdog`_) will be automatically fetched and installed through PyPI when Gridsync is installed via ``pip``.
-
-.. _Qt4: http://download.qt.io/archive/qt/4.8/4.8.6/
-.. _PyQT4: http://www.riverbankcomputing.com/software/pyqt/download
-.. _qt4reactor: https://github.com/ghtdak/qtreactor
-.. _watchdog: https://pypi.python.org/pypi/watchdog
-
-
 Installation:
 -------------
 
@@ -110,18 +93,20 @@ Linux (Debian-based systems):
 1. ``apt-get install tahoe-lafs python-qt4 python-pip``
 2. ``pip install git+https://github.com/gridsync/gridsync.git``
 
-Mac OS X:
+Mac OS X[*]_:
 
 1. `Manually install Tahoe-LAFS`_ (*or* download/run the pre-built installer available `here`_)
 2. Download `Gridsync (dmg)` and drag the contained Gridsync.app into your Applications folder (or anywhere)
 
-Windows:
+Windows[*]_:
 
 (Coming soon)
 
 .. _Manually install Tahoe-LAFS: https://tahoe-lafs.org/trac/tahoe-lafs/browser/trunk/docs/quickstart.rst
-.. _here: http://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
-.. _Gridsync: http://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
+.. _here: https://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
+.. _Gridsync: https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
+
+.. _[*]: In future OS X/Windows releases, Tahoe-LAFS will (hopefully) be bundled with Gridsync in a single, unified installer.
 
 
 Running:
@@ -129,11 +114,11 @@ Running:
 
 Linux:
 
-From the command-line: ``gridsync`` (or ``gridsync --help`` for available options)
+* From the command-line: ``gridsync`` (or ``gridsync --help`` for available options)
 
 Mac OS X:
 
-Double click the previously-installed Gridsync.app
+* Double click the previously-installed Gridsync.app
 
 Windows:
 
@@ -143,8 +128,10 @@ Windows:
 Contributing:
 -------------
 
-Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requests) are more than welcome!
+Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requests) are more than welcome! Any persons interested in aiding the development of Gridsync are encouraged to do so by opening a `GitHub Issue_` or by contacting its primary developeri at `chris@gridsync.io`_.
 
+.. _GitHub Issue: https://github.com/crwood/gridsync/issues
+.. _chris@gridsync.io: mailto:chris@gridsync.io
 
 License:
 --------
