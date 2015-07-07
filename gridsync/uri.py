@@ -14,10 +14,18 @@ def remove_prefix(uri):
     else:
         return uri
 
+def parse_uri(uri):
+    uri = remove_prefix(uri)
+    #uri = decode_uri(uri)
+    introducer = "pb://{}/introducer".format(uri.split('/')[0])
+    dircap = "URI:{}".format(uri.split('/')[1])
+    return introducer, dircap
+
+
 def uri_to_settings(uri):
     settings = { 'client': {} }
     uri = remove_prefix(uri)
-    
+    uri = decode_uri(uri)    
     if '@' in uri.split('/')[0]:
         introducer = "pb://{}/introducer".format(uri.split('/')[0])
         settings['client'] = { 'introducer.furl': introducer }

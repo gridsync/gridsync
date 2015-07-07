@@ -1,0 +1,27 @@
+{
+    "sync_targets": {
+        "Gridsync": [
+            "testgrid", 
+            "~/Gridsync", 
+            null
+        ]
+    }, 
+    "tahoe_nodes": {
+        "testgrid": {
+            "node": {
+                "web.port": "tcp:0:interface=127.0.0.1", 
+                "nickname": "Anonymous"
+            }, 
+            "client": {
+                "shares.happy": "1", 
+                "shares.total": "1", 
+                "shares.needed": "1", 
+                "introducer.furl": {
+                    "client": {
+                        "introducer.furl": "pb://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@test.gridsync.io:46210/introducer"
+                    }
+                }
+            }
+        }
+    }
+}

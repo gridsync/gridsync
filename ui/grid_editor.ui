@@ -288,7 +288,7 @@
           <item>
            <widget class="QPushButton" name="pushButton_4">
             <property name="statusTip">
-             <string>Share this grid with a friend (NOT YET IMPLEMENTED).</string>
+             <string>Share this grid with a friend...</string>
             </property>
             <property name="text">
              <string>Share...</string>
