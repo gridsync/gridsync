@@ -64,6 +64,7 @@ class Server():
         try:
             self.settings = self.config.load()
         except IOError:
+            self.first_run = True
             self.settings = {}
 
         self.tray = SystemTrayIcon(self)
@@ -77,8 +78,6 @@ class Server():
             sys.exit()
 
     def build_objects(self):
-        logging.info("Building objects...")
-        logging.info(self.settings)
         for node_name, node_settings in self.settings['tahoe_nodes'].items():
             t = Tahoe(os.path.join(self.config.config_dir, node_name), node_settings)
             self.gateways.append(t)
@@ -105,8 +104,6 @@ class Server():
         self.tray.show_message(title, message)
 
     def start_gateways(self):
-        logging.info("Starting gateway(s)...")
-        logging.info(self.gateways)
         threads = [threading.Thread(target=o.start) for o in self.gateways]
         [t.start() for t in threads]
         [t.join() for t in threads]
@@ -116,16 +113,11 @@ class Server():
         [t.start() for t in threads]
         #[t.join() for t in threads]
 
-    def first_run(self):
+    def welcome_wizard(self):
         from wizard import Wizard
-        w = Wizard(self)
+        w = Wizard()
         w.exec_()
-        logging.debug("Got first run settings: ", self.settings)
-
-        self.build_objects()
-        self.start_gateways()
-        time.sleep(3)
-        self.start_watchers()
+        print 'this is the first run' 
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
@@ -136,7 +128,8 @@ class Server():
         #time.sleep(3)
         #self.start_watchers()
         if not self.settings:
-            reactor.callLater(0, self.first_run)
+            print 'first'
+            reactor.callLater(0, self.welcome_wizard)
         else:
             self.build_objects()
             reactor.callLater(0, self.start_gateways)
@@ -149,7 +142,6 @@ class Server():
         self.stop_watchers()
         #self.stop_gateways()
         self.config.save(self.settings)
-        sys.exit()
     
     def stop_watchers(self):
         threads = [threading.Thread(target=o.stop) for o in self.watchers]

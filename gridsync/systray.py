@@ -6,7 +6,15 @@ import logging
 
 from PyQt4.QtGui import *
 
+from wizard import Wizard
+
 from gui.grid_editor import Ui_MainWindow
+
+
+def show_wizard(self):
+    w = Wizard()
+    w.exec_()
+    w.raise_()
 
 
 class MainWindow(QMainWindow):
@@ -24,12 +32,17 @@ class LeftClickMenu(QMenu):
 class RightClickMenu(QMenu):
     def __init__(self, parent):
         super(RightClickMenu, self).__init__()
-        self.parent = parent
 
         icon = QIcon("")
         mw_action = QAction(icon, "Preferences", self)
         mw_action.triggered.connect(parent.mw.show)
         self.addAction(mw_action)
+
+
+        icon = QIcon("")
+        wizard_action = QAction(icon, '&Wizard', self)
+        wizard_action.triggered.connect(show_wizard)
+        self.addAction(wizard_action)
 
         self.addSeparator()
         # Help
@@ -38,10 +51,11 @@ class RightClickMenu(QMenu):
         # -----
         # --About Gridsync
 
+
         icon = QIcon("")
         quit_action = QAction(icon, '&Quit', self)
         quit_action.setShortcut('Ctrl+Q')
-        quit_action.triggered.connect(self.parent.on_quit)
+        quit_action.triggered.connect(qApp.quit)
         self.addAction(quit_action)
 
 
@@ -80,7 +94,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.movie.setPaused(True)
             self.paused = True
             self.setIcon(QIcon(":gridsync.png"))
-            self.show_message('Gridsync', 'Synchronization complete.')
+            self.show_message('Sync complete', '<information goes here>')
     
     def show_message(self, title, text):
         self.showMessage(title, text)
@@ -100,5 +114,9 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.mw.show()
             #self.left_menu.exec_(QCursor.pos())
 
-    def on_quit(self):
-        self.parent.stop()
+
+if __name__ == '__main__':
+    app = QApplication([])
+    tray = SystemTrayIcon(None)
+    tray.show()
+    sys.exit(app.exec_())
