@@ -97,7 +97,7 @@ class Wizard(QtGui.QWizard):
 
         #self.dir = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
 
-        gridsync_link = QtGui.QLineEdit("gridsync://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@test.gridsync.io:46210/DIR2:4jxkxvynfjx2nlghpab7xhq5wu:5h2zkq4uk7lqbgxndgnslth5z42l5l6f3druxldvbbl643yhdcxa")
+        gridsync_link = QtGui.QLineEdit("gridsync://cmrh3t4vselhwcrdzt56rgxlcw5s2zaz@test.gridsync.io:46210/DIR2:ibj7kjosqazmynuw4psud7egcy:lfxy6bk2khhii37uworkw3utd42bgld3boftzzlrac5u7j3kvifq")
         self.gridsync_link = str(gridsync_link.text())
         
         warning_label = QtGui.QLabel('\n\n\n\nGridsync links (in the form "<i>gridsync://some_text</i>") are special addresses that point to a Tahoe-LAFS storage grid -- or to a specific folder available on a storage grid. By pasting a Gridsync link into the space above, you are informing Gridsync of a location that it can use to store your files.')

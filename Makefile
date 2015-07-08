@@ -54,10 +54,11 @@ install: clean
 	python setup.py install --user
 
 app: clean icns
-	#pyinstaller --clean --onefile --windowed gridsync.spec
 	pyinstaller --clean --onefile --windowed --icon=build/gridsync.icns --name=gridsync gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
+	# From Tahoe-LAFS 'make build-osx-pkg'
+	cp -r /Applications/tahoe.app dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS
 
 dmg: app
 	mkdir -p dist/dmg
@@ -66,6 +67,8 @@ dmg: app
 		--app-drop-link 320 2 \
 		dist/Gridsync.dmg \
 		dist/dmg
+	mv dist/dmg/Gridsync.app dist
+	rm -rf dist/dmg
 
 uninstall:
 	pip uninstall -y gridsync

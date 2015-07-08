@@ -21,7 +21,7 @@ from twisted.internet.protocol import Protocol, Factory
 from twisted.internet import reactor, task
 
 from config import Config
-from tahoe import Tahoe
+from tahoe import Tahoe, bin_tahoe
 from watcher import Watcher
 from systray import SystemTrayIcon
 
@@ -58,8 +58,11 @@ class Server():
         if sys.platform == 'darwin': # Workaround for PyInstaller
             os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
                     + "/Applications/tahoe.app/bin" + os.pathsep \
-                    + os.path.expanduser("~/Library/Python/2.7/bin")
-        logging.info("PATH is: " + os.getenv('PATH'))
+                    + os.path.expanduser("~/Library/Python/2.7/bin") \
+                    + os.pathsep + os.path.dirname(sys.executable) \
+                    + '/Tahoe-LAFS/bin'
+        logging.debug("$PATH is: " + os.getenv('PATH'))
+        logging.info("Found bin/tahoe: " + bin_tahoe())
 
         try:
             self.settings = self.config.load()
@@ -71,7 +74,7 @@ class Server():
         try:
             output = subprocess.check_output(["tahoe", "-V"])
             tahoe = output.split('\n')[0]
-            logging.info("Found bin/tahoe: " + tahoe)
+            logging.info("tahoe -V = " + tahoe)
         except OSError:
             logging.error('Tahoe-LAFS installation not found; exiting')
             sys.exit()
