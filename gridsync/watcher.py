@@ -24,9 +24,10 @@ class Watcher(PatternMatchingEventHandler):
         self.polling_frequency = polling_frequency
         self.latest_snapshot = 0
         self.do_backup = False
-        t = threading.Thread(target=self.check_for_backup)
-        t.setDaemon(True)
-        t.start()
+        self.check_for_backup() 
+        #t = threading.Thread(target=self.check_for_backup)
+        #t.setDaemon(True)
+        #t.start()
 
     def check_for_backup(self):
         if self.do_backup and not self.parent.sync_state:
@@ -43,8 +44,11 @@ class Watcher(PatternMatchingEventHandler):
                 self.latest_snapshot = self.get_latest_snapshot()
                 self.parent.sync_state -= 1
                 #notify.notify("Sync finished.")
-        time.sleep(1)
-        self.check_for_backup()
+        t = threading.Timer(1.0, self.check_for_backup)
+        t.setDaemon(True)
+        t.start()
+        #time.sleep(1)
+        #self.check_for_backup()
 
     def on_modified(self, event):
         self.do_backup = True
