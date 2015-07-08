@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import resources
 import logging
+import subprocess
+import webbrowser
 
 from PyQt4.QtGui import *
 
 from gui.grid_editor import Ui_MainWindow
 
 
-class MainWindow(QMainWindow):
+class PreferencesWindow(QMainWindow):
     def __init__(self, parent=None):
-        super(MainWindow, self).__init__()
+        super(PreferencesWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
-
-class LeftClickMenu(QMenu):
-    def __init__(self, parent):
-        super(LeftClickMenu, self).__init__()
 
 
 class RightClickMenu(QMenu):
@@ -26,20 +24,49 @@ class RightClickMenu(QMenu):
         super(RightClickMenu, self).__init__()
         self.parent = parent
 
-        icon = QIcon("")
-        mw_action = QAction(icon, "Preferences", self)
-        mw_action.triggered.connect(parent.mw.show)
-        self.addAction(mw_action)
+        open_action = QAction(QIcon(""), "Open Gridsync Folder", self)
+        open_action.triggered.connect(open_gridsync_folder)
+        self.addAction(open_action)
+
+        snapshots_action = QAction(QIcon(""), "Browse Snapshots...", self)
+        self.addAction(snapshots_action)
+        
+        self.addSeparator()
+        
+        status_action = QAction(QIcon(""), "Status: Idle", self)
+        status_action.setEnabled(False)
+        self.addAction(status_action)
+        
+        pause_action = QAction(QIcon(""), "Pause Syncing", self)
+        self.addAction(pause_action)
 
         self.addSeparator()
-        # Help
-        # --Online documentation...
-        # --GitHub Issues...
-        # -----
-        # --About Gridsync
+        
+        preferences_action = QAction(QIcon(""), "Preferences...", self)
+        preferences_action.triggered.connect(parent.pw.show)
+        self.addAction(preferences_action)
 
-        icon = QIcon("")
-        quit_action = QAction(icon, '&Quit', self)
+        help_menu = QMenu(self)
+        help_menu.setTitle("Help")
+
+        documentation_action = QAction(QIcon(""), "Online Documentation...", self)
+        documentation_action.triggered.connect(open_online_documentation)
+        help_menu.addAction(documentation_action)
+
+        issues_action = QAction(QIcon(""), "GitHub Issues...", self)
+        issues_action.triggered.connect(open_github_issues)
+        help_menu.addAction(issues_action)
+
+        help_menu.addSeparator()
+       
+        about_action = QAction(QIcon(""), "About Gridsync", self)
+        help_menu.addAction(about_action)
+
+        self.addMenu(help_menu)
+
+        self.addSeparator()
+
+        quit_action = QAction(QIcon(""), '&Quit Gridsync', self)
         quit_action.setShortcut('Ctrl+Q')
         quit_action.triggered.connect(self.parent.on_quit)
         self.addAction(quit_action)
@@ -50,14 +77,12 @@ class SystemTrayIcon(QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__()
         self.parent = parent
         
-        self.mw = MainWindow()
+        self.pw = PreferencesWindow()
         
         self.setIcon(QIcon(":gridsync.png"))
 
         self.right_menu = RightClickMenu(self)
         self.setContextMenu(self.right_menu)
-
-        self.left_menu = LeftClickMenu(self)
         self.activated.connect(self.on_click)
 
         self.movie = QMovie()
@@ -71,11 +96,13 @@ class SystemTrayIcon(QSystemTrayIcon):
     # always returns 0 for movies rendered off-screen. This may be a bug.
     # http://pyqt.sourceforge.net/Docs/PyQt4/qmovie.html#MovieState-enum
     def start_animation(self):
+        self.setToolTip("Gridsync - Syncing...")
         if self.paused:
             self.movie.setPaused(False)
             self.paused = False
 
     def stop_animation(self):
+        self.setToolTip("Gridsync")
         if not self.paused:
             self.movie.setPaused(True)
             self.paused = True
@@ -97,8 +124,23 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def on_click(self, value):
         if value == QSystemTrayIcon.Trigger:
-            self.mw.show()
-            #self.left_menu.exec_(QCursor.pos())
+            open_gridsync_folder()
 
     def on_quit(self):
         self.parent.stop()
+
+
+def open_gridsync_folder():
+    gridsync_folder = os.path.join(os.path.expanduser("~"), "Gridsync")
+    if sys.platform == 'darwin':
+        subprocess.Popen(['open', gridsync_folder])
+    elif sys.platform == 'win32':
+        subprocess.Popen(['start', gridsync_folder], shell= True)
+    else:
+        subprocess.Popen(['xdg-open', gridsync_folder])
+
+def open_online_documentation():
+    webbrowser.open('https://github.com/gridsync/gridsync/wiki')
+
+def open_github_issues():
+    webbrowser.open('https://github.com/gridsync/gridsync/issues')
