@@ -39,6 +39,7 @@ def _create_versioned_copy(local_dir, filename, mtime):
 
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     # XXX Here be dragons!
+    # This all needs to be re-written/re-factored/re-considered
     logging.info("*** Syncing {}...".format(local_dir))
     local_dir = os.path.expanduser(local_dir)
     remote_path = '/'.join([remote_dircap, snapshot])
@@ -82,8 +83,9 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
             # TODO: Distinguish between local files that haven't been stored
             # and intentional (remote) deletions (perhaps only polled syncs 
             # should delete?)
-            logging.debug("[!] %s isn't stored, scheduling backup" % file)
-            do_backup = True
+            if not '.gridsync-versions' in file.split(local_dir + os.path.sep)[1]:
+                logging.debug("[!] %s isn't stored, scheduling backup" % file)
+                do_backup = True
     [t.start() for t in threads]
     [t.join() for t in threads]
     if do_backup:
