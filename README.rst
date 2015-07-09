@@ -80,8 +80,7 @@ Linux (Debian-based systems):
 
 Mac OS X [*]_ :
 
-1. `Manually install Tahoe-LAFS`_ (*or* download/run the pre-built installer available `here`_)
-2. Download `Gridsync (dmg)`_ and drag the contained Gridsync.app into your Applications folder.
+1. Download `Gridsync (dmg)`_ and drag the contained Gridsync.app into your Applications folder.
 
 Windows:
 
