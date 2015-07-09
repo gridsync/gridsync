@@ -54,14 +54,13 @@ class Server():
                 #filemode='w',
                 level=logging.DEBUG)
         logging.info("Server initialized: " + str(args))
-
-        if sys.platform == 'darwin': # Workaround for PyInstaller
-            os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
-                    + "/Applications/tahoe.app/bin" + os.pathsep \
-                    + os.path.expanduser("~/Library/Python/2.7/bin") \
-                    + os.pathsep + os.path.dirname(sys.executable) \
-                    + '/Tahoe-LAFS/bin'
-        logging.debug("$PATH is: " + os.getenv('PATH'))
+        #if sys.platform == 'darwin': # Workaround for PyInstaller
+        #    os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
+        #            + "/Applications/tahoe.app/bin" + os.pathsep \
+        #            + os.path.expanduser("~/Library/Python/2.7/bin") \
+        #            + os.pathsep + os.path.dirname(sys.executable) \
+        #            + '/Tahoe-LAFS/bin'
+        #logging.debug("$PATH is: " + os.getenv('PATH'))
         logging.info("Found bin/tahoe: " + bin_tahoe())
 
         try:
@@ -82,13 +81,12 @@ class Server():
     def build_objects(self):
         logging.info("Building objects...")
         logging.info(self.settings)
-        for node_name, node_settings in self.settings['tahoe_nodes'].items():
-            t = Tahoe(os.path.join(self.config.config_dir, node_name), node_settings)
+        for node, settings in self.settings.items():
+            t = Tahoe(os.path.join(self.config.config_dir, node), settings)
             self.gateways.append(t)
-            for sync_name, sync_settings in self.settings['sync_targets'].items():
-                if sync_settings[0] == node_name:
-                    w = Watcher(self, t, os.path.expanduser(sync_settings[1]), sync_settings[2])
-                    self.watchers.append(w)
+            for local_dir, dircap in self.settings[node]['sync'].items():
+                w = Watcher(self, t, os.path.expanduser(local_dir), dircap)
+                self.watchers.append(w)
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
@@ -152,7 +150,6 @@ class Server():
         self.stop_watchers()
         #self.stop_gateways()
         self.config.save(self.settings)
-        sys.exit()
     
     def stop_watchers(self):
         threads = [threading.Thread(target=o.stop) for o in self.watchers]
@@ -163,7 +160,5 @@ class Server():
         threads = [threading.Thread(target=o.stop) for o in self.gateways]
         [t.start() for t in threads]
         [t.join() for t in threads]
-
-
         #reactor.stop()
 

@@ -9,6 +9,17 @@ import threading
 import logging
 
 
+defaults = {
+    "node": {
+        "web.port": "tcp:0:interface=127.0.0.1"
+    },
+    "client": {
+        "shares.happy": "1",
+        "shares.total": "1",
+        "shares.needed": "1"
+    }
+}
+
 def bin_tahoe():
     if sys.executable.endswith('/Gridsync.app/Contents/MacOS/gridsync'):
         return os.path.dirname(sys.executable) + '/Tahoe-LAFS/bin/tahoe'
@@ -21,6 +32,7 @@ def bin_tahoe():
 class Tahoe():
     def __init__(self, tahoe_path, settings=None):
         self.tahoe_path = os.path.expanduser(tahoe_path)
+        self.use_tor = False
         if not os.path.isdir(self.tahoe_path):
             self.create()
         if settings:
@@ -36,13 +48,16 @@ class Tahoe():
         config = ConfigParser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.tahoe_path, 'tahoe.cfg'))
         config.set(section, option, value)
-        with open(os.path.join(self.tahoe_path, 'tahoe.cfg'), 'wb') as config_file:
-            config.write(config_file)
+        with open(os.path.join(self.tahoe_path, 'tahoe.cfg'), 'wb') as f:
+            config.write(f)
     
     def setup(self, settings):
         for section, d in settings.iteritems():
             for option, value in d.iteritems():
-                self.set_config(section, option, value)
+                if section == 'tor':
+                    self.use_tor = True
+                elif section != 'sync':
+                    self.set_config(section, option, value)
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
@@ -124,8 +139,6 @@ class Tahoe():
                     'uri': dircap,
                     'size': v[1]['size']
                 }
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
+        [t.start() for t in threads]
+        [t.join() for t in threads]
         return metadata

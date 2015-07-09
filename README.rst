@@ -40,7 +40,7 @@ Current (complete -- or nearly complete) features:
 * Remote filesystem polling
 * Bi-directional synchronization (some caveats, one race condition; more testing needed)
 * System tray icon animations (complete, tested Linux, OS X)
-* Unified JSON configuration format.
+* Unified YAML configuration format.
 * Server/client architecture.
 * Desktop notifications (Linux, OS X)
 * Native installation for OS X (.dmg/.app)

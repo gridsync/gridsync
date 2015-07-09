@@ -39,7 +39,9 @@ class Watcher(PatternMatchingEventHandler):
                 if latest_snapshot == self.latest_snapshot:
                     self.tahoe.backup(self.local_dir, self.remote_dircap)
                 else:
+                    #self.observer.stop() # Pause Observer during sync...
                     sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
+                    #self.observer.start()
                 # XXX Race condition
                 self.latest_snapshot = self.get_latest_snapshot()
                 self.parent.sync_state -= 1
@@ -80,7 +82,9 @@ class Watcher(PatternMatchingEventHandler):
             #objects
             # check here for sync_state
             self.parent.sync_state += 1
+            #self.observer.stop() # Pause Observer during sync...
             sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
+            #self.observer.start()
             self.parent.sync_state -= 1
             # XXX Race condition
             self.latest_snapshot = latest_snapshot
