@@ -37,6 +37,8 @@ Screenshots
 
 Gridsync uses Qt to emulate native widgets across all three major desktop platforms:
 
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/tutorial.png
+
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-prefs.png
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/preferences-dialog.png
