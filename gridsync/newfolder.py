@@ -68,9 +68,4 @@ class NewFolderWindow(QDialog):
                     tahoe = gateway
             print self.parent.settings
             tahoe.add_new_sync_folder(selected_folder)
-            #dircap = tahoe.mkdir().strip()
-            #self.parent.settings[selected_grid]['sync'][selected_folder] = dircap
-            #self.parent.config.save(self.parent.settings)
-            #tahoe.add_watcher(selected_folder, dircap)
-            #tahoe.restart_watchers()
 
