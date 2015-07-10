@@ -25,6 +25,7 @@ default_settings = {
 
 def bin_tahoe():
     if sys.executable.endswith('/Gridsync.app/Contents/MacOS/gridsync'):
+        # Maybe add to $PATH instead, allowing use of existing install?
         return os.path.dirname(sys.executable) + '/Tahoe-LAFS/bin/tahoe'
     for path in os.environ["PATH"].split(os.pathsep):
         tahoe_path = os.path.join(path, 'tahoe')
@@ -67,19 +68,34 @@ class Tahoe():
                     self.add_watcher(option, value)
                 elif section != 'sync':
                     self.set_config(section, option, value)
-    
+   
+    def add_new_sync_folder(self, local_dir):
+        logging.info("Adding new sync folder: %s" % local_dir)
+        dircap = self.mkdir().strip()
+        self.parent.settings[self.name]['sync'][local_dir] = dircap
+        self.add_watcher(local_dir, dircap)
+        self.restart_watchers()
+
     def add_watcher(self, local_dir, dircap):
+        logging.info("Adding watcher: %s <-> %s" % (local_dir, dircap))
         w = Watcher(self.parent, self, local_dir, dircap)
         self.watchers.append(w)
 
     def start_watchers(self):
+        logging.info("Starting watchers...")
         threads = [threading.Thread(target=o.start) for o in self.watchers]
         [t.start() for t in threads]
 
     def stop_watchers(self):
+        logging.info("Stopping watchers...")
         threads = [threading.Thread(target=o.stop) for o in self.watchers]
         [t.start() for t in threads]
         [t.join() for t in threads]
+
+    def restart_watchers(self):
+        logging.info("Restarting watchers...")
+        self.stop_watchers()
+        self.start_watchers()
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
@@ -128,6 +144,7 @@ class Tahoe():
         return ret
 
     def get_metadata(self, dircap, basedir='/', metadata={}):
+        # XXX Fix this...
         logging.debug("Getting remote metadata...")
         out = self.command_output("ls --json %s" % dircap)
         j = json.loads(out)

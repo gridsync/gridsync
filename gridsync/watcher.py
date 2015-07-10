@@ -76,7 +76,9 @@ class Watcher(PatternMatchingEventHandler):
     def check_for_updates(self):
         try:
             latest_snapshot = self.get_latest_snapshot()
-        except: # XXX This needs to be far more robust; don't assume an exception means no backups...
+        except:
+            # XXX This needs to be far more robust; 
+            # don't assume an exception means no backups...
             logging.warning("Doing (first?) backup; get_latest_snapshot() failed")
             self.parent.sync_state += 1
             self.tahoe.backup(self.local_dir, self.remote_dircap)
@@ -88,8 +90,8 @@ class Watcher(PatternMatchingEventHandler):
             logging.debug("Up to date (%s); nothing to do." % latest_snapshot)
         else:
             logging.debug("New snapshot available (%s); syncing..." % latest_snapshot)
-            # XXX self.parent.sync_state should probably be a list of syncpair 
-            # objects...
+            # XXX self.parent.sync_state should probably be a list of 
+            # syncpair objects to allow introspection
             # check here for sync_state?
             self.parent.sync_state += 1
             #self.observer.stop() # Pause Observer during sync...

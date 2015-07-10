@@ -4,8 +4,6 @@ import logging
 
 from PyQt4.QtGui import *
 
-import tahoe
-
 
 class NewFolderWindow(QDialog):
     def __init__(self, parent):
@@ -62,16 +60,17 @@ class NewFolderWindow(QDialog):
 
     def create_new_folder(self):
         if self.folder_text.text() and self.grid_combo_box.currentText():
+            self.close()
             selected_folder = str(self.folder_text.text())
-            selected_grid = self.grid_combo_box.currentText()
+            selected_grid = str(self.grid_combo_box.currentText())
             for gateway in self.parent.gateways:
                 if gateway.name == selected_grid:
-                    t = gateway
-            settings = t.settings
-            dircap = t.mkdir().strip()
-            settings['sync'][selected_folder] = dircap
-            print settings
-
-            #settings['sync']
-            #print self.parent.gateways
+                    tahoe = gateway
+            print self.parent.settings
+            tahoe.add_new_sync_folder(selected_folder)
+            #dircap = tahoe.mkdir().strip()
+            #self.parent.settings[selected_grid]['sync'][selected_folder] = dircap
+            #self.parent.config.save(self.parent.settings)
+            #tahoe.add_watcher(selected_folder, dircap)
+            #tahoe.restart_watchers()
 
