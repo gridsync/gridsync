@@ -115,7 +115,7 @@ Windows:
 
 (Coming soon)
 
-.. _Gridsync.dmg: https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
+.. _Gridsync.dmg: https://github.com/gridsync/gridsync/releases/download/untagged-00dbb95c272a9acce55d/Gridsync-0.0.1-ALPHA1.dmg
 
 .. [*] Mac OS X users may have to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
 
