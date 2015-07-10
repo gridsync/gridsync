@@ -7,8 +7,8 @@ import threading
 import subprocess
 import logging
 
-try:
-    del sys.modules['twisted.internet.reactor'] # Workaround for PyInstaller
+try: # Hack to get around PyInstaller's Twisted hook
+    del sys.modules['twisted.internet.reactor']
 except KeyError:
     pass
 
@@ -68,7 +68,6 @@ class Server():
         except IOError:
             self.settings = {}
 
-        self.tray = SystemTrayIcon(self)
 
         try:
             output = subprocess.check_output(["tahoe", "-V"])
@@ -118,9 +117,9 @@ class Server():
         #[t.join() for t in threads]
 
     def first_run(self):
-        from wizard import Wizard
-        w = Wizard(self)
-        w.exec_()
+        from tutorial import Tutorial
+        t = Tutorial(self)
+        t.exec_()
         logging.debug("Got first run settings: ", self.settings)
 
         self.build_objects()
@@ -130,18 +129,16 @@ class Server():
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
-        self.tray.show()
-        loop = task.LoopingCall(self.check_state)
-        loop.start(1.0)
-        #self.start_gateways()
-        #time.sleep(3)
-        #self.start_watchers()
         if not self.settings:
             reactor.callLater(0, self.first_run)
         else:
             self.build_objects()
             reactor.callLater(0, self.start_gateways)
             reactor.callLater(3, self.start_watchers)
+        self.tray = SystemTrayIcon(self)
+        self.tray.show()
+        loop = task.LoopingCall(self.check_state)
+        loop.start(1.0)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
         #sys.exit(app.exec_())
@@ -150,6 +147,7 @@ class Server():
         self.stop_watchers()
         #self.stop_gateways()
         self.config.save(self.settings)
+        #sys.exit()
     
     def stop_watchers(self):
         threads = [threading.Thread(target=o.stop) for o in self.watchers]

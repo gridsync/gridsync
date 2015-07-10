@@ -30,6 +30,7 @@ class Watcher(PatternMatchingEventHandler):
         #t.start()
 
     def check_for_backup(self):
+        # XXX Fix this...
         if self.do_backup and not self.parent.sync_state:
             self.do_backup = False
             time.sleep(1)
@@ -73,20 +74,29 @@ class Watcher(PatternMatchingEventHandler):
             pass
 
     def check_for_updates(self):
-        latest_snapshot = self.get_latest_snapshot()
+        try:
+            latest_snapshot = self.get_latest_snapshot()
+        except: # XXX This needs to be far more robust; don't assume an exception means no backups...
+            logging.warning("Doing (first?) backup; get_latest_snapshot() failed")
+            self.parent.sync_state += 1
+            self.tahoe.backup(self.local_dir, self.remote_dircap)
+            self.parent.sync_state -= 1
+            self.latest_snapshot = self.get_latest_snapshot()
+            return
+            
         if latest_snapshot == self.latest_snapshot:
-            logging.debug("Up to date ({}); nothing to do.".format(latest_snapshot))
+            logging.debug("Up to date (%s); nothing to do." % latest_snapshot)
         else:
-            logging.debug("New snapshot available ({}); syncing...".format(latest_snapshot))
+            logging.debug("New snapshot available (%s); syncing..." % latest_snapshot)
             # XXX self.parent.sync_state should probably be a list of syncpair 
-            #objects
-            # check here for sync_state
+            # objects...
+            # check here for sync_state?
             self.parent.sync_state += 1
             #self.observer.stop() # Pause Observer during sync...
             sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
             #self.observer.start()
             self.parent.sync_state -= 1
-            # XXX Race condition
+            # XXX Race condition; fix
             self.latest_snapshot = latest_snapshot
         t = threading.Timer(self.polling_frequency, self.check_for_updates)
         t.setDaemon(True)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import sys
 
@@ -6,7 +7,7 @@ from PyQt4 import QtGui, QtCore
 import uri
 
 
-class Wizard(QtGui.QWizard):
+class Tutorial(QtGui.QWizard):
     def __init__(self, parent):
         super(Wizard, self).__init__()
         self.parent = parent

@@ -45,7 +45,7 @@ resources: gif
 	pyrcc4 -py2 resources.qrc -o gridsync/resources.py
 
 ui:
-	for i in ui/*.ui; do \
+	for i in designer/*.ui; do \
 		filename=$$(basename $$i); \
 		pyuic4 $$i -o gridsync/gui/$${filename%%.*}.py; \
 	done

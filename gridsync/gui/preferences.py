@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/grid_editor.ui'
+# Form implementation generated from reading ui file 'designer/preferences.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -316,7 +316,7 @@ class Ui_MainWindow(object):
         self.checkBox_3.setText(_translate("MainWindow", "Share this computer\'s free space", None))
         self.label_14.setText(_translate("MainWindow", "Size limit (GB)", None))
         self.label_15.setText(_translate("MainWindow", "Time limit (days):", None))
-        self.pushButton_4.setStatusTip(_translate("MainWindow", "Share this grid with a friend (NOT YET IMPLEMENTED).", None))
+        self.pushButton_4.setStatusTip(_translate("MainWindow", "Share this grid with a friend...", None))
         self.pushButton_4.setText(_translate("MainWindow", "Share...", None))
         self.pushButton_3.setStatusTip(_translate("MainWindow", "Close without saving changes.", None))
         self.pushButton_3.setText(_translate("MainWindow", "Cancel", None))

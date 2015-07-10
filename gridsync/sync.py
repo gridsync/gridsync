@@ -39,7 +39,7 @@ def _create_versioned_copy(local_dir, filename, mtime):
 
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     # XXX Here be dragons!
-    # This all needs to be re-written/re-factored/re-considered
+    # This all needs to be re-written/re-factored/re-considered...
     logging.info("*** Syncing {}...".format(local_dir))
     local_dir = os.path.expanduser(local_dir)
     remote_path = '/'.join([remote_dircap, snapshot])

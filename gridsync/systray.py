@@ -9,14 +9,21 @@ import webbrowser
 
 from PyQt4.QtGui import *
 
-from gui.grid_editor import Ui_MainWindow
-
+from gui.preferences import Ui_MainWindow as Preferences
+#from newfolder import Ui_Dialog as NewFolder
+from newfolder import NewFolderWindow
 
 class PreferencesWindow(QMainWindow):
     def __init__(self, parent=None):
         super(PreferencesWindow, self).__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = Preferences()
         self.ui.setupUi(self)
+
+#class NewFolderWindow_(QDialog):
+#    def __init__(self, parent=None):
+#        super(NewFolderWindow, self).__init__()
+#        self.ui = NewFolder()
+#        self.ui.setupUi(self)
 
 
 class RightClickMenu(QMenu):
@@ -24,13 +31,18 @@ class RightClickMenu(QMenu):
         super(RightClickMenu, self).__init__()
         self.parent = parent
 
-        open_action = QAction(QIcon(""), "Open Gridsync Folder", self)
-        open_action.triggered.connect(open_gridsync_folder)
-        self.addAction(open_action)
+        new_folder_action = QAction(QIcon(""), "Add New Sync Folder...", self)
+        new_folder_action.triggered.connect(parent.new_folder_window.populate_combo_box)
+        new_folder_action.triggered.connect(parent.new_folder_window.show)
+        self.addAction(new_folder_action)
+
+        #open_action = QAction(QIcon(""), "Open Gridsync Folder", self)
+        #open_action.triggered.connect(open_gridsync_folder)
+        #self.addAction(open_action)
 
         snapshots_action = QAction(QIcon(""), "Browse Snapshots...", self)
         self.addAction(snapshots_action)
-        
+                
         self.addSeparator()
         
         status_action = QAction(QIcon(""), "Status: Idle", self)
@@ -43,7 +55,7 @@ class RightClickMenu(QMenu):
         self.addSeparator()
         
         preferences_action = QAction(QIcon(""), "Preferences...", self)
-        preferences_action.triggered.connect(parent.pw.show)
+        preferences_action.triggered.connect(parent.preferences_window.show)
         self.addAction(preferences_action)
 
         help_menu = QMenu(self)
@@ -76,8 +88,9 @@ class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, parent):
         super(SystemTrayIcon, self).__init__()
         self.parent = parent
-        
-        self.pw = PreferencesWindow()
+
+        self.new_folder_window = NewFolderWindow(parent)
+        self.preferences_window = PreferencesWindow()
         
         self.setIcon(QIcon(":gridsync.png"))
 

@@ -51,6 +51,7 @@ In development / TODO / coming soon:
 
 * Finalize GUI design
 * Connect dialogs/menus to server processes
+* Improve sync algorithm
 * Finalize/implement ``gridsync://`` URI-handler,
 * Finalize/implement 'one-click' sharing UX
 * Unit/integration/system/user tests
@@ -80,7 +81,7 @@ Linux (Debian-based systems):
 
 Mac OS X [*]_ :
 
-1. Download `Gridsync (dmg)`_ and drag the contained Gridsync.app into your Applications folder.
+1. Download `Gridsync.dmg`_ and drag the contained Gridsync.app into your Applications folder.
 
 Windows:
 
@@ -88,7 +89,7 @@ Windows:
 
 .. _Manually install Tahoe-LAFS: https://tahoe-lafs.org/trac/tahoe-lafs/browser/trunk/docs/quickstart.rst
 .. _here: https://github.com/gridsync/gridsync/releases/download/v0.0.1/tahoe-lafs-1.10.1.post3-osx.pkg
-.. _Gridsync (dmg): https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
+.. _Gridsync.dmg: https://github.com/gridsync/gridsync/releases/download/v0.0.1/Gridsync-PROTOTYPE-ALPHA.dmg
 
 .. [*] Mac OS X users may have to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
 

@@ -9,7 +9,7 @@ import threading
 import logging
 
 
-defaults = {
+default_settings = {
     "node": {
         "web.port": "tcp:0:interface=127.0.0.1"
     },
@@ -27,15 +27,17 @@ def bin_tahoe():
         tahoe_path = os.path.join(path, 'tahoe')
         if os.path.isfile(tahoe_path) and os.access(tahoe_path, os.X_OK):
             return tahoe_path
-
+    
 
 class Tahoe():
     def __init__(self, tahoe_path, settings=None):
         self.tahoe_path = os.path.expanduser(tahoe_path)
+        self.settings = settings
+        self.name = os.path.basename(self.tahoe_path)
         self.use_tor = False
         if not os.path.isdir(self.tahoe_path):
             self.create()
-        if settings:
+        if self.settings:
             self.setup(settings)
 
     def get_config(self, section, option):
@@ -85,10 +87,13 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command('start')
-
+    
     def stop(self):
         self.command('stop')
     
+    def mkdir(self):
+        return self.command_output('mkdir')
+
     def backup(self, local_dir, remote_dircap):
         self.command("backup -v --exclude=*.gridsync-versions* %s %s" % (local_dir, remote_dircap))
 
@@ -121,7 +126,8 @@ class Tahoe():
                 }
                 threads.append(
                         threading.Thread(
-                            target=self.get_metadata, args=(dircap, path, metadata)))
+                            target=self.get_metadata, args=(
+                                dircap, path, metadata)))
                 #self.get_metadata(dircap, path, metadata)
             elif v[0] == 'filenode':
                 path = os.path.join(basedir, k).strip('/')
