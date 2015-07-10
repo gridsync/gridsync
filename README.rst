@@ -35,11 +35,13 @@ The Gridsync project intends to overcome some of Tahoe-LAFS' barriers-to-adoptio
 Screenshots
 -----------
 
+Gridsync uses Qt to emulate native widgets across all three major desktop platforms:
+
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-prefs.png
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/preferences-dialog.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/new-sync-folder.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/81e91c93ae1b9418f147d6eea043948ac449dab5/images/screenshots/new-sync-folder.png
 
 
 Current (complete -- or nearly complete) features:
