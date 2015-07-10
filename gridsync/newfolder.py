@@ -66,6 +66,5 @@ class NewFolderWindow(QDialog):
             for gateway in self.parent.gateways:
                 if gateway.name == selected_grid:
                     tahoe = gateway
-            print self.parent.settings
             tahoe.add_new_sync_folder(selected_folder)
 

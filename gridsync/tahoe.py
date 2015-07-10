@@ -64,6 +64,7 @@ class Tahoe():
             for option, value in d.iteritems():
                 if section == 'tor':
                     self.use_tor = True
+                    self.set_config('node', 'tub.location', 'onion.tor:1')
                 elif section == 'sync':
                     self.add_watcher(option, value)
                 elif section != 'sync':
@@ -99,6 +100,8 @@ class Tahoe():
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
+        if use_tor:
+            args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
@@ -106,6 +109,8 @@ class Tahoe():
     
     def command_output(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
+        if use_tor:
+            args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
         out = subprocess.check_output(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)

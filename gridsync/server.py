@@ -44,7 +44,8 @@ class Server():
         self.gateways = []
         #self.watchers = []
         self.sync_state = 0
-
+        print self.args.use_tor
+        sys.exit()
         self.config = Config(self.args.config)
 
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
