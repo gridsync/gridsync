@@ -97,7 +97,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.movie.updated.connect(self.on_systray_update)
         self.movie.setCacheMode(True)
         self.paused = True
-        #self.show_message('Sync complete', 'Folders synchronized.')
         #self.start_animation()
         
     # The paused state needs to be set manually since QMovie.MovieState 
@@ -115,11 +114,8 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.movie.setPaused(True)
             self.paused = True
             self.setIcon(QIcon(":gridsync.png"))
-            self.show_message('Sync complete', 'Folders synchronized.')
+            self.showMessage('Sync complete', 'Folders synchronized.')
     
-    def show_message(self, title, text):
-        self.showMessage(title, text)
-
     def on_systray_update(self):
         self.setIcon(QIcon(self.movie.currentPixmap()))
         #if not self.paused:

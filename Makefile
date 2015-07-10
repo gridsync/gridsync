@@ -56,7 +56,7 @@ install: clean
 app: clean icns
 	pyinstaller --clean --onefile --windowed --icon=build/gridsync.icns --name=gridsync gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
-	#cp Info.plist dist/Gridsync.app/Contents
+	cp Info.plist dist/Gridsync.app/Contents
 	# From Tahoe-LAFS 'make build-osx-pkg'
 	cp -r /Applications/tahoe.app dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS
 
