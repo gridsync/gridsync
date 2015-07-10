@@ -47,7 +47,7 @@ resources: gif
 ui:
 	for i in designer/*.ui; do \
 		filename=$$(basename $$i); \
-		pyuic4 $$i -o gridsync/gui/$${filename%%.*}.py; \
+		pyuic4 $$i -o gridsync/forms/$${filename%%.*}.py; \
 	done
 
 install: clean

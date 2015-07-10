@@ -9,8 +9,7 @@ import webbrowser
 
 from PyQt4.QtGui import *
 
-from gui.preferences import Ui_MainWindow as Preferences
-#from newfolder import Ui_Dialog as NewFolder
+from forms.preferences import Ui_MainWindow as Preferences
 from newfolder import NewFolderWindow
 
 class PreferencesWindow(QMainWindow):
@@ -18,12 +17,6 @@ class PreferencesWindow(QMainWindow):
         super(PreferencesWindow, self).__init__()
         self.ui = Preferences()
         self.ui.setupUi(self)
-
-#class NewFolderWindow_(QDialog):
-#    def __init__(self, parent=None):
-#        super(NewFolderWindow, self).__init__()
-#        self.ui = NewFolder()
-#        self.ui.setupUi(self)
 
 
 class RightClickMenu(QMenu):
@@ -41,6 +34,7 @@ class RightClickMenu(QMenu):
         #self.addAction(open_action)
 
         snapshots_action = QAction(QIcon(""), "Browse Snapshots...", self)
+        #snapshots_action.setEnabled(False)
         self.addAction(snapshots_action)
                 
         self.addSeparator()
@@ -103,6 +97,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.movie.updated.connect(self.on_systray_update)
         self.movie.setCacheMode(True)
         self.paused = True
+        #self.show_message('Sync complete', 'Folders synchronized.')
         #self.start_animation()
         
     # The paused state needs to be set manually since QMovie.MovieState 
@@ -120,7 +115,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.movie.setPaused(True)
             self.paused = True
             self.setIcon(QIcon(":gridsync.png"))
-            self.show_message('Gridsync', 'Synchronization complete.')
+            self.show_message('Sync complete', 'Folders synchronized.')
     
     def show_message(self, title, text):
         self.showMessage(title, text)

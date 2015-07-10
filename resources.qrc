@@ -3,5 +3,8 @@
     <file alias="gridsync.png">build/gridsync.png</file>
     <file alias="sync.gif">build/sync.gif</file>
     <file alias="osx-tray.png">images/screenshots/osx-tray.png</file>
+    <file alias="new-sync-folder.png">images/screenshots/new-sync-folder.png</file>
+    <file alias="osx-prefs.png">images/screenshots/osx-prefs.png</file>
+    <file alias="sync-complete.png">images/screenshots/sync-complete.png</file>
 </qresource>
 </RCC>

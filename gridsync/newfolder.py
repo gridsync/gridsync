@@ -49,8 +49,9 @@ class NewFolderWindow(QDialog):
         for gateway in self.parent.gateways:
             gateway_name = gateway.name
             self.grid_combo_box.addItem(gateway.name, gateway)
-        #self.grid_combo_box.insertSeparator(len(self.parent.gateways))
-        #self.grid_combo_box.addItem("Add New Grid...")
+        self.grid_combo_box.insertSeparator(len(self.parent.gateways))
+        self.grid_combo_box.addItem("Add New Grid...")
+        #self.grid_combo_box.setEnabled(False)
 
     def get_folder(self):
         self.folder = QFileDialog.getExistingDirectory(

@@ -20,7 +20,8 @@ default_settings = {
         "shares.happy": "1",
         "shares.total": "1",
         "shares.needed": "1"
-    }
+    },
+    "sync": {}
 }
 
 def bin_tahoe():
@@ -100,7 +101,7 @@ class Tahoe():
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
-        if use_tor:
+        if self.use_tor:
             args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
         ret = subprocess.call(args, stderr=subprocess.STDOUT,
@@ -109,7 +110,7 @@ class Tahoe():
     
     def command_output(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
-        if use_tor:
+        if self.use_tor:
             args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
         out = subprocess.check_output(args, stderr=subprocess.STDOUT,
@@ -135,7 +136,7 @@ class Tahoe():
         self.command('stop')
     
     def mkdir(self):
-        return self.command_output('mkdir')
+        return self.command_output('mkdir').strip()
 
     def backup(self, local_dir, remote_dircap):
         self.command("backup -v --exclude=*.gridsync-versions* %s %s" % (local_dir, remote_dircap))

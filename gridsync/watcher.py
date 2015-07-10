@@ -59,6 +59,14 @@ class Watcher(PatternMatchingEventHandler):
 
     def start(self):
         #self.sync()
+        if not self.remote_dircap:
+            dircap = self.tahoe.mkdir()
+            logging.debug("Created dircap for %s (%s)" % (self.local_dir, dircap))
+            self.remote_dircap = dircap
+            self.parent.settings[self.tahoe.name]['sync'][self.local_dir] = self.remote_dircap
+            logging.debug(self.parent.settings)
+            self.parent.config.save(self.parent.settings)
+
         self.check_for_updates()
         logging.info("Starting observer in %s" % self.local_dir)
         self.observer = Observer()

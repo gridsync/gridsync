@@ -42,10 +42,7 @@ class Server():
     def __init__(self, args):
         self.args = args
         self.gateways = []
-        #self.watchers = []
         self.sync_state = 0
-        print self.args.use_tor
-        sys.exit()
         self.config = Config(self.args.config)
 
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
@@ -55,12 +52,12 @@ class Server():
                 #filemode='w',
                 level=logging.DEBUG)
         logging.info("Server initialized: " + str(args))
-        #if sys.platform == 'darwin': # Workaround for PyInstaller
-        #    os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
-        #            + "/Applications/tahoe.app/bin" + os.pathsep \
-        #            + os.path.expanduser("~/Library/Python/2.7/bin") \
-        #            + os.pathsep + os.path.dirname(sys.executable) \
-        #            + '/Tahoe-LAFS/bin'
+        if sys.platform == 'darwin': # Workaround for PyInstaller
+            os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
+                    + "/Applications/tahoe.app/bin" + os.pathsep \
+                    + os.path.expanduser("~/Library/Python/2.7/bin") \
+                    + os.pathsep + os.path.dirname(sys.executable) \
+                    + '/Tahoe-LAFS/bin'
         logging.debug("$PATH is: " + os.getenv('PATH'))
         logging.info("Found bin/tahoe: " + bin_tahoe())
 
@@ -84,9 +81,6 @@ class Server():
         for node, settings in self.settings.items():
             t = Tahoe(self, os.path.join(self.config.config_dir, node), settings)
             self.gateways.append(t)
-            #for local_dir, dircap in self.settings[node]['sync'].items():
-            #    w = Watcher(self, t, os.path.expanduser(local_dir), dircap)
-            #    self.watchers.append(w)
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
@@ -112,11 +106,6 @@ class Server():
         [t.start() for t in threads]
         [t.join() for t in threads]
 
-    #def start_watchers(self):
-    #    threads = [threading.Thread(target=o.start) for o in self.watchers]
-    #    [t.start() for t in threads]
-        #[t.join() for t in threads]
-
     def first_run(self):
         from tutorial import Tutorial
         t = Tutorial(self)
@@ -125,8 +114,6 @@ class Server():
 
         self.build_objects()
         self.start_gateways()
-        #time.sleep(3)
-        #self.start_watchers()
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
@@ -134,8 +121,8 @@ class Server():
             reactor.callLater(0, self.first_run)
         else:
             self.build_objects()
+            print 'built objecs'
             reactor.callLater(0, self.start_gateways)
-            #reactor.callLater(3, self.start_watchers)
         self.tray = SystemTrayIcon(self)
         self.tray.show()
         loop = task.LoopingCall(self.check_state)
@@ -149,11 +136,6 @@ class Server():
         #self.stop_gateways()
         self.config.save(self.settings)
         #sys.exit()
-    
-    #def stop_watchers(self):
-    #    threads = [threading.Thread(target=o.stop) for o in self.watchers]
-    #    [t.start() for t in threads]
-    #    [t.join() for t in threads]
         
     def stop_gateways(self):
         threads = [threading.Thread(target=o.stop) for o in self.gateways]
