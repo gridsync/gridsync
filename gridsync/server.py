@@ -22,7 +22,7 @@ from twisted.internet import reactor, task
 
 from config import Config
 from tahoe import Tahoe, bin_tahoe
-from watcher import Watcher
+#from watcher import Watcher
 from systray import SystemTrayIcon
 
 
@@ -42,7 +42,7 @@ class Server():
     def __init__(self, args):
         self.args = args
         self.gateways = []
-        self.watchers = []
+        #self.watchers = []
         self.sync_state = 0
 
         self.config = Config(self.args.config)
@@ -78,14 +78,14 @@ class Server():
             sys.exit()
 
     def build_objects(self):
-        logging.info("Building objects...")
+        logging.info("Building Tahoe objects...")
         logging.info(self.settings)
         for node, settings in self.settings.items():
-            t = Tahoe(os.path.join(self.config.config_dir, node), settings)
+            t = Tahoe(self, os.path.join(self.config.config_dir, node), settings)
             self.gateways.append(t)
-            for local_dir, dircap in self.settings[node]['sync'].items():
-                w = Watcher(self, t, os.path.expanduser(local_dir), dircap)
-                self.watchers.append(w)
+            #for local_dir, dircap in self.settings[node]['sync'].items():
+            #    w = Watcher(self, t, os.path.expanduser(local_dir), dircap)
+            #    self.watchers.append(w)
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
@@ -111,9 +111,9 @@ class Server():
         [t.start() for t in threads]
         [t.join() for t in threads]
 
-    def start_watchers(self):
-        threads = [threading.Thread(target=o.start) for o in self.watchers]
-        [t.start() for t in threads]
+    #def start_watchers(self):
+    #    threads = [threading.Thread(target=o.start) for o in self.watchers]
+    #    [t.start() for t in threads]
         #[t.join() for t in threads]
 
     def first_run(self):
@@ -124,8 +124,8 @@ class Server():
 
         self.build_objects()
         self.start_gateways()
-        time.sleep(3)
-        self.start_watchers()
+        #time.sleep(3)
+        #self.start_watchers()
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
@@ -134,7 +134,7 @@ class Server():
         else:
             self.build_objects()
             reactor.callLater(0, self.start_gateways)
-            reactor.callLater(3, self.start_watchers)
+            #reactor.callLater(3, self.start_watchers)
         self.tray = SystemTrayIcon(self)
         self.tray.show()
         loop = task.LoopingCall(self.check_state)
@@ -144,15 +144,15 @@ class Server():
         #sys.exit(app.exec_())
 
     def stop(self):
-        self.stop_watchers()
+        #self.stop_watchers()
         #self.stop_gateways()
         self.config.save(self.settings)
         #sys.exit()
     
-    def stop_watchers(self):
-        threads = [threading.Thread(target=o.stop) for o in self.watchers]
-        [t.start() for t in threads]
-        [t.join() for t in threads]
+    #def stop_watchers(self):
+    #    threads = [threading.Thread(target=o.stop) for o in self.watchers]
+    #    [t.start() for t in threads]
+    #    [t.join() for t in threads]
         
     def stop_gateways(self):
         threads = [threading.Thread(target=o.stop) for o in self.gateways]

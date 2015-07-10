@@ -7,6 +7,9 @@ import ConfigParser
 import json
 import threading
 import logging
+import time
+
+from watcher import Watcher
 
 
 default_settings = {
@@ -27,12 +30,14 @@ def bin_tahoe():
         tahoe_path = os.path.join(path, 'tahoe')
         if os.path.isfile(tahoe_path) and os.access(tahoe_path, os.X_OK):
             return tahoe_path
-    
+ 
 
 class Tahoe():
-    def __init__(self, tahoe_path, settings=None):
+    def __init__(self, parent, tahoe_path, settings=None):
+        self.parent = parent
         self.tahoe_path = os.path.expanduser(tahoe_path)
         self.settings = settings
+        self.watchers = []
         self.name = os.path.basename(self.tahoe_path)
         self.use_tor = False
         if not os.path.isdir(self.tahoe_path):
@@ -58,8 +63,23 @@ class Tahoe():
             for option, value in d.iteritems():
                 if section == 'tor':
                     self.use_tor = True
+                elif section == 'sync':
+                    self.add_watcher(option, value)
                 elif section != 'sync':
                     self.set_config(section, option, value)
+    
+    def add_watcher(self, local_dir, dircap):
+        w = Watcher(self.parent, self, local_dir, dircap)
+        self.watchers.append(w)
+
+    def start_watchers(self):
+        threads = [threading.Thread(target=o.start) for o in self.watchers]
+        [t.start() for t in threads]
+
+    def stop_watchers(self):
+        threads = [threading.Thread(target=o.stop) for o in self.watchers]
+        [t.start() for t in threads]
+        [t.join() for t in threads]
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
@@ -87,7 +107,9 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command('start')
-    
+        time.sleep(3) # XXX Fix; watch for command output instead of waiting.
+        self.start_watchers()
+            
     def stop(self):
         self.command('stop')
     
