@@ -51,34 +51,33 @@ Gridsync uses Qt to emulate native widgets across all three major desktop platfo
 Current (complete -- or nearly complete) features:
 --------------------------------------------------
 
-* Locate and manage (create/start/stop) local Tahoe-LAFS nodes.
+* Native (.dmg/.app) installation for OS X
+* User-friendly initial setup tutorial
+* Background daemon to manage (create/start/stop) multiple local Tahoe-LAFS nodes.
 * Local filesystem monitoring (complete, all platforms).
 * Remote filesystem polling.
 * Bi-directional synchronization (partial/broken; see below).
-* System tray icon animations during sync operations.
-* Simple unified YAML configuration format.
-* Server/client architecture.
+* System tray icon animations.
 * Desktop notifications (GNU/Linux, OS X)
-* Native (.dmg/.app) installation for OS X
+* Simple unified YAML configuration format.
 
 
 In development / TODO / coming soon:
 ------------------------------------
 
 * Generate Preferences dialog from settings and connect signals/slots
-* Create "Add new storage grid" interface.
 * Complete Tor integration
 * Finalize/implement ``gridsync://`` URI-handler and 'one-click' sharing UX/UI
 * Finalizy/implement "rollback" UI (a-la OS X "Time Machine" for reverting to previous backups/snapshots)
 * Unit/integration/system/user tests
 * Improved sync algorithm
+* Windows packaging
 * Upload to PyPI
 
 
 Planned features / coming later:
 --------------------------------
 
-* Windows packaging
 * GNU/Linux distribution packaging (Debian, RPM, Arch PKGBUILD, Gentoo ebuilds, etc.)
 * i18n/L10n
 * File manager/context menu integration for Finder (OS X), Explorer (Windows), Nautilus, Konqueror, Thunar, etc. (GNU/Linux)
