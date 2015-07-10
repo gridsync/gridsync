@@ -32,6 +32,16 @@ The Gridsync project intends to overcome some of Tahoe-LAFS' barriers-to-adoptio
 .. _objectives: https://github.com/LeastAuthority/Open-Technology-Fund-Magic-Folders-Project/blob/master/objectives.rst
 
 
+Screenshots
+-----------
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-prefs.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/preferences-dialog.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/new-sync-folder.png
+
+
 Current (complete -- or nearly complete) features:
 --------------------------------------------------
 
