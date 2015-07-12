@@ -71,9 +71,9 @@ class Server():
             output = subprocess.check_output(["tahoe", "-V"])
             tahoe = output.split('\n')[0]
             logging.info("tahoe -V = " + tahoe)
-        except OSError:
-            logging.error('Tahoe-LAFS installation not found; exiting')
-            sys.exit()
+        except Exception as e:
+            logging.error('Error checking Tahoe-LAFS version: %s' % str(e))
+            #sys.exit()
 
     def build_objects(self):
         logging.info("Building Tahoe objects...")
