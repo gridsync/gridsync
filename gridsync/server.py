@@ -22,7 +22,6 @@ from twisted.internet import reactor, task
 
 from config import Config
 from tahoe import Tahoe, bin_tahoe
-#from watcher import Watcher
 from systray import SystemTrayIcon
 
 
@@ -51,7 +50,7 @@ class Server():
                 filename=logfile, 
                 #filemode='w',
                 level=logging.DEBUG)
-        logging.info("Server initialized: " + str(args))
+        logging.info("Server initialized with args: " + str(args))
         if sys.platform == 'darwin': # Workaround for PyInstaller
             os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
                     + "/Applications/tahoe.app/bin" + os.pathsep \
@@ -121,7 +120,6 @@ class Server():
             reactor.callLater(0, self.first_run)
         else:
             self.build_objects()
-            print 'built objecs'
             reactor.callLater(0, self.start_gateways)
         self.tray = SystemTrayIcon(self)
         self.tray.show()
