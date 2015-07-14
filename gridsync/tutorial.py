@@ -101,7 +101,7 @@ class Tutorial(QWizard):
         hbox = QWidget(self)
         hlayout = QHBoxLayout(hbox)
         self.folder_text = QLineEdit(hbox)
-        button = QPushButton('Selelct Folder', self)
+        button = QPushButton('Select Folder', self)
         button.clicked.connect(self.get_folder)
         hlayout.addWidget(self.folder_text)
         hlayout.addWidget(button)
