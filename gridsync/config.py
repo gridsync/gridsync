@@ -28,5 +28,9 @@ class Config():
     def save(self, dict):
         logging.info('Saving config to ' + self.config_file)
         with open(self.config_file, 'w') as f:
+            try:
+                os.chmod(self.config_file, 0o600)
+            except:
+                pass
             yaml.dump(dict, f, indent=4, default_flow_style=False)
 
