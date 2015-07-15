@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Gridsync
+Comment=Synchronize local directories with Tahoe-LAFS storage grids
+Exec=gridsync %u
+Icon=gridsync
+Type=Application
+MimeType=x-scheme-handler/gridsync
+Terminal=false
