@@ -8,6 +8,8 @@ import json
 import threading
 import logging
 import time
+import urllib2
+import re
 
 from watcher import Watcher
 
@@ -97,6 +99,19 @@ class Tahoe():
         logging.info("Restarting watchers...")
         self.stop_watchers()
         self.start_watchers()
+
+    def node_url(self):
+        with open(os.path.join(self.tahoe_path, 'node.url')) as f:
+            return f.read().strip()
+
+    def connection_status(self):
+        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
+        html = urllib2.urlopen(self.node_url()).read()
+        p = re.compile("Connected to <span>(.+?)</span>")
+        servers_connected = int(re.findall(p, html)[0])
+        p = re.compile("of <span>(.+?)</span> known storage servers")
+        servers_known = int(re.findall(p, html)[0])
+        return servers_connected, servers_known
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()

@@ -23,10 +23,14 @@ class RightClickMenu(QMenu):
     def __init__(self, parent):
         super(RightClickMenu, self).__init__()
         self.parent = parent
+        self.populate()
 
+    def populate(self):
+        self.clear()
+        
         new_folder_action = QAction(QIcon(""), "Add New Sync Folder...", self)
-        new_folder_action.triggered.connect(parent.new_folder_window.populate_combo_box)
-        new_folder_action.triggered.connect(parent.new_folder_window.show)
+        new_folder_action.triggered.connect(self.parent.new_folder_window.populate_combo_box)
+        new_folder_action.triggered.connect(self.parent.new_folder_window.show)
         self.addAction(new_folder_action)
 
         #open_action = QAction(QIcon(""), "Open Gridsync Folder", self)
@@ -39,7 +43,7 @@ class RightClickMenu(QMenu):
                 
         self.addSeparator()
         
-        status_action = QAction(QIcon(""), "Status: Idle", self)
+        status_action = QAction(QIcon(""), self.parent.parent.status_text, self)
         status_action.setEnabled(False)
         self.addAction(status_action)
         
@@ -49,7 +53,7 @@ class RightClickMenu(QMenu):
         self.addSeparator()
         
         preferences_action = QAction(QIcon(""), "Preferences...", self)
-        preferences_action.triggered.connect(parent.preferences_window.show)
+        preferences_action.triggered.connect(self.parent.preferences_window.show)
         self.addAction(preferences_action)
 
         help_menu = QMenu(self)
@@ -76,7 +80,6 @@ class RightClickMenu(QMenu):
         quit_action.setShortcut('Ctrl+Q')
         quit_action.triggered.connect(self.parent.on_quit)
         self.addAction(quit_action)
-
 
 class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, parent):
@@ -127,6 +130,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         #    self.setIcon(QIcon(":/images/icon.png"))
 
     def on_click(self, value):
+        self.right_menu.populate()
         if value == QSystemTrayIcon.Trigger:
             open_gridsync_folder()
 
@@ -135,6 +139,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
 
 def open_gridsync_folder():
+    # XXX This should probably be removed...
     gridsync_folder = os.path.join(os.path.expanduser("~"), "Gridsync")
     if sys.platform == 'darwin':
         subprocess.Popen(['open', gridsync_folder])

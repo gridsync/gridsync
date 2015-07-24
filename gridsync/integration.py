@@ -65,6 +65,3 @@ def _deintegrate_linux():
     _remove_associations()
     _remove_desktop_file()
 
-
-if __name__ == '__main__':
-    deintegrate()

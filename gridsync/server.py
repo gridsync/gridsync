@@ -43,6 +43,9 @@ class Server():
         self.gateways = []
         self.sync_state = 0
         self.config = Config(self.args.config)
+        self.servers_connected = 0
+        self.servers_known = 0
+        self.status_text = 'Status: '
 
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
         logging.basicConfig(
@@ -125,15 +128,30 @@ class Server():
         self.tray.show()
         loop = task.LoopingCall(self.check_state)
         loop.start(1.0)
+        reactor.callLater(3, self.update_connection_status)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
         #sys.exit(app.exec_())
+
+    def update_connection_status(self):
+        self.servers_connected = 0
+        self.servers_known = 0
+        for gateway in self.gateways:
+            connected, known = gateway.connection_status()
+            self.servers_connected += connected
+            self.servers_known += known
+        self.update_status_text()
+
+    def update_status_text(self):
+        # XXX Add logic to check for paused state, etc.
+        self.status_text = "Status: Connected (%i of %i servers)" % \
+                (self.servers_connected, self.servers_known)
 
     def stop(self):
         #self.stop_watchers()
         #self.stop_gateways()
         self.config.save(self.settings)
-        #sys.exit()
+        sys.exit()
         
     def stop_gateways(self):
         threads = [threading.Thread(target=o.stop) for o in self.gateways]
