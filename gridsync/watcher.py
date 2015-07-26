@@ -114,8 +114,7 @@ class Watcher(PatternMatchingEventHandler):
 
     def get_latest_snapshot(self):
         dircap = self.remote_dircap + "/Archives"
-        out = self.tahoe.command_output("ls --json %s" % dircap)
-        j = json.loads(out)
+        j = self.tahoe.ls_json(dircap)
         snapshots = []
         for snapshot in j[1]['children']:
             snapshots.append(snapshot)

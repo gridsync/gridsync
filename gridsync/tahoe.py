@@ -129,24 +129,21 @@ class Tahoe():
         output = ''
         for line in iter(proc.stdout.readline, ''):
             logging.debug("[pid:%d] %s" % (proc.pid, line.rstrip()))
+            output = output + line
             self.parent.status_text = line.strip() # XXX Make this more useful
         proc.poll()
         if proc.returncode is None:
             logging.error("[pid:%d] No return code for %s" % (proc.pid, args))
         else:
             logging.debug("[pid:%d] %d" % (proc.pid, proc.returncode))
+            return output.rstrip()
 
-    def command_output(self, args):
-        if isinstance(args, list):
-            args = ['tahoe', '-d', self.tahoe_path] + args
-        else:
-            args = ['tahoe', '-d', self.tahoe_path] + args.split()
-        if self.use_tor:
-            args.insert(0, 'torsocks')
-        logging.debug("Running: %s" % ' '.join(args))
-        out = subprocess.check_output(args, stderr=subprocess.STDOUT,
+    def ls_json(self, dircap):
+        args = ['tahoe', '-d', self.tahoe_path, 'ls', '--json']
+        args.append(dircap)
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT,
                 universal_newlines=True)
-        return out
+        return json.loads(output)
 
     def create(self):
         self.command(['create-client'])
@@ -167,7 +164,7 @@ class Tahoe():
         self.command(['stop'])
     
     def mkdir(self):
-        return self.command_output('mkdir').strip()
+        return self.command(['mkdir'])
 
     def backup(self, local_dir, remote_dircap):
         self.command(["backup", "-v", "--exclude=*.gridsync-versions*", 
@@ -181,8 +178,7 @@ class Tahoe():
     def get_metadata(self, dircap, basedir='/', metadata={}):
         # XXX Fix this...
         logging.debug("Getting remote metadata...")
-        out = self.command_output("ls --json %s" % dircap)
-        j = json.loads(out)
+        j = self.ls_json(dircap)
         threads = []
         for k, v in j[1]['children'].items():
             if v[0] == 'dirnode':
