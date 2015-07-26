@@ -120,12 +120,13 @@ class Tahoe():
         return servers_connected, servers_known
 
     def command(self, args):
-        args = ['tahoe', '-d', self.tahoe_path] + args.split()
+        args = ['tahoe', '-d', self.tahoe_path] + args
         if self.use_tor:
             args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
         proc = subprocess.Popen(args, env=environment, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, universal_newlines=True)
+        output = ''
         for line in iter(proc.stdout.readline, ''):
             logging.debug("[pid:%d] %s" % (proc.pid, line.rstrip()))
             self.parent.status_text = line.strip() # XXX Make this more useful
@@ -136,7 +137,10 @@ class Tahoe():
             logging.debug("[pid:%d] %d" % (proc.pid, proc.returncode))
 
     def command_output(self, args):
-        args = ['tahoe', '-d', self.tahoe_path] + args.split()
+        if isinstance(args, list):
+            args = ['tahoe', '-d', self.tahoe_path] + args
+        else:
+            args = ['tahoe', '-d', self.tahoe_path] + args.split()
         if self.use_tor:
             args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
@@ -145,37 +149,34 @@ class Tahoe():
         return out
 
     def create(self):
-        self.command('create-client')
+        self.command(['create-client'])
     
     def start(self):
         if not os.path.isfile(os.path.join(self.tahoe_path, 'twistd.pid')):
-            self.command('start')
+            self.command(['start'])
         else:
             pid = int(open(os.path.join(self.tahoe_path, 'twistd.pid')).read())
             try:
                 os.kill(pid, 0)
             except OSError:
-                self.command('start')
+                self.command(['start'])
         time.sleep(3) # XXX Fix; watch for command output instead of waiting.
         self.start_watchers()
 
     def stop(self):
-        self.command('stop')
+        self.command(['stop'])
     
     def mkdir(self):
         return self.command_output('mkdir').strip()
 
     def backup(self, local_dir, remote_dircap):
-        self.command("backup -v --exclude=*.gridsync-versions* %s %s" \
-                % (local_dir, remote_dircap))
+        self.command(["backup", "-v", "--exclude=*.gridsync-versions*", 
+                local_dir, remote_dircap])
 
     def get(self, remote_uri, local_file, mtime=None):
-        args = ['tahoe', '-d', self.tahoe_path, 'get', remote_uri, local_file]
-        ret = subprocess.call(args, stderr=subprocess.STDOUT,
-                universal_newlines=True)
+        self.command(["get", remote_uri, local_file]) 
         if mtime:
             os.utime(local_file, (-1, mtime))
-        return ret
 
     def get_metadata(self, dircap, basedir='/', metadata={}):
         # XXX Fix this...
