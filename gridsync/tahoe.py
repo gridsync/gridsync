@@ -26,6 +26,11 @@ default_settings = {
     "sync": {}
 }
 
+environment = {
+    "PATH": os.environ['PATH'],
+    "PYTHONUNBUFFERED": '1'
+}
+
 def bin_tahoe():
     #if sys.executable.endswith('/Gridsync.app/Contents/MacOS/gridsync'):
     #    return os.path.dirname(sys.executable) + '/Tahoe-LAFS/bin/tahoe'
@@ -33,7 +38,7 @@ def bin_tahoe():
         tahoe_path = os.path.join(path, 'tahoe')
         if os.path.isfile(tahoe_path) and os.access(tahoe_path, os.X_OK):
             return tahoe_path
- 
+
 
 class Tahoe():
     def __init__(self, parent, tahoe_path, settings=None):
@@ -43,6 +48,7 @@ class Tahoe():
         self.watchers = []
         self.name = os.path.basename(self.tahoe_path)
         self.use_tor = False
+        self.bin_tahoe = bin_tahoe()
         if not os.path.isdir(self.tahoe_path):
             self.create()
         if self.settings:
@@ -118,10 +124,17 @@ class Tahoe():
         if self.use_tor:
             args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
-        ret = subprocess.call(args, stderr=subprocess.STDOUT,
-                universal_newlines=True)
-        return ret
-    
+        proc = subprocess.Popen(args, env=environment, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, universal_newlines=True)
+        for line in iter(proc.stdout.readline, ''):
+            logging.debug("[pid:%d] %s" % (proc.pid, line.rstrip()))
+            self.parent.status_text = line.strip() # XXX Make this more useful
+        proc.poll()
+        if proc.returncode is None:
+            logging.error("[pid:%d] No return code for %s" % (proc.pid, args))
+        else:
+            logging.debug("[pid:%d] %d" % (proc.pid, proc.returncode))
+
     def command_output(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args.split()
         if self.use_tor:
@@ -145,7 +158,7 @@ class Tahoe():
                 self.command('start')
         time.sleep(3) # XXX Fix; watch for command output instead of waiting.
         self.start_watchers()
-            
+
     def stop(self):
         self.command('stop')
     
@@ -153,7 +166,8 @@ class Tahoe():
         return self.command_output('mkdir').strip()
 
     def backup(self, local_dir, remote_dircap):
-        self.command("backup -v --exclude=*.gridsync-versions* %s %s" % (local_dir, remote_dircap))
+        self.command("backup -v --exclude=*.gridsync-versions* %s %s" \
+                % (local_dir, remote_dircap))
 
     def get(self, remote_uri, local_file, mtime=None):
         args = ['tahoe', '-d', self.tahoe_path, 'get', remote_uri, local_file]

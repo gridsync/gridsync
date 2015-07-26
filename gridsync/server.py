@@ -49,7 +49,8 @@ class Server():
 
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
         logging.basicConfig(
-                format='%(asctime)s %(message)s', 
+                format='%(asctime)s %(funcName)s %(message)s',
+                #stream=sys.stdout,
                 filename=logfile, 
                 #filemode='w',
                 level=logging.DEBUG)
@@ -149,7 +150,7 @@ class Server():
 
     def stop(self):
         #self.stop_watchers()
-        #self.stop_gateways()
+        self.stop_gateways()
         self.config.save(self.settings)
         sys.exit()
         
