@@ -3,11 +3,12 @@
 import os
 import time
 import threading
-import json
 import logging
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 
 import sync
 
@@ -24,62 +25,38 @@ class Watcher(PatternMatchingEventHandler):
         self.polling_frequency = polling_frequency
         self.latest_snapshot = 0
         self.do_backup = False
-        self.check_for_backup() 
-        #t = threading.Thread(target=self.check_for_backup)
-        #t.setDaemon(True)
-        #t.start()
+        loop = LoopingCall(self.check_for_backup)
+        loop.start(1)
 
     def check_for_backup(self):
-        # XXX Fix this...
         if self.do_backup and not self.parent.sync_state:
             self.do_backup = False
-            time.sleep(1)
-            if not self.do_backup:
-                self.parent.sync_state += 1
-                latest_snapshot = self.get_latest_snapshot()
-                if latest_snapshot == self.latest_snapshot:
-                    self.tahoe.backup(self.local_dir, self.remote_dircap)
-                else:
-                    #self.observer.stop() # Pause Observer during sync...
-                    sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
-                    #self.observer.start()
-                # XXX Race condition
-                self.latest_snapshot = self.get_latest_snapshot()
-                self.parent.sync_state -= 1
-                #notify.notify("Sync finished.")
-        t = threading.Timer(1.0, self.check_for_backup)
-        t.setDaemon(True)
-        t.start()
-        #time.sleep(1)
-        #self.check_for_backup()
+            reactor.callInThread(self.wait_for_writes)
+
+    def wait_for_writes(self):
+        time.sleep(1)
+        if not self.do_backup:
+            self.perform_backup()
+
+    def perform_backup(self):
+        self.parent.sync_state += 1
+        latest_snapshot = self.get_latest_snapshot()
+        if latest_snapshot == self.latest_snapshot:
+            # If already we have the latest backup, perform backup
+            self.tahoe.backup(self.local_dir, self.remote_dircap)
+        else:
+            #self.observer.stop() # Pause Observer during sync...
+            sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
+            #self.observer.start()
+        # XXX Race condition
+        self.latest_snapshot = self.get_latest_snapshot()
+        self.parent.sync_state -= 1
 
     def on_modified(self, event):
         self.do_backup = True
         logging.debug(event)
 
-    def start(self):
-        #self.sync()
-        if not self.remote_dircap:
-            dircap = self.tahoe.mkdir()
-            logging.debug("Created dircap for %s (%s)" % (self.local_dir, dircap))
-            self.remote_dircap = dircap
-            self.parent.settings[self.tahoe.name]['sync'][self.local_dir] = self.remote_dircap
-            logging.debug(self.parent.settings)
-            self.parent.config.save(self.parent.settings)
 
-        self.check_for_updates()
-        logging.info("Starting observer in %s" % self.local_dir)
-        self.observer = Observer()
-        self.observer.schedule(self, self.local_dir, recursive=True)
-        self.observer.start()
-
-    def stop(self):
-        logging.info("Stopping observer in %s" % self.local_dir)
-        try:
-            self.observer.stop()
-            self.observer.join()
-        except:
-            pass
 
     def check_for_updates(self):
         try:
@@ -123,3 +100,26 @@ class Watcher(PatternMatchingEventHandler):
         #latest = snapshots[-1:][0]
         #return utils.utc_to_epoch(latest) 
 
+    def start(self):
+        #self.sync()
+        if not self.remote_dircap:
+            dircap = self.tahoe.mkdir()
+            logging.debug("Created dircap for %s (%s)" % (self.local_dir, dircap))
+            self.remote_dircap = dircap
+            self.parent.settings[self.tahoe.name]['sync'][self.local_dir] = self.remote_dircap
+            logging.debug(self.parent.settings)
+            self.parent.config.save(self.parent.settings)
+
+        self.check_for_updates()
+        logging.info("Starting observer in %s" % self.local_dir)
+        self.observer = Observer()
+        self.observer.schedule(self, self.local_dir, recursive=True)
+        self.observer.start()
+
+    def stop(self):
+        logging.info("Stopping observer in %s" % self.local_dir)
+        try:
+            self.observer.stop()
+            self.observer.join()
+        except:
+            pass

@@ -13,6 +13,7 @@ import re
 
 from watcher import Watcher
 
+from twisted.internet import reactor
 
 default_settings = {
     "node": {
@@ -92,14 +93,13 @@ class Tahoe():
 
     def start_watchers(self):
         logging.info("Starting watchers...")
-        threads = [threading.Thread(target=o.start) for o in self.watchers]
-        [t.start() for t in threads]
+        for watcher in self.watchers:
+            reactor.callInThread(watcher.start)
 
     def stop_watchers(self):
         logging.info("Stopping watchers...")
-        threads = [threading.Thread(target=o.stop) for o in self.watchers]
-        [t.start() for t in threads]
-        [t.join() for t in threads]
+        for watcher in self.watchers:
+            reactor.callInThread(watcher.stop)
 
     def restart_watchers(self):
         logging.info("Restarting watchers...")
@@ -161,6 +161,7 @@ class Tahoe():
         self.start_watchers()
 
     def stop(self):
+        self.stop_watchers()
         self.command(['stop'])
     
     def mkdir(self):

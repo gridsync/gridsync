@@ -3,7 +3,6 @@
 import os
 import sys
 import time
-import threading
 import subprocess
 import logging
 
@@ -50,8 +49,8 @@ class Server():
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
         logging.basicConfig(
                 format='%(asctime)s %(funcName)s %(message)s',
-                #stream=sys.stdout,
-                filename=logfile, 
+                stream=sys.stdout,
+                #filename=logfile,
                 #filemode='w',
                 level=logging.DEBUG)
         logging.info("Server initialized with args: " + str(args))
@@ -103,11 +102,10 @@ class Server():
         self.tray.show_message(title, message)
 
     def start_gateways(self):
-        logging.info("Starting gateway(s)...")
+        logging.info("Starting Tahoe-LAFS gateway(s)...")
         logging.info(self.gateways)
-        threads = [threading.Thread(target=o.start) for o in self.gateways]
-        [t.start() for t in threads]
-        [t.join() for t in threads]
+        for gateway in self.gateways:
+            reactor.callInThread(gateway.start)
 
     def first_run(self):
         from tutorial import Tutorial
@@ -132,7 +130,7 @@ class Server():
         reactor.callLater(3, self.update_connection_status)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
-        #sys.exit(app.exec_())
+        sys.exit()
 
     def update_connection_status(self):
         self.servers_connected = 0
@@ -152,11 +150,11 @@ class Server():
         #self.stop_watchers()
         self.stop_gateways()
         self.config.save(self.settings)
-        sys.exit()
+        reactor.stop()
+        #sys.exit()
         
     def stop_gateways(self):
-        threads = [threading.Thread(target=o.stop) for o in self.gateways]
-        [t.start() for t in threads]
-        [t.join() for t in threads]
-        #reactor.stop()
+        logging.info("Stopping Tahoe-LAFS gateway(s)...")
+        for gateway in self.gateways:
+            reactor.callInThread(gateway.stop)
 
