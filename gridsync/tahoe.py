@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import subprocess
 import ConfigParser
 import json
@@ -10,7 +9,6 @@ import logging
 import time
 import urllib2
 import re
-import pprint
 
 from watcher import Watcher
 
