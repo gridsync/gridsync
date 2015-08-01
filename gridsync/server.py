@@ -127,7 +127,7 @@ class Server():
         self.tray.show()
         loop = task.LoopingCall(self.check_state)
         loop.start(1.0)
-        reactor.callLater(3, self.update_connection_status)
+        reactor.callLater(10, self.update_connection_status) # XXX Fix
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
         sys.exit()
@@ -136,9 +136,8 @@ class Server():
         self.servers_connected = 0
         self.servers_known = 0
         for gateway in self.gateways:
-            connected, known = gateway.connection_status()
-            self.servers_connected += connected
-            self.servers_known += known
+            self.servers_connected += gateway.connection_status['servers_connected']
+            self.servers_known += gateway.connection_status['servers_known']
         self.update_status_text()
 
     def update_status_text(self):
@@ -152,7 +151,7 @@ class Server():
         self.config.save(self.settings)
         reactor.stop()
         #sys.exit()
-        
+
     def stop_gateways(self):
         logging.info("Stopping Tahoe-LAFS gateway(s)...")
         for gateway in self.gateways:

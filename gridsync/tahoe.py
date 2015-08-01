@@ -10,10 +10,13 @@ import logging
 import time
 import urllib2
 import re
+import pprint
 
 from watcher import Watcher
 
 from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
+
 
 default_settings = {
     "node": {
@@ -50,6 +53,7 @@ class Tahoe():
         self.name = os.path.basename(self.tahoe_path)
         self.use_tor = False
         self.bin_tahoe = bin_tahoe()
+        self.connection_status = {}
         if not os.path.isdir(self.tahoe_path):
             self.create()
         if self.settings:
@@ -59,7 +63,7 @@ class Tahoe():
         config = ConfigParser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.tahoe_path, 'tahoe.cfg'))
         return config.get(section, option)
-    
+
     def set_config(self, section, option, value):
         logging.debug("Setting %s option %s to: %s" % (section, option, value))
         config = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -67,7 +71,7 @@ class Tahoe():
         config.set(section, option, value)
         with open(os.path.join(self.tahoe_path, 'tahoe.cfg'), 'wb') as f:
             config.write(f)
-    
+
     def setup(self, settings):
         for section, d in settings.iteritems():
             for option, value in d.iteritems():
@@ -78,7 +82,7 @@ class Tahoe():
                     self.add_watcher(option, value)
                 elif section != 'sync':
                     self.set_config(section, option, value)
-   
+
     def add_new_sync_folder(self, local_dir):
         logging.info("Adding new sync folder: %s" % local_dir)
         dircap = self.mkdir().strip()
@@ -110,14 +114,55 @@ class Tahoe():
         with open(os.path.join(self.tahoe_path, 'node.url')) as f:
             return f.read().strip()
 
-    def connection_status(self):
+    def update_connection_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
         html = urllib2.urlopen(self.node_url()).read()
         p = re.compile("Connected to <span>(.+?)</span>")
-        servers_connected = int(re.findall(p, html)[0])
+        self.connection_status['servers_connected'] = int(re.findall(p, html)[0])
         p = re.compile("of <span>(.+?)</span> known storage servers")
-        servers_known = int(re.findall(p, html)[0])
-        return servers_connected, servers_known
+        self.connection_status['servers_known'] = int(re.findall(p, html)[0])
+
+        servers = {}
+        p = re.compile('<div class="nodeid">(.+?)</div>')
+        nodeid = re.findall(p, html)
+        for item in nodeid:
+            servers[item] = {}
+
+        def insert_all(s, tag='td'):
+            p = re.compile('<%s class="%s">(.+?)</%s>' % (tag, s, tag))
+            c = 0
+            for item in re.findall(p, html):
+                key = s.replace('service-', '').replace('-', '_').replace(' ', '_')
+                servers[nodeid[c]][key] = item
+                c += 1
+
+        insert_all('nickname', 'div')
+        insert_all('address')
+        insert_all('service-service-name')
+        insert_all('service-since timestamp')
+        insert_all('service-announced timestamp')
+        insert_all('service-version')
+        insert_all('service-available-space')
+
+        p = re.compile('<div class="furl">(.+?)</div>')
+        r = re.findall(p, html)
+        self.connection_status['introducer'] = { 'furl': r[0] }
+        self.connection_status['helper'] = { 'furl': r[1] }
+        self.connection_status['servers'] = servers
+
+        p = re.compile('<div class="status-indicator">(.+?)</div>')
+        l = re.findall(p, html)
+        c = 0
+        for item in l:
+            p = re.compile('alt="(.+?)"')
+            status = re.findall(p, item)[0]
+            if c == 0:
+                self.connection_status['introducer']['status'] = status
+            elif c == 1:
+                self.connection_status['helper']['status'] = status
+            else:
+                t = self.connection_status['servers'][nodeid[c-2]]['status'] = status
+            c += 1
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args
@@ -147,7 +192,7 @@ class Tahoe():
 
     def create(self):
         self.command(['create-client'])
-    
+
     def start(self):
         if not os.path.isfile(os.path.join(self.tahoe_path, 'twistd.pid')):
             self.command(['start'])
@@ -159,20 +204,23 @@ class Tahoe():
                 self.command(['start'])
         time.sleep(3) # XXX Fix; watch for command output instead of waiting.
         self.start_watchers()
+        time.sleep(2)
+        update_connection_status_loop = LoopingCall(self.update_connection_status)
+        update_connection_status_loop.start(60)
 
     def stop(self):
         self.stop_watchers()
         self.command(['stop'])
-    
+
     def mkdir(self):
         return self.command(['mkdir'])
 
     def backup(self, local_dir, remote_dircap):
-        self.command(["backup", "-v", "--exclude=*.gridsync-versions*", 
+        self.command(["backup", "-v", "--exclude=*.gridsync-versions*",
                 local_dir, remote_dircap])
 
     def get(self, remote_uri, local_file, mtime=None):
-        self.command(["get", remote_uri, local_file]) 
+        self.command(["get", remote_uri, local_file])
         if mtime:
             os.utime(local_file, (-1, mtime))
 
@@ -219,3 +267,4 @@ class Tahoe():
         [t.start() for t in threads]
         [t.join() for t in threads]
         return metadata
+

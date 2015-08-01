@@ -56,8 +56,6 @@ class Watcher(PatternMatchingEventHandler):
         self.do_backup = True
         logging.debug(event)
 
-
-
     def check_for_updates(self):
         try:
             latest_snapshot = self.get_latest_snapshot()
