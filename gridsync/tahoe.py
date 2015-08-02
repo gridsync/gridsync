@@ -127,12 +127,10 @@ class Tahoe():
             servers[item] = {}
 
         def insert_all(s, tag='td'):
-            p = re.compile('<%s class="%s">(.+?)</%s>' % (tag, s, tag))
-            c = 0
-            for item in re.findall(p, html):
+            p = re.compile('<{} class="{}">(.+?)</{}>'.format(tag, s, tag))
+            for index, item in enumerate(re.findall(p, html)):
                 key = s.replace('service-', '').replace('-', '_').replace(' ', '_')
-                servers[nodeid[c]][key] = item
-                c += 1
+                servers[nodeid[index]][key] = item
 
         insert_all('nickname', 'div')
         insert_all('address')
@@ -150,17 +148,15 @@ class Tahoe():
 
         p = re.compile('<div class="status-indicator">(.+?)</div>')
         l = re.findall(p, html)
-        c = 0
-        for item in l:
+        for index, item in enumerate(l):
             p = re.compile('alt="(.+?)"')
             status = re.findall(p, item)[0]
-            if c == 0:
+            if index == 0:
                 self.connection_status['introducer']['status'] = status
-            elif c == 1:
+            elif index == 1:
                 self.connection_status['helper']['status'] = status
             else:
-                t = self.connection_status['servers'][nodeid[c-2]]['status'] = status
-            c += 1
+                t = self.connection_status['servers'][nodeid[index - 2]]['status'] = status
 
     def command(self, args):
         args = ['tahoe', '-d', self.tahoe_path] + args
