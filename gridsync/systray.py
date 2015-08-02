@@ -9,8 +9,8 @@ import webbrowser
 
 from PyQt4.QtGui import *
 
-from forms.preferences import Ui_MainWindow as Preferences
-from newfolder import NewFolderWindow
+from gridsync.forms.preferences import Ui_MainWindow as Preferences
+from gridsync.newfolder import NewFolderWindow
 
 
 class PreferencesWindow(QMainWindow):

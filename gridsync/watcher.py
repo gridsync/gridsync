@@ -10,7 +10,7 @@ from twisted.internet.task import LoopingCall
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
-import sync
+from gridsync.sync import sync
 
 
 class Watcher(PatternMatchingEventHandler):
@@ -46,7 +46,7 @@ class Watcher(PatternMatchingEventHandler):
             self.tahoe.backup(self.local_dir, self.remote_dircap)
         else:
             #self.observer.stop() # Pause Observer during sync...
-            sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
+            sync(self.tahoe, self.local_dir, self.remote_dircap)
             #self.observer.start()
         # XXX Race condition
         self.latest_snapshot = self.get_latest_snapshot()
@@ -78,7 +78,7 @@ class Watcher(PatternMatchingEventHandler):
             # check here for sync_state?
             self.parent.sync_state += 1
             #self.observer.stop() # Pause Observer during sync...
-            sync.sync(self.tahoe, self.local_dir, self.remote_dircap)
+            sync(self.tahoe, self.local_dir, self.remote_dircap)
             #self.observer.start()
             self.parent.sync_state -= 1
             # XXX Race condition; fix

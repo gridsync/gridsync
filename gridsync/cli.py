@@ -10,8 +10,8 @@ import sys
 
 from twisted.internet.error import CannotListenError
 
-from _version import __version__
-from server import Server
+from gridsync._version import __version__
+from gridsync.server import Server
 
 
 #if sys.platform == 'darwin':

@@ -6,7 +6,7 @@ import sys
 
 from PyQt4.QtGui import *
 
-import tahoe
+from gridsync.tahoe import default_settings
 
 
 class Tutorial(QWizard):
@@ -23,7 +23,7 @@ class Tutorial(QWizard):
         self.finished.connect(self.finish)
 
     def finish(self):
-        settings = { 'Gridsync Demo': tahoe.default_settings }
+        settings = { 'Gridsync Demo': default_settings }
         introducer_furl = str(self.introducer_furl.text())
         settings['Gridsync Demo']['client']['introducer.furl'] = introducer_furl
         settings['Gridsync Demo']['sync'][self.selected_folder] = None

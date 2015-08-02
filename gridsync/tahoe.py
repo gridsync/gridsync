@@ -13,7 +13,7 @@ import urllib2
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
-from watcher import Watcher
+from gridsync.watcher import Watcher
 
 
 default_settings = {

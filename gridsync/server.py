@@ -18,9 +18,9 @@ pyqt4reactor.install()
 from twisted.internet import reactor, task
 from twisted.internet.protocol import Protocol, Factory
 
-from config import Config
-from systray import SystemTrayIcon
-from tahoe import Tahoe, bin_tahoe
+from gridsync.config import Config
+from gridsync.systray import SystemTrayIcon
+from gridsync.tahoe import Tahoe, bin_tahoe
 
 
 class ServerProtocol(Protocol):
