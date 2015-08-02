@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Desktop integration functions"""
 
+import ConfigParser
 import os
 import sys
-import ConfigParser
 
 
 def integrate():

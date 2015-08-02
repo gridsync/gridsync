@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import resources
 import logging
+import os
+import resources
 import subprocess
+import sys
 import webbrowser
 
 from PyQt4.QtGui import *
 
 from forms.preferences import Ui_MainWindow as Preferences
 from newfolder import NewFolderWindow
+
 
 class PreferencesWindow(QMainWindow):
     def __init__(self, parent=None):

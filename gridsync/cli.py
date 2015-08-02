@@ -1,12 +1,12 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import socket
 import argparse
-import subprocess
 import logging
+import os
+import socket
+import subprocess
+import sys
 
 from twisted.internet.error import CannotListenError
 

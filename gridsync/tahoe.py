@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import os
-import subprocess
 import ConfigParser
 import json
-import threading
 import logging
+import os
+import re
+import subprocess
+import threading
 import time
 import urllib2
-import re
-
-from watcher import Watcher
 
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
+
+from watcher import Watcher
 
 
 default_settings = {

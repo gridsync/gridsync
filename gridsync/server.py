@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import subprocess
 import logging
+import os
+import subprocess
+import sys
 
 try: # Hack to get around PyInstaller's Twisted hook
     del sys.modules['twisted.internet.reactor']
@@ -15,12 +15,12 @@ app = QApplication(sys.argv)
 from qtreactor import pyqt4reactor
 pyqt4reactor.install()
 
-from twisted.internet.protocol import Protocol, Factory
 from twisted.internet import reactor, task
+from twisted.internet.protocol import Protocol, Factory
 
 from config import Config
-from tahoe import Tahoe, bin_tahoe
 from systray import SystemTrayIcon
+from tahoe import Tahoe, bin_tahoe
 
 
 class ServerProtocol(Protocol):

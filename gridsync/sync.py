@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+import logging
 import os
 import shutil
-import datetime
 import threading
-import logging
 
 
 def _get_local_mtimes(basedir):

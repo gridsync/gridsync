@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import os
-import time
-import threading
 import logging
+import os
+import threading
+import time
 
-from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers import Observer
 
 import sync
 

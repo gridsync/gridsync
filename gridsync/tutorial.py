@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os
 import sys
-import logging
 
 from PyQt4.QtGui import *
 

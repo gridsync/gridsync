@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os
 import sys
 import yaml
-import logging
+
 
 class Config():
     def __init__(self, config_file=None):
