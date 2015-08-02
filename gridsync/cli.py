@@ -3,9 +3,7 @@
 
 import argparse
 import logging
-import os
 import socket
-import subprocess
 import sys
 
 # Workaround for PyInstaller's Twisted hook
@@ -20,10 +18,6 @@ from gridsync._version import __version__
 from gridsync.server import Server
 
 
-#if sys.platform == 'darwin':
-#    os.chdir(os.path.expanduser('~'))
-
-
 def send_command(command):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,7 +28,6 @@ def send_command(command):
         logging.error(str(e))
 
 def main():
-    #signal.signal(signal.SIGINT, signal.SIG_DFL)
     parser = argparse.ArgumentParser(
             description='Synchronize local directories with Tahoe-LAFS storage grids.',
             epilog='Example: %(prog)s <URI>')
