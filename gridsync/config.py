@@ -8,9 +8,9 @@ import yaml
 
 class Config():
     def __init__(self, config_file=None):
-        #if 'win' in sys.platform:
-        #    self.config_dir = os.path.join(os.getenv('APPDATA'), 'Gridsync')
-        if sys.platform == 'darwin':
+        if sys.platform == 'win32':
+            self.config_dir = os.path.join(os.getenv('APPDATA'), 'Gridsync')
+        elif sys.platform == 'darwin':
             self.config_dir = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', 'Gridsync')
         else:
             self.config_dir = os.path.join(os.path.expanduser('~'), '.config', 'gridsync')
