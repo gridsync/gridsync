@@ -85,11 +85,11 @@ class Server():
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
-            logging.info('got gridsync uri')
-        elif command == "stop" or command == "quit":
+            logging.info('Got gridsync URI: {}'.format(command))
+        elif command.lower() in ('stop', 'quit', 'exit'):
             self.stop()
         else:
-            logging.info("Invalid command: " + command)
+            logging.info("Invalid command: {}".format(command))
 
     def check_state(self):
         if self.sync_state:
