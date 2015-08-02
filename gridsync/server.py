@@ -73,7 +73,7 @@ class Server():
             tahoe = output.split('\n')[0]
             logging.info("tahoe -V = " + tahoe)
         except Exception as e:
-            logging.error('Error checking Tahoe-LAFS version: %s' % str(e))
+            logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
             #sys.exit()
 
     def build_objects(self):
@@ -141,8 +141,8 @@ class Server():
 
     def update_status_text(self):
         # XXX Add logic to check for paused state, etc.
-        self.status_text = "Status: Connected (%i of %i servers)" % \
-                (self.servers_connected, self.servers_known)
+        self.status_text = "Status: Connected ({} of {} servers)".format(
+                self.servers_connected, self.servers_known)
 
     def stop(self):
         #self.stop_watchers()

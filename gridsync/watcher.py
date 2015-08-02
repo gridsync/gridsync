@@ -70,9 +70,9 @@ class Watcher(PatternMatchingEventHandler):
             return
             
         if latest_snapshot == self.latest_snapshot:
-            logging.debug("Up to date (%s); nothing to do." % latest_snapshot)
+            logging.debug("Up to date ({}); nothing to do.".format(latest_snapshot))
         else:
-            logging.debug("New snapshot available (%s); syncing..." % latest_snapshot)
+            logging.debug("New snapshot available ({}); syncing...".format(latest_snapshot))
             # XXX self.parent.sync_state should probably be a list of 
             # syncpair objects to allow introspection
             # check here for sync_state?
@@ -102,20 +102,20 @@ class Watcher(PatternMatchingEventHandler):
         #self.sync()
         if not self.remote_dircap:
             dircap = self.tahoe.mkdir()
-            logging.debug("Created dircap for %s (%s)" % (self.local_dir, dircap))
+            logging.debug("Created dircap for {} ({})".format(self.local_dir, dircap))
             self.remote_dircap = dircap
             self.parent.settings[self.tahoe.name]['sync'][self.local_dir] = self.remote_dircap
             logging.debug(self.parent.settings)
             self.parent.config.save(self.parent.settings)
 
         self.check_for_updates()
-        logging.info("Starting observer in %s" % self.local_dir)
+        logging.info("Starting observer in {}".format(self.local_dir))
         self.observer = Observer()
         self.observer.schedule(self, self.local_dir, recursive=True)
         self.observer.start()
 
     def stop(self):
-        logging.info("Stopping observer in %s" % self.local_dir)
+        logging.info("Stopping observer in {}".format(self.local_dir))
         try:
             self.observer.stop()
             self.observer.join()

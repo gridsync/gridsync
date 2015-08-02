@@ -60,7 +60,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                 local_mtime = int(local_mtimes[file])
                 remote_mtime = int(metadata['mtime']) # :/
                 if remote_mtime > local_mtime:
-                    logging.debug("[@] %s older than stored version, scheduling download" % file)
+                    logging.debug("[@] {} older than stored version, scheduling download".format(file))
                     #_create_conflicted_copy(file, local_mtime)
                     _create_versioned_copy(local_dir, remote_filepath, local_mtime)
                     threads.append(
@@ -68,12 +68,12 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
                                 target=tahoe.get, 
                                 args=(metadata['uri'], file, remote_mtime)))
                 elif remote_mtime < local_mtime:
-                    logging.debug("[*] %s is newer than stored version, scheduling backup" % file)
+                    logging.debug("[*] {} is newer than stored version, scheduling backup".format(file))
                     do_backup = True
                 else:
-                    logging.debug("[.] %s is up to date." % file)
+                    logging.debug("[.] {} is up to date.".format(file))
             else:
-                logging.debug("[?] %s is missing, scheduling download" % file)
+                logging.debug("[?] {} is missing, scheduling download".format(file))
                 threads.append(
                         threading.Thread(
                             target=tahoe.get, 
@@ -84,7 +84,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
             # and intentional (remote) deletions (perhaps only polled syncs 
             # should delete?)
             if not '.gridsync-versions' in file.split(local_dir + os.path.sep)[1]:
-                logging.debug("[!] %s isn't stored, scheduling backup" % file)
+                logging.debug("[!] {} isn't stored, scheduling backup".format(file))
                 do_backup = True
     [t.start() for t in threads]
     [t.join() for t in threads]
