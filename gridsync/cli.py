@@ -8,6 +8,12 @@ import socket
 import subprocess
 import sys
 
+# Workaround for PyInstaller's Twisted hook
+try:
+    del sys.modules['twisted.internet.reactor']
+except KeyError:
+    pass
+
 from twisted.internet.error import CannotListenError
 
 from gridsync._version import __version__

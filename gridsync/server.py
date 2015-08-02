@@ -5,11 +5,6 @@ import os
 import subprocess
 import sys
 
-try: # Hack to get around PyInstaller's Twisted hook
-    del sys.modules['twisted.internet.reactor']
-except KeyError:
-    pass
-
 from PyQt4.QtGui import QApplication
 app = QApplication(sys.argv)
 from qtreactor import pyqt4reactor
