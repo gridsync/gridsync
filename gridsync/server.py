@@ -15,7 +15,7 @@ from twisted.internet.protocol import Protocol, Factory
 
 from gridsync.config import Config
 from gridsync.systray import SystemTrayIcon
-from gridsync.tahoe import Tahoe, bin_tahoe
+from gridsync.tahoe import Tahoe
 
 
 class ServerProtocol(Protocol):
@@ -56,7 +56,6 @@ class Server():
                     + '/Tahoe-LAFS/bin'
         logging.debug("$PATH is: {}".format(os.getenv('PATH')))
         logging.debug("$PYTHONPATH is: {}".format(os.getenv('PYTHONPATH')))
-        logging.info("Found bin/tahoe: " + bin_tahoe())
 
         try:
             self.settings = self.config.load()
@@ -65,7 +64,7 @@ class Server():
 
 
         try:
-            output = subprocess.check_output(["tahoe", "-V"])
+            output = subprocess.check_output(["tahoe", "--version-and-path"])
             tahoe = output.split('\n')[0]
             logging.info("tahoe -V = " + tahoe)
         except Exception as e:

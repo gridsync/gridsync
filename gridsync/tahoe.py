@@ -33,14 +33,6 @@ environment = {
     "PYTHONUNBUFFERED": '1'
 }
 
-def bin_tahoe():
-    #if sys.executable.endswith('/Gridsync.app/Contents/MacOS/gridsync'):
-    #    return os.path.dirname(sys.executable) + '/Tahoe-LAFS/bin/tahoe'
-    for path in os.environ["PATH"].split(os.pathsep):
-        tahoe_path = os.path.join(path, 'tahoe')
-        if os.path.isfile(tahoe_path) and os.access(tahoe_path, os.X_OK):
-            return tahoe_path
-
 
 class Tahoe():
     def __init__(self, parent, tahoe_path, settings=None):
