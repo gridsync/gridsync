@@ -2,7 +2,8 @@
 
 import logging
 
-from PyQt4.QtGui import *
+from PyQt4.QtGui import (QComboBox, QDialog, QDialogButtonBox, QFileDialog,
+        QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QVBoxLayout)
 
 
 class NewFolderWindow(QDialog):
