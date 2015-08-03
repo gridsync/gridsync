@@ -37,6 +37,49 @@ def _create_versioned_copy(local_dir, filename, mtime):
     logging.info("Copying version of {} to {}".format(local_filepath, versioned_filepath))
     shutil.copy2(local_filepath, versioned_filepath)
 
+def get_metadata(tahoe, dircap, basedir='/', metadata={}):
+    # XXX Fix this...
+    logging.debug("Getting remote metadata...")
+    j = tahoe.ls_json(dircap)
+    threads = []
+    for k, v in j[1]['children'].items():
+        if v[0] == 'dirnode':
+            path = os.path.join(basedir, k).strip('/')
+            if 'rw_uri' in v[1]:
+                dircap =  v[1]['rw_uri']
+            else:
+                dircap =  v[1]['ro_uri']
+            metadata[path] = {
+                'type': 'dirnode',
+                'format': 'DIR',
+                'uri': dircap,
+                'mtime': 0,
+                'size': 0
+            }
+            threads.append(
+                    threading.Thread(
+                        target=get_metadata, args=(
+                            tahoe, dircap, path, metadata)))
+        elif v[0] == 'filenode':
+            path = os.path.join(basedir, k).strip('/')
+            for a, m in v[1]['metadata'].items():
+                if a == 'mtime':
+                    mtime = m
+            if 'rw_uri' in v[1]:
+                dircap =  v[1]['rw_uri']
+            else:
+                dircap =  v[1]['ro_uri']
+            metadata[path] = {
+                'type': 'filenode',
+                'format': v[1]['format'],
+                'mtime': mtime,
+                'uri': dircap,
+                'size': v[1]['size']
+            }
+    [t.start() for t in threads]
+    [t.join() for t in threads]
+    return metadata
+
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     # XXX Here be dragons!
     # This all needs to be re-written/re-factored/re-considered...
@@ -44,7 +87,7 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     local_dir = os.path.expanduser(local_dir)
     remote_path = '/'.join([remote_dircap, snapshot])
     local_mtimes = _get_local_mtimes(local_dir) # store this in Watcher()?
-    remote_mtimes = tahoe.get_metadata(remote_path, metadata={})
+    remote_mtimes = get_metadata(tahoe, remote_path, metadata={})
     do_backup = False
     threads = []
     for file, metadata in remote_mtimes.items():
