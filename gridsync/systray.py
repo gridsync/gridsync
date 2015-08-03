@@ -7,7 +7,7 @@ import subprocess
 import sys
 import webbrowser
 
-from PyQt4.QtGui import *
+from PyQt4.QtGui import QAction, QIcon, QMainWindow, QMenu, QMovie, QSystemTrayIcon
 
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.newfolder import NewFolderWindow
