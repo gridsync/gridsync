@@ -16,7 +16,7 @@ from twisted.internet.task import LoopingCall
 from gridsync.watcher import Watcher
 
 
-default_settings = {
+DEFAULT_SETTINGS = {
     "node": {
         "web.port": "tcp:0:interface=127.0.0.1"
     },
@@ -28,7 +28,7 @@ default_settings = {
     "sync": {}
 }
 
-environment = {
+ENVIRONMENT = {
     "PATH": os.environ['PATH'],
     "PYTHONUNBUFFERED": '1'
 }
@@ -154,7 +154,7 @@ class Tahoe():
         if self.use_tor:
             args.insert(0, 'torsocks')
         logging.debug("Running: %s" % ' '.join(args))
-        proc = subprocess.Popen(args, env=environment, stdout=subprocess.PIPE,
+        proc = subprocess.Popen(args, env=ENVIRONMENT, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, universal_newlines=True)
         output = ''
         for line in iter(proc.stdout.readline, ''):
