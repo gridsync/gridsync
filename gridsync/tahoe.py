@@ -42,7 +42,6 @@ class Tahoe():
         self.watchers = []
         self.name = os.path.basename(self.tahoe_path)
         self.use_tor = False
-        self.bin_tahoe = bin_tahoe()
         self.connection_status = {}
         if not os.path.isdir(self.tahoe_path):
             self.create()
