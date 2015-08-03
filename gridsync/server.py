@@ -20,7 +20,7 @@ from gridsync.tahoe import Tahoe
 
 class ServerProtocol(Protocol):
     def dataReceived(self, data):
-        logging.debug("Received command: " + str(data))
+        logging.debug("Received command: {}".format(data))
         self.factory.parent.handle_command(data)
 
 
@@ -47,7 +47,7 @@ class Server():
                 #filename=logfile,
                 #filemode='w',
                 level=logging.DEBUG)
-        logging.info("Server initialized with args: " + str(args))
+        logging.info("Server initialized with args: {}".format((args)))
         if sys.platform == 'darwin': # Workaround for PyInstaller
             os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
                     + "/Applications/tahoe.app/bin" + os.pathsep \
@@ -62,14 +62,12 @@ class Server():
         except IOError:
             self.settings = {}
 
-
         try:
             output = subprocess.check_output(["tahoe", "--version-and-path"])
             tahoe = output.split('\n')[0]
-            logging.info("tahoe -V = " + tahoe)
+            logging.info("tahoe --version-and-path = {}".format(tahoe))
         except Exception as e:
             logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
-            #sys.exit()
 
     def build_objects(self):
         logging.info("Building Tahoe objects...")
