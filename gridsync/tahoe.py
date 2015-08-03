@@ -54,7 +54,7 @@ class Tahoe():
         return config.get(section, option)
 
     def set_config(self, section, option, value):
-        logging.debug("Setting %s option %s to: %s" % (section, option, value))
+        logging.debug("Setting {} option {} to: {}".format(section, option, value))
         config = ConfigParser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.tahoe_path, 'tahoe.cfg'))
         config.set(section, option, value)
@@ -73,14 +73,14 @@ class Tahoe():
                     self.set_config(section, option, value)
 
     def add_new_sync_folder(self, local_dir):
-        logging.info("Adding new sync folder: %s" % local_dir)
+        logging.info("Adding new sync folder: {}".format(local_dir))
         dircap = self.mkdir().strip()
         self.parent.settings[self.name]['sync'][local_dir] = dircap
         self.add_watcher(local_dir, dircap)
         self.restart_watchers()
 
     def add_watcher(self, local_dir, dircap):
-        logging.info("Adding watcher: %s <-> %s" % (local_dir, dircap))
+        logging.info("Adding watcher: {} <-> {}".format(local_dir, dircap))
         w = Watcher(self.parent, self, local_dir, dircap)
         self.watchers.append(w)
 
@@ -153,19 +153,19 @@ class Tahoe():
         args = ['tahoe', '-d', self.tahoe_path] + args
         if self.use_tor:
             args.insert(0, 'torsocks')
-        logging.debug("Running: %s" % ' '.join(args))
+        logging.debug("Running: {}".format(' '.join(args)))
         proc = subprocess.Popen(args, env=ENVIRONMENT, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, universal_newlines=True)
         output = ''
         for line in iter(proc.stdout.readline, ''):
-            logging.debug("[pid:%d] %s" % (proc.pid, line.rstrip()))
+            logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
             output = output + line
             self.parent.status_text = line.strip() # XXX Make this more useful
         proc.poll()
         if proc.returncode is None:
-            logging.error("[pid:%d] No return code for %s" % (proc.pid, args))
+            logging.error("[pid:{}] No return code for {}".format(proc.pid, args))
         else:
-            logging.debug("[pid:%d] %d" % (proc.pid, proc.returncode))
+            logging.debug("[pid:{}] {}".format(proc.pid, proc.returncode))
             return output.rstrip()
 
     def ls_json(self, dircap):
