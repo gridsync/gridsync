@@ -54,7 +54,8 @@ class Server():
                     + os.path.expanduser("~/Library/Python/2.7/bin") \
                     + os.pathsep + os.path.dirname(sys.executable) \
                     + '/Tahoe-LAFS/bin'
-        logging.debug("$PATH is: " + os.getenv('PATH'))
+        logging.debug("$PATH is: {}".format(os.getenv('PATH')))
+        logging.debug("$PYTHONPATH is: {}".format(os.getenv('PYTHONPATH')))
         logging.info("Found bin/tahoe: " + bin_tahoe())
 
         try:
