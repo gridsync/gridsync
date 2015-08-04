@@ -131,9 +131,6 @@ class Server():
         for gateway in self.gateways:
             self.servers_connected += gateway.connection_status['servers_connected']
             self.servers_known += gateway.connection_status['servers_known']
-        self.update_status_text()
-
-    def update_status_text(self):
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
                 self.servers_connected, self.servers_known)
