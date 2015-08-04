@@ -115,10 +115,11 @@ class Server():
         else:
             self.build_objects()
             reactor.callLater(0, self.start_gateways)
-        self.tray = SystemTrayIcon(self)
-        self.tray.show()
-        loop = task.LoopingCall(self.check_state)
-        loop.start(1.0)
+        if not self.args.no_gui:
+            self.tray = SystemTrayIcon(self)
+            self.tray.show()
+            loop = task.LoopingCall(self.check_state)
+            loop.start(1.0)
         reactor.callLater(10, self.update_connection_status) # XXX Fix
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
