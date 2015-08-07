@@ -81,6 +81,7 @@ def get_metadata(tahoe, dircap, basedir='/', metadata={}):
     return metadata
 
 def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
+    tahoe.parent.sync_state += 1
     # XXX Here be dragons!
     # This all needs to be re-written/re-factored/re-considered...
     logging.info("*** Syncing {}...".format(local_dir))
@@ -133,4 +134,4 @@ def sync(tahoe, local_dir, remote_dircap, snapshot='Latest'):
     [t.join() for t in threads]
     if do_backup:
         tahoe.backup(local_dir, remote_dircap)
-
+    tahoe.parent.sync_state -= 1
