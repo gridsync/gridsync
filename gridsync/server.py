@@ -39,7 +39,6 @@ class Server():
         self.servers_connected = 0
         self.servers_known = 0
         self.status_text = 'Status: '
-
         logfile = os.path.join(self.config.config_dir, 'gridsync.log')
         logging.basicConfig(
                 format='%(asctime)s %(funcName)s %(message)s',
@@ -47,27 +46,13 @@ class Server():
                 #filename=logfile,
                 #filemode='w',
                 level=logging.DEBUG)
-        logging.info("Server initialized with args: {}".format((args)))
         if sys.platform == 'darwin': # Workaround for PyInstaller
             os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
                     + "/Applications/tahoe.app/bin" + os.pathsep \
                     + os.path.expanduser("~/Library/Python/2.7/bin") \
                     + os.pathsep + os.path.dirname(sys.executable) \
                     + '/Tahoe-LAFS/bin'
-        logging.debug("$PATH is: {}".format(os.getenv('PATH')))
-        logging.debug("$PYTHONPATH is: {}".format(os.getenv('PYTHONPATH')))
 
-        try:
-            self.settings = self.config.load()
-        except IOError:
-            self.settings = {}
-
-        try:
-            output = subprocess.check_output(["tahoe", "--version-and-path"])
-            tahoe = output.split('\n')[0]
-            logging.info("tahoe --version-and-path = {}".format(tahoe))
-        except Exception as e:
-            logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
 
     def build_objects(self):
         logging.info("Building Tahoe objects...")
@@ -104,12 +89,27 @@ class Server():
         t = Tutorial(self)
         t.exec_()
         logging.debug("Got first run settings: ", self.settings)
-
         self.build_objects()
         self.start_gateways()
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
+        logging.info("Server started with args: {}".format((self.args)))
+        logging.debug("$PATH is: {}".format(os.getenv('PATH')))
+        logging.debug("$PYTHONPATH is: {}".format(os.getenv('PYTHONPATH')))
+
+        try:
+            output = subprocess.check_output(["tahoe", "--version-and-path"])
+            tahoe = output.split('\n')[0]
+            logging.info("tahoe --version-and-path = {}".format(tahoe))
+        except Exception as e:
+            logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
+
+        try:
+            self.settings = self.config.load()
+        except IOError:
+            self.settings = {}
+
         if not self.settings:
             reactor.callLater(0, self.first_run)
         else:
