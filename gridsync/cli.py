@@ -31,7 +31,7 @@ def main():
     parser = argparse.ArgumentParser(
             description='Synchronize local directories with Tahoe-LAFS storage grids.',
             epilog='Example: %(prog)s <URI>')
-    parser.add_argument('command', nargs='?', help='Command to send (e.g., "stop", "reload", "sync").')
+    parser.add_argument('command', nargs='*', help='Command to send (e.g., "stop", "reload", "sync").')
     parser.add_argument('-g', '--no-gui', action='store_true', help='Run without GUI.')
     #parser.add_argument('-t', '--use-tor', action='store_true', help='Run with Tor (requires torsocks)')
     parser.add_argument('-c', '--config', metavar='<file>', nargs=1, help='Load settings from config file.')
@@ -43,7 +43,7 @@ def main():
         gridsync.start()
     except CannotListenError:
         if args.command:
-            send_command(args.command)
+            send_command(' '.join(args.command))
         else:
             sys.exit("Gridsync already running.")
 
