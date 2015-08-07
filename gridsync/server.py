@@ -46,13 +46,6 @@ class Server():
                 #filename=logfile,
                 #filemode='w',
                 level=logging.DEBUG)
-        if sys.platform == 'darwin': # Workaround for PyInstaller
-            os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
-                    + "/Applications/tahoe.app/bin" + os.pathsep \
-                    + os.path.expanduser("~/Library/Python/2.7/bin") \
-                    + os.pathsep + os.path.dirname(sys.executable) \
-                    + '/Tahoe-LAFS/bin'
-
 
     def build_objects(self):
         logging.info("Building Tahoe objects...")
