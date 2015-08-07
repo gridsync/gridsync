@@ -81,7 +81,7 @@ class Tahoe():
 
     def add_watcher(self, local_dir, dircap):
         logging.info("Adding watcher: {} <-> {}".format(local_dir, dircap))
-        w = Watcher(self.parent, self, local_dir, dircap)
+        w = Watcher(self, local_dir, dircap)
         self.watchers.append(w)
 
     def start_watchers(self):

@@ -14,9 +14,8 @@ from gridsync.sync import sync
 
 
 class Watcher(PatternMatchingEventHandler):
-    def __init__(self, parent, tahoe, local_dir, remote_dircap, polling_frequency=20):
+    def __init__(self, tahoe, local_dir, remote_dircap, polling_frequency=20):
         super(Watcher, self).__init__(ignore_patterns=["*.gridsync-versions*"])
-        self.parent = parent
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
@@ -29,7 +28,7 @@ class Watcher(PatternMatchingEventHandler):
         loop.start(1)
 
     def check_for_backup(self):
-        if self.do_backup and not self.parent.sync_state:
+        if self.do_backup and not self.tahoe.parent.sync_state:
             self.do_backup = False
             reactor.callInThread(self.wait_for_writes)
 
@@ -39,7 +38,7 @@ class Watcher(PatternMatchingEventHandler):
             self.perform_backup()
 
     def perform_backup(self):
-        self.parent.sync_state += 1
+        self.tahoe.parent.sync_state += 1
         latest_snapshot = self.get_latest_snapshot()
         if latest_snapshot == self.latest_snapshot:
             # If already we have the latest backup, perform backup
@@ -50,7 +49,7 @@ class Watcher(PatternMatchingEventHandler):
             #self.observer.start()
         # XXX Race condition
         self.latest_snapshot = self.get_latest_snapshot()
-        self.parent.sync_state -= 1
+        self.tahoe.parent.sync_state -= 1
 
     def on_modified(self, event):
         self.do_backup = True
@@ -63,9 +62,9 @@ class Watcher(PatternMatchingEventHandler):
             # XXX This needs to be far more robust; 
             # don't assume an exception means no backups...
             logging.warning("Doing (first?) backup; get_latest_snapshot() failed")
-            self.parent.sync_state += 1
+            self.tahoe.parent.sync_state += 1
             self.tahoe.backup(self.local_dir, self.remote_dircap)
-            self.parent.sync_state -= 1
+            self.tahoe.parent.sync_state -= 1
             self.latest_snapshot = self.get_latest_snapshot()
             return
             
@@ -73,14 +72,14 @@ class Watcher(PatternMatchingEventHandler):
             logging.debug("Up to date ({}); nothing to do.".format(latest_snapshot))
         else:
             logging.debug("New snapshot available ({}); syncing...".format(latest_snapshot))
-            # XXX self.parent.sync_state should probably be a list of 
+            # XXX self.tahoe.parent.sync_state should probably be a list of
             # syncpair objects to allow introspection
             # check here for sync_state?
-            self.parent.sync_state += 1
+            self.tahoe.parent.sync_state += 1
             #self.observer.stop() # Pause Observer during sync...
             sync(self.tahoe, self.local_dir, self.remote_dircap)
             #self.observer.start()
-            self.parent.sync_state -= 1
+            self.tahoe.parent.sync_state -= 1
             # XXX Race condition; fix
             self.latest_snapshot = latest_snapshot
         t = threading.Timer(self.polling_frequency, self.check_for_updates)
@@ -104,9 +103,9 @@ class Watcher(PatternMatchingEventHandler):
             dircap = self.tahoe.mkdir()
             logging.debug("Created dircap for {} ({})".format(self.local_dir, dircap))
             self.remote_dircap = dircap
-            self.parent.settings[self.tahoe.name]['sync'][self.local_dir] = self.remote_dircap
-            logging.debug(self.parent.settings)
-            self.parent.config.save(self.parent.settings)
+            self.tahoe.parent.settings[self.tahoe.name]['sync'][self.local_dir] = self.remote_dircap
+            logging.debug(self.tahoe.parent.settings)
+            self.tahoe.parent.config.save(self.tahoe.parent.settings)
 
         self.check_for_updates()
         logging.info("Starting observer in {}".format(self.local_dir))
@@ -121,3 +120,4 @@ class Watcher(PatternMatchingEventHandler):
             self.observer.join()
         except:
             pass
+
