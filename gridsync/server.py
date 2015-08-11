@@ -39,13 +39,17 @@ class Server():
         self.servers_connected = 0
         self.servers_known = 0
         self.status_text = 'Status: '
-        logfile = os.path.join(self.config.config_dir, 'gridsync.log')
-        logging.basicConfig(
-                format='%(asctime)s %(funcName)s %(message)s',
-                stream=sys.stdout,
-                #filename=logfile,
-                #filemode='w',
-                level=logging.DEBUG)
+        if self.args.debug:
+            logging.basicConfig(
+                    format='%(asctime)s %(funcName)s %(message)s',
+                    level=logging.DEBUG,
+                    stream=sys.stdout)
+        else:
+            logfile = os.path.join(self.config.config_dir, 'gridsync.log')
+            logging.basicConfig(
+                    format='%(asctime)s %(funcName)s %(message)s',
+                    level=logging.INFO,
+                    filename=logfile)
 
     def build_objects(self):
         logging.info("Building Tahoe objects...")
