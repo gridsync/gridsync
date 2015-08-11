@@ -49,12 +49,12 @@ def main():
                 return 0
             except Exception as e:
                 logging.error(str(e))
-                print(str(e), file=sys.stderr)
-                return -1
+                sys.exit(str(e), file=sys.stderr)
+                return 1
         else:
             logging.error("Gridsync already running.")
             print("Gridsync already running.", file=sys.stderr)
-            return -1
+            return 1
 
 
 if __name__ == "__main__":
