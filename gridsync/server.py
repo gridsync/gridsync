@@ -63,7 +63,7 @@ class Server():
             logging.info('Got gridsync URI: {}'.format(command))
             # TODO: Handle this
         elif command.lower() in ('stop', 'quit', 'exit'):
-            self.stop()
+            reactor.stop()
         else:
             logging.info("Invalid command: {}".format(command))
 
