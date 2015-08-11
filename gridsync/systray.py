@@ -9,6 +9,7 @@ import webbrowser
 
 from PyQt4.QtGui import (QAction, QIcon, QMainWindow, QMenu, QMovie,
         QSystemTrayIcon)
+from twisted.internet import reactor
 
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.newfolder import NewFolderWindow
@@ -137,7 +138,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             open_gridsync_folder()
 
     def on_quit(self):
-        self.parent.stop()
+        reactor.stop()
 
 
 def open_gridsync_folder():

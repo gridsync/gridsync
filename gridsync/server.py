@@ -120,8 +120,6 @@ class Server():
         reactor.callLater(10, self.update_connection_status) # XXX Fix
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
-        logging.info("Shutdown complete.")
-        sys.exit()
 
     def update_connection_status(self):
         self.servers_connected = 0
@@ -134,12 +132,9 @@ class Server():
                 self.servers_connected, self.servers_known)
 
     def stop(self):
-        #self.stop_watchers()
         self.stop_gateways()
         self.config.save(self.settings)
         logging.debug("Stopping reactor...")
-        reactor.stop()
-        #sys.exit()
 
     def stop_gateways(self):
         logging.debug("Stopping Tahoe-LAFS gateway(s)...")
