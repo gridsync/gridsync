@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import logging
 import os
-import threading
+import shutil
 import time
 
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
-
-from gridsync.sync import sync
 
 
 class Watcher(PatternMatchingEventHandler):
@@ -19,11 +18,21 @@ class Watcher(PatternMatchingEventHandler):
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
-        if not os.path.isdir(self.local_dir):
-            os.makedirs(self.local_dir)
         self.polling_frequency = polling_frequency
+        self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
         self.latest_snapshot = 0
         self.do_backup = False
+
+    def start(self):
+        self.check_for_new_snapshot()
+        logging.info("Starting observer in {}...".format(self.local_dir))
+        self.observer = Observer()
+        self.observer.schedule(self, self.local_dir, recursive=True)
+        self.observer.start()
+        self.local_checker = LoopingCall(self.check_for_backup)
+        self.local_checker.start(1)
+        self.remote_checker = LoopingCall(self.check_for_new_snapshot)
+        self.remote_checker.start(self.polling_frequency)
 
     def on_modified(self, event):
         self.do_backup = True
@@ -40,74 +49,28 @@ class Watcher(PatternMatchingEventHandler):
             self.perform_backup()
 
     def perform_backup(self):
-        latest_snapshot = self.get_latest_snapshot()
-        if latest_snapshot == self.latest_snapshot:
-            # If already we have the latest backup, perform backup
-            self.tahoe.parent.sync_state += 1
-            self.tahoe.backup(self.local_dir, self.remote_dircap)
-            self.tahoe.parent.sync_state -= 1
+        available_snapshot = self.get_latest_snapshot()
+        if self.latest_snapshot == available_snapshot:
+            # If already we're already on the latest snapshot, perform backup
+            self.sync(skip_comparison=True)
         else:
-            #self.observer.stop() # Pause Observer during sync...
-            sync(self.tahoe, self.local_dir, self.remote_dircap)
-            #self.observer.start()
-        # XXX Race condition
-        self.latest_snapshot = self.get_latest_snapshot()
+            self.sync()
 
     def check_for_new_snapshot(self):
-        logging.debug("Checking for new snapshot...")
+        #logging.debug("Checking for new snapshot...")
+        # XXX Check if dircap has previous backup, if not, do backup?
         try:
             latest_snapshot = self.get_latest_snapshot()
         except:
             # XXX This needs to be far more robust; 
             # don't assume an exception means no backups...
-            logging.warning("Doing (first?) backup; get_latest_snapshot() failed")
-            self.tahoe.parent.sync_state += 1
-            self.tahoe.backup(self.local_dir, self.remote_dircap)
-            self.tahoe.parent.sync_state -= 1
-            self.latest_snapshot = self.get_latest_snapshot()
+            logging.warning("Doing (first?) backup...")
+            self.sync(skip_comparison=True)
             return
-            
-        if latest_snapshot == self.latest_snapshot:
-            logging.debug("Up to date ({}); nothing to do.".format(latest_snapshot))
-        else:
-            logging.debug("New snapshot available ({}); syncing...".format(latest_snapshot))
-            # XXX self.tahoe.parent.sync_state should probably be a list of
-            # syncpair objects to allow introspection
+        if latest_snapshot != self.latest_snapshot:
+            logging.debug("New snapshot ({}) found!".format(latest_snapshot))
             # check here for sync_state?
-            #self.observer.stop() # Pause Observer during sync...
-            sync(self.tahoe, self.local_dir, self.remote_dircap)
-            #self.observer.start()
-            # XXX Race condition; fix
-            self.latest_snapshot = latest_snapshot
-
-    def check_for_updates(self):
-        try:
-            latest_snapshot = self.get_latest_snapshot()
-        except:
-            # XXX This needs to be far more robust; 
-            # don't assume an exception means no backups...
-            logging.warning("Doing (first?) backup; get_latest_snapshot() failed")
-            self.tahoe.parent.sync_state += 1
-            self.tahoe.backup(self.local_dir, self.remote_dircap)
-            self.tahoe.parent.sync_state -= 1
-            self.latest_snapshot = self.get_latest_snapshot()
-            return
-            
-        if latest_snapshot == self.latest_snapshot:
-            logging.debug("Up to date ({}); nothing to do.".format(latest_snapshot))
-        else:
-            logging.debug("New snapshot available ({}); syncing...".format(latest_snapshot))
-            # XXX self.tahoe.parent.sync_state should probably be a list of
-            # syncpair objects to allow introspection
-            # check here for sync_state?
-            #self.observer.stop() # Pause Observer during sync...
-            sync(self.tahoe, self.local_dir, self.remote_dircap)
-            #self.observer.start()
-            # XXX Race condition; fix
-            self.latest_snapshot = latest_snapshot
-        t = threading.Timer(self.polling_frequency, self.check_for_updates)
-        t.setDaemon(True)
-        t.start()
+            self.sync()
 
     def get_latest_snapshot(self):
         dircap = self.remote_dircap + "/Archives"
@@ -117,37 +80,98 @@ class Watcher(PatternMatchingEventHandler):
             snapshots.append(snapshot)
         snapshots.sort()
         return snapshots[-1:][0]
-        #latest = snapshots[-1:][0]
-        #return utils.utc_to_epoch(latest) 
 
-    def start(self):
-        #self.sync()
-        if not self.remote_dircap:
-            dircap = self.tahoe.mkdir()
-            logging.debug("Created dircap for {} ({})".format(self.local_dir, dircap))
-            self.remote_dircap = dircap
-            self.tahoe.parent.settings[self.tahoe.name]['sync'][self.local_dir] = self.remote_dircap
-            logging.debug(self.tahoe.parent.settings)
-            self.tahoe.parent.config.save(self.tahoe.parent.settings)
+    def get_local_metadata(self, basedir):
+        metadata = {}
+        for root, dirs, files in os.walk(basedir, followlinks=True):
+            for name in dirs:
+                path = os.path.join(root, name)
+                metadata[path] = {}
+            for name in files:
+                path = os.path.join(root, name)
+                metadata[path] = {
+                    'mtime': os.path.getmtime(path),
+                    'size': os.path.getsize(path)
+                }
+        return metadata
 
-        #self.check_for_updates()
-        self.check_for_new_snapshot()
-        logging.info("Starting observer in {}".format(self.local_dir))
-        self.observer = Observer()
-        self.observer.schedule(self, self.local_dir, recursive=True)
-        self.observer.start()
-        self.local_check_loop = LoopingCall(self.check_for_backup)
-        self.local_check_loop.start(1)
-        self.remote_check_loop = LoopingCall(self.check_for_new_snapshot)
-        self.remote_check_loop.start(self.polling_frequency)
+    def _create_conflicted_copy(self, filename, mtime):
+        base, extension = os.path.splitext(filename)
+        t = datetime.datetime.fromtimestamp(mtime)
+        tag = t.strftime('.(conflicted copy %Y-%m-%d %H-%M-%S)')
+        newname = base + tag + extension
+        shutil.copy2(filename, newname)
+
+    def _create_versioned_copy(self, filename, mtime):
+        local_filepath = os.path.join(self.local_dir, filename)
+        base, extension = os.path.splitext(filename)
+        t = datetime.datetime.fromtimestamp(mtime)
+        tag = t.strftime('.(%Y-%m-%d %H-%M-%S)')
+        newname = base + tag + extension
+        versioned_filepath = os.path.join(self.versions_dir, newname)
+        if not os.path.isdir(os.path.dirname(versioned_filepath)):
+            os.makedirs(os.path.dirname(versioned_filepath))
+        logging.info("Creating {}".format(versioned_filepath))
+        shutil.copy2(local_filepath, versioned_filepath)
+
+    def sync(self, snapshot='Latest', skip_comparison=False):
+        # XXX Pause Observer here?
+        self.tahoe.parent.sync_state += 1 # Use list of syncpairs instead?
+        logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
+        j = self.tahoe.ls_json(self.remote_dircap)
+        if skip_comparison:
+            self.tahoe.backup(self.local_dir, self.remote_dircap)
+            self.latest_snapshot = self.get_latest_snapshot() # XXX Race
+            logging.info("Synchronized to {}".format(self.latest_snapshot))
+            self.tahoe.parent.sync_state -= 1
+            return
+        remote_path = '/'.join([self.remote_dircap, snapshot])
+        local_metadata = self.get_local_metadata(self.local_dir)
+        remote_metadata = self.tahoe.get_metadata(remote_path, metadata={})
+        # If tahoe.get_metadata() fails, jump to backup?
+        do_backup = False
+        for file, metadata in remote_metadata.items():
+            if metadata['type'] == 'dirnode':
+                dirpath = os.path.join(self.local_dir, file)
+                if not os.path.isdir(dirpath):
+                    logging.info("Creating directory: {}...".format(dirpath))
+                    os.makedirs(dirpath)
+        for file, metadata in remote_metadata.items():
+            if metadata['type'] == 'filenode':
+                remote_filepath = file
+                file = os.path.join(self.local_dir, file)
+                if file in local_metadata:
+                    local_mtime = int(local_metadata[file]['mtime'])
+                    remote_mtime = int(metadata['mtime'])
+                    if remote_mtime > local_mtime: # Remote is newer; download
+                        self._create_versioned_copy(file, local_mtime)
+                        self.tahoe.get(metadata['uri'], file, remote_mtime)
+                    elif remote_mtime < local_mtime: # Local is newer; backup
+                        do_backup = True
+                    else:
+                        logging.debug("{} is up to date.".format(file))
+                else: # Local is missing; download
+                    self.tahoe.get(metadata['uri'], file, metadata['mtime'])
+        for file, metadata in local_metadata.items():
+            fn = file.split(self.local_dir + os.path.sep)[1]
+            if fn not in remote_metadata and self.versions_dir not in file:
+                # TODO: Distinguish between local files that haven't
+                # been stored and intentional (remote) deletions
+                # (perhaps only polled syncs should delete?)
+                logging.debug("[!] {} isn't stored; doing backup".format(file))
+                do_backup = True
+        if do_backup:
+            self.tahoe.backup(self.local_dir, self.remote_dircap)
+        self.latest_snapshot = self.get_latest_snapshot() # XXX Race
+        logging.info("Synchronized to {}".format(self.latest_snapshot))
+        self.tahoe.parent.sync_state -= 1
 
     def stop(self):
         logging.info("Stopping observer in {}".format(self.local_dir))
-        self.local_check_loop.stop()
-        self.remote_check_loop.stop()
+        self.local_checker.stop()
+        self.remote_checker.stop()
         try:
             self.observer.stop()
             self.observer.join()
         except:
             pass
-

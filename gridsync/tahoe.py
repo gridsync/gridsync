@@ -74,8 +74,11 @@ class Tahoe():
 
     def add_new_sync_folder(self, local_dir):
         logging.info("Adding new sync folder: {}".format(local_dir))
-        dircap = self.mkdir().strip()
+        if not os.path.isdir(local_dir):
+            os.makedirs(local_dir)
+        dircap = self.mkdir()
         self.parent.settings[self.name]['sync'][local_dir] = dircap
+        self.parent.config.save(self.parent.settings)
         self.add_watcher(local_dir, dircap)
         self.restart_watchers()
 
@@ -169,10 +172,8 @@ class Tahoe():
             return output.rstrip()
 
     def ls_json(self, dircap):
-        args = ['tahoe', '-d', self.tahoe_path, 'ls', '--json']
-        args.append(dircap)
-        output = subprocess.check_output(args, stderr=subprocess.STDOUT,
-                universal_newlines=True)
+        args = ['tahoe', '-d', self.tahoe_path, 'ls', '--json', dircap]
+        output = subprocess.check_output(args, universal_newlines=True)
         return json.loads(output)
 
     def create(self):
@@ -198,7 +199,9 @@ class Tahoe():
         self.command(['stop'])
 
     def mkdir(self):
-        return self.command(['mkdir'])
+        dircap = self.command(['mkdir'])
+        logging.debug("Created dircap: {}".format(dircap))
+        return dircap
 
     def backup(self, local_dir, remote_dircap):
         self.command(["backup", "-v", "--exclude=*.gridsync-versions*",
@@ -208,4 +211,32 @@ class Tahoe():
         self.command(["get", remote_uri, local_file])
         if mtime:
             os.utime(local_file, (-1, mtime))
+
+    def get_metadata(self, dircap, basedir='/', metadata={}):
+        # XXX Fix this...
+        logging.debug("Getting remote metadata from {}...".format(dircap))
+        j = self.ls_json(dircap)
+        threads = []
+        for k, v in j[1]['children'].items():
+            path = os.path.join(basedir, k).strip('/')
+            if v[0] == 'dirnode':
+                metadata[path] = {
+                    'type': 'dirnode',
+                    'uri': v[1]['ro_uri']
+                }
+                threads.append(threading.Thread(target=self.get_metadata,
+                        args=(v[1]['ro_uri'], path, metadata)))
+            elif v[0] == 'filenode':
+                for a, m in v[1]['metadata'].items():
+                    if a == 'mtime':
+                        mtime = m
+                metadata[path] = {
+                    'type': 'filenode',
+                    'uri': v[1]['ro_uri'],
+                    'mtime': mtime,
+                    'size': v[1]['size']
+                }
+        [t.start() for t in threads]
+        [t.join() for t in threads]
+        return metadata
 
