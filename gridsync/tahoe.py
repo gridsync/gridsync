@@ -83,22 +83,22 @@ class Tahoe():
         self.restart_watchers()
 
     def add_watcher(self, local_dir, dircap):
-        logging.info("Adding watcher: {} <-> {}".format(local_dir, dircap))
+        logging.debug("Adding watcher: {} <-> {}".format(local_dir, dircap))
         w = Watcher(self, local_dir, dircap)
         self.watchers.append(w)
 
     def start_watchers(self):
-        logging.info("Starting watchers...")
+        logging.debug("Starting watchers...")
         for watcher in self.watchers:
             reactor.callInThread(watcher.start)
 
     def stop_watchers(self):
-        logging.info("Stopping watchers...")
+        logging.debug("Stopping watchers...")
         for watcher in self.watchers:
             reactor.callInThread(watcher.stop)
 
     def restart_watchers(self):
-        logging.info("Restarting watchers...")
+        logging.debug("Restarting watchers...")
         self.stop_watchers()
         self.start_watchers()
 
@@ -166,9 +166,11 @@ class Tahoe():
             self.parent.status_text = line.strip() # XXX Make this more useful
         proc.poll()
         if proc.returncode is None:
-            logging.error("[pid:{}] No return code for {}".format(proc.pid, args))
+            logging.warning("No return code for pid:{} ({})".format(
+                    proc.pid, ' '.join(args)))
         else:
-            logging.debug("[pid:{}] {}".format(proc.pid, proc.returncode))
+            logging.debug("pid:{} ({}) returned {}".format(
+                    proc.pid, ' '.join(args), proc.returncode))
             return output.rstrip()
 
     def ls_json(self, dircap):

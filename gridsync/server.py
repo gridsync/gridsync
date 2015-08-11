@@ -52,8 +52,8 @@ class Server():
                     filename=logfile)
 
     def build_objects(self):
-        logging.info("Building Tahoe objects...")
-        logging.info(self.settings)
+        logging.debug("Building Tahoe objects...")
+        logging.debug(self.settings)
         for node, settings in self.settings.items():
             t = Tahoe(self, os.path.join(self.config.config_dir, node), settings)
             self.gateways.append(t)
@@ -61,6 +61,7 @@ class Server():
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
             logging.info('Got gridsync URI: {}'.format(command))
+            # TODO: Handle this
         elif command.lower() in ('stop', 'quit', 'exit'):
             self.stop()
         else:
@@ -76,8 +77,7 @@ class Server():
         self.tray.show_message(title, message)
 
     def start_gateways(self):
-        logging.info("Starting Tahoe-LAFS gateway(s)...")
-        logging.info(self.gateways)
+        logging.debug("Starting Tahoe-LAFS gateway(s)...")
         for gateway in self.gateways:
             reactor.callInThread(gateway.start)
 
@@ -120,6 +120,7 @@ class Server():
         reactor.callLater(10, self.update_connection_status) # XXX Fix
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
+        logging.info("Shutdown complete.")
         sys.exit()
 
     def update_connection_status(self):
@@ -136,11 +137,12 @@ class Server():
         #self.stop_watchers()
         self.stop_gateways()
         self.config.save(self.settings)
+        logging.debug("Stopping reactor...")
         reactor.stop()
         #sys.exit()
 
     def stop_gateways(self):
-        logging.info("Stopping Tahoe-LAFS gateway(s)...")
+        logging.debug("Stopping Tahoe-LAFS gateway(s)...")
         for gateway in self.gateways:
             reactor.callInThread(gateway.stop)
 
