@@ -23,15 +23,6 @@ from gridsync._version import __version__
 from gridsync.server import Server
 
 
-def send_command(command):
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(("localhost", 52045))
-        s.send(command)
-        #sys.exit()
-    except Exception as e:
-        logging.error(str(e))
-
 def main():
     parser = argparse.ArgumentParser(
             description='Synchronize local directories with Tahoe-LAFS storage grids.',
@@ -49,10 +40,20 @@ def main():
         gridsync.start()
     except CannotListenError:
         if args.command:
-            send_command(' '.join(args.command))
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect(("localhost", 52045))
+                s.send(' '.join(args.command))
+                return 0
+            except Exception as e:
+                logging.error(str(e))
+                print(str(e), file=sys.stderr)
+                return -1
         else:
-            sys.exit("Gridsync already running.")
+            logging.error("Gridsync already running.")
+            print("Gridsync already running.", file=sys.stderr)
+            return -1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
