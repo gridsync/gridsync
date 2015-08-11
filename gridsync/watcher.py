@@ -70,7 +70,7 @@ class Watcher(PatternMatchingEventHandler):
         if latest_snapshot != self.latest_snapshot:
             logging.debug("New snapshot ({}) found!".format(latest_snapshot))
             # check here for sync_state?
-            self.sync()
+            self.sync(snapshot=latest_snapshot)
 
     def get_latest_snapshot(self):
         dircap = self.remote_dircap + "/Archives"
@@ -116,6 +116,8 @@ class Watcher(PatternMatchingEventHandler):
 
     def sync(self, snapshot='Latest', skip_comparison=False):
         # XXX Pause Observer here?
+        if snapshot != 'Latest':
+            snapshot = 'Archives/' + snapshot
         self.tahoe.parent.sync_state += 1 # Use list of syncpairs instead?
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         j = self.tahoe.ls_json(self.remote_dircap)
