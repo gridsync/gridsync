@@ -97,8 +97,7 @@ class Server():
 
         try:
             output = subprocess.check_output(["tahoe", "--version-and-path"])
-            tahoe = output.split('\n')[0]
-            logging.info("tahoe --version-and-path = {}".format(tahoe))
+            logging.info(output.split('\n')[0])
         except Exception as e:
             logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
 

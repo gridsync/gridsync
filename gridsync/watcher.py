@@ -20,11 +20,10 @@ class Watcher(PatternMatchingEventHandler):
         self.remote_dircap = remote_dircap
         self.polling_frequency = polling_frequency
         self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
-        self.latest_snapshot = 0
         self.do_backup = False
 
     def start(self):
-        self.check_for_new_snapshot()
+        self.sync()
         logging.info("Starting observer in {}...".format(self.local_dir))
         self.observer = Observer()
         self.observer.schedule(self, self.local_dir, recursive=True)
@@ -49,30 +48,29 @@ class Watcher(PatternMatchingEventHandler):
             self.perform_backup()
 
     def perform_backup(self):
-        available_snapshot = self.get_latest_snapshot()
-        if self.latest_snapshot == available_snapshot:
-            # If already we're already on the latest snapshot, perform backup
+        remote_snapshot = self.get_latest_snapshot()
+        if self.local_snapshot == remote_snapshot:
             self.sync(skip_comparison=True)
         else:
-            self.sync()
+            self.sync(snapshot=remote_snapshot)
 
     def check_for_new_snapshot(self):
         #logging.debug("Checking for new snapshot...")
-        # XXX Check if dircap has previous backup, if not, do backup?
         try:
-            latest_snapshot = self.get_latest_snapshot()
+            remote_snapshot = self.get_latest_snapshot()
         except:
             # XXX This needs to be far more robust; 
             # don't assume an exception means no backups...
             logging.warning("Doing (first?) backup...")
             self.sync(skip_comparison=True)
             return
-        if latest_snapshot != self.latest_snapshot:
-            logging.debug("New snapshot ({}) found!".format(latest_snapshot))
-            # check here for sync_state?
-            self.sync(snapshot=latest_snapshot)
+        if remote_snapshot != self.local_snapshot:
+            logging.debug("New snapshot available: {}".format(remote_snapshot))
+            if not self.tahoe.parent.sync_state:
+                reactor.callInThread(self.sync, snapshot=latest_snapshot)
 
     def get_latest_snapshot(self):
+        # TODO: If /Archives doesn't exist, perform (first?) backup?
         dircap = self.remote_dircap + "/Archives"
         j = self.tahoe.ls_json(dircap)
         snapshots = []
@@ -130,7 +128,8 @@ class Watcher(PatternMatchingEventHandler):
         remote_path = '/'.join([self.remote_dircap, snapshot])
         local_metadata = self.get_local_metadata(self.local_dir)
         remote_metadata = self.tahoe.get_metadata(remote_path, metadata={})
-        # If tahoe.get_metadata() fails, jump to backup?
+        # TODO: If tahoe.get_metadata() fails or doesn't contain a
+        # valid snapshot, jump to backup?
         do_backup = False
         for file, metadata in remote_metadata.items():
             if metadata['type'] == 'dirnode':
@@ -164,8 +163,8 @@ class Watcher(PatternMatchingEventHandler):
                 do_backup = True
         if do_backup:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
-        self.latest_snapshot = self.get_latest_snapshot() # XXX Race
-        logging.info("Synchronized to {}".format(self.latest_snapshot))
+        self.local_snapshot = self.get_latest_snapshot() # XXX Race
+        logging.info("Synchronized to {}".format(self.local_snapshot))
         self.tahoe.parent.sync_state -= 1
 
     def stop(self):
