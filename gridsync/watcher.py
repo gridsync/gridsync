@@ -67,7 +67,7 @@ class Watcher(PatternMatchingEventHandler):
         if remote_snapshot != self.local_snapshot:
             logging.debug("New snapshot available: {}".format(remote_snapshot))
             if not self.tahoe.parent.sync_state:
-                reactor.callInThread(self.sync, snapshot=latest_snapshot)
+                reactor.callInThread(self.sync, snapshot=remote_snapshot)
 
     def get_latest_snapshot(self):
         # TODO: If /Archives doesn't exist, perform (first?) backup?
