@@ -15,9 +15,10 @@ from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
 
-class Watcher(PatternMatchingEventHandler):
+class SyncFolder(PatternMatchingEventHandler):
     def __init__(self, tahoe, local_dir, remote_dircap, polling_frequency=20):
-        super(Watcher, self).__init__(ignore_patterns=["*.gridsync-versions*"])
+        super(SyncFolder, self).__init__(
+                ignore_patterns=["*.gridsync-versions*"])
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
@@ -25,6 +26,8 @@ class Watcher(PatternMatchingEventHandler):
         self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
         self.local_snapshot = 0
         self.do_backup = False
+        logging.debug("{} initialized; "
+                "{} <-> {}".format(self, self.local_dir, self.remote_dircap))
 
     def start(self):
         self.check_for_new_snapshot()

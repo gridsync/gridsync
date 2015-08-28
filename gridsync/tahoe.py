@@ -11,7 +11,7 @@ import urllib2
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
-from gridsync.watcher import Watcher
+from gridsync.sync import SyncFolder
 
 
 DEFAULT_SETTINGS = {
@@ -37,7 +37,7 @@ class Tahoe():
         self.parent = parent
         self.tahoe_path = os.path.expanduser(tahoe_path)
         self.settings = settings
-        self.watchers = []
+        self.sync_folders = []
         self.name = os.path.basename(self.tahoe_path)
         self.use_tor = False
         self.connection_status = {}
@@ -66,39 +66,40 @@ class Tahoe():
                     self.use_tor = True
                     self.set_config('node', 'tub.location', 'onion.tor:1')
                 elif section == 'sync':
-                    self.add_watcher(option, value)
-                elif section != 'sync':
+                    self.add_sync_folder(option, value)
+                else:
                     self.set_config(section, option, value)
 
-    def add_new_sync_folder(self, local_dir):
-        logging.info("Adding new sync folder: {}".format(local_dir))
+    def add_sync_folder(self, local_dir, dircap=None):
+        logging.debug("Adding SyncFolder ({})...".format(local_dir))
+        # TODO: Add error handling
         if not os.path.isdir(local_dir):
+            logging.debug("Directory {} doesn't exist; "
+                    "creating {}...".format(local_dir, local_dir))
             os.makedirs(local_dir)
-        dircap = self.mkdir()
-        self.parent.settings[self.name]['sync'][local_dir] = dircap
-        self.parent.config.save(self.parent.settings)
-        self.add_watcher(local_dir, dircap)
-        self.restart_watchers()
+        if not dircap:
+            logging.debug("No dircap associated with {}; "
+                    "creating new dircap...".format(local_dir))
+            dircap = self.mkdir()
+            self.parent.settings[self.name]['sync'][local_dir] = dircap
+            self.parent.config.save(self.parent.settings)
+        sync_folder = SyncFolder(self, local_dir, dircap)
+        self.sync_folders.append(sync_folder)
 
-    def add_watcher(self, local_dir, dircap):
-        logging.debug("Adding watcher: {} <-> {}".format(local_dir, dircap))
-        w = Watcher(self, local_dir, dircap)
-        self.watchers.append(w)
+    def start_sync_folders(self):
+        logging.debug("Starting SyncFolders...")
+        for sync_folder in self.sync_folders:
+            reactor.callInThread(sync_folder.start)
 
-    def start_watchers(self):
-        logging.debug("Starting watchers...")
-        for watcher in self.watchers:
-            reactor.callInThread(watcher.start)
+    def stop_sync_folders(self):
+        logging.debug("Stopping SyncFolders...")
+        for sync_folder in self.sync_folders:
+            reactor.callInThread(sync_folder.stop)
 
-    def stop_watchers(self):
-        logging.debug("Stopping watchers...")
-        for watcher in self.watchers:
-            reactor.callInThread(watcher.stop)
-
-    def restart_watchers(self):
-        logging.debug("Restarting watchers...")
-        self.stop_watchers()
-        self.start_watchers()
+    def restart_sync_folders(self):
+        logging.debug("Restarting SyncFolders...")
+        self.stop_sync_folders()
+        self.start_sync_folders()
 
     def node_url(self):
         with open(os.path.join(self.tahoe_path, 'node.url')) as f:
@@ -188,12 +189,12 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command(['start'])
-        self.start_watchers()
+        self.start_sync_folders()
         update_connection_status_loop = LoopingCall(self.update_connection_status)
         update_connection_status_loop.start(60)
 
     def stop(self):
-        self.stop_watchers()
+        self.stop_sync_folders()
         self.command(['stop'])
 
     def mkdir(self):
