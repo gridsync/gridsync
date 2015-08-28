@@ -127,26 +127,17 @@ class Watcher(PatternMatchingEventHandler):
 
     def get_remote_metadata(self, dircap, basedir='', metadata={}):
         logging.debug("Getting remote metadata from {}...".format(dircap))
-        ls_json_result = self.tahoe.ls_json(dircap)
+        result = self.tahoe.ls_json(dircap)
         jobs = []
-        for key, value in ls_json_result[1]['children'].items():
+        for key, value in result[1]['children'].items():
             path = '/'.join([basedir, key]).strip('/')
-            node_type = value[0]
-            data = value[1]
-            if node_type == 'dirnode':
-                metadata[path] = {
-                    'type': 'dirnode',
-                    'uri': data['ro_uri']
-                }
-                jobs.append(deferToThread(
-                    self.get_remote_metadata, data['ro_uri'], path, metadata))
-            elif node_type == 'filenode':
-                metadata[path] = {
-                    'type': 'filenode',
-                    'uri': data['ro_uri'],
-                    'mtime': data['metadata']['mtime'],
-                    'size': data['size']
-                }
+            metadata[path] = {
+                'uri': value[1]['ro_uri'],
+                'mtime': value[1]['metadata']['mtime'],
+            }
+            if value[0] == 'dirnode':
+                jobs.append(deferToThread(self.get_remote_metadata, 
+                    metadata[path]['uri'], path, metadata))
         blockingCallFromThread(reactor, gatherResults, jobs)
         return metadata
 
@@ -168,13 +159,13 @@ class Watcher(PatternMatchingEventHandler):
         # valid snapshot, jump to backup?
         do_backup = False
         for file, metadata in self.remote_metadata.items():
-            if metadata['type'] == 'dirnode':
+            if metadata['uri'].startswith('URI:DIR'):
                 dirpath = os.path.join(self.local_dir, file)
                 if not os.path.isdir(dirpath):
                     logging.info("Creating directory: {}...".format(dirpath))
                     os.makedirs(dirpath)
         for file, metadata in self.remote_metadata.items():
-            if metadata['type'] == 'filenode':
+            if not metadata['uri'].startswith('URI:DIR'):
                 filepath = os.path.join(self.local_dir, file)
                 if filepath in self.local_metadata:
                     local_mtime = int(self.local_metadata[filepath]['mtime'])
