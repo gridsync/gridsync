@@ -118,6 +118,7 @@ class Server():
             loop.start(1.0)
         reactor.callLater(10, self.update_connection_status) # XXX Fix
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
+        reactor.suggestThreadPoolSize(20) # XXX Adjust?
         reactor.run()
 
     def update_connection_status(self):

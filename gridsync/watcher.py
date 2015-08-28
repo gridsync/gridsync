@@ -7,7 +7,10 @@ import shutil
 import time
 
 from twisted.internet import reactor
+from twisted.internet.defer import gatherResults
 from twisted.internet.task import LoopingCall
+from twisted.internet.threads import deferToThread, blockingCallFromThread
+
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
@@ -20,10 +23,11 @@ class Watcher(PatternMatchingEventHandler):
         self.remote_dircap = remote_dircap
         self.polling_frequency = polling_frequency
         self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
+        self.local_snapshot = 0
         self.do_backup = False
 
     def start(self):
-        self.sync()
+        self.check_for_new_snapshot()
         logging.info("Starting observer in {}...".format(self.local_dir))
         self.observer = Observer()
         self.observer.schedule(self, self.local_dir, recursive=True)
@@ -112,50 +116,81 @@ class Watcher(PatternMatchingEventHandler):
         logging.info("Creating {}".format(versioned_filepath))
         shutil.copy2(local_filepath, versioned_filepath)
 
+    def _pprint_metadata(self):
+        # For debugging only; remove
+        from pprint import pprint
+        print '---------------------------------'
+        pprint(self.local_metadata)
+        print '---------------------------------'
+        pprint(self.remote_metadata)
+        print '---------------------------------'
+
+    def get_remote_metadata(self, dircap, basedir='', metadata={}):
+        logging.debug("Getting remote metadata from {}...".format(dircap))
+        ls_json_result = self.tahoe.ls_json(dircap)
+        jobs = []
+        for key, value in ls_json_result[1]['children'].items():
+            path = '/'.join([basedir, key]).strip('/')
+            node_type = value[0]
+            data = value[1]
+            if node_type == 'dirnode':
+                metadata[path] = {
+                    'type': 'dirnode',
+                    'uri': data['ro_uri']
+                }
+                jobs.append(deferToThread(
+                    self.get_remote_metadata, data['ro_uri'], path, metadata))
+            elif node_type == 'filenode':
+                metadata[path] = {
+                    'type': 'filenode',
+                    'uri': data['ro_uri'],
+                    'mtime': data['metadata']['mtime'],
+                    'size': data['size']
+                }
+        blockingCallFromThread(reactor, gatherResults, jobs)
+        return metadata
+
     def sync(self, snapshot='Latest', skip_comparison=False):
         # XXX Pause Observer here?
         if snapshot != 'Latest':
             snapshot = 'Archives/' + snapshot
         self.tahoe.parent.sync_state += 1 # Use list of syncpairs instead?
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
-        j = self.tahoe.ls_json(self.remote_dircap)
         if skip_comparison:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
-            self.latest_snapshot = self.get_latest_snapshot() # XXX Race
-            logging.info("Synchronized to {}".format(self.latest_snapshot))
-            self.tahoe.parent.sync_state -= 1
+            self.sync_complete()
             return
         remote_path = '/'.join([self.remote_dircap, snapshot])
-        local_metadata = self.get_local_metadata(self.local_dir)
-        remote_metadata = self.tahoe.get_metadata(remote_path, metadata={})
+        self.local_metadata = self.get_local_metadata(self.local_dir)
+        self.remote_metadata = self.get_remote_metadata(remote_path)
+        self._pprint_metadata()
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         do_backup = False
-        for file, metadata in remote_metadata.items():
+        for file, metadata in self.remote_metadata.items():
             if metadata['type'] == 'dirnode':
                 dirpath = os.path.join(self.local_dir, file)
                 if not os.path.isdir(dirpath):
                     logging.info("Creating directory: {}...".format(dirpath))
                     os.makedirs(dirpath)
-        for file, metadata in remote_metadata.items():
+        for file, metadata in self.remote_metadata.items():
             if metadata['type'] == 'filenode':
-                remote_filepath = file
-                file = os.path.join(self.local_dir, file)
-                if file in local_metadata:
-                    local_mtime = int(local_metadata[file]['mtime'])
+                filepath = os.path.join(self.local_dir, file)
+                if filepath in self.local_metadata:
+                    local_mtime = int(self.local_metadata[filepath]['mtime'])
                     remote_mtime = int(metadata['mtime'])
                     if remote_mtime > local_mtime: # Remote is newer; download
-                        self._create_versioned_copy(file, local_mtime)
-                        self.tahoe.get(metadata['uri'], file, remote_mtime)
+                        self._create_versioned_copy(filepath, local_mtime)
+                        self.tahoe.get(metadata['uri'], filepath, remote_mtime)
                     elif remote_mtime < local_mtime: # Local is newer; backup
                         do_backup = True
                     else:
                         logging.debug("{} is up to date.".format(file))
                 else: # Local is missing; download
-                    self.tahoe.get(metadata['uri'], file, metadata['mtime'])
-        for file, metadata in local_metadata.items():
+                    self.tahoe.get(metadata['uri'], filepath, metadata['mtime'])
+        for file, metadata in self.local_metadata.items():
             fn = file.split(self.local_dir + os.path.sep)[1]
-            if fn not in remote_metadata and self.versions_dir not in file:
+            if fn not in self.remote_metadata and self.versions_dir not in file:
                 # TODO: Distinguish between local files that haven't
                 # been stored and intentional (remote) deletions
                 # (perhaps only polled syncs should delete?)
@@ -163,8 +198,12 @@ class Watcher(PatternMatchingEventHandler):
                 do_backup = True
         if do_backup:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
+        self.sync_complete()
+
+    def sync_complete(self):
         self.local_snapshot = self.get_latest_snapshot() # XXX Race
-        logging.info("Synchronized to {}".format(self.local_snapshot))
+        logging.info("Synchronized {} with {}".format(
+                self.local_dir, self.local_snapshot))
         self.tahoe.parent.sync_state -= 1
 
     def stop(self):
