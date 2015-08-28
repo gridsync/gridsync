@@ -6,8 +6,6 @@ import logging
 import os
 import re
 import subprocess
-import threading
-import time
 import urllib2
 
 from twisted.internet import reactor
@@ -190,9 +188,7 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command(['start'])
-        time.sleep(3) # XXX Fix; watch for command output instead of waiting.
         self.start_watchers()
-        time.sleep(2)
         update_connection_status_loop = LoopingCall(self.update_connection_status)
         update_connection_status_loop.start(60)
 
@@ -213,32 +209,4 @@ class Tahoe():
         self.command(["get", remote_uri, local_file])
         if mtime:
             os.utime(local_file, (-1, mtime))
-
-    def get_metadata(self, dircap, basedir='/', metadata={}):
-        # XXX Fix this...
-        logging.debug("Getting remote metadata from {}...".format(dircap))
-        j = self.ls_json(dircap)
-        threads = []
-        for k, v in j[1]['children'].items():
-            path = os.path.join(basedir, k).strip('/')
-            if v[0] == 'dirnode':
-                metadata[path] = {
-                    'type': 'dirnode',
-                    'uri': v[1]['ro_uri']
-                }
-                threads.append(threading.Thread(target=self.get_metadata,
-                        args=(v[1]['ro_uri'], path, metadata)))
-            elif v[0] == 'filenode':
-                for a, m in v[1]['metadata'].items():
-                    if a == 'mtime':
-                        mtime = m
-                metadata[path] = {
-                    'type': 'filenode',
-                    'uri': v[1]['ro_uri'],
-                    'mtime': mtime,
-                    'size': v[1]['size']
-                }
-        [t.start() for t in threads]
-        [t.join() for t in threads]
-        return metadata
 
