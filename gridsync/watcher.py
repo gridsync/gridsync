@@ -58,15 +58,22 @@ class Watcher(PatternMatchingEventHandler):
         else:
             self.sync(snapshot=remote_snapshot)
 
-    def check_for_new_snapshot(self):
+    def check_for_new_snapshot(self, num_attempts=3):
         #logging.debug("Checking for new snapshot...")
         try:
             remote_snapshot = self.get_latest_snapshot()
-        except:
-            # XXX This needs to be far more robust; 
-            # don't assume an exception means no backups...
-            logging.warning("Doing (first?) backup...")
-            self.sync(skip_comparison=True)
+        except Exception, e:
+            logging.error(e)
+            if num_attempts:
+                logging.debug("get_latest_snapshot() failed; "
+                        "(maybe we're not connected yet?).")
+                logging.debug("Trying again after 1 sec. "
+                        "({} attempts remaining)...".format(num_attempts))
+                time.sleep(1)
+                self.check_for_new_snapshot(num_attempts - 1)
+            else:
+                logging.debug("Attempts exhausted; attempting repair...")
+                # XXX
             return
         if remote_snapshot != self.local_snapshot:
             logging.debug("New snapshot available: {}".format(remote_snapshot))
@@ -125,20 +132,23 @@ class Watcher(PatternMatchingEventHandler):
         pprint(self.remote_metadata)
         print '---------------------------------'
 
-    def get_remote_metadata(self, dircap, basedir='', metadata={}):
+    def get_remote_metadata(self, dircap, basedir=''):
+        metadata = {}
         logging.debug("Getting remote metadata from {}...".format(dircap))
-        result = self.tahoe.ls_json(dircap)
+        received_data = self.tahoe.ls_json(dircap)
         jobs = []
-        for key, value in result[1]['children'].items():
-            path = '/'.join([basedir, key]).strip('/')
+        for filename, data in received_data[1]['children'].items():
+            path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {
-                'uri': value[1]['ro_uri'],
-                'mtime': value[1]['metadata']['mtime'],
+                'uri': data[1]['ro_uri'],
+                'mtime': data[1]['metadata']['mtime'],
             }
-            if value[0] == 'dirnode':
+            if data[0] == 'dirnode':
                 jobs.append(deferToThread(self.get_remote_metadata, 
-                    metadata[path]['uri'], path, metadata))
-        blockingCallFromThread(reactor, gatherResults, jobs)
+                    metadata[path]['uri'], path))
+        results = blockingCallFromThread(reactor, gatherResults, jobs)
+        for result in results:
+            metadata.update(result)
         return metadata
 
     def sync(self, snapshot='Latest', skip_comparison=False):
