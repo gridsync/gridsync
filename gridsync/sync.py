@@ -15,39 +15,38 @@ from watchdog.observers import Observer
 
 
 class SyncFolder(PatternMatchingEventHandler):
-    def __init__(self, tahoe, local_dir, remote_dircap, polling_frequency=30):
+    def __init__(self, local_dir, remote_dircap, tahoe=None):
         super(SyncFolder, self).__init__(
                 ignore_patterns=["*.gridsync-versions*"])
+        if not tahoe:
+            from gridsync.tahoe import Tahoe
+            tahoe = Tahoe()
         self.tahoe = tahoe
-        self.server = self.tahoe.parent
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
-        self.polling_frequency = polling_frequency
         self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
         self.local_snapshot = 0
         self.filesystem_modified = False
         self.do_backup = False
+        self.sync_state = 0
         logging.debug("{} initialized; "
                 "{} <-> {}".format(self, self.local_dir, self.remote_dircap))
 
     def start(self):
-        #self.check_for_new_snapshot()
         self.local_checker = LoopingCall(self.check_for_backup)
         self.local_checker.start(1)
-        #self.remote_checker = LoopingCall(self.check_for_new_snapshot)
         self.remote_checker = LoopingCall(
                 reactor.callInThread, self.check_for_new_snapshot)
-        self.remote_checker.start(self.polling_frequency)
+        self.remote_checker.start(30)
         self.start_observer()
 
     def on_modified(self, event):
         self.filesystem_modified = True
-        #logging.debug(event)
 
     def check_for_backup(self):
         if self.filesystem_modified:
             self.filesystem_modified = False
-            if self.server.sync_state:
+            if self.sync_state:
                 #self.do_backup = True
                 pass
             else:
@@ -84,7 +83,7 @@ class SyncFolder(PatternMatchingEventHandler):
             return
         if remote_snapshot != self.local_snapshot:
             logging.debug("New snapshot available: {}".format(remote_snapshot))
-            if not self.server.sync_state:
+            if not self.sync_state:
                 #reactor.callInThread(self.sync, snapshot=remote_snapshot)
                 self.sync(snapshot=remote_snapshot)
 
@@ -133,15 +132,6 @@ class SyncFolder(PatternMatchingEventHandler):
         logging.info("Creating {}".format(versioned_filepath))
         shutil.copy2(local_filepath, versioned_filepath)
 
-    def _pprint_metadata(self):
-        # For debugging only; remove
-        from pprint import pprint
-        print '---------------------------------'
-        pprint(self.local_metadata)
-        print '---------------------------------'
-        pprint(self.remote_metadata)
-        print '---------------------------------'
-
     def get_remote_metadata(self, dircap, basedir=''):
         metadata = {}
         logging.debug("Getting remote metadata from {}...".format(dircap))
@@ -164,8 +154,7 @@ class SyncFolder(PatternMatchingEventHandler):
     def sync(self, snapshot='Latest', skip_comparison=False):
         if snapshot != 'Latest':
             snapshot = 'Archives/' + snapshot
-        #self.stop_observer()
-        self.server.sync_state += 1 # Use list of syncpairs instead?
+        self.sync_state += 1
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         if skip_comparison:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
@@ -174,7 +163,6 @@ class SyncFolder(PatternMatchingEventHandler):
         remote_path = '/'.join([self.remote_dircap, snapshot])
         self.local_metadata = self.get_local_metadata(self.local_dir)
         self.remote_metadata = self.get_remote_metadata(remote_path)
-        self._pprint_metadata()
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         jobs = []
@@ -228,8 +216,7 @@ class SyncFolder(PatternMatchingEventHandler):
         self.local_snapshot = self.get_latest_snapshot() # XXX Race
         logging.info("Synchronized {} with {}".format(
                 self.local_dir, self.local_snapshot))
-        self.server.sync_state -= 1
-        #self.start_observer()
+        self.sync_state -= 1
 
     def start_observer(self):
         logging.info("Starting Observer in {}...".format(self.local_dir))

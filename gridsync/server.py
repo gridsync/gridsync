@@ -37,7 +37,6 @@ class Server():
         self.args = args
         self.gateways = []
         self.sync_folders = []
-        self.sync_state = 0
         self.config = Config(self.args.config)
         self.servers_connected = 0
         self.servers_known = 0
@@ -58,15 +57,14 @@ class Server():
         logging.debug("Building Tahoe objects...")
         logging.debug(self.settings)
         for node, settings in self.settings.items():
-            t = Tahoe(self, os.path.join(self.config.config_dir, node), 
-                    settings)
+            t = Tahoe(os.path.join(self.config.config_dir, node), settings)
             self.gateways.append(t)
             for section, settings in settings.iteritems():
                 if section == 'sync':
                     for local_dir, dircap in settings.iteritems():
-                        self.add_sync_folder(t, local_dir, dircap)
+                        self.add_sync_folder(local_dir, dircap, t)
 
-    def add_sync_folder(self, tahoe, local_dir, dircap=None):
+    def add_sync_folder(self, local_dir, dircap=None, tahoe=None):
         logging.debug("Adding SyncFolder ({})...".format(local_dir))
         # TODO: Add error handling
         if not os.path.isdir(local_dir):
@@ -78,8 +76,8 @@ class Server():
                     "creating new dircap...".format(local_dir))
             dircap = self.mkdir()
             self.settings[tahoe.name]['sync'][local_dir] = dircap
-            self.config.save(self.parent.settings)
-        sync_folder = SyncFolder(tahoe, local_dir, dircap)
+            self.config.save(self.settings)
+        sync_folder = SyncFolder(local_dir, dircap, tahoe)
         self.sync_folders.append(sync_folder)
 
     def start_sync_folders(self):
@@ -102,7 +100,11 @@ class Server():
             logging.info("Invalid command: {}".format(command))
 
     def check_state(self):
-        if self.sync_state:
+        active_jobs = []
+        for sync_folder in self.sync_folders:
+            if sync_folder.sync_state:
+                active_jobs.append(sync_folder)
+        if active_jobs:
             self.tray.start_animation()
         else:
             self.tray.stop_animation()
@@ -170,7 +172,6 @@ class Server():
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
                 self.servers_connected, self.servers_known)
-        print self.status_text
 
     def stop(self):
         self.stop_sync_folders()

@@ -28,14 +28,12 @@ ENVIRONMENT = {
 
 
 class Tahoe():
-    def __init__(self, parent, node_dir=None, settings=None):
-        self.parent = parent
+    def __init__(self, node_dir=None, settings=None):
         if not node_dir:
             self.node_dir = os.path.join(os.path.expanduser('~'), '.tahoe')
         else:
             self.node_dir = os.path.expanduser(node_dir)
         self.settings = settings
-        self.sync_folders = []
         self.name = os.path.basename(self.node_dir)
         self.use_tor = False
         self.connection_status = {}
@@ -60,6 +58,8 @@ class Tahoe():
     def setup(self, settings):
         for section, d in settings.iteritems():
             for option, value in d.iteritems():
+                # To be changed when Tahoe-LAFS ticket #517 closes
+                # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/517
                 if section == 'tor':
                     self.use_tor = True
                     self.set_config('node', 'tub.location', 'onion.tor:1')
@@ -130,7 +130,6 @@ class Tahoe():
         for line in iter(proc.stdout.readline, ''):
             logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
             output = output + line
-            self.parent.status_text = line.strip() # XXX Make this more useful
         proc.poll()
         if proc.returncode is None:
             logging.warning("No return code for pid:{} ({})".format(
