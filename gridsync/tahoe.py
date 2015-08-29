@@ -36,8 +36,9 @@ class Tahoe():
     def __init__(self, parent, node_dir=None, settings=None):
         self.parent = parent
         if not node_dir:
-            self.node_dir
-        self.node_dir = os.path.expanduser(node_dir)
+            self.node_dir = os.path.join(os.path.expanduser('~'), '.tahoe')
+        else:
+            self.node_dir = os.path.expanduser(node_dir)
         self.settings = settings
         self.sync_folders = []
         self.name = os.path.basename(self.node_dir)
