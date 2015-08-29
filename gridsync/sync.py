@@ -19,6 +19,7 @@ class SyncFolder(PatternMatchingEventHandler):
         super(SyncFolder, self).__init__(
                 ignore_patterns=["*.gridsync-versions*"])
         self.tahoe = tahoe
+        self.server = self.tahoe.parent
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
         self.polling_frequency = polling_frequency
@@ -46,7 +47,7 @@ class SyncFolder(PatternMatchingEventHandler):
     def check_for_backup(self):
         if self.filesystem_modified:
             self.filesystem_modified = False
-            if self.tahoe.parent.sync_state:
+            if self.server.sync_state:
                 #self.do_backup = True
                 pass
             else:
@@ -83,7 +84,7 @@ class SyncFolder(PatternMatchingEventHandler):
             return
         if remote_snapshot != self.local_snapshot:
             logging.debug("New snapshot available: {}".format(remote_snapshot))
-            if not self.tahoe.parent.sync_state:
+            if not self.server.sync_state:
                 #reactor.callInThread(self.sync, snapshot=remote_snapshot)
                 self.sync(snapshot=remote_snapshot)
 
@@ -164,7 +165,7 @@ class SyncFolder(PatternMatchingEventHandler):
         if snapshot != 'Latest':
             snapshot = 'Archives/' + snapshot
         #self.stop_observer()
-        self.tahoe.parent.sync_state += 1 # Use list of syncpairs instead?
+        self.server.sync_state += 1 # Use list of syncpairs instead?
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         if skip_comparison:
             self.tahoe.backup(self.local_dir, self.remote_dircap)
@@ -227,7 +228,7 @@ class SyncFolder(PatternMatchingEventHandler):
         self.local_snapshot = self.get_latest_snapshot() # XXX Race
         logging.info("Synchronized {} with {}".format(
                 self.local_dir, self.local_snapshot))
-        self.tahoe.parent.sync_state -= 1
+        self.server.sync_state -= 1
         #self.start_observer()
 
     def start_observer(self):
