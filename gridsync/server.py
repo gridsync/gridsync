@@ -10,10 +10,12 @@ app = QApplication(sys.argv)
 from qtreactor import pyqt4reactor
 pyqt4reactor.install()
 
-from twisted.internet import reactor, task
+from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol, Factory
 
 from gridsync.config import Config
+from gridsync.sync import SyncFolder
 from gridsync.systray import SystemTrayIcon
 from gridsync.tahoe import Tahoe
 
@@ -34,6 +36,7 @@ class Server():
     def __init__(self, args):
         self.args = args
         self.gateways = []
+        self.sync_folders = []
         self.sync_state = 0
         self.config = Config(self.args.config)
         self.servers_connected = 0
@@ -55,8 +58,39 @@ class Server():
         logging.debug("Building Tahoe objects...")
         logging.debug(self.settings)
         for node, settings in self.settings.items():
-            t = Tahoe(self, os.path.join(self.config.config_dir, node), settings)
+            t = Tahoe(self, os.path.join(self.config.config_dir, node), 
+                    settings)
             self.gateways.append(t)
+            for section, settings in settings.iteritems():
+                if section == 'sync':
+                    for local_dir, dircap in settings.iteritems():
+                        self.add_sync_folder(t, local_dir, dircap)
+
+    def add_sync_folder(self, tahoe, local_dir, dircap=None):
+        logging.debug("Adding SyncFolder ({})...".format(local_dir))
+        # TODO: Add error handling
+        if not os.path.isdir(local_dir):
+            logging.debug("Directory {} doesn't exist; "
+                    "creating {}...".format(local_dir, local_dir))
+            os.makedirs(local_dir)
+        if not dircap:
+            logging.debug("No dircap associated with {}; "
+                    "creating new dircap...".format(local_dir))
+            dircap = self.mkdir()
+            self.settings[tahoe.name]['sync'][local_dir] = dircap
+            self.config.save(self.parent.settings)
+        sync_folder = SyncFolder(tahoe, local_dir, dircap)
+        self.sync_folders.append(sync_folder)
+
+    def start_sync_folders(self):
+        logging.debug("Starting SyncFolders...")
+        for sync_folder in self.sync_folders:
+            reactor.callInThread(sync_folder.start)
+
+    def stop_sync_folders(self):
+        logging.debug("Stopping SyncFolders...")
+        for sync_folder in self.sync_folders:
+            reactor.callInThread(sync_folder.stop)
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
@@ -114,24 +148,32 @@ class Server():
         if not self.args.no_gui:
             self.tray = SystemTrayIcon(self)
             self.tray.show()
-            loop = task.LoopingCall(self.check_state)
-            loop.start(1.0)
-        reactor.callLater(10, self.update_connection_status) # XXX Fix
+            state_checker = LoopingCall(self.check_state)
+            state_checker.start(1.0)
+        connection_status_updater = LoopingCall(
+                reactor.callInThread, self.update_connection_status)
+        reactor.callLater(5, connection_status_updater.start, 60)
+        reactor.callLater(1, self.start_sync_folders)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.suggestThreadPoolSize(20) # XXX Adjust?
         reactor.run()
 
     def update_connection_status(self):
-        self.servers_connected = 0
-        self.servers_known = 0
+        servers_connected = 0
+        servers_known = 0
         for gateway in self.gateways:
-            self.servers_connected += gateway.connection_status['servers_connected']
-            self.servers_known += gateway.connection_status['servers_known']
+            gateway.update_connection_status()
+            servers_connected += gateway.connection_status['servers_connected']
+            servers_known += gateway.connection_status['servers_known']
+        self.servers_connected = servers_connected
+        self.servers_known = servers_known
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
                 self.servers_connected, self.servers_known)
+        print self.status_text
 
     def stop(self):
+        self.stop_sync_folders()
         self.stop_gateways()
         self.config.save(self.settings)
         logging.debug("Stopping reactor...")
