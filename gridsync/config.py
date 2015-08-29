@@ -11,9 +11,11 @@ class Config():
         if sys.platform == 'win32':
             self.config_dir = os.path.join(os.getenv('APPDATA'), 'Gridsync')
         elif sys.platform == 'darwin':
-            self.config_dir = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', 'Gridsync')
+            self.config_dir = os.path.join(os.path.expanduser('~'), 'Library',
+                    'Application Support', 'Gridsync')
         else:
-            self.config_dir = os.path.join(os.path.expanduser('~'), '.config', 'gridsync')
+            self.config_dir = os.path.join(os.path.expanduser('~'), '.config',
+                    'gridsync')
         if not os.path.isdir(self.config_dir):
             os.makedirs(self.config_dir)
 
@@ -24,7 +26,7 @@ class Config():
 
     def load(self):
         with open(self.config_file) as f:
-            return yaml.load(f)
+            return yaml.safe_load(f)
 
     def save(self, dict):
         logging.info('Saving config to {}'.format(self.config_file))
@@ -33,5 +35,6 @@ class Config():
                 os.chmod(self.config_file, 0o600)
             except:
                 pass
-            yaml.dump(dict, f, indent=4, default_flow_style=False)
+            yaml.safe_dump(dict, f, encoding='utf-8', allow_unicode=True,
+                    indent=4, default_flow_style=False)
 
