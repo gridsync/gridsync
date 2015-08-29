@@ -33,30 +33,32 @@ ENVIRONMENT = {
 
 
 class Tahoe():
-    def __init__(self, parent, tahoe_path, settings=None):
+    def __init__(self, parent, node_dir=None, settings=None):
         self.parent = parent
-        self.tahoe_path = os.path.expanduser(tahoe_path)
+        if not node_dir:
+            self.node_dir
+        self.node_dir = os.path.expanduser(node_dir)
         self.settings = settings
         self.sync_folders = []
-        self.name = os.path.basename(self.tahoe_path)
+        self.name = os.path.basename(self.node_dir)
         self.use_tor = False
         self.connection_status = {}
-        if not os.path.isdir(self.tahoe_path):
+        if not os.path.isdir(self.node_dir):
             self.create()
         if self.settings:
             self.setup(settings)
 
     def get_config(self, section, option):
         config = ConfigParser.RawConfigParser(allow_no_value=True)
-        config.read(os.path.join(self.tahoe_path, 'tahoe.cfg'))
+        config.read(os.path.join(self.node_dir, 'tahoe.cfg'))
         return config.get(section, option)
 
     def set_config(self, section, option, value):
         logging.debug("Setting {} option {} to: {}".format(section, option, value))
         config = ConfigParser.RawConfigParser(allow_no_value=True)
-        config.read(os.path.join(self.tahoe_path, 'tahoe.cfg'))
+        config.read(os.path.join(self.node_dir, 'tahoe.cfg'))
         config.set(section, option, value)
-        with open(os.path.join(self.tahoe_path, 'tahoe.cfg'), 'wb') as f:
+        with open(os.path.join(self.node_dir, 'tahoe.cfg'), 'wb') as f:
             config.write(f)
 
     def setup(self, settings):
@@ -102,7 +104,7 @@ class Tahoe():
         self.start_sync_folders()
 
     def node_url(self):
-        with open(os.path.join(self.tahoe_path, 'node.url')) as f:
+        with open(os.path.join(self.node_dir, 'node.url')) as f:
             return f.read().strip()
 
     def update_connection_status(self):
@@ -152,7 +154,7 @@ class Tahoe():
                 t = self.connection_status['servers'][nodeid[index - 2]]['status'] = status
 
     def command(self, args):
-        args = ['tahoe', '-d', self.tahoe_path] + args
+        args = ['tahoe', '-d', self.node_dir] + args
         if self.use_tor:
             args.insert(0, 'torsocks')
         logging.debug("Running: {}".format(' '.join(args)))
@@ -173,7 +175,7 @@ class Tahoe():
             return output.rstrip()
 
     def ls_json(self, dircap):
-        args = ['tahoe', '-d', self.tahoe_path, 'ls', '--json', dircap]
+        args = ['tahoe', '-d', self.node_dir, 'ls', '--json', dircap]
         output = subprocess.check_output(args, universal_newlines=True)
         return json.loads(output)
 
@@ -181,10 +183,10 @@ class Tahoe():
         self.command(['create-client'])
 
     def start(self):
-        if not os.path.isfile(os.path.join(self.tahoe_path, 'twistd.pid')):
+        if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
             self.command(['start'])
         else:
-            pid = int(open(os.path.join(self.tahoe_path, 'twistd.pid')).read())
+            pid = int(open(os.path.join(self.node_dir, 'twistd.pid')).read())
             try:
                 os.kill(pid, 0)
             except OSError:
