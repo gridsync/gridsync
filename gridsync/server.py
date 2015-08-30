@@ -57,7 +57,7 @@ class Server():
     def build_objects(self):
         logging.debug("Building Tahoe objects...")
         logging.debug(self.settings)
-        for node, settings in self.settings.items():
+        for node, settings in self.settings.iteritems():
             t = Tahoe(os.path.join(self.config.config_dir, node), settings)
             self.gateways.append(t)
             for section, settings in settings.iteritems():

@@ -138,7 +138,7 @@ class SyncFolder(PatternMatchingEventHandler):
         logging.debug("Getting remote metadata from {}...".format(dircap))
         received_data = self.tahoe.ls_json(dircap)
         jobs = []
-        for filename, data in received_data[1]['children'].items():
+        for filename, data in received_data[1]['children'].iteritems():
             path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {
                 'uri': data[1]['ro_uri'],
@@ -167,13 +167,13 @@ class SyncFolder(PatternMatchingEventHandler):
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         jobs = []
-        for file, metadata in self.remote_metadata.items():
+        for file, metadata in self.remote_metadata.iteritems():
             if metadata['uri'].startswith('URI:DIR'):
                 dirpath = os.path.join(self.local_dir, file)
                 if not os.path.isdir(dirpath):
                     logging.info("Creating directory: {}...".format(dirpath))
                     os.makedirs(dirpath)
-        for file, metadata in self.remote_metadata.items():
+        for file, metadata in self.remote_metadata.iteritems():
             if not metadata['uri'].startswith('URI:DIR'):
                 filepath = os.path.join(self.local_dir, file)
                 remote_mtime = int(metadata['mtime'])
@@ -198,7 +198,7 @@ class SyncFolder(PatternMatchingEventHandler):
                             "downloading {}...".format(file, file))
                     jobs.append(deferToThread(self.download,
                         metadata['uri'], filepath, remote_mtime))
-        for file, metadata in self.local_metadata.items():
+        for file, metadata in self.local_metadata.iteritems():
             fn = file.split(self.local_dir + os.path.sep)[1]
             if fn not in self.remote_metadata:
                 # TODO: Distinguish between local files that haven't
