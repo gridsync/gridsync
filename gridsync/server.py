@@ -41,6 +41,7 @@ class Server():
         self.servers_connected = 0
         self.servers_known = 0
         self.status_text = 'Status: '
+        self.new_messages = []
         if self.args.debug:
             logging.basicConfig(
                     format='%(asctime)s %(funcName)s %(message)s',
@@ -104,13 +105,20 @@ class Server():
         for sync_folder in self.sync_folders:
             if sync_folder.sync_state:
                 active_jobs.append(sync_folder)
+                for message in sync_folder.sync_log:
+                    self.new_messages.append(message)
+                    sync_folder.sync_log.remove(message)
         if active_jobs:
             self.tray.start_animation()
         else:
             self.tray.stop_animation()
+            if self.new_messages:
+                message = '\n'.join(self.new_messages)
+                self.notify("Sync complete", message)
+                self.new_messages = []
 
     def notify(self, title, message):
-        self.tray.show_message(title, message)
+        self.tray.showMessage(title, message)
 
     def start_gateways(self):
         logging.debug("Starting Tahoe-LAFS gateway(s)...")

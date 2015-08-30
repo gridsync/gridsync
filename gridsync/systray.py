@@ -120,8 +120,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.movie.setPaused(True)
             self.paused = True
             self.setIcon(QIcon(":gridsync.png"))
-            self.showMessage('Sync complete', 'Folders synchronized.')
-    
+
     def on_systray_update(self):
         self.setIcon(QIcon(self.movie.currentPixmap()))
         #if not self.paused:

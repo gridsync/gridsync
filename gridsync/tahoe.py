@@ -166,11 +166,10 @@ class Tahoe():
         return dircap
 
     def backup(self, local_dir, remote_dircap):
-        self.command(["backup", "-v", "--exclude=*.gridsync-versions*",
-                local_dir, remote_dircap])
+        output = self.command(["backup", "-v",
+            "--exclude=*.gridsync-versions*", local_dir, remote_dircap])
+        return output
 
-    def get(self, remote_uri, local_file, mtime=None):
-        self.command(["get", remote_uri, local_file])
-        if mtime:
-            os.utime(local_file, (-1, mtime))
+    def get(self, remote_uri, local_filepath):
+        self.command(["get", remote_uri, local_filepath])
 
