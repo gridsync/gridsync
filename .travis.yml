@@ -8,10 +8,12 @@ before_install:
   - sudo apt-get install -y tahoe-lafs python-qt4
 
 install:
+  - pip install coveralls
   - pip install .
 
-script: 
-  - make test
+script: coverage run --source=gridsync setup.py test
+
+after_success: coveralls
 
 notifications:
   irc:
