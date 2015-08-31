@@ -84,15 +84,13 @@ class SyncFolder():
                 remote_mtime = int(metadata['mtime'])
                 if filepath in self.local_metadata:
                     local_mtime = int(self.local_metadata[filepath]['mtime'])
-                    #if remote_mtime > local_mtime: # Remote is newer; download
-                    if local_mtime < remote_mtime: # Remote is newer; download
+                    if local_mtime < remote_mtime:
                         logging.debug("[<] {} is older than remote version; "
                                 "downloading {}...".format(file, file))
                         self._create_versioned_copy(filepath, local_mtime)
                         jobs.append(deferToThread(self.download,
                             metadata['uri'], filepath, remote_mtime))
-                    #elif remote_mtime < local_mtime: # Local is newer; backup
-                    elif local_mtime > remote_mtime: # Local is newer; backup
+                    elif local_mtime > remote_mtime:
                         logging.debug("[>] {} is newer than remote version; "
                                 "backup scheduled".format(file)) 
                         self.do_backup = True
