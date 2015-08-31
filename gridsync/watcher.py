@@ -50,7 +50,7 @@ class LocalWatcher(PatternMatchingEventHandler):
         if not self.filesystem_modified:
             self.parent.sync()
 
-    def get_local_metadata(self, basedir=None):
+    def get_metadata(self, basedir=None):
         metadata = {}
         if not basedir:
             basedir = self.local_dir
@@ -127,7 +127,7 @@ class RemoteWatcher():
         snapshots.sort()
         return snapshots[-1:][0]
 
-    def get_remote_metadata(self, dircap, basedir=''):
+    def get_metadata(self, dircap, basedir=''):
         metadata = {}
         received_data = self.tahoe.ls_json(dircap)
         logging.debug("Getting remote metadata from {}...".format(dircap))
