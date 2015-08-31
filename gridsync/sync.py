@@ -67,8 +67,8 @@ class SyncFolder():
         remote_path = '/'.join([self.remote_dircap, 'Archives', snapshot])
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         self.sync_state += 1
-        self.local_metadata = self.local_watcher.get_local_metadata(self.local_dir)
-        self.remote_metadata = self.remote_watcher.get_remote_metadata(remote_path)
+        self.local_metadata = self.local_watcher.get_metadata(self.local_dir)
+        self.remote_metadata = self.remote_watcher.get_metadata(remote_path)
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         jobs = []
