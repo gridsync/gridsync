@@ -128,6 +128,7 @@ class RemoteWatcher():
         return snapshots[-1:][0]
 
     def get_metadata(self, dircap, basedir=''):
+        # TODO: If /Archives doesn't exist, perform (first?) backup?
         metadata = {}
         received_data = self.tahoe.ls_json(dircap)
         logging.debug("Getting remote metadata from {}...".format(dircap))
@@ -139,7 +140,7 @@ class RemoteWatcher():
                 'mtime': data[1]['metadata']['mtime'],
             }
             if data[0] == 'dirnode':
-                jobs.append(deferToThread(self.get_remote_metadata,
+                jobs.append(deferToThread(self.get_metadata,
                     metadata[path]['uri'], path))
         results = blockingCallFromThread(reactor, gatherResults, jobs)
         for result in results:
