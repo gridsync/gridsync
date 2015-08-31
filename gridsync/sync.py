@@ -54,23 +54,19 @@ class SyncFolder():
         logging.info("Creating {}".format(versioned_filepath))
         shutil.copy2(local_filepath, versioned_filepath)
 
-    def sync(self, snapshot='Latest', skip_comparison=False):
-        if snapshot != 'Latest':
-            snapshot = 'Archives/' + snapshot
-        self.sync_state += 1
-        
-        remote_snapshot = self.remote_watcher.get_latest_snapshot()
-        if self.local_snapshot == remote_snapshot:
-            skip_comparison=True
-        else:
-            snapshot = 'Archives/' + remote_snapshot
-        
+    def sync(self, snapshot=None):
+        if not snapshot:
+            available_snapshot = self.remote_watcher.get_latest_snapshot()
+            if self.local_snapshot == available_snapshot:
+                self.sync_state += 1
+                self.backup(self.local_dir, self.remote_dircap)
+                self.sync_complete()
+                return
+            else:
+                snapshot = available_snapshot
+        remote_path = '/'.join([self.remote_dircap, 'Archives', snapshot])
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
-        if skip_comparison:
-            self.backup(self.local_dir, self.remote_dircap)
-            self.sync_complete()
-            return
-        remote_path = '/'.join([self.remote_dircap, snapshot])
+        self.sync_state += 1
         self.local_metadata = self.local_watcher.get_local_metadata(self.local_dir)
         self.remote_metadata = self.remote_watcher.get_remote_metadata(remote_path)
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
