@@ -34,8 +34,8 @@ class PyTest(Command):
 
 
 requirements = ['allmydata-tahoe', 'watchdog', 'qt4reactor']
-if sys.platform == 'linux2':
-    requirements.append('notify2')
+#if sys.platform == 'linux2':
+#    requirements.append('notify2')
 
 execfile("gridsync/_version.py")
 
