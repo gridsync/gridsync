@@ -22,10 +22,9 @@ class LocalWatcher(PatternMatchingEventHandler):
         self.filesystem_modified = False
         logging.debug("LocalWatcher initialized for {} ({})".format(
                 self.local_dir, self))
+        self.local_checker = LoopingCall(self.check_for_changes)
 
     def start(self):
-        self.local_checker = LoopingCall(self.check_for_changes)
-        self.local_checker.start(1)
         logging.info("Starting Observer in {}...".format(self.local_dir))
         try:
             self.observer = Observer()
@@ -36,19 +35,24 @@ class LocalWatcher(PatternMatchingEventHandler):
 
     def on_modified(self, event):
         self.filesystem_modified = True
+        try:
+            self.local_checker.start(1)
+        except:
+            return
 
     def check_for_changes(self):
         if self.filesystem_modified:
             self.filesystem_modified = False
-            if not self.parent.sync_state:
-                reactor.callInThread(self.wait_for_writes)
-            #else:
-            #    self.parent.do_backup = True
-
-    def wait_for_writes(self):
-        time.sleep(1)
-        if not self.filesystem_modified:
-            self.parent.sync()
+        else:
+            try:
+                self.local_checker.stop()
+                if not self.parent.sync_state:
+                    reactor.callInThread(self.parent.sync)
+                else:
+                    # XXX Useful only if sync() isn't in backup phase; fix
+                    self.parent.do_backup = True
+            except:
+                return
 
     def get_metadata(self, basedir=None):
         metadata = {}
@@ -69,7 +73,6 @@ class LocalWatcher(PatternMatchingEventHandler):
         return metadata
 
     def stop(self):
-        self.local_checker.stop()
         logging.info("Stopping Observer in {}...".format(self.local_dir))
         try:
             self.observer.stop()

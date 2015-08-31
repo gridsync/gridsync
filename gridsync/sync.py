@@ -55,6 +55,7 @@ class SyncFolder():
         shutil.copy2(local_filepath, versioned_filepath)
 
     def sync(self, snapshot=None):
+        # TODO: Prevent from running and/or queue to end if already sync_state
         if not snapshot:
             available_snapshot = self.remote_watcher.get_latest_snapshot()
             if self.local_snapshot == available_snapshot:
