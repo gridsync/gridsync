@@ -5,7 +5,7 @@ python:
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -y tahoe-lafs python-qt4
+  - sudo apt-get install -y tahoe-lafs python-qt4 python-dbus
 
 install:
   - pip install .
