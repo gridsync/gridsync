@@ -18,4 +18,6 @@ after_success: coveralls
 notifications:
   irc:
     channels: "chat.freenode.net#gridsync"
+    skip_join: true
+    use_notice: true
 
