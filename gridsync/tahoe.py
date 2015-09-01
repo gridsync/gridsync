@@ -26,11 +26,13 @@ ENVIRONMENT = {
     "PYTHONUNBUFFERED": '1'
 }
 
+
 def bin_tahoe():
     for path in os.environ["PATH"].split(os.pathsep):
         filepath = os.path.join(path, 'tahoe')
         if os.path.isfile(filepath):
             return filepath
+
 
 class Tahoe():
     def __init__(self, node_dir=None, settings=None):
@@ -166,7 +168,6 @@ class Tahoe():
         output = self.command(['--version'])
         for line in output.split('\n'):
             if line.startswith('allmydata-tahoe:'):
-                self.version = line.split()[1]
                 return line.split()[1]
 
     def stop(self):
