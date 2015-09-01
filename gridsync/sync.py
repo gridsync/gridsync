@@ -124,14 +124,15 @@ class SyncFolder():
         self.sync_state -= 1
 
     def download(self, remote_uri, local_filepath, mtime=None):
-        self.tahoe.get(remote_uri, local_filepath)
+        self.tahoe.command(['get', remote_uri, local_filepath])
         if mtime:
             os.utime(local_filepath, (-1, mtime))
         self.sync_log.append("Downloaded {}".format(
             local_filepath.lstrip(self.local_dir)))
 
-    def backup(self, local_dir, remote_uri):
-        output = self.tahoe.backup(self.local_dir, self.remote_dircap)
+    def backup(self, local_dir, remote_dircap):
+        output = self.tahoe.command(['backup', '-v', 
+            '--exclude=*.gridsync-versions*', local_dir, remote_dircap])
         for line in output.split('\n'):
             if line.startswith('uploading'):
                 filename = line.split()[1][:-3][1:].lstrip(self.local_dir) # :/

@@ -75,7 +75,7 @@ class Server():
         if not dircap:
             logging.debug("No dircap associated with {}; "
                     "creating new dircap...".format(local_dir))
-            dircap = self.mkdir()
+            dircap = tahoe.command(['mkdir'])
             self.settings[tahoe.name]['sync'][local_dir] = dircap
             self.config.save(self.settings)
         sync_folder = SyncFolder(local_dir, dircap, tahoe)
@@ -190,5 +190,5 @@ class Server():
     def stop_gateways(self):
         logging.debug("Stopping Tahoe-LAFS gateway(s)...")
         for gateway in self.gateways:
-            reactor.callInThread(gateway.stop)
+            reactor.callInThread(gateway.command, ['stop'])
 

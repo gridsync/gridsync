@@ -45,7 +45,7 @@ class Tahoe():
         self.use_tor = False
         self.connection_status = {}
         if not os.path.isdir(self.node_dir):
-            self.create()
+            self.command(['create-client'])
         if self.settings:
             self.setup(settings)
 
@@ -55,7 +55,8 @@ class Tahoe():
         return config.get(section, option)
 
     def set_config(self, section, option, value):
-        logging.debug("Setting {} option {} to: {}".format(section, option, value))
+        logging.debug("Setting {} option {} to: {}".format(
+            section, option, value))
         config = ConfigParser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.node_dir, 'tahoe.cfg'))
         config.set(section, option, value)
@@ -76,13 +77,45 @@ class Tahoe():
                 else:
                     self.set_config(section, option, value)
 
-    def node_url(self):
-        with open(os.path.join(self.node_dir, 'node.url')) as f:
-            return f.read().strip()
+    def command(self, args):
+        args = ['tahoe', '-d', self.node_dir] + args
+        if self.use_tor:
+            args.insert(0, 'torsocks')
+        logging.debug("Running: {}".format(' '.join(args)))
+        proc = subprocess.Popen(args, env=ENVIRONMENT, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, universal_newlines=True)
+        output = ''
+        for line in iter(proc.stdout.readline, ''):
+            logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
+            output = output + line
+        proc.poll()
+        if proc.returncode is None:
+            logging.warning("No return code for pid:{} ({})".format(
+                    proc.pid, ' '.join(args)))
+        else:
+            logging.debug("pid:{} ({}) returned {}".format(
+                    proc.pid, ' '.join(args), proc.returncode))
+            return output.rstrip()
+
+    def start(self):
+        if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
+            self.command(['start'])
+        else:
+            pid = int(open(os.path.join(self.node_dir, 'twistd.pid')).read())
+            try:
+                os.kill(pid, 0)
+            except OSError:
+                self.command(['start'])
+
+    def ls_json(self, dircap):
+        args = ['tahoe', '-d', self.node_dir, 'ls', '--json', dircap]
+        output = subprocess.check_output(args, universal_newlines=True)
+        return json.loads(output)
 
     def update_connection_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-        html = urllib2.urlopen(self.node_url()).read()
+        node_url = open(os.path.join(self.node_dir, 'node.url')).read()
+        html = urllib2.urlopen(node_url).read()
         p = re.compile("Connected to <span>(.+?)</span>")
         self.connection_status['servers_connected'] = int(re.findall(p, html)[0])
         p = re.compile("of <span>(.+?)</span> known storage servers")
@@ -125,64 +158,4 @@ class Tahoe():
                 self.connection_status['helper']['status'] = status
             else:
                 self.connection_status['servers'][nodeid[index - 2]]['status'] = status
-
-    def command(self, args):
-        args = ['tahoe', '-d', self.node_dir] + args
-        if self.use_tor:
-            args.insert(0, 'torsocks')
-        logging.debug("Running: {}".format(' '.join(args)))
-        proc = subprocess.Popen(args, env=ENVIRONMENT, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, universal_newlines=True)
-        output = ''
-        for line in iter(proc.stdout.readline, ''):
-            logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
-            output = output + line
-        proc.poll()
-        if proc.returncode is None:
-            logging.warning("No return code for pid:{} ({})".format(
-                    proc.pid, ' '.join(args)))
-        else:
-            logging.debug("pid:{} ({}) returned {}".format(
-                    proc.pid, ' '.join(args), proc.returncode))
-            return output.rstrip()
-
-    def ls_json(self, dircap):
-        args = ['tahoe', '-d', self.node_dir, 'ls', '--json', dircap]
-        output = subprocess.check_output(args, universal_newlines=True)
-        return json.loads(output)
-
-    def create(self):
-        self.command(['create-client'])
-
-    def start(self):
-        if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
-            self.command(['start'])
-        else:
-            pid = int(open(os.path.join(self.node_dir, 'twistd.pid')).read())
-            try:
-                os.kill(pid, 0)
-            except OSError:
-                self.command(['start'])
-
-    def version(self):
-        output = self.command(['--version'])
-        for line in output.split('\n'):
-            if line.startswith('allmydata-tahoe:'):
-                return line.split()[1]
-
-    def stop(self):
-        self.command(['stop'])
-
-    def mkdir(self):
-        dircap = self.command(['mkdir'])
-        logging.debug("Created dircap: {}".format(dircap))
-        return dircap
-
-    def backup(self, local_dir, remote_dircap):
-        output = self.command(["backup", "-v",
-            "--exclude=*.gridsync-versions*", local_dir, remote_dircap])
-        return output
-
-    def get(self, remote_uri, local_filepath):
-        self.command(["get", remote_uri, local_filepath])
 

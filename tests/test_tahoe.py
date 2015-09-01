@@ -28,13 +28,13 @@ class TestTahoe():
         assert os.path.isdir(self.tahoe.node_dir)
 
     def test_tahoe_version(self):
-        assert self.tahoe.version()
+        assert self.tahoe.command(['--version'])
     
     def test_tahoe_version_1_10_or_greater(self):
-        assert self.tahoe.version() > '1.10'
+        assert self.tahoe.command(['--version']).split()[1] > '1.10'
 
     def test_tahoe_create(self):
-        self.tahoe.create()
+        self.tahoe.command(['create-client'])
         assert os.path.isfile(os.path.join(self.tahoe.node_dir, 'tahoe.cfg'))
 
     def test_tahoe_get_config(self):
@@ -53,12 +53,12 @@ class TestTahoe():
         assert self.tahoe.get_config('client', 'shares.total') == '1'
     
     def test_tahoe_start(self):
-        self.tahoe.start()
+        self.tahoe.command(['start'])
         assert open(os.path.join(self.tahoe.node_dir, 'twistd.pid')).read()
     
-    def test_tahoe_node_url(self):
-        assert self.tahoe.node_url().startswith('http://127.0.0.1:')
-
     def test_tahoe_command_add_alias(self):
         assert self.tahoe.command(['add-alias', 'test', 'URI:DIR2:ueffj5x2rmgorwbdyfahirxwtu:jawtp4t46embauvojb75f6tagniedpi5tuvdllndolpa4ybjkj4a']) == "Alias 'test' added"
 
+    def teardown_class(self):
+        print 'stop'
+        self.tahoe.command(['stop'])
