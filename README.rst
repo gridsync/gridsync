@@ -148,3 +148,11 @@ License:
 
 Gridsync is released as Free Software under the GPL license.
 
+----
+
+.. image:: 
+:target: https://travis-ci.org/gridsync/gridsync
+
+.. image:: 
+:target: https://coveralls.io/github/gridsync/gridsync?branch=master
+
