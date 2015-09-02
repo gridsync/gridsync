@@ -30,7 +30,7 @@ class RightClickMenu(QMenu):
 
     def populate(self):
         self.clear()
-        
+        logging.debug("(Re-)populating systray menu...")
         new_folder_action = QAction(QIcon(""), "Add New Sync Folder...", self)
         new_folder_action.triggered.connect(self.parent.new_folder_window.populate_combo_box)
         new_folder_action.triggered.connect(self.parent.new_folder_window.show)
@@ -132,7 +132,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         #    self.setIcon(QIcon(":/images/icon.png"))
 
     def on_click(self, value):
-        self.right_menu.populate()
+        #self.right_menu.populate()
         if value == QSystemTrayIcon.Trigger:
             open_gridsync_folder()
 
