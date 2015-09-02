@@ -158,5 +158,4 @@ class Tahoe():
                 self.status['helper']['status'] = status
             else:
                 self.status['servers'][nodeid[index - 2]]['status'] = status
-        import pprint
-        pprint.pprint(self.status)
+
