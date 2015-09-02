@@ -122,7 +122,7 @@ class RemoteWatcher():
 
     def get_latest_snapshot(self):
         # TODO: If /Archives doesn't exist, perform (first?) backup?
-        dircap = self.remote_dircap + "/Archives"
+        dircap = self.remote_dircap + "Archives"
         j = self.tahoe.ls_json(dircap)
         snapshots = []
         for snapshot in j[1]['children']:

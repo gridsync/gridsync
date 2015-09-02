@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import hashlib
 import logging
 import os
 import shutil
@@ -26,12 +27,15 @@ class SyncFolder():
         self.do_backup = False
         self.sync_state = 0
         self.sync_log = []
-        self.local_watcher = LocalWatcher(self, self.local_dir)
-        self.remote_watcher = RemoteWatcher(self, self.remote_dircap, self.tahoe)
         logging.debug("{} initialized; "
                 "{} <-> {}".format(self, self.local_dir, self.remote_dircap))
 
     def start(self):
+        alias = hashlib.sha256(self.remote_dircap).hexdigest()
+        self.tahoe.command(['add-alias', alias, self.remote_dircap])
+        self.remote_dircap = alias + ":"
+        self.local_watcher = LocalWatcher(self, self.local_dir)
+        self.remote_watcher = RemoteWatcher(self, self.remote_dircap, self.tahoe)
         self.local_watcher.start()
         self.remote_watcher.start()
 
@@ -65,7 +69,7 @@ class SyncFolder():
                 return
             else:
                 snapshot = available_snapshot
-        remote_path = '/'.join([self.remote_dircap, 'Archives', snapshot])
+        remote_path = self.remote_dircap + 'Archives/' + snapshot
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         self.sync_state += 1
         self.local_metadata = self.local_watcher.get_metadata(self.local_dir)
@@ -90,7 +94,7 @@ class SyncFolder():
                                 "downloading {}...".format(file, file))
                         self._create_versioned_copy(filepath, local_mtime)
                         jobs.append(deferToThread(self.download,
-                            metadata['uri'], filepath, remote_mtime))
+                            remote_path + '/' + file, filepath, remote_mtime))
                     elif local_mtime > remote_mtime:
                         logging.debug("[>] {} is newer than remote version; "
                                 "backup scheduled".format(file)) 
@@ -101,7 +105,7 @@ class SyncFolder():
                     logging.debug("[?] {} is missing; "
                             "downloading {}...".format(file, file))
                     jobs.append(deferToThread(self.download,
-                        metadata['uri'], filepath, remote_mtime))
+                        remote_path + '/' + file, filepath, remote_mtime))
         for file, metadata in self.local_metadata.iteritems():
             fn = file.split(self.local_dir + os.path.sep)[1]
             if fn not in self.remote_metadata:
