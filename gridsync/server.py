@@ -172,13 +172,20 @@ class Server():
         servers_connected = 0
         servers_known = 0
         for gateway in self.gateways:
-            servers_connected += gateway.status['servers_connected']
-            servers_known += gateway.status['servers_known']
+            try:
+                # TODO: Compare before and after, notify (dis)connects, 
+                # dynamically adjust N/K/H?
+                gateway.update_status()
+                servers_connected += gateway.status['servers_connected']
+                servers_known += gateway.status['servers_known']
+            except:
+                pass
         self.servers_connected = servers_connected
         self.servers_known = servers_known
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
                 self.servers_connected, self.servers_known)
+        print self.status_text
 
     def stop(self):
         self.stop_sync_folders()
