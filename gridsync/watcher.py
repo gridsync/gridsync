@@ -98,6 +98,8 @@ class RemoteWatcher():
         self.remote_checker.start(30)
 
     def check_for_changes(self, num_attempts=3):
+        logging.debug("Checking connection status...")
+        self.tahoe.update_status() # TODO: Dynamically adjust N/K/H
         logging.debug("Checking for new snapshot...")
         try:
             remote_snapshot = self.get_latest_snapshot()

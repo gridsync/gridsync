@@ -43,7 +43,7 @@ class Tahoe():
         self.settings = settings
         self.name = os.path.basename(self.node_dir)
         self.use_tor = False
-        self.connection_status = {}
+        self.status = {}
         if not os.path.isdir(self.node_dir):
             self.command(['create-client'])
         if self.settings:
@@ -112,14 +112,14 @@ class Tahoe():
         output = subprocess.check_output(args, universal_newlines=True)
         return json.loads(output)
 
-    def update_connection_status(self):
+    def update_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
         node_url = open(os.path.join(self.node_dir, 'node.url')).read()
         html = urllib2.urlopen(node_url).read()
         p = re.compile("Connected to <span>(.+?)</span>")
-        self.connection_status['servers_connected'] = int(re.findall(p, html)[0])
+        self.status['servers_connected'] = int(re.findall(p, html)[0])
         p = re.compile("of <span>(.+?)</span> known storage servers")
-        self.connection_status['servers_known'] = int(re.findall(p, html)[0])
+        self.status['servers_known'] = int(re.findall(p, html)[0])
 
         servers = {}
         p = re.compile('<div class="nodeid">(.+?)</div>')
@@ -143,9 +143,9 @@ class Tahoe():
 
         p = re.compile('<div class="furl">(.+?)</div>')
         r = re.findall(p, html)
-        self.connection_status['introducer'] = { 'furl': r[0] }
-        self.connection_status['helper'] = { 'furl': r[1] }
-        self.connection_status['servers'] = servers
+        self.status['introducer'] = { 'furl': r[0] }
+        self.status['helper'] = { 'furl': r[1] }
+        self.status['servers'] = servers
 
         p = re.compile('<div class="status-indicator">(.+?)</div>')
         l = re.findall(p, html)
@@ -153,9 +153,10 @@ class Tahoe():
             p = re.compile('alt="(.+?)"')
             status = re.findall(p, item)[0]
             if index == 0:
-                self.connection_status['introducer']['status'] = status
+                self.status['introducer']['status'] = status
             elif index == 1:
-                self.connection_status['helper']['status'] = status
+                self.status['helper']['status'] = status
             else:
-                self.connection_status['servers'][nodeid[index - 2]]['status'] = status
-
+                self.status['servers'][nodeid[index - 2]]['status'] = status
+        import pprint
+        pprint.pprint(self.status)

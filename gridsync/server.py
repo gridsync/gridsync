@@ -172,9 +172,8 @@ class Server():
         servers_connected = 0
         servers_known = 0
         for gateway in self.gateways:
-            gateway.update_connection_status()
-            servers_connected += gateway.connection_status['servers_connected']
-            servers_known += gateway.connection_status['servers_known']
+            servers_connected += gateway.status['servers_connected']
+            servers_known += gateway.status['servers_known']
         self.servers_connected = servers_connected
         self.servers_known = servers_known
         # XXX Add logic to check for paused state, etc.
