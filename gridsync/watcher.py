@@ -67,7 +67,7 @@ class LocalWatcher(PatternMatchingEventHandler):
                 path = os.path.join(root, name)
                 if not path.startswith(self.versions_dir):
                     metadata[path] = {
-                        'mtime': os.path.getmtime(path),
+                        'mtime': int(os.path.getmtime(path)),
                         'size': os.path.getsize(path)
                     }
         return metadata
@@ -140,7 +140,7 @@ class RemoteWatcher():
             path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {
                 'uri': data[1]['ro_uri'],
-                'mtime': data[1]['metadata']['mtime'],
+                'mtime': int(data[1]['metadata']['mtime']),
             }
             if data[0] == 'dirnode':
                 jobs.append(deferToThread(self.get_metadata,
