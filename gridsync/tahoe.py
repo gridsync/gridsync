@@ -22,11 +22,6 @@ DEFAULT_SETTINGS = {
     "sync": {}
 }
 
-ENVIRONMENT = {
-    "PATH": os.environ['PATH'],
-    "PYTHONUNBUFFERED": '1'
-}
-
 
 def bin_tahoe():
     for path in os.environ["PATH"].split(os.pathsep):
@@ -78,25 +73,32 @@ class Tahoe():
                 else:
                     self.set_config(section, option, value)
 
-    def command(self, args):
+    def command(self, args, debug_output=True):
         args = ['tahoe', '-d', self.node_dir] + args
         if self.use_tor:
             args.insert(0, 'torsocks')
+        environment = os.environ
+        environment['PYTHONUNBUFFERED'] = '1'
         logging.debug("Running: {}".format(' '.join(args)))
-        proc = subprocess.Popen(args, env=ENVIRONMENT, stdout=subprocess.PIPE,
+        proc = subprocess.Popen(args, env=environment, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, universal_newlines=True)
         output = ''
         for line in iter(proc.stdout.readline, ''):
-            logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
+            if debug_output:
+                logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
             output = output + line
         proc.poll()
         if proc.returncode is None:
             logging.warning("No return code for pid:{} ({})".format(
                     proc.pid, ' '.join(args)))
-        else:
-            logging.debug("pid:{} ({}) returned {}".format(
+        elif proc.returncode == 0:
+            logging.debug("pid {} ({}) excited with code {}".format(
                     proc.pid, ' '.join(args), proc.returncode))
             return output.rstrip()
+        else:
+            logging.debug("pid {} ({}) excited with code {}".format(
+                    proc.pid, ' '.join(args), proc.returncode))
+            raise RuntimeError(output)
 
     def start(self):
         if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
