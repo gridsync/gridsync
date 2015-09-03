@@ -163,10 +163,15 @@ class Tahoe():
     def stored(self, filepath, size=None, mtime=None):
         """Return filecap if filepath has been stored previously via backup"""
         if not size:
-            size = os.path.getsize(filepath)
+            try:
+                size = os.path.getsize(filepath)
+            except OSError:
+                return
         if not mtime:
-            mtime = int(os.path.getmtime(filepath))
-        print filepath, size, mtime
+            try:
+                mtime = int(os.path.getmtime(filepath))
+            except OSError:
+                return
         db = os.path.join(self.node_dir, 'private', 'backupdb.sqlite')
         if not os.path.isfile(db):
             return
