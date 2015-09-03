@@ -86,9 +86,10 @@ class SyncFolder():
         for file, metadata in self.remote_metadata.iteritems():
             if not metadata['uri'].startswith('URI:DIR'):
                 filepath = os.path.join(self.local_dir, file)
-                remote_mtime = int(metadata['mtime'])
+                local_filesize = self.local_metadata[filepath]['size']
+                remote_mtime = metadata['mtime']
                 if filepath in self.local_metadata:
-                    local_mtime = int(self.local_metadata[filepath]['mtime'])
+                    local_mtime = self.local_metadata[filepath]['mtime']
                     if local_mtime < remote_mtime:
                         logging.debug("[<] {} is older than remote version; "
                                 "downloading {}...".format(file, file))
