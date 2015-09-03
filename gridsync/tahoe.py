@@ -98,7 +98,7 @@ class Tahoe():
         else:
             logging.debug("pid {} ({}) excited with code {}".format(
                     proc.pid, ' '.join(args), proc.returncode))
-            raise RuntimeError(output)
+            raise RuntimeError(output.rstrip())
 
     def start(self):
         if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
