@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import sqlite3
 import subprocess
 import urllib2
 
@@ -158,4 +159,25 @@ class Tahoe():
                 self.status['helper']['status'] = status
             else:
                 self.status['servers'][nodeid[index - 2]]['status'] = status
+
+    def stored(self, filepath, size=None, mtime=None):
+        """Return filecap if filepath has been stored previously via backup"""
+        if not size:
+            size = os.path.getsize(filepath)
+        if not mtime:
+            mtime = int(os.path.getmtime(filepath))
+        print filepath, size, mtime
+        db = os.path.join(self.node_dir, 'private', 'backupdb.sqlite')
+        if not os.path.isfile(db):
+            return
+        connection = sqlite3.connect(db)
+        with connection:
+            try:
+                cursor = connection.cursor()
+                cursor.execute('SELECT "filecap" FROM "caps" WHERE fileid=('
+                        'SELECT "fileid" FROM "local_files" WHERE path=? '
+                        'AND size=? AND mtime=?)', (filepath, size, mtime))
+                return filepath + cursor.fetchone()[0]
+            except TypeError:
+                return
 
