@@ -184,7 +184,39 @@ class Tahoe():
                 cursor.execute('SELECT "filecap" FROM "caps" WHERE fileid=('
                         'SELECT "fileid" FROM "local_files" WHERE path=? '
                         'AND size=? AND mtime=?)', (filepath, size, mtime))
-                return filepath + cursor.fetchone()[0]
+                return cursor.fetchone()[0]
             except TypeError:
                 return
 
+    def get_aliases(self):
+        aliases = {}
+        aliases_file = os.path.join(self.node_dir, 'private', 'aliases')
+        try:
+            with open(aliases_file) as f:
+                for line in f.readlines():
+                    try:
+                        name, cap = line.split(':', 1)
+                        aliases[name + ':'] = cap.strip()
+                    except ValueError:
+                        break
+            return aliases
+        except IOError:
+            return
+
+    def get_dircap_from_alias(self, alias):
+        if not alias.endswith(':'):
+            alias = alias + ':'
+        try:
+            for name, cap in self.get_aliases().iteritems():
+                if name == alias:
+                    return cap
+        except AttributeError:
+            return
+
+    def get_alias_from_dircap(self, dircap):
+        try:
+            for name, cap in self.get_aliases().iteritems():
+                if cap == dircap:
+                    return name
+        except AttributeError:
+            return
