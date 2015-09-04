@@ -194,11 +194,12 @@ class Tahoe():
         try:
             with open(aliases_file) as f:
                 for line in f.readlines():
-                    try:
-                        name, cap = line.split(':', 1)
-                        aliases[name + ':'] = cap.strip()
-                    except ValueError:
-                        break
+                    if not line.startswith('#'):
+                        try:
+                            name, cap = line.split(':', 1)
+                            aliases[name + ':'] = cap.strip()
+                        except ValueError:
+                            pass
             return aliases
         except IOError:
             return
