@@ -31,9 +31,14 @@ class SyncFolder():
                 "{} <-> {}".format(self, self.local_dir, self.remote_dircap))
 
     def start(self):
-        alias = hashlib.sha256(self.remote_dircap).hexdigest()
-        self.tahoe.command(['add-alias', alias, self.remote_dircap])
-        self.remote_dircap = alias + ":"
+        try:
+            self.remote_dircap = self.tahoe.aliasify(self.remote_dircap)
+        except ValueError:
+            # TODO: Alert user alias is garbled?
+            pass
+        except LookupError:
+            # TODO: Alert user alias is missing?
+            pass
         self.local_watcher = LocalWatcher(self, self.local_dir)
         self.remote_watcher = RemoteWatcher(self, self.remote_dircap, self.tahoe)
         self.local_watcher.start()

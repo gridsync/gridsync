@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import ConfigParser
+import hashlib
 import json
 import logging
 import os
@@ -221,3 +222,38 @@ class Tahoe():
                     return name
         except AttributeError:
             return
+
+    def aliasify(self, dircap_or_alias):
+        """Return a valid alias corresponding to a given dircap or alias.
+
+        Return the alias of the given dircap, if it already exists, or, if
+        it doesn't, add and return an alias using the SHA-256 hash of the
+        dircap as the name.
+
+        If an alias is passed instead of a dircap, return it only if it
+        corresponds to a valid dircap, raising a ValueError if the dircap
+        is invalid, or a LookupError if it is missing from the aliases file.
+        """
+        if dircap_or_alias.startswith('URI:DIR'):
+            alias = self.get_alias_from_dircap(dircap_or_alias)
+            if alias:
+                return alias
+            else:
+                hash_of_dircap = hashlib.sha256(dircap_or_alias).hexdigest()
+                self.command(['add-alias', hash_of_dircap, dircap_or_alias])
+                return self.get_alias_from_dircap(dircap_or_alias)
+        else:
+            dircap = self.get_dircap_from_alias(dircap_or_alias)
+            if dircap:
+                if dircap.startswith('URI:DIR'):
+                    return dircap_or_alias
+                else:
+                    raise ValueError('Invalid alias for {} ({})'.format(
+                        dircap_or_alias, dircap))
+            #else:
+            #    self.command(['create-alias', dircap_or_alias])
+            #    return dircap_or_alias
+            else:
+                raise LookupError('No dircap found for alias {}'.format(
+                    dircap_or_alias))
+
