@@ -44,7 +44,6 @@ class Tahoe():
             self.node_dir = os.path.expanduser(node_dir)
         self.settings = settings
         self.name = os.path.basename(self.node_dir)
-        self.use_tor = False
         self.status = {}
         if not os.path.isdir(self.node_dir):
             self.command(['create-client'])
@@ -68,21 +67,11 @@ class Tahoe():
     def setup(self, settings):
         for section, d in settings.iteritems():
             for option, value in d.iteritems():
-                # To be changed when Tahoe-LAFS ticket #517 closes
-                # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/517
-                if section == 'tor':
-                    self.use_tor = True
-                    self.set_config('node', 'tub.location', 'onion.tor:1')
-                elif section == 'sync':
-                    #self.add_sync_folder(option, value)
-                    pass
-                else:
+                if section != 'sync':
                     self.set_config(section, option, value)
 
     def command(self, args, quiet=False, num_attempts=1):
         full_args = ['tahoe', '-d', self.node_dir] + args
-        if self.use_tor:
-            full_args.insert(0, 'torsocks')
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
         if not quiet:
