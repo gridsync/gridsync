@@ -8,6 +8,7 @@ import os
 import re
 import sqlite3
 import subprocess
+import time
 import urllib2
 
 
@@ -74,14 +75,14 @@ class Tahoe():
                 else:
                     self.set_config(section, option, value)
 
-    def command(self, args, debug_output=True):
-        args = ['tahoe', '-d', self.node_dir] + args
+    def command(self, args, debug_output=True, num_attempts=1):
+        full_args = ['tahoe', '-d', self.node_dir] + args
         if self.use_tor:
-            args.insert(0, 'torsocks')
-        environment = os.environ
-        environment['PYTHONUNBUFFERED'] = '1'
-        logging.debug("Running: {}".format(' '.join(args)))
-        proc = subprocess.Popen(args, env=environment, stdout=subprocess.PIPE,
+            full_args.insert(0, 'torsocks')
+        env = os.environ
+        env['PYTHONUNBUFFERED'] = '1'
+        logging.debug("Running: {}".format(' '.join(full_args)))
+        proc = subprocess.Popen(full_args, env=env, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, universal_newlines=True)
         output = ''
         for line in iter(proc.stdout.readline, ''):
@@ -91,15 +92,22 @@ class Tahoe():
         proc.poll()
         if proc.returncode is None:
             logging.warning("No return code for pid:{} ({})".format(
-                    proc.pid, ' '.join(args)))
+                    proc.pid, ' '.join(full_args)))
         elif proc.returncode == 0:
             logging.debug("pid {} ({}) excited with code {}".format(
-                    proc.pid, ' '.join(args), proc.returncode))
+                    proc.pid, ' '.join(full_args), proc.returncode))
             return output.rstrip()
         else:
             logging.debug("pid {} ({}) excited with code {}".format(
-                    proc.pid, ' '.join(args), proc.returncode))
-            raise RuntimeError(output.rstrip())
+                    proc.pid, ' '.join(full_args), proc.returncode))
+            num_attempts -= 1
+            if num_attempts:
+                logging.debug("Trying again ({} attempts remaining)...".format(
+                    num_attempts))
+                time.sleep(1)
+                self.command(args, debug_output, num_attempts)
+            else:
+                raise RuntimeError(output.rstrip())
 
     def start(self):
         if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
