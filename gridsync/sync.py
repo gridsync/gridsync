@@ -66,7 +66,8 @@ class SyncFolder():
     def sync(self, snapshot=None):
         # TODO: Prevent from running and/or queue to end if already sync_state
         if not snapshot:
-            available_snapshot = self.remote_watcher.get_latest_snapshot()
+            available_snapshot = self.tahoe.get_latest_snapshot(
+                    self.remote_dircap)
             if self.local_snapshot == available_snapshot:
                 self.sync_state += 1
                 self.backup(self.local_dir, self.remote_dircap)
@@ -78,7 +79,7 @@ class SyncFolder():
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         self.sync_state += 1
         self.local_metadata = self.local_watcher.get_metadata(self.local_dir)
-        self.remote_metadata = self.remote_watcher.get_metadata(remote_path)
+        self.remote_metadata = self.tahoe.get_metadata(remote_path)
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         jobs = []
@@ -128,7 +129,8 @@ class SyncFolder():
         self.sync_complete()
 
     def sync_complete(self):
-        self.local_snapshot = self.remote_watcher.get_latest_snapshot() # XXX Race
+        self.local_snapshot = self.tahoe.get_latest_snapshot(
+                self.remote_dircap) # FIXME: Race
         logging.info("Synchronized {} with {}".format(
                 self.local_dir, self.local_snapshot))
         self.sync_state -= 1

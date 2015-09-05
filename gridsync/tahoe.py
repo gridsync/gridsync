@@ -2,6 +2,7 @@
 
 import ConfigParser
 import hashlib
+import json
 import logging
 import os
 import re
@@ -9,6 +10,10 @@ import sqlite3
 import subprocess
 import time
 import urllib2
+
+from twisted.internet import reactor
+from twisted.internet.defer import gatherResults
+from twisted.internet.threads import deferToThread, blockingCallFromThread
 
 
 DEFAULT_SETTINGS = {
@@ -258,4 +263,33 @@ class Tahoe():
             else:
                 raise LookupError('No dircap found for alias {}'.format(
                     dircap_or_alias))
+
+    def get_latest_snapshot(self, dircap):
+        received_data = json.loads(self.command(['ls', '--json',
+            dircap + "Archives"], debug_output=False))
+        latest_snapshot = ''
+        for snapshot in received_data[1]['children']:
+            if snapshot > latest_snapshot:
+                latest_snapshot = snapshot
+        return latest_snapshot
+
+    def get_metadata(self, dircap, basedir=''):
+        metadata = {}
+        jobs = []
+        logging.debug("Getting remote metadata from {}...".format(dircap))
+        received_data = json.loads(self.command(['ls', '--json', dircap],
+                debug_output=False))
+        for filename, data in received_data[1]['children'].iteritems():
+            path = '/'.join([basedir, filename]).strip('/')
+            metadata[path] = {
+                'uri': data[1]['ro_uri'],
+                'mtime': int(data[1]['metadata']['mtime']),
+            }
+            if data[0] == 'dirnode':
+                jobs.append(deferToThread(self.get_metadata,
+                    metadata[path]['uri'], path))
+        results = blockingCallFromThread(reactor, gatherResults, jobs)
+        for result in results:
+            metadata.update(result)
+        return metadata
 

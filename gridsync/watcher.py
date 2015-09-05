@@ -120,38 +120,6 @@ class RemoteWatcher():
                 # TODO: Insert (re)sync flag
                 pass
 
-    def get_latest_snapshot(self):
-        # TODO: If /Archives doesn't exist, perform (first?) backup?
-        dircap = self.remote_dircap + "Archives"
-        j = json.loads(self.tahoe.command(['ls', '--json', dircap],
-            debug_output=False))
-        snapshots = []
-        for snapshot in j[1]['children']:
-            snapshots.append(snapshot)
-        snapshots.sort()
-        return snapshots[-1:][0]
-
-    def get_metadata(self, dircap, basedir=''):
-        # TODO: If /Archives doesn't exist, perform (first?) backup?
-        metadata = {}
-        jobs = []
-        logging.debug("Getting remote metadata from {}...".format(dircap))
-        received_data = json.loads(self.tahoe.command(['ls', '--json', dircap],
-                debug_output=False))
-        for filename, data in received_data[1]['children'].iteritems():
-            path = '/'.join([basedir, filename]).strip('/')
-            metadata[path] = {
-                'uri': data[1]['ro_uri'],
-                'mtime': int(data[1]['metadata']['mtime']),
-            }
-            if data[0] == 'dirnode':
-                jobs.append(deferToThread(self.get_metadata,
-                    metadata[path]['uri'], path))
-        results = blockingCallFromThread(reactor, gatherResults, jobs)
-        for result in results:
-            metadata.update(result)
-        return metadata
-
     def stop(self):
         self.remote_checker.stop()
 
