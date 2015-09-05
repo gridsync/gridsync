@@ -47,11 +47,7 @@ class LocalWatcher(PatternMatchingEventHandler):
         else:
             try:
                 self.local_checker.stop()
-                if not self.parent.sync_state:
-                    reactor.callInThread(self.parent.sync)
-                else:
-                    # XXX Useful only if sync() isn't in backup phase; fix
-                    self.parent.do_backup = True
+                reactor.callInThread(self.parent.sync)
             except:
                 return
 
@@ -95,12 +91,8 @@ class RemoteWatcher():
         if latest_link_time > self.link_time:
             logging.debug("New snapshot available ({}); syncing...".format(
                 metadata['tahoe']['linkmotime']))
-            if not self.parent.sync_state:
-                self.parent.sync()
-                self.link_time = latest_link_time
-            else:
-                # TODO: Insert (re)sync flag
-                pass
+            self.parent.sync()
+            self.link_time = latest_link_time
 
     def stop(self):
         self.remote_checker.stop()

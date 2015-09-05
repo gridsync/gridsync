@@ -25,6 +25,7 @@ class SyncFolder():
         self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
         self.local_snapshot = 0
         self.do_backup = False
+        self.do_sync = False
         self.sync_state = 0
         self.sync_log = []
         logging.debug("{} initialized; "
@@ -82,7 +83,10 @@ class SyncFolder():
         return metadata
 
     def sync(self, snapshot=None):
-        # TODO: Prevent from running and/or queue to end if already sync_state
+        if self.sync_state:
+            logging.debug("Sync already in progress; queueing to end...")
+            self.do_sync = True
+            return
         if not snapshot:
             available_snapshot = self.tahoe.get_latest_snapshot(
                     self.remote_dircap)
@@ -110,9 +114,9 @@ class SyncFolder():
         for file, metadata in self.remote_metadata.iteritems():
             if not metadata['uri'].startswith('URI:DIR'):
                 filepath = os.path.join(self.local_dir, file)
-                local_filesize = self.local_metadata[filepath]['size']
                 remote_mtime = metadata['mtime']
                 if filepath in self.local_metadata:
+                    local_filesize = self.local_metadata[filepath]['size']
                     local_mtime = self.local_metadata[filepath]['mtime']
                     if local_mtime < remote_mtime:
                         logging.debug("[<] {} is older than remote version; "
@@ -144,7 +148,10 @@ class SyncFolder():
         if self.do_backup:
             self.backup(self.local_dir, self.remote_dircap)
             self.do_backup = False
-        self.sync_complete()
+        if self.do_sync:
+            self.sync()
+        else:
+            self.sync_complete()
 
     def sync_complete(self):
         self.local_snapshot = self.tahoe.get_latest_snapshot(
