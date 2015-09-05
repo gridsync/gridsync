@@ -104,14 +104,14 @@ class Tahoe():
         else:
             logging.debug("pid {} ({}) excited with code {}".format(
                     proc.pid, ' '.join(full_args), proc.returncode))
-            num_attempts -= 1
-            if num_attempts:
-                logging.debug("Trying again ({} attempts remaining)...".format(
-                    num_attempts))
-                time.sleep(1)
-                self.command(args, debug_output, num_attempts)
-            else:
-                raise RuntimeError(output.rstrip())
+        num_attempts -= 1
+        if num_attempts:
+            logging.debug("Trying again ({} attempts remaining)...".format(
+                num_attempts))
+            time.sleep(1)
+            self.command(args, debug_output, num_attempts)
+        else:
+            raise RuntimeError(output.rstrip())
 
     def start(self):
         if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
