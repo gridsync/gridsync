@@ -63,6 +63,24 @@ class SyncFolder():
         logging.info("Creating {}".format(versioned_filepath))
         shutil.copy2(local_filepath, versioned_filepath)
 
+    def get_local_metadata(self, basedir=None):
+        metadata = {}
+        if not basedir:
+            basedir = self.local_dir
+        for root, dirs, files in os.walk(basedir, followlinks=True):
+            for name in dirs:
+                path = os.path.join(root, name)
+                if not path.startswith(self.versions_dir):
+                    metadata[path] = {}
+            for name in files:
+                path = os.path.join(root, name)
+                if not path.startswith(self.versions_dir):
+                    metadata[path] = {
+                        'mtime': int(os.path.getmtime(path)),
+                        'size': os.path.getsize(path)
+                    }
+        return metadata
+
     def sync(self, snapshot=None):
         # TODO: Prevent from running and/or queue to end if already sync_state
         if not snapshot:
@@ -78,7 +96,7 @@ class SyncFolder():
         remote_path = self.remote_dircap + 'Archives/' + snapshot
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         self.sync_state += 1
-        self.local_metadata = self.local_watcher.get_metadata(self.local_dir)
+        self.local_metadata = self.get_local_metadata(self.local_dir)
         self.remote_metadata = self.tahoe.get_metadata(remote_path)
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?

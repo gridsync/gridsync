@@ -55,24 +55,6 @@ class LocalWatcher(PatternMatchingEventHandler):
             except:
                 return
 
-    def get_metadata(self, basedir=None):
-        metadata = {}
-        if not basedir:
-            basedir = self.local_dir
-        for root, dirs, files in os.walk(basedir, followlinks=True):
-            for name in dirs:
-                path = os.path.join(root, name)
-                if not path.startswith(self.versions_dir):
-                    metadata[path] = {}
-            for name in files:
-                path = os.path.join(root, name)
-                if not path.startswith(self.versions_dir):
-                    metadata[path] = {
-                        'mtime': int(os.path.getmtime(path)),
-                        'size': os.path.getsize(path)
-                    }
-        return metadata
-
     def stop(self):
         logging.info("Stopping Observer in {}...".format(self.local_dir))
         try:
