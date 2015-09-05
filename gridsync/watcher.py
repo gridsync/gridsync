@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 import os
 import time
@@ -97,33 +98,27 @@ class RemoteWatcher():
                 self.check_for_changes)
         self.remote_checker.start(30)
 
-    def check_for_changes(self, num_attempts=3):
+    def check_for_changes(self):
         logging.debug("Checking for new snapshot...")
         try:
             remote_snapshot = self.get_latest_snapshot()
-        except Exception, e:
-            logging.error(e)
-            if num_attempts:
-                logging.debug("get_latest_snapshot() failed; "
-                        "(maybe we're not connected yet?).")
-                logging.debug("Trying again after 1 sec. "
-                        "({} attempts remaining)...".format(num_attempts))
-                time.sleep(1)
-                self.check_for_changes(num_attempts - 1)
-            else:
-                logging.debug("Attempts exhausted; attempting repair...")
-                # XXX
+        except RuntimeError, error:
+            logging.error(error)
+            # TODO: Auto-repair
             return
         if remote_snapshot != self.parent.local_snapshot:
             logging.debug("New snapshot available: {}".format(remote_snapshot))
             if not self.parent.sync_state:
-                #reactor.callInThread(self.parent.sync, snapshot=remote_snapshot)
                 self.parent.sync(snapshot=remote_snapshot)
+            else:
+                # TODO: Insert (re)sync flag
+                pass
 
     def get_latest_snapshot(self):
         # TODO: If /Archives doesn't exist, perform (first?) backup?
         dircap = self.remote_dircap + "Archives"
-        j = self.tahoe.ls_json(dircap)
+        j = json.loads(self.tahoe.command(['ls', '--json', dircap],
+            debug_output=False))
         snapshots = []
         for snapshot in j[1]['children']:
             snapshots.append(snapshot)
@@ -133,9 +128,10 @@ class RemoteWatcher():
     def get_metadata(self, dircap, basedir=''):
         # TODO: If /Archives doesn't exist, perform (first?) backup?
         metadata = {}
-        received_data = self.tahoe.ls_json(dircap)
-        logging.debug("Getting remote metadata from {}...".format(dircap))
         jobs = []
+        logging.debug("Getting remote metadata from {}...".format(dircap))
+        received_data = json.loads(self.tahoe.command(['ls', '--json', dircap],
+                debug_output=False))
         for filename, data in received_data[1]['children'].iteritems():
             path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {

@@ -2,7 +2,6 @@
 
 import ConfigParser
 import hashlib
-import json
 import logging
 import os
 import re
@@ -118,11 +117,6 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command(['start'])
-
-    def ls_json(self, dircap):
-        args = ['tahoe', '-d', self.node_dir, 'ls', '--json', dircap]
-        output = subprocess.check_output(args, universal_newlines=True)
-        return json.loads(output)
 
     def update_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
