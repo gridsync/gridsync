@@ -81,7 +81,7 @@ class RemoteWatcher():
         logging.debug("Checking for new snapshot...")
         try:
             received_data = json.loads(self.tahoe.command(['ls', '--json',
-                self.remote_dircap], debug_output=False, num_attempts=5))
+                self.remote_dircap], quiet=True, num_attempts=5))
         except RuntimeError, error:
             logging.error(error)
             # TODO: Auto-repair

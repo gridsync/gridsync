@@ -79,18 +79,19 @@ class Tahoe():
                 else:
                     self.set_config(section, option, value)
 
-    def command(self, args, debug_output=True, num_attempts=1):
+    def command(self, args, quiet=False, num_attempts=1):
         full_args = ['tahoe', '-d', self.node_dir] + args
         if self.use_tor:
             full_args.insert(0, 'torsocks')
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
-        logging.debug("Running: {}".format(' '.join(full_args)))
+        if not quiet:
+            logging.debug("Running: {}".format(' '.join(full_args)))
         proc = subprocess.Popen(full_args, env=env, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, universal_newlines=True)
         output = ''
         for line in iter(proc.stdout.readline, ''):
-            if debug_output:
+            if not quiet:
                 logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
             output = output + line
         proc.poll()
@@ -98,8 +99,9 @@ class Tahoe():
             logging.warning("No return code for pid:{} ({})".format(
                     proc.pid, ' '.join(full_args)))
         elif proc.returncode == 0:
-            logging.debug("pid {} ({}) excited with code {}".format(
-                    proc.pid, ' '.join(full_args), proc.returncode))
+            if not quiet:
+                logging.debug("pid {} ({}) excited with code {}".format(
+                        proc.pid, ' '.join(full_args), proc.returncode))
             return output.rstrip()
         else:
             logging.debug("pid {} ({}) excited with code {}".format(
@@ -109,7 +111,7 @@ class Tahoe():
                 logging.debug("Trying again ({} attempts remaining)...".format(
                     num_attempts))
                 time.sleep(1)
-                self.command(args, debug_output, num_attempts)
+                self.command(args, quiet, num_attempts)
             else:
                 raise RuntimeError(output.rstrip())
 
@@ -266,7 +268,7 @@ class Tahoe():
 
     def get_latest_snapshot(self, dircap):
         received_data = json.loads(self.command(['ls', '--json',
-            dircap + "Archives"], debug_output=False))
+            dircap + "Archives"], quiet=True))
         latest_snapshot = ''
         for snapshot in received_data[1]['children']:
             if snapshot > latest_snapshot:
@@ -278,7 +280,7 @@ class Tahoe():
         jobs = []
         logging.debug("Getting remote metadata from {}...".format(dircap))
         received_data = json.loads(self.command(['ls', '--json', dircap],
-                debug_output=False))
+                quiet=True))
         for filename, data in received_data[1]['children'].iteritems():
             path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {
