@@ -3,12 +3,9 @@
 import json
 import logging
 import os
-import time
 
 from twisted.internet import reactor
-from twisted.internet.defer import gatherResults
 from twisted.internet.task import LoopingCall
-from twisted.internet.threads import deferToThread, blockingCallFromThread
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
@@ -31,8 +28,8 @@ class LocalWatcher(PatternMatchingEventHandler):
             self.observer = Observer()
             self.observer.schedule(self, self.local_dir, recursive=True)
             self.observer.start()
-        except Exception, e:
-            logging.error(e)
+        except Exception, error:
+            logging.error(error)
 
     def on_modified(self, event):
         self.filesystem_modified = True
@@ -56,15 +53,12 @@ class LocalWatcher(PatternMatchingEventHandler):
         try:
             self.observer.stop()
             self.observer.join()
-        except Exception, e:
-            logging.error(e)
+        except Exception, error:
+            logging.error(error)
 
 
 class RemoteWatcher():
-    def __init__(self, parent, remote_dircap, tahoe=None):
-        if not tahoe:
-            from gridsync.tahoe import Tahoe
-            tahoe = Tahoe()
+    def __init__(self, parent, remote_dircap, tahoe):
         self.parent = parent
         self.tahoe = tahoe
         self.remote_dircap = remote_dircap

@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import hashlib
 import logging
 import os
 import shutil
-import time
 
 from twisted.internet import reactor
 from twisted.internet.defer import gatherResults
