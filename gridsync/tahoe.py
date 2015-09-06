@@ -278,7 +278,7 @@ class Tahoe():
             }
             if data[0] == 'dirnode':
                 jobs.append(deferToThread(self.get_metadata,
-                    metadata[path]['uri'], path))
+                    dircap + '/' + path, path))
         results = blockingCallFromThread(reactor, gatherResults, jobs)
         for result in results:
             metadata.update(result)
