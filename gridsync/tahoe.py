@@ -256,13 +256,8 @@ class Tahoe():
                     dircap_or_alias))
 
     def get_latest_snapshot(self, dircap):
-        received_data = json.loads(self.command(['ls', '--json',
-            dircap + "Archives"], quiet=True))
-        latest_snapshot = ''
-        for snapshot in received_data[1]['children']:
-            if snapshot > latest_snapshot:
-                latest_snapshot = snapshot
-        return latest_snapshot
+        received_data = self.command(['ls', dircap + "Archives"], quiet=True)
+        return received_data.split('\n')[-1]
 
     def get_metadata(self, dircap, basedir=''):
         metadata = {}
