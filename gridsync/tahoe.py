@@ -85,7 +85,7 @@ class Tahoe():
             output = output + line
         proc.poll()
         if proc.returncode:
-            logging.debug("pid {} ({}) excited with code {}".format(
+            logging.error("pid {} ({}) excited with code {}".format(
                     proc.pid, ' '.join(full_args), proc.returncode))
             num_attempts -= 1
             if num_attempts:
