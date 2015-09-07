@@ -84,15 +84,7 @@ class Tahoe():
                 logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
             output = output + line
         proc.poll()
-        if proc.returncode is None:
-            logging.warning("No return code for pid:{} ({})".format(
-                    proc.pid, ' '.join(full_args)))
-        elif proc.returncode == 0:
-            if not quiet:
-                logging.debug("pid {} ({}) excited with code {}".format(
-                        proc.pid, ' '.join(full_args), proc.returncode))
-            return output.rstrip()
-        else:
+        if proc.returncode:
             logging.debug("pid {} ({}) excited with code {}".format(
                     proc.pid, ' '.join(full_args), proc.returncode))
             num_attempts -= 1
@@ -103,6 +95,13 @@ class Tahoe():
                 self.command(args, quiet, num_attempts)
             else:
                 raise RuntimeError(output.rstrip())
+        elif proc.returncode is None:
+            logging.warning("No return code for pid:{} ({})".format(
+                    proc.pid, ' '.join(full_args)))
+        elif not quiet:
+                logging.debug("pid {} ({}) excited with code {}".format(
+                        proc.pid, ' '.join(full_args), proc.returncode))
+        return output.rstrip()
 
     def start(self):
         if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
