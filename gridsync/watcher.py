@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import logging
 import os
 
@@ -62,7 +61,6 @@ class RemoteWatcher():
         self.parent = parent
         self.tahoe = tahoe
         self.remote_dircap = remote_dircap
-        self.link_time = 0
         logging.debug("RemoteWatcher initialized for {} ({})".format(
                 self.remote_dircap, self))
 
@@ -72,22 +70,10 @@ class RemoteWatcher():
         self.remote_checker.start(30)
 
     def check_for_changes(self):
-        logging.debug("Checking for new snapshot...")
-        try:
-            received_data = self.tahoe.command(['ls', '--json',
-                self.remote_dircap], quiet=True, num_attempts=5)
-        except RuntimeError, error:
-            logging.error(error)
-            # TODO: Auto-repair
-            return
-        json_data = json.loads(received_data)
-        metadata = json_data[1]['children']['Latest'][1]['metadata']
-        latest_link_time = metadata['tahoe']['linkmotime']
-        if latest_link_time > self.link_time:
-            logging.debug("New snapshot available ({}); syncing...".format(
-                metadata['tahoe']['linkmotime']))
-            self.parent.sync()
-            self.link_time = latest_link_time
+        logging.debug("Checking linkmotime...")
+        latest_snapshot = self.tahoe.get_latest_snapshot(self.remote_dircap)
+        if latest_snapshot > self.parent.local_snapshot:
+            self.parent.sync(latest_snapshot)
 
     def stop(self):
         self.remote_checker.stop()
