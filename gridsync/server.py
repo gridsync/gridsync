@@ -185,7 +185,6 @@ class Server():
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
                 self.servers_connected, self.servers_known)
-        print self.status_text
 
     def stop(self):
         self.stop_sync_folders()
