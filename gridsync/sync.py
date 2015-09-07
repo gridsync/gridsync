@@ -7,13 +7,16 @@ import shutil
 
 from twisted.internet import reactor
 from twisted.internet.defer import gatherResults
+from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread, blockingCallFromThread
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers import Observer
 
-from gridsync.watcher import LocalWatcher, RemoteWatcher
 
-
-class SyncFolder():
+class SyncFolder(PatternMatchingEventHandler):
     def __init__(self, local_dir, remote_dircap, tahoe=None):
+        super(SyncFolder, self).__init__(
+                ignore_patterns=["*.gridsync-versions*"])
         if not tahoe:
             from gridsync.tahoe import Tahoe
             tahoe = Tahoe()
@@ -22,12 +25,29 @@ class SyncFolder():
         self.remote_dircap = remote_dircap
         self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
         self.local_snapshot = 0
+        self.filesystem_modified = False
         self.do_backup = False
         self.do_sync = False
         self.sync_state = 0
         self.sync_log = []
+        self.local_checker = LoopingCall(self.check_for_changes)
+        self.remote_checker = LoopingCall(reactor.callInThread, self.sync)
         logging.debug("{} initialized; "
                 "{} <-> {}".format(self, self.local_dir, self.remote_dircap))
+
+    def on_modified(self, event):
+        self.filesystem_modified = True
+        try:
+            self.local_checker.start(1)
+        except AssertionError:
+            return
+
+    def check_for_changes(self):
+        if self.filesystem_modified:
+            self.filesystem_modified = False
+        else:
+            self.local_checker.stop()
+            reactor.callInThread(self.sync, skip_comparison=True)
 
     def start(self):
         try:
@@ -38,10 +58,14 @@ class SyncFolder():
         except LookupError:
             # TODO: Alert user alias is missing?
             pass
-        self.local_watcher = LocalWatcher(self, self.local_dir)
-        self.remote_watcher = RemoteWatcher(self, self.remote_dircap, self.tahoe)
-        self.local_watcher.start()
-        self.remote_watcher.start()
+        logging.info("Starting Observer in {}...".format(self.local_dir))
+        try:
+            self.observer = Observer()
+            self.observer.schedule(self, self.local_dir, recursive=True)
+            self.observer.start()
+        except Exception, error:
+            logging.error(error)
+        self.remote_checker.start(30)
 
     def _create_conflicted_copy(self, filename, mtime):
         base, extension = os.path.splitext(filename)
@@ -80,7 +104,12 @@ class SyncFolder():
                     }
         return metadata
 
-    def sync(self, snapshot=None):
+    def quick_sync(self):
+        self.sync_state += 1
+        self.backup(self.local_dir, self.remote_dircap)
+        self.sync_complete()
+
+    def sync(self, snapshot=None, skip_comparison=False):
         if self.sync_state:
             logging.debug("Sync already in progress; queueing to end...")
             self.do_sync = True
@@ -89,9 +118,10 @@ class SyncFolder():
             available_snapshot = self.tahoe.get_latest_snapshot(
                     self.remote_dircap)
             if self.local_snapshot == available_snapshot:
-                self.sync_state += 1
-                self.backup(self.local_dir, self.remote_dircap)
-                self.sync_complete()
+                if skip_comparison:
+                    self.sync_state += 1
+                    self.backup(self.local_dir, self.remote_dircap)
+                    self.sync_complete()
                 return
             else:
                 snapshot = available_snapshot
@@ -174,6 +204,11 @@ class SyncFolder():
                 self.sync_log.append("Uploaded {}".format(filename))
 
     def stop(self):
-        self.local_watcher.stop()
-        self.remote_watcher.stop()
+        logging.info("Stopping Observer in {}...".format(self.local_dir))
+        try:
+            self.observer.stop()
+            self.observer.join()
+        except Exception, error:
+            logging.error(error)
+        self.remote_checker.stop()
 
