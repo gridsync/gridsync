@@ -166,12 +166,20 @@ class SyncFolder(PatternMatchingEventHandler):
         for file, metadata in self.local_metadata.iteritems():
             fn = file.split(self.local_dir + os.path.sep)[1]
             if fn not in self.remote_metadata:
-                # TODO: Distinguish between local files that haven't
-                # been stored and intentional (remote) deletions
-                # (perhaps only polled syncs should delete?)
-                logging.debug("[!] {} isn't stored; "
-                        "backup scheduled".format(file))
-                self.do_backup = True
+                if metadata:
+                    recovery_uri = self.tahoe.stored(file, metadata['size'],
+                            metadata['mtime'])
+                    if recovery_uri:
+                        logging.debug("[x] {} removed from latest snapshot; "
+                                "deleting local file...".format(file))
+                        try:
+                            os.remove(file)
+                        except Exception, error:
+                            logging.error(error)
+                    else:
+                        logging.debug("[!] {} isn't stored; "
+                            "backup scheduled".format(file))
+                        self.do_backup = True
         blockingCallFromThread(reactor, gatherResults, jobs)
         if self.do_backup:
             self.backup(self.local_dir, self.remote_dircap)
