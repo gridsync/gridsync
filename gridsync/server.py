@@ -18,6 +18,7 @@ from gridsync.config import Config
 from gridsync.sync import SyncFolder
 from gridsync.systray import SystemTrayIcon
 from gridsync.tahoe import Tahoe
+from gridsync.util import h2b, b2h
 
 
 class ServerProtocol(Protocol):
@@ -40,6 +41,7 @@ class Server():
         self.config = Config(self.args.config)
         self.servers_connected = 0
         self.servers_known = 0
+        self.total_available_space = 0
         self.status_text = 'Status: '
         self.new_messages = []
         if self.args.debug:
@@ -171,6 +173,7 @@ class Server():
     def update_connection_status(self):
         servers_connected = 0
         servers_known = 0
+        available_space = 0
         for gateway in self.gateways:
             try:
                 # TODO: Compare before and after, notify (dis)connects, 
@@ -178,9 +181,11 @@ class Server():
                 gateway.update_status()
                 servers_connected += gateway.status['servers_connected']
                 servers_known += gateway.status['servers_known']
+                available_space += h2b(gateway.status['total_available_space'])
             except:
                 pass
         self.servers_connected = servers_connected
+        self.total_available_space = b2h(available_space)
         self.servers_known = servers_known
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(

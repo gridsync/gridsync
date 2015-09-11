@@ -15,6 +15,8 @@ from twisted.internet import reactor
 from twisted.internet.defer import gatherResults
 from twisted.internet.threads import deferToThread, blockingCallFromThread
 
+from gridsync.util import h2b, b2h
+
 
 DEFAULT_SETTINGS = {
     "node": {
@@ -159,6 +161,13 @@ class Tahoe():
                 self.status['helper']['status'] = status
             else:
                 self.status['servers'][nodeid[index - 2]]['status'] = status
+        total_available_space = 0
+        for _, v in self.status['servers'].iteritems():
+            try:
+                total_available_space += h2b(v['available_space'])
+            except ValueError:
+                pass
+        self.status['total_available_space'] = b2h(total_available_space)
 
     def stored(self, filepath, size=None, mtime=None):
         """Return filecap if filepath has been stored previously via backup"""
