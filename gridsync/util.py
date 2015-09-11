@@ -7,7 +7,7 @@ def h2b(s):
     """Convert 'human-readable' byte-representation to an integer of bytes"""
     for i, unit in enumerate(['KB', 'MB', 'GB', 'TB', 'PB', 'EB'], start=1):
         if s.endswith(unit):
-            return int(s[:-2].strip()) * 1024 ** i
+            return int(float(s[:-2].strip()) * 1024 ** i)
     return int(s[:-1])
 
 def b2h(b):
