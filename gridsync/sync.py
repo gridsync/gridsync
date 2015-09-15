@@ -125,7 +125,8 @@ class SyncFolder(PatternMatchingEventHandler):
                 return
             else:
                 snapshot = available_snapshot
-        remote_path = self.remote_dircap + 'Archives/' + snapshot
+        remote_dircap = self.tahoe.get_dircap_from_alias(self.remote_dircap)
+        remote_path = remote_dircap + '/Archives/' + snapshot
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         self.sync_state += 1
         self.local_metadata = self.get_local_metadata(self.local_dir)

@@ -274,14 +274,14 @@ class Tahoe():
         metadata = {}
         jobs = []
         logging.debug("Getting remote metadata from {}...".format(dircap))
-        received_data = json.loads(self.command(['ls', '--json', dircap],
-                quiet=True))
+        url = '{}uri/{}/?t=json'.format(self.node_url, dircap)
+        data = urllib2.urlopen(url).read()
+        received_data = json.loads(data)
         for filename, data in received_data[1]['children'].iteritems():
             path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {
                 'uri': data[1]['ro_uri'],
-                'mtime': int(data[1]['metadata']['mtime']),
-            }
+                'mtime': int(data[1]['metadata']['mtime'])}
             if data[0] == 'dirnode':
                 jobs.append(deferToThread(self.get_metadata,
                     '/'.join([dircap, filename]), path))
