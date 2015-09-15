@@ -47,6 +47,7 @@ class Tahoe():
         self.settings = settings
         self.name = os.path.basename(self.node_dir)
         self.status = {}
+        self.node_url = None
         if not os.path.isdir(self.node_dir):
             self.command(['create-client'])
         if self.settings:
@@ -114,11 +115,13 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command(['start'])
+        self.node_url = open(os.path.join(self.node_dir, 'node.url')).read()\
+                .strip()
+        logging.debug("Node URL is: {}".format(self.node_url))
 
     def update_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-        node_url = open(os.path.join(self.node_dir, 'node.url')).read()
-        html = urllib2.urlopen(node_url).read()
+        html = urllib2.urlopen(self.node_url).read()
         p = re.compile("Connected to <span>(.+?)</span>")
         self.status['servers_connected'] = int(re.findall(p, html)[0])
         p = re.compile("of <span>(.+?)</span> known storage servers")
