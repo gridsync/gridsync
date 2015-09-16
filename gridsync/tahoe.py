@@ -4,6 +4,7 @@ import ConfigParser
 import hashlib
 import json
 import logging
+import math
 import os
 import re
 import sqlite3
@@ -59,6 +60,7 @@ class Tahoe():
         return config.get(section, option)
 
     def set_config(self, section, option, value):
+        # XXX: This should probably preserve commented ('#'-prefixed) lines..
         logging.debug("Setting {} option {} to: {}".format(
             section, option, value))
         config = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -171,6 +173,25 @@ class Tahoe():
             except ValueError:
                 pass
         self.status['total_available_space'] = b2h(total_available_space)
+
+    def adjust(self):
+        """Adjust erasure coding paramaters to Sensible(tm) values
+
+        'Sensible' here is determined in accordance with the number of
+        available storage nodes, where N = the total number of currently
+        available nodes, K = (N * 0.3), and H = (N * 0.7).
+
+        Adjusting these values is followed by restarting the running node.
+        """
+        logging.debug("Adjusting erasure coding parameters...")
+        shares_total = int(self.status.get('servers_connected', 1)) # N
+        shares_needed = int(math.ceil(shares_total * 0.3)) # K
+        shares_happy = int(math.ceil(shares_total * 0.7)) # H
+        self.set_config('client', 'shares.total', shares_total)
+        self.set_config('client', 'shares.needed', shares_needed)
+        self.set_config('client', 'shares.happy', shares_happy)
+        self.command(['stop'])
+        self.start()
 
     def stored(self, filepath, size=None, mtime=None):
         """Return filecap if filepath has been stored previously via backup"""

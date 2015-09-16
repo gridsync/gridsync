@@ -176,13 +176,23 @@ class Server():
         available_space = 0
         for gateway in self.gateways:
             try:
-                # TODO: Compare before and after, notify (dis)connects, 
-                # dynamically adjust N/K/H?
+                prev_servers = gateway.status['servers_connected']
+            except KeyError:
+                pass
+            try:
                 gateway.update_status()
                 servers_connected += gateway.status['servers_connected']
                 servers_known += gateway.status['servers_known']
                 available_space += h2b(gateway.status['total_available_space'])
             except:
+                pass
+            try:
+                if prev_servers != gateway.status['servers_connected']:
+                    # TODO: Notify on (dis)connects
+                    # FIXME: This should only be called if a Tahoe flag is set
+                    logging.debug("New storage node (dis)connected.")
+                    reactor.callInThread(gateway.adjust)
+            except UnboundLocalError:
                 pass
         self.servers_connected = servers_connected
         self.total_available_space = b2h(available_space)
@@ -190,6 +200,7 @@ class Server():
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
                 self.servers_connected, self.servers_known)
+
 
     def stop(self):
         self.stop_sync_folders()
