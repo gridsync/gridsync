@@ -48,8 +48,7 @@ class SyncFolder(PatternMatchingEventHandler):
             self.filesystem_modified = False
         else:
             self.local_checker.stop()
-            # FIXME: Comparisons probably shouldn't be skipped..
-            reactor.callInThread(self.sync, skip_comparison=True)
+            reactor.callInThread(self.sync, force_backup=True)
 
     def start(self):
         try:
@@ -106,7 +105,7 @@ class SyncFolder(PatternMatchingEventHandler):
                     }
         return metadata
 
-    def sync(self, snapshot=None, skip_comparison=False):
+    def sync(self, snapshot=None, force_backup=False):
         if self.sync_state:
             logging.debug("Sync already in progress; queueing to end...")
             self.do_sync = True
@@ -117,7 +116,7 @@ class SyncFolder(PatternMatchingEventHandler):
                 self.remote_dircap + "Archives"], quiet=True).split('\n')
             available_snapshot = pre_sync_archives[-1]
             if self.local_snapshot == available_snapshot:
-                if skip_comparison:
+                if force_backup:
                     self.sync_state += 1
                     self.backup(self.local_dir, self.remote_dircap)
                     self.sync_complete(pre_sync_archives)
