@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import shutil
+import urllib2
 
 from twisted.internet import reactor
 from twisted.internet.defer import gatherResults
@@ -16,7 +17,7 @@ from watchdog.observers import Observer
 class SyncFolder(PatternMatchingEventHandler):
     def __init__(self, local_dir, remote_dircap, tahoe=None):
         super(SyncFolder, self).__init__(
-                ignore_patterns=["*.gridsync-versions*"])
+                ignore_patterns=["*.gridsync-versions*", "*.part"])
         if not tahoe:
             from gridsync.tahoe import Tahoe
             tahoe = Tahoe()
@@ -201,14 +202,32 @@ class SyncFolder(PatternMatchingEventHandler):
         self.sync_state -= 1
 
     def download(self, remote_uri, local_filepath, mtime=None):
-        self.tahoe.command(['get', remote_uri, local_filepath])
+        url = self.tahoe.node_url + 'uri/' + urllib2.quote(remote_uri)
+        request = urllib2.Request(url)
+        download_path = local_filepath + '.part'
+        if os.path.exists(download_path):
+            size = os.path.getsize(download_path)
+            logging.debug("Partial download of {} found; resuming byte {}..."\
+                    .format(local_filepath, size))
+            request.headers['Range'] = 'bytes={}-'.format(size)
+        # TODO: Handle exceptions..
+        remote_file = urllib2.urlopen(request)
+        with open(download_path, "ab") as local_file:
+            while True:
+                data = remote_file.read(4096)
+                if not data:
+                    break
+                local_file.write(data)
+        # XXX: Check if dest exists; create conflicted/versioned copy?
+        os.rename(download_path, local_filepath)
         if mtime:
             os.utime(local_filepath, (-1, mtime))
+        print 'download complete'
         self.sync_log.append("Downloaded {}".format(
             local_filepath.lstrip(self.local_dir)))
 
     def backup(self, local_dir, remote_dircap):
-        output = self.tahoe.command(['backup', '-v', 
+        output = self.tahoe.command(['backup', '-v', '--exclude=*.part',
             '--exclude=*.gridsync-versions*', local_dir, remote_dircap])
         for line in output.split('\n'):
             if line.startswith('uploading'):
