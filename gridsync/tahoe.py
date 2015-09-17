@@ -287,10 +287,6 @@ class Tahoe():
                 raise LookupError('No dircap found for alias {}'.format(
                     dircap_or_alias))
 
-    def get_latest_snapshot(self, dircap):
-        received_data = self.command(['ls', dircap + "Archives"], quiet=True)
-        return received_data.split('\n')[-1]
-
     def get_metadata(self, dircap, basedir=''):
         metadata = {}
         jobs = []

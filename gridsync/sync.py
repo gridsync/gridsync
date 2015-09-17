@@ -47,6 +47,7 @@ class SyncFolder(PatternMatchingEventHandler):
             self.filesystem_modified = False
         else:
             self.local_checker.stop()
+            # FIXME: Comparisons probably shouldn't be skipped..
             reactor.callInThread(self.sync, skip_comparison=True)
 
     def start(self):
@@ -104,24 +105,21 @@ class SyncFolder(PatternMatchingEventHandler):
                     }
         return metadata
 
-    def quick_sync(self):
-        self.sync_state += 1
-        self.backup(self.local_dir, self.remote_dircap)
-        self.sync_complete()
-
     def sync(self, snapshot=None, skip_comparison=False):
         if self.sync_state:
             logging.debug("Sync already in progress; queueing to end...")
             self.do_sync = True
             return
         if not snapshot:
-            available_snapshot = self.tahoe.get_latest_snapshot(
-                    self.remote_dircap)
+            # XXX: It might be preferable to just check the dircap of /Latest/
+            pre_sync_archives = self.tahoe.command(['ls', 
+                self.remote_dircap + "Archives"], quiet=True).split('\n')
+            available_snapshot = pre_sync_archives[-1]
             if self.local_snapshot == available_snapshot:
                 if skip_comparison:
                     self.sync_state += 1
                     self.backup(self.local_dir, self.remote_dircap)
-                    self.sync_complete()
+                    self.sync_complete(pre_sync_archives)
                 return
             else:
                 snapshot = available_snapshot
@@ -188,13 +186,18 @@ class SyncFolder(PatternMatchingEventHandler):
         if self.do_sync:
             self.sync()
         else:
-            self.sync_complete()
+            self.sync_complete(pre_sync_archives)
 
-    def sync_complete(self):
-        self.local_snapshot = self.tahoe.get_latest_snapshot(
-                self.remote_dircap) # FIXME: Race
-        logging.info("Synchronized {} with {}".format(
+    def sync_complete(self, pre_sync_archives):
+        post_sync_archives = self.tahoe.command(['ls', 
+            self.remote_dircap + "Archives"], quiet=True).split('\n')
+        if len(post_sync_archives) - len(pre_sync_archives) <= 1:
+            self.local_snapshot = post_sync_archives[-1]
+            logging.info("Synchronized {} with {}".format(
                 self.local_dir, self.local_snapshot))
+        else:
+            logging.warn("Remote state changed during sync")
+            # TODO: Re-sync/merge overlooked snapshot
         self.sync_state -= 1
 
     def download(self, remote_uri, local_filepath, mtime=None):
