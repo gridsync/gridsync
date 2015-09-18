@@ -31,6 +31,7 @@ class SyncFolder(PatternMatchingEventHandler):
         self.do_sync = False
         self.sync_state = 0
         self.sync_log = []
+        self.keep_versions = 1
         self.local_checker = LoopingCall(self.check_for_changes)
         self.remote_checker = LoopingCall(reactor.callInThread, self.sync)
         logging.debug("{} initialized; "
@@ -81,7 +82,7 @@ class SyncFolder(PatternMatchingEventHandler):
         t = datetime.datetime.fromtimestamp(mtime)
         tag = t.strftime('.(%Y-%m-%d %H-%M-%S)')
         newname = base + tag + extension
-        versioned_filepath = os.path.join(self.versions_dir, newname)
+        versioned_filepath = newname.replace(self.local_dir, self.versions_dir)
         if not os.path.isdir(os.path.dirname(versioned_filepath)):
             os.makedirs(os.path.dirname(versioned_filepath))
         logging.info("Creating {}".format(versioned_filepath))
@@ -148,7 +149,8 @@ class SyncFolder(PatternMatchingEventHandler):
                     if local_mtime < remote_mtime:
                         logging.debug("[<] {} is older than remote version; "
                                 "downloading {}...".format(file, file))
-                        self._create_versioned_copy(filepath, local_mtime)
+                        if self.keep_versions:
+                            self._create_versioned_copy(filepath, local_mtime)
                         jobs.append(deferToThread(self.download,
                             remote_path + '/' + file, filepath, remote_mtime))
                     elif local_mtime > remote_mtime:
@@ -171,6 +173,8 @@ class SyncFolder(PatternMatchingEventHandler):
                     if recovery_uri:
                         logging.debug("[x] {} removed from latest snapshot; "
                                 "deleting local file...".format(file))
+                        if self.keep_versions:
+                            self._create_versioned_copy(file, local_mtime)
                         try:
                             os.remove(file)
                         except Exception, error:
@@ -205,6 +209,9 @@ class SyncFolder(PatternMatchingEventHandler):
         request = urllib2.Request(url)
         download_path = local_filepath + '.part'
         if os.path.exists(download_path):
+            # XXX: Resuming may not be a good idea, as the existent (local)
+            # parts may no longer be present in the latest (remote) version of
+            # the file. Perhaps an integrity/filecap check should be required?
             size = os.path.getsize(download_path)
             logging.debug("Partial download of {} found; resuming byte {}..."\
                     .format(local_filepath, size))
