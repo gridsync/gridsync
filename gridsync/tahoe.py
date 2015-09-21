@@ -218,6 +218,8 @@ class Tahoe():
                 return cursor.fetchone()[0]
             except TypeError:
                 return
+            except sqlite3.InterfaceError:
+                return
 
     def get_aliases(self):
         aliases = {}

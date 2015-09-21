@@ -69,12 +69,16 @@ class SyncFolder(PatternMatchingEventHandler):
             logging.error(error)
         self.remote_checker.start(30)
 
-    def _create_conflicted_copy(self, filename, mtime):
-        base, extension = os.path.splitext(filename)
+    def _create_conflicted_copy(self, filepath):
+        base, extension = os.path.splitext(filepath)
+        mtime = int(os.path.getmtime(filepath))
         t = datetime.datetime.fromtimestamp(mtime)
         tag = t.strftime('.(conflicted copy %Y-%m-%d %H-%M-%S)')
-        newname = base + tag + extension
-        shutil.copy2(filename, newname)
+        tagged_filepath = base + tag + extension
+        logging.debug("Creating conflicted copy of {} {}".format(
+                filepath, tagged_filepath))
+        os.rename(filepath, tagged_filepath)
+        os.utime(tagged_filepath, (-1, mtime))
 
     def _create_versioned_copy(self, filename, mtime):
         local_filepath = os.path.join(self.local_dir, filename)
@@ -181,7 +185,7 @@ class SyncFolder(PatternMatchingEventHandler):
                             logging.error(error)
                     else:
                         logging.debug("[!] {} isn't stored; "
-                            "backup scheduled".format(file))
+                            "backup scheduled".format(fn))
                         self.do_backup = True
         blockingCallFromThread(reactor, gatherResults, jobs)
         if self.do_backup:
@@ -224,16 +228,19 @@ class SyncFolder(PatternMatchingEventHandler):
                 if not data:
                     break
                 local_file.write(data)
-        # XXX: Check if dest exists; create conflicted/versioned copy?
+        if os.path.isfile(local_filepath):
+            local_filesize = os.path.getsize(local_filepath)
+            if not self.tahoe.stored(file, local_filesize, mtime):
+                self._create_conflicted_copy(local_filepath)
         os.rename(download_path, local_filepath)
         if mtime:
             os.utime(local_filepath, (-1, mtime))
-        print 'download complete'
         self.sync_log.append("Downloaded {}".format(
             local_filepath.lstrip(self.local_dir)))
 
     def backup(self, local_dir, remote_dircap):
         output = self.tahoe.command(['backup', '-v', '--exclude=*.part',
+            '--exclude=*(conflicted copy *-*-* *-*-*)*',
             '--exclude=*.gridsync-versions*', local_dir, remote_dircap])
         for line in output.split('\n'):
             if line.startswith('uploading'):
