@@ -2,7 +2,6 @@
 
 import ConfigParser
 import hashlib
-import json
 import logging
 import math
 import os
@@ -288,24 +287,4 @@ class Tahoe():
             else:
                 raise LookupError('No dircap found for alias {}'.format(
                     dircap_or_alias))
-
-    def get_metadata(self, dircap, basedir=''):
-        metadata = {}
-        jobs = []
-        logging.debug("Getting remote metadata from {}...".format(dircap))
-        url = '{}uri/{}/?t=json'.format(self.node_url, dircap)
-        data = urllib2.urlopen(url).read()
-        received_data = json.loads(data)
-        for filename, data in received_data[1]['children'].iteritems():
-            path = '/'.join([basedir, filename]).strip('/')
-            metadata[path] = {
-                'uri': data[1]['ro_uri'],
-                'mtime': int(data[1]['metadata']['mtime'])}
-            if data[0] == 'dirnode':
-                jobs.append(deferToThread(self.get_metadata,
-                    '/'.join([dircap, filename]), path))
-        results = blockingCallFromThread(reactor, gatherResults, jobs)
-        for result in results:
-            metadata.update(result)
-        return metadata
 

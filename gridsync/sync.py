@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import json
 import logging
 import os
 import shutil
@@ -110,9 +111,29 @@ class SyncFolder(PatternMatchingEventHandler):
                 if not path.startswith(self.versions_dir):
                     metadata[path] = {
                         'mtime': int(os.path.getmtime(path)),
-                        'size': os.path.getsize(path)
-                    }
+                        'size': os.path.getsize(path)}
         return metadata
+
+    def get_remote_metadata(self, dircap, basedir=''):
+        metadata = {}
+        jobs = []
+        logging.debug("Getting remote metadata from {}...".format(dircap))
+        url = '{}uri/{}/?t=json'.format(self.tahoe.node_url, dircap)
+        data = urllib2.urlopen(url).read()
+        received_data = json.loads(data)
+        for filename, data in received_data[1]['children'].iteritems():
+            path = '/'.join([basedir, filename]).strip('/')
+            metadata[path] = {
+                'uri': data[1]['ro_uri'],
+                'mtime': int(data[1]['metadata']['mtime'])}
+            if data[0] == 'dirnode':
+                jobs.append(deferToThread(self.get_remote_metadata,
+                    '/'.join([dircap, filename]), path))
+        results = blockingCallFromThread(reactor, gatherResults, jobs)
+        for result in results:
+            metadata.update(result)
+        return metadata
+
 
     def sync(self, snapshot=None, force_backup=False):
         if self.sync_state:
@@ -137,7 +158,7 @@ class SyncFolder(PatternMatchingEventHandler):
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         self.sync_state += 1
         self.local_metadata = self.get_local_metadata(self.local_dir)
-        self.remote_metadata = self.tahoe.get_metadata(remote_path)
+        self.remote_metadata = self.get_remote_metadata(remote_path)
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         jobs = []
