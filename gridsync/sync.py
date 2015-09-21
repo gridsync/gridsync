@@ -15,12 +15,13 @@ from watchdog.observers import Observer
 
 
 class SyncFolder(PatternMatchingEventHandler):
-    def __init__(self, local_dir, remote_dircap, tahoe=None):
-        super(SyncFolder, self).__init__(
-                ignore_patterns=[
-                        '*.gridsync-versions*',
-                        '*.part*',
-                        '*(conflicted copy *-*-* *-*-*)*'])
+    def __init__(self, local_dir, remote_dircap, tahoe=None,
+            ignore_patterns=None):
+        _ignore_patterns = ['*.gridsync-versions*', '*.part*',
+                '*(conflicted copy *-*-* *-*-*)*']
+        if ignore_patterns:
+            _ignore_patterns += ignore_patterns
+        super(SyncFolder, self).__init__(ignore_patterns=_ignore_patterns)
         if not tahoe:
             from gridsync.tahoe import Tahoe
             tahoe = Tahoe()
@@ -242,10 +243,9 @@ class SyncFolder(PatternMatchingEventHandler):
             local_filepath.lstrip(self.local_dir)))
 
     def backup(self, local_dir, remote_dircap):
-        command_args = ['backup', '-v', local_dir, remote_dircap]
-        command_args[2:0] = map(lambda x: '--exclude=' + x,
-                super(SyncFolder, self).ignore_patterns)
-        output = self.tahoe.command(command_args)
+        excludes = ['--exclude=' + x for x in self.ignore_patterns]
+        output = self.tahoe.command(['backup', '-v'] + excludes + [local_dir,
+                remote_dircap])
         for line in output.split('\n'):
             if line.startswith('uploading'):
                 filename = line.split()[1][:-3][1:].lstrip(self.local_dir) # :/
