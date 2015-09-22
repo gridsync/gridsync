@@ -218,8 +218,7 @@ class SyncFolder(PatternMatchingEventHandler):
             self.do_backup = False
         if self.do_sync:
             self.sync()
-        else:
-            self.sync_complete(pre_sync_archives)
+        self.sync_complete(pre_sync_archives)
 
     def sync_complete(self, pre_sync_archives):
         post_sync_archives = self.tahoe.command(['ls', 
