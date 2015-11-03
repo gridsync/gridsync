@@ -4,7 +4,9 @@ import logging
 import os
 import sys
 
-from PyQt4.QtGui import *
+from PyQt5.QtGui import QFont, QPixmap 
+from PyQt5.QtWidgets import (QLabel, QHBoxLayout, QVBoxLayout, QLineEdit, 
+        QPushButton, QWidget, QWizard, QWizardPage)
 
 from gridsync.tahoe import DEFAULT_SETTINGS
 

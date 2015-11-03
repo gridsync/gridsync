@@ -33,11 +33,13 @@ class PyTest(Command):
 #        sys.exit(errcode)
 
 
-requirements = ['allmydata-tahoe', 'watchdog', 'qt4reactor']
+requirements = ['watchdog', 'qt5reactor-fork']
+if sys.version_info.major == 2:
+    requirements.append('allmydata-tahoe')
 #if sys.platform == 'linux2':
 #    requirements.append('notify2')
 
-execfile("gridsync/_version.py")
+exec(open("gridsync/_version.py").read())
 
 module_file = open("gridsync/__init__.py").read()
 metadata = dict(re.findall("__([a-z]+)__\s*=\s*'([^']+)'", module_file))

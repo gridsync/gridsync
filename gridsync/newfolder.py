@@ -2,7 +2,7 @@
 
 import logging
 
-from PyQt4.QtGui import (QComboBox, QDialog, QDialogButtonBox, QFileDialog,
+from PyQt5.QtWidgets import (QComboBox, QDialog, QDialogButtonBox, QFileDialog,
         QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QVBoxLayout)
 
 

@@ -42,12 +42,12 @@ gif: pngs
 
 resources: gif
 	convert -scale 256x256 -gravity center -extent 256x256 -background transparent images/gridsync.svg build/gridsync.png
-	pyrcc4 -py2 resources.qrc -o gridsync/resources.py
+	pyrcc5 resources.qrc -o gridsync/resources.py
 
 ui:
 	for i in designer/*.ui; do \
 		filename=$$(basename $$i); \
-		pyuic4 $$i -o gridsync/forms/$${filename%%.*}.py; \
+		pyuic5 $$i -o gridsync/forms/$${filename%%.*}.py; \
 	done
 
 install: clean

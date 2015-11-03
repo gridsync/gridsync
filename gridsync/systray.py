@@ -7,8 +7,8 @@ import subprocess
 import sys
 import webbrowser
 
-from PyQt4.QtGui import (QAction, QIcon, QMainWindow, QMenu, QMovie,
-        QSystemTrayIcon)
+from PyQt5.QtGui import QIcon, QMovie
+from PyQt5.QtWidgets import QAction, QMainWindow, QMenu, QSystemTrayIcon
 from twisted.internet import reactor
 
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
