@@ -2,7 +2,6 @@
 
 import logging
 import os
-import resources
 import subprocess
 import sys
 import webbrowser
@@ -13,6 +12,7 @@ from twisted.internet import reactor
 
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.newfolder import NewFolderWindow
+import gridsync.resources
 
 
 class PreferencesWindow(QMainWindow):
