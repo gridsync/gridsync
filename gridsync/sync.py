@@ -70,7 +70,7 @@ class SyncFolder(PatternMatchingEventHandler):
             self.observer = Observer()
             self.observer.schedule(self, self.local_dir, recursive=True)
             self.observer.start()
-        except Exception, error:
+        except Exception as error:
             logging.error(error)
         self.remote_checker.start(30)
 
@@ -206,7 +206,7 @@ class SyncFolder(PatternMatchingEventHandler):
                             self._create_versioned_copy(file, local_mtime)
                         try:
                             os.remove(file)
-                        except Exception, error:
+                        except Exception as error:
                             logging.error(error)
                     else:
                         logging.debug("[!] {} isn't stored; "
@@ -276,7 +276,7 @@ class SyncFolder(PatternMatchingEventHandler):
         try:
             self.observer.stop()
             self.observer.join()
-        except Exception, error:
+        except Exception as error:
             logging.error(error)
         self.remote_checker.stop()
 
