@@ -44,6 +44,16 @@ class SyncFolder(PatternMatchingEventHandler):
 
     def on_modified(self, event):
         self.filesystem_modified = True
+        #try:
+        #    reactor.callFromThread(self.local_checker.start, 1)
+        #except AssertionError:
+        #    return
+        reactor.callFromThread(self._start_local_checker)
+
+    def _start_local_checker(self):
+        # XXX: For some (qt5reactor-related?) reason, the AssertionError
+        # raised by trying to start the (already-running) local_checker timer
+        # above won't catch if called from reactor.callFromThread. Why is this?
         try:
             self.local_checker.start(1)
         except AssertionError:
@@ -53,7 +63,7 @@ class SyncFolder(PatternMatchingEventHandler):
         if self.filesystem_modified:
             self.filesystem_modified = False
         else:
-            self.local_checker.stop()
+            reactor.callFromThread(self.local_checker.stop)
             reactor.callInThread(self.sync, force_backup=True)
 
     def start(self):
@@ -72,7 +82,7 @@ class SyncFolder(PatternMatchingEventHandler):
             self.observer.start()
         except Exception as error:
             logging.error(error)
-        self.remote_checker.start(30)
+        reactor.callFromThread(self.remote_checker.start, 30)
 
     def _create_conflicted_copy(self, filepath):
         base, extension = os.path.splitext(filepath)
