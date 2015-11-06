@@ -278,7 +278,7 @@ class SyncFolder(PatternMatchingEventHandler):
                 remote_dircap])
         for line in output.split('\n'):
             if line.startswith('uploading'):
-                filename = line.split()[1][:-3][1:].lstrip(self.local_dir) # :/
+                filename = line[11:][:-3].lstrip(self.local_dir)
                 self.sync_log.append("Uploaded {}".format(filename))
 
     def stop(self):
