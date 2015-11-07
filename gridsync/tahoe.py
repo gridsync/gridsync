@@ -11,10 +11,6 @@ import subprocess
 import time
 import urllib2
 
-from twisted.internet import reactor
-from twisted.internet.defer import gatherResults
-from twisted.internet.threads import deferToThread, blockingCallFromThread
-
 from gridsync.util import h2b, b2h
 
 
