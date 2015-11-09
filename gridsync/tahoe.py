@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import ConfigParser
 import hashlib
 import logging
 import math
@@ -8,8 +7,15 @@ import os
 import re
 import sqlite3
 import subprocess
+import sys
 import time
-import urllib2
+if sys.version_info.major == 2:
+    import ConfigParser as configparser
+    import urllib2
+else:
+    import configparser
+    import urllib.request
+
 
 from gridsync.util import h2b, b2h
 
@@ -50,7 +56,7 @@ class Tahoe():
             self.setup(settings)
 
     def get_config(self, section, option):
-        config = ConfigParser.RawConfigParser(allow_no_value=True)
+        config = configparser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.node_dir, 'tahoe.cfg'))
         return config.get(section, option)
 
@@ -58,15 +64,15 @@ class Tahoe():
         # XXX: This should probably preserve commented ('#'-prefixed) lines..
         logging.debug("Setting {} option {} to: {}".format(
             section, option, value))
-        config = ConfigParser.RawConfigParser(allow_no_value=True)
+        config = configparser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.node_dir, 'tahoe.cfg'))
         config.set(section, option, value)
-        with open(os.path.join(self.node_dir, 'tahoe.cfg'), 'wb') as f:
+        with open(os.path.join(self.node_dir, 'tahoe.cfg'), 'w') as f:
             config.write(f)
 
     def setup(self, settings):
-        for section, d in settings.iteritems():
-            for option, value in d.iteritems():
+        for section, d in settings.items():
+            for option, value in d.items():
                 if section != 'sync':
                     self.set_config(section, option, value)
 
@@ -118,7 +124,10 @@ class Tahoe():
 
     def update_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-        html = urllib2.urlopen(self.node_url).read()
+        if sys.version_info.major == 2:
+            html = urllib2.urlopen(self.node_url).read()
+        else:
+            html = urllib.request.urlopen(self.node_url).read()
         p = re.compile("Connected to <span>(.+?)</span>")
         self.status['servers_connected'] = int(re.findall(p, html)[0])
         p = re.compile("of <span>(.+?)</span> known storage servers")
@@ -162,7 +171,7 @@ class Tahoe():
             else:
                 self.status['servers'][nodeid[index - 2]]['status'] = status
         total_available_space = 0
-        for _, v in self.status['servers'].iteritems():
+        for _, v in self.status['servers'].items():
             try:
                 total_available_space += h2b(v['available_space'])
             except ValueError:
@@ -236,7 +245,7 @@ class Tahoe():
         if not alias.endswith(':'):
             alias = alias + ':'
         try:
-            for name, cap in self.get_aliases().iteritems():
+            for name, cap in self.get_aliases().items():
                 if name == alias:
                     return cap
         except AttributeError:
@@ -244,7 +253,7 @@ class Tahoe():
 
     def get_alias_from_dircap(self, dircap):
         try:
-            for name, cap in self.get_aliases().iteritems():
+            for name, cap in self.get_aliases().items():
                 if cap == dircap:
                     return name
         except AttributeError:
@@ -266,7 +275,7 @@ class Tahoe():
             if alias:
                 return alias
             else:
-                hash_of_dircap = hashlib.sha256(dircap_or_alias).hexdigest()
+                hash_of_dircap = hashlib.sha256(dircap_or_alias.encode('utf-8')).hexdigest()
                 self.command(['add-alias', hash_of_dircap, dircap_or_alias])
                 return self.get_alias_from_dircap(dircap_or_alias)
         else:

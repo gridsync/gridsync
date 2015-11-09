@@ -59,12 +59,12 @@ class Server():
     def build_objects(self):
         logging.debug("Building Tahoe objects...")
         logging.debug(self.settings)
-        for node, settings in self.settings.iteritems():
+        for node, settings in self.settings.items():
             t = Tahoe(os.path.join(self.config.config_dir, node), settings)
             self.gateways.append(t)
-            for section, settings in settings.iteritems():
+            for section, settings in settings.items():
                 if section == 'sync':
-                    for local_dir, dircap in settings.iteritems():
+                    for local_dir, dircap in settings.items():
                         self.add_sync_folder(local_dir, dircap, t)
 
     def add_sync_folder(self, local_dir, dircap=None, tahoe=None):
@@ -128,7 +128,7 @@ class Server():
             reactor.callInThread(gateway.start)
 
     def first_run(self):
-        from tutorial import Tutorial
+        from gridsync.tutorial import Tutorial
         t = Tutorial(self)
         t.exec_()
         logging.debug("Got first run settings: ", self.settings)

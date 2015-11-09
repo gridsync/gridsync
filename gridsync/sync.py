@@ -5,7 +5,11 @@ import json
 import logging
 import os
 import shutil
-import urllib2
+import sys
+if sys.version_info.major == 2:
+    import urllib2
+else:
+    import urllib.request, urllib.parse
 
 from twisted.internet import reactor
 from twisted.internet.defer import gatherResults
@@ -129,9 +133,12 @@ class SyncFolder(PatternMatchingEventHandler):
         jobs = []
         logging.debug("Getting remote metadata from {}...".format(dircap))
         url = '{}uri/{}/?t=json'.format(self.tahoe.node_url, dircap)
-        data = urllib2.urlopen(url).read()
-        received_data = json.loads(data)
-        for filename, data in received_data[1]['children'].iteritems():
+        if sys.version_info.major == 2:
+            data = urllib2.urlopen(url).read()
+        else:
+            data = urllib.request.urlopen(url).read()
+        received_data = json.loads(data.decode('utf-8'))
+        for filename, data in received_data[1]['children'].items():
             path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {
                 'uri': data[1]['ro_uri'],
@@ -172,13 +179,13 @@ class SyncFolder(PatternMatchingEventHandler):
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         jobs = []
-        for file, metadata in self.remote_metadata.iteritems():
+        for file, metadata in self.remote_metadata.items():
             if metadata['uri'].startswith('URI:DIR'):
                 dirpath = os.path.join(self.local_dir, file)
                 if not os.path.isdir(dirpath):
                     logging.info("Creating directory: {}...".format(dirpath))
                     os.makedirs(dirpath)
-        for file, metadata in self.remote_metadata.iteritems():
+        for file, metadata in self.remote_metadata.items():
             if not metadata['uri'].startswith('URI:DIR'):
                 filepath = os.path.join(self.local_dir, file)
                 remote_mtime = metadata['mtime']
@@ -203,7 +210,7 @@ class SyncFolder(PatternMatchingEventHandler):
                             "downloading {}...".format(file, file))
                     jobs.append(deferToThread(self.download,
                         remote_path + '/' + file, filepath, remote_mtime))
-        for file, metadata in self.local_metadata.iteritems():
+        for file, metadata in self.local_metadata.items():
             fn = file.split(self.local_dir + os.path.sep)[1]
             if fn not in self.remote_metadata:
                 if metadata:
@@ -243,8 +250,12 @@ class SyncFolder(PatternMatchingEventHandler):
         self.sync_state -= 1
 
     def download(self, remote_uri, local_filepath, mtime=None):
-        url = self.tahoe.node_url + 'uri/' + urllib2.quote(remote_uri)
-        request = urllib2.Request(url)
+        if sys.version_info.major == 2:
+            url = self.tahoe.node_url + 'uri/' + urllib2.quote(remote_uri)
+            request = urllib2.Request(url)
+        else:
+            url = self.tahoe.node_url + 'uri/' + urllib.parse.quote(remote_uri)
+            request = urllib.request.Request(url)
         download_path = local_filepath + '.part'
         if os.path.exists(download_path):
             # XXX: Resuming may not be a good idea, as the existent (local)
@@ -255,7 +266,10 @@ class SyncFolder(PatternMatchingEventHandler):
                     .format(local_filepath, size))
             request.headers['Range'] = 'bytes={}-'.format(size)
         # TODO: Handle exceptions..
-        remote_file = urllib2.urlopen(request)
+        if sys.version_info.major == 2:
+            remote_file = urllib2.urlopen(request)
+        else:
+            remote_file = urllib.request.urlopen(request)
         with open(download_path, "ab") as local_file:
             while True:
                 data = remote_file.read(4096)
