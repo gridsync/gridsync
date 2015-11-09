@@ -1,6 +1,4 @@
-"""
-Synchronize local directories with Tahoe-LAFS storage grids.
-"""
+"""Synchronize local directories with Tahoe-LAFS storage grids."""
 
 from gridsync._version import __version__
 

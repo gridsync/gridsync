@@ -21,21 +21,45 @@ if getattr(sys, 'frozen', False):
 
 from twisted.internet.error import CannotListenError
 
+from gridsync import __doc__ as description
 from gridsync._version import __version__
 from gridsync.server import Server
 
 
 def main():
     parser = argparse.ArgumentParser(
-            description='Synchronize local directories with Tahoe-LAFS storage grids.',
+            description=description,
             epilog='Example: %(prog)s <URI>')
-    parser.add_argument('command', nargs='*', help='Command to send (e.g., "stop", "reload", "sync").')
-    parser.add_argument('-c', '--config', metavar='<file>', nargs=1, help='Load settings from config file.')
-    parser.add_argument('-d', '--node-directory', metavar='<file>', nargs=1, help='Specify Tahoe directory.')
-    parser.add_argument('--debug', action='store_true', help='Print debug messages to STDOUT.')
-    parser.add_argument('-g', '--no-gui', action='store_true', help='Run without GUI.')
-    #parser.add_argument('-t', '--use-tor', action='store_true', help='Run with Tor (requires torsocks)')
-    parser.add_argument('-V', '--version', action="version", version='%(prog)s ' + __version__)
+    parser.add_argument(
+            'command',
+            nargs='*',
+            help='Command to send (e.g., "stop", "reload", "sync").')
+    parser.add_argument(
+            '-c',
+            '--config',
+            metavar='<file>',
+            nargs=1,
+            help='Load settings from config file.')
+    parser.add_argument(
+            '-d',
+            '--node-directory',
+            metavar='<file>',
+            nargs=1,
+            help='Specify Tahoe directory.')
+    parser.add_argument(
+            '--debug',
+            action='store_true',
+            help='Print debug messages to STDOUT.')
+    parser.add_argument(
+            '-g',
+            '--no-gui',
+            action='store_true',
+            help='Run without GUI.')
+    parser.add_argument(
+            '-V',
+            '--version',
+            action="version",
+            version='%(prog)s ' + __version__)
     args = parser.parse_args()
 
     try:
