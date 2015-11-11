@@ -16,6 +16,7 @@ else:
     import configparser
     import urllib.request
 
+import requests
 
 from gridsync.util import h2b, b2h
 
@@ -124,10 +125,7 @@ class Tahoe():
 
     def update_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-        if sys.version_info.major == 2:
-            html = urllib2.urlopen(self.node_url).read()
-        else:
-            html = urllib.request.urlopen(self.node_url).read()
+        html = requests.get(self.node_url).text
         p = re.compile("Connected to <span>(.+?)</span>")
         self.status['servers_connected'] = int(re.findall(p, html)[0])
         p = re.compile("of <span>(.+?)</span> known storage servers")

@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import json
 import logging
 import os
 import shutil
 import sys
-if sys.version_info.major == 2:
-    import urllib2
-else:
-    import urllib.request, urllib.parse
+
+import requests
 
 from twisted.internet import reactor
 from twisted.internet.defer import gatherResults
@@ -133,11 +130,7 @@ class SyncFolder(PatternMatchingEventHandler):
         jobs = []
         logging.debug("Getting remote metadata from {}...".format(dircap))
         url = '{}uri/{}/?t=json'.format(self.tahoe.node_url, dircap)
-        if sys.version_info.major == 2:
-            data = urllib2.urlopen(url).read()
-        else:
-            data = urllib.request.urlopen(url).read()
-        received_data = json.loads(data.decode('utf-8'))
+        received_data = requests.get(url).json()
         for filename, data in received_data[1]['children'].items():
             path = '/'.join([basedir, filename]).strip('/')
             metadata[path] = {
@@ -250,32 +243,26 @@ class SyncFolder(PatternMatchingEventHandler):
         self.sync_state -= 1
 
     def download(self, remote_uri, local_filepath, mtime=None):
-        if sys.version_info.major == 2:
-            url = self.tahoe.node_url + 'uri/' + urllib2.quote(remote_uri)
-            request = urllib2.Request(url)
-        else:
-            url = self.tahoe.node_url + 'uri/' + urllib.parse.quote(remote_uri)
-            request = urllib.request.Request(url)
+        url = self.tahoe.node_url + 'uri/' + remote_uri
         download_path = local_filepath + '.part'
-        if os.path.exists(download_path):
+        #if os.path.exists(download_path):
             # XXX: Resuming may not be a good idea, as the existent (local)
             # parts may no longer be present in the latest (remote) version of
             # the file. Perhaps an integrity/filecap check should be required?
-            size = os.path.getsize(download_path)
-            logging.debug("Partial download of {} found; resuming byte {}..."\
-                    .format(local_filepath, size))
-            request.headers['Range'] = 'bytes={}-'.format(size)
+        #    size = os.path.getsize(download_path)
+        #    logging.debug("Partial download of {} found; resuming byte {}..."\
+        #            .format(local_filepath, size))
+        #    request.headers['Range'] = 'bytes={}-'.format(size)
         # TODO: Handle exceptions..
-        if sys.version_info.major == 2:
-            remote_file = urllib2.urlopen(request)
-        else:
-            remote_file = urllib.request.urlopen(request)
-        with open(download_path, "ab") as local_file:
-            while True:
-                data = remote_file.read(4096)
-                if not data:
-                    break
-                local_file.write(data)
+        if os.path.isfile(download_path) or os.path.isdir(download_path):
+            raise OSError("File exists: '{}'".format(download_path))
+        r = requests.get(url, stream=True)
+        r.raise_for_status()
+        recv = 0
+        with open(download_path, 'wb') as f:
+            for chunk in r.iter_content(4096):
+                f.write(chunk)
+                recv += len(chunk)
         if os.path.isfile(local_filepath):
             local_filesize = os.path.getsize(local_filepath)
             if not self.tahoe.stored(file, local_filesize, mtime):
@@ -285,6 +272,7 @@ class SyncFolder(PatternMatchingEventHandler):
             os.utime(local_filepath, (-1, mtime))
         self.sync_log.append("Downloaded {}".format(
             local_filepath.lstrip(self.local_dir)))
+        return recv
 
     def backup(self, local_dir, remote_dircap):
         excludes = ['--exclude=' + x for x in self.ignore_patterns]
