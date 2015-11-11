@@ -11,10 +11,8 @@ import sys
 import time
 if sys.version_info.major == 2:
     import ConfigParser as configparser
-    import urllib2
 else:
     import configparser
-    import urllib.request
 
 import requests
 
