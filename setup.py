@@ -33,7 +33,7 @@ class PyTest(Command):
 #        sys.exit(errcode)
 
 
-requirements = ['watchdog', 'qt5reactor-fork']
+requirements = ['requests', 'watchdog', 'qt5reactor-fork']
 if sys.version_info.major == 2:
     requirements.append('allmydata-tahoe')
 #if sys.platform == 'linux2':
