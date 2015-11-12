@@ -5,10 +5,11 @@ python:
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -y tahoe-lafs python3 python-virtualenv
+  - sudo apt-get install -y tahoe-lafs python3
 
 install:
   - pip install coveralls
+  - pip install virtualenv
   - pip install .
 
 script: coverage run --source=gridsync setup.py test
