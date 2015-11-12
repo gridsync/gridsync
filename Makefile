@@ -7,6 +7,8 @@ clean:
 	rm -rf build/
 	rm -rf dist/
 	rm -rf .eggs/
+	rm -rf .cache/
+	rm -rf .tox/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -f {} +
 	find . -name '*.pyc' -exec rm -f {} +

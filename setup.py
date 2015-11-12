@@ -1,10 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import os
 import re
 import sys
 
 from setuptools import setup, find_packages, Command
+from setuptools.command.test import test as TestCommand
 
 
 class PyTest(Command):
@@ -21,21 +22,31 @@ class PyTest(Command):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-#class PyTest(TestCommand):
-#    def finalize_options(self):
-#        TestCommand.finalize_options(self)
-#        self.test_args = []
-#        self.test_suite = True
 
-#    def run_tests(self):
-#        import pytest
-#        errcode = pytest.main(self.test_args)
-#        sys.exit(errcode)
+class Tox(TestCommand):
+    user_options = [('tox-args=', 'a', "Arguments to pass to tox")]
 
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.tox_args = None
 
-requirements = ['requests', 'watchdog', 'qt5reactor-fork']
-if sys.version_info.major == 2:
-    requirements.append('allmydata-tahoe')
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import tox
+        import shlex
+        args = self.tox_args
+        if args:
+            args = shlex.split(self.tox_args)
+        errno = tox.cmdline(args=args)
+        sys.exit(errno)
+
+requirements = ['watchdog', 'qt5reactor-fork', 'requests', 'twisted']
+#if sys.version_info.major == 2:
+#    requirements.append('allmydata-tahoe')
 #if sys.platform == 'linux2':
 #    requirements.append('notify2')
 
@@ -96,6 +107,6 @@ setup(
     },
     install_requires=requirements,
     test_suite="tests",
-    tests_require=['pytest'],
-    cmdclass={'test': PyTest},
+    tests_require=['pytest', 'tox'],
+    cmdclass={'test': Tox},
 )
