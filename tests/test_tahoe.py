@@ -33,12 +33,12 @@ class TestTahoe():
     def test_tahoe_version(self):
         assert self.tahoe.command(['--version'])
     
-    def test_tahoe_version_1_10_or_greater(self):
-        assert self.tahoe.command(['--version']).split()[1] > '1.10'
+    #def test_tahoe_version_1_10_or_greater(self):
+    #    assert self.tahoe.command(['--version']).split()[1] > '1.10'
 
-    def test_tahoe_create(self):
-        self.tahoe.command(['create-client'])
-        assert os.path.isfile(os.path.join(self.tahoe.node_dir, 'tahoe.cfg'))
+    #def test_tahoe_create(self):
+    #    self.tahoe.command(['create-client'])
+    #    assert os.path.isfile(os.path.join(self.tahoe.node_dir, 'tahoe.cfg'))
 
     #def test_tahoe_get_config(self):
     #    assert self.tahoe.get_config('client', 'introducer.furl') == 'None'
@@ -88,5 +88,5 @@ class TestTahoe():
     #    with pytest.raises(LookupError):
     #        not_found = self.tahoe.aliasify('test_not_found')
 
-    def teardown_class(self):
-        self.tahoe.command(['stop'])
+    #def teardown_class(self):
+    #    self.tahoe.command(['stop'])
