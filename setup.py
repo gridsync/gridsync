@@ -108,5 +108,5 @@ setup(
     install_requires=requirements,
     test_suite="tests",
     tests_require=['pytest', 'tox', 'virtualenv'],
-    cmdclass={'test': PyTest},
+    cmdclass={'test': Tox},
 )
