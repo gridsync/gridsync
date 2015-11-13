@@ -191,7 +191,7 @@ class Server():
                     # TODO: Notify on (dis)connects
                     # FIXME: This should only be called if a Tahoe flag is set
                     logging.debug("New storage node (dis)connected.")
-                    reactor.callInThread(gateway.adjust)
+                    #reactor.callInThread(gateway.adjust)
             except UnboundLocalError:
                 pass
         self.servers_connected = servers_connected
