@@ -69,7 +69,7 @@ class SyncFolder(PatternMatchingEventHandler):
 
     def start(self):
         try:
-            self.remote_dircap = self.tahoe.aliasify(self.remote_dircap)
+            self.remote_dircap_alias = self.tahoe.aliasify(self.remote_dircap)
         except ValueError:
             # TODO: Alert user alias is garbled?
             pass
@@ -152,19 +152,17 @@ class SyncFolder(PatternMatchingEventHandler):
             return
         if not snapshot:
             # XXX: It might be preferable to just check the dircap of /Latest/
-            pre_sync_archives = self.tahoe.command(['ls', 
-                self.remote_dircap + "Archives"], quiet=True).split('\n')
+            pre_sync_archives = self.tahoe.ls(self.remote_dircap + "/Archives")
             available_snapshot = pre_sync_archives[-1]
             if self.local_snapshot == available_snapshot:
                 if force_backup:
                     self.sync_state += 1
-                    self.backup(self.local_dir, self.remote_dircap)
+                    self.backup(self.local_dir, self.remote_dircap_alias)
                     self.sync_complete(pre_sync_archives)
                 return
             else:
                 snapshot = available_snapshot
-        remote_dircap = self.tahoe.get_dircap_from_alias(self.remote_dircap)
-        remote_path = remote_dircap + '/Archives/' + snapshot
+        remote_path = self.remote_dircap + '/Archives/' + snapshot
         logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
         self.sync_state += 1
         self.local_metadata = self.get_local_metadata(self.local_dir)
@@ -224,15 +222,14 @@ class SyncFolder(PatternMatchingEventHandler):
                         self.do_backup = True
         blockingCallFromThread(reactor, gatherResults, jobs)
         if self.do_backup:
-            self.backup(self.local_dir, self.remote_dircap)
+            self.backup(self.local_dir, self.remote_dircap_alias)
             self.do_backup = False
         if self.do_sync:
             self.sync()
         self.sync_complete(pre_sync_archives)
 
     def sync_complete(self, pre_sync_archives):
-        post_sync_archives = self.tahoe.command(['ls', 
-            self.remote_dircap + "Archives"], quiet=True).split('\n')
+        post_sync_archives = self.tahoe.ls(self.remote_dircap + "/Archives")
         if len(post_sync_archives) - len(pre_sync_archives) <= 1:
             self.local_snapshot = post_sync_archives[-1]
             logging.info("Synchronized {} with {}".format(

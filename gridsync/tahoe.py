@@ -121,6 +121,13 @@ class Tahoe():
                 .strip()
         logging.debug("Node URL is: {}".format(self.node_url))
 
+    def ls(self, dircap):
+        url = self.node_url + 'uri/' + dircap + '?t=json'
+        r = requests.get(url)
+        r.raise_for_status()
+        items = [item for item in r.json()[1]['children'].keys()]
+        return sorted(items)
+
     def update_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
         html = requests.get(self.node_url).text
