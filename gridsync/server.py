@@ -142,7 +142,7 @@ class Server():
         logging.debug("$PYTHONPATH is: {}".format(os.getenv('PYTHONPATH')))
 
         try:
-            output = subprocess.check_output(["tahoe", "--version-and-path"])
+            output = subprocess.check_output(["tahoe", "--version-and-path"]).decode('UTF-8')
             logging.info(output.split('\n')[0])
         except Exception as e:
             logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
