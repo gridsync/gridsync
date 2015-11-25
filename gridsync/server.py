@@ -77,7 +77,7 @@ class Server():
         if not dircap:
             logging.debug("No dircap associated with {}; "
                     "creating new dircap...".format(local_dir))
-            dircap = tahoe.command(['mkdir'])
+            dircap = tahoe.mkdir()
             self.settings[tahoe.name]['sync'][local_dir] = dircap
             self.config.save(self.settings)
         sync_folder = SyncFolder(local_dir, dircap, tahoe)
@@ -112,6 +112,9 @@ class Server():
                     sync_folder.sync_log.remove(message)
         if active_jobs:
             self.tray.start_animation()
+            for sync_folder in self.sync_folders:
+                for operation in sync_folder.tahoe.get_operations():
+                    logging.debug(operation)
         else:
             self.tray.stop_animation()
             if self.new_messages:

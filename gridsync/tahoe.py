@@ -121,12 +121,54 @@ class Tahoe():
                 .strip()
         logging.debug("Node URL is: {}".format(self.node_url))
 
+    def mkdir(self):
+        # TODO: Allow subdirs?
+        url = self.node_url + 'uri?t=mkdir'
+        r = requests.post(url)
+        r.raise_for_status()
+        return r.content.decode()
+
     def ls(self, dircap):
         url = self.node_url + 'uri/' + dircap + '?t=json'
         r = requests.get(url)
         r.raise_for_status()
         items = [item for item in r.json()[1]['children'].keys()]
         return sorted(items)
+
+    def get_info(self, cap):
+        url = self.node_url + 'uri/' + cap + '?t=json'
+        r = requests.get(url)
+        r.raise_for_status()
+        return r.json()
+
+    def get_operations(self):
+        url = self.node_url + 'status?t=json'
+        r = requests.get(url)
+        r.raise_for_status()
+        return r.json()['active']
+
+    def get_sharemap(self, storage_index):
+        url = self.node_url + 'status/'
+        html = requests.get(url).text
+        lines = html.split('\n')
+        for i, line in enumerate(lines):
+            if storage_index in line:
+                operation_url = url + lines[i + 4].split('"')[1]
+                break
+        try:
+            html = requests.get(operation_url).text
+        except:
+            return
+        lines = html.split('\n')
+        sharemap = {}
+        for line in lines:
+            if "Sharemap:" in line:
+                mappings = line.split('<li>')[2:]
+                for mapping in mappings:
+                    share = mapping.split('-&gt;')[0]
+                    server = mapping.split('[')[1].split(']')[0]
+                    sharemap[share] = server
+                return sharemap
 
     def update_status(self):
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
