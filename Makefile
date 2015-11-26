@@ -52,19 +52,66 @@ ui:
 		pyuic5 $$i -o gridsync/forms/$${filename%%.*}.py; \
 	done
 
-install: clean
-	python setup.py install --user
+sip:
+	mkdir -p build/sip
+	#curl "https://www.riverbankcomputing.com/hg/sip/archive/tip.tar.gz" -o "build/sip.tar.gz"
+	curl -L "http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.tar.gz" -o "build/sip.tar.gz"
+	tar zxvf build/sip.tar.gz -C build/sip --strip-components=1
+	cd build/sip && \
+		python2 build.py prepare; \
+		python configure.py
+	$(MAKE) -C build/sip install
 
-app: clean icns
+pyqt: clean sip
+	# Assumes Qt5/qmake is already installed system-wide
+	mkdir -p build/pyqt
+	curl -L "http://sourceforge.net/projects/pyqt/files/latest/download?source=files" -o "build/pyqt.tar.gz"
+	tar zxvf build/pyqt.tar.gz -C build/pyqt --strip-components=1
+	cd build/pyqt && \
+		python configure.py \
+			--confirm-license \
+			--sip ../sip/sipgen/sip \
+			--sip-incdir ../sip/siplib \
+			--enable QtCore \
+			--enable QtGui \
+			--enable QtWidgets
+	$(MAKE) -C build/pyqt install
+
+venv-tahoe:
+	virtualenv-2.7 venv2 && \
+		cd venv2 && \
+		source bin/activate && \
+		pip install allmydata-tahoe
+
+frozen-tahoe:
+	cd venv2 && \
+		source bin/activate && \
+		pip install git+https://github.com/pyinstaller/pyinstaller.git
+		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' lib/python2.7/site-packages/allmydata/_auto_deps.py && \
+		echo "from allmydata.scripts.runner import run" > tahoe.py && \
+		echo "run()" >> tahoe.py && \
+		pyinstaller \
+			--clean \
+			--onefile \
+			--hidden-import=nevow.query \
+			--hidden-import=nevow.i18n \
+			--hidden-import=nevow.flat.flatmdom \
+			--hidden-import=nevow.static \
+			--name=tahoe tahoe.py
+
+install:
+	pip install --upgrade .
+
+app: clean install icns
+	pip install git+https://github.com/pyinstaller/pyinstaller.git
 	pyinstaller --clean --onefile --windowed --icon=build/gridsync.icns --name=gridsync gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
-	# From Tahoe-LAFS 'make build-osx-pkg'
-	cp -r /Applications/tahoe.app dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS
 
 dmg: app
 	mkdir -p dist/dmg
 	mv dist/Gridsync.app dist/dmg
+	# From https://github.com/andreyvit/create-dmg
 	create-dmg --volname "Gridsync" \
 		--app-drop-link 320 2 \
 		dist/Gridsync.dmg \
