@@ -60,7 +60,7 @@ sip:
 	tar zxvf build/sip.tar.gz -C build/sip --strip-components=1
 	cd build/sip && \
 		python2 build.py prepare; \
-		python configure.py
+		python3 configure.py
 	$(MAKE) -C build/sip install
 
 pyqt: clean sip
@@ -69,7 +69,7 @@ pyqt: clean sip
 	curl -L "http://sourceforge.net/projects/pyqt/files/latest/download?source=files" -o "build/pyqt.tar.gz"
 	tar zxvf build/pyqt.tar.gz -C build/pyqt --strip-components=1
 	cd build/pyqt && \
-		python configure.py \
+		python3 configure.py \
 			--confirm-license \
 			--sip ../sip/sipgen/sip \
 			--sip-incdir ../sip/siplib \
@@ -101,10 +101,10 @@ frozen-tahoe:
 			--name=tahoe tahoe.py
 
 install:
-	pip install --upgrade .
+	pip3 install --upgrade .
 
 app: clean install icns
-	pip install git+https://github.com/pyinstaller/pyinstaller.git
+	pip3 install git+https://github.com/pyinstaller/pyinstaller.git
 	pyinstaller --clean --onefile --windowed --icon=build/gridsync.icns --name=gridsync gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
@@ -121,4 +121,4 @@ dmg: app
 	rm -rf dist/dmg
 
 uninstall:
-	pip uninstall -y gridsync
+	pip3 uninstall -y gridsync
