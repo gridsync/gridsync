@@ -17,34 +17,92 @@ clean:
 
 pngs:
 	mkdir -p build/frames
-	convert -scale 1024x1024 -gravity center -extent 1024x1024 -background transparent images/gridsync.svg build/gridsync.png
+	convert \
+		-scale 1024x1024 \
+		-gravity center \
+		-extent 1024x1024 \
+		-background transparent \
+		images/gridsync.svg \
+		build/gridsync.png
 	for i in images/frames/frame*.svg; do \
-		convert -scale 256x256 -gravity center -extent 256x256 -background transparent $$i build/frames/$$(basename $$i).png; \
+		convert -scale 256x256 \
+			-gravity center \
+			-extent 256x256 \
+			-background transparent \
+			$$i \
+			build/frames/$$(basename $$i).png; \
 	done
 
 icns: pngs
 	#for i in 16 32 128 256 512 1024; do \
-		convert -scale $$i\x$$i -gravity center -extent $$i\x$$i -background transparent images/gridsync.svg  build/icon$$i\x$$i.png; \
+		convert \
+			-scale $$i\x$$i \
+			-gravity center \
+			-extent $$i\x$$i \
+			-background transparent \
+			images/gridsync.svg  \
+			build/icon$$i\x$$i.png; \
 	done
 	#png2icns images/gridsync.icns build/icon*x*.png
 	mkdir -p build/gridsync.iconset
-	sips -s format png --resampleWidth 1024 build/gridsync.png --out build/gridsync.iconset/icon_512x512@2x.png
-	sips -s format png --resampleWidth 512 build/gridsync.png --out build/gridsync.iconset/icon_512x512.png
-	cp build/gridsync.iconset/icon_512x512.png build/gridsync.iconset/icon_256x256@2x.png
-	sips -s format png --resampleWidth 256 build/gridsync.png --out build/gridsync.iconset/icon_256x256.png
-	cp build/gridsync.iconset/icon_256x256.png build/gridsync.iconset/icon_128x128@2x.png
-	sips -s format png --resampleWidth 128 build/gridsync.png --out build/gridsync.iconset/icon_128x128.png
-	sips -s format png --resampleWidth 64 build/gridsync.png --out build/gridsync.iconset/icon_32x32@2x.png
-	sips -s format png --resampleWidth 32 build/gridsync.png --out build/gridsync.iconset/icon_32x32.png
-	cp build/gridsync.iconset/icon_32x32.png build/gridsync.iconset/icon_16x16@2x.png
-	sips -s format png --resampleWidth 16 build/gridsync.png --out build/gridsync.iconset/icon_16x16.png
+	sips \
+		-s format png \
+		--resampleWidth 1024 \
+		build/gridsync.png \
+		--out build/gridsync.iconset/icon_512x512@2x.png
+	sips \
+		-s format png \
+		--resampleWidth 512 \
+		build/gridsync.png \
+		--out build/gridsync.iconset/icon_512x512.png
+	cp build/gridsync.iconset/icon_512x512.png \
+		build/gridsync.iconset/icon_256x256@2x.png
+	sips \
+		-s format png \
+		--resampleWidth 256 \
+		build/gridsync.png \
+		--out build/gridsync.iconset/icon_256x256.png
+	cp build/gridsync.iconset/icon_256x256.png \
+		build/gridsync.iconset/icon_128x128@2x.png
+	sips \
+		-s format png \
+		--resampleWidth 128 \
+		build/gridsync.png \
+		--out build/gridsync.iconset/icon_128x128.png
+	sips \
+		-s format png \
+		--resampleWidth 64 \
+		build/gridsync.png \
+		--out build/gridsync.iconset/icon_32x32@2x.png
+	sips \
+		-s format png \
+		--resampleWidth 32 \
+		build/gridsync.png \
+		--out build/gridsync.iconset/icon_32x32.png
+	cp build/gridsync.iconset/icon_32x32.png \
+		build/gridsync.iconset/icon_16x16@2x.png
+	sips \
+		-s format png \
+		--resampleWidth 16 \
+		build/gridsync.png \
+		--out build/gridsync.iconset/icon_16x16.png
 	iconutil -c icns build/gridsync.iconset
 
 gif: pngs
-	convert -resize 256x256 -dispose 2 -delay 8 -loop 0 build/frames/frame*.png build/sync.gif
+	convert \
+		-resize 256x256 \
+		-dispose 2 \
+		-delay 8 \
+		-loop 0 \
+		build/frames/frame*.png build/sync.gif
 
 resources: gif
-	convert -scale 256x256 -gravity center -extent 256x256 -background transparent images/gridsync.svg build/gridsync.png
+	convert \
+		-scale 256x256 \
+		-gravity center \
+		-extent 256x256 \
+		-background transparent \
+		images/gridsync.svg build/gridsync.png
 	pyrcc5 resources.qrc -o gridsync/resources.py
 
 ui:
@@ -56,7 +114,10 @@ ui:
 sip:
 	mkdir -p build/sip
 	#curl "https://www.riverbankcomputing.com/hg/sip/archive/tip.tar.gz" -o "build/sip.tar.gz"
-	curl -L "http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.tar.gz" -o "build/sip.tar.gz"
+	curl \
+		--location \
+		"http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.tar.gz" \
+		--output "build/sip.tar.gz"
 	tar zxvf build/sip.tar.gz -C build/sip --strip-components=1
 	cd build/sip && \
 		python2 build.py prepare; \
@@ -66,7 +127,10 @@ sip:
 pyqt: clean sip
 	# Assumes Qt5/qmake is already installed system-wide
 	mkdir -p build/pyqt
-	curl -L "http://sourceforge.net/projects/pyqt/files/latest/download?source=files" -o "build/pyqt.tar.gz"
+	curl \
+		--location \
+		"http://sourceforge.net/projects/pyqt/files/latest/download?source=files" \
+		--output "build/pyqt.tar.gz"
 	tar zxvf build/pyqt.tar.gz -C build/pyqt --strip-components=1
 	cd build/pyqt && \
 		python3 configure.py \
@@ -82,13 +146,14 @@ venv-tahoe:
 	virtualenv-2.7 venv2 && \
 		cd venv2 && \
 		source bin/activate && \
-		pip install allmydata-tahoe
+		pip2 install --upgrade allmydata-tahoe
 
 frozen-tahoe:
 	cd venv2 && \
 		source bin/activate && \
 		pip install git+https://github.com/pyinstaller/pyinstaller.git
-		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' lib/python2.7/site-packages/allmydata/_auto_deps.py && \
+		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
+			lib/python2.7/site-packages/allmydata/_auto_deps.py && \
 		echo "from allmydata.scripts.runner import run" > tahoe.py && \
 		echo "run()" >> tahoe.py && \
 		pyinstaller \
@@ -98,14 +163,21 @@ frozen-tahoe:
 			--hidden-import=nevow.i18n \
 			--hidden-import=nevow.flat.flatmdom \
 			--hidden-import=nevow.static \
-			--name=tahoe tahoe.py
+			--name=tahoe \
+			tahoe.py
 
 install:
 	pip3 install --upgrade .
 
 app: clean install icns
 	pip3 install git+https://github.com/pyinstaller/pyinstaller.git
-	pyinstaller --clean --onefile --windowed --icon=build/gridsync.icns --name=gridsync gridsync/cli.py
+	pyinstaller \
+		--clean \
+		--onefile \
+		--windowed \
+		--icon=build/gridsync.icns\
+		--name=gridsync \
+		gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
 
