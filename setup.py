@@ -111,6 +111,8 @@ setup(
     },
     install_requires=requirements,
     test_suite="tests",
-    tests_require=['pytest'],
-    cmdclass={'test': PyTest},
+    #tests_require=['pytest'],
+    #cmdclass={'test': PyTest},
+    tests_require=['tox'],
+    cmdclass={'test': Tox},
 )
