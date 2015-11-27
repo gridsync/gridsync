@@ -1,7 +1,8 @@
 .PHONY: ui
 
 test:
-	python setup.py test
+	#python setup.py test
+	tox
 
 clean:
 	rm -rf build/
