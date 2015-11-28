@@ -197,5 +197,7 @@ dmg: app
 	mv dist/dmg/Gridsync.app dist
 	rm -rf dist/dmg
 
+all: dmg
+
 uninstall:
 	pip3 uninstall -y gridsync
