@@ -1,4 +1,5 @@
-.PHONY: ui
+SHELL := /bin/bash
+.PHONY: tahoe
 
 test:
 	#python setup.py test
@@ -10,6 +11,7 @@ clean:
 	rm -rf .eggs/
 	rm -rf .cache/
 	rm -rf .tox/
+	rm -rf tahoe/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -f {} +
 	find . -name '*.pyc' -exec rm -f {} +
@@ -142,18 +144,20 @@ pyqt: clean sip
 			--enable QtWidgets
 	$(MAKE) -C build/pyqt install
 
-venv-tahoe:
-	virtualenv-2.7 venv2 && \
-		cd venv2 && \
-		source bin/activate && \
-		pip2 install --upgrade allmydata-tahoe
+tahoe:
+	virtualenv --clear --python=$$(which python2) tahoe
+	source tahoe/bin/activate && \
+		case `uname` in \
+			Linux) pip install pyopenssl allmydata-tahoe ;; \
+			Darwin) pip install allmydata-tahoe ;; \
+		esac
 
-frozen-tahoe:
-	cd venv2 && \
-		source bin/activate && \
-		pip install git+https://github.com/pyinstaller/pyinstaller.git
+frozen-tahoe: tahoe
+	# OS X only
+	source tahoe/bin/activate && \
+		pip install git+https://github.com/pyinstaller/pyinstaller.git && \
 		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
-			lib/python2.7/site-packages/allmydata/_auto_deps.py && \
+			tahoe/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
 		echo "from allmydata.scripts.runner import run" > tahoe.py && \
 		echo "run()" >> tahoe.py && \
 		pyinstaller \
@@ -169,17 +173,18 @@ frozen-tahoe:
 install:
 	pip3 install --upgrade .
 
-app: clean install icns
+app: clean install icns frozen-tahoe
 	pip3 install git+https://github.com/pyinstaller/pyinstaller.git
 	pyinstaller \
 		--clean \
 		--onefile \
 		--windowed \
-		--icon=build/gridsync.icns\
+		--icon=build/gridsync.icns \
 		--name=gridsync \
 		gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
+	cp dist/tahoe dist/Gridsync.app/Contents/MacOS/tahoe
 
 dmg: app
 	mkdir -p dist/dmg
