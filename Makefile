@@ -148,14 +148,14 @@ tahoe:
 	virtualenv --clear --python=$$(which python2) tahoe
 	source tahoe/bin/activate && \
 		case `uname` in \
-			Linux) pip install pyopenssl allmydata-tahoe ;; \
-			Darwin) pip install allmydata-tahoe ;; \
+			Linux) pip2 install pyopenssl allmydata-tahoe ;; \
+			Darwin) pip2 install allmydata-tahoe ;; \
 		esac
 
 frozen-tahoe: tahoe
 	# OS X only
 	source tahoe/bin/activate && \
-		pip install git+https://github.com/pyinstaller/pyinstaller.git && \
+		pip2 install git+https://github.com/pyinstaller/pyinstaller.git && \
 		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
 			tahoe/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
 		echo "from allmydata.scripts.runner import run" > tahoe.py && \
