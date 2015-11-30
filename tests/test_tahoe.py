@@ -8,13 +8,6 @@ import pytest
 from gridsync.tahoe import DEFAULT_SETTINGS, bin_tahoe, Tahoe
 
 
-def test_bin_tahoe_exists():
-    assert bin_tahoe()
-
-def test_bin_tahoe_is_executable():
-    assert os.access(bin_tahoe(), os.X_OK)
-
-
 class TestTahoe():
     def setup_class(self):
         self.tmp_dir = tempfile.mkdtemp()
