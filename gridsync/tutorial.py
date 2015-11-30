@@ -81,8 +81,6 @@ class Tutorial(QWizard):
         
         info_label = QLabel('\n\n\n\nAn "Introducer fURL" (in the form "<i>pb://nodeid@example.org/introducer</i>") is a special address that points to a Tahoe-LAFS storage grid. If you do not have an Introducer fURL, you can get one from the operator of a storage grid -- or from one of your friends that uses Tahoe-LAFS.')
         info_label.setWordWrap(True)
-        info_label.setFont(QFont('', 10))
-
 
         layout = QVBoxLayout()
         layout.addWidget(label)
@@ -111,8 +109,6 @@ class Tutorial(QWizard):
         
         warning_label = QLabel('\n\n\n\nGridsync works by pairing directories on your computer with directories located on a storage grid. The folder you select here will be automatically synchronized with the address provided on the previous page.')
         warning_label.setWordWrap(True)
-        warning_label.setFont(QFont('', 10))
-
 
         layout = QVBoxLayout()
         layout.addWidget(label)
@@ -139,7 +135,6 @@ class Tutorial(QWizard):
 
         warning_label = QLabel('\n\n\n\nPlease note that, depending on how many files you have, your initial sync may take a while. When Gridsync is working, the system tray icon will animate and you will receive a desktop notification as soon as the process completes.')
         warning_label.setWordWrap(True)
-        warning_label.setFont(QFont('', 10))
 
         layout = QVBoxLayout()
         layout.addWidget(label)
