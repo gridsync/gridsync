@@ -12,6 +12,7 @@ clean:
 	rm -rf .cache/
 	rm -rf .tox/
 	rm -rf tahoe/
+	rm -rf tahoe-lafs/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
 	find . -name '*.pyc' -exec rm -f {} +
@@ -145,10 +146,7 @@ pyqt: clean sip
 	$(MAKE) -C build/pyqt install
 
 tahoe:
-	git clone https://github.com/tahoe-lafs/tahoe-lafs.git; \
-		cd tahoe-lafs && \
-			git fetch origin && \
-			git reset --hard origin/master
+	git clone https://github.com/tahoe-lafs/tahoe-lafs.git
 	virtualenv --clear --python=python2 tahoe
 	source tahoe/bin/activate && \
 		case `uname` in Linux) pip2 install pyopenssl ;; esac && \
