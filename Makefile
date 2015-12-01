@@ -145,12 +145,15 @@ pyqt: clean sip
 	$(MAKE) -C build/pyqt install
 
 tahoe:
-	virtualenv --clear --python=$$(which python2) tahoe
+	git clone https://github.com/tahoe-lafs/tahoe-lafs.git; \
+		cd tahoe-lafs && \
+			git fetch origin && \
+			git reset --hard origin/master
+	virtualenv --clear --python=python2 tahoe
 	source tahoe/bin/activate && \
-		case `uname` in \
-			Linux) pip2 install pyopenssl allmydata-tahoe ;; \
-			Darwin) pip2 install allmydata-tahoe ;; \
-		esac
+		case `uname` in Linux) pip2 install pyopenssl ;; esac && \
+		$(MAKE) -C tahoe-lafs make-version && \
+		pip2 install ./tahoe-lafs
 
 frozen-tahoe: tahoe
 	# OS X only
@@ -158,17 +161,7 @@ frozen-tahoe: tahoe
 		pip2 install git+https://github.com/pyinstaller/pyinstaller.git && \
 		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
 			tahoe/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
-		echo "from allmydata.scripts.runner import run" > tahoe.py && \
-		echo "run()" >> tahoe.py && \
-		pyinstaller \
-			--clean \
-			--onefile \
-			--hidden-import=nevow.query \
-			--hidden-import=nevow.i18n \
-			--hidden-import=nevow.flat.flatmdom \
-			--hidden-import=nevow.static \
-			--name=tahoe \
-			tahoe.py
+		pyinstaller --noconfirm --log-level=DEBUG tahoe.spec
 
 install:
 	pip3 install --upgrade .
@@ -184,7 +177,7 @@ app: clean install icns frozen-tahoe
 		gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
-	cp dist/tahoe dist/Gridsync.app/Contents/MacOS/tahoe
+	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 
 dmg: app
 	mkdir -p dist/dmg
