@@ -167,8 +167,6 @@ install:
 app: clean install icns frozen-tahoe
 	pip3 install git+https://github.com/pyinstaller/pyinstaller.git
 	pyinstaller \
-		--clean \
-		--onefile \
 		--windowed \
 		--icon=build/gridsync.icns \
 		--name=gridsync \
