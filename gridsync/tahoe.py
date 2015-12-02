@@ -16,6 +16,7 @@ else:
 
 import requests
 
+from gridsync.config import Config
 from gridsync.util import h2b, b2h
 
 
@@ -38,21 +39,37 @@ def bin_tahoe():
         if os.path.isfile(filepath):
             return filepath
 
+def decode_introducer_furl(furl):
+    """Return (tub_id, connection_hints)"""
+    p = r'^pb://([a-z2-7]+)@([a-zA-Z0-9\.:,-]+:\d+)/introducer$'
+    m = re.match(p, furl.lower())
+    return m.group(1), m.group(2)
+
 
 class Tahoe():
-    def __init__(self, node_dir=None, settings=None):
-        if not node_dir:
-            self.node_dir = os.path.join(os.path.expanduser('~'), '.tahoe')
-        else:
-            self.node_dir = os.path.expanduser(node_dir)
+    def __init__(self, location=None, settings=None):
+        self.location = location # introducer fURL, gateway URL, or local path
         self.settings = settings
-        self.name = os.path.basename(self.node_dir)
-        self.status = {}
+        self.node_dir = None
         self.node_url = None
-        if not os.path.isdir(self.node_dir):
-            self.command(['create-client'])
-        if self.settings:
-            self.setup(settings)
+        self.status = {}
+        if not location:
+            pass
+        elif location.startswith('pb://') and location.endswith('/introducer'):
+            #self.settings = {'client': {'introducer.furl': location }}
+            #self.settings['node'] = {'web.port': 'tcp:0:interface=127.0.0.1'}
+            _, connection_hints = decode_introducer_furl(location)
+            first_hostname = connection_hints.split(',')[0].split(':')[0]
+            self.node_dir = os.path.join(Config().config_dir, first_hostname)
+        elif location.startswith('http://') or location.startswith('https://'):
+            location += ('/' if not location.endswith('/') else '')
+            self.node_url = location
+        else:
+            self.node_dir = os.path.join(Config().config_dir, location)
+        if self.node_dir:
+            self.name = os.path.basename(self.node_dir)
+        else:
+            self.name = location
 
     def get_config(self, section, option):
         config = configparser.RawConfigParser(allow_no_value=True)
@@ -109,6 +126,10 @@ class Tahoe():
         return output.rstrip()
 
     def start(self):
+        if not self.node_dir:
+            return
+        elif not os.path.isdir(self.node_dir):
+            self.command(['create-client'])
         if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
             self.command(['start'])
         else:
