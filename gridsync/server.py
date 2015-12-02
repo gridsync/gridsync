@@ -149,7 +149,8 @@ class Server():
             logging.info(output.split('\n')[0])
         except Exception as e:
             logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
-
+        if not os.path.isdir(self.config.config_dir):
+            os.makedirs(self.config.config_dir)
         try:
             self.settings = self.config.load()
         except IOError:
