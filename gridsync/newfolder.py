@@ -48,8 +48,7 @@ class NewFolderWindow(QDialog):
         logging.debug("(Re-)populating combo box...")
         self.grid_combo_box.clear()
         for gateway in self.parent.gateways:
-            gateway_name = gateway.name
-            self.grid_combo_box.addItem(gateway.name, gateway)
+            self.grid_combo_box.addItem(gateway.location, gateway)
         self.grid_combo_box.insertSeparator(len(self.parent.gateways))
         self.grid_combo_box.addItem("Add New Grid...")
         #self.grid_combo_box.setEnabled(False)
