@@ -56,8 +56,9 @@ class Tahoe():
         if not location:
             pass
         elif location.startswith('pb://') and location.endswith('/introducer'):
-            #self.settings = {'client': {'introducer.furl': location }}
-            #self.settings['node'] = {'web.port': 'tcp:0:interface=127.0.0.1'}
+            if not self.settings:
+                self.settings = DEFAULT_SETTINGS
+            self.settings['client']['introducer.furl'] = location
             _, connection_hints = decode_introducer_furl(location)
             first_hostname = connection_hints.split(',')[0].split(':')[0]
             self.node_dir = os.path.join(Config().config_dir, first_hostname)
@@ -134,10 +135,21 @@ class Tahoe():
         return output.rstrip()
 
     def start(self):
+        logging.debug("Starting Tahoe-LAFS gateway: {}".format(self.location))
         if not self.node_dir:
+            logging.debug("Tahoe-LAFS gateway {} is running remotely; "
+                    "no need to start".format(self.node_url))
             return
         elif not os.path.isdir(self.node_dir):
+            logging.debug("{} not found; "
+                    "creating node dir...".format(self.node_dir))
             self.command(['create-client'])
+        elif not os.path.isfile(os.path.join(self.node_dir, 'tahoe.cfg')):
+            logging.debug("{} found but tahoe.cfg is missing; "
+                    "(re)creating node dir...".format(self.node_dir))
+            self.command(['create-client'])
+        if self.settings:
+            self.setup(self.settings)
         if not os.path.isfile(os.path.join(self.node_dir, 'twistd.pid')):
             self.command(['start'])
         else:
@@ -146,8 +158,8 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command(['start'])
-        self.node_url = open(os.path.join(self.node_dir, 'node.url')).read()\
-                .strip()
+        self.node_url = open(os.path.join(self.node_dir, 
+                'node.url')).read().strip()
         logging.debug("Node URL is: {}".format(self.node_url))
 
     def mkdir(self):
