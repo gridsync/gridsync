@@ -170,7 +170,6 @@ app: clean install icns frozen-tahoe
 		--windowed \
 		--icon=build/gridsync.icns \
 		--name=gridsync \
-		--log-level=DEBUG \
 		gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
