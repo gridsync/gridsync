@@ -142,13 +142,12 @@ class Server():
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
         logging.info("Server started with args: {}".format((self.args)))
         logging.debug("$PATH is: {}".format(os.getenv('PATH')))
-        logging.debug("$PYTHONPATH is: {}".format(os.getenv('PYTHONPATH')))
-
         try:
-            output = subprocess.check_output(["tahoe", "--version-and-path"]).decode('UTF-8')
+            output = Tahoe().command(["--version-and-path"])
             logging.info(output.split('\n')[0])
         except Exception as e:
-            logging.error('Error checking Tahoe-LAFS version: {}'.format(str(e)))
+            logging.error('Error checking Tahoe-LAFS version: {}'.format(e))
+            # TODO: Notify user?
         if not os.path.isdir(self.config.config_dir):
             os.makedirs(self.config.config_dir)
         try:

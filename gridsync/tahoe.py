@@ -98,12 +98,10 @@ class Tahoe():
         try:
             proc = subprocess.Popen(full_args, env=env, stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT, universal_newlines=True)
-        except FileNotFoundError as error:
-            logging.error("Could not find tahoe executable ({}). "
-                    "PATH was: {}".format(error, os.environ["PATH"]))
-            return
-        except PermissionError as error:
-            logging.error("Could not open tahoe executable ({})".format(error))
+        except (FileNotFoundError, PermissionError, OSError) as error:
+            logging.error("Could not run tahoe executable: {}".format(error))
+            # TODO: Notify user?
+            raise
             return
         output = ''
         for line in iter(proc.stdout.readline, ''):
