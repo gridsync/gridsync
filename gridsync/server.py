@@ -131,9 +131,9 @@ class Server():
             reactor.callInThread(gateway.start)
 
     def first_run(self):
-        from gridsync.tutorial import Tutorial
-        t = Tutorial(self)
-        t.exec_()
+        from gridsync.wizard import Wizard
+        w = Wizard(self)
+        w.exec_()
         logging.debug("Got first run settings: ", self.settings)
         self.build_objects()
         self.start_gateways()

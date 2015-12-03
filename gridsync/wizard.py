@@ -11,9 +11,9 @@ from PyQt5.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit,
 from gridsync.tahoe import DEFAULT_SETTINGS
 
 
-class Tutorial(QWizard):
+class Wizard(QWizard):
     def __init__(self, parent):
-        super(Tutorial, self).__init__()
+        super(Wizard, self).__init__()
         self.parent = parent
         self.create_welcome_page()
         self.create_systray_page()
