@@ -87,7 +87,10 @@ class Tahoe():
                     self.set_config(section, option, value)
 
     def command(self, args, quiet=False, num_attempts=1):
-        full_args = ['tahoe', '-d', self.node_dir] + args
+        if self.node_dir:
+            full_args = ['tahoe', '-d', self.node_dir] + args
+        else:
+            full_args = ['tahoe'] + args
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
         if not quiet:
