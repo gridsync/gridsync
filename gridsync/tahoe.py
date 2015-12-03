@@ -98,8 +98,16 @@ class Tahoe():
         env['PYTHONUNBUFFERED'] = '1'
         if not quiet:
             logging.debug("Running: {}".format(' '.join(full_args)))
-        proc = subprocess.Popen(full_args, env=env, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, universal_newlines=True)
+        try:
+            proc = subprocess.Popen(full_args, env=env, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, universal_newlines=True)
+        except FileNotFoundError as error:
+            logging.error("Could not find tahoe executable ({}). "
+                    "PATH was: {}".format(error, os.environ["PATH"]))
+            return
+        except PermissionError as error:
+            logging.error("Could not open tahoe executable ({})".format(error))
+            return
         output = ''
         for line in iter(proc.stdout.readline, ''):
             if not quiet:
