@@ -159,7 +159,7 @@ frozen-tahoe: tahoe
 		pip2 install git+https://github.com/pyinstaller/pyinstaller.git && \
 		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
 			tahoe/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
-		pyinstaller --noconfirm --log-level=DEBUG tahoe.spec
+		pyinstaller --noconfirm tahoe.spec
 
 install:
 	pip3 install --upgrade .
@@ -170,6 +170,7 @@ app: clean install icns frozen-tahoe
 		--windowed \
 		--icon=build/gridsync.icns \
 		--name=gridsync \
+		--log-level=DEBUG \
 		gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
