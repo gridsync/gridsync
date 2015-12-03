@@ -19,7 +19,7 @@ class Config():
         if config_file:
             self.config_file = config_file[0]
         else:
-            self.config_file = os.path.join(self.config_dir, 'gridsync.yml')
+            self.config_file = os.path.join(self.config_dir, 'config.yml')
 
     def load(self):
         with open(self.config_file) as f:
