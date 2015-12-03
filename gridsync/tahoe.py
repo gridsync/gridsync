@@ -29,7 +29,6 @@ DEFAULT_SETTINGS = {
         "shares.total": "1",
         "shares.needed": "1"
     },
-    "sync": {}
 }
 
 
