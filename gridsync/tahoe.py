@@ -32,12 +32,6 @@ DEFAULT_SETTINGS = {
 }
 
 
-def bin_tahoe():
-    for path in os.environ["PATH"].split(os.pathsep):
-        filepath = os.path.join(path, 'tahoe')
-        if os.path.isfile(filepath):
-            return filepath
-
 def decode_introducer_furl(furl):
     """Return (tub_id, connection_hints)"""
     p = r'^pb://([a-z2-7]+)@([a-zA-Z0-9\.:,-]+:\d+)/introducer$'
