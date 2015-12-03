@@ -13,11 +13,8 @@ import sys
 if getattr(sys, 'frozen', False):
     del sys.modules['twisted.internet.reactor']
     if sys.platform == 'darwin':
-        os.environ["PATH"] += os.pathsep + "/usr/local/bin" + os.pathsep \
-                + "/Applications/tahoe.app/bin" + os.pathsep \
-                + os.path.expanduser("~/Library/Python/2.7/bin") \
-                + os.pathsep + os.path.dirname(sys.executable) \
-                + '/Tahoe-LAFS/bin'
+        bundled_tahoe_path = os.path.dirname(sys.executable) + '/Tahoe-LAFS'
+        os.environ["PATH"] += os.pathsep + bundled_tahoe_path
 
 from twisted.internet.error import CannotListenError
 
