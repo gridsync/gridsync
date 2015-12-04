@@ -34,7 +34,7 @@ DEFAULT_SETTINGS = {
 
 def decode_introducer_furl(furl):
     """Return (tub_id, connection_hints)"""
-    p = r'^pb://([a-z2-7]+)@([a-zA-Z0-9\.:,-]+:\d+)/introducer$'
+    p = r'^pb://([a-z2-7]+)@([a-zA-Z0-9\.:,-]+:\d+)/[a-z2-7]+$'
     m = re.match(p, furl.lower())
     return m.group(1), m.group(2)
 
