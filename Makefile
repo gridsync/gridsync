@@ -188,5 +188,9 @@ dmg: app
 
 all: dmg
 
+dmg-download:
+	scp dist/Gridsync.dmg buildbot@buildbot.gridsync.io:
+	ssh buildbot@buildbot.gridsync.io mv Gridsync.dmg download
+
 uninstall:
 	pip3 uninstall -y gridsync
