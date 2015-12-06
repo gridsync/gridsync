@@ -56,15 +56,18 @@ class Server():
                     level=logging.INFO,
                     filename=logfile)
 
-    def build_objects(self):
-        logging.debug("Building Tahoe objects...")
+    def initialize_gateways(self):
+        logging.debug("Initializing Tahoe-LAFS gateway(s)...")
         logging.debug(self.settings)
-        for node, settings in self.settings.items():
-            t = Tahoe(os.path.join(self.config.config_dir, node), settings)
+        for gateway in self.settings.keys():
+            try:
+                t = Tahoe(gateway, self.settings[gateway]['tahoe.cfg'])
+            except KeyError:
+                t = Tahoe(gateway)
             self.gateways.append(t)
-            for section, settings in settings.items():
+            for section, contents in self.settings[gateway].items():
                 if section == 'sync':
-                    for local_dir, dircap in settings.items():
+                    for local_dir, dircap in contents.items():
                         self.add_sync_folder(local_dir, dircap, t)
 
     def add_sync_folder(self, local_dir, dircap=None, tahoe=None):
@@ -135,7 +138,7 @@ class Server():
         w = Wizard(self)
         w.exec_()
         logging.debug("Got first run settings: ", self.settings)
-        self.build_objects()
+        self.initialize_gateways()
         self.start_gateways()
 
     def start(self):
@@ -160,7 +163,7 @@ class Server():
         if not self.settings:
             reactor.callLater(0, self.first_run)
         else:
-            self.build_objects()
+            self.initialize_gateways()
             reactor.callLater(0, self.start_gateways)
         if not self.args.no_gui:
             self.tray = SystemTrayIcon(self)
@@ -205,7 +208,6 @@ class Server():
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
                 self.servers_connected, self.servers_known)
-
 
     def stop(self):
         self.stop_sync_folders()

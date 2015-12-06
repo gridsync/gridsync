@@ -48,7 +48,7 @@ class Tahoe():
         self.status = {}
         if not location:
             pass
-        elif location.startswith('pb://') and location.endswith('/introducer'):
+        elif location.startswith('pb://'):
             if not self.settings:
                 self.settings = DEFAULT_SETTINGS
             self.settings['client']['introducer.furl'] = location
@@ -83,8 +83,7 @@ class Tahoe():
     def setup(self, settings):
         for section, d in settings.items():
             for option, value in d.items():
-                if section != 'sync':
-                    self.set_config(section, option, value)
+                self.set_config(section, option, value)
 
     def command(self, args, quiet=False, num_attempts=1):
         if self.node_dir:
