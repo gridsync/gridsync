@@ -140,6 +140,10 @@ class Server():
 
     def start(self):
         reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
+        try:
+            os.makedirs(self.config.config_dir)
+        except OSError:
+            pass
         logging.info("Server started with args: {}".format((self.args)))
         logging.debug("$PATH is: {}".format(os.getenv('PATH')))
         try:
@@ -148,8 +152,6 @@ class Server():
         except Exception as e:
             logging.error('Error checking Tahoe-LAFS version: {}'.format(e))
             # TODO: Notify user?
-        if not os.path.isdir(self.config.config_dir):
-            os.makedirs(self.config.config_dir)
         try:
             self.settings = self.config.load()
         except IOError:
