@@ -6,7 +6,7 @@ import sys
 
 from PyQt5.QtGui import QFont, QPixmap 
 from PyQt5.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit,
-        QPushButton, QVBoxLayout, QWidget, QWizard, QWizardPage)
+        QMessageBox, QPushButton, QVBoxLayout, QWidget, QWizard, QWizardPage)
 
 from gridsync.tahoe import DEFAULT_SETTINGS, decode_introducer_furl
 
