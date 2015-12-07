@@ -44,17 +44,6 @@ class Server():
         self.total_available_space = 0
         self.status_text = 'Status: '
         self.new_messages = []
-        if self.args.debug:
-            logging.basicConfig(
-                    format='%(asctime)s %(funcName)s %(message)s',
-                    level=logging.DEBUG,
-                    stream=sys.stdout)
-        else:
-            logfile = os.path.join(self.config.config_dir, 'gridsync.log')
-            logging.basicConfig(
-                    format='%(asctime)s %(funcName)s %(message)s',
-                    level=logging.INFO,
-                    filename=logfile)
 
     def initialize_gateways(self):
         logging.debug("Initializing Tahoe-LAFS gateway(s)...")
@@ -147,6 +136,17 @@ class Server():
             os.makedirs(self.config.config_dir)
         except OSError:
             pass
+        if self.args.debug:
+            logging.basicConfig(
+                    format='%(asctime)s %(funcName)s %(message)s',
+                    level=logging.DEBUG,
+                    stream=sys.stdout)
+        else:
+            logfile = os.path.join(self.config.config_dir, 'gridsync.log')
+            logging.basicConfig(
+                    format='%(asctime)s %(funcName)s %(message)s',
+                    level=logging.INFO,
+                    filename=logfile)
         logging.info("Server started with args: {}".format((self.args)))
         logging.debug("$PATH is: {}".format(os.getenv('PATH')))
         try:
