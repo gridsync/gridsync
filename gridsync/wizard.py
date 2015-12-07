@@ -8,7 +8,7 @@ from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit,
         QPushButton, QVBoxLayout, QWidget, QWizard, QWizardPage)
 
-from gridsync.tahoe import DEFAULT_SETTINGS
+from gridsync.tahoe import DEFAULT_SETTINGS, decode_introducer_furl
 
 
 class Wizard(QWizard):
@@ -25,11 +25,9 @@ class Wizard(QWizard):
         self.finished.connect(self.finish)
 
     def finish(self):
-        settings = { 'Gridsync Demo': DEFAULT_SETTINGS }
         introducer_furl = str(self.introducer_furl.text())
-        settings['Gridsync Demo']['client']['introducer.furl'] = introducer_furl
-        settings['Gridsync Demo']['sync'][self.selected_folder] = None
-        #logging.info("First run - Selected folder: " % str(self.selected_folder))
+        settings = { introducer_furl: DEFAULT_SETTINGS }
+        settings[introducer_furl]['sync'] = self.selected_folder
         logging.info(settings)
         self.parent.settings = settings
 
