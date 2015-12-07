@@ -34,6 +34,9 @@ class RightClickMenu(QMenu):
         new_folder_action = QAction(QIcon(""), "Add New Sync Folder...", self)
         new_folder_action.triggered.connect(self.parent.new_folder_window.populate_combo_box)
         new_folder_action.triggered.connect(self.parent.new_folder_window.show)
+        if sys.platform == 'darwin':
+            new_folder_action.triggered.connect(
+                    self.parent.new_folder_window.raise_)
         self.addAction(new_folder_action)
 
         #open_action = QAction(QIcon(""), "Open Gridsync Folder", self)
@@ -57,6 +60,9 @@ class RightClickMenu(QMenu):
         
         preferences_action = QAction(QIcon(""), "Preferences...", self)
         preferences_action.triggered.connect(self.parent.preferences_window.show)
+        if sys.platform == 'darwin':
+            preferences_action.triggered.connect(
+                    self.parent.preferences_window.raise_)
         self.addAction(preferences_action)
 
         help_menu = QMenu(self)
