@@ -151,6 +151,18 @@ class SyncFolder(PatternMatchingEventHandler):
             self.do_sync = True
             return
         if not snapshot:
+            try:
+                ls = self.tahoe.ls(self.remote_dircap)
+                if not ls:
+                    logging.debug("No /Archives found; "
+                            "performing (first?) backup...")
+                    self.sync_state += 1
+                    self.backup(self.local_dir, self.remote_dircap_alias)
+                    self.sync_complete(ls)
+                    return
+            except Exception as error:
+                logging.error(error)
+                return
             # XXX: It might be preferable to just check the dircap of /Latest/
             pre_sync_archives = self.tahoe.ls(self.remote_dircap + "/Archives")
             available_snapshot = pre_sync_archives[-1]
