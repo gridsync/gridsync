@@ -103,12 +103,17 @@ class Server():
                     self.new_messages.append(message)
                     sync_folder.sync_log.remove(message)
         if active_jobs:
-            self.tray.start_animation()
+            if not self.args.no_gui and self.tray.animation.state() != 2:
+                self.tray.animation.setPaused(False)
+                self.tray.setToolTip("Gridsync - Syncing...")
             for sync_folder in self.sync_folders:
                 for operation in sync_folder.tahoe.get_operations():
                     logging.debug(operation)
         else:
-            self.tray.stop_animation()
+            if not self.args.no_gui and self.tray.animation.state() == 2:
+                self.tray.animation.setPaused(True)
+                self.tray.setToolTip("Gridsync - Up to date")
+                self.tray.set_icon(":gridsync.png")
             if self.new_messages:
                 message = '\n'.join(self.new_messages)
                 self.notify("Sync complete", message)

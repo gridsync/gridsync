@@ -104,38 +104,16 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setContextMenu(self.right_menu)
         self.activated.connect(self.on_click)
 
-        self.movie = QMovie()
-        self.movie.setFileName(":sync.gif")
-        self.movie.updated.connect(self.on_systray_update)
-        self.movie.setCacheMode(True)
-        self.paused = True
-        #self.start_animation()
-        
-    # The paused state needs to be set manually since QMovie.MovieState 
-    # always returns 0 for movies rendered off-screen. This may be a bug.
-    # http://pyqt.sourceforge.net/Docs/PyQt4/qmovie.html#MovieState-enum
-    def start_animation(self):
-        self.setToolTip("Gridsync - Syncing...")
-        if self.paused:
-            self.movie.setPaused(False)
-            self.paused = False
+        self.animation = QMovie()
+        self.animation.setFileName(":sync.gif")
+        self.animation.updated.connect(self.update_animation_frame)
+        self.animation.setCacheMode(True)
 
-    def stop_animation(self):
-        self.setToolTip("Gridsync")
-        if not self.paused:
-            self.movie.setPaused(True)
-            self.paused = True
-            self.setIcon(QIcon(":gridsync.png"))
+    def update_animation_frame(self):
+        self.setIcon(QIcon(self.animation.currentPixmap()))
 
-    def on_systray_update(self):
-        self.setIcon(QIcon(self.movie.currentPixmap()))
-        #if not self.paused:
-        #    self.setIcon(QIcon(self.movie.currentPixmap()))
-        #elif self.paused:
-        #    return 
-        #else:
-        #    self.paused = True
-        #    self.setIcon(QIcon(":/images/icon.png"))
+    def set_icon(self, resource):
+        self.setIcon(QIcon(resource))
 
     def on_click(self, value):
         #self.right_menu.populate()
