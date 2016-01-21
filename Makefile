@@ -20,20 +20,19 @@ clean:
 
 pngs:
 	mkdir -p build/frames
-	convert \
-		-scale 1024x1024 \
-		-gravity center \
-		-extent 1024x1024 \
-		-background transparent \
-		images/gridsync.svg \
-		build/gridsync.png
-	for i in images/frames/frame*.svg; do \
-		convert -scale 256x256 \
+	for i in images/gridsync*.svg; do \
+		convert -scale 1024x1024 \
 			-gravity center \
-			-extent 256x256 \
+			-extent 1024x1024 \
 			-background transparent \
-			$$i \
-			build/frames/$$(basename $$i).png; \
+			$$i build/$$(basename $$i).png; \
+	done
+	for i in images/frames/frame*.svg; do \
+		convert -scale 1024x1024 \
+			-gravity center \
+			-extent 1024x1024 \
+			-background transparent \
+			$$i build/frames/$$(basename $$i).png; \
 	done
 
 icns: pngs
@@ -100,12 +99,6 @@ gif: pngs
 		build/frames/frame*.png build/sync.gif
 
 resources: gif
-	convert \
-		-scale 256x256 \
-		-gravity center \
-		-extent 256x256 \
-		-background transparent \
-		images/gridsync.svg build/gridsync.png
 	pyrcc5 resources.qrc -o gridsync/resources.py
 
 ui:
