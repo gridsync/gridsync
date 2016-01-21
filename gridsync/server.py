@@ -120,7 +120,10 @@ class Server():
                 self.new_messages = []
 
     def notify(self, title, message):
-        self.tray.showMessage(title, message)
+        if not self.args.no_gui:
+            self.tray.showMessage(title, message)
+        else:
+            print(title, message)
 
     def start_gateways(self):
         logging.debug("Starting Tahoe-LAFS gateway(s)...")
@@ -173,8 +176,8 @@ class Server():
         if not self.args.no_gui:
             self.tray = SystemTrayIcon(self)
             self.tray.show()
-            state_checker = LoopingCall(self.check_state)
-            state_checker.start(1.0)
+        state_checker = LoopingCall(self.check_state)
+        state_checker.start(1.0)
         connection_status_updater = LoopingCall(
                 reactor.callInThread, self.update_connection_status)
         reactor.callLater(5, connection_status_updater.start, 60)
