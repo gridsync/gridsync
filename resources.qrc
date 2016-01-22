@@ -1,9 +1,9 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file alias="gridsync.png">build/gridsync.svg.png</file>
-    <file alias="gridsync-grey.png">build/gridsync-grey.svg.png</file>
-    <file alias="gridsync-checkmark.png">build/gridsync-checkmark.svg.png</file>
-    <file alias="gridsync-x.png">build/gridsync-x.svg.png</file>
+    <file alias="gridsync.png">build/gridsync.png</file>
+    <file alias="gridsync-grey.png">build/gridsync-grey.png</file>
+    <file alias="gridsync-checkmark.png">build/gridsync-checkmark.png</file>
+    <file alias="gridsync-x.png">build/gridsync-x.png</file>
     <file alias="sync.gif">build/sync.gif</file>
     <file alias="osx-prefs.png">images/screenshots/osx-prefs.png</file>
     <file alias="sync-complete.png">images/screenshots/sync-complete.png</file>

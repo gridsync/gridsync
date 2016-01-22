@@ -25,14 +25,14 @@ pngs:
 			-gravity center \
 			-extent 1024x1024 \
 			-background transparent \
-			$$i build/$$(basename $$i).png; \
+			$$i build/$$(basename -s .svg $$i).png; \
 	done
 	for i in images/frames/frame*.svg; do \
 		convert -scale 1024x1024 \
 			-gravity center \
 			-extent 1024x1024 \
 			-background transparent \
-			$$i build/frames/$$(basename $$i).png; \
+			$$i build/frames/$$(basename -s .svg $$i).png; \
 	done
 
 icns: pngs
