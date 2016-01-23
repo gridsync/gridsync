@@ -34,6 +34,15 @@ pngs:
 			-background transparent \
 			$$i build/frames/$$(basename -s .svg $$i).png; \
 	done
+	for i in images/frames/onion-frame*.svg; do \
+		convert -scale 1024x1024 \
+			-gravity center \
+			-extent 1024x1024 \
+			-background transparent \
+			$$i build/frames/$$(basename -s .svg $$i).png; \
+	done
+
+
 
 icns: pngs
 	#for i in 16 32 128 256 512 1024; do \
@@ -97,6 +106,13 @@ gif: pngs
 		-delay 8 \
 		-loop 0 \
 		build/frames/frame*.png build/sync.gif
+	convert \
+		-resize 256x256 \
+		-dispose 2 \
+		-delay 8 \
+		-loop 0 \
+		build/frames/onion-frame*.png build/onion-sync.gif
+
 
 resources: gif
 	pyrcc5 resources.qrc -o gridsync/resources.py

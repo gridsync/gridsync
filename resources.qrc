@@ -4,7 +4,9 @@
     <file alias="gridsync-grey.png">build/gridsync-grey.png</file>
     <file alias="gridsync-checkmark.png">build/gridsync-checkmark.png</file>
     <file alias="gridsync-x.png">build/gridsync-x.png</file>
+    <file alias="gridsync-purple.png">build/gridsync-purple.png</file>
     <file alias="sync.gif">build/sync.gif</file>
+    <file alias="onion-sync.gif">build/onion-sync.gif</file>
     <file alias="osx-prefs.png">images/screenshots/osx-prefs.png</file>
     <file alias="sync-complete.png">images/screenshots/sync-complete.png</file>
 </qresource>
