@@ -195,11 +195,5 @@ dmg: app
 
 all: dmg
 
-dmg-download:
-	scp dist/Gridsync.dmg buildbot@download.gridsync.org: && \
-	ssh buildbot@download.gridsync.org chmod 644 Gridsync.dmg && \
-	ssh buildbot@download.gridsync.org mv Gridsync.dmg download
-
-
 uninstall:
 	pip3 uninstall -y gridsync
