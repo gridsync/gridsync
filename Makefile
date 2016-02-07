@@ -168,6 +168,7 @@ frozen-tahoe: tahoe
 			build/venv/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
 		export PYTHONHASHSEED=1 && \
 			pyinstaller --noconfirm tahoe.spec
+			python2 -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS
 
 install:
 	pip3 install --upgrade .

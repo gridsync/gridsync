@@ -23,6 +23,7 @@ call C:\Python27\python.exe -m pip install --upgrade nevow
 call C:\Python27\python.exe -m pip install pyinstaller
 set PYTHONHASHSEED=1
 call C:\Python27\Scripts\pyinstaller.exe --noconfirm tahoe.spec
+call C:\Python27\python.exe -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
 set PYTHONHASHSEED=
 
 echo Done!
