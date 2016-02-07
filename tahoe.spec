@@ -5,10 +5,10 @@ options = [('u', None, 'OPTION')]
 block_cipher = None
 
 added_files = [
-    ('tahoe-lafs/src/allmydata/web/*.xhtml', 'allmydata/web'),
-    ('tahoe-lafs/src/allmydata/web/static/*', 'allmydata/web/static'),
-    ('tahoe-lafs/src/allmydata/web/static/css/*', 'allmydata/web/static/css'),
-    ('tahoe-lafs/src/allmydata/web/static/img/*', 'allmydata/web/static/img')]
+    ('build/tahoe-lafs/src/allmydata/web/*.xhtml', 'allmydata/web'),
+    ('build/tahoe-lafs/src/allmydata/web/static/*', 'allmydata/web/static'),
+    ('build/tahoe-lafs/src/allmydata/web/static/css/*', 'allmydata/web/static/css'),
+    ('build/tahoe-lafs/src/allmydata/web/static/img/*', 'allmydata/web/static/img')]
 
 a = Analysis(['build/tahoe-lafs/static/tahoe.py'],
              pathex=[],
