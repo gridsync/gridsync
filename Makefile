@@ -163,7 +163,7 @@ tahoe:
 frozen-tahoe: tahoe
 	# OS X only
 	source build/venv/bin/activate && \
-		pip2 install git+https://github.com/pyinstaller/pyinstaller.git && \
+		pip2 install pyinstaller && \
 		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
 			build/venv/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
 		pyinstaller --noconfirm tahoe.spec
@@ -172,7 +172,7 @@ install:
 	pip3 install --upgrade .
 
 app: clean install icns frozen-tahoe
-	pip3 install git+https://github.com/pyinstaller/pyinstaller.git
+	pip3 install --upgrade pyinstaller
 	pyinstaller \
 		--windowed \
 		--icon=build/gridsync.icns \
