@@ -160,6 +160,30 @@ pyqt: clean sip
 			--enable QtWidgets
 	$(MAKE) -C build/pyqt install
 
+deps:
+	case `uname` in \
+		Linux) \
+			apt-get update && \
+			apt-get install tahoe-lafs python3 python3-pyqt5 python3-pip \
+		;; \
+		Darwin) echo darwin \
+			brew -v update && \
+			brew -v install python3 pyqt5 \
+		;; \
+	esac
+
+build-deps: deps
+	case `uname` in \
+		Linux) \
+			apt-get update && \
+			apt-get install imagemagick \
+		;; \
+		Darwin) echo darwin \
+			brew -v update && \
+			brew -v install imagemagick \
+		;; \
+	esac
+
 tahoe:
 	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	virtualenv --clear --python=python2 build/venv
