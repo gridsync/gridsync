@@ -166,18 +166,24 @@ frozen-tahoe: tahoe
 		pip2 install pyinstaller && \
 		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
 			build/venv/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
-		pyinstaller --noconfirm tahoe.spec
+		export PYTHONHASHSEED=1 && \
+			env && \
+			pyinstaller --noconfirm tahoe.spec
+		env
 
 install:
 	pip3 install --upgrade .
 
 app: clean install icns frozen-tahoe
 	pip3 install --upgrade pyinstaller
-	pyinstaller \
-		--windowed \
-		--icon=build/gridsync.icns \
-		--name=gridsync \
-		gridsync/cli.py
+	export PYTHONHASHSEED=1 && \
+		env && \
+		pyinstaller \
+			--windowed \
+			--icon=build/gridsync.icns \
+			--name=gridsync \
+			gridsync/cli.py
+	env
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
 	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
@@ -194,6 +200,13 @@ dmg: app
 	rm -rf dist/dmg
 
 all: dmg
+
+
+blah:
+	export HI=yo1 && \
+		env
+	unset hi && \
+		env
 
 uninstall:
 	pip3 uninstall -y gridsync

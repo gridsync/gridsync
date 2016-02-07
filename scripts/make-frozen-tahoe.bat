@@ -21,6 +21,9 @@ call C:\Python27\python.exe -m pip install --upgrade twisted
 call C:\Python27\python.exe -m pip install --upgrade nevow
 
 call C:\Python27\python.exe -m pip install pyinstaller
+set PYTHONHASHSEED=1
 call C:\Python27\Scripts\pyinstaller.exe --noconfirm tahoe.spec
+set PYTHONHASHSEED=
+set
 
 echo Done!
