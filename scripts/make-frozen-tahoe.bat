@@ -6,7 +6,7 @@
 :: installed; see/run 'make-tahoe-deps.bat'
 ::
 
-call git clone https://github.com/tahoe-lafs/tahoe-lafs.git
+call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 
 :: Needed for frozen builds...
 call git apply disable_setuptools.patch
@@ -14,7 +14,7 @@ call git apply disable_setuptools.patch
 :: Workaround for nevow...
 call C:\Python27\python.exe -m pip install twisted
 
-call C:\Python27\python.exe -m pip install --upgrade .\tahoe-lafs
+call C:\Python27\python.exe -m pip install --upgrade .\build\tahoe-lafs
 
 :: Needed to pass autodeps/init sequence when running frozen...
 call C:\Python27\python.exe -m pip install --upgrade twisted

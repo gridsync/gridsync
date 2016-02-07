@@ -10,7 +10,7 @@ added_files = [
     ('tahoe-lafs/src/allmydata/web/static/css/*', 'allmydata/web/static/css'),
     ('tahoe-lafs/src/allmydata/web/static/img/*', 'allmydata/web/static/img')]
 
-a = Analysis(['tahoe-lafs/static/tahoe.py'],
+a = Analysis(['build/tahoe-lafs/static/tahoe.py'],
              pathex=[],
              binaries=None,
              datas=added_files,

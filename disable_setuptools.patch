@@ -1,7 +1,7 @@
-diff --git a/tahoe-lafs/src/allmydata/_auto_deps.py b/tahoe-lafs/src/allmydata/_auto_deps.py
+diff --git a/build/tahoe-lafs/src/allmydata/_auto_deps.py b/build/tahoe-lafs/src/allmydata/_auto_deps.py
 index 4dcd50f..9e28af1 100644
---- a/tahoe-lafs/src/allmydata/_auto_deps.py
-+++ b/tahoe-lafs/src/allmydata/_auto_deps.py
+--- a/build/tahoe-lafs/src/allmydata/_auto_deps.py
++++ b/build/tahoe-lafs/src/allmydata/_auto_deps.py
 @@ -18,7 +18,7 @@
  install_requires = [
      # We require newer versions of setuptools (actually

@@ -11,8 +11,6 @@ clean:
 	rm -rf .eggs/
 	rm -rf .cache/
 	rm -rf .tox/
-	rm -rf tahoe/
-	rm -rf tahoe-lafs/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
 	find . -name '*.pyc' -exec rm -f {} +
@@ -155,19 +153,19 @@ pyqt: clean sip
 	$(MAKE) -C build/pyqt install
 
 tahoe:
-	git clone https://github.com/tahoe-lafs/tahoe-lafs.git
-	virtualenv --clear --python=python2 tahoe
-	source tahoe/bin/activate && \
+	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
+	virtualenv --clear --python=python2 build/venv
+	source build/venv/bin/activate && \
 		case `uname` in Linux) pip2 install pyopenssl ;; esac && \
-		$(MAKE) -C tahoe-lafs make-version && \
-		pip2 install ./tahoe-lafs
+		$(MAKE) -C build/tahoe-lafs make-version && \
+		pip2 install build/tahoe-lafs
 
 frozen-tahoe: tahoe
 	# OS X only
-	source tahoe/bin/activate && \
+	source build/venv/bin/activate && \
 		pip2 install git+https://github.com/pyinstaller/pyinstaller.git && \
 		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
-			tahoe/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
+			build/venv/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
 		pyinstaller --noconfirm tahoe.spec
 
 install:
