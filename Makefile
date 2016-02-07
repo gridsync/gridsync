@@ -40,20 +40,29 @@ pngs:
 			$$i build/frames/$$(basename -s .svg $$i).png; \
 	done
 
-
-
-icns: pngs
-	#for i in 16 32 128 256 512 1024; do \
+ico: pngs
+	mkdir -p build/ico
+	for i in 16 32 48 256; do \
 		convert \
 			-scale $$i\x$$i \
 			-gravity center \
 			-extent $$i\x$$i \
 			-background transparent \
 			images/gridsync.svg  \
-			build/icon$$i\x$$i.png; \
+			build/ico/gridsync-$$i\-$$i.png; \
 	done
+	# from 'icoutils' debian package
+	icotool --create \
+		build/ico/gridsync-16-16.png \
+		build/ico/gridsync-32-32.png \
+		build/ico/gridsync-48-48.png \
+		build/ico/gridsync-256-256.png \
+		-o images/gridsync.ico
+
+icns: pngs
 	#png2icns images/gridsync.icns build/icon*x*.png
 	mkdir -p build/gridsync.iconset
+	# OS X only
 	sips \
 		-s format png \
 		--resampleWidth 1024 \
@@ -110,7 +119,6 @@ gif: pngs
 		-delay 8 \
 		-loop 0 \
 		build/frames/onion-frame*.png build/onion-sync.gif
-
 
 resources: gif
 	pyrcc5 resources.qrc -o gridsync/resources.py
