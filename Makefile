@@ -205,12 +205,12 @@ frozen-tahoe: tahoe
 install:
 	pip3 install --upgrade .
 
-app: clean install icns frozen-tahoe
+app: clean install frozen-tahoe
 	pip3 install --upgrade pyinstaller
 	export PYTHONHASHSEED=1 && \
 		pyinstaller \
 			--windowed \
-			--icon=build/gridsync.icns \
+			--icon=images/gridsync.icns \
 			--name=gridsync \
 			gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
