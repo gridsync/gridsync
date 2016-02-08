@@ -6,7 +6,6 @@
 ::
 ::      Python 3.4 (PyQt5-5.5.1 requires 3.4, not 3.5): https://www.python.org/
 ::      PyQt5 (currently 5.5.1): https://www.riverbankcomputing.com/software/pyqt/download5
-::      pywin32 (currently build 220): http://sourceforge.net/projects/pywin32/
 ::
 
 call .\scripts\make-frozen-tahoe.bat
