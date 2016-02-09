@@ -15,26 +15,27 @@ call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 :: Needed for frozen builds...
 call git apply disable_setuptools.patch
 
-:: Workaround for Nevow-0.10.0 requiring twisted.python when Twisted 12.1 is pinned..
+:: Workaround for Nevow-0.10.0 requiring twisted.python when Twisted 12.1 is pinned ("Collecting Nevow<=0.10,>=0.9.33 [...] ImportError: No module named twisted.python")
 call pip install --upgrade twisted
 
 :: Build and install pyOpenSSL
 call "C:\Users\%USERNAME%\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat" x86_amd64
 call pushd C:\Users\%USERNAME%\Downloads\pyOpenSSL-0.13.1
-set PYCA_WINDOWS_LINK_TYPE=dynamic
-set LIB=c:\dist\openssl64\lib;%LIB%
-set INCLUDE=c:\dist\openssl64\include;%INCLUDE%
-set PATH=c:\dist\openssl64\bin;%PATH%
+call set PYCA_WINDOWS_LINK_TYPE=dynamic
+call set LIB=c:\dist\openssl64\lib;%LIB%
+call set INCLUDE=c:\dist\openssl64\include;%INCLUDE%
+call set PATH=c:\dist\openssl64\bin;%PATH%
 call python setup.py build
 call python setup.py install
 call popd
 
 call pip install --upgrade .\build\tahoe-lafs
 
-:: Needed to pass autodeps/init sequence when running frozen...
-:: PackagingError: We require Twisted >= 13.0.0, but could only find version 12.1.0.
-pip install --upgrade twisted
+:: Needed to pass autodeps/init sequence when running frozen ("PackagingError: We require Twisted >= 13.0.0, but could only find version 12.1.0.")
+call pip install --upgrade twisted
 
+:: Same as above ("PackagingError: We require Nevow >= 0.11.1, but could only find version 0.10.0.")
+call pip install --upgrade nevow
 
 call pip install --upgrade pyinstaller
 set PYTHONHASHSEED=1
