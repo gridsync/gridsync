@@ -38,10 +38,11 @@ call pip install --upgrade twisted
 call pip install --upgrade nevow
 
 call pip install --upgrade pyinstaller
-set PYTHONHASHSEED=1
+call set PYTHONHASHSEED=1
 call pyinstaller --noconfirm tahoe.spec
 call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
-set PYTHONHASHSEED=
+call set PYTHONHASHSEED=
 
 call .\build\venv\Scripts\deactivate
+
 echo Done!
