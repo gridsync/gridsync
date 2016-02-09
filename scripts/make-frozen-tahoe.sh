@@ -9,9 +9,8 @@ source build/venv/bin/activate
 
 git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 
-pushd build/tahoe-lafs
-python setup.py install
-popd
+make -C build/tahoe-lafs make-version
+pip install --upgrade build/tahoe-lafs
 
 pip install --upgrade pyinstaller
 sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
