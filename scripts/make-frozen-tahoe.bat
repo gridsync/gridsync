@@ -1,29 +1,27 @@
 ::
-:: Build frozen Tahoe-LAFS on Windows7 (64 bit)
+:: Build frozen Tahoe-LAFS on Windows7 (64 bit) - virtualenv edition
 ::
 ::
 :: This script assumes that Tahoe-LAFS' build dependencies have already been
 :: installed; see/run 'make-tahoe-deps.bat'
 ::
 
+call pip install --upgrade virtualenv
+call virtualenv --clear .\build\venv
+call .\build\venv\Scripts\activate
+
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 
 :: Needed for frozen builds...
 call git apply disable_setuptools.patch
 
-:: Workaround for nevow...
-call C:\Python27\python.exe -m pip install twisted
+call pip install --upgrade .\build\tahoe-lafs
 
-call C:\Python27\python.exe -m pip install --upgrade .\build\tahoe-lafs
-
-:: Needed to pass autodeps/init sequence when running frozen...
-call C:\Python27\python.exe -m pip install --upgrade twisted
-call C:\Python27\python.exe -m pip install --upgrade nevow
-
-call C:\Python27\python.exe -m pip install pyinstaller
+call pip install --upgrade pyinstaller
 set PYTHONHASHSEED=1
-call C:\Python27\Scripts\pyinstaller.exe --noconfirm tahoe.spec
-call C:\Python27\python.exe -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
+call pyinstaller --noconfirm tahoe.spec
+call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
 set PYTHONHASHSEED=
 
+call .\build\venv\Scripts\deactivate
 echo Done!
