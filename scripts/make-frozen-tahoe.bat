@@ -25,6 +25,9 @@ call python setup.py install
 call popd
 
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
+call pushd .\build\tahoe-lafs
+call python setup.py build
+call popd
 
 :: Needed for frozen builds...
 call git apply disable_setuptools.patch
