@@ -7,7 +7,7 @@
 ::
 
 call C:\Python27\python.exe -m pip install --upgrade virtualenv
-call C:\Python27\python.exe -m pip virtualenv --clear .\build\venv
+call C:\Python27\python.exe -m virtualenv --clear .\build\venv
 call .\build\venv\Scripts\activate
 
 :: This should pull in pywin32 (via pypiwin32)
