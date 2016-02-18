@@ -192,22 +192,26 @@ tahoe:
 		$(MAKE) -C build/tahoe-lafs make-version && \
 		pip2 install build/tahoe-lafs
 
-#frozen-tahoe: tahoe
-#	# OS X only
-#	source build/venv/bin/activate && \
-#		pip2 install pyinstaller && \
-#		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
-#			build/venv/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
-#		export PYTHONHASHSEED=1 && \
-#			pyinstaller --noconfirm tahoe.spec
-#			python2 -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS
+frozen-tahoe: tahoe
+	# OS X only
+	source build/venv/bin/activate && \
+		pip2 install pyinstaller && \
+		sed -i '' 's/"setuptools >= 0.6c6",/#"setuptools >= 0.6c6",/' \
+			build/venv/lib/python2.7/site-packages/allmydata/_auto_deps.py && \
+		export PYTHONHASHSEED=1 && \
+			pyinstaller --noconfirm tahoe.spec
+			python2 -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS
 
 install:
 	pip3 install --upgrade .
 
 app: clean install
 	# OS X only
-	scripts/make-frozen-tahoe.sh
+	if [ -f dist/Tahoe-LAFS.zip ] ; then \
+		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
+	else  \
+		make frozen-tahoe ; \
+	fi;
 	pip3 install --upgrade pyinstaller
 	export PYTHONHASHSEED=1 && \
 		pyinstaller \
