@@ -86,10 +86,11 @@ class Tahoe():
                 self.set_config(section, option, value)
 
     def command(self, args, quiet=False, num_attempts=1):
+        tahoe_exe = 'tahoe' + ('.exe' if sys.platform == 'win32' else '')
         if self.node_dir:
-            full_args = ['tahoe', '-d', self.node_dir] + args
+            full_args = [tahoe_exe, '-d', self.node_dir] + args
         else:
-            full_args = ['tahoe'] + args
+            full_args = [tahoe_exe] + args
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
         if not quiet:
