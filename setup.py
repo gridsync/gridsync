@@ -48,7 +48,7 @@ class Tox(TestCommand):
         sys.exit(errno)
 
 
-requirements = ['watchdog', 'qt5reactor-fork', 'requests', 'twisted']
+requirements = ['watchdog', 'qt5reactor', 'requests', 'twisted']
 #if sys.version_info.major == 2:
 #    requirements.append('allmydata-tahoe')
 #if sys.platform == 'linux2':
