@@ -12,9 +12,8 @@ import sys
 # Workarounds for PyInstaller
 if getattr(sys, 'frozen', False):
     del sys.modules['twisted.internet.reactor']
-    if sys.platform == 'darwin':
-        bundled_tahoe_path = os.path.dirname(sys.executable) + '/Tahoe-LAFS'
-        os.environ["PATH"] += os.pathsep + bundled_tahoe_path
+    tahoe_bundle = os.path.join(os.path.dirname(sys.executable), 'Tahoe-LAFS')
+    os.environ["PATH"] += os.pathsep + tahoe_bundle
 
 from twisted.internet.error import CannotListenError
 
