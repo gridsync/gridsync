@@ -22,6 +22,13 @@ from gridsync._version import __version__
 from gridsync.server import Server
 
 
+class TahoeVersion(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        from gridsync.tahoe import Tahoe
+        print(Tahoe().command(['--version-and-path']))
+        sys.exit()
+
+
 def main():
     parser = argparse.ArgumentParser(
             description=description,
@@ -51,6 +58,11 @@ def main():
             '--no-gui',
             action='store_true',
             help='Run without GUI.')
+    parser.add_argument(
+            '--tahoe-version',
+            nargs=0,
+            action=TahoeVersion,
+            help="Call 'tahoe --version-and-path' and exit. For debugging.")
     parser.add_argument(
             '-V',
             '--version',
