@@ -28,7 +28,7 @@ exe = EXE(pyz,
           options,
           exclude_binaries=True,
           name='tahoe',
-          debug=True,
+          debug=False,
           strip=False,
           upx=False,
           console=True )
