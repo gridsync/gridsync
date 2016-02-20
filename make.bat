@@ -98,7 +98,7 @@ call .\dist\Tahoe-LAFS\tahoe.exe --version-and-path
 call C:\Python34\python.exe -m pip install --upgrade --editable .
 call C:\Python34\python.exe -m pip install --upgrade pyinstaller
 call set PYTHONHASHSEED=1
-call C:\Python34\Scripts\pyinstaller.exe --icon=images\gridsync.ico --name=Gridsync gridsync\cli.py
+call C:\Python34\Scripts\pyinstaller.exe --windowed --icon=images\gridsync.ico --name=Gridsync gridsync\cli.py
 call set PYTHONHASHSEED=
 call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
 call C:\Python27\python.exe -m zipfile -c dist\Gridsync.zip dist\Gridsync
