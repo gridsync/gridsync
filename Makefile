@@ -205,7 +205,7 @@ frozen-tahoe: tahoe
 install:
 	pip3 install --upgrade .
 
-app: clean install
+app: install
 	# OS X only
 	if [ -f dist/Tahoe-LAFS.zip ] ; then \
 		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
