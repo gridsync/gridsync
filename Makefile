@@ -222,6 +222,7 @@ app: install
 	mv dist/gridsync.app dist/Gridsync.app
 	cp Info.plist dist/Gridsync.app/Contents
 	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
+	chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
 
 dmg: app
 	mkdir -p dist/dmg
