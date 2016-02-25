@@ -51,7 +51,7 @@ def add_storage_provider(introducer_furl, name=None, description=None):
         name = connection_hints.split(',')[0].split(':')[0]
     new_provider = {}
     new_provider[name] = {
-        'introducer_furl': introducer_furl,
+        'introducer.furl': introducer_furl,
         'description': description
     }
     storage_providers.update(new_provider)
