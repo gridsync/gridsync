@@ -17,7 +17,7 @@ from twisted.internet.protocol import Protocol, Factory
 from gridsync.config import Config
 from gridsync.sync import SyncFolder
 from gridsync.systray import SystemTrayIcon
-from gridsync.tahoe import Tahoe
+from gridsync.tahoe import Tahoe, DEFAULT_SETTINGS
 from gridsync.util import h2b, b2h
 
 
@@ -66,19 +66,40 @@ class Server():
             logging.debug("Directory {} doesn't exist; "
                     "creating {}...".format(local_dir, local_dir))
             os.makedirs(local_dir)
-        if not dircap:
-            logging.debug("No dircap associated with {}; "
-                    "creating new dircap...".format(local_dir))
-            dircap = tahoe.mkdir()
-            self.settings[tahoe.name]['sync'][local_dir] = dircap
-            self.config.save(self.settings)
         sync_folder = SyncFolder(local_dir, dircap, tahoe)
         self.sync_folders.append(sync_folder)
+
+    def insert_new_dircap(self, sync_folder):
+        # FIXME: Ugly hack. This should all probably move to SyncFolder:start
+        local_dir = sync_folder.local_dir
+        logging.debug("No dircap assaciated with {}; "
+                "creating new dircap...".format(local_dir))
+        dircap = sync_folder.tahoe.command(['mkdir'], num_attempts=10)
+        for gateway, settings in self.settings.items():
+            for setting, value in settings.items():
+                if setting == 'sync' and value[local_dir] is None:
+                    sync_folder.remote_dircap = dircap
+                    self.settings[gateway]['sync'][local_dir] = dircap
+                    self.config.save(self.settings)
+                    if gateway.startswith('pb://'):
+                        introducer_furl = gateway
+                    else:
+                        client_settings = setting['tahoe.cfg']['client']
+                        introducer_furl = client_settings['introducer.furl']
+                    dircap_txt = os.path.join(
+                            local_dir, 'Gridsync Invite Code.txt')
+                    with open(dircap_txt, 'w') as f:
+                        f.write('gridsync'+introducer_furl[2:]+'/'+ dircap)
+        sync_folder.start()
 
     def start_sync_folders(self):
         logging.debug("Starting SyncFolders...")
         for sync_folder in self.sync_folders:
-            reactor.callInThread(sync_folder.start)
+            if not sync_folder.remote_dircap:
+                reactor.callInThread(
+                    reactor.callLater, 5, self.insert_new_dircap, sync_folder)
+            else:
+                reactor.callInThread(sync_folder.start)
 
     def stop_sync_folders(self):
         logging.debug("Stopping SyncFolders...")
@@ -132,9 +153,15 @@ class Server():
 
     def first_run(self):
         from gridsync.wizard import Wizard
-        w = Wizard(self)
+        w = Wizard()
         w.exec_()
-        logging.debug("Got first run settings: ", self.settings)
+        if not w.introducer_furl or not w.folder:
+            logging.debug("Setup wizard not completed; exiting")
+            reactor.stop()
+            return
+        self.settings = {w.introducer_furl: {'tahoe.cfg': DEFAULT_SETTINGS}}
+        self.settings[w.introducer_furl]['sync'] = {w.folder: None}
+        logging.debug("Setup wizard finished. Using: {}".format(self.settings))
         self.initialize_gateways()
         self.start_gateways()
 
