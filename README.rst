@@ -2,9 +2,14 @@
 Gridsync
 ========
 
-  **WARNING**: *At present, Gridsync is in the very early stages of development and planning and, like many other Free and Open Source projects, is severely lacking development resources; so long as this notice remains, all code should be considered broken, incomplete, bug-ridden, or in an extreme alpha state and should not be relied upon seriously by anyone.* **Do not use this software for anything important!**
+.. image:: https://travis-ci.org/gridsync/gridsync.svg
+    :target: https://travis-ci.org/gridsync/gridsync
 
-Gridsync is an experimental cross-platform, graphical user interface for `Tahoe-LAFS`_, the Least Authority File Store. It is intended to simplify the configuration and management of locally-running Tahoe-LAFS gateways and to provide user-friendly mechanisms for seemlessly backing up local files, synchronizing directories between devices, and sharing files and storage resources with other users across all major desktop platforms (GNU/Linux, Mac OS X, and Windows). More simply, Gridsync aims to duplicate most of the core functionality provided by other, proprietary "cloud" backup/synchronization services and utilities (such as Dropbox and BitTorrent Sync) but without demanding any sacrifice of the user's privacy or freedom -- and without requiring usage or knowledge of the command line. Accordingly, Gridsync is developed under the principle that secure file storage and backups should be freely available to everyone, without exception, without added barriers, and regardless of one's operating system choice.
+Buildbot status: https://buildbot.gridsync.io/waterfall
+
+ **WARNING**: *At present, Gridsync is in early stages of development and should not be relied upon.* **Do not use this software for anything important!**
+
+Gridsync is an experimental cross-platform, graphical user interface for `Tahoe-LAFS`_, the Least Authority File Store. It is intended to simplify the configuration and management of locally-running Tahoe-LAFS gateways and to provide user-friendly mechanisms for seemlessly backing up local files, synchronizing directories between devices, and sharing files and storage resources with other users across all major desktop platforms (GNU/Linux, Mac OS X, and Windows). More generally, Gridsync aims to duplicate most of the core functionality provided by other, proprietary "cloud" backup/synchronization services and utilities (such as Dropbox and BitTorrent Sync) but without demanding any sacrifice of the user's privacy or freedom -- and without requiring usage or knowledge of the command line. Accordingly, Gridsync is developed under the principle that secure file storage and backups should be freely available to everyone, without exception, without added barriers, and regardless of one's operating system choice.
 
 .. _Tahoe-LAFS: https://tahoe-lafs.org
 
@@ -12,93 +17,82 @@ Gridsync is an experimental cross-platform, graphical user interface for `Tahoe-
 Why Gridsync?
 -------------
 
-Tahoe-LAFS already provides a number of desirable properties for file-storage: it is secure, decentralized, highly robust, free (as in both beer and speech), stable and mature, and written by a group of very talented developers. Unfortunately -- and despite all of its technical merits -- Tahoe-LAFS lacks where many of its competitors excel: its installatation requires heavy-usage of the command line, its configuration consists in hand-editing text files, and many of its fundamental concepts (e.g., "dircap", "servers-of-happiness") are opaque or otherwise demand additional reading of the project's extensive documentation. Accordingly, Tahoe-LAFS' userbase consists primarily in seasoned developers and system administrators; "average" users are naturally excluded from enjoying Tahoe-LAFS' aforementioned advantages.
+Tahoe-LAFS already provides a number of highly desirable properties for file-storage: it is secure, decentralized, highly robust, free (as in both beer and speech), stable and mature, and written by a group of very talented developers. Unfortunately -- and despite all of its technical merits -- Tahoe-LAFS has a number of persistent usability issues which steepen its learning curve: its installatation requires manual compilation from source on Windows and OS X, its configuration consists in hand-editing text files, its primary interface requires heavy command line usage, and many of its fundamental concepts (e.g., "dircap", "servers-of-happiness") are opaque to new users or otherwise demand additional reading of the project's extensive documentation. Accordingly, Tahoe-LAFS' userbase consists primarily in seasoned developers and system administrators; non-technical users are naturally excluded from enjoying Tahoe-LAFS' aforementioned advantages.
 
-The Gridsync project intends to overcome some of Tahoe-LAFS' barriers-to-adoption by means of following features:
+The Gridsync project intends to overcome some of Tahoe-LAFS' usability barriers by means of following features:
 
-* A graphical user interface for managing all primary Tahoe-LAFS gateway functionality (e.g., starting, stopping, configuring nodes) -- the user will never have to edit a text file by hand.
+* Native, "batteries included" packaging on OS X and Windows -- Gridsync bundles will include Tahoe-LAFS and all required dependencies for a frictionless installation experience; no python installation or manual compilation is required
+* A graphical user interface for managing all primary Tahoe-LAFS gateway functionality (e.g., starting, stopping, configuring nodes) -- the user will never have to edit a text file by hand or touch the command line
 * Native look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
-* Local filesystem monitoring -- Gridsync watches for local changes to files and directories (via inotify/FSEvents/kqueue/ReadDirectoryChangesW) and can automate backup operations [*]_ .
-* Remote filesystem monitoring -- Gridsync periodically polls for changes in remote storage grids, providing basic synchronization functionality.
+* Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' `backup` command and/or its forthcoming "Magic Folder" utility[*]_).
 * Status indicators and desktop notifications -- the user will know, at a glance, when files are being uploaded or downloaded (via system tray icon animations) and will optionally receive notifications (via DBus on GNU/Linux, Notification Center on OS X, etc.) when operations have completed.
-* 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the IANA-friendly `Gridsync URI specification`_ allows users to easily join others' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
-* OS/Desktop-level integration -- Gridsync will (optionally) run at startup, install OS-level URI-handlers, provide context menus for sharing files directly in popular desktop file managers, etc.
+* 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the IANA-friendly `Gridsync URI specification`_ will allow users to easily join others' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
+* OS/Desktop-level integration -- Gridsync will (optionally) run at startup, install OS-level URI-handlers, and (eventually) provide context menus for sharing files directly in popular desktop file managers.
 
 .. _Gridsync URI specification: https://github.com/gridsync/gridsync/blob/master/docs/uri_scheme.rst
 
-.. [*] It is worth mentioning that `Least Authority`_ has recently received OTF funding to develop Magic Folders, "a 'Dropbox-esque', friendly file-syncing utility," for Tahoe-LAFS. According to their own stated `objectives`_, however, Magic Folders will only target Linux and Windows (omitting, at least implicitly, Mac OS X and other BSD-based operating systems). It is also presently unknown whether the completed implementation of Magic Folders will include a desktop-oriented interface. As a result, the goals of the Gridsync project are likely to remain relevant and useful beyond the completion of Magic Folders' stated objectives.
-
-.. _Least Authority: https://leastauthority.com/
-.. _objectives: https://github.com/LeastAuthority/Open-Technology-Fund-Magic-Folders-Project/blob/master/objectives.rst
+.. [*] Tahoe-LAFS' "Magic Folder" functionality does not (yet) support Mac OS X or other BSD-based operating systems and is presently in pre-release/beta stage.
 
 
-Screenshots
+Sample screenshots
 -----------
 
-Gridsync uses Qt to emulate native widgets across all three major desktop platforms:
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-bundle.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/tutorial.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-wizard.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-prefs.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-notification.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/preferences-dialog.png
-
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/81e91c93ae1b9418f147d6eea043948ac449dab5/images/screenshots/new-sync-folder.png
-
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/sync-complete.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-menu.png
 
 
 Current (complete -- or nearly complete) features:
 --------------------------------------------------
 
-* Native (.dmg/.app) installation for OS X (with Tahoe-LAFS included)
-* User-friendly initial setup tutorial
-* Background daemon to manage (create/start/stop) multiple local Tahoe-LAFS nodes.
-* Local filesystem monitoring.
-* Remote filesystem polling.
-* Bi-directional synchronization (partial/broken; see below).
-* System tray icon animations.
-* Desktop notifications (GNU/Linux, OS X)
-* Simple unified YAML configuration format.
-* Bundle Tahoe-LAFS with OS X .dmg/.app
+* Native (.dmg/.app) installation for OS X (with Tahoe-LAFS and dependencies included)
+* Single folder (.zip/.exe) bundle for Windows (with Tahoe-LAFS and dependencies included)
+* Friendly setup wizard with pre-configured storage providers
+* Background daemon to manage (create/start/stop) multiple local Tahoe-LAFS nodes
+* Local filesystem monitoring (via `watchdog`_) for automated backups
+* Remote filesystem monitoring for bi-directional synchronization (partial/broken; see warning below)
+* System tray icon animations
+* Desktop notifications
+* Simple unified YAML configuration format
+
+.. _watchdog: https://pypi.python.org/pypi/watchdog
 
 
 In development / TODO / coming soon:
 ------------------------------------
 
-* Generate Preferences dialog from settings and connect signals/slots
-* Complete Tor integration
-* Finalize/implement ``gridsync://`` URI-handler and 'one-click' sharing UX/UI
-* Finalizy/implement "rollback" UI (a-la OS X "Time Machine" for reverting to previous backups/snapshots)
+* MSI installer for Windows
 * Unit/integration/system/user tests
-* Improved sync algorithm
-* Windows packaging
+* Integrate Tahoe-LAFS' "Magic Folders"
+* Folder management and revocation UX/UI
+* ``gridsync://`` URI-handler and 'one-click' sharing UX/UI
+* History "rollback" UI (a-la OS X "Time Machine" for reverting to previous backups/snapshots)
+* GNU/Linux distribution packaging (Debian, RPM, Arch PKGBUILD, Gentoo ebuilds, etc.)
 * Upload to PyPI
 
 
 Planned features / coming later:
 --------------------------------
 
-* GNU/Linux distribution packaging (Debian, RPM, Arch PKGBUILD, Gentoo ebuilds, etc.)
-* i18n/L10n
+* Tor integration and NAT traversal via onion services
 * File manager/context menu integration for Finder (OS X), Explorer (Windows), Nautilus, Konqueror, Thunar, etc. (GNU/Linux)
 * Visual/animated 'map' of shares distribution (think: a graphical version of https://bigasterisk.com/tahoe-playground/)
-* I2P integration
-* NAT traversal (via UPnP?)
-* Mobile/Android client
 
 
 Known issues / caveats:
 -----------------------
 
-* The watcher/syncing code is very hackish and is currently broken in several ways (file-deletion isn't yet handled, there are numerous race conditions, the threading model needs to be overhauled/replaced, etc.); don't expect bi-directional sync to work well yet (this code may even go away entirely, being superseded by Tahoe-LAFS' upcoming "Magic Folders").
-* Dircaps/filecaps presently leak to $config_dir/gridsync.log, $config_dir/gridsync.yml, and the process list. These will be fixed soon.
-* The Preferences dialog is currently a placeholder form prototyped in QtDesigner and generated by ``pyuic5``. Its buttons do not (yet) do anything. This will be fixed soon (along with the missing "Add new storage grid" interface).
-* Desktop notifications are currently spammy and trigger on every sync. This too will be fixed: notifications will only trigger for rare-events (receiving a new file from a friend, restoring from a previous snapshot, etc.) and will be more informative generally (specifying the name of the file(s) received, etc.)
-* Nothing has been tried/tested on Windows yet.
+* Due to difficulties with installing Qt5 on Travis-CI, Gridsync lacks proper tests for all but the most trivial of functions and the project, on the whole, should be considered pre-alpha quality software at best. Expect almost everything here to undergo a re-write before release.
+* Presently, bi-directional sync works by calling `tahoe backup` on filesystem events and periodically polling the target/remote dircap for new snapshots (determining 'current' files based size and mtime). While some minimal conflict detection is in place and no local files are overwritten without first being stored remotely, this scheme is hackish and racey on the whole and should not be used for anything other than trivial, single-client backups (if at all). Consider this a placeholder for Tahoe-LAFS' upcoming "Magic Folders" functionality.
+* Most items available through the systray menu are placeholders only. Again, expect everything here to change and/or go away in the future.
+* Desktop notifications are currently spammy and trigger on every sync. These will also be fixed later to trigger on rare events (e.g., receiving a file update from another client, restoring from a previous snapshot, etc.)
 
 
-Installation:
+Installation (development builds):
 -------------
 
 Linux (Debian-based systems):
@@ -108,13 +102,18 @@ Linux (Debian-based systems):
 
 Mac OS X [*]_ :
 
-1. Download `Gridsync.dmg`_ and drag the contained Gridsync.app into your Applications folder.
+1. Download `Gridsync.dmg`_
+2. Drag the contained Gridsync.app bundle anywhere (e.g., `~/Applications`)
 
-Windows:
+Windows (64-bit):
 
-(Coming soon)
+1. Download `Gridsync-win64.zip`_
+2. Extract the contained Gridsync folder anywhere
 
-.. _Gridsync.dmg: https://download.gridsync.org/Gridsync.dmg
+
+.. _Gridsync.dmg: https://buildbot.gridsync.io/packages/Gridsync.dmg
+.. _Gridsync-win64.zip: https://buildbot.gridsync.io/packages/Gridsync-win64.zip
+
 
 .. [*] Mac OS X users may have to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
 
@@ -128,11 +127,11 @@ Linux:
 
 Mac OS X:
 
-* Double click the previously-installed Gridsync.app
+* Double click `Gridsync.app`
 
 Windows:
 
-(Coming soon...)
+* Double click `Gridsync.exe`
 
 
 Contributing:
@@ -146,13 +145,4 @@ Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requ
 License:
 --------
 
-Gridsync is released as Free Software under the GPL license.
-
-----
-
-.. image:: https://travis-ci.org/gridsync/gridsync.svg
-    :target: https://travis-ci.org/gridsync/gridsync
-
-.. image:: https://coveralls.io/repos/gridsync/gridsync/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/gridsync/gridsync?branch=master
-
+Gridsync is released as Free Software under the GPL (v2) license.
