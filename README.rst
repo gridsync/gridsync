@@ -24,7 +24,7 @@ The Gridsync project intends to overcome some of Tahoe-LAFS' usability barriers 
 * Native, "batteries included" packaging on OS X and Windows -- Gridsync bundles will include Tahoe-LAFS and all required dependencies for a frictionless installation experience; no python installation or manual compilation is required
 * A graphical user interface for managing all primary Tahoe-LAFS gateway functionality (e.g., starting, stopping, configuring nodes) -- the user will never have to edit a text file by hand or touch the command line
 * Native look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
-* Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' `backup` command and/or its forthcoming "Magic Folder" utility[*]_).
+* Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' ``tahoe backup`` command and/or its forthcoming "Magic Folder" utility [*]_ ).
 * Status indicators and desktop notifications -- the user will know, at a glance, when files are being uploaded or downloaded (via system tray icon animations) and will optionally receive notifications (via DBus on GNU/Linux, Notification Center on OS X, etc.) when operations have completed.
 * 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the IANA-friendly `Gridsync URI specification`_ will allow users to easily join others' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
 * OS/Desktop-level integration -- Gridsync will (optionally) run at startup, install OS-level URI-handlers, and (eventually) provide context menus for sharing files directly in popular desktop file managers.
@@ -87,7 +87,7 @@ Known issues / caveats:
 -----------------------
 
 * Due to difficulties with installing Qt5 on Travis-CI, Gridsync lacks proper tests for all but the most trivial of functions and the project, on the whole, should be considered pre-alpha quality software at best. Expect almost everything here to undergo a re-write before release.
-* Presently, bi-directional sync works by calling `tahoe backup` on filesystem events and periodically polling the target/remote dircap for new snapshots (determining 'current' files based size and mtime). While some minimal conflict detection is in place and no local files are overwritten without first being stored remotely, this scheme is hackish and racey on the whole and should not be used for anything other than trivial, single-client backups (if at all). Consider this a placeholder for Tahoe-LAFS' upcoming "Magic Folders" functionality.
+* Presently, bi-directional sync works by calling ``tahoe backup`` on filesystem events and periodically polling the target/remote dircap for new snapshots (determining 'current' files based size and mtime). While some minimal conflict detection is in place and no local files are overwritten without first being stored remotely, this scheme is hackish and racey on the whole and should not be used for anything other than trivial, single-client backups (if at all). Consider this a placeholder for Tahoe-LAFS' upcoming "Magic Folders" functionality.
 * Most items available through the systray menu are placeholders only. Again, expect everything here to change and/or go away in the future.
 * Desktop notifications are currently spammy and trigger on every sync. These will also be fixed later to trigger on rare events (e.g., receiving a file update from another client, restoring from a previous snapshot, etc.)
 
@@ -127,11 +127,11 @@ Linux:
 
 Mac OS X:
 
-* Double click `Gridsync.app`
+* Double click ``Gridsync.app``
 
 Windows:
 
-* Double click `Gridsync.exe`
+* Double click ``Gridsync.exe``
 
 
 Contributing:
