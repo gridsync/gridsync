@@ -7,8 +7,6 @@
     <file alias="gridsync-purple.png">build/gridsync-purple.png</file>
     <file alias="sync.gif">build/sync.gif</file>
     <file alias="onion-sync.gif">build/onion-sync.gif</file>
-    <file alias="osx-prefs.png">images/screenshots/osx-prefs.png</file>
-    <file alias="sync-complete.png">images/screenshots/sync-complete.png</file>
     <file alias="tahoe-lafs.png">images/tahoe-lafs.png</file>
 </qresource>
 </RCC>
