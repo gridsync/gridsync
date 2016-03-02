@@ -66,7 +66,7 @@ class Server():
             logging.debug("Directory {} doesn't exist; "
                     "creating {}...".format(local_dir, local_dir))
             os.makedirs(local_dir)
-        sync_folder = SyncFolder(local_dir, dircap, tahoe)
+        sync_folder = SyncFolder(self, local_dir, dircap, tahoe)
         self.sync_folders.append(sync_folder)
 
     def insert_new_dircap(self, sync_folder):
@@ -90,14 +90,17 @@ class Server():
                             local_dir, 'Gridsync Invite Code.txt')
                     with open(dircap_txt, 'w') as f:
                         f.write('gridsync'+introducer_furl[2:]+'/'+ dircap)
-        sync_folder.start()
+                    self.notify("Sync Folder Initialized",
+                            "Monitoring {}".format(local_dir))
+        reactor.callInThread(sync_folder.start)
 
     def start_sync_folders(self):
         logging.debug("Starting SyncFolders...")
         for sync_folder in self.sync_folders:
             if not sync_folder.remote_dircap:
-                reactor.callInThread(
-                    reactor.callLater, 5, self.insert_new_dircap, sync_folder)
+                #reactor.callInThread(
+                #    reactor.callLater, 5, self.insert_new_dircap, sync_folder)
+                reactor.callLater(5, self.insert_new_dircap, sync_folder)
             else:
                 reactor.callInThread(sync_folder.start)
 
@@ -134,7 +137,7 @@ class Server():
             if not self.args.no_gui and self.tray.animation.state() == 2:
                 self.tray.animation.setPaused(True)
                 self.tray.setToolTip("Gridsync - Up to date")
-                self.tray.set_icon(":gridsync.png")
+                self.tray.set_icon(":gridsync-checkmark.png")
             if self.new_messages:
                 message = '\n'.join(self.new_messages)
                 self.notify("Sync complete", message)
@@ -142,7 +145,7 @@ class Server():
 
     def notify(self, title, message):
         if not self.args.no_gui:
-            self.tray.showMessage(title, message)
+            self.tray.showMessage(title, message, msecs=5000)
         else:
             print(title, message)
 

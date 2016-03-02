@@ -17,8 +17,9 @@ from watchdog.observers import Observer
 
 
 class SyncFolder(PatternMatchingEventHandler):
-    def __init__(self, local_dir, remote_dircap, tahoe=None,
+    def __init__(self, parent, local_dir, remote_dircap, tahoe=None,
             ignore_patterns=None):
+        self.parent = parent
         _ignore_patterns = ['*.gridsync-versions*', '*.part*',
                 '*(conflicted copy *-*-* *-*-*)*']
         if ignore_patterns:
@@ -287,10 +288,16 @@ class SyncFolder(PatternMatchingEventHandler):
         excludes = ['--exclude=' + x for x in self.ignore_patterns]
         output = self.tahoe.command(['backup', '-v'] + excludes + [local_dir,
                 remote_dircap])
+        files_added = ''
         for line in output.split('\n'):
             if line.startswith('uploading'):
-                filename = line[11:][:-3].lstrip(self.local_dir)
-                self.sync_log.append("Uploaded {}".format(filename))
+                filename = os.path.basename(line[11:][:-3])
+                #self.sync_log.append("Uploaded {}".format(filename))
+                if not files_added:
+                    files_added += "Uploaded " + filename
+                else:
+                    files_added += ',' + filename
+        reactor.callFromThread(self.parent.notify, "Sync complete", files_added)
 
     def stop(self):
         logging.info("Stopping Observer in {}...".format(self.local_dir))
