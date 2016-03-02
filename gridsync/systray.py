@@ -32,7 +32,7 @@ class RightClickMenu(QMenu):
         self.clear()
         logging.debug("(Re-)populating systray menu...")
         new_folder_action = QAction(QIcon(""), "Add New Sync Folder...", self)
-        new_folder_action.triggered.connect(self.parent.new_folder_window.populate_combo_box)
+        #new_folder_action.triggered.connect(self.parent.new_folder_window.populate_combo_box)
         new_folder_action.triggered.connect(self.parent.new_folder_window.show)
         if sys.platform == 'darwin':
             new_folder_action.triggered.connect(
@@ -97,7 +97,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.new_folder_window = NewFolderWindow(parent)
         self.preferences_window = PreferencesWindow()
-        
+
         self.setIcon(QIcon(":gridsync.png"))
 
         self.right_menu = RightClickMenu(self)
