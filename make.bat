@@ -34,7 +34,7 @@ if "%1"=="" call :all
 goto :eof
 
 :test
-call py setup.py test
+call py setup.py test -a --ignore=tests/qt
 goto :eof
 
 :: Adapted from https://github.com/tahoe-lafs/tahoe-lafs/blob/195.windows-packaging.10/docs/build/windows-installer.rst

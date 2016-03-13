@@ -2,7 +2,8 @@ SHELL := /bin/bash
 .PHONY: tahoe
 
 test:
-	python setup.py test
+	#python setup.py test
+	tox
 
 clean:
 	rm -rf build/
