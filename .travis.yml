@@ -3,7 +3,8 @@ sudo: required
 dist: trusty
 python:
   - "2.7"
-
+env:
+  - TOXENV=py27
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y tahoe-lafs python-tox python3-pyqt5
