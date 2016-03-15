@@ -5,12 +5,10 @@ python:
   - "2.7"
 env:
   - TOXENV=py27
-  - TOXENV=py35
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y tahoe-lafs
   - sudo apt-get install -y python-tox
-  - sudo apt-get install -y python3-pyqt5
 
 virtualenv:
   system_site_packages: true
