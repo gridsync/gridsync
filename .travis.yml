@@ -13,13 +13,9 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - pip install coveralls
-  - pip install virtualenv
   - pip install .
 
-script: coverage run --source=gridsync setup.py test
-
-after_success: coveralls
+script: tox
 
 notifications:
   irc:
