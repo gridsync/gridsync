@@ -14,7 +14,7 @@
 :: The following source packages must also be downloaded and unpacked (to 
 :: C:\Users\%USERNAME%\Downloads in this case):
 ::
-::      OpenSSL (version 1.0.2f at the time of writing): https://www.openssl.org/source/
+::      OpenSSL (version 1.0.2g at the time of writing): https://www.openssl.org/source/
 ::      pyOpenSSL 0.13.1: https://pypi.python.org/pypi/pyOpenSSL/0.13.1
 ::
 :: Lastly, in the event of a missing 'vcvarsall.bat' error, change line 266
@@ -34,13 +34,13 @@ if "%1"=="" call :all
 goto :eof
 
 :test
-call py setup.py test
+call py setup.py test -a --ignore=tests/qt
 goto :eof
 
 :: Adapted from https://github.com/tahoe-lafs/tahoe-lafs/blob/195.windows-packaging.10/docs/build/windows-installer.rst
 :openssl
 call "C:\Users\%USERNAME%\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat" amd64
-call pushd C:\Users\%USERNAME%\Downloads\openssl-1.0.2f
+call pushd C:\Users\%USERNAME%\Downloads\openssl-1.0.2g
 call mkdir c:\dist
 call perl Configure VC-WIN64A --prefix=c:\dist\openssl64 no-asm enable-tlsext
 call ms\do_win64a.bat
