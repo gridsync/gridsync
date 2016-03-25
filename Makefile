@@ -131,34 +131,27 @@ ui:
 
 sip:
 	mkdir -p build/sip
-	#curl "https://www.riverbankcomputing.com/hg/sip/archive/tip.tar.gz" -o "build/sip.tar.gz"
-	curl \
-		--location \
-		"http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.tar.gz" \
-		--output "build/sip.tar.gz"
+	curl --output "build/sip.tar.gz" --location \
+		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.tar.gz/download"
 	tar zxvf build/sip.tar.gz -C build/sip --strip-components=1
 	cd build/sip && \
-		python2 build.py prepare; \
-		python3 configure.py
-	$(MAKE) -C build/sip install
+		python configure.py --incdir=build/sip/sipinc
+	$(MAKE) -C build/sip -j 4 install
 
-pyqt: clean sip
-	# Assumes Qt5/qmake is already installed system-wide
+pyqt: sip
 	mkdir -p build/pyqt
-	curl \
-		--location \
-		"http://sourceforge.net/projects/pyqt/files/latest/download?source=files" \
-		--output "build/pyqt.tar.gz"
+	curl --output "build/pyqt.tar.gz" --location \
+		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt-gpl-5.5.1.tar.gz/download"
 	tar zxvf build/pyqt.tar.gz -C build/pyqt --strip-components=1
 	cd build/pyqt && \
-		python3 configure.py \
+		QT_SELECT=qt5 python configure.py \
 			--confirm-license \
 			--sip ../sip/sipgen/sip \
 			--sip-incdir ../sip/siplib \
 			--enable QtCore \
 			--enable QtGui \
 			--enable QtWidgets
-	$(MAKE) -C build/pyqt install
+	$(MAKE) -C build/pyqt -j 4 install
 
 deps:
 	case `uname` in \
