@@ -15,7 +15,6 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - make pyqt
   - pip install .
 
 script: tox
