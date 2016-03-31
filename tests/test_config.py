@@ -3,11 +3,17 @@
 import os
 import sys
 
+import pytest
+
 from gridsync.config import Config
 
 
-def test_config_dir(monkeypatch):
+@pytest.fixture(autouse=True)
+def mock_appdata(monkeypatch):
     monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
+
+
+def test_config_dir(monkeypatch):
     config = Config()
     if sys.platform == 'win32':
         expected_result = os.path.join(os.getenv('APPDATA'), 'Gridsync')
@@ -22,11 +28,9 @@ def test_config_dir(monkeypatch):
         assert config.config_dir == expected_result
 
 def test_default_config_file(monkeypatch):
-    monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
     config = Config()
     assert config.config_file == os.path.join(config.config_dir, 'config.yml')
 
 def test_specified_config_file(monkeypatch):
-    monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
     config = Config(['test'])
     assert config.config_file == 'test'

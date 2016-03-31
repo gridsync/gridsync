@@ -8,6 +8,11 @@ import pytest
 from gridsync.tahoe import Tahoe, decode_introducer_furl
 
 
+@pytest.fixture(autouse=True)
+def mock_appdata(monkeypatch):
+    monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
+
+
 def test_decode_introducer_furl():
     furl = 'pb://abc234@example.org:12345/introducer'
     assert decode_introducer_furl(furl) == ('abc234', 'example.org:12345')
@@ -34,8 +39,7 @@ def test_decode_introducer_furl_tub_id_not_base32():
 
 
 class TestTahoe():
-    def setup_class(self, monkeypatch):
-        monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
+    def setup_class(self):
         self.tmp_dir = tempfile.mkdtemp()
         self.tahoe = Tahoe(self.tmp_dir)
         #print 'TMP_DIR: '+self.tmp_dir
