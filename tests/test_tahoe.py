@@ -34,7 +34,8 @@ def test_decode_introducer_furl_tub_id_not_base32():
 
 
 class TestTahoe():
-    def setup_class(self):
+    def setup_class(self, monkeypatch):
+        monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
         self.tmp_dir = tempfile.mkdtemp()
         self.tahoe = Tahoe(self.tmp_dir)
         #print 'TMP_DIR: '+self.tmp_dir
