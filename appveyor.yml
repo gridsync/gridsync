@@ -10,11 +10,11 @@ install:
   - ps: Start-Process -FilePath C:\pyqt.exe -ArgumentList "/S" -Wait -Passthru
   - "%PYTHON%\\python.exe --version"
   - "%PYTHON%\\python.exe -m pip install --upgrade pip"
-  #- "%PYTHON%\\python.exe -m pip install tox"
-  - "%PYTHON%\\python.exe -m pip install pytest"
-  - "%PYTHON%\\python.exe -m pip install ."
+  - "%PYTHON%\\python.exe -m pip install tox"
+  #- "%PYTHON%\\python.exe -m pip install pytest"
+  #- "%PYTHON%\\python.exe -m pip install ."
 build: off
 test_script:
   - "%PYTHON%\\python.exe -c \"from PyQt5 import QtGui\""
-  #- "%PYTHON%\\python.exe -m tox -e py34-win"
-  - "%PYTHON%\\python.exe -m pytest"
+  - "%PYTHON%\\python.exe -m tox -e py3-win"
+    #- "%PYTHON%\\python.exe -m pytest"
