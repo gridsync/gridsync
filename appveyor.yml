@@ -2,12 +2,15 @@ environment:
   matrix:
     - PYTHON: "C:\\Python34-x64"
       PYQT: "https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x64.exe"
+      PYYAML: "https://pypi.python.org/packages/3.4/P/PyYAML/PyYAML-3.11.win-amd64-py3.4.exe#md5=0dfcdae003642dfdfb49d5f16ff63717"
 init:
   - "echo %PYTHON%"
 install:
   - REG ADD HKCU\Software\Python\PythonCore\3.4\InstallPath /f /ve /t REG_SZ /d %PYTHON%
   - ps: (new-object net.webclient).DownloadFile($env:PYQT, "C:\pyqt.exe")
   - ps: Start-Process -FilePath C:\pyqt.exe -ArgumentList "/S" -Wait -Passthru
+  - ps: (new-object net.webclient).DownloadFile($env:PYYAML, "C:\pyyaml.exe")
+  - ps: Start-Process -FilePath C:\pyyaml.exe -ArgumentList "/S" -Wait -Passthru
   - "%PYTHON%\\python.exe --version"
   - "%PYTHON%\\python.exe -m pip install --upgrade pip"
   - "%PYTHON%\\python.exe -m pip install tox"
