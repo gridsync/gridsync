@@ -26,14 +26,20 @@ call tox
 goto :eof
 
 :frozen-tahoe
+call mkdir .\build\tahoe-lafs
+call powershell -Command "(New-Object Net.WebClient).DownloadFile('https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.zip', '.\build\tahoe-lafs.zip')"
+call python -m zipfile -e .\build\tahoe-lafs.zip .\build\tahoe-lafs
 call C:\Python27\python.exe -m pip install --upgrade virtualenv
 call C:\Python27\python.exe -m virtualenv --clear .\build\venv
 call .\build\venv\Scripts\activate
-call pip install tahoe-lafs
+call pip install --find-links=https://tahoe-lafs.org/deps/ .\build\tahoe-lafs
 call pip install pyinstaller
+call copy .\misc\tahoe.spec .build\tahoe-lafs
+call pushd .\build\tahoe-lafs
 call set PYTHONHASHSEED=1
 call pyinstaller tahoe.spec
 call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
+call move dist ..\..
 call set PYTHONHASHSEED=
 call .\build\venv\Scripts\deactivate
 goto :eof
