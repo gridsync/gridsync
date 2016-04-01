@@ -121,10 +121,10 @@ gif: pngs
 		build/frames/onion-frame*.png build/onion-sync.gif
 
 resources: gif
-	pyrcc5 resources.qrc -o gridsync/resources.py
+	pyrcc5 misc/resources.qrc -o gridsync/resources.py
 
 ui:
-	for i in designer/*.ui; do \
+	for i in misc/designer/*.ui; do \
 		filename=$$(basename $$i); \
 		pyuic5 $$i -o gridsync/forms/$${filename%%.*}.py; \
 	done
@@ -191,10 +191,10 @@ tahoe:
 frozen-tahoe: tahoe
 	source build/venv/bin/activate && \
 		pip2 install pyinstaller && \
-		cp tahoe.spec build/tahoe-lafs && \
+		cp misc/tahoe.spec build/tahoe-lafs && \
 		pushd build/tahoe-lafs && \
 		export PYTHONHASHSEED=1 && \
-			pyinstaller tahoe.spec && \
+			pyinstaller ../../misc/tahoe.spec && \
 			python2 -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS && \
 			mv dist ../..
 
@@ -216,7 +216,7 @@ app: install
 			--name=gridsync \
 			gridsync/cli.py
 	mv dist/gridsync.app dist/Gridsync.app
-	cp Info.plist dist/Gridsync.app/Contents
+	cp misc/Info.plist dist/Gridsync.app/Contents
 	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 	chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
 
