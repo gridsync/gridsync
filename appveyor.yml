@@ -1,0 +1,17 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python34-x64"
+      PYQT: "https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x64.exe"
+init:
+  - "echo %PYTHON%"
+install:
+  - REG ADD HKCU\Software\Python\PythonCore\3.4\InstallPath /f /ve /t REG_SZ /d %PYTHON%
+  - ps: (new-object net.webclient).DownloadFile($env:PYQT, "C:\pyqt.exe")
+  - ps: Start-Process -FilePath C:\pyqt.exe -ArgumentList "/S" -Wait -Passthru
+  - "%PYTHON%\\python.exe --version"
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip"
+  - "%PYTHON%\\python.exe -m pip install tox"
+build: off
+test_script:
+  - "%PYTHON%\\python.exe -c \"from PyQt5 import QtGui\""
+  - "%PYTHON%\\python.exe -m tox -e py34-win"
