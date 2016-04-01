@@ -180,23 +180,21 @@ build-deps: deps
 		;; \
 	esac
 
-tahoe:
-	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
+frozen-tahoe:
+	mkdir -p build/tahoe-lafs
+	curl --output build/tahoe-lafs.tar.bz2 --location \
+		https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
+	tar jxvf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
 	virtualenv --clear --python=python2 build/venv
 	source build/venv/bin/activate && \
-		pushd build/tahoe-lafs && \
-		python setup.py update_version && \
-		pip install .
-
-frozen-tahoe: tahoe
-	source build/venv/bin/activate && \
-		pip2 install pyinstaller && \
-		cp misc/tahoe.spec build/tahoe-lafs && \
-		pushd build/tahoe-lafs && \
-		export PYTHONHASHSEED=1 && \
-			pyinstaller ../../misc/tahoe.spec && \
-			python2 -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS && \
-			mv dist ../..
+	pip install --find-links=https://tahoe-lafs.org/deps/ build/tahoe-lafs && \
+	pip install pyinstaller && \
+	cp misc/tahoe.spec build/tahoe-lafs && \
+	pushd build/tahoe-lafs && \
+	export PYTHONHASHSEED=1 && \
+	pyinstaller tahoe.spec && \
+	python -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS && \
+	mv dist ../..
 
 install:
 	pip3 install --upgrade .
