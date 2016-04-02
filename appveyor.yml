@@ -1,20 +1,25 @@
+# Adapted from https://github.com/ogrisel/python-appveyor-demo
 environment:
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\misc\\run_with_env.cmd"
   matrix:
     - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
       PYQT: "https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x64.exe"
-init:
-  - "echo %PYTHON%"
 install:
   - REG ADD HKCU\Software\Python\PythonCore\3.4\InstallPath /f /ve /t REG_SZ /d %PYTHON%
-  - ps: (new-object net.webclient).DownloadFile($env:PYQT, "C:\pyqt.exe")
+  - ps: (New-Object Net.WebClient).DownloadFile($env:PYQT, "C:\pyqt.exe")
   - ps: Start-Process -FilePath C:\pyqt.exe -ArgumentList "/S" -Wait -Passthru
-  - "%PYTHON%\\python.exe --version"
-  - "%PYTHON%\\python.exe -m pip install --upgrade pip"
-  - "%PYTHON%\\python.exe -m pip install tox"
-  #- "%PYTHON%\\python.exe -m pip install pytest"
-  #- "%PYTHON%\\python.exe -m pip install ."
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "python --version"
+  - "pip install --disable-pip-version-check --user --upgrade pip"
+  - "pip install tox"
 build: off
 test_script:
-  - "%PYTHON%\\python.exe -c \"from PyQt5 import QtGui\""
-  - "%PYTHON%\\python.exe -m tox -e py3-win"
-    #- "%PYTHON%\\python.exe -m pytest"
+  - "python -c \"from PyQt5 import QtGui\""
+  - "tox --version"
+  - "%CMD_IN_ENV% tox -e py3-win"
