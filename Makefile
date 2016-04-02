@@ -219,15 +219,17 @@ app: install
 	chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
 
 dmg: app
-	mkdir -p dist/dmg
-	mv dist/Gridsync.app dist/dmg
+	pip2 install dmgbuild || pip2 install --user dmgbuild
+	dmgbuild -s misc/dmgbuild_settings.py Gridsync dist/Gridsync.dmg
+	#mkdir -p dist/dmg
+	#mv dist/Gridsync.app dist/dmg
 	# From https://github.com/andreyvit/create-dmg
-	create-dmg --volname "Gridsync" \
-		--app-drop-link 320 2 \
-		dist/Gridsync.dmg \
-		dist/dmg
-	mv dist/dmg/Gridsync.app dist
-	rm -rf dist/dmg
+	#create-dmg --volname "Gridsync" \
+	#	--app-drop-link 320 2 \
+	#	dist/Gridsync.dmg \
+	#	dist/dmg
+	#mv dist/dmg/Gridsync.app dist
+	#rm -rf dist/dmg
 
 all: dmg
 
