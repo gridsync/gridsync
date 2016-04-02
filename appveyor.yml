@@ -10,6 +10,10 @@ environment:
       PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "64"
       PYQT: "https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x64.exe"
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "32"
+      PYQT: "https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe"
 install:
   - REG ADD HKCU\Software\Python\PythonCore\3.4\InstallPath /f /ve /t REG_SZ /d %PYTHON%
   - ps: (New-Object Net.WebClient).DownloadFile($env:PYQT, "C:\pyqt.exe")
