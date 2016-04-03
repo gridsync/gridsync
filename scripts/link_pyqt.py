@@ -218,4 +218,4 @@ if __name__ == '__main__':
         main()
     except Error as e:
         print(str(e), file=sys.stderr)
-        sys.exit(1)
+        #sys.exit(1)
