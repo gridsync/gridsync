@@ -26,4 +26,4 @@ build: off
 test_script:
   - "python -c \"from PyQt5 import QtGui\""
   - "tox --version"
-  - "%CMD_IN_ENV% tox -e py3"
+  - "%CMD_IN_ENV% tox"
