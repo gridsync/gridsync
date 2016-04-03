@@ -2,8 +2,12 @@
 
 import pytest
 
-from gridsync.resources import (qt_resource_data, qt_resource_name,
-        qt_resource_struct, qInitResources, qCleanupResources)
+try:
+    from gridsync.resources import (
+            qt_resource_data, qt_resource_name, qt_resource_struct,
+            qInitResources, qCleanupResources)
+except ImportError as error:
+    pytestmark = pytest.mark.skip(reason=str(error))
 
 
 def test_qt_resource_data():
