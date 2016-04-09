@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import tempfile
-
 import pytest
 
 from gridsync.tahoe import Tahoe, decode_introducer_furl
@@ -13,8 +11,8 @@ def mock_appdata(monkeypatch):
 
 
 @pytest.fixture(scope='module')
-def tahoe():
-    return Tahoe(tempfile.mktemp())
+def tahoe(tmpdir_factory):
+    return Tahoe(str(tmpdir_factory.mktemp('tahoe')))
 
 
 def test_decode_introducer_furl():
