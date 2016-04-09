@@ -11,7 +11,7 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python pyqt5; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew link --force qt5; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=/usr/local/bin:$PATH; fi
-  - sudo python3 -m pip install --upgrade tox
+  - sudo python3 -m pip install --upgrade tox coveralls
   - sudo make pyqt 1>/dev/null
 before_script:
   - env
@@ -22,6 +22,8 @@ before_script:
   - python3 -c "from PyQt5 import Qt;print(Qt.PYQT_VERSION_STR)"
   - which tox && tox --version
 script: tox
+after_success:
+  coveralls
 notifications:
   email: false
   irc:
