@@ -9,10 +9,10 @@ if getattr(sys, 'frozen', False):
     tahoe_bundle = os.path.join(os.path.dirname(sys.executable), 'Tahoe-LAFS')
     os.environ["PATH"] += os.pathsep + tahoe_bundle
 
-from PyQt5.QtWidgets import QApplication
-app = QApplication(sys.argv)
-import qt5reactor
-qt5reactor.install()
+#from PyQt5.QtWidgets import QApplication
+#app = QApplication(sys.argv)
+#import qt5reactor
+#qt5reactor.install()
 
 from gridsync import _version
 

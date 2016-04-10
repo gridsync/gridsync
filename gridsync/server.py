@@ -5,6 +5,11 @@ import os
 import subprocess
 import sys
 
+from PyQt5.QtWidgets import QApplication
+app = QApplication(sys.argv)
+import qt5reactor
+qt5reactor.install()
+
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol, Factory
