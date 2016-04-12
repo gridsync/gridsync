@@ -11,11 +11,12 @@ class Config():
         if sys.platform == 'win32':
             self.config_dir = os.path.join(os.getenv('APPDATA'), 'Gridsync')
         elif sys.platform == 'darwin':
-            self.config_dir = os.path.join(os.path.expanduser('~'), 'Library',
-                    'Application Support', 'Gridsync')
+            self.config_dir = os.path.join(
+                os.path.expanduser('~'), 'Library', 'Application Support',
+                'Gridsync')
         else:
-            self.config_dir = os.path.join(os.path.expanduser('~'), '.config',
-                    'gridsync')
+            self.config_dir = os.path.join(
+                os.path.expanduser('~'), '.config', 'gridsync')
         if config_file:
             self.config_file = config_file[0]
         else:
@@ -33,5 +34,4 @@ class Config():
             except:
                 pass
             yaml.safe_dump(dict, f, encoding='utf-8', allow_unicode=True,
-                    indent=4, default_flow_style=False)
-
+                           indent=4, default_flow_style=False)

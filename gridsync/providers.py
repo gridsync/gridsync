@@ -32,7 +32,8 @@ def create_storage_providers_db():
         except:
             pass
         yaml.safe_dump(PROVIDERS, f, encoding='utf-8', allow_unicode=True,
-                indent=4, default_flow_style=False)
+                       indent=4, default_flow_style=False)
+
 
 def get_storage_providers():
     providers_db = os.path.join(Config().config_dir, 'storage-providers.yml')
@@ -42,6 +43,7 @@ def get_storage_providers():
     except FileNotFoundError:
         create_storage_providers_db()
         return PROVIDERS
+
 
 def add_storage_provider(introducer_furl, name=None, description=None):
     providers_db = os.path.join(Config().config_dir, 'storage-providers.yml')
@@ -62,4 +64,4 @@ def add_storage_provider(introducer_furl, name=None, description=None):
         except:
             pass
         yaml.safe_dump(storage_providers, f, encoding='utf-8',
-                allow_unicode=True, indent=4, default_flow_style=False)
+                       allow_unicode=True, indent=4, default_flow_style=False)

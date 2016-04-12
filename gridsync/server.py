@@ -2,7 +2,6 @@
 
 import logging
 import os
-import subprocess
 import sys
 
 from PyQt5.QtWidgets import QApplication
@@ -29,6 +28,7 @@ class ServerProtocol(Protocol):
 
 class ServerFactory(Factory):
     protocol = ServerProtocol
+
     def __init__(self, parent):
         self.parent = parent
 
@@ -64,7 +64,7 @@ class Server():
         # TODO: Add error handling
         if not os.path.isdir(local_dir):
             logging.debug("Directory {} doesn't exist; "
-                    "creating {}...".format(local_dir, local_dir))
+                          "creating {}...".format(local_dir, local_dir))
             os.makedirs(local_dir)
         sync_folder = SyncFolder(self, local_dir, dircap, tahoe)
         self.sync_folders.append(sync_folder)
@@ -73,7 +73,7 @@ class Server():
         # FIXME: Ugly hack. This should all probably move to SyncFolder:start
         local_dir = sync_folder.local_dir
         logging.debug("No dircap assaciated with {}; "
-                "creating new dircap...".format(local_dir))
+                      "creating new dircap...".format(local_dir))
         dircap = sync_folder.tahoe.command(['mkdir'], num_attempts=10)
         for gateway, settings in self.settings.items():
             for setting, value in settings.items():
@@ -87,11 +87,11 @@ class Server():
                         client_settings = setting['tahoe.cfg']['client']
                         introducer_furl = client_settings['introducer.furl']
                     dircap_txt = os.path.join(
-                            local_dir, 'Gridsync Invite Code.txt')
+                        local_dir, 'Gridsync Invite Code.txt')
                     with open(dircap_txt, 'w') as f:
-                        f.write('gridsync'+introducer_furl[2:]+'/'+ dircap)
+                        f.write('gridsync' + introducer_furl[2:] + '/' + dircap)
                     self.notify("Sync Folder Initialized",
-                            "Monitoring {}".format(local_dir))
+                                "Monitoring {}".format(local_dir))
         reactor.callInThread(sync_folder.start)
 
     def start_sync_folders(self):
@@ -176,15 +176,15 @@ class Server():
             pass
         if self.args.debug:
             logging.basicConfig(
-                    format='%(asctime)s %(funcName)s %(message)s',
-                    level=logging.DEBUG,
-                    stream=sys.stdout)
+                format='%(asctime)s %(funcName)s %(message)s',
+                level=logging.DEBUG,
+                stream=sys.stdout)
         else:
             logfile = os.path.join(self.config.config_dir, 'gridsync.log')
             logging.basicConfig(
-                    format='%(asctime)s %(funcName)s %(message)s',
-                    level=logging.INFO,
-                    filename=logfile)
+                format='%(asctime)s %(funcName)s %(message)s',
+                level=logging.INFO,
+                filename=logfile)
         logging.info("Server started with args: {}".format((self.args)))
         logging.debug("$PATH is: {}".format(os.getenv('PATH')))
         try:
@@ -209,11 +209,11 @@ class Server():
         state_checker = LoopingCall(self.check_state)
         state_checker.start(1.0)
         connection_status_updater = LoopingCall(
-                reactor.callInThread, self.update_connection_status)
+            reactor.callInThread, self.update_connection_status)
         reactor.callLater(5, connection_status_updater.start, 60)
         reactor.callLater(1, self.start_sync_folders)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
-        reactor.suggestThreadPoolSize(20) # XXX Adjust?
+        reactor.suggestThreadPoolSize(20)  # XXX Adjust?
         reactor.run()
 
     def update_connection_status(self):
@@ -245,7 +245,7 @@ class Server():
         self.servers_known = servers_known
         # XXX Add logic to check for paused state, etc.
         self.status_text = "Status: Connected ({} of {} servers)".format(
-                self.servers_connected, self.servers_known)
+            self.servers_connected, self.servers_known)
 
     def stop(self):
         self.stop_sync_folders()
@@ -257,4 +257,3 @@ class Server():
         logging.debug("Stopping Tahoe-LAFS gateway(s)...")
         for gateway in self.gateways:
             reactor.callInThread(gateway.command, ['stop'])
-

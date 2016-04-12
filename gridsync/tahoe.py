@@ -9,15 +9,16 @@ import sqlite3
 import subprocess
 import sys
 import time
-if sys.version_info.major == 2:
-    import ConfigParser as configparser
-else:
-    import configparser
 
 import requests
 
 from gridsync.config import Config
 from gridsync.util import h2b, b2h
+
+if sys.version_info.major == 2:
+    import ConfigParser as configparser
+else:
+    import configparser
 
 
 DEFAULT_SETTINGS = {
@@ -41,7 +42,7 @@ def decode_introducer_furl(furl):
 
 class Tahoe():
     def __init__(self, location=None, settings=None):
-        self.location = location # introducer fURL, gateway URL, or local path
+        self.location = location  # introducer fURL, gateway URL, or local path
         self.settings = settings
         self.node_dir = None
         self.node_url = None
@@ -96,8 +97,9 @@ class Tahoe():
         if not quiet:
             logging.debug("Running: {}".format(' '.join(full_args)))
         try:
-            proc = subprocess.Popen(full_args, env=env, stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT, universal_newlines=True)
+            proc = subprocess.Popen(
+                full_args, env=env, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, universal_newlines=True)
         except (FileNotFoundError, PermissionError, OSError) as error:
             logging.error("Could not run tahoe executable: {}".format(error))
             # TODO: Notify user?
@@ -111,7 +113,7 @@ class Tahoe():
         proc.poll()
         if proc.returncode:
             logging.error("pid {} ({}) excited with code {}".format(
-                    proc.pid, ' '.join(full_args), proc.returncode))
+                proc.pid, ' '.join(full_args), proc.returncode))
             num_attempts -= 1
             if num_attempts:
                 logging.debug("Trying again ({} attempts remaining)...".format(
@@ -122,25 +124,25 @@ class Tahoe():
                 raise RuntimeError(output.rstrip())
         elif proc.returncode is None:
             logging.warning("No return code for pid:{} ({})".format(
-                    proc.pid, ' '.join(full_args)))
+                proc.pid, ' '.join(full_args)))
         elif not quiet:
                 logging.debug("pid {} ({}) excited with code {}".format(
-                        proc.pid, ' '.join(full_args), proc.returncode))
+                    proc.pid, ' '.join(full_args), proc.returncode))
         return output.rstrip()
 
     def start(self):
         logging.debug("Starting Tahoe-LAFS gateway: {}".format(self.location))
         if not self.node_dir:
             logging.debug("Tahoe-LAFS gateway {} is running remotely; "
-                    "no need to start".format(self.node_url))
+                          "no need to start".format(self.node_url))
             return
         elif not os.path.isdir(self.node_dir):
             logging.debug("{} not found; "
-                    "creating node dir...".format(self.node_dir))
+                          "creating node dir...".format(self.node_dir))
             self.command(['create-client'])
         elif not os.path.isfile(os.path.join(self.node_dir, 'tahoe.cfg')):
             logging.debug("{} found but tahoe.cfg is missing; "
-                    "(re)creating node dir...".format(self.node_dir))
+                          "(re)creating node dir...".format(self.node_dir))
             self.command(['create-client'])
         if self.settings:
             self.setup(self.settings)
@@ -152,8 +154,8 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command(['start'])
-        self.node_url = open(os.path.join(self.node_dir, 
-                'node.url')).read().strip()
+        self.node_url = open(os.path.join(self.node_dir,
+                             'node.url')).read().strip()
         logging.debug("Node URL is: {}".format(self.node_url))
 
     def mkdir(self):
@@ -235,8 +237,8 @@ class Tahoe():
 
         p = re.compile('<div class="furl">(.+?)</div>')
         r = re.findall(p, html)
-        self.status['introducer'] = { 'furl': r[0] }
-        self.status['helper'] = { 'furl': r[1] }
+        self.status['introducer'] = {'furl': r[0]}
+        self.status['helper'] = {'furl': r[1]}
         self.status['servers'] = servers
 
         p = re.compile('<div class="status-indicator">(.+?)</div>')
@@ -268,9 +270,9 @@ class Tahoe():
         Adjusting these values is followed by restarting the running node.
         """
         logging.debug("Adjusting erasure coding parameters...")
-        shares_total = int(self.status.get('servers_connected', 1)) # N
-        shares_needed = int(math.ceil(shares_total * 0.3)) # K
-        shares_happy = int(math.ceil(shares_total * 0.7)) # H
+        shares_total = int(self.status.get('servers_connected', 1))  # N
+        shares_needed = int(math.ceil(shares_total * 0.3))  # K
+        shares_happy = int(math.ceil(shares_total * 0.7))  # H
         self.set_config('client', 'shares.total', shares_total)
         self.set_config('client', 'shares.needed', shares_needed)
         self.set_config('client', 'shares.happy', shares_happy)
@@ -296,9 +298,10 @@ class Tahoe():
         with connection:
             try:
                 cursor = connection.cursor()
-                cursor.execute('SELECT "filecap" FROM "caps" WHERE fileid=('
-                        'SELECT "fileid" FROM "local_files" WHERE path=? '
-                        'AND size=? AND mtime=?)', (filepath, size, mtime))
+                cursor.execute(
+                    'SELECT "filecap" FROM "caps" WHERE fileid=('
+                    'SELECT "fileid" FROM "local_files" WHERE path=? '
+                    'AND size=? AND mtime=?)', (filepath, size, mtime))
                 return cursor.fetchone()[0]
             except TypeError:
                 return
@@ -355,7 +358,8 @@ class Tahoe():
             if alias:
                 return alias
             else:
-                hash_of_dircap = hashlib.sha256(dircap_or_alias.encode('utf-8')).hexdigest()
+                hash_of_dircap = hashlib.sha256(
+                    dircap_or_alias.encode('utf-8')).hexdigest()
                 self.command(['add-alias', hash_of_dircap, dircap_or_alias])
                 return self.get_alias_from_dircap(dircap_or_alias)
         else:
@@ -372,4 +376,3 @@ class Tahoe():
             else:
                 raise LookupError('No dircap found for alias {}'.format(
                     dircap_or_alias))
-

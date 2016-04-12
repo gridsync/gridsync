@@ -2,9 +2,9 @@
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
-        QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
-        QLabel, QLineEdit, QMessageBox, QPlainTextEdit, QPushButton,
-        QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+    QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout, QLabel,
+    QLineEdit, QMessageBox, QPlainTextEdit, QPushButton, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 from gridsync.providers import get_storage_providers, add_storage_provider
 from gridsync.tahoe import decode_introducer_furl
@@ -128,7 +128,7 @@ class GridSelector(QWidget):
         for name in sorted(self.storage_providers.keys(), reverse=True):
             self.combo_box.addItem(name)
         self.combo_box.insertSeparator(
-                self.combo_box.count())
+            self.combo_box.count())
         self.combo_box.addItem("Add new...")
 
     def on_selected(self, name):
@@ -145,7 +145,7 @@ class GridSelector(QWidget):
             description = provider['description']
             try:
                 description += '<p>Homepage: <a href="{}">{}</a>'.format(
-                        provider['homepage'], provider['homepage'])
+                    provider['homepage'], provider['homepage'])
             except KeyError:
                 pass
             self.description.setText(description)
@@ -209,7 +209,7 @@ class FolderSelector(QWidget):
 
     def on_clicked(self):
         selected_folder = QFileDialog.getExistingDirectory(
-                self, "Select a folder to sync")
+            self, "Select a folder to sync")
         if selected_folder:
             self.line_edit.setText(selected_folder)
             self.folder = selected_folder

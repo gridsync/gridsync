@@ -4,7 +4,7 @@ import os
 import sys
 
 from PyQt5.QtWidgets import (
-    QApplication, QLabel, QMessageBox, QVBoxLayout, QWizard, QWizardPage)
+    QLabel, QMessageBox, QVBoxLayout, QWizard, QWizardPage)
 
 from gridsync.widgets import GridSelector, FolderSelector
 
@@ -145,10 +145,11 @@ class Wizard(QWizard):
         self.finished.connect(self.finish)
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Exit Gridsync setup?',
-                "Gridsync has not yet been configured. "
-                "Are you sure you wish to quit?",
-                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(
+            self, 'Exit Gridsync setup?',
+            "Gridsync has not yet been configured. "
+            "Are you sure you wish to quit?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()

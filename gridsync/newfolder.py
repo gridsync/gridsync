@@ -2,8 +2,9 @@
 
 import logging
 
-from PyQt5.QtWidgets import (QComboBox, QDialog, QDialogButtonBox, QFileDialog,
-        QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QVBoxLayout)
+from PyQt5.QtWidgets import (
+    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QGroupBox, QHBoxLayout,
+    QLineEdit, QPushButton, QVBoxLayout)
 
 
 class NewFolderWindow(QDialog):
@@ -13,7 +14,7 @@ class NewFolderWindow(QDialog):
         self.setWindowTitle("Gridsync - Add New Sync Folder")
         self.resize(500, 225)
         self.layout = QVBoxLayout(self)
-        
+
         layout = QVBoxLayout()
 
         grid_group_box = QGroupBox(self)
@@ -34,16 +35,16 @@ class NewFolderWindow(QDialog):
         folder_button.clicked.connect(self.get_folder)
         folder_layout.addWidget(folder_button)
         layout.addWidget(folder_group_box)
-        
+
         self.layout.addLayout(layout)
-        
+
         button_box = QDialogButtonBox(self)
         button_box.setStandardButtons(
-                QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+            QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
         button_box.rejected.connect(self.close)
         button_box.accepted.connect(self.create_new_folder)
         self.layout.addWidget(button_box)
-    
+
     def populate_combo_box(self):
         logging.debug("(Re-)populating combo box...")
         self.grid_combo_box.clear()
@@ -55,7 +56,7 @@ class NewFolderWindow(QDialog):
 
     def get_folder(self):
         self.folder = QFileDialog.getExistingDirectory(
-                self, "Select local folder to sync")
+            self, "Select local folder to sync")
         if self.folder:
             self.folder_text.setText(self.folder)
 
@@ -68,4 +69,3 @@ class NewFolderWindow(QDialog):
                 if gateway.name == selected_grid:
                     tahoe = gateway
             tahoe.add_sync_folder(selected_folder)
-
