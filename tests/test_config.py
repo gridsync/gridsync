@@ -20,16 +20,18 @@ def test_config_dir(monkeypatch):
         assert config.config_dir == expected_result
     elif sys.platform == 'darwin':
         expected_result = os.path.join(os.path.expanduser('~'), 'Library',
-                'Application Support', 'Gridsync')
+                                       'Application Support', 'Gridsync')
         assert config.config_dir == expected_result
     else:
         expected_result = os.path.join(os.path.expanduser('~'), '.config',
-                'gridsync')
+                                       'gridsync')
         assert config.config_dir == expected_result
+
 
 def test_default_config_file(monkeypatch):
     config = Config()
     assert config.config_file == os.path.join(config.config_dir, 'config.yml')
+
 
 def test_specified_config_file(monkeypatch):
     config = Config(['test'])

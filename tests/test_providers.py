@@ -5,4 +5,3 @@ from gridsync.providers import PROVIDERS
 
 def test_providers():
     assert PROVIDERS
-

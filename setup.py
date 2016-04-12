@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-import os
 import re
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 
@@ -86,7 +85,7 @@ setup(
         "Topic :: System :: Filesystems",
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",
-        ],
+    ],
     packages=["gridsync", "gridsync.forms"],
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
