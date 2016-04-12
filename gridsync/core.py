@@ -33,7 +33,7 @@ class ServerFactory(Factory):
         self.parent = parent
 
 
-class Server():
+class Core():
     def __init__(self, args):
         self.args = args
         self.gateways = []
@@ -185,7 +185,7 @@ class Server():
                 format='%(asctime)s %(funcName)s %(message)s',
                 level=logging.INFO,
                 filename=logfile)
-        logging.info("Server started with args: {}".format((self.args)))
+        logging.info("Core started with args: {}".format((self.args)))
         logging.debug("$PATH is: {}".format(os.getenv('PATH')))
         try:
             output = Tahoe().command(["--version-and-path"])

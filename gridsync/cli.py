@@ -12,7 +12,7 @@ from twisted.internet.error import CannotListenError
 
 from gridsync import __doc__ as description
 from gridsync._version import __version__
-from gridsync.server import Server
+from gridsync.core import Core
 
 
 class TahoeVersion(argparse.Action):
@@ -64,7 +64,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        gridsync = Server(args)
+        gridsync = Core(args)
         gridsync.start()
     except CannotListenError:
         if args.command:
