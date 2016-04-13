@@ -21,7 +21,7 @@ install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "python --version"
   - "python -c \"from PyQt5 import QtGui\""
-  - "pip install --disable-pip-version-check --upgrade pip"
+  - "pip install --disable-pip-version-check --user --upgrade pip"
   - "pip install tox pytest pytest-cov"
   - "%CMD_IN_ENV% pip install --editable ."
 build: off
