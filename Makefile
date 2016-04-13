@@ -5,6 +5,12 @@ test:
 	#python setup.py test
 	tox
 
+pytest:
+	@case `uname` in \
+		Linux) xvfb-run python -m pytest || exit 1;;\
+		Darwin) python -m pytest || exit 1;;\
+	esac
+
 clean:
 	rm -rf build/
 	rm -rf dist/

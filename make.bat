@@ -14,15 +14,19 @@
 @echo off
 
 if "%1"=="test" call :test
+if "%1"=="pytest" call :pytest
 if "%1"=="frozen-tahoe" call :frozen-tahoe
 if "%1"=="all" call :all
 if "%1"=="" call :all
 goto :eof
 
 :test
-::call py setup.py test -a --ignore=tests/qt
-call py -m pip install tox
+call py -m pip install --upgrade tox
 call tox
+goto :eof
+
+:pytest
+call python -m pytest || exit /b
 goto :eof
 
 :frozen-tahoe
