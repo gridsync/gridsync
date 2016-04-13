@@ -21,8 +21,7 @@ if "%1"=="" call :all
 goto :eof
 
 :test
-call py -m pip install --upgrade tox
-call py -m tox || exit /b
+call py setup.py test || exit /b
 goto :eof
 
 :pytest
