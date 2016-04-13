@@ -20,10 +20,12 @@ install:
   - ps: Start-Process -FilePath C:\pyqt.exe -ArgumentList "/S" -Wait -Passthru
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "python --version"
-  - "pip install --disable-pip-version-check --user --upgrade pip"
-  - "pip install tox"
+  - "python -c \"from PyQt5 import QtGui\""
+  - "pip install --disable-pip-version-check --upgrade pip"
+  - "pip install tox pytest pytest-cov"
+  - "%CMD_IN_ENV% pip install --editable ."
 build: off
 test_script:
-  - "python -c \"from PyQt5 import QtGui\""
-  - "tox --version"
-  - "%CMD_IN_ENV% tox -e py34"
+  - "%CMD_IN_ENV% python -m pytest"
+  #- "tox --version"
+  #- "%CMD_IN_ENV% tox -e py34"
