@@ -22,7 +22,7 @@ goto :eof
 
 :test
 call py -m pip install --upgrade tox
-call tox
+call tox || exit /b
 goto :eof
 
 :pytest
