@@ -7,7 +7,7 @@ test:
 
 pytest:
 	@case `uname` in \
-		Linux) xvfb-run python -m pytest || exit 1;;\
+		Linux) xvfb-run -a python -m pytest || exit 1;;\
 		Darwin) python -m pytest || exit 1;;\
 	esac
 
