@@ -36,8 +36,8 @@ requirements = ['watchdog', 'qt5reactor', 'requests', 'twisted']
 #    requirements.append('notify2')
 
 # PyQt5 wheels target 3.5 and are currently only available for Mac and Windows
-if sys.version_info >= (3, 5) and sys.platform in ['darwin', 'win32']:
-    requirements += ['pyqt5']
+#if sys.version_info >= (3, 5) and sys.platform in ['darwin', 'win32']:
+#requirements += ['pyqt5']
 
 
 exec(open("gridsync/_version.py").read())
