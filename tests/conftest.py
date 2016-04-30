@@ -2,11 +2,6 @@
 
 from __future__ import print_function
 
-import os
-import pprint
-
-
-pprint.pprint(dict(os.environ))
 
 try:
     from PyQt5 import QtCore
