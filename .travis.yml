@@ -27,7 +27,7 @@ before_script:
   - which tox && tox --version
 script: tox
 after_success:
-  coveralls
+  - coveralls
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --version; fi
 notifications:
