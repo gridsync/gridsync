@@ -159,7 +159,7 @@ pyqt: sip
 	$(MAKE) -C build/pyqt -j 4 install
 
 check_pyqt:
-	python -c 'import PyQt5' && echo 'PyQt5 installed' || make pyqt
+	$${PYTHON=python} -c 'import PyQt5' && echo 'PyQt5 installed' || make pyqt
 
 deps:
 	case `uname` in \
