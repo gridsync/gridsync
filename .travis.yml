@@ -16,7 +16,11 @@ install:
 before_script:
   - env
   - which python && python --version
-  - python -c "import PyQt5;print(PyQt5)"
+  - python -c "from PyQt5 import Qt;print(Qt.QT_VERSION_STR)"
+  - python -c "from PyQt5 import Qt;print(Qt.PYQT_VERSION_STR)"
+  - which python2 && python --version
+  - python2 -c "from PyQt5 import Qt;print(Qt.QT_VERSION_STR)"
+  - python2 -c "from PyQt5 import Qt;print(Qt.PYQT_VERSION_STR)"
   - which python3 && python3 --version
   - python3 -c "from PyQt5 import Qt;print(Qt.QT_VERSION_STR)"
   - python3 -c "from PyQt5 import Qt;print(Qt.PYQT_VERSION_STR)"
@@ -24,6 +28,8 @@ before_script:
 script: tox
 after_success:
   coveralls
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --version; fi
 notifications:
   email: false
   irc:
