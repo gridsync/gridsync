@@ -140,7 +140,7 @@ sip:
 		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.18/sip-4.18.tar.gz"
 	tar zxvf build/sip.tar.gz -C build/sip --strip-components=1
 	cd build/sip && \
-		python configure.py --incdir=build/sip/sipinc
+		$${PYTHON=python} configure.py --incdir=build/sip/sipinc
 	$(MAKE) -C build/sip -j 4 install
 
 pyqt: sip
@@ -149,7 +149,7 @@ pyqt: sip
 		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz"
 	tar zxvf build/pyqt.tar.gz -C build/pyqt --strip-components=1
 	cd build/pyqt && \
-		QT_SELECT=qt5 python configure.py \
+		QT_SELECT=qt5 $${PYTHON=python} configure.py \
 			--confirm-license \
 			--sip ../sip/sipgen/sip \
 			--sip-incdir ../sip/siplib \
