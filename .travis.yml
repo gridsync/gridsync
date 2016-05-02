@@ -12,7 +12,7 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew link --force qt5; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=/usr/local/bin:$PATH; fi
   - sudo python3 -m pip install --upgrade tox coveralls
-  - sudo make pyqt 1>/dev/null
+  - make pyqt 1>/dev/null
 before_script:
   - env
   - which python && python --version

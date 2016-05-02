@@ -141,7 +141,8 @@ sip:
 	tar zxvf build/sip.tar.gz -C build/sip --strip-components=1
 	cd build/sip && \
 		$${PYTHON=python} configure.py --incdir=build/sip/sipinc
-	$(MAKE) -C build/sip -j 4 install
+	$(MAKE) -C build/sip -j 4
+	$(MAKE) -C build/sip install || sudo $(MAKE) -C build/sip install
 
 pyqt: sip
 	mkdir -p build/pyqt
@@ -156,7 +157,8 @@ pyqt: sip
 			--enable QtCore \
 			--enable QtGui \
 			--enable QtWidgets
-	$(MAKE) -C build/pyqt -j 4 install
+	$(MAKE) -C build/pyqt -j 4
+	$(MAKE) -C build/pyqt install || sudo $(MAKE) -C build/pyqt install
 
 check_pyqt:
 	$${PYTHON=python} -c 'import PyQt5' && echo 'PyQt5 installed' || make pyqt
