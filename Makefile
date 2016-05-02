@@ -136,7 +136,7 @@ ui:
 
 sip:
 	mkdir -p build/sip
-	curl --output "build/sip.tar.gz" --location \
+	curl --progress-bar --output "build/sip.tar.gz" --location \
 		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.18/sip-4.18.tar.gz"
 	tar zxf build/sip.tar.gz -C build/sip --strip-components=1
 	cd build/sip && \
@@ -146,7 +146,7 @@ sip:
 
 pyqt: sip
 	mkdir -p build/pyqt
-	curl --output "build/pyqt.tar.gz" --location \
+	curl --progress-bar --output "build/pyqt.tar.gz" --location \
 		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz"
 	tar zxf build/pyqt.tar.gz -C build/pyqt --strip-components=1
 	cd build/pyqt && \
