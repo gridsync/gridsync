@@ -5,31 +5,29 @@ os:
   - "osx"
 install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get update; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5 python3-pip; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then PYTHON='python3' make pyqt 1>/dev/null; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export PATH=/usr/bin:$PATH; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python pyqt5; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew link --force qt5; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=/usr/local/bin:$PATH; fi
-  - sudo python3 -m pip install --upgrade tox coveralls
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pip2 install --upgrade pip; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pip3 install --upgrade pip; fi
+  - sudo pip install tox coveralls
   - make pyqt 1>/dev/null
 before_script:
   - env
-  - which python && python --version
-  - python -c "from PyQt5 import Qt;print(Qt.QT_VERSION_STR)"
-  - python -c "from PyQt5 import Qt;print(Qt.PYQT_VERSION_STR)"
-  - which python2 && python --version
-  - python2 -c "from PyQt5 import Qt;print(Qt.QT_VERSION_STR)"
-  - python2 -c "from PyQt5 import Qt;print(Qt.PYQT_VERSION_STR)"
-  - which python3 && python3 --version
-  - python3 -c "from PyQt5 import Qt;print(Qt.QT_VERSION_STR)"
-  - python3 -c "from PyQt5 import Qt;print(Qt.PYQT_VERSION_STR)"
+  - which python && python --version && which pip && pip --version
+  - which python2 && python2 --version && which pip2 && pip2 --version
+  - which python3 && python3 --version && which pip3 && pip3 --version
   - which tox && tox --version
-script: tox
-after_success:
-  - coveralls
+script:
+  - tox
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --version; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --tahoe-version; fi
+after_success:
+  - coveralls
 notifications:
   email: false
   irc:
