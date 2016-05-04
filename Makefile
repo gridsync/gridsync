@@ -189,13 +189,13 @@ build-deps: deps
 
 frozen-tahoe:
 	mkdir -p build/tahoe-lafs
-	curl --output build/tahoe-lafs.tar.bz2 --location \
+	curl --progress-bar --output build/tahoe-lafs.tar.bz2 --location \
 		https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
 	tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
 	virtualenv --clear --python=python2 build/venv
 	source build/venv/bin/activate && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ build/tahoe-lafs && \
-	pip install pyinstaller && \
+	pip install pyinstaller==3.1.1 && \
 	cp misc/tahoe.spec build/tahoe-lafs && \
 	pushd build/tahoe-lafs && \
 	export PYTHONHASHSEED=1 && \
@@ -213,7 +213,7 @@ app: install
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	pip3 install --upgrade pyinstaller
+	pip3 install pyinstaller==3.1.1
 	export PYTHONHASHSEED=1 && \
 		pyinstaller \
 			--windowed \
