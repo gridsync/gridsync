@@ -12,11 +12,11 @@ Example:
 """
 import os, random, socket, ssl, sys, time
 
-protected_vars = vars()
-for key, value in dict(os.environ).items():
-    if key not in protected_vars:
+protected_vars = vars().keys()
+for key, value in os.environ.items():
+    if key.lower() not in protected_vars:
         vars()[key.lower()] = value
-for key, value in dict(os.environ).items():
+for key, value in os.environ.items():
     if key.startswith('APPVEYOR_'):
         trimmed_key = key[9:].lower()
         split_key = key.split('_')[-1].lower()
@@ -29,13 +29,13 @@ short_commit = commit[0:7]
 project_url = "{url}/project/{account_name}/{project_name}".format(**vars())
 build_url = "{project_url}/build/{build_version}".format(**vars())
 repo_url = "https://{repo_provider}.com/{repo_name}".format(**vars()).lower()
-commit_url = "{repo_url}/commit/{repo_commit}".format(**vars())
+commit_url = "{repo_url}/commit/{short_commit}".format(**vars())
 username = (username if 'username' in vars() else 'appveyor')
 color_code = "\x03"
 
 messages = []
-for message in ' '.join(sys.argv[1:]).split(','):
-    messages.append(message.format(**vars()).strip())
+for msg in ' '.join(sys.argv[1:]).split(','):
+    messages.append(msg.format(**vars()).strip())
 
 s = ssl.wrap_socket(socket.socket(socket.AF_INET,socket.SOCK_STREAM))
 s.connect((socket.gethostbyname("chat.freenode.net"), 6697))
@@ -52,8 +52,8 @@ while f:
             sys.argv[1], str(random.randint(1,9999))).encode())
     elif w[1] == "001":
         time.sleep(5)
-        for message in messages:
-            print("NOTICE #{} :{}".format(project_name, message))
-            s.send("NOTICE #{} :{}\r\n".format(project_name, message).encode())
+        for msg in messages:
+            print("NOTICE #{} :{}".format(project_name, msg))
+            s.send("NOTICE #{} :{}\r\n".format(project_name, msg).encode())
         time.sleep(5)
         sys.exit()
