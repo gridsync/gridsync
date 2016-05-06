@@ -13,10 +13,10 @@ Example:
 import os, random, socket, ssl, sys, time
 
 protected_vars = vars()
-for key, value in os.environ.items():
+for key, value in dict(os.environ).items():
     if key not in protected_vars:
         vars()[key.lower()] = value
-for key, value in os.environ.items():
+for key, value in dict(os.environ).items():
     if key.startswith('APPVEYOR_'):
         trimmed_key = key[9:].lower()
         split_key = key.split('_')[-1].lower()
@@ -33,7 +33,9 @@ commit_url = "{repo_url}/commit/{repo_commit}".format(**vars())
 username = (username if 'username' in vars() else 'appveyor')
 color_code = "\x03"
 
-messages = [x.format(**vars()).strip() for x in ' '.join(sys.argv[1:]).split(',')]
+messages = []
+for message in ' '.join(sys.argv[1:]).split(','):
+    messages.append(message.format(**vars()).strip())
 
 s = ssl.wrap_socket(socket.socket(socket.AF_INET,socket.SOCK_STREAM))
 s.connect((socket.gethostbyname("chat.freenode.net"), 6697))
@@ -41,6 +43,7 @@ s.send("NICK {0}\r\nUSER {0} * 0 :{0}\r\n".format(username).encode())
 f = s.makefile()
 while f:
     line = f.readline()
+    print(line.rstrip())
     w = line.split()
     if w[0] == "PING":
         s.send("PONG {}\r\n".format(w[1]).encode())
@@ -50,6 +53,7 @@ while f:
     elif w[1] == "001":
         time.sleep(5)
         for message in messages:
+            print("NOTICE #{} :{}".format(project_name, message))
             s.send("NOTICE #{} :{}\r\n".format(project_name, message).encode())
         time.sleep(5)
         sys.exit()
