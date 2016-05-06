@@ -26,7 +26,7 @@ for key, value in os.environ.items():
             vars()[split_key] = value
 
 short_commit = commit[0:7]
-project_url = "{url}/project/{account_name}/{project_name}".format(**vars())
+project_url = "{appveyor_url}/project/{account_name}/{project_name}".format(**vars())
 build_url = "{project_url}/build/{build_version}".format(**vars())
 repo_url = "https://{repo_provider}.com/{repo_name}".format(**vars()).lower()
 commit_url = "{repo_url}/commit/{short_commit}".format(**vars())
