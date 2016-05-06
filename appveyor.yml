@@ -34,9 +34,9 @@ artifacts:
   - path: dist\Gridsync.zip
     name: Gridsync-win$(PYTHON_ARCH).zip
 on_success:
-  - "python code/gridsync/misc/irc-notify.py '[{project_name}:{branch}] {short_commit}: \"{message}\" ({author}) {color_code}3Succeeded','Details: {build_url}','Commit: {commit_url}'"
+  - "python misc/irc-notify.py '[{project_name}:{branch}] {short_commit}: \"{message}\" ({author}) {color_code}3Succeeded','Details: {build_url}','Commit: {commit_url}'"
 on_failure:
-  - "python code/gridsync/misc/irc-notify.py '[{project_name}:{branch}] {short_commit}: \"{message}\" ({author}) {color_code}4Failed','Details: {build_url}','Commit: {commit_url}'"
+  - "python misc/irc-notify.py '[{project_name}:{branch}] {short_commit}: \"{message}\" ({author}) {color_code}4Failed','Details: {build_url}','Commit: {commit_url}'"
 notifications:
   - provider: Webhook
     url: https://ci.gridsync.io:8080
