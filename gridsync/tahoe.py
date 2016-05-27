@@ -100,7 +100,7 @@ class Tahoe():
             proc = subprocess.Popen(
                 full_args, env=env, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, universal_newlines=True)
-        except (FileNotFoundError, PermissionError, OSError) as error:
+        except OSError as error:
             logging.error("Could not run tahoe executable: {}".format(error))
             # TODO: Notify user?
             raise
@@ -303,7 +303,7 @@ class Tahoe():
                     'SELECT "fileid" FROM "local_files" WHERE path=? '
                     'AND size=? AND mtime=?)', (filepath, size, mtime))
                 return cursor.fetchone()[0]
-            except TypeError:
+            except:
                 return
             except sqlite3.InterfaceError:
                 return

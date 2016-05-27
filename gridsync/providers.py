@@ -40,7 +40,7 @@ def get_storage_providers():
     try:
         with open(providers_db) as f:
             return yaml.safe_load(f)
-    except FileNotFoundError:
+    except OSError:
         create_storage_providers_db()
         return PROVIDERS
 
