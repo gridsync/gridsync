@@ -97,8 +97,8 @@ Installation (development builds):
 
 Linux (Debian-based systems):
 
-1. ``apt-get install tahoe-lafs python-pyqt5 python-pip``
-2. ``pip install git+https://github.com/gridsync/gridsync.git``
+1. ``apt-get install tahoe-lafs python3-pyqt5 python3-pip``
+2. ``pip3 install git+https://github.com/gridsync/gridsync.git``
 
 Mac OS X [*]_ :
 
