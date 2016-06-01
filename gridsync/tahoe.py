@@ -97,9 +97,16 @@ class Tahoe():
         if not quiet:
             logging.debug("Running: {}".format(' '.join(full_args)))
         try:
-            proc = subprocess.Popen(
-                full_args, env=env, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, universal_newlines=True)
+            if sys.platform == 'win32':
+            # https://msdn.microsoft.com/en-us/library/ms684863%28v=VS.85%29.aspx
+                proc = subprocess.Popen(
+                    full_args, env=env, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, universal_newlines=True,
+                    creationflags=0x08000000)
+            else:
+                proc = subprocess.Popen(
+                    full_args, env=env, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, universal_newlines=True)
         except OSError as error:
             logging.error("Could not run tahoe executable: {}".format(error))
             # TODO: Notify user?
