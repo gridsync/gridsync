@@ -14,6 +14,7 @@ from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol, Factory
 
 from gridsync.config import Config
+from gridsync.error import error
 from gridsync.sync import SyncFolder
 from gridsync.systray import SystemTrayIcon
 from gridsync.tahoe import Tahoe, DEFAULT_SETTINGS
@@ -188,11 +189,14 @@ class Core():
         logging.info("Core started with args: {}".format((self.args)))
         logging.debug("$PATH is: {}".format(os.getenv('PATH')))
         try:
+            # TODO: Check *after* starting event-loop to load UI faster..
             output = Tahoe().command(["--version-and-path"])
             logging.info(output.split('\n')[0])
-        except Exception as e:
-            logging.error('Error checking Tahoe-LAFS version: {}'.format(e))
-            # TODO: Notify user?
+        except (RuntimeError, OSError):
+            error(
+                "Error checking Tahoe-LAFS version",
+                "Is tahoe properly installed and available in your PATH?")
+            sys.exit(1)
         try:
             self.settings = self.config.load()
         except IOError:
