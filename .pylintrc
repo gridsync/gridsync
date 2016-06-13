@@ -1,0 +1,12 @@
+[MASTER]
+ignore=
+    preferences.py,
+    resources.py
+
+[MESSAGES CONTROL]
+disable=
+    no-member,
+    invalid-name,
+    missing-docstring,
+    no-name-in-module,
+    wrong-import-position
