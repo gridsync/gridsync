@@ -41,8 +41,10 @@ class SyncFolder(PatternMatchingEventHandler):
         self.local_checker = LoopingCall(self.check_for_changes)
         self.remote_checker = LoopingCall(reactor.callInThread, self.sync)
         logging.debug(
-            "{} initialized; {} <-> {}".format(
-                self, self.local_dir, self.remote_dircap))
+            "%s initialized; %s <-> %s",
+            self,
+            self.local_dir,
+            self.remote_dircap)
 
     def on_modified(self, event):
         self.filesystem_modified = True
@@ -77,13 +79,10 @@ class SyncFolder(PatternMatchingEventHandler):
         except LookupError:
             # TODO: Alert user alias is missing?
             pass
-        logging.info("Starting Observer in {}...".format(self.local_dir))
-        try:
-            self.observer = Observer()
-            self.observer.schedule(self, self.local_dir, recursive=True)
-            self.observer.start()
-        except Exception as error:
-            logging.error(error)
+        logging.info("Starting Observer in %s...", self.local_dir)
+        self.observer = Observer()
+        self.observer.schedule(self, self.local_dir, recursive=True)
+        self.observer.start()
         reactor.callFromThread(self.remote_checker.start, 30)
 
     def _create_conflicted_copy(self, filepath):
@@ -92,8 +91,8 @@ class SyncFolder(PatternMatchingEventHandler):
         t = datetime.datetime.fromtimestamp(mtime)
         tag = t.strftime('.(conflicted copy %Y-%m-%d %H-%M-%S)')
         tagged_filepath = base + tag + extension
-        logging.debug("Creating conflicted copy of {} {}".format(
-            filepath, tagged_filepath))
+        logging.debug(
+            "Creating conflicted copy of %s %s", filepath, tagged_filepath)
         os.rename(filepath, tagged_filepath)
         os.utime(tagged_filepath, (-1, mtime))
 
@@ -106,7 +105,7 @@ class SyncFolder(PatternMatchingEventHandler):
         versioned_filepath = newname.replace(self.local_dir, self.versions_dir)
         if not os.path.isdir(os.path.dirname(versioned_filepath)):
             os.makedirs(os.path.dirname(versioned_filepath))
-        logging.info("Creating {}".format(versioned_filepath))
+        logging.info("Creating %s", versioned_filepath)
         shutil.copy2(local_filepath, versioned_filepath)
 
     def get_local_metadata(self, basedir=None):
@@ -129,7 +128,7 @@ class SyncFolder(PatternMatchingEventHandler):
     def get_remote_metadata(self, dircap, basedir=''):
         metadata = {}
         jobs = []
-        logging.debug("Getting remote metadata from {}...".format(dircap))
+        logging.debug("Getting remote metadata from %s...", dircap)
         url = '{}uri/{}/?t=json'.format(self.tahoe.node_url, dircap)
         received_data = requests.get(url).json()
         for filename, data in received_data[1]['children'].items():
@@ -176,7 +175,7 @@ class SyncFolder(PatternMatchingEventHandler):
             else:
                 snapshot = available_snapshot
         remote_path = self.remote_dircap + '/Archives/' + snapshot
-        logging.info("Syncing {} with {}...".format(self.local_dir, snapshot))
+        logging.info("Syncing %s with %s...", self.local_dir, snapshot)
         self.sync_state += 1
         self.local_metadata = self.get_local_metadata(self.local_dir)
         self.remote_metadata = self.get_remote_metadata(remote_path)
@@ -187,7 +186,7 @@ class SyncFolder(PatternMatchingEventHandler):
             if metadata['uri'].startswith('URI:DIR'):
                 dirpath = os.path.join(self.local_dir, file)
                 if not os.path.isdir(dirpath):
-                    logging.info("Creating directory: {}...".format(dirpath))
+                    logging.info("Creating directory: %s...", dirpath)
                     os.makedirs(dirpath)
         for file, metadata in self.remote_metadata.items():
             if not metadata['uri'].startswith('URI:DIR'):
@@ -198,8 +197,8 @@ class SyncFolder(PatternMatchingEventHandler):
                     local_mtime = self.local_metadata[filepath]['mtime']
                     if local_mtime < remote_mtime:
                         logging.debug(
-                            "[<] {} is older than remote version; "
-                            "downloading {}...".format(file, file))
+                            "[<] %s is older than remote version; "
+                            "downloading %s...", file, file)
                         if self.keep_versions:
                             self._create_versioned_copy(filepath, local_mtime)
                         jobs.append(
@@ -208,15 +207,14 @@ class SyncFolder(PatternMatchingEventHandler):
                                 filepath, remote_mtime))
                     elif local_mtime > remote_mtime:
                         logging.debug(
-                            "[>] {} is newer than remote version; "
-                            "backup scheduled".format(file))
+                            "[>] %s is newer than remote version; "
+                            "backup scheduled", file)
                         self.do_backup = True
                     else:
-                        logging.debug("[.] {} is up to date.".format(file))
+                        logging.debug("[.] %s is up to date.", file)
                 else:
                     logging.debug(
-                        "[?] {} is missing; "
-                        "downloading {}...".format(file, file))
+                        "[?] %s is missing; downloading %s...", file, file)
                     jobs.append(
                         deferToThread(
                             self.download, remote_path + '/' + file,
@@ -229,8 +227,8 @@ class SyncFolder(PatternMatchingEventHandler):
                         file, metadata['size'], metadata['mtime'])
                     if recovery_uri:
                         logging.debug(
-                            "[x] {} removed from latest snapshot; "
-                            "deleting local file...".format(file))
+                            "[x] %s removed from latest snapshot; "
+                            "deleting local file...", file)
                         if self.keep_versions:
                             self._create_versioned_copy(file, local_mtime)
                         try:
@@ -239,8 +237,7 @@ class SyncFolder(PatternMatchingEventHandler):
                             logging.error(error)
                     else:
                         logging.debug(
-                            "[!] {} isn't stored; "
-                            "backup scheduled".format(fn))
+                            "[!] %s isn't stored; backup scheduled", fn)
                         self.do_backup = True
         blockingCallFromThread(reactor, gatherResults, jobs)
         if self.do_backup:
@@ -254,10 +251,12 @@ class SyncFolder(PatternMatchingEventHandler):
         post_sync_archives = self.tahoe.ls(self.remote_dircap + "/Archives")
         if len(post_sync_archives) - len(pre_sync_archives) <= 1:
             self.local_snapshot = post_sync_archives[-1]
-            logging.info("Synchronized {} with {}".format(
-                self.local_dir, self.local_snapshot))
+            logging.info(
+                "Synchronized %s with %s",
+                self.local_dir,
+                self.local_snapshot)
         else:
-            logging.warn("Remote state changed during sync")
+            logging.warning("Remote state changed during sync")
             # TODO: Re-sync/merge overlooked snapshot
         self.sync_state -= 1
 
@@ -310,10 +309,7 @@ class SyncFolder(PatternMatchingEventHandler):
             self.parent.notify, "Sync complete", files_added)
 
     def stop(self):
-        logging.info("Stopping Observer in {}...".format(self.local_dir))
-        try:
-            self.observer.stop()
-            self.observer.join()
-        except Exception as error:
-            logging.error(error)
+        logging.info("Stopping Observer in %s...", self.local_dir)
+        self.observer.stop()
+        self.observer.join()
         self.remote_checker.stop()

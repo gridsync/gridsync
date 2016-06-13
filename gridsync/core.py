@@ -23,7 +23,7 @@ from gridsync.util import h2b, b2h
 
 class ServerProtocol(Protocol):
     def dataReceived(self, data):
-        logging.debug("Received command: {}".format(data))
+        logging.debug("Received command: %s", data)
         self.factory.parent.handle_command(data)
 
 
@@ -61,11 +61,13 @@ class Core():
                         self.add_sync_folder(local_dir, dircap, t)
 
     def add_sync_folder(self, local_dir, dircap=None, tahoe=None):
-        logging.debug("Adding SyncFolder ({})...".format(local_dir))
+        logging.debug("Adding SyncFolder (%s)...", local_dir)
         # TODO: Add error handling
         if not os.path.isdir(local_dir):
-            logging.debug("Directory {} doesn't exist; "
-                          "creating {}...".format(local_dir, local_dir))
+            logging.debug(
+                "Directory %s doesn't exist; creating %s...",
+                local_dir,
+                local_dir)
             os.makedirs(local_dir)
         sync_folder = SyncFolder(self, local_dir, dircap, tahoe)
         self.sync_folders.append(sync_folder)
@@ -73,8 +75,9 @@ class Core():
     def insert_new_dircap(self, sync_folder):
         # FIXME: Ugly hack. This should all probably move to SyncFolder:start
         local_dir = sync_folder.local_dir
-        logging.debug("No dircap assaciated with {}; "
-                      "creating new dircap...".format(local_dir))
+        logging.debug(
+            "No dircap assaciated with %s; creating new dircap...",
+            local_dir)
         dircap = sync_folder.tahoe.command(['mkdir'], num_attempts=10)
         for gateway, settings in self.settings.items():
             for setting, value in settings.items():
@@ -112,12 +115,12 @@ class Core():
 
     def handle_command(self, command):
         if command.lower().startswith('gridsync:'):
-            logging.info('Got gridsync URI: {}'.format(command))
+            logging.info("Got gridsync URI: %s", command)
             # TODO: Handle this
         elif command.lower() in ('stop', 'quit', 'exit'):
             reactor.stop()
         else:
-            logging.info("Invalid command: {}".format(command))
+            logging.info("Invalid command: %s", command)
 
     def check_state(self):
         active_jobs = []
@@ -165,7 +168,7 @@ class Core():
             return
         self.settings = {w.introducer_furl: {'tahoe.cfg': DEFAULT_SETTINGS}}
         self.settings[w.introducer_furl]['sync'] = {w.folder: None}
-        logging.debug("Setup wizard finished. Using: {}".format(self.settings))
+        logging.debug("Setup wizard finished. Using: %s", self.settings)
         self.initialize_gateways()
         self.start_gateways()
 
@@ -186,8 +189,8 @@ class Core():
                 format='%(asctime)s %(funcName)s %(message)s',
                 level=logging.INFO,
                 filename=logfile)
-        logging.info("Core started with args: {}".format((self.args)))
-        logging.debug("$PATH is: {}".format(os.getenv('PATH')))
+        logging.info("Core started with args: %s", self.args)
+        logging.debug("$PATH is: %s", os.getenv('PATH'))
         try:
             # TODO: Check *after* starting event-loop to load UI faster..
             output = Tahoe().command(["--version-and-path"])

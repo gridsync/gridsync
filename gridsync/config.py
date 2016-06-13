@@ -27,7 +27,7 @@ class Config():
             return yaml.safe_load(f)
 
     def save(self, dict):
-        logging.info('Saving config to {}'.format(self.config_file))
+        logging.info("Saving config to %s", self.config_file)
         with open(self.config_file, 'w') as f:
             try:
                 os.chmod(self.config_file, 0o600)

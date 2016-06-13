@@ -10,15 +10,15 @@ import subprocess
 import sys
 import time
 
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
+
 import requests
 
 from gridsync.config import Config
 from gridsync.util import h2b, b2h
-
-if sys.version_info.major == 2:
-    import ConfigParser as configparser
-else:
-    import configparser
 
 
 DEFAULT_SETTINGS = {
@@ -35,9 +35,9 @@ DEFAULT_SETTINGS = {
 
 def decode_introducer_furl(furl):
     """Return (tub_id, connection_hints)"""
-    p = r'^pb://([a-z2-7]+)@([a-zA-Z0-9\.:,-]+:\d+)/[a-z2-7]+$'
-    m = re.match(p, furl.lower())
-    return m.group(1), m.group(2)
+    pattern = r'^pb://([a-z2-7]+)@([a-zA-Z0-9\.:,-]+:\d+)/[a-z2-7]+$'
+    match = re.match(pattern, furl.lower())
+    return match.group(1), match.group(2)
 
 
 class Tahoe():
@@ -73,8 +73,7 @@ class Tahoe():
 
     def set_config(self, section, option, value):
         # XXX: This should probably preserve commented ('#'-prefixed) lines..
-        logging.debug("Setting {} option {} to: {}".format(
-            section, option, value))
+        logging.debug("Setting %s option %s to: %s", section, option, value)
         config = configparser.RawConfigParser(allow_no_value=True)
         config.read(os.path.join(self.node_dir, 'tahoe.cfg'))
         config.set(section, option, value)
@@ -95,10 +94,10 @@ class Tahoe():
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
         if not quiet:
-            logging.debug("Running: {}".format(' '.join(full_args)))
+            logging.debug("Running: %s", ' '.join(full_args))
         try:
-            if sys.platform == 'win32':
             # https://msdn.microsoft.com/en-us/library/ms684863%28v=VS.85%29.aspx
+            if sys.platform == 'win32':
                 proc = subprocess.Popen(
                     full_args, env=env, stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT, universal_newlines=True,
@@ -108,48 +107,56 @@ class Tahoe():
                     full_args, env=env, stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT, universal_newlines=True)
         except OSError as error:
-            logging.error("Could not run tahoe executable: {}".format(error))
-            # TODO: Notify user?
+            logging.error("Could not run tahoe executable: %s", error)
             raise
-            return
         output = ''
         for line in iter(proc.stdout.readline, ''):
             if not quiet:
-                logging.debug("[pid:{}] {}".format(proc.pid, line.rstrip()))
+                logging.debug("[pid:%s] %s", proc.pid, line.rstrip())
             output = output + line
         proc.poll()
         if proc.returncode:
-            logging.error("pid {} ({}) excited with code {}".format(
-                proc.pid, ' '.join(full_args), proc.returncode))
+            logging.error(
+                "pid %s (%s) excited with code %s",
+                proc.pid, ' '.join(full_args),
+                proc.returncode)
             num_attempts -= 1
             if num_attempts:
-                logging.debug("Trying again ({} attempts remaining)...".format(
-                    num_attempts))
+                logging.debug(
+                    "Trying again (%s attempts remaining)...",
+                    num_attempts)
                 time.sleep(1)
                 self.command(args, quiet, num_attempts)
             else:
                 raise RuntimeError(output.rstrip())
         elif proc.returncode is None:
-            logging.warning("No return code for pid:{} ({})".format(
-                proc.pid, ' '.join(full_args)))
+            logging.warning(
+                "No return code for pid:%s (%s)",
+                proc.pid,
+                ' '.join(full_args))
         elif not quiet:
-                logging.debug("pid {} ({}) excited with code {}".format(
-                    proc.pid, ' '.join(full_args), proc.returncode))
+            logging.debug(
+                "pid %s (%s) excited with code %s",
+                proc.pid,
+                ' '.join(full_args),
+                proc.returncode)
         return output.rstrip()
 
     def start(self):
-        logging.debug("Starting Tahoe-LAFS gateway: {}".format(self.location))
+        logging.debug("Starting Tahoe-LAFS gateway: %s", self.location)
         if not self.node_dir:
-            logging.debug("Tahoe-LAFS gateway {} is running remotely; "
-                          "no need to start".format(self.node_url))
+            logging.debug(
+                "Tahoe-LAFS gateway %s running remotely; no need to start",
+                self.node_url)
             return
         elif not os.path.isdir(self.node_dir):
-            logging.debug("{} not found; "
-                          "creating node dir...".format(self.node_dir))
+            logging.debug(
+                "%s not found; creating node dir...", self.node_dir)
             self.command(['create-client'])
         elif not os.path.isfile(os.path.join(self.node_dir, 'tahoe.cfg')):
-            logging.debug("{} found but tahoe.cfg is missing; "
-                          "(re)creating node dir...".format(self.node_dir))
+            logging.debug(
+                "%s found but tahoe.cfg is missing; creating node dir...",
+                self.node_dir)
             self.command(['create-client'])
         if self.settings:
             self.setup(self.settings)
@@ -161,9 +168,9 @@ class Tahoe():
                 os.kill(pid, 0)
             except OSError:
                 self.command(['start'])
-        self.node_url = open(os.path.join(self.node_dir,
-                             'node.url')).read().strip()
-        logging.debug("Node URL is: {}".format(self.node_url))
+        self.node_url = open(
+            os.path.join(self.node_dir, 'node.url')).read().strip()
+        logging.debug("Node URL is: %s", self.node_url)
 
     def mkdir(self):
         # TODO: Allow subdirs?

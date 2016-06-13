@@ -12,7 +12,7 @@ from twisted.internet import reactor
 
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.newfolder import NewFolderWindow
-import gridsync.resources
+import gridsync.resources  # flake8: noqa, pylint: disable=unused-import
 
 
 class PreferencesWindow(QMainWindow):
