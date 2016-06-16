@@ -6,6 +6,13 @@ Gridsync
     :target: https://travis-ci.org/gridsync/gridsync
 .. image:: https://ci.appveyor.com/api/projects/status/github/gridsync/gridsync?svg=true
     :target: https://ci.appveyor.com/project/crwood/gridsync
+.. image:: https://buildbot.gridsync.io/png?builder=linux
+    :target: https://buildbot.gridsync.io/builders/linux
+.. image:: https://buildbot.gridsync.io/png?builder=osx
+    :target: https://buildbot.gridsync.io/builders/osx
+.. image:: https://buildbot.gridsync.io/png?builder=windows
+    :target: https://buildbot.gridsync.io/builders/windows
+
 
 
 Buildbot status: https://buildbot.gridsync.io/waterfall
