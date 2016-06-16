@@ -75,7 +75,7 @@ In development / TODO / coming soon:
 * Unit/integration/system/user tests
 * Drag-and-drop interface for folder management
 * Integration of Tahoe-LAFS' "Magic Folders"
-* `Magic-wormhole_` support for simplified folder sharing.
+* `Magic-wormhole`_ support for simplified folder sharing.
 * GNU/Linux distribution packaging (Debian, RPM, Arch PKGBUILD, Gentoo ebuilds, etc.)
 * MSI/NSIS installer for Windows
 * PyPI presence
