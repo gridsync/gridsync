@@ -14,9 +14,6 @@ Gridsync
     :target: https://buildbot.gridsync.io/builders/windows
 
 
-
-Buildbot status: https://buildbot.gridsync.io/waterfall
-
  **WARNING**: *At present, Gridsync is in early stages of development and should not be relied upon.* **Do not use this software for anything important!**
 
 Gridsync aims to provide a cross-platform, graphical user interface for `Tahoe-LAFS`_, the Least Authority File Store. It is intended to simplify the configuration and management of locally-running Tahoe-LAFS gateways and to provide user-friendly mechanisms for seamlessly backing up local files, synchronizing directories between devices, and sharing files and storage resources with other users across all major desktop platforms (GNU/Linux, Mac OS X, and Windows). More generally, Gridsync aims to duplicate most of the core functionality provided by other, proprietary "cloud" backup/synchronization services and utilities (such as Dropbox and BitTorrent Sync) but without demanding any sacrifice of the user's privacy or freedom -- and without requiring usage or knowledge of the command line. Accordingly, Gridsync is developed under the principle that secure file storage and backups should be freely available to everyone, without exception, without added barriers, and regardless of one's operating system choice.
@@ -75,15 +72,15 @@ Current (complete -- or nearly complete) features:
 In development / TODO / coming soon:
 ------------------------------------
 
-* MSI installer for Windows
 * Unit/integration/system/user tests
-* Integrate Tahoe-LAFS' "Magic Folders"
-* Folder management and revocation UX/UI
-* ``gridsync://`` URI-handler and 'one-click' sharing UX/UI
-* History "rollback" UI (a-la OS X "Time Machine" for reverting to previous backups/snapshots)
+* Drag-and-drop interface for folder management
+* Integration of Tahoe-LAFS' "Magic Folders"
+* `Magic-wormhole_` support for simplified folder sharing.
 * GNU/Linux distribution packaging (Debian, RPM, Arch PKGBUILD, Gentoo ebuilds, etc.)
-* Upload to PyPI
+* MSI/NSIS installer for Windows
+* PyPI presence
 
+.. _Magic-wormhole: https://github.com/warner/magic-wormhole
 
 Planned features / coming later:
 --------------------------------
@@ -96,7 +93,7 @@ Planned features / coming later:
 Known issues / caveats:
 -----------------------
 
-* Due to difficulties with installing Qt5 on Travis-CI, Gridsync lacks proper tests for all but the most trivial of functions and the project, on the whole, should be considered pre-alpha quality software at best. Expect almost everything here to undergo a re-write before release.
+* Gridsync currently lacks a full test suite and the project, on the whole, should be considered alpha quality software at best. Expect major changes to the entire codebase before release.
 * Presently, bi-directional sync works by calling ``tahoe backup`` on filesystem events and periodically polling the target/remote dircap for new snapshots (determining 'current' files based size and mtime). While some minimal conflict detection is in place and no local files are overwritten without first being stored remotely, this scheme is hackish and racey on the whole and should not be used for anything other than trivial, single-client backups (if at all). Consider this a placeholder for Tahoe-LAFS' upcoming "Magic Folders" functionality.
 * Most items available through the systray menu are placeholders only. Again, expect everything here to change and/or go away in the future.
 * Desktop notifications are currently spammy and trigger on every sync. These will also be fixed later to trigger on rare events (e.g., receiving a file update from another client, restoring from a previous snapshot, etc.)
