@@ -145,7 +145,8 @@ class SyncFolder(PatternMatchingEventHandler):
             metadata.update(result)
         return metadata
 
-    def sync(self, snapshot=None, force_backup=False):
+    def sync(self, snapshot=None, force_backup=False): # flake8: noqa
+        # FIXME ...
         if self.sync_state:
             logging.debug("Sync already in progress; queueing to end...")
             self.do_sync = True
