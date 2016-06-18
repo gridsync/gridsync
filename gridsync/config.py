@@ -34,4 +34,4 @@ class Config():
             except:
                 pass
             yaml.safe_dump(dict, f, encoding='utf-8', allow_unicode=True,
-                           indent=4, default_flow_style=False)
+                           default_flow_style=False)
