@@ -32,7 +32,7 @@ def create_storage_providers_db():
         except:
             pass
         yaml.safe_dump(PROVIDERS, f, encoding='utf-8', allow_unicode=True,
-                       indent=4, default_flow_style=False)
+                       width=68, default_flow_style=False)
 
 
 def get_storage_providers():
@@ -64,4 +64,4 @@ def add_storage_provider(introducer_furl, name=None, description=None):
         except:
             pass
         yaml.safe_dump(storage_providers, f, encoding='utf-8',
-                       allow_unicode=True, indent=4, default_flow_style=False)
+                       allow_unicode=True, width=68, default_flow_style=False)
