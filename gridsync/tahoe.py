@@ -85,7 +85,7 @@ class Tahoe():
             for option, value in d.items():
                 self.set_config(section, option, value)
 
-    def command(self, args, quiet=False, num_attempts=1):
+    def command(self, args, num_attempts=1):
         tahoe_exe = 'tahoe' + ('.exe' if sys.platform == 'win32' else '')
         if self.node_dir:
             full_args = [tahoe_exe, '-d', self.node_dir] + args
@@ -93,8 +93,7 @@ class Tahoe():
             full_args = [tahoe_exe] + args
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
-        if not quiet:
-            logging.debug("Running: %s", ' '.join(full_args))
+        logging.debug("Running: %s", ' '.join(full_args))
         try:
             # https://msdn.microsoft.com/en-us/library/ms684863%28v=VS.85%29.aspx
             if sys.platform == 'win32':
@@ -111,35 +110,28 @@ class Tahoe():
             raise
         output = ''
         for line in iter(proc.stdout.readline, ''):
-            if not quiet:
-                logging.debug("[pid:%s] %s", proc.pid, line.rstrip())
+            logging.debug("[pid:%s] %s", proc.pid, line.rstrip())
             output = output + line
         proc.poll()
         if proc.returncode:
             logging.error(
-                "pid %s (%s) excited with code %s",
-                proc.pid, ' '.join(full_args),
-                proc.returncode)
+                "pid %s (%s) excited with code %s", proc.pid,
+                ' '.join(full_args), proc.returncode)
             num_attempts -= 1
             if num_attempts:
                 logging.debug(
-                    "Trying again (%s attempts remaining)...",
-                    num_attempts)
+                    "Trying again (%s attempts remaining)...", num_attempts)
                 time.sleep(1)
-                self.command(args, quiet, num_attempts)
+                self.command(args, num_attempts)
             else:
                 raise RuntimeError(output.rstrip())
         elif proc.returncode is None:
             logging.warning(
-                "No return code for pid:%s (%s)",
-                proc.pid,
+                "No return code for pid:%s (%s)", proc.pid,
                 ' '.join(full_args))
-        elif not quiet:
-            logging.debug(
-                "pid %s (%s) excited with code %s",
-                proc.pid,
-                ' '.join(full_args),
-                proc.returncode)
+        logging.debug(
+            "pid %s (%s) excited with code %s", proc.pid, ' '.join(full_args),
+            proc.returncode)
         return output.rstrip()
 
     def start(self):
