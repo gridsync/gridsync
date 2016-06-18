@@ -30,24 +30,26 @@ class Tox(TestCommand):
 
 
 requirements = ['watchdog', 'qt5reactor', 'requests', 'twisted']
-#if sys.version_info.major == 2:
-#    requirements.append('allmydata-tahoe')
-#if sys.platform == 'linux2':
-#    requirements.append('notify2')
 
-# PyQt5 wheels target 3.5 and are currently only available for Mac and Windows
-#if sys.version_info >= (3, 5) and sys.platform in ['darwin', 'win32']:
-#requirements += ['pyqt5']
+# if sys.platform.startswith('linux'):
+#     requirements += ['dbus-python', 'notify2']
 
+# Other versions/platforms will need to install PyQt5 separately,
+# as PyPI wheels are only made available for 3.5 on Linux/Mac/Win
+if sys.version_info == (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
+    requirements += ['pyqt5']
 
-exec(open("gridsync/_version.py").read())
 
 module_file = open("gridsync/__init__.py").read()
 metadata = dict(re.findall("__([a-z]+)__\s*=\s*'([^']+)'", module_file))
 
+version_file = open("gridsync/_version.py").read()
+version = re.findall("__version__\s*=\s*'([^']+)'", version_file)[0]
+
+
 setup(
     name="gridsync",
-    version=__version__,
+    version=version,
     description="Synchronize local directories with Tahoe-LAFS storage grids.",
     long_description=open('README.rst').read(),
     author=metadata["author"],
