@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import argparse
 import logging
 import socket
@@ -71,15 +69,14 @@ def main():
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(("localhost", 52045))
-                s.send(' '.join(args.command))
+                s.send(' '.join(args.command).encode())
                 return 0
-            except Exception as e:
-                logging.error(str(e))
-                sys.exit(str(e), file=sys.stderr)
+            except OSError as err:
+                logging.error("Error sending command(s) '%s': %s",
+                              ' '.join(args.command), str(err))
                 return 1
         else:
             logging.error("Gridsync already running.")
-            print("Gridsync already running.", file=sys.stderr)
             return 1
 
 

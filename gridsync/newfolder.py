@@ -14,6 +14,7 @@ class NewFolderWindow(QDialog):
         self.setWindowTitle("Gridsync - Add New Sync Folder")
         self.resize(500, 225)
         self.layout = QVBoxLayout(self)
+        self.folder = None
 
         layout = QVBoxLayout()
 

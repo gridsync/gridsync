@@ -131,6 +131,8 @@ class Wizard(QWizard):
         super(self.__class__, self).__init__()
         self.setWindowTitle("Gridsync - Welcome")
         self.resize(800, 500)
+        self.introducer_furl = None
+        self.folder = None
 
         self.welcome_page = WelcomePage()
         self.select_grid_page = SelectGridPage()

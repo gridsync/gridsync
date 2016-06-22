@@ -21,14 +21,21 @@ from gridsync.tahoe import Tahoe, DEFAULT_SETTINGS
 from gridsync.util import h2b, b2h
 
 
-class ServerProtocol(Protocol):
+class CoreProtocol(Protocol):
     def dataReceived(self, data):
+        data = data.decode()
         logging.debug("Received command: %s", data)
-        self.factory.parent.handle_command(data)
+        if data.lower().startswith('gridsync:'):
+            logging.info("Got gridsync URI: %s", data)
+            # TODO: Handle this
+        elif data.lower() in ('stop', 'quit', 'exit'):
+            reactor.stop()
+        else:
+            logging.info("Invalid command: %s", data)
 
 
-class ServerFactory(Factory):
-    protocol = ServerProtocol
+class CoreFactory(Factory):
+    protocol = CoreProtocol
 
     def __init__(self, parent):
         self.parent = parent
@@ -45,6 +52,8 @@ class Core():
         self.total_available_space = 0
         self.status_text = 'Status: '
         self.new_messages = []
+        self.settings = {}
+        self.tray = None
 
     def initialize_gateways(self):
         logging.debug("Initializing Tahoe-LAFS gateway(s)...")
@@ -93,7 +102,8 @@ class Core():
                     dircap_txt = os.path.join(
                         local_dir, 'Gridsync Invite Code.txt')
                     with open(dircap_txt, 'w') as f:
-                        f.write('gridsync' + introducer_furl[2:] + '/' + dircap)
+                        f.write(
+                            'gridsync' + introducer_furl[2:] + '/' + dircap)
                     self.notify("Sync Folder Initialized",
                                 "Monitoring {}".format(local_dir))
         reactor.callInThread(sync_folder.start)
@@ -112,15 +122,6 @@ class Core():
         logging.debug("Stopping SyncFolders...")
         for sync_folder in self.sync_folders:
             reactor.callInThread(sync_folder.stop)
-
-    def handle_command(self, command):
-        if command.lower().startswith('gridsync:'):
-            logging.info("Got gridsync URI: %s", command)
-            # TODO: Handle this
-        elif command.lower() in ('stop', 'quit', 'exit'):
-            reactor.stop()
-        else:
-            logging.info("Invalid command: %s", command)
 
     def check_state(self):
         active_jobs = []
@@ -173,7 +174,7 @@ class Core():
         self.start_gateways()
 
     def start(self):
-        reactor.listenTCP(52045, ServerFactory(self), interface='localhost')
+        reactor.listenTCP(52045, CoreFactory(self), interface='localhost')
         try:
             os.makedirs(self.config.config_dir)
         except OSError:
@@ -237,7 +238,8 @@ class Core():
                 servers_connected += gateway.status['servers_connected']
                 servers_known += gateway.status['servers_known']
                 available_space += h2b(gateway.status['total_available_space'])
-            except:
+            except (OSError, IndexError):
+                # XXX
                 pass
             try:
                 if prev_servers != gateway.status['servers_connected']:

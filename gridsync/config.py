@@ -26,12 +26,12 @@ class Config():
         with open(self.config_file) as f:
             return yaml.safe_load(f)
 
-    def save(self, dict):
+    def save(self, settings_dict):
         logging.info("Saving config to %s", self.config_file)
         with open(self.config_file, 'w') as f:
             try:
                 os.chmod(self.config_file, 0o600)
-            except:
+            except OSError:
                 pass
-            yaml.safe_dump(dict, f, encoding='utf-8', allow_unicode=True,
-                           default_flow_style=False)
+            yaml.safe_dump(settings_dict, f, encoding='utf-8',
+                           allow_unicode=True, default_flow_style=False)

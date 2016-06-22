@@ -29,7 +29,7 @@ def create_storage_providers_db():
     with open(providers_db, 'w') as f:
         try:
             os.chmod(providers_db, 0o600)
-        except:
+        except OSError:
             pass
         yaml.safe_dump(PROVIDERS, f, encoding='utf-8', allow_unicode=True,
                        width=68, default_flow_style=False)
@@ -61,7 +61,7 @@ def add_storage_provider(introducer_furl, name=None, description=None):
     with open(providers_db, 'w') as f:
         try:
             os.chmod(providers_db, 0o600)
-        except:
+        except OSError:
             pass
         yaml.safe_dump(storage_providers, f, encoding='utf-8',
                        allow_unicode=True, width=68, default_flow_style=False)

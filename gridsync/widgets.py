@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout, QLabel,
@@ -171,6 +173,7 @@ class GridSelector(QWidget):
         else:
             try:
                 _, connection_hints = decode_introducer_furl(introducer_furl)
+                logging.debug("connection_hints = %s", connection_hints)
             except AttributeError:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Warning)

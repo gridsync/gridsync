@@ -192,16 +192,17 @@ class Tahoe():
 
     def get_sharemap(self, storage_index):
         url = self.node_url + 'status/'
-        html = requests.get(url).text
+        r = requests.get(url)
+        r.raise_for_status()
+        html = r.text
         lines = html.split('\n')
         for i, line in enumerate(lines):
             if storage_index in line:
                 operation_url = url + lines[i + 4].split('"')[1]
                 break
-        try:
-            html = requests.get(operation_url).text
-        except:
-            return
+        r = requests.get(operation_url)
+        r.raise_for_status()
+        html = r.text
         lines = html.split('\n')
         sharemap = {}
         for line in lines:
@@ -309,7 +310,7 @@ class Tahoe():
                     'SELECT "fileid" FROM "local_files" WHERE path=? '
                     'AND size=? AND mtime=?)', (filepath, size, mtime))
                 return cursor.fetchone()[0]
-            except:
+            except TypeError:
                 return
 
     def get_aliases(self):

@@ -1,12 +1,17 @@
 [MASTER]
 ignore=
     preferences.py,
-    resources.py
+    resources.py,
+    sync.py
 
 [MESSAGES CONTROL]
 disable=
+    no-name-in-module,
     no-member,
     invalid-name,
     missing-docstring,
-    no-name-in-module,
-    wrong-import-position
+    wrong-import-position,
+    too-few-public-methods,
+    too-many-instance-attributes,
+    fixme,
+    line-too-long,

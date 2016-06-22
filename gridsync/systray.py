@@ -16,7 +16,7 @@ import gridsync.resources  # flake8: noqa, pylint: disable=unused-import
 
 
 class PreferencesWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self):
         super(PreferencesWindow, self).__init__()
         self.ui = Preferences()
         self.ui.setupUi(self)
@@ -91,7 +91,7 @@ class RightClickMenu(QMenu):
 
         quit_action = QAction(QIcon(""), '&Quit Gridsync', self)
         quit_action.setShortcut('Ctrl+Q')
-        quit_action.triggered.connect(self.parent.on_quit)
+        quit_action.triggered.connect(reactor.stop)
         self.addAction(quit_action)
 
 
@@ -120,13 +120,9 @@ class SystemTrayIcon(QSystemTrayIcon):
     def set_icon(self, resource):
         self.setIcon(QIcon(resource))
 
-    def on_click(self, value):
-        #self.right_menu.populate()
+    def on_click(self, value):  # pylint: disable=no-self-use
         if value == QSystemTrayIcon.Trigger:
             open_gridsync_folder()
-
-    def on_quit(self):
-        reactor.stop()
 
 
 def open_gridsync_folder():

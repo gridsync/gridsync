@@ -16,7 +16,7 @@ from watchdog.observers import Observer
 
 
 class SyncFolder(PatternMatchingEventHandler):
-    def __init__(self, parent, local_dir, remote_dircap, tahoe=None,
+    def __init__(self, parent, local_dir, remote_dircap, tahoe=None,  # pylint: disable=too-many-arguments
                  ignore_patterns=None):
         self.parent = parent
         _ignore_patterns = ['*.gridsync-versions*', '*.part*',
@@ -30,6 +30,7 @@ class SyncFolder(PatternMatchingEventHandler):
         self.tahoe = tahoe
         self.local_dir = os.path.expanduser(local_dir)
         self.remote_dircap = remote_dircap
+        self.remote_dircap_alias = None
         self.versions_dir = os.path.join(self.local_dir, '.gridsync-versions')
         self.local_snapshot = 0
         self.filesystem_modified = False
@@ -40,11 +41,9 @@ class SyncFolder(PatternMatchingEventHandler):
         self.keep_versions = 1
         self.local_checker = LoopingCall(self.check_for_changes)
         self.remote_checker = LoopingCall(reactor.callInThread, self.sync)
-        logging.debug(
-            "%s initialized; %s <-> %s",
-            self,
-            self.local_dir,
-            self.remote_dircap)
+        self.observer = None
+        logging.debug("%s initialized; %s <-> %s", self, self.local_dir,
+                      self.remote_dircap)
 
     def on_modified(self, event):
         self.filesystem_modified = True
@@ -85,7 +84,7 @@ class SyncFolder(PatternMatchingEventHandler):
         self.observer.start()
         reactor.callFromThread(self.remote_checker.start, 30)
 
-    def _create_conflicted_copy(self, filepath):
+    def _create_conflicted_copy(self, filepath):  # pylint: disable=no-self-use
         base, extension = os.path.splitext(filepath)
         mtime = int(os.path.getmtime(filepath))
         t = datetime.datetime.fromtimestamp(mtime)
@@ -178,24 +177,24 @@ class SyncFolder(PatternMatchingEventHandler):
         remote_path = self.remote_dircap + '/Archives/' + snapshot
         logging.info("Syncing %s with %s...", self.local_dir, snapshot)
         self.sync_state += 1
-        self.local_metadata = self.get_local_metadata(self.local_dir)
-        self.remote_metadata = self.get_remote_metadata(remote_path)
+        local_metadata = self.get_local_metadata(self.local_dir)
+        remote_metadata = self.get_remote_metadata(remote_path)
         # TODO: If tahoe.get_metadata() fails or doesn't contain a
         # valid snapshot, jump to backup?
         jobs = []
-        for file, metadata in self.remote_metadata.items():
+        for file, metadata in remote_metadata.items():
             if metadata['uri'].startswith('URI:DIR'):
                 dirpath = os.path.join(self.local_dir, file)
                 if not os.path.isdir(dirpath):
                     logging.info("Creating directory: %s...", dirpath)
                     os.makedirs(dirpath)
-        for file, metadata in self.remote_metadata.items():
+        for file, metadata in remote_metadata.items():
             if not metadata['uri'].startswith('URI:DIR'):
                 filepath = os.path.join(self.local_dir, file)
                 remote_mtime = metadata['mtime']
-                if filepath in self.local_metadata:
-                    #local_filesize = self.local_metadata[filepath]['size']
-                    local_mtime = self.local_metadata[filepath]['mtime']
+                if filepath in local_metadata:
+                    #local_filesize = local_metadata[filepath]['size']
+                    local_mtime = local_metadata[filepath]['mtime']
                     if local_mtime < remote_mtime:
                         logging.debug(
                             "[<] %s is older than remote version; "
@@ -220,9 +219,9 @@ class SyncFolder(PatternMatchingEventHandler):
                         deferToThread(
                             self.download, remote_path + '/' + file,
                             filepath, remote_mtime))
-        for file, metadata in self.local_metadata.items():
+        for file, metadata in local_metadata.items():
             fn = file.split(self.local_dir + os.path.sep)[1]
-            if fn not in self.remote_metadata:
+            if fn not in remote_metadata:
                 if metadata:
                     recovery_uri = self.tahoe.stored(
                         file, metadata['size'], metadata['mtime'])
