@@ -215,12 +215,7 @@ app: install
 	fi;
 	pip3 install pyinstaller==3.1.1
 	export PYTHONHASHSEED=1 && \
-		pyinstaller \
-			--windowed \
-			--icon=images/gridsync.icns \
-			--name=gridsync \
-			gridsync/cli.py
-	mv dist/gridsync.app dist/Gridsync.app
+		pyinstaller misc/gridsync.spec
 	cp misc/Info.plist dist/Gridsync.app/Contents
 	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 	chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe

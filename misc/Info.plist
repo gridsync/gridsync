@@ -5,7 +5,7 @@
     <key>CFBundleDisplayName</key>
     <string>Gridsync</string>
     <key>CFBundleExecutable</key>
-    <string>MacOS/gridsync</string>
+    <string>MacOS/Gridsync</string>
     <key>CFBundleIconFile</key>
     <string>gridsync.icns</string>
     <key>CFBundleIdentifier</key>

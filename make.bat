@@ -57,7 +57,7 @@ call py -3.5 -m virtualenv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
 call pip install pyqt5 . pyinstaller==3.1.1
 call set PYTHONHASHSEED=1
-call pyinstaller --windowed --icon=images\gridsync.ico --name=Gridsync gridsync\cli.py
+call pyinstaller misc\gridsync.spec
 call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
 call python -m zipfile -c dist\Gridsync.zip dist\Gridsync
 call deactivate
