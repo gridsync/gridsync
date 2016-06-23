@@ -6,7 +6,7 @@ import sys
 import yaml
 
 
-class Config():
+class Config(object):
     def __init__(self, config_file=None):
         if sys.platform == 'win32':
             self.config_dir = os.path.join(os.getenv('APPDATA'), 'Gridsync')

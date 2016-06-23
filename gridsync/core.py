@@ -21,7 +21,7 @@ from gridsync.tahoe import Tahoe, DEFAULT_SETTINGS
 from gridsync.util import h2b, b2h
 
 
-class CoreProtocol(Protocol):
+class CoreProtocol(Protocol):  # pylint: disable=no-init
     def dataReceived(self, data):
         data = data.decode()
         logging.debug("Received command: %s", data)
@@ -41,7 +41,7 @@ class CoreFactory(Factory):
         self.parent = parent
 
 
-class Core():
+class Core(object):
     def __init__(self, args):
         self.args = args
         self.gateways = []

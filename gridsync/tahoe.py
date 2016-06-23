@@ -11,9 +11,9 @@ import sys
 import time
 
 try:
-    import ConfigParser as configparser
-except ImportError:
     import configparser
+except ImportError:
+    import ConfigParser as configparser  # pylint: disable=import-error
 
 import requests
 
@@ -40,7 +40,7 @@ def decode_introducer_furl(furl):
     return match.group(1), match.group(2)
 
 
-class Tahoe():
+class Tahoe(object):
     def __init__(self, location=None, settings=None):
         self.location = location  # introducer fURL, gateway URL, or local path
         self.settings = settings

@@ -25,7 +25,6 @@ PROVIDERS = {
 
 def create_storage_providers_db():
     providers_db = os.path.join(Config().config_dir, 'storage-providers.yml')
-    print(providers_db)
     with open(providers_db, 'w') as f:
         try:
             os.chmod(providers_db, 0o600)
@@ -57,7 +56,6 @@ def add_storage_provider(introducer_furl, name=None, description=None):
         'description': description
     }
     storage_providers.update(new_provider)
-    print(storage_providers)
     with open(providers_db, 'w') as f:
         try:
             os.chmod(providers_db, 0o600)
