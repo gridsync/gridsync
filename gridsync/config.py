@@ -15,8 +15,10 @@ class Config(object):
                 os.path.expanduser('~'), 'Library', 'Application Support',
                 'Gridsync')
         else:
-            self.config_dir = os.path.join(
-                os.path.expanduser('~'), '.config', 'gridsync')
+            basedir = os.environ.get(
+                'XDG_CONFIG_HOME', os.path.join(os.path.expanduser('~'),
+                '.config'))
+            self.config_dir = os.path.join(basedir, 'gridsync')
         if config_file:
             self.config_file = config_file[0]
         else:
@@ -29,9 +31,7 @@ class Config(object):
     def save(self, settings_dict):
         logging.info("Saving config to %s", self.config_file)
         with open(self.config_file, 'w') as f:
-            try:
-                os.chmod(self.config_file, 0o600)
-            except OSError:
-                pass
+            # TODO: Handle possible exceptions in Core()
+            os.chmod(self.config_file, 0o600)
             yaml.safe_dump(settings_dict, f, encoding='utf-8',
                            allow_unicode=True, default_flow_style=False)
