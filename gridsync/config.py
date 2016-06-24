@@ -16,8 +16,8 @@ class Config(object):
                 'Gridsync')
         else:
             basedir = os.environ.get(
-                'XDG_CONFIG_HOME', os.path.join(os.path.expanduser('~'),
-                '.config'))
+                'XDG_CONFIG_HOME',
+                os.path.join(os.path.expanduser('~'), '.config'))
             self.config_dir = os.path.join(basedir, 'gridsync')
         if config_file:
             self.config_file = config_file[0]
