@@ -40,6 +40,7 @@ def test_config_dir_other(monkeypatch):
 
 
 def test_config_dir_xdg_config_home(monkeypatch):
+    monkeypatch.setattr("sys.platform", "linux")
     monkeypatch.setenv('XDG_CONFIG_HOME', '/test')
     assert Config().config_dir == os.path.join('/test', 'gridsync')
 
