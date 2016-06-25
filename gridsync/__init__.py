@@ -12,8 +12,10 @@ __license__ = 'GPL'
 __version__ = _version.__version__
 
 
-# Workarounds for PyInstaller
 if getattr(sys, 'frozen', False):
-    del sys.modules['twisted.internet.reactor']
+    try:
+        del sys.modules['twisted.internet.reactor']  # PyInstaller workaround
+    except KeyError:
+        pass
     tahoe_bundle = os.path.join(os.path.dirname(sys.executable), 'Tahoe-LAFS')
     os.environ["PATH"] += os.pathsep + tahoe_bundle
