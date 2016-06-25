@@ -101,6 +101,9 @@ setup(
         "Topic :: Utilities",
     ],
     packages=["gridsync", "gridsync.forms"],
+    package_data={
+        'gridsync': ['resources/*']
+    },
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
