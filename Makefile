@@ -16,6 +16,8 @@ clean:
 	rm -rf .eggs/
 	rm -rf .cache/
 	rm -rf .tox/
+	rm -rf htmlcov/
+	rm .coverage
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
 	find . -name '*.pyc' -exec rm -f {} +
