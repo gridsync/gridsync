@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import difflib
+import os
+import sys
+if sys.version_info >= (3, 4):
+    from importlib import reload
+
 import pytest
 
+import gridsync
 from gridsync.tahoe import Tahoe, decode_introducer_furl
 
 
@@ -50,3 +57,15 @@ def test_tahoe(tahoe):
 
 def test_tahoe_name(tahoe):
     assert tahoe.name
+
+
+def test_append_tahoe_bundle_to_PATH(monkeypatch):
+    monkeypatch.setattr("sys.frozen", True, raising=False)
+    old_path = os.environ['PATH']
+    reload(gridsync.tahoe)
+    delta = ''
+    for _, s in enumerate(difflib.ndiff(old_path, os.environ['PATH'])):
+        if s[0] == '+':
+            delta += s[-1]
+    assert delta == os.pathsep + os.path.join(os.path.dirname(sys.executable),
+                                              'Tahoe-LAFS')

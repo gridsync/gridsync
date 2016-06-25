@@ -33,6 +33,11 @@ DEFAULT_SETTINGS = {
 }
 
 
+if getattr(sys, 'frozen', False):
+    os.environ["PATH"] += os.pathsep + os.path.join(
+        os.path.dirname(sys.executable), 'Tahoe-LAFS')
+
+
 def decode_introducer_furl(furl):
     """Return (tub_id, connection_hints)"""
     pattern = r'^pb://([a-z2-7]+)@([a-zA-Z0-9\.:,-]+:\d+)/[a-z2-7]+$'
