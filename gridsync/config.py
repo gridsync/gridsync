@@ -20,7 +20,7 @@ class Config(object):
                 os.path.join(os.path.expanduser('~'), '.config'))
             self.config_dir = os.path.join(basedir, 'gridsync')
         if config_file:
-            self.config_file = config_file[0]
+            self.config_file = config_file
         else:
             self.config_file = os.path.join(self.config_dir, 'config.yml')
 

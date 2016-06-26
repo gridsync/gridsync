@@ -46,7 +46,7 @@ class Core(object):
         self.args = args
         self.gateways = []
         self.sync_folders = []
-        self.config = Config(self.args.config)
+        self.config = Config(args.config[0] if args.config else None)
         self.servers_connected = 0
         self.servers_known = 0
         self.total_available_space = 0
