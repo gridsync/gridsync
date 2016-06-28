@@ -112,6 +112,7 @@ class Tahoe(object):
                     stderr=subprocess.STDOUT, universal_newlines=True)
         except OSError as error:
             logging.error("Could not run tahoe executable: %s", error)
+            # TODO: Notify user?
             raise
         output = ''
         for line in iter(proc.stdout.readline, ''):
