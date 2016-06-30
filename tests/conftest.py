@@ -12,4 +12,3 @@ try:
 except ImportError as err:
     print(err)
     # TODO: create fixture to skip Qt tests
-
