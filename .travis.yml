@@ -14,7 +14,7 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pip2 install --upgrade pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pip3 install --upgrade pip; fi
   - sudo pip install tox coveralls
-  - make pyqt 1>/dev/null
+  #- make pyqt 1>/dev/null
 before_script:
   - env
   - which python && python --version && which pip && pip --version
