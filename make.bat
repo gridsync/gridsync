@@ -17,11 +17,11 @@ if "%1"=="" call :all
 goto :eof
 
 :test
-call py setup.py test || exit /b
+call py setup.py test || exit /b 1
 goto :eof
 
 :pytest
-call python -m pytest || exit /b
+call python -m pytest || exit /b 1
 goto :eof
 
 :frozen-tahoe
