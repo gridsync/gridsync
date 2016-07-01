@@ -23,6 +23,7 @@ before_script:
   - which tox && tox --version
 script:
   - tox
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --create-dirs -o dist/Tahoe-LAFS.zip https://buildbot.gridsync.io/tahoe-lafs/Tahoe-LAFS-osx.zip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --version; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --tahoe-version; fi
