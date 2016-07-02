@@ -36,8 +36,9 @@ requirements = ['watchdog', 'qt5reactor', 'requests', 'twisted']
 
 # Other versions/platforms will need to install PyQt5 separately,
 # as PyPI wheels are only made available for 3.5 on Linux/Mac/Win
-if sys.version_info == (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
-    requirements += ['pyqt5']
+python_version = (sys.version_info.major, sys.version_info.minor)
+if python_version == (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
+    requirements.append('pyqt5')
 
 
 module_file = open("gridsync/__init__.py").read()
