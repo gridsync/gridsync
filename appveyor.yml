@@ -28,8 +28,8 @@ test_script:
   - "python -m pytest"
 after_test:
   - "make all"
-  - ".\\dist\\Gridsync\\Gridsync.exe --version"
-  - ".\\dist\\Gridsync\\Gridsync.exe --tahoe-version"
+  #- ".\\dist\\Gridsync\\Gridsync.exe --version"
+  #- ".\\dist\\Gridsync\\Gridsync.exe --tahoe-version"
 artifacts:
   - path: dist\Gridsync.zip
     name: Gridsync-win$(PYTHON_ARCH).zip
