@@ -33,7 +33,7 @@ call C:\Python27\python.exe -m pip install --upgrade virtualenv
 call C:\Python27\python.exe -m virtualenv --clear .\build\venv
 call .\build\venv\Scripts\activate
 call pip install --find-links=https://tahoe-lafs.org/deps/ .\build\tahoe-lafs
-call pip install pyinstaller==3.1.1
+call pip install git+https://github.com/pyinstaller/pyinstaller.git
 call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call set PYTHONHASHSEED=1
@@ -55,7 +55,7 @@ call .\dist\Tahoe-LAFS\tahoe.exe --version-and-path
 call py -3.5 -m pip install --upgrade pip virtualenv
 call py -3.5 -m virtualenv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
-call pip install pyqt5 . pyinstaller==3.1.1
+call pip install pyqt5 . git+https://github.com/pyinstaller/pyinstaller.git
 call set PYTHONHASHSEED=1
 call pyinstaller misc\gridsync.spec
 call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
