@@ -197,7 +197,7 @@ frozen-tahoe:
 	virtualenv --clear --python=python2 build/venv
 	source build/venv/bin/activate && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ build/tahoe-lafs && \
-	pip install pyinstaller==3.1.1 && \
+	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
 	cp misc/tahoe.spec build/tahoe-lafs && \
 	pushd build/tahoe-lafs && \
 	export PYTHONHASHSEED=1 && \
@@ -215,7 +215,7 @@ app: install
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	pip3 install pyinstaller==3.1.1
+	pip3 install --upgrade git+https://github.com/pyinstaller/pyinstaller.git
 	export PYTHONHASHSEED=1 && \
 		pyinstaller misc/gridsync.spec
 	cp misc/Info.plist dist/Gridsync.app/Contents
