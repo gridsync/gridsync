@@ -57,7 +57,7 @@ class Core(object):
     def initialize_gateways(self):
         logging.debug("Initializing Tahoe-LAFS gateway(s)...")
         logging.debug(self.settings)
-        for gateway in self.settings.keys():
+        for gateway in self.settings:
             try:
                 t = Tahoe(gateway, self.settings[gateway]['tahoe.cfg'])
             except KeyError:
