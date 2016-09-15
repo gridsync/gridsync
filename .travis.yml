@@ -4,16 +4,17 @@ os:
   - "linux"
   - "osx"
 install:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get update; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then PYTHON='python3' make pyqt 1>/dev/null; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export PATH=/usr/bin:$PATH; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get update; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then PYTHON='python3' make pyqt 1>/dev/null; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export PATH=/usr/bin:$PATH; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python pyqt5; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew link --force qt5; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pip2 install --upgrade pip; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pip3 install --upgrade pip; fi
-  - sudo pip install tox coveralls
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python python3; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python pyqt5; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew link --force qt5; fi
+  - pip2 install --upgrade pip
+  - pip3 install --upgrade pip
+  - pip3 install tox coveralls || sudo pip3 install tox coveralls
   #- make pyqt 1>/dev/null
 before_script:
   - env
@@ -25,8 +26,8 @@ script:
   - tox
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --create-dirs -o dist/Tahoe-LAFS.zip https://buildbot.gridsync.io/tahoe-lafs/Tahoe-LAFS-osx.zip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --version; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/gridsync --tahoe-version; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/Gridsync --version; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/Gridsync --tahoe-version; fi
 after_success:
   - coveralls
 notifications:
