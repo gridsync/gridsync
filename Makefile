@@ -217,7 +217,8 @@ app:
 	fi;
 	virtualenv --clear --python=python3 build/venv-gridsync
 	source build/venv-gridsync/bin/activate && \
-	pip install . git+https://github.com/pyinstaller/pyinstaller.git && \
+	which python && python --version && which pip3 && pip3 --version && \
+	pip3 install . git+https://github.com/pyinstaller/pyinstaller.git && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller misc/gridsync.spec
 	cp misc/Info.plist dist/Gridsync.app/Contents
