@@ -30,8 +30,8 @@ call powershell -Command "(New-Object Net.WebClient).DownloadFile('https://tahoe
 call C:\Python27\python.exe -m zipfile -e .\build\tahoe-lafs.zip .\build
 call move .\build\tahoe-lafs-1.11.0 .\build\tahoe-lafs
 call C:\Python27\python.exe -m pip install --upgrade virtualenv
-call C:\Python27\python.exe -m virtualenv --clear .\build\venv
-call .\build\venv\Scripts\activate
+call C:\Python27\python.exe -m virtualenv --clear .\build\venv-tahoe
+call .\build\venv-tahoe\Scripts\activate
 call pip install --find-links=https://tahoe-lafs.org/deps/ .\build\tahoe-lafs
 call pip install git+https://github.com/pyinstaller/pyinstaller.git
 call copy .\misc\tahoe.spec .\build\tahoe-lafs
@@ -42,7 +42,7 @@ call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
 call set PYTHONHASHSEED=
 call move dist ..\..
 call popd
-call .\build\venv\Scripts\deactivate
+call .\build\venv-tahoe\Scripts\deactivate
 goto :eof
 
 :all

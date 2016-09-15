@@ -194,8 +194,8 @@ frozen-tahoe:
 	curl --progress-bar --output build/tahoe-lafs.tar.bz2 --location \
 		https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
 	tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
-	virtualenv --clear --python=python2 build/venv
-	source build/venv/bin/activate && \
+	virtualenv --clear --python=python2 build/venv-tahoe
+	source build/venv-tahoe/bin/activate && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ build/tahoe-lafs && \
 	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
 	cp misc/tahoe.spec build/tahoe-lafs && \
