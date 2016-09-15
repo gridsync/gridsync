@@ -208,22 +208,26 @@ frozen-tahoe:
 install:
 	pip3 install --upgrade .
 
-app: install
+app:
 	# OS X only
 	if [ -f dist/Tahoe-LAFS.zip ] ; then \
 		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	pip3 install --upgrade git+https://github.com/pyinstaller/pyinstaller.git
+	virtualenv --clear --python=python3 build/venv-gridsync
+	source build/venv-gridsync/bin/activate && \
+	pip install . git+https://github.com/pyinstaller/pyinstaller.git && \
 	export PYTHONHASHSEED=1 && \
-		pyinstaller misc/gridsync.spec
+	pyinstaller misc/gridsync.spec
 	cp misc/Info.plist dist/Gridsync.app/Contents
 	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 	chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
 
 dmg: app
-	pip2 install --upgrade dmgbuild || pip2 install --user --upgrade dmgbuild
+	virtualenv --clear --python=python2 build/venv-dmg
+	source build/venv-dmg/bin/activate && \
+	pip install dmgbuild && \
 	dmgbuild -s misc/dmgbuild_settings.py Gridsync dist/Gridsync.dmg
 	#mkdir -p dist/dmg
 	#mv dist/Gridsync.app dist/dmg
