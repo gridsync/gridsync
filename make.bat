@@ -56,7 +56,10 @@ call .\dist\Tahoe-LAFS\tahoe.exe --version-and-path
 call py -3.5 -m pip install --upgrade pip virtualenv
 call py -3.5 -m virtualenv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
-call pip install pyqt5==5.6 . git+https://github.com/pyinstaller/pyinstaller.git
+call pip install pyqt5==5.6
+call pip install git+https://github.com/crwood/qt5reactor.git
+call pip install . 
+call pip install git+https://github.com/pyinstaller/pyinstaller.git
 call set PYTHONHASHSEED=1
 call pyinstaller misc\gridsync.spec
 call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
