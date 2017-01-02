@@ -13,7 +13,9 @@ try:
     auto_deps = os.path.join(get_python_lib(), 'allmydata', '_auto_deps.py')
     shutil.copy2(auto_deps, '_auto_deps.py.original')
     with open(auto_deps) as f, open('_auto_deps.py.modified', 'w+') as n:
-        n.write(f.read().replace('"setuptools >=', '#"setuptools >='))
+        n.write(f.read()
+            .replace('"setuptools >=','#"setuptools >=')
+            .replace('"shutilwhich >=','#"shutilwhich >='))
     shutil.move('_auto_deps.py.modified', auto_deps)
 except Exception as e:
     sys.exit(e)
