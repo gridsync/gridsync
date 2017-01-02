@@ -191,9 +191,8 @@ build-deps: deps
 
 frozen-tahoe:
 	mkdir -p build/tahoe-lafs
-	curl --progress-bar --output build/tahoe-lafs.tar.bz2 --location \
-		https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
-	tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
+	git clone -b 1432.osx-watchdog-stable.10 \
+        https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
 	virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ build/tahoe-lafs && \
