@@ -197,6 +197,7 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ build/tahoe-lafs && \
 	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
+	pip install 'zope.interface==4.3.2' && \
 	cp misc/tahoe.spec build/tahoe-lafs && \
 	pushd build/tahoe-lafs && \
 	export PYTHONHASHSEED=1 && \
