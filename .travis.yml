@@ -11,7 +11,7 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python2 -m pip install --upgrade pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo python3 -m pip install --upgrade pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo python3 -m pip install tox coveralls; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo make pyqt; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo make pyqt; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew upgrade pyenv; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv install --list; fi
