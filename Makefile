@@ -138,18 +138,17 @@ ui:
 
 sip:
 	mkdir -p build/sip
-	curl --progress-bar --output "build/sip.tar.gz" --location \
-		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.18/sip-4.18.tar.gz"
+	curl --progress-bar --retry 20 --output "build/sip.tar.gz" --location \
+		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.gz"
 	tar zxf build/sip.tar.gz -C build/sip --strip-components=1
-	cd build/sip && \
-		$${PYTHON=python} configure.py --incdir=build/sip/sipinc
+	cd build/sip && $${PYTHON=python} configure.py --incdir=build/sip/sipinc
 	$(MAKE) -C build/sip -j 4
-	$(MAKE) -C build/sip install || sudo $(MAKE) -C build/sip install
+	$(MAKE) -C build/sip install
 
 pyqt: sip
 	mkdir -p build/pyqt
-	curl --progress-bar --output "build/pyqt.tar.gz" --location \
-		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz"
+	curl --progress-bar --retry 20 --output "build/pyqt.tar.gz" --location \
+		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7.1/PyQt5_gpl-5.7.1.tar.gz"
 	tar zxf build/pyqt.tar.gz -C build/pyqt --strip-components=1
 	cd build/pyqt && \
 		QT_SELECT=qt5 $${PYTHON=python} configure.py \
@@ -160,7 +159,7 @@ pyqt: sip
 			--enable QtGui \
 			--enable QtWidgets
 	$(MAKE) -C build/pyqt -j 4
-	$(MAKE) -C build/pyqt install || sudo $(MAKE) -C build/pyqt install
+	$(MAKE) -C build/pyqt install
 
 check_pyqt:
 	$${PYTHON=python} -c 'import PyQt5' && echo 'PyQt5 installed' || make pyqt
@@ -190,20 +189,28 @@ build-deps: deps
 	esac
 
 frozen-tahoe:
-	mkdir -p build/tahoe-lafs
+	# Requires libssl-dev libffi-dev
+	mkdir -p dist
+	#mkdir -p build/tahoe-lafs
+	#curl --progress-bar --output build/tahoe-lafs.tar.bz2 --location \
+	#	https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
+	#tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
+	#git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	git clone -b 1432.osx-watchdog-stable.10 \
-        https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
+		https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
 	virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
-	pip install --find-links=https://tahoe-lafs.org/deps/ build/tahoe-lafs && \
-	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
-	pip install 'zope.interface==4.3.2' && \
 	cp misc/tahoe.spec build/tahoe-lafs && \
 	pushd build/tahoe-lafs && \
+	python setup.py update_version && \
+	pip install --find-links=https://tahoe-lafs.org/deps/ . && \
+	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
+	pip install 'zope.interface==4.3.2' && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller tahoe.spec && \
-	python -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS && \
-	mv dist ../..
+	popd && \
+	mv build/tahoe-lafs/dist/Tahoe-LAFS dist && \
+	python -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS
 
 install:
 	pip3 install --upgrade .
