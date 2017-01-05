@@ -141,7 +141,7 @@ class Core(object):
             if not self.args.no_gui and self.tray.animation.state() == 2:
                 self.tray.animation.setPaused(True)
                 self.tray.setToolTip("Gridsync - Up to date")
-                self.tray.set_icon(":gridsync-checkmark.png")
+                self.tray.set_icon("icon.png")
             if self.new_messages:
                 message = '\n'.join(self.new_messages)
                 self.notify("Sync complete", message)

@@ -1,7 +1,6 @@
 [MASTER]
 ignore=
     preferences.py,
-    resources.py,
     sync.py
 
 [MESSAGES CONTROL]

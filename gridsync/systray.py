@@ -12,7 +12,7 @@ from twisted.internet import reactor
 
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.newfolder import NewFolderWindow
-import gridsync.resources  # flake8: noqa, pylint: disable=unused-import
+from gridsync.resource import resource
 
 
 class PreferencesWindow(QMainWindow):
@@ -103,22 +103,22 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.new_folder_window = NewFolderWindow(parent)
         self.preferences_window = PreferencesWindow()
 
-        self.setIcon(QIcon(":gridsync.png"))
+        self.setIcon(QIcon(resource("icon.png")))
 
         self.right_menu = RightClickMenu(self)
         self.setContextMenu(self.right_menu)
         self.activated.connect(self.on_click)
 
         self.animation = QMovie()
-        self.animation.setFileName(":sync.gif")
+        self.animation.setFileName(resource("sync.gif"))
         self.animation.updated.connect(self.update_animation_frame)
         self.animation.setCacheMode(True)
 
     def update_animation_frame(self):
         self.setIcon(QIcon(self.animation.currentPixmap()))
 
-    def set_icon(self, resource):
-        self.setIcon(QIcon(resource))
+    def set_icon(self, resource_file):
+        self.setIcon(QIcon(resource(resource_file)))
 
     def on_click(self, value):  # pylint: disable=no-self-use
         if value == QSystemTrayIcon.Trigger:

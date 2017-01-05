@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QSpacerItem, QVBoxLayout, QWidget)
 
 from gridsync.providers import get_storage_providers, add_storage_provider
+from gridsync.resource import resource
 from gridsync.tahoe import decode_introducer_furl
 
 
@@ -152,7 +153,7 @@ class GridSelector(QWidget):
                 pass
             self.description.setText(description)
             try:
-                pixmap = QPixmap(provider['logo']).scaled(64, 64)
+                pixmap = QPixmap(resource(provider['logo'])).scaled(64, 64)
                 self.image.setPixmap(pixmap)
                 self.image.show()
             except KeyError:
