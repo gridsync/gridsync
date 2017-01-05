@@ -206,6 +206,7 @@ frozen-tahoe:
 	pip install --find-links=https://tahoe-lafs.org/deps/ . && \
 	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
 	pip install 'zope.interface==4.3.2' && \
+	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller tahoe.spec && \
 	popd && \
@@ -226,6 +227,7 @@ app:
 	source build/venv-gridsync/bin/activate && \
 	pip install --upgrade pip && \
 	pip install . git+https://github.com/pyinstaller/pyinstaller.git && \
+	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller misc/gridsync.spec
 	cp misc/Info.plist dist/Gridsync.app/Contents

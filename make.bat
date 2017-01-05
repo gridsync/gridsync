@@ -38,6 +38,7 @@ call pip install git+https://github.com/pyinstaller/pyinstaller.git
 call pip install zope.interface==4.3.2
 call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
+call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller tahoe.spec
 call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
@@ -62,6 +63,7 @@ call pip install sip==4.18.1
 call pip install git+https://github.com/crwood/qt5reactor.git
 call pip install . 
 call pip install git+https://github.com/pyinstaller/pyinstaller.git
+call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller misc\gridsync.spec
 call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
