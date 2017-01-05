@@ -35,7 +35,6 @@ call C:\Python27\python.exe -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call pip install --find-links=https://tahoe-lafs.org/deps/ .\build\tahoe-lafs
 call pip install git+https://github.com/pyinstaller/pyinstaller.git
-call pip install zope.interface==4.3.2
 call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call pip list

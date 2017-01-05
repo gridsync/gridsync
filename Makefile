@@ -205,7 +205,6 @@ frozen-tahoe:
 	python setup.py update_version && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ . && \
 	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
-	pip install 'zope.interface==4.3.2' && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller tahoe.spec && \
