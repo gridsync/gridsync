@@ -29,7 +29,13 @@ class Tox(TestCommand):
         sys.exit(errno)
 
 
-requirements = ['watchdog', 'qt5reactor', 'requests', 'twisted']
+requirements = [
+    'magic-wormhole',
+    'qt5reactor',
+    'requests',
+    'twisted[tls]',
+    'watchdog',
+]
 
 # if sys.platform.startswith('linux'):
 #     requirements += ['dbus-python', 'notify2']
