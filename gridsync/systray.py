@@ -2,15 +2,19 @@
 
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import webbrowser
 
 from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import QAction, QMainWindow, QMenu, QSystemTrayIcon
+from PyQt5.QtWidgets import (
+    QAction, QMainWindow, QMenu, QMessageBox, QSystemTrayIcon)
 from twisted.internet import reactor
 
+from gridsync.config import Config
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
+from gridsync.invite import InviteForm
 from gridsync.newfolder import NewFolderWindow
 from gridsync.resource import resource
 
@@ -26,11 +30,17 @@ class RightClickMenu(QMenu):
     def __init__(self, parent):
         super(RightClickMenu, self).__init__()
         self.parent = parent
+        self.invite_form = None
         self.populate()
 
     def populate(self):
         self.clear()
         logging.debug("(Re-)populating systray menu...")
+
+        invite_action = QAction(QIcon(""), "Enter Invite Code...", self)
+        invite_action.triggered.connect(self.show_invite_form)
+        self.addAction(invite_action)
+
         new_folder_action = QAction(QIcon(""), "Add New Sync Folder...", self)
         #new_folder_action.triggered.connect(
         #    self.parent.new_folder_window.populate_combo_box)
@@ -93,6 +103,21 @@ class RightClickMenu(QMenu):
         quit_action.setShortcut('Ctrl+Q')
         quit_action.triggered.connect(reactor.stop)
         self.addAction(quit_action)
+
+    def show_invite_form(self):
+        nodedir = os.path.join(Config().config_dir, 'default')
+        if os.path.isdir(nodedir):
+            reply = QMessageBox.question(
+                self, "Tahoe-LAFS already configured",
+                "Tahoe-LAFS is already configured on this computer. "
+                "Do you want to overwrite your existing configuration?")
+            if reply == QMessageBox.Yes:
+                shutil.rmtree(nodedir, ignore_errors=True)
+            else:
+                return
+        self.invite_form = InviteForm()
+        self.invite_form.show()
+        self.invite_form.raise_()
 
 
 class SystemTrayIcon(QSystemTrayIcon):
