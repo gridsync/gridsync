@@ -4,7 +4,7 @@ import os
 import yaml
 
 from gridsync.config import Config
-from gridsync.tahoe import decode_introducer_furl
+from gridsync.sync import decode_introducer_furl
 
 
 PROVIDERS = {
