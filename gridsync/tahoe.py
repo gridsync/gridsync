@@ -71,7 +71,7 @@ class Tahoe(object):
         config.read(os.path.join(self.nodedir, 'tahoe.cfg'))
         return config.get(section, option)
 
-    def line_received(self, line):
+    def line_received(self, line):  # pylint: disable=no-self-use
         # TODO: Connect to Core via Qt signals/slots?
         print(">>> " + line)
 
