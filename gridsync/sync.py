@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# XXX: This module contains deprecated -- or soon to be deprecated -- code
+# that was mostly experimental (i.e., messy, half-baked, and poorly-tested).
+# Expect most this to go away as part of the transition to use magic-folders
+# and/or to be reconceived in better ways elsewhere.
+
 try:
     import configparser
 except ImportError:
