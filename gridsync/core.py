@@ -14,9 +14,8 @@ from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol, Factory
 
 from gridsync.config import Config
-from gridsync.sync import SyncFolder
+from gridsync.sync import SyncFolder, Tahoe, DEFAULT_SETTINGS
 from gridsync.systray import SystemTrayIcon
-from gridsync.tahoe import Tahoe, DEFAULT_SETTINGS
 from gridsync.util import h2b, b2h
 
 

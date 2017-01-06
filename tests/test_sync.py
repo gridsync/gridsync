@@ -9,7 +9,7 @@ if sys.version_info >= (3, 4):
 import pytest
 
 import gridsync
-from gridsync.tahoe import Tahoe, decode_introducer_furl
+from gridsync.sync import Tahoe, decode_introducer_furl
 
 
 @pytest.fixture(autouse=True)
