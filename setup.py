@@ -35,9 +35,9 @@ requirements = ['watchdog', 'qt5reactor', 'requests', 'twisted']
 #     requirements += ['dbus-python', 'notify2']
 
 # Other versions/platforms will need to install PyQt5 separately,
-# as PyPI wheels are only made available for 3.5 on Linux/Mac/Win
+# as PyPI wheels are only made available for 3.5+ on Linux/Mac/Win
 python_version = (sys.version_info.major, sys.version_info.minor)
-if python_version == (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
+if python_version >= (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
     requirements.append('pyqt5')
 
 
