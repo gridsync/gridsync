@@ -33,10 +33,11 @@ call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call C:\Python27\python.exe -m pip install --upgrade virtualenv
 call C:\Python27\python.exe -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
-call pip install --find-links=https://tahoe-lafs.org/deps/ .\build\tahoe-lafs
-call pip install git+https://github.com/pyinstaller/pyinstaller.git
 call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
+call C:\Python27\python.exe setup.py update_version
+call pip install --find-links=https://tahoe-lafs.org/deps/ .
+call pip install git+https://github.com/pyinstaller/pyinstaller.git
 call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller tahoe.spec
