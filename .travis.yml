@@ -38,7 +38,7 @@ before_script:
 script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then tox; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then tox -e py35; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --create-dirs -o dist/Tahoe-LAFS.zip https://buildbot.gridsync.io/tahoe-lafs/Tahoe-LAFS-osx.zip; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --create-dirs -o dist/Tahoe-LAFS.zip https://buildbot.gridsync.io/tahoe-lafs/Tahoe-LAFS-osx.zip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python scripts/print_hashes.py dist; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/Gridsync --version; fi
