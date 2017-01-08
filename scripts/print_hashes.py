@@ -15,8 +15,8 @@ def print_hashes(path, basedir=None):
             if '.git' not in root:
                 files_list.append(os.path.join(root, name))
     for filepath in sorted(files_list):
-        print(hashlib.sha256(filepath.encode('utf-8')).hexdigest(), filepath)
-
+        digest = hashlib.sha256(open(filepath, 'rb').read()).hexdigest()
+        print(digest, filepath)
 
 
 if __name__ == '__main__':
