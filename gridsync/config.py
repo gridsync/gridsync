@@ -2,27 +2,16 @@
 
 import logging
 import os
-import sys
 import yaml
+
+from gridsync import config_dir
 
 
 class Config(object):
     def __init__(self, config_file=None):
-        if sys.platform == 'win32':
-            self.config_dir = os.path.join(os.getenv('APPDATA'), 'Gridsync')
-        elif sys.platform == 'darwin':
-            self.config_dir = os.path.join(
-                os.path.expanduser('~'), 'Library', 'Application Support',
-                'Gridsync')
-        else:
-            basedir = os.environ.get(
-                'XDG_CONFIG_HOME',
-                os.path.join(os.path.expanduser('~'), '.config'))
-            self.config_dir = os.path.join(basedir, 'gridsync')
-        if config_file:
-            self.config_file = config_file
-        else:
-            self.config_file = os.path.join(self.config_dir, 'config.yml')
+        self.config_file = config_file
+        if not self.config_file:
+            self.config_file = os.path.join(config_dir, 'config.yml')
 
     def load(self):
         with open(self.config_file) as f:

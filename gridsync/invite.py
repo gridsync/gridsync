@@ -15,7 +15,7 @@ from wormhole.errors import WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.wormhole import wormhole
 
-from gridsync.config import Config
+from gridsync import config_dir
 from gridsync.resource import resource
 from gridsync.tahoe import Tahoe
 
@@ -208,7 +208,7 @@ class InviteForm(QWidget):
             pass
 
         self.update_progress(2, 'Creating gateway...')
-        tahoe = Tahoe(os.path.join(Config().config_dir, 'default'))
+        tahoe = Tahoe(os.path.join(config_dir, 'default'))
         args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
         for option in ('nickname', 'introducer'):
             # TODO: Add 'needed', 'happy', 'total' pending tahoe-lafs PR #376

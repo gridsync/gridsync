@@ -13,6 +13,7 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol, Factory
 
+from gridsync import config_dir
 from gridsync.config import Config
 from gridsync.sync import SyncFolder, Tahoe, DEFAULT_SETTINGS
 from gridsync.systray import SystemTrayIcon
@@ -174,7 +175,7 @@ class Core(object):
     def start(self):
         reactor.listenTCP(52045, CoreFactory(self), interface='localhost')
         try:
-            os.makedirs(self.config.config_dir)
+            os.makedirs(config_dir)
         except OSError:
             pass
         if self.args.debug:
@@ -183,7 +184,7 @@ class Core(object):
                 level=logging.DEBUG,
                 stream=sys.stdout)
         else:
-            logfile = os.path.join(self.config.config_dir, 'gridsync.log')
+            logfile = os.path.join(config_dir, 'gridsync.log')
             logging.basicConfig(
                 format='%(asctime)s %(funcName)s %(message)s',
                 level=logging.INFO,

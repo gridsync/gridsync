@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QAction, QMainWindow, QMenu, QMessageBox, QSystemTrayIcon)
 from twisted.internet import reactor
 
-from gridsync.config import Config
+from gridsync import config_dir
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.invite import InviteForm
 from gridsync.newfolder import NewFolderWindow
@@ -105,7 +105,7 @@ class RightClickMenu(QMenu):
         self.addAction(quit_action)
 
     def show_invite_form(self):
-        nodedir = os.path.join(Config().config_dir, 'default')
+        nodedir = os.path.join(config_dir, 'default')
         if os.path.isdir(nodedir):
             reply = QMessageBox.question(
                 self, "Tahoe-LAFS already configured",

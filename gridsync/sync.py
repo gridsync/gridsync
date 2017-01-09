@@ -29,7 +29,7 @@ from twisted.internet.threads import deferToThread, blockingCallFromThread
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
-from gridsync.config import Config
+from gridsync import config_dir
 from gridsync.util import h2b, b2h
 
 
@@ -72,12 +72,12 @@ class Tahoe(object):
             self.settings['client']['introducer.furl'] = location
             _, connection_hints = decode_introducer_furl(location)
             first_hostname = connection_hints.split(',')[0].split(':')[0]
-            self.node_dir = os.path.join(Config().config_dir, first_hostname)
+            self.node_dir = os.path.join(config_dir, first_hostname)
         elif location.startswith('http://') or location.startswith('https://'):
             location += ('/' if not location.endswith('/') else '')
             self.node_url = location
         else:
-            self.node_dir = os.path.join(Config().config_dir, location)
+            self.node_dir = os.path.join(config_dir, location)
         if self.node_dir:
             self.name = os.path.basename(self.node_dir)
         else:

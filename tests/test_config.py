@@ -1,48 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 
 from gridsync.config import Config
-
-
-def test_config_dir():
-    config = Config()
-    if sys.platform == 'win32':
-        assert config.config_dir == os.path.join(os.getenv('APPDATA'),
-                                                 'Gridsync')
-    elif sys.platform == 'darwin':
-        assert config.config_dir == os.path.join(
-            os.path.expanduser('~'), 'Library', 'Application Support',
-            'Gridsync')
-    else:
-        assert config.config_dir == os.path.join(os.path.expanduser('~'),
-                                                 '.config', 'gridsync')
-
-
-def test_config_dir_win32(monkeypatch):
-    monkeypatch.setattr("sys.platform", "win32")
-    monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
-    assert Config().config_dir == os.path.join(os.getenv('APPDATA'),
-                                               'Gridsync')
-
-
-def test_config_dir_darwin(monkeypatch):
-    monkeypatch.setattr("sys.platform", "darwin")
-    assert Config().config_dir == os.path.join(
-        os.path.expanduser('~'), 'Library', 'Application Support', 'Gridsync')
-
-
-def test_config_dir_other(monkeypatch):
-    monkeypatch.setattr("sys.platform", "linux")
-    assert Config().config_dir == os.path.join(os.path.expanduser('~'),
-                                               '.config', 'gridsync')
-
-
-def test_config_dir_xdg_config_home(monkeypatch):
-    monkeypatch.setattr("sys.platform", "linux")
-    monkeypatch.setenv('XDG_CONFIG_HOME', '/test')
-    assert Config().config_dir == os.path.join('/test', 'gridsync')
 
 
 def test_config_file():

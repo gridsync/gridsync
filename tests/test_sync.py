@@ -62,7 +62,7 @@ def test_tahoe_name(tahoe):
 def test_append_tahoe_bundle_to_PATH(monkeypatch):
     monkeypatch.setattr("sys.frozen", True, raising=False)
     old_path = os.environ['PATH']
-    reload(gridsync.tahoe)
+    reload(gridsync.sync)
     delta = ''
     for _, s in enumerate(difflib.ndiff(old_path, os.environ['PATH'])):
         if s[0] == '+':

@@ -3,7 +3,7 @@
 import os
 import yaml
 
-from gridsync.config import Config
+from gridsync import config_dir
 from gridsync.sync import decode_introducer_furl
 
 
@@ -24,7 +24,7 @@ PROVIDERS = {
 
 
 def create_storage_providers_db():
-    providers_db = os.path.join(Config().config_dir, 'storage-providers.yml')
+    providers_db = os.path.join(config_dir, 'storage-providers.yml')
     with open(providers_db, 'w') as f:
         try:
             os.chmod(providers_db, 0o600)
@@ -35,7 +35,7 @@ def create_storage_providers_db():
 
 
 def get_storage_providers():
-    providers_db = os.path.join(Config().config_dir, 'storage-providers.yml')
+    providers_db = os.path.join(config_dir, 'storage-providers.yml')
     try:
         with open(providers_db) as f:
             return yaml.safe_load(f)
@@ -45,7 +45,7 @@ def get_storage_providers():
 
 
 def add_storage_provider(introducer_furl, name=None, description=None):
-    providers_db = os.path.join(Config().config_dir, 'storage-providers.yml')
+    providers_db = os.path.join(config_dir, 'storage-providers.yml')
     storage_providers = get_storage_providers()
     if not name:
         _, connection_hints = decode_introducer_furl(introducer_furl)

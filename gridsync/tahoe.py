@@ -19,11 +19,6 @@ from twisted.internet.protocol import ProcessProtocol
 from twisted.python.procutils import which
 
 
-if getattr(sys, 'frozen', False):
-    os.environ["PATH"] += os.pathsep + os.path.join(
-        os.path.dirname(sys.executable), 'Tahoe-LAFS')
-
-
 class CommandProtocol(ProcessProtocol):
     def __init__(self, parent, callback_trigger=None):
         self.parent = parent
