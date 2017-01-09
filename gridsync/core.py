@@ -14,7 +14,7 @@ from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol, Factory
 
 from gridsync import config_dir
-from gridsync.config import Config
+from gridsync.config import YamlConfig
 from gridsync.sync import SyncFolder, Tahoe, DEFAULT_SETTINGS
 from gridsync.systray import SystemTrayIcon
 from gridsync.util import h2b, b2h
@@ -45,7 +45,6 @@ class Core(object):
         self.args = args
         self.gateways = []
         self.sync_folders = []
-        self.config = Config(args.config[0] if args.config else None)
         self.servers_connected = 0
         self.servers_known = 0
         self.total_available_space = 0
@@ -53,6 +52,10 @@ class Core(object):
         self.new_messages = []
         self.settings = {}
         self.tray = None
+        if args.config:
+            self.config = YamlConfig(args.config[0])
+        else:
+            self.config = YamlConfig(os.path.join(config_dir, 'config.yml'))
 
     def initialize_gateways(self):
         logging.debug("Initializing Tahoe-LAFS gateway(s)...")
