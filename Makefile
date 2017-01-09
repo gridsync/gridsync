@@ -225,7 +225,7 @@ app:
 	virtualenv --clear --python=python3 build/venv-gridsync
 	source build/venv-gridsync/bin/activate && \
 	pip install --upgrade pip && \
-	pip install -r requirements.txt && \
+	pip install -r requirements/requirements-hashes.txt && \
 	pip install . && \
 	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
 	pip list && \
