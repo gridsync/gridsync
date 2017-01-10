@@ -18,7 +18,7 @@ PROVIDERS = {
         'introducer.furl': "pb://3kzbib3v5i7gmtd2vkjujfywqiwzintw@test.gridsync.io:44800/2qdq2buyzmwq6xuxl2sdzyej5vswhkqs",
         'description': "A test grid maintained by the developer(s) of Gridsync. Part of the Gridsync testing infrastructure, this storage grid has high availability but very low capacity; use this for testing purposes only as its shares will be flushed every 72 hours.",
         'homepage': "https://gridsync.io",
-        'logo': "icon.png"
+        'logo': "gridsync.png"
     }
 }
 
