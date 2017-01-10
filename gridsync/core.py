@@ -13,7 +13,7 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from twisted.internet.protocol import Protocol, Factory
 
-from gridsync import config_dir
+from gridsync import config_dir, settings
 from gridsync.config import YamlConfig
 from gridsync.sync import SyncFolder, Tahoe, DEFAULT_SETTINGS
 from gridsync.systray import SystemTrayIcon
@@ -144,7 +144,7 @@ class Core(object):
             if not self.args.no_gui and self.tray.animation.state() == 2:
                 self.tray.animation.setPaused(True)
                 self.tray.setToolTip("Gridsync - Up to date")
-                self.tray.set_icon("icon.png")
+                self.tray.set_icon(settings['application']['tray_icon'])
             if self.new_messages:
                 message = '\n'.join(self.new_messages)
                 self.notify("Sync complete", message)

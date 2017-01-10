@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QAction, QMainWindow, QMenu, QMessageBox, QSystemTrayIcon)
 from twisted.internet import reactor
 
-from gridsync import config_dir
+from gridsync import config_dir, settings
 from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.invite import InviteForm
 from gridsync.newfolder import NewFolderWindow
@@ -128,14 +128,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.new_folder_window = NewFolderWindow(parent)
         self.preferences_window = PreferencesWindow()
 
-        self.setIcon(QIcon(resource("icon.png")))
+        self.setIcon(QIcon(resource(settings['application']['tray_icon'])))
 
         self.right_menu = RightClickMenu(self)
         self.setContextMenu(self.right_menu)
         self.activated.connect(self.on_click)
 
         self.animation = QMovie()
-        self.animation.setFileName(resource("sync.gif"))
+        self.animation.setFileName(
+            resource(settings['application']['tray_icon_sync']))
         self.animation.updated.connect(self.update_animation_frame)
         self.animation.setCacheMode(True)
 
