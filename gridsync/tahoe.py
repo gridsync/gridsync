@@ -2,10 +2,6 @@
 
 from __future__ import print_function
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser  # pylint: disable=import-error
 import errno
 import os
 import signal
@@ -17,6 +13,8 @@ from twisted.internet.defer import Deferred, inlineCallbacks, returnValue
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.python.procutils import which
+
+from gridsync.config import Config
 
 
 class CommandProtocol(ProcessProtocol):
@@ -52,19 +50,14 @@ class Tahoe(object):
         self.executable = executable
         if not self.nodedir:
             self.nodedir = os.path.join(os.path.expanduser('~'), '.tahoe')
-        self.pidfile = os.path.join(self.nodedir, "twistd.pid")
+        self.config = Config(os.path.join(self.nodedir, 'tahoe.cfg'))
+        self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
 
     def config_set(self, section, option, value):
-        config = configparser.RawConfigParser(allow_no_value=True)
-        config.read(os.path.join(self.nodedir, 'tahoe.cfg'))
-        config.set(section, option, value)
-        with open(os.path.join(self.nodedir, 'tahoe.cfg'), 'w') as f:
-            config.write(f)
+        self.config.set(section, option, value)
 
     def config_get(self, section, option):
-        config = configparser.RawConfigParser(allow_no_value=True)
-        config.read(os.path.join(self.nodedir, 'tahoe.cfg'))
-        return config.get(section, option)
+        return self.config.get(section, option)
 
     def line_received(self, line):  # pylint: disable=no-self-use
         # TODO: Connect to Core via Qt signals/slots?
