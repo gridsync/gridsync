@@ -8,6 +8,10 @@ mac_bundle_identifier = io.gridsync.Gridsync
 mac_icon = images/gridsync.icns
 win_icon = images/gridsync.ico
 
+[help]
+docs_url = docs.gridsync.io
+issues_url = https://github.com/gridsync/gridsync/issues
+
 [wormhole]
 appid = lothar.com/wormhole/text-or-file-xfer
 relay = ws://relay.magic-wormhole.io:4000/v1

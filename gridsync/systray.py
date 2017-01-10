@@ -163,8 +163,8 @@ def open_gridsync_folder():
 
 
 def open_online_documentation():
-    webbrowser.open('https://github.com/gridsync/gridsync/wiki')
+    webbrowser.open(settings['help']['docs_url'])
 
 
 def open_github_issues():
-    webbrowser.open('https://github.com/gridsync/gridsync/issues')
+    webbrowser.open(settings['help']['issues_url'])
