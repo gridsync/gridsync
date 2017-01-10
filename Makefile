@@ -230,8 +230,8 @@ app:
 	pip install git+https://github.com/pyinstaller/pyinstaller.git && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
-	pyinstaller misc/gridsync.spec
-	cp misc/Info.plist dist/Gridsync.app/Contents
+	pyinstaller -y misc/gridsync.spec
+	#cp misc/Info.plist dist/Gridsync.app/Contents  # TODO: write out on build
 	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 	chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
 
