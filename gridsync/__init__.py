@@ -4,7 +4,7 @@ import os
 import sys
 
 from gridsync import _version
-
+from gridsync.config import Config
 
 __author__ = 'Christopher R. Wood'
 __url__ = 'https://github.com/gridsync/gridsync'
@@ -32,3 +32,6 @@ else:
     config_home = os.environ.get(
         'XDG_CONFIG_HOME', os.path.join(os.path.expanduser('~'), '.config'))
     config_dir = os.path.join(config_home, 'gridsync')
+
+
+settings = Config(os.path.join(pkgdir, 'resources', 'config.txt')).load()
