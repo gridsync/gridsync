@@ -1,0 +1,13 @@
+[application]
+name = Gridsync
+tray_icon = gridsync.png
+tray_icon_sync = sync.gif
+
+[build]
+mac_bundle_identifier = io.gridsync.Gridsync
+mac_icon = images/gridsync.icns
+win_icon = images/gridsync.ico
+
+[wormhole]
+appid = lothar.com/wormhole/text-or-file-xfer
+relay = ws://relay.magic-wormhole.io:4000/v1
