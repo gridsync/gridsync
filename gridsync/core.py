@@ -90,8 +90,8 @@ class Core(object):
             "No dircap assaciated with %s; creating new dircap...",
             local_dir)
         dircap = sync_folder.tahoe.command(['mkdir'], num_attempts=10)
-        for gateway, settings in self.settings.items():
-            for setting, value in settings.items():
+        for gateway, node_settings in self.settings.items():
+            for setting, value in node_settings.items():
                 if setting == 'sync' and value[local_dir] is None:
                     sync_folder.remote_dircap = dircap
                     self.settings[gateway]['sync'][local_dir] = dircap
