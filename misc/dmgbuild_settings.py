@@ -17,7 +17,24 @@ import os.path
 
 # .. Useful stuff ..............................................................
 
-application = defines.get('Gridsync', 'dist/Gridsync.app')
+#application = defines.get('Gridsync', 'dist/Gridsync.app')
+try:
+    from configparser import RawConfigParser
+except ImportError:
+    from ConfigParser import RawConfigParser
+
+config = RawConfigParser(allow_no_value=True)
+config.read('config.txt')
+settings = {}
+for section in config.sections():
+    if section not in settings:
+        settings[section] = {}
+    for option, value in config.items(section):
+        settings[section][option] = value
+app_name = settings['application']['name']
+app_path = 'dist/{}.app'.format(app_name)
+application = defines.get(app_name, app_path)
+
 appname = os.path.basename(application)
 
 def icon_from_app(app_path):
