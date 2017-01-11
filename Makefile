@@ -232,14 +232,15 @@ app:
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
 	#cp misc/Info.plist dist/Gridsync.app/Contents  # TODO: write out on build
-	mv dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
-	chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
+	mv dist/Tahoe-LAFS dist/*.app/Contents/MacOS
+	#chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
 
 dmg: app
 	virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \
-	dmgbuild -s misc/dmgbuild_settings.py Gridsync dist/Gridsync.dmg
+	python misc/call_dmgbuild.py
+	#dmgbuild -s misc/dmgbuild_settings.py Gridsync dist/Gridsync.dmg
 	#mkdir -p dist/dmg
 	#mv dist/Gridsync.app dist/dmg
 	# From https://github.com/andreyvit/create-dmg
