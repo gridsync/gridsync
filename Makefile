@@ -210,7 +210,7 @@ frozen-tahoe:
 	pyinstaller tahoe.spec && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist && \
-	python -m zipfile -c dist/Tahoe-LAFS.zip dist/Tahoe-LAFS
+	mv build/tahoe-lafs/dist/Tahoe-LAFS.zip dist
 
 install:
 	pip3 install --upgrade .
@@ -232,8 +232,6 @@ app:
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
 	#cp misc/Info.plist dist/Gridsync.app/Contents  # TODO: write out on build
-	mv dist/Tahoe-LAFS dist/*.app/Contents/MacOS
-	#chmod +x dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe
 
 dmg: app
 	virtualenv --clear --python=python2 build/venv-dmg

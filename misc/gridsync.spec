@@ -8,6 +8,7 @@ except ImportError:
     from ConfigParser import RawConfigParser
 import os
 import shutil
+import sys
 
 
 config = RawConfigParser(allow_no_value=True)
@@ -58,6 +59,23 @@ app = BUNDLE(coll,
              name=(settings['application']['name'] + '.app'),
              icon=settings['build']['mac_icon'],
              bundle_identifier=settings['build']['mac_bundle_identifier'])
+
+
+tahoe_bundle_path = os.path.join('dist', 'Tahoe-LAFS')
+if os.path.isdir(tahoe_bundle_path):
+    app_name = settings['application']['name']
+    if sys.platform == 'darwin':
+        dest = os.path.join(
+            'dist', app_name + '.app', 'Contents', 'MacOS', 'Tahoe-LAFS')
+    else:
+        dest = os.path.join('dist', app_name, 'Tahoe-LAFS')
+    print("Copying {} to {}...".format(tahoe_bundle_path, dest))
+    shutil.copytree(tahoe_bundle_path, dest)
+    print("Done")
+else:
+    print('##################################################################')
+    print('WARNING: No Tahoe-LAFS bundle found!')
+    print('##################################################################')
 
 
 print('Creating zip archive...')

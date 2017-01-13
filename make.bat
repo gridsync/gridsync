@@ -67,8 +67,8 @@ call pip install .
 call pip install git+https://github.com/pyinstaller/pyinstaller.git
 call pip list
 call set PYTHONHASHSEED=1
-call pyinstaller misc\gridsync.spec
-call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
-call python -m zipfile -c dist\Gridsync.zip dist\Gridsync
+call pyinstaller -y misc\gridsync.spec
+::call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
+::call python -m zipfile -c dist\Gridsync.zip dist\Gridsync
 call deactivate
 goto :eof
