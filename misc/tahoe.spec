@@ -61,3 +61,9 @@ try:
     shutil.move('_auto_deps.py.original', auto_deps)
 except Exception as e: 
     sys.exit(e)
+
+
+print('Creating zip archive...')
+base_name = os.path.join('dist', 'Tahoe-LAFS')
+shutil.make_archive(base_name, 'zip', 'dist', 'Tahoe-LAFS')
+print('Done!')

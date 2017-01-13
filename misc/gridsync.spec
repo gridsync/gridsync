@@ -58,3 +58,9 @@ app = BUNDLE(coll,
              name=(settings['application']['name'] + '.app'),
              icon=settings['build']['mac_icon'],
              bundle_identifier=settings['build']['mac_bundle_identifier'])
+
+
+print('Creating zip archive...')
+base_name = os.path.join('dist', settings['application']['name'])
+shutil.make_archive(base_name, 'zip', 'dist', settings['application']['name'])
+print('Done!')
