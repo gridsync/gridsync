@@ -14,7 +14,7 @@ Gridsync
     :target: https://buildbot.gridsync.io/builders/windows
 
 
- **WARNING**: *At present, Gridsync is in early stages of development and should not be relied upon.* **Do not use this software for anything important!**
+**WARNING**: *At present, Gridsync is in early stages of development and should not be relied upon.* **Do not use this software for anything important!**
 
 Gridsync aims to provide a cross-platform, graphical user interface for `Tahoe-LAFS`_, the Least Authority File Store. It is intended to simplify the configuration and management of locally-running Tahoe-LAFS gateways and to provide user-friendly mechanisms for seamlessly backing up local files, synchronizing directories between devices, and sharing files and storage resources with other users across all major desktop platforms (GNU/Linux, Mac OS X, and Windows). More generally, Gridsync aims to duplicate most of the core functionality provided by other, proprietary "cloud" backup/synchronization services and utilities (such as Dropbox and BitTorrent Sync) but without demanding any sacrifice of the user's privacy or freedom -- and without requiring usage or knowledge of the command line. Accordingly, Gridsync is developed under the principle that secure file storage and backups should be freely available to everyone, without exception, without added barriers, and regardless of one's operating system choice.
 
@@ -64,7 +64,6 @@ Current (complete -- or nearly complete) features:
 * Remote filesystem monitoring for bi-directional synchronization (partial/broken; see warning below)
 * System tray icon animations
 * Desktop notifications
-* Simple unified YAML configuration format
 
 .. _watchdog: https://pypi.python.org/pypi/watchdog
 
@@ -102,10 +101,14 @@ Known issues / caveats:
 Installation (development builds):
 -------------
 
-Linux (Debian-based systems):
+GNU/Linux, inside a virtualenv (tested on Debian 8.6 "jessie" and Ubuntu 16.10 "Yakkety Yak"):
 
-1. ``apt-get install tahoe-lafs python3-pyqt5 python3-pip``
-2. ``pip3 install git+https://github.com/gridsync/gridsync.git``
+1. ``sudo apt-get install virtualenv git build-essential python-dev libssl-dev libffi-dev python-pyqt5``
+2. ``virtualenv --python=python2 --system-site-packages ~/.local/venvs/gridsync``
+3. ``~/.local/venvs/gridsync/bin/pip install --upgrade pip setuptools``
+4. ``~/.local/venvs/gridsync/bin/pip install --find-links=https://tahoe-lafs.org/deps/ git+https://github.com/tahoe-lafs/tahoe-lafs.git``
+5. ``~/.local/venvs/gridsync/bin/pip install git+https://github.com/gridsync/gridsync.git``
+6. ``PATH=$PATH:~/.local/venvs/gridsync/bin gridsync``
 
 Mac OS X [*]_ :
 
