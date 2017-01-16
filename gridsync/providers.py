@@ -4,7 +4,7 @@ import os
 import yaml
 
 from gridsync import config_dir
-from gridsync.sync import decode_introducer_furl
+from gridsync.deprecated import decode_introducer_furl
 
 
 PROVIDERS = {

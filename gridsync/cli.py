@@ -17,7 +17,7 @@ from gridsync.core import Core
 
 class TahoeVersion(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        from gridsync.sync import Tahoe
+        from gridsync.deprecated import Tahoe
         print(Tahoe().command(['--version-and-path']))
         sys.exit()
 

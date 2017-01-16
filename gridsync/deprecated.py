@@ -5,6 +5,8 @@
 # Expect most this to go away as part of the transition to use magic-folders
 # and/or to be reconceived in better ways elsewhere.
 
+# pylint: skip-file
+
 try:
     import configparser
 except ImportError:

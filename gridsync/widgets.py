@@ -8,9 +8,9 @@ from PyQt5.QtWidgets import (
     QLineEdit, QMessageBox, QPlainTextEdit, QPushButton, QSizePolicy,
     QSpacerItem, QVBoxLayout, QWidget)
 
+from gridsync.deprecated import decode_introducer_furl
 from gridsync.providers import get_storage_providers, add_storage_provider
 from gridsync.resource import resource
-from gridsync.sync import decode_introducer_furl
 
 
 class GridComboBox(QWidget):
