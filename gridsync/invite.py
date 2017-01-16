@@ -9,11 +9,9 @@ from PyQt5.QtWidgets import (
     QCheckBox, QCompleter, QHBoxLayout, QLabel, QLineEdit, QMessageBox,
     QProgressBar, QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 from twisted.internet import reactor
-from twisted.internet.defer import (
-    CancelledError, Deferred, inlineCallbacks, returnValue)
+from twisted.internet.defer import CancelledError, Deferred, inlineCallbacks
 from wormhole.errors import WrongPasswordError
 from wormhole.wordlist import raw_words
-from wormhole.wormhole import wormhole
 from wormhole.xfer_util import receive
 
 from gridsync import config_dir

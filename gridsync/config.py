@@ -43,7 +43,7 @@ class Config(object):
         for section in self.config.sections():
             for option, value in self.config.items(section):
                 settings_dict[section][option] = value
-        return settings_dict
+        return dict(settings_dict)
 
 
 class YamlConfig(object):
