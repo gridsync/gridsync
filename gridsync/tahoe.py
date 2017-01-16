@@ -52,6 +52,7 @@ class Tahoe(object):
             self.nodedir = os.path.join(os.path.expanduser('~'), '.tahoe')
         self.config = Config(os.path.join(self.nodedir, 'tahoe.cfg'))
         self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
+        self.nodeurl = None
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -134,4 +135,6 @@ class Tahoe(object):
         if sys.platform == 'win32' and pid.isdigit():
             with open(self.pidfile, 'w') as f:
                 f.write(pid)
+        with open(os.path.join(self.nodedir, 'node.url')) as f:
+            self.nodeurl = f.read().strip()
         #self.start_monitor()
