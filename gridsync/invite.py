@@ -14,14 +14,12 @@ from twisted.internet.defer import (
 from wormhole.errors import WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.wormhole import wormhole
+from wormhole.xfer_util import receive
 
 from gridsync import config_dir
+from gridsync import settings as global_settings
 from gridsync.resource import resource
 from gridsync.tahoe import Tahoe
-
-
-appid = u"lothar.com/wormhole/text-or-file-xfer"
-relay = u"ws://relay.magic-wormhole.io:4000/v1"
 
 
 wordlist = []
@@ -48,27 +46,6 @@ def sleep(seconds):
     d = Deferred()
     reactor.callLater(seconds, d.callback, seconds)
     return d
-
-
-# Adapted from 'xfer_util.py' which is not yet in magic-wormhole stable
-# https://github.com/warner/magic-wormhole/blob/master/src/wormhole/xfer_util.py
-@inlineCallbacks
-def wormhole_receive(code, use_tor=None):
-    wh = wormhole(appid, relay, reactor, use_tor)
-    wh.set_code(code)
-    data = yield wh.get()
-    data = json.loads(data.decode("utf-8"))
-    offer = data.get('offer', None)
-    if not offer:
-        raise Exception("Do not understand response: {}".format(data))
-    msg = None
-    if 'message' in offer:
-        msg = offer['message']
-        wh.send(json.dumps({"answer": {"message_ack": "ok"}}).encode("utf-8"))
-    else:
-        raise Exception("Unknown offer type: {}".format(offer.keys()))
-    yield wh.close()
-    returnValue(json.loads(msg))
 
 
 class Completer(QCompleter):
@@ -201,6 +178,7 @@ class InviteForm(QWidget):
 
     @inlineCallbacks
     def setup(self, settings):
+        settings = json.loads(settings)
         folder = os.path.join(os.path.expanduser('~'), 'Private')
         try:
             os.makedirs(folder)
@@ -296,7 +274,8 @@ class InviteForm(QWidget):
             self.lineedit.hide()
             self.checkbox.hide()
             self.update_progress(1, 'Opening wormhole...')
-            d = wormhole_receive(code)
+            d = receive(reactor, global_settings['wormhole']['appid'],
+                        global_settings['wormhole']['relay'], code)
             d.addCallback(self.setup)
             d.addErrback(self.show_failure)
             reactor.callLater(5, d.cancel)
