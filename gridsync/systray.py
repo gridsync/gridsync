@@ -148,7 +148,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def on_click(self, value):  # pylint: disable=no-self-use
         if value == QSystemTrayIcon.Trigger:
-            open_gridsync_folder()
+            self.parent.main_window.show()
+            #open_gridsync_folder()
 
 
 def open_gridsync_folder():

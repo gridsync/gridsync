@@ -18,6 +18,7 @@ from gridsync.config import YamlConfig
 from gridsync.deprecated import SyncFolder, Tahoe, DEFAULT_SETTINGS
 from gridsync.systray import SystemTrayIcon
 from gridsync.util import h2b, b2h
+from gridsync.main_window import MainWindow
 
 
 class CoreProtocol(Protocol):  # pylint: disable=no-init
@@ -52,6 +53,7 @@ class Core(object):
         self.new_messages = []
         self.settings = {}
         self.tray = None
+        self.main_window = None
         if args.config:
             self.config = YamlConfig(args.config[0])
         else:
@@ -206,6 +208,7 @@ class Core(object):
         if not self.args.no_gui:
             self.tray = SystemTrayIcon(self)
             self.tray.show()
+            self.main_window = MainWindow()
         state_checker = LoopingCall(self.check_state)
         state_checker.start(1.0)
         connection_status_updater = LoopingCall(
