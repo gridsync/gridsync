@@ -134,3 +134,8 @@ class MainWindow(QMainWindow):
             event.accept()
             for url in event.mimeData().urls():
                 self.model.add_folder(url.toLocalFile())
+
+    def keyPressEvent(self, event):
+        key = event.key()
+        if key == Qt.Key_Escape:
+            self.hide()
