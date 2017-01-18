@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import errno
 import os
+import re
 import signal
 import sys
 from io import BytesIO
@@ -12,7 +13,9 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks, returnValue
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
+from twisted.internet.task import deferLater
 from twisted.python.procutils import which
+from twisted.web.client import Agent, readBody
 
 from gridsync.config import Config
 
@@ -53,6 +56,7 @@ class Tahoe(object):
         self.config = Config(os.path.join(self.nodedir, 'tahoe.cfg'))
         self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
         self.nodeurl = None
+        self.shares_happy = None
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -138,3 +142,30 @@ class Tahoe(object):
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
         #self.start_monitor()
+
+    @inlineCallbacks
+    def get_connected_servers(self):
+        agent = Agent(reactor)
+        resp = yield agent.request('GET'.encode(), self.nodeurl.encode())
+        if resp.code == 200:
+            html = yield readBody(resp)
+            match = re.search('Connected to <span>(.+?)</span>', html.decode())
+            if match:
+                returnValue(int(match.group(1)))
+
+    @inlineCallbacks
+    def is_ready(self):
+        if not self.shares_happy:
+            self.shares_happy = int(self.config_get('client', 'shares.happy'))
+        connected_servers = yield self.get_connected_servers()
+        if connected_servers >= self.shares_happy:
+            returnValue(True)
+        else:
+            returnValue(False)
+
+    @inlineCallbacks
+    def await_ready(self):
+        ready = yield self.is_ready()
+        while not ready:
+            yield deferLater(reactor, 0.2, lambda: None)
+            ready = yield self.is_ready()

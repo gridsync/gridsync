@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QCheckBox, QCompleter, QHBoxLayout, QLabel, QLineEdit, QMessageBox,
     QProgressBar, QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 from twisted.internet import reactor
-from twisted.internet.defer import CancelledError, Deferred, inlineCallbacks
+from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.xfer_util import receive
@@ -38,12 +38,6 @@ def is_valid(code):
         return False
     else:
         return True
-
-
-def sleep(seconds):
-    d = Deferred()
-    reactor.callLater(seconds, d.callback, seconds)
-    return d
 
 
 class Completer(QCompleter):
@@ -205,7 +199,7 @@ class InviteForm(QWidget):
         self.update_progress(5, 'Connecting to grid...')
         # TODO: Replace with call to "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
-        yield sleep(2)
+        yield tahoe.await_ready()
 
         self.update_progress(6, 'Creating magic-folder...')
         yield tahoe.command(['magic-folder', 'create', 'magic:', 'admin',
@@ -215,7 +209,7 @@ class InviteForm(QWidget):
         yield tahoe.start()
 
         self.update_progress(8, 'Done!')
-        yield sleep(1)
+        yield tahoe.await_ready()
         # TODO: Open local folder with file manager instead?
         yield tahoe.command(['webopen'])
         self.close()
