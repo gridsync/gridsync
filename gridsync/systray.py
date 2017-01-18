@@ -8,22 +8,13 @@ import sys
 import webbrowser
 
 from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import (
-    QAction, QMainWindow, QMenu, QMessageBox, QSystemTrayIcon)
+from PyQt5.QtWidgets import QAction, QMenu, QMessageBox, QSystemTrayIcon
 from twisted.internet import reactor
 
 from gridsync import config_dir, settings
-from gridsync.forms.preferences import Ui_MainWindow as Preferences
 from gridsync.invite import InviteForm
 from gridsync.newfolder import NewFolderWindow
 from gridsync.resource import resource
-
-
-class PreferencesWindow(QMainWindow):
-    def __init__(self):
-        super(PreferencesWindow, self).__init__()
-        self.ui = Preferences()
-        self.ui.setupUi(self)
 
 
 class RightClickMenu(QMenu):
@@ -69,14 +60,6 @@ class RightClickMenu(QMenu):
         self.addAction(pause_action)
 
         self.addSeparator()
-
-        preferences_action = QAction(QIcon(""), "Preferences...", self)
-        preferences_action.triggered.connect(
-            self.parent.preferences_window.show)
-        if sys.platform == 'darwin':
-            preferences_action.triggered.connect(
-                self.parent.preferences_window.raise_)
-        self.addAction(preferences_action)
 
         help_menu = QMenu(self)
         help_menu.setTitle("Help")
@@ -126,7 +109,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.parent = parent
 
         self.new_folder_window = NewFolderWindow(parent)
-        self.preferences_window = PreferencesWindow()
 
         self.setIcon(QIcon(resource(settings['application']['tray_icon'])))
 
