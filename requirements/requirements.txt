@@ -9,7 +9,7 @@ hkdf==0.0.3
 humanize==0.5.1
 idna==2.2
 incremental==16.10.1
-magic-wormhole==0.9.1
+magic-wormhole==0.9.2
 pathtools==0.1.2
 pyasn1==0.1.9
 pyasn1-modules==0.0.8
@@ -21,13 +21,13 @@ PyQt5==5.6 ; python_version >= "3.5" and sys_platform == "win32"
 PyQt5==5.7.1 ; python_version >= "3.5" and sys_platform != "win32"
 PyYAML==3.12
 qt5reactor==0.3
-requests==2.12.4
+requests==2.12.5
 service_identity==16.0.0
 SIP==4.18.1 ; python_version >= "3.5" and sys_platform == "win32"
 SIP==4.19 ; python_version >= "3.5" and sys_platform != "win32"
 six==1.10.0
 spake2==0.7
-tqdm==4.10.0
+tqdm==4.11.0
 Twisted==16.6.0
 txaio==2.6.0
 watchdog==0.8.3
