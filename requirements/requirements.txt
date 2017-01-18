@@ -9,6 +9,7 @@ hkdf==0.0.3
 humanize==0.5.1
 idna==2.2
 incremental==16.10.1
+ipaddress==1.0.18
 magic-wormhole==0.9.2
 pathtools==0.1.2
 pyasn1==0.1.9
