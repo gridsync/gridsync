@@ -2,6 +2,10 @@
 
 from __future__ import division
 
+import os
+import subprocess
+import sys
+
 
 def h2b(s):
     """Convert 'human-readable' byte-representation to an integer of bytes"""
@@ -17,3 +21,13 @@ def b2h(b):
         rounded = round(b / (1024 ** i), 2)
         if rounded < 1024:
             return "{} {}".format(rounded, unit)
+
+
+def open_folder(path):
+    path = os.path.expanduser(path)
+    if sys.platform == 'darwin':
+        subprocess.Popen(['open', path])
+    elif sys.platform == 'win32':
+        subprocess.Popen(['start', path])
+    else:
+        subprocess.Popen(['xdg-open', path])

@@ -3,7 +3,6 @@
 import logging
 import os
 import shutil
-import subprocess
 import sys
 import webbrowser
 
@@ -131,18 +130,6 @@ class SystemTrayIcon(QSystemTrayIcon):
     def on_click(self, value):  # pylint: disable=no-self-use
         if value == QSystemTrayIcon.Trigger:
             self.parent.main_window.show()
-            #open_gridsync_folder()
-
-
-def open_gridsync_folder():
-    # XXX This should probably be removed...
-    gridsync_folder = os.path.join(os.path.expanduser("~"), "Gridsync")
-    if sys.platform == 'darwin':
-        subprocess.Popen(['open', gridsync_folder])
-    elif sys.platform == 'win32':
-        subprocess.Popen(['start', gridsync_folder], shell=True)
-    else:
-        subprocess.Popen(['xdg-open', gridsync_folder])
 
 
 def open_online_documentation():
