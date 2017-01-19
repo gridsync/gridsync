@@ -59,8 +59,9 @@ class Model(QStandardItemModel):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, parent):
         super(self.__class__, self).__init__()
+        self.parent = parent
         self.setWindowTitle(settings['application']['name'])
         self.setMinimumSize(QSize(500, 300))
 
@@ -95,7 +96,7 @@ class MainWindow(QMainWindow):
             QIcon(resource('mail-envelope-open')), 'Enter Invite Code', self)
         invite_action.setStatusTip('Enter Invite Code')
         invite_action.setShortcut(QKeySequence.Open)
-        #invite_action.triggered.connect(self.close)
+        invite_action.triggered.connect(self.parent.show_invite_form)
 
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)

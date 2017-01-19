@@ -2,12 +2,14 @@
 
 import logging
 import os
+import shutil
 import sys
 
 from PyQt5.QtWidgets import QApplication
 app = QApplication(sys.argv)
 import qt5reactor
 qt5reactor.install()
+from PyQt5.QtWidgets import QMessageBox  # pylint: disable=all
 
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
@@ -16,6 +18,7 @@ from twisted.internet.protocol import Protocol, Factory
 from gridsync import config_dir, settings
 from gridsync.config import YamlConfig
 from gridsync.deprecated import SyncFolder, Tahoe, DEFAULT_SETTINGS
+from gridsync.invite import InviteForm
 from gridsync.systray import SystemTrayIcon
 from gridsync.util import h2b, b2h
 from gridsync.main_window import MainWindow
@@ -53,6 +56,7 @@ class Core(object):
         self.new_messages = []
         self.settings = {}
         self.tray = None
+        self.invite_form = None
         self.main_window = None
         if args.config:
             self.config = YamlConfig(args.config[0])
@@ -177,6 +181,24 @@ class Core(object):
         self.initialize_gateways()
         self.start_gateways()
 
+    def show_invite_form(self):
+        nodedir = os.path.join(config_dir, 'default')
+        if os.path.isdir(nodedir):
+            reply = QMessageBox.question(
+                self.invite_form, "Tahoe-LAFS already configured",
+                "Tahoe-LAFS is already configured on this computer. "
+                "Do you want to overwrite your existing configuration?")
+            if reply == QMessageBox.Yes:
+                shutil.rmtree(nodedir, ignore_errors=True)
+            else:
+                return
+        self.invite_form.show()
+        self.invite_form.raise_()
+
+    def show_main_window(self):
+        self.main_window.show()
+        self.main_window.raise_()
+
     def start(self):
         reactor.listenTCP(52045, CoreFactory(self), interface='localhost')
         try:
@@ -208,7 +230,8 @@ class Core(object):
         if not self.args.no_gui:
             self.tray = SystemTrayIcon(self)
             self.tray.show()
-            self.main_window = MainWindow()
+            self.invite_form = InviteForm()
+            self.main_window = MainWindow(self)
         state_checker = LoopingCall(self.check_state)
         state_checker.start(1.0)
         connection_status_updater = LoopingCall(
