@@ -27,8 +27,15 @@ print('--------------------------------------------------------------------')
 shutil.copy2('config.txt', os.path.join('gridsync', 'resources'))
 
 
+pathex_paths = []
+if sys.platform == "win32":
+    qt_bin_path = os.path.join(
+        'build', 'venv-gridsync', 'Lib', 'site-packages', 'PyQt5', 'Qt', 'bin')
+    pathex_paths.append(os.path.realpath(qt_bin_path))
+
+
 a = Analysis(['../gridsync/cli.py'],
-             pathex=[],
+             pathex=pathex_paths,
              binaries=None,
              datas=[('../gridsync/resources/*', 'resources')],
              hiddenimports=['cffi'],
