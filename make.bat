@@ -37,7 +37,7 @@ call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call C:\Python27\python.exe setup.py update_version
 call pip install --find-links=https://tahoe-lafs.org/deps/ .
-call pip install git+https://github.com/pyinstaller/pyinstaller.git
+call pip install pyinstaller==3.2.1
 call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller tahoe.spec
@@ -64,7 +64,7 @@ call pip install --upgrade pip
 call pip install -r .\requirements\requirements-hashes.txt
 call pip install git+https://github.com/crwood/qt5reactor.git
 call pip install . 
-call pip install git+https://github.com/pyinstaller/pyinstaller.git
+call pip install pyinstaller==3.2.1
 call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller -y misc\gridsync.spec
