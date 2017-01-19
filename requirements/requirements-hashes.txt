@@ -162,12 +162,7 @@ pypiwin32==219 ; sys_platform == "win32" \
     --hash=sha256:69f63942403f5a6262f05602106ef4921db582df83c59b1a3571995652a6c762 \
     --hash=sha256:5e0101cb712a3b90ee1ccdf8b90ae48958c78e8f1584e958db85bb1a403a91d2 \
     --hash=sha256:06d478295c89dbdd4187e1ac099bb8eab93c29e298bded4e2fbc77009287fa44
-PyQt5==5.6 ; python_version >= "3.5" and sys_platform == "win32" \
-    --hash=sha256:b280a77c27b16a4c05fc4810f31a40039d7bfd6e83cd69c2eb79d4dbe7d29974 \
-    --hash=sha256:5b3e419dd6579d4aa90ece6aaac69054e9be3dcd90c47ff82b044c3151fdc008 \
-    --hash=sha256:5454b38f2e441dfa1df3e9cee7530c70c2663f6c54ba37ac22adf40b3c49e976 \
-    --hash=sha256:b8507d9e86059240af59a5a62bf946b710f501d0173740c505451f13cbee30f0
-PyQt5==5.7.1 ; python_version >= "3.5" and sys_platform != "win32" \
+PyQt5==5.7.1 ; python_version >= "3.5" \
     --hash=sha256:b946f29a1994738a04de88611569dafbd18ed120f739c6bc917b3ede46b36430 \
     --hash=sha256:9b6e7e17242c3ca6581bed06b5c16b2ab0207f66865d3b27334aef01965b49fc \
     --hash=sha256:9361a842ef25976f09a83611ff0f4797338682f163b9dea1aa3289472bfef613 \
@@ -195,12 +190,7 @@ requests==2.12.5 \
 service_identity==16.0.0 \
     --hash=sha256:5c63e1532135f7171cb33e8b2f31c758c3ce0654e6eb198573e23d01128678d4 \
     --hash=sha256:0630e222f59f91f3db498be46b1d879ff220955d7bbad719a5cb9ad14e3c3036
-SIP==4.18.1 ; python_version >= "3.5" and sys_platform == "win32" \
-    --hash=sha256:dd4bbdebcb6921f095db7a5b82b90f5076a11071c4f59b474e64af8527c4b64c \
-    --hash=sha256:31c00020731574b135deedd41460c47f1ac11636da7b0816d1c1b44f18501c8f \
-    --hash=sha256:b5b3958b69ad5bcfa983ed589bf21178f4f955995e22abb2db3e1c3ee1b72397 \
-    --hash=sha256:529d77130e0e445679c9f596b082ea3f29d343ffc4759043b3da3443c98a4e01
-SIP==4.19 ; python_version >= "3.5" and sys_platform != "win32" \
+SIP==4.19 ; python_version >= "3.5" \
     --hash=sha256:dcc4bfa88ae80147f5e2cdaacd7d5adae124ff1ea6eb8745031b1a40c82d5f07 \
     --hash=sha256:a215ae4714087f6538ba59ceb6ccab1dae252d193fa72adb88ac369ba747316e \
     --hash=sha256:3718cf5b477318f59e1ff4b6ca105db3f6b0a1cc04d5ffea1bddbe7915418a76 \

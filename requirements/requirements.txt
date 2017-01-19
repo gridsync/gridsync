@@ -18,14 +18,12 @@ pycparser==2.17
 PyNaCl==1.0.1
 pyOpenSSL==16.2.0
 pypiwin32==219 ; sys_platform == "win32"
-PyQt5==5.6 ; python_version >= "3.5" and sys_platform == "win32"
-PyQt5==5.7.1 ; python_version >= "3.5" and sys_platform != "win32"
+PyQt5==5.7.1 ; python_version >= "3.5"
 PyYAML==3.12
 qt5reactor==0.3
 requests==2.12.5
 service_identity==16.0.0
-SIP==4.18.1 ; python_version >= "3.5" and sys_platform == "win32"
-SIP==4.19 ; python_version >= "3.5" and sys_platform != "win32"
+SIP==4.19 ; python_version >= "3.5"
 six==1.10.0
 spake2==0.7
 tqdm==4.11.0
