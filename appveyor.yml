@@ -26,13 +26,12 @@ before_test:
   - "set"
   - "python --version"
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
-  - "python scripts\\print_hashes.py ."
+  #- "python scripts\\print_hashes.py ."
 test_script:
   - "python -m pytest"
 after_test:
   - "make all"
-  - "python scripts\\print_hashes.py build"
-  - "python scripts\\print_hashes.py dist"
+  #- "python scripts\\print_hashes.py dist"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
   - ".\\dist\\Gridsync\\Gridsync.exe --tahoe-version"
 artifacts:
