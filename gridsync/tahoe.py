@@ -20,6 +20,13 @@ from twisted.web.client import Agent, readBody
 from gridsync.config import Config
 
 
+def is_valid_furl(furl):
+    if re.match(r'^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$', furl):
+        return True
+    else:
+        return False
+
+
 class CommandProtocol(ProcessProtocol):
     def __init__(self, parent, callback_trigger=None):
         self.parent = parent
