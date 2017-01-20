@@ -21,10 +21,7 @@ from gridsync.config import Config
 
 
 def is_valid_furl(furl):
-    if re.match(r'^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$', furl):
-        return True
-    else:
-        return False
+    return re.match(r'^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$', furl)
 
 
 class CommandProtocol(ProcessProtocol):
