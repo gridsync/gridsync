@@ -163,6 +163,7 @@ class GridSelector(QWidget):
 
     def on_save(self):
         introducer_furl = self.grid_form.introducer_text_edit.toPlainText()
+        introducer_furl = introducer_furl.lower().strip().strip('"').strip("'")
         name = self.grid_form.name_line_edit.text()
         if not introducer_furl:
             msg = QMessageBox()
