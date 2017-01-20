@@ -14,8 +14,8 @@ environment:
       PYTHON_ARCH: "32"
 matrix:
   fast_finish: true
-  allow_failures:
-    - PYTHON: "C:\\Python35"
+  #allow_failures:
+  #  - PYTHON: "C:\\Python35"
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "pip install --disable-pip-version-check --user --upgrade pip"
