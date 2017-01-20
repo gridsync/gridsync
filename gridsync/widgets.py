@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import logging
+import os
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
@@ -8,9 +8,27 @@ from PyQt5.QtWidgets import (
     QLineEdit, QMessageBox, QPlainTextEdit, QPushButton, QSizePolicy,
     QSpacerItem, QVBoxLayout, QWidget)
 
-from gridsync.deprecated import decode_introducer_furl
-from gridsync.providers import get_storage_providers, add_storage_provider
+from gridsync import config_dir
+from gridsync.config import Config
 from gridsync.resource import resource
+from gridsync.tahoe import is_valid_furl
+
+
+def get_storage_providers():
+    storage_providers = Config(resource('storage_providers.txt')).load()
+    added_providers_db = os.path.join(config_dir, 'storage_providers.txt')
+    added_providers = Config(added_providers_db).load()
+    if added_providers:
+        storage_providers.update(added_providers)
+    return storage_providers
+
+
+def add_storage_provider(name, introducer_furl):
+    added_providers_db = os.path.join(config_dir, 'storage_providers.txt')
+    config = Config(added_providers_db)
+    new_provider = {}
+    new_provider[name] = {'introducer': introducer_furl}
+    config.save(new_provider)
 
 
 class GridComboBox(QWidget):
@@ -144,7 +162,7 @@ class GridSelector(QWidget):
             self.grid_form.show()
         else:
             provider = self.storage_providers[name]
-            self.introducer_furl = provider['introducer.furl']
+            self.introducer_furl = provider['introducer']
             description = provider['description']
             try:
                 description += '<p>Homepage: <a href="{}">{}</a>'.format(
@@ -153,7 +171,7 @@ class GridSelector(QWidget):
                 pass
             self.description.setText(description)
             try:
-                pixmap = QPixmap(resource(provider['logo'])).scaled(64, 64)
+                pixmap = QPixmap(resource(provider['icon'])).scaled(64, 64)
                 self.image.setPixmap(pixmap)
                 self.image.show()
             except KeyError:
@@ -172,18 +190,15 @@ class GridSelector(QWidget):
             msg.setText("Please enter an Introducer fURL.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
+        elif is_valid_furl(introducer_furl):
+            add_storage_provider(name, introducer_furl)
         else:
-            try:
-                _, connection_hints = decode_introducer_furl(introducer_furl)
-                logging.debug("connection_hints = %s", connection_hints)
-            except AttributeError:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Warning)
-                msg.setWindowTitle("Gridsync")
-                msg.setText("Please enter a valid Introducer fURL.")
-                msg.setStandardButtons(QMessageBox.Ok)
-                msg.exec_()
-            add_storage_provider(introducer_furl, name)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Gridsync")
+            msg.setText("Please enter a valid Introducer fURL.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
 
 
 class FolderSelector(QWidget):
