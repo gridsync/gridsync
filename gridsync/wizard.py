@@ -6,26 +6,28 @@ import sys
 from PyQt5.QtWidgets import (
     QLabel, QMessageBox, QVBoxLayout, QWizard, QWizardPage)
 
+from gridsync import settings
 from gridsync.widgets import GridSelector, FolderSelector
 
 
 class WelcomePage(QWizardPage):
     def __init__(self):
         super(self.__class__, self).__init__()
-        self.setTitle("Welcome to Gridsync!")
+        self.setTitle("Welcome to {}!".format(settings['application']['name']))
 
         label = QLabel(
-            "Gridsync is an experimental desktop client for for Tahoe-LAFS, "
-            "the Least Authority File Store. Unlike most traditional 'cloud' "
-            "services, any data stored inside a Tahoe-LAFS storage grid is "
-            "safe and secure by default; nobody can read or alter the files "
-            "stored in a grid without your permission -- not even the owners "
-            "of the computers that host them.\n\n"
+            "{} is an desktop client for Tahoe-LAFS, the Least Authority File "
+            "Store. Unlike most traditional 'cloud' services, any data stored "
+            "inside a Tahoe-LAFS storage grid is safe and secure by default; "
+            "nobody can read or alter the files stored in a grid without your "
+            "permission -- not even the owners of the computers that host "
+            "them.\n\n"
             #If you already have an invite code "
             #"to join a grid, you can enter it on the following page. If not, "
             "This setup wizard will guide you through the process of "
             "selecting a storage grid so that you can begin to securely "
-            "store and retrieve your files.")
+            "store and retrieve your files.".format(
+                settings['application']['name']))
         label.setWordWrap(True)
 
         #radio_1 = QRadioButton("I already have an invite code.")
@@ -44,8 +46,9 @@ class SelectGridPage(QWizardPage):
 
         help_text = QLabel(
             "A grid is a collection of computers that provide file storage "
-            "services. In future versions, Gridsync will allow you to "
-            "set up your own storage grid and invite others to join.")
+            "services. In future versions, {} will allow you to set up your "
+            "own storage grid and invite others to join.".format(
+                settings['application']['name']))
         help_text.setWordWrap(True)
 
         vbox = QVBoxLayout(self)
@@ -59,7 +62,7 @@ class SelectGridPage(QWizardPage):
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Gridsync")
+            msg.setWindowTitle(settings['application']['name'])
             msg.setText("Please select a storage grid.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
@@ -76,7 +79,8 @@ class SelectFolderPage(QWizardPage):
     def __init__(self):
         super(self.__class__, self).__init__()
         self.folder = None
-        default_path = os.path.join(os.path.expanduser('~'), 'Gridsync')
+        default_path = os.path.join(  # TODO: From config.txt
+            os.path.expanduser('~'), settings['application']['name'])
 
         self.folder_selector = FolderSelector()
         self.folder_selector.line_edit.setText(default_path)
@@ -85,7 +89,8 @@ class SelectFolderPage(QWizardPage):
         help_text = QLabel(
             "The folder you select will be securely backed up into the "
             "storage grid chosen on the previous page. In future versions, "
-            "Gridsync will allow you to share folders with other users.")
+            "{} will allow you to share folders with other users.".format(
+                settings['application']['name']))
         help_text.setWordWrap(True)
 
         vbox = QVBoxLayout(self)
@@ -99,7 +104,7 @@ class SelectFolderPage(QWizardPage):
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Gridsync")
+            msg.setWindowTitle(settings['application']['name'])
             msg.setText("Please select a folder.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
@@ -114,12 +119,14 @@ class FinishedPage(QWizardPage):
         verb = ('Done' if sys.platform == 'darwin' else 'Finish')
 
         text = QLabel(
-            "By clicking {} below, Gridsync will synchronize your selected "
+            "By clicking {} below, {} will synchronize your selected "
             "folder with the storage grid and will continue to keep your "
             "files backed up so long as it is running.\n\nPlease note that, "
             "depending on how many files you have, your initial sync may "
-            "take a while. Gridsync will notify you when this process "
-            "has completed.".format(verb))
+            "take a while. {} will notify you when this process "
+            "has completed.".format(
+                verb, settings['application']['name'],
+                settings['application']['name']))
         text.setWordWrap(True)
 
         vbox = QVBoxLayout(self)
@@ -129,7 +136,8 @@ class FinishedPage(QWizardPage):
 class Wizard(QWizard):
     def __init__(self):
         super(self.__class__, self).__init__()
-        self.setWindowTitle("Gridsync - Welcome")
+        self.setWindowTitle("{} - Welcome".format(
+            settings['application']['name']))
         self.resize(800, 500)
         self.introducer_furl = None
         self.folder = None
@@ -148,9 +156,9 @@ class Wizard(QWizard):
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
-            self, 'Exit Gridsync setup?',
-            "Gridsync has not yet been configured. "
-            "Are you sure you wish to quit?",
+            self, "Exit {} setup?".format(settings['application']['name']),
+            "{} has not yet been configured. Are you sure you wish to "
+            "quit?".format(settings['application']['name']),
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
