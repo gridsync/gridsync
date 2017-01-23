@@ -19,6 +19,8 @@ class TahoeVersion(argparse.Action):
 
         def call_tahoe_version(reactor):  # pylint: disable=unused-argument
             from gridsync.tahoe import Tahoe
+            import os
+            print(os.environ['PATH'])
             return Tahoe().command(['--version-and-path'])
         react(call_tahoe_version)
 
