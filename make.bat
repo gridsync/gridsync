@@ -62,7 +62,7 @@ call pip install --upgrade pip
 ::call pip install sip==4.18.1
 ::call pip install pyqt5==5.6
 call pip install -r .\requirements\requirements-hashes.txt
-call pip install git+https://github.com/crwood/qt5reactor.git
+call pip install git+https://github.com/gridsync/qt5reactor.git
 call pip install . 
 call pip install pyinstaller==3.2.1
 call pip list
