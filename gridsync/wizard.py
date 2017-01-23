@@ -120,7 +120,7 @@ class Wizard(QWizard):
     def __init__(self, parent):
         super(self.__class__, self).__init__()
         self.parent = parent
-        print(self.parent)
+        self.is_complete = False
         self.setWindowTitle("{} - Welcome".format(
             settings['application']['name']))
         #self.resize(800, 500)
@@ -134,7 +134,7 @@ class Wizard(QWizard):
         self.setPage(2, self.invite_code_page)
         self.setPage(3, self.select_grid_page)
 
-        self.finished.connect(self.parent.show_main_window)
+        self.finished.connect(self.on_finished)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
@@ -151,3 +151,7 @@ class Wizard(QWizard):
         key = event.key()
         if key == Qt.Key_Escape:
             self.close()
+
+    def on_finished(self):
+        self.is_complete = True
+        self.parent.show_main_window()
