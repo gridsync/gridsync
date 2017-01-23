@@ -17,9 +17,12 @@ from gridsync.core import Core
 
 class TahoeVersion(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        from gridsync.deprecated import Tahoe
-        print(Tahoe().command(['--version-and-path']))
-        sys.exit()
+        from twisted.internet.task import react
+
+        def call_tahoe_version(reactor):  # pylint: disable=unused-argument
+            from gridsync.tahoe import Tahoe
+            return Tahoe().command(['--version-and-path'])
+        react(call_tahoe_version)
 
 
 def main():
