@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import argparse
 import logging
 import socket
@@ -27,24 +25,11 @@ class TahoeVersion(argparse.Action):
 
 def main():
     parser = argparse.ArgumentParser(
-        description=description,
-        epilog='Example: %(prog)s <URI>')
+        description=description)
     parser.add_argument(
         'command',
         nargs='*',
-        help='Command to send (e.g., "stop", "reload", "sync").')
-    parser.add_argument(
-        '-c',
-        '--config',
-        metavar='<file>',
-        nargs=1,
-        help='Load settings from config file.')
-    parser.add_argument(
-        '-d',
-        '--node-directory',
-        metavar='<file>',
-        nargs=1,
-        help='Specify Tahoe directory.')
+        help='Command to send (e.g., "quit").')
     parser.add_argument(
         '--debug',
         action='store_true',
@@ -67,8 +52,8 @@ def main():
     args = parser.parse_args()
 
     try:
-        gridsync = Core(args)
-        gridsync.start()
+        core = Core(args)
+        core.start()
     except CannotListenError:
         if args.command:
             try:
