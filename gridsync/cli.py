@@ -18,12 +18,12 @@ class TahoeVersion(argparse.Action):
         print('test1')
         import os
         print(os.environ['PATH'])
-        from twisted.internet.task import react
+        #from twisted.internet.task import react
 
-        def call_tahoe_version(reactor):  # pylint: disable=unused-argument
-            from gridsync.tahoe import Tahoe
-            return Tahoe().command(['--version-and-path'])
-        react(call_tahoe_version)
+        #def call_tahoe_version(reactor):  # pylint: disable=unused-argument
+        #    from gridsync.tahoe import Tahoe
+        #    return Tahoe().command(['--version-and-path'])
+        #react(call_tahoe_version)
         sys.exit()
 
 def main():
