@@ -169,7 +169,7 @@ class Core(object):
 
     def first_run(self):
         from gridsync.wizard import Wizard
-        w = Wizard()
+        w = Wizard(self)
         w.exec_()
         if not w.introducer_furl or not w.folder:
             logging.debug("Setup wizard not completed; exiting")

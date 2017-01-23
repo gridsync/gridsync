@@ -88,8 +88,8 @@ class LineEdit(QLineEdit):
         elif key == Qt.Key_Escape:
             if text:
                 self.parent.reset()
-            else:
-                self.parent.close()
+            #else:
+            #    self.parent.close()
         else:
             return QLineEdit.keyPressEvent(self, event)
 
