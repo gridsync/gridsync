@@ -33,6 +33,8 @@ after_test:
   - "make all"
   #- "python scripts\\print_hashes.py dist"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
+  - "dir .\\dist\\Gridsync"
+  - "dir .\\dist\\Gridsync\\Tahoe-LAFS"
   - ".\\dist\\Gridsync\\Gridsync.exe --tahoe-version"
 artifacts:
   - path: dist\Gridsync.zip
