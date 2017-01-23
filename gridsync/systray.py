@@ -7,8 +7,7 @@ from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon
 from twisted.internet import reactor
 
-from gridsync import settings
-from gridsync.resource import resource
+from gridsync import resource, settings
 
 
 def open_documentation():

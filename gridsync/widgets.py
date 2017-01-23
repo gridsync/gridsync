@@ -8,9 +8,8 @@ from PyQt5.QtWidgets import (
     QLineEdit, QMessageBox, QPlainTextEdit, QPushButton, QSizePolicy,
     QSpacerItem, QVBoxLayout, QWidget)
 
-from gridsync import config_dir
+from gridsync import config_dir, resource
 from gridsync.config import Config
-from gridsync.resource import resource
 from gridsync.tahoe import is_valid_furl
 
 

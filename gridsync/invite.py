@@ -14,9 +14,8 @@ from wormhole.errors import WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.xfer_util import receive
 
-from gridsync import config_dir
+from gridsync import config_dir, resource
 from gridsync import settings as global_settings
-from gridsync.resource import resource
 from gridsync.tahoe import Tahoe
 
 

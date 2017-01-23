@@ -11,9 +11,8 @@ from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
 
-from gridsync import settings
+from gridsync import resource, settings
 from gridsync.config import Config
-from gridsync.resource import resource
 
 
 class ComboBox(QComboBox):

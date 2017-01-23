@@ -58,3 +58,7 @@ else:
         'XDG_CONFIG_HOME', os.path.join(os.path.expanduser('~'), '.config'))
     config_dir = os.path.join(
         config_home, settings['application']['name'].lower())
+
+
+def resource(filename):
+    return os.path.join(pkgdir, 'resources', filename)

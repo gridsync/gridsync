@@ -77,3 +77,8 @@ def test_config_dir_xdg_config_home(monkeypatch):
     monkeypatch.setenv('XDG_CONFIG_HOME', '/test')
     reload(gridsync)
     assert gridsync.config_dir == os.path.join('/test', 'gridsync')
+
+
+def test_resource():
+    assert gridsync.resource('test') == os.path.join(
+        gridsync.pkgdir, 'resources', 'test')
