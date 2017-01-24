@@ -198,37 +198,3 @@ class GridSelector(QWidget):
             msg.setText("Please enter a valid Introducer fURL.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
-
-
-class FolderSelector(QWidget):
-    def __init__(self):
-        super(self.__class__, self).__init__()
-        self.folder = None
-
-        self.line_edit = QLineEdit()
-
-        self.button = QPushButton()
-        self.button.setText("Browse...")
-        self.button.clicked.connect(self.on_clicked)
-
-        gbox = QGroupBox(self)
-        gbox.setTitle("Select a folder to sync:")
-        gbox_layout = QHBoxLayout(gbox)
-        gbox_layout.addItem(QSpacerItem(100, 0, QSizePolicy.Preferred, 0))
-        gbox_layout.addWidget(self.line_edit)
-        gbox_layout.addWidget(self.button)
-        gbox_layout.addItem(QSpacerItem(100, 0, QSizePolicy.Preferred, 0))
-
-        hbox = QHBoxLayout(self)
-        hbox.addWidget(gbox)
-        #hbox.addItem(QSpacerItem(100, 0, QSizePolicy.Preferred, 0))
-        #hbox.addWidget(self.line_edit)
-        #hbox.addWidget(self.button)
-        #hbox.addItem(QSpacerItem(100, 0, QSizePolicy.Preferred, 0))
-
-    def on_clicked(self):
-        selected_folder = QFileDialog.getExistingDirectory(
-            self, "Select a folder to sync")
-        if selected_folder:
-            self.line_edit.setText(selected_folder)
-            self.folder = selected_folder
