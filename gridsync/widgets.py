@@ -4,9 +4,9 @@ import os
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
-    QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout, QLabel,
-    QLineEdit, QMessageBox, QPlainTextEdit, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+    QComboBox, QFormLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit, 
+    QMessageBox, QPlainTextEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 
 from gridsync import config_dir, resource
 from gridsync.config import Config
