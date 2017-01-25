@@ -67,7 +67,7 @@ call pip install .
 call pip install pyinstaller==3.2.1
 call pip list
 call set PYTHONHASHSEED=1
-call pyinstaller -y misc\gridsync.spec
+call pyinstaller -y --clean --log-level=DEBUG misc\gridsync.spec
 ::call move dist\Tahoe-LAFS dist\Gridsync\Tahoe-LAFS
 ::call python -m zipfile -c dist\Gridsync.zip dist\Gridsync
 call deactivate
