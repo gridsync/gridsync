@@ -2,9 +2,9 @@
 Gridsync
 ========
 
-.. image:: https://api.travis-ci.org/gridsync/gridsync.svg
+.. image:: https://api.travis-ci.org/gridsync/gridsync.svg?branch=master
     :target: https://travis-ci.org/gridsync/gridsync
-.. image:: https://ci.appveyor.com/api/projects/status/github/gridsync/gridsync?svg=true
+.. image:: https://ci.appveyor.com/api/projects/status/li99vnfax895i8oy/branch/master?svg=true
     :target: https://ci.appveyor.com/project/crwood/gridsync
 .. image:: https://buildbot.gridsync.io/png?builder=linux
     :target: https://buildbot.gridsync.io/builders/linux
