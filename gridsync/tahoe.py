@@ -112,6 +112,17 @@ class Tahoe(object):
             output = yield protocol.done
         returnValue(output)
 
+    @inlineCallbacks
+    def create(self, **kwargs):
+        valid_kwargs = ('nickname', 'introducer', 'shares-needed',
+                        'shares-happy', 'shares-total')
+        # TODO: Handle also 'provider_name', 'icon'?
+        args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
+        for key, value in kwargs.items():
+            if key in valid_kwargs:
+                args.extend(['--{}'.format(key), value])
+        yield self.command(args)
+
     #@inlineCallbacks
     #def start_monitor(self):
     #    furl = os.path.join(self.nodedir, 'private', 'logport.furl')
@@ -169,6 +180,8 @@ class Tahoe(object):
 
     @inlineCallbacks
     def await_ready(self):
+        # TODO: Replace with "readiness" API?
+        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
         ready = yield self.is_ready()
         while not ready:
             yield deferLater(reactor, 0.2, lambda: None)

@@ -122,7 +122,7 @@ class InviteForm(QWidget):
         self.lineedit = LineEdit(self)
         self.lineedit.returnPressed.connect(self.return_pressed)
         self.progressbar = QProgressBar()
-        self.progressbar.setMaximum(8)
+        self.progressbar.setMaximum(7)
         self.progressbar.setTextVisible(False)
         self.progressbar.hide()
         layout_3.addItem(QSpacerItem(85, 0, QSizePolicy.Preferred, 0))
@@ -178,36 +178,22 @@ class InviteForm(QWidget):
 
         self.update_progress(2, 'Creating gateway...')
         tahoe = Tahoe(os.path.join(config_dir, 'default'))
-        args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
-        for option in ('nickname', 'introducer'):
-            # TODO: Add 'needed', 'happy', 'total' pending tahoe-lafs PR #376
-            # https://github.com/tahoe-lafs/tahoe-lafs/pull/376
-            if option in settings:
-                args.extend(['--{}'.format(option), settings[option]])
-        yield tahoe.command(args)
+        yield tahoe.create(**settings)
 
-        self.update_progress(3, 'Configuring gateway...')
-        for option in ('needed', 'happy', 'total'):
-            if option in settings:
-                tahoe.config_set('client', 'shares.{}'.format(option),
-                                 settings[option])
-
-        self.update_progress(4, 'Starting gateway...')
+        self.update_progress(3, 'Starting gateway...')
         yield tahoe.start()
 
-        self.update_progress(5, 'Connecting to grid...')
-        # TODO: Replace with call to "readiness" API?
-        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
+        self.update_progress(4, 'Connecting to grid...')
         yield tahoe.await_ready()
 
-        self.update_progress(6, 'Creating magic-folder...')
+        self.update_progress(5, 'Creating magic-folder...')
         yield tahoe.command(['magic-folder', 'create', 'magic:', 'admin',
                              folder])
 
-        self.update_progress(7, 'Reloading...')
+        self.update_progress(6, 'Reloading...')
         yield tahoe.start()
 
-        self.update_progress(8, 'Done!')
+        self.update_progress(7, 'Done!')
         yield tahoe.await_ready()
         # TODO: Open local folder with file manager instead?
         yield tahoe.command(['webopen'])
