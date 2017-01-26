@@ -151,7 +151,7 @@ Contributing:
 
 Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requests) are more than welcome. Any persons interested in aiding the development of Gridsync are encouraged to do so by opening a `GitHub Issue`_ or by contacting its primary developer: `chris@gridsync.io`_
 
-.. _GitHub Issue: https://github.com/crwood/gridsync/issues
+.. _GitHub Issue: https://github.com/gridsync/gridsync/issues
 .. _chris@gridsync.io: mailto:chris@gridsync.io
 
 License:
