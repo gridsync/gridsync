@@ -101,6 +101,8 @@ Known issues / caveats:
 Installation (development builds):
 -------------
 
+**WARNING: Development builds may be broken in various ways -- particularly on Windows -- and are intended for testing purposes only. Use at your own risk.**
+
 GNU/Linux, inside a virtualenv (tested on Debian 8.6 "jessie" and Ubuntu 16.10 "Yakkety Yak"):
 
 1. ``sudo apt-get install virtualenv git build-essential python-dev libssl-dev libffi-dev python-pyqt5``
