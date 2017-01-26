@@ -15,6 +15,7 @@ qt5reactor.install()
 from PyQt5.QtWidgets import QMessageBox  # pylint: disable=all
 
 from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
 
 from gridsync import config_dir, settings
@@ -94,14 +95,23 @@ class Core(object):
             gateway = Tahoe(nodedir)
             gateway.start()
 
+    @inlineCallbacks
     def first_run(self):
-        wizard = Wizard(self)
-        wizard.exec_()
-        if not wizard.is_complete:
-            logging.debug("Setup wizard not completed; exiting")
-            reactor.stop()
+        defaults = settings['default']
+        if defaults['provider_name']:
+            nodedir = os.path.join(config_dir, defaults['provider_name'])
+            if not os.path.isdir(nodedir):
+                tahoe = Tahoe(nodedir)
+                yield tahoe.create(**defaults)
+                self.start_gateways()
         else:
-            self.start_gateways()
+            wizard = Wizard(self)
+            wizard.exec_()
+            if not wizard.is_complete:
+                logging.debug("Setup wizard not completed; exiting")
+                reactor.stop()
+            else:
+                self.start_gateways()
 
     def start(self):
         # Listen on a port to prevent multiple instances from running
@@ -122,6 +132,7 @@ class Core(object):
                 level=logging.INFO, filename=logfile)
         logging.info("Core starting with args: %s", self.args)
         logging.debug("$PATH is: %s", os.getenv('PATH'))
+        logging.debug("Loaded config.txt settings: %s", settings)
 
         if not self.get_nodedirs():
             reactor.callLater(0, self.first_run)

@@ -8,6 +8,14 @@ mac_bundle_identifier = io.gridsync.Gridsync
 mac_icon = images/gridsync.icns
 win_icon = images/gridsync.ico
 
+[default]
+introducer =
+shares-needed =
+shares-happy =
+shares-total =
+provider_name =
+provider_icon =
+
 [help]
 docs_url = docs.gridsync.io
 issues_url = https://github.com/gridsync/gridsync/issues

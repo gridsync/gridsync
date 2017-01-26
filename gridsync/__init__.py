@@ -18,6 +18,14 @@ default_settings = {
         'tray_icon': 'gridsync.png',
         'tray_icon_sync': 'sync.gif'
     },
+    'default': {
+        'introducer': None,
+        'shares-needed': None,
+        'shares-happy': None,
+        'shares-total': None,
+        'provider_name': None,
+        'provider_icon': None
+    },
     'help': {
         'docs_url': 'docs.gridsync.io',
         'issues_url': 'https://github.com/gridsync/gridsync/issues'
