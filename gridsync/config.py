@@ -4,7 +4,7 @@ from collections import defaultdict
 try:
     from configparser import RawConfigParser, NoOptionError, NoSectionError
 except ImportError:
-    from ConfigParser import RawConfigParser, NoOptionError, NoSectionError # pylint: disable=import-error
+    from ConfigParser import RawConfigParser, NoOptionError, NoSectionError  # pylint: disable=import-error
 import logging
 import os
 import yaml
