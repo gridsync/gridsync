@@ -2,9 +2,9 @@
 
 from collections import defaultdict
 try:
-    from configparser import RawConfigParser
+    from configparser import RawConfigParser, NoOptionError, NoSectionError
 except ImportError:
-    from ConfigParser import RawConfigParser  # pylint: disable=import-error
+    from ConfigParser import RawConfigParser, NoOptionError, NoSectionError # pylint: disable=import-error
 import logging
 import os
 import yaml
@@ -25,7 +25,10 @@ class Config(object):
 
     def get(self, section, option):
         self.config.read(self.filename)
-        return self.config.get(section, option)
+        try:
+            return self.config.get(section, option)
+        except (NoOptionError, NoSectionError):
+            return
 
     def save(self, settings_dict):
         self.config.read(self.filename)
