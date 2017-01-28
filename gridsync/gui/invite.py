@@ -217,7 +217,7 @@ class InviteForm(QStackedWidget):
 
         self.update_progress(2, 'Creating gateway...')
         tahoe = Tahoe(os.path.join(config_dir, grid_name))
-        yield tahoe.create(**settings)
+        yield tahoe.create_client(**settings)
 
         self.update_progress(3, 'Starting gateway...')
         yield tahoe.start()

@@ -113,10 +113,9 @@ class Tahoe(object):
         returnValue(output)
 
     @inlineCallbacks
-    def create(self, **kwargs):
+    def create_client(self, **kwargs):
         valid_kwargs = ('nickname', 'introducer', 'shares-needed',
                         'shares-happy', 'shares-total')
-        # TODO: Handle also 'provider_name', 'icon'?
         args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
         for key, value in kwargs.items():
             if key in valid_kwargs:
