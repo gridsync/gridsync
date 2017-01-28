@@ -1,8 +1,3 @@
-[MASTER]
-ignore=
-    preferences.py,
-    sync.py
-
 [MESSAGES CONTROL]
 disable=
     no-name-in-module,
@@ -13,4 +8,3 @@ disable=
     too-few-public-methods,
     too-many-instance-attributes,
     fixme,
-    line-too-long,
