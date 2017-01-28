@@ -6,8 +6,8 @@ import os
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import (
-    QCheckBox, QCompleter, QHBoxLayout, QLabel, QLineEdit, QMessageBox,
-    QProgressBar, QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+    QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit, QMessageBox,
+    QProgressBar, QSizePolicy, QSpacerItem, QStackedWidget, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import WrongPasswordError
@@ -93,79 +93,118 @@ class LineEdit(QLineEdit):
             return QLineEdit.keyPressEvent(self, event)
 
 
-class InviteForm(QWidget):
-    def __init__(self):  # pylint: disable=too-many-statements
+class CodeEntryWidget(QWidget):
+    def __init__(self, parent=None):
         super(self.__class__, self).__init__()
-        self.step = 0
-        self.resize(500, 333)
-        layout = QVBoxLayout(self)
+        self.parent = parent
 
-        layout_1 = QHBoxLayout()
+        pixmap = QPixmap(resource('mail-envelope-closed.png')).scaled(128, 128)
         self.icon = QLabel()
-        pixmap = QPixmap(resource('mail-envelope-open.png')).scaled(128, 128)
         self.icon.setPixmap(pixmap)
-        layout_1.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0))
-        layout_1.addWidget(self.icon)
-        layout_1.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0))
+        self.icon.setAlignment(Qt.AlignCenter)
 
-        layout_2 = QHBoxLayout()
         self.label = QLabel("Enter invite code:")
         font = QFont()
         font.setPointSize(14)
         self.label.setFont(font)
         self.label.setStyleSheet("color: grey")
-        layout_2.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0))
-        layout_2.addWidget(self.label)
-        layout_2.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0))
+        self.label.setAlignment(Qt.AlignCenter)
 
-        layout_3 = QHBoxLayout()
         self.lineedit = LineEdit(self)
-        self.lineedit.returnPressed.connect(self.return_pressed)
-        self.progressbar = QProgressBar()
-        self.progressbar.setMaximum(7)
-        self.progressbar.setTextVisible(False)
-        self.progressbar.hide()
-        layout_3.addItem(QSpacerItem(85, 0, QSizePolicy.Preferred, 0))
-        layout_3.addWidget(self.lineedit)
-        layout_3.addWidget(self.progressbar)
-        layout_3.addItem(QSpacerItem(85, 0, QSizePolicy.Preferred, 0))
+        self.lineedit.returnPressed.connect(self.parent.return_pressed)
 
-        layout_4 = QHBoxLayout()
         self.checkbox = QCheckBox(self)
         self.checkbox.setText("Always connect using Tor")
         self.checkbox.setEnabled(True)
         self.checkbox.setCheckable(False)
         self.checkbox.setStyleSheet("color: grey")
         self.checkbox.setFocusPolicy(Qt.NoFocus)
-        self.message = QLabel()
+
+        self.message = QLabel('hey')
+        self.message.setStyleSheet("color: red")
+        self.message.setAlignment(Qt.AlignCenter)
         self.message.hide()
-        layout_4.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0))
-        layout_4.addWidget(self.checkbox)
-        layout_4.addWidget(self.message)
-        layout_4.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0))
 
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
-        layout.addLayout(layout_1)
-        layout.addLayout(layout_2)
-        layout.addLayout(layout_3)
-        layout.addLayout(layout_4)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
-
-    def update_progress(self, step, message):
-        self.step = step
-        self.progressbar.setValue(step)
-        self.progressbar.show()
-        self.message.setStyleSheet("color: grey")
-        self.message.setText(message)
-        self.message.show()
+        layout = QGridLayout(self)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addWidget(self.icon, 1, 3)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addWidget(self.label, 2, 3, 1, 1)
+        layout.addWidget(self.lineedit, 3, 2, 1, 3)
+        layout.addWidget(self.checkbox, 4, 3)
+        layout.addWidget(self.message, 4, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
     def show_error(self, message):
-        self.message.setStyleSheet("color: red")
         self.message.setText(message)
         self.checkbox.hide()
         self.message.show()
         reactor.callLater(3, self.message.hide)
         reactor.callLater(3, self.checkbox.show)
+
+    def reset(self):
+        self.lineedit.setText('')
+
+
+class ProgressBarWidget(QWidget):
+    def __init__(self):
+        super(self.__class__, self).__init__()
+        self.step = 0
+
+        pixmap = QPixmap(resource('mail-envelope-open.png')).scaled(128, 128)
+        self.icon = QLabel()
+        self.icon.setPixmap(pixmap)
+        self.icon.setAlignment(Qt.AlignCenter)
+        self.progressbar = QProgressBar()
+        self.progressbar.setMaximum(7)
+        self.progressbar.setTextVisible(False)
+        self.message = QLabel()
+        self.message.setStyleSheet("color: grey")
+        self.message.setAlignment(Qt.AlignCenter)
+
+        layout = QGridLayout(self)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addWidget(self.icon, 1, 3)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addWidget(self.progressbar, 2, 2, 1, 3)
+        layout.addWidget(self.message, 3, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 4, 1)
+
+    def update_progress(self, step, message):
+        self.step = step
+        self.progressbar.setValue(step)
+        self.message.setText(message)
+
+    def reset(self):
+        self.update_progress(0, '')
+
+
+class InviteForm(QStackedWidget):
+    def __init__(self):
+        super(self.__class__, self).__init__()
+        self.resize(500, 333)
+        self.page_1 = CodeEntryWidget(self)
+        self.page_2 = ProgressBarWidget()
+
+        self.addWidget(self.page_1)
+        self.addWidget(self.page_2)
+
+    def update_progress(self, step, message):
+        self.page_2.update_progress(step, message)
+
+    def show_error(self, message):
+        self.page_1.show_error(message)
+
+    def reset(self):
+        self.page_1.reset()
+        self.page_2.reset()
+        self.setCurrentIndex(0)
 
     @inlineCallbacks
     def setup(self, settings):
@@ -198,15 +237,6 @@ class InviteForm(QWidget):
         # TODO: Open local folder with file manager instead?
         yield tahoe.command(['webopen'])
         self.close()
-
-    def reset(self):
-        self.update_progress(0, '')
-        self.label.setText("Enter invite code:")
-        self.lineedit.setText('')
-        self.progressbar.hide()
-        self.message.hide()
-        self.lineedit.show()
-        self.checkbox.show()
 
     def show_failure(self, failure):
         msg = QMessageBox(self)
@@ -245,11 +275,9 @@ class InviteForm(QWidget):
         self.reset()
 
     def return_pressed(self):
-        code = self.lineedit.text().lower()
+        code = self.page_1.lineedit.text().lower()
         if is_valid(code):
-            self.label.setText('')
-            self.lineedit.hide()
-            self.checkbox.hide()
+            self.setCurrentIndex(1)
             self.update_progress(1, 'Opening wormhole...')
             d = receive(reactor, global_settings['wormhole']['appid'],
                         global_settings['wormhole']['relay'], code)
