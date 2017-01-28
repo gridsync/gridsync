@@ -85,7 +85,7 @@ class Core(object):
                 logging.debug("Setup wizard not completed; exiting")
                 reactor.stop()
             else:
-                self.start_gateways()
+                self.gui.show()
 
     def start(self):
         # Listen on a port to prevent multiple instances from running
@@ -118,7 +118,7 @@ class Core(object):
 
         if not self.args.no_gui:
             self.gui = Gui(self)
-            self.gui.show()
+            self.gui.systray.show()
 
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
