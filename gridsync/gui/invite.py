@@ -120,7 +120,7 @@ class CodeEntryWidget(QWidget):
         self.checkbox.setStyleSheet("color: grey")
         self.checkbox.setFocusPolicy(Qt.NoFocus)
 
-        self.message = QLabel('hey')
+        self.message = QLabel()
         self.message.setStyleSheet("color: red")
         self.message.setAlignment(Qt.AlignCenter)
         self.message.hide()
@@ -159,7 +159,7 @@ class ProgressBarWidget(QWidget):
         self.icon.setPixmap(pixmap)
         self.icon.setAlignment(Qt.AlignCenter)
         self.progressbar = QProgressBar()
-        self.progressbar.setMaximum(7)
+        self.progressbar.setMaximum(5)
         self.progressbar.setTextVisible(False)
         self.message = QLabel()
         self.message.setStyleSheet("color: grey")
@@ -209,14 +209,14 @@ class InviteForm(QStackedWidget):
     @inlineCallbacks
     def setup(self, settings):
         settings = json.loads(settings)
-        folder = os.path.join(os.path.expanduser('~'), 'Private')
-        try:
-            os.makedirs(folder)
-        except OSError:
-            pass
+
+        if 'nickname' in settings:
+            grid_name = settings['nickname']
+        else:
+            grid_name = settings['introducer'].split('@')[1].split(':')[0]
 
         self.update_progress(2, 'Creating gateway...')
-        tahoe = Tahoe(os.path.join(config_dir, 'default'))
+        tahoe = Tahoe(os.path.join(config_dir, grid_name))
         yield tahoe.create(**settings)
 
         self.update_progress(3, 'Starting gateway...')
@@ -225,18 +225,9 @@ class InviteForm(QStackedWidget):
         self.update_progress(4, 'Connecting to grid...')
         yield tahoe.await_ready()
 
-        self.update_progress(5, 'Creating magic-folder...')
-        yield tahoe.command(['magic-folder', 'create', 'magic:', 'admin',
-                             folder])
-
-        self.update_progress(6, 'Reloading...')
-        yield tahoe.start()
-
-        self.update_progress(7, 'Done!')
-        yield tahoe.await_ready()
+        self.update_progress(5, 'Done!')
         # TODO: Open local folder with file manager instead?
         yield tahoe.command(['webopen'])
-        self.close()
 
     def show_failure(self, failure):
         msg = QMessageBox(self)

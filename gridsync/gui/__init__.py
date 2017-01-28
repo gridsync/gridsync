@@ -25,16 +25,6 @@ class Gui(object):
         self.systray.showMessage(title, message, msecs=5000)
 
     def show_invite_form(self):
-        nodedir = os.path.join(config_dir, 'default')
-        if os.path.isdir(nodedir):
-            reply = QMessageBox.question(
-                self.invite_form, "Tahoe-LAFS already configured",
-                "Tahoe-LAFS is already configured on this computer. "
-                "Do you want to overwrite your existing configuration?")
-            if reply == QMessageBox.Yes:
-                shutil.rmtree(nodedir, ignore_errors=True)
-            else:
-                return
         self.invite_form.show()
         self.invite_form.raise_()
 
