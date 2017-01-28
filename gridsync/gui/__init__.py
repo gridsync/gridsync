@@ -47,3 +47,10 @@ class Gui(object):
 
     def show(self):
         self.systray.show()
+        self.show_main_window()
+
+    def toggle(self):
+        if self.main_window.isVisible():
+            self.main_window.hide()
+        else:
+            self.show_main_window()

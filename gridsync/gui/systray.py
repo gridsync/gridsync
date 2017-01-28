@@ -85,4 +85,4 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def on_click(self, value):  # pylint: disable=no-self-use
         if value == QSystemTrayIcon.Trigger:
-            self.parent.main_window.show()
+            self.parent.toggle()
