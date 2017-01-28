@@ -44,7 +44,7 @@ def test_config_load(tmpdir):
     config = Config(os.path.join(str(tmpdir), 'test_load.ini'))
     with open(config.filename, 'w') as f:
         f.write('[test_section]\ntest_option = test_value\n\n')
-    config.load() == {'test_section': {'test_option': 'test_value'}}
+    assert config.load() == {'test_section': {'test_option': 'test_value'}}
 
 
 def test_yaml_config_save(tmpdir):
