@@ -39,7 +39,7 @@ class CoreProtocol(Protocol):  # pylint: disable=no-init
             reactor.stop()
 
 
-class CoreFactory(Factory):
+class CoreFactory(Factory):  # pylint: disable=no-init
     protocol = CoreProtocol
 
 
