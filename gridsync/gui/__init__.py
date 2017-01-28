@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
-import shutil
-
-
-from PyQt5.QtWidgets import QMessageBox
-
-from gridsync import config_dir
 from gridsync.gui.invite import InviteForm
 from gridsync.gui.main_window import MainWindow
 from gridsync.gui.systray import SystemTrayIcon
