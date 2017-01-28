@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from gridsync.invite import is_valid, InviteForm
+from gridsync.gui.invite import is_valid, InviteForm
 
 
 def test_invalid_code_not_three_words():

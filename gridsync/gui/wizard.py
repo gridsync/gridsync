@@ -6,8 +6,8 @@ from PyQt5.QtWidgets import (
     QWizard, QWizardPage)
 
 from gridsync import settings
-from gridsync.invite import InviteForm
-from gridsync.widgets import GridSelector
+from gridsync.gui.invite import InviteForm
+from gridsync.gui.widgets import GridSelector
 
 
 class WelcomePage(QWizardPage):

@@ -107,7 +107,7 @@ setup(
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",
     ],
-    packages=['gridsync'],
+    packages=['gridsync', 'gridsync.gui'],
     package_data={
         'gridsync': ['resources/*']
     },
