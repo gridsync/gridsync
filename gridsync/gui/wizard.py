@@ -68,7 +68,6 @@ class InviteCodePage(QWizardPage):
 
     def keyPressEvent(self, event):  # pylint: disable=no-self-use
         key = event.key()
-        print(key)
         if key == Qt.Key_Escape:
             event.ignore()
 
