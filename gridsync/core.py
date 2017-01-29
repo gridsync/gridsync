@@ -111,7 +111,8 @@ class Core(object):
         logging.debug("Loaded config.txt settings: %s", settings)
 
         nodedirs = get_nodedirs()
-        logging.debug("Found nodedirs: %s", nodedirs)
+        for nodedir in nodedirs:
+            logging.debug("Found nodedir: %s", nodedir)
 
         if not nodedirs:
             reactor.callLater(0, self.first_run)
