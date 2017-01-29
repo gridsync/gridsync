@@ -13,7 +13,7 @@ import qt5reactor
 qt5reactor.install()
 
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
 
 from gridsync import config_dir, settings
@@ -54,21 +54,23 @@ class Core(object):
         else:
             print(title, message)
 
+    @inlineCallbacks
     def stop_gateways(self):  # pylint: disable=no-self-use
         logging.debug("Stopping Tahoe-LAFS gateway(s)...")
+        tasks = []
         for nodedir in get_nodedirs():
-            gateway = Tahoe(nodedir)
-            gateway.stop()
+            tasks.append(Tahoe(nodedir).stop())
+        yield DeferredList(tasks)
 
+    @inlineCallbacks
     def stop(self):
-        self.stop_gateways()
+        yield self.stop_gateways()
         logging.debug("Stopping reactor...")
 
     def start_gateways(self):  # pylint: disable=no-self-use
         logging.debug("Starting Tahoe-LAFS gateway(s)...")
         for nodedir in get_nodedirs():
-            gateway = Tahoe(nodedir)
-            gateway.start()
+            Tahoe(nodedir).start()
 
     @inlineCallbacks
     def first_run(self):
