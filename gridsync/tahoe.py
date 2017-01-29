@@ -119,7 +119,7 @@ class Tahoe(object):
         args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
         for key, value in kwargs.items():
             if key in valid_kwargs:
-                args.extend(['--{}'.format(key), value])
+                args.extend(['--{}'.format(key), str(value)])
         yield self.command(args)
 
     #@inlineCallbacks
