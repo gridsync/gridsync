@@ -79,7 +79,7 @@ class Core(object):
             nodedir = os.path.join(config_dir, defaults['provider_name'])
             if not os.path.isdir(nodedir):
                 tahoe = Tahoe(nodedir)
-                yield tahoe.create(**defaults)
+                yield tahoe.create_client(**defaults)
                 self.start_gateways()
         else:
             self.gui.exec_wizard()
