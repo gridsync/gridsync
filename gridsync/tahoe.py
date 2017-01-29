@@ -189,3 +189,13 @@ class Tahoe(object):
         while not ready:
             yield deferLater(reactor, 0.2, lambda: None)
             ready = yield self.is_ready()
+
+    @inlineCallbacks
+    def create_magic_folder(self, path):
+        path = os.path.realpath(os.path.expanduser(path))
+        try:
+            os.makedirs(folder)
+        except OSError:
+            pass
+        yield self.await_ready()
+        yield self.command(['magic-folder', 'create', 'magic:', 'admin', path])
