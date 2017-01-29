@@ -127,22 +127,26 @@ class Tahoe(object):
     #    furl = os.path.join(self.nodedir, 'private', 'logport.furl')
     #    yield self.command(['debug', 'flogtool', 'tail', furl])
 
+    @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
             print('No "twistd.pid" file found in {}'.format(self.nodedir))
             return
-        with open(self.pidfile, 'r') as f:
-            pid = f.read()
-        pid = int(pid)
-        print("Trying to kill PID {}...".format(pid))
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except OSError as err:
-            print(err)
-            if err.errno == errno.ESRCH or err.errno == errno.EINVAL:
-                os.remove(self.pidfile)
-            else:
-                raise
+        elif sys.platform == 'win32':
+            with open(self.pidfile, 'r') as f:
+                pid = f.read()
+            pid = int(pid)
+            print("Trying to kill PID {}...".format(pid))
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except OSError as err:
+                print(err)
+                if err.errno == errno.ESRCH or err.errno == errno.EINVAL:
+                    os.remove(self.pidfile)
+                else:
+                    raise
+        else:
+            yield self.command(['stop'])
 
     @inlineCallbacks
     def start(self):
