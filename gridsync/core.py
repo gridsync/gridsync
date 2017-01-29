@@ -96,16 +96,7 @@ class Core(object):
             os.makedirs(config_dir)
         except OSError:
             pass
-        if self.args.debug:
-            logging.basicConfig(
-                format='%(asctime)s %(funcName)s %(message)s',
-                level=logging.DEBUG, stream=sys.stdout)
-        else:
-            appname = settings['application']['name']
-            logfile = os.path.join(config_dir, '{}.log'.format(appname))
-            logging.basicConfig(
-                format='%(asctime)s %(funcName)s %(message)s',
-                level=logging.INFO, filename=logfile)
+
         logging.info("Core starting with args: %s", self.args)
         logging.debug("$PATH is: %s", os.getenv('PATH'))
         logging.debug("Loaded config.txt settings: %s", settings)
