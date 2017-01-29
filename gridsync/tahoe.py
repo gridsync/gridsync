@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import errno
+import logging as log
 import os
 import re
 import signal
@@ -18,7 +17,6 @@ from twisted.python.procutils import which
 from twisted.web.client import Agent, readBody
 
 from gridsync.config import Config
-
 
 def is_valid_furl(furl):
     return re.match(r'^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$', furl)
@@ -70,7 +68,7 @@ class Tahoe(object):
 
     def line_received(self, line):  # pylint: disable=no-self-use
         # TODO: Connect to Core via Qt signals/slots?
-        print(">>> " + line)
+        log.debug(">>> " + line)
 
     def _win32_popen(self, args, env, callback_trigger=None):
         # This is a workaround to prevent Command Prompt windows from opening
@@ -130,17 +128,17 @@ class Tahoe(object):
     @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
-            print('No "twistd.pid" file found in {}'.format(self.nodedir))
+            log.error('No "twistd.pid" file found in {}'.format(self.nodedir))
             return
         elif sys.platform == 'win32':
             with open(self.pidfile, 'r') as f:
                 pid = f.read()
             pid = int(pid)
-            print("Trying to kill PID {}...".format(pid))
+            log.debug("Trying to kill PID {}...".format(pid))
             try:
                 os.kill(pid, signal.SIGTERM)
             except OSError as err:
-                print(err)
+                log.error(err)
                 if err.errno == errno.ESRCH or err.errno == errno.EINVAL:
                     os.remove(self.pidfile)
                 else:
