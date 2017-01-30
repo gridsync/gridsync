@@ -101,8 +101,8 @@ class CodeEntryWidget(QWidget):
         super(self.__class__, self).__init__()
         self.parent = parent
 
-        pixmap = QPixmap(resource('mail-envelope-closed.png')).scaled(128, 128)
         self.icon = QLabel()
+        pixmap = QPixmap(resource('mail-envelope-closed.png')).scaled(128, 128)
         self.icon.setPixmap(pixmap)
         self.icon.setAlignment(Qt.AlignCenter)
 
@@ -157,8 +157,8 @@ class ProgressBarWidget(QWidget):
         super(self.__class__, self).__init__()
         self.step = 0
 
-        pixmap = QPixmap(resource('mail-envelope-open.png')).scaled(128, 128)
         self.icon = QLabel()
+        pixmap = QPixmap(resource('mail-envelope-open.png')).scaled(128, 128)
         self.icon.setPixmap(pixmap)
         self.icon.setAlignment(Qt.AlignCenter)
 
@@ -224,22 +224,22 @@ class InviteForm(QStackedWidget):
         settings = json.loads(settings)
 
         if 'nickname' in settings:
-            grid_name = settings['nickname']
+            nickname = settings['nickname']
         else:
-            grid_name = settings['introducer'].split('@')[1].split(':')[0]
+            nickname = settings['introducer'].split('@')[1].split(':')[0]
 
         if 'icon_base64' in settings:
             temp = tempfile.NamedTemporaryFile()
             temp.write(base64.b64decode(settings['icon_base64']))
             pixmap = QPixmap(temp.name).scaled(128, 128)
             self.page_2.icon.setPixmap(pixmap)
-            self.page_2.label.setText(grid_name)
+            self.page_2.label.setText(nickname)
 
         self.update_progress(2, 'Creating gateway...')
         tahoe = Tahoe(os.path.join(config_dir, grid_name))
         yield tahoe.create_client(**settings)
         if 'icon_base64' in settings:
-            shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon.png'))
+            shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon'))
 
         self.update_progress(3, 'Starting gateway...')
         yield tahoe.start()
