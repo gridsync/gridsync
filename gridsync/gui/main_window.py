@@ -11,18 +11,25 @@ from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
 
-from gridsync import resource, settings
-from gridsync.config import Config
+from gridsync import config_dir, resource, settings
+from gridsync.tahoe import get_nodedirs
 
 
 class ComboBox(QComboBox):
-    # XXX: Update/merge with GridSelector widget
-    def __init__(self):
+    def __init__(self, nodedirs=None):
         super(self.__class__, self).__init__()
-        providers = Config(resource('storage_providers.txt')).load()
-        for provider in sorted(providers):
-            self.addItem(
-                QIcon(resource(providers[provider]['icon'])), provider)
+        self.populate(nodedirs)
+
+    def populate(self, nodedirs):
+        if not nodedirs:
+            nodedirs = get_nodedirs(config_dir)
+        self.clear()
+        for nodedir in sorted(nodedirs):
+            basename = os.path.basename(os.path.normpath(nodedir))
+            iconpath = os.path.join(nodedir, 'icon')
+            if not os.path.isfile(iconpath):
+                iconpath = resource('tahoe-lafs.png')
+            self.addItem(QIcon(iconpath), basename)
         self.insertSeparator(self.count())
         self.addItem(" Add new...")
         self.model().item(self.count() - 1).setEnabled(False)
