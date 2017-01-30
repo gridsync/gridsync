@@ -2,11 +2,12 @@
 
 from __future__ import print_function
 
+import logging as log
 import os
 
 from PyQt5.QtWidgets import (
-    QAction, QComboBox, QFileIconProvider, QHeaderView, QLabel, QMainWindow,
-    QSizePolicy, QTreeView, QVBoxLayout, QWidget)
+    QAction, QComboBox, QFileIconProvider, QGridLayout, QHeaderView, QLabel,
+    QMainWindow, QSizePolicy, QStackedWidget, QTreeView, QWidget)
 from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
@@ -64,6 +65,42 @@ class Model(QStandardItemModel):
         self.appendRow([name, status, size, action])
 
 
+class View(QTreeView):
+    def __init__(self, model):
+        super(self.__class__, self).__init__()
+        self.model = model
+        self.setModel(self.model)
+        self.setColumnWidth(0, 100)
+        self.setColumnWidth(1, 100)
+        self.setColumnWidth(2, 50)
+        self.setColumnWidth(3, 100)
+        #self.setHeaderHidden(True)
+        #self.setRootIsDecorated(False)
+        self.setSortingEnabled(True)
+        #self.header().setDefaultAlignment(Qt.AlignCenter)
+        font = QFont()
+        font.setPointSize(12)
+        #self.header().setFont(font)
+        self.header().setStretchLastSection(False)
+        self.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.header().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.header().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.header().setSectionResizeMode(3, QHeaderView.Stretch)
+
+
+class CentralWidget(QStackedWidget):
+    def __init__(self, view):
+        super(self.__class__, self).__init__()
+        self.view = view
+
+        self.view_widget = QWidget()
+        layout = QGridLayout(self.view_widget)
+        layout.addWidget(self.view)
+
+        self.addWidget(self.view_widget)
+        self.setCurrentIndex(0)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, parent, nodedirs=None):
         super(self.__class__, self).__init__()
@@ -73,30 +110,15 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(QSize(500, 300))
 
         self.combo_box = ComboBox(self.nodedirs)
+        self.combo_box.activated[str].connect(self.on_grid_selected)
+
         self.model = Model()
+        self.view = View(self.model)
 
-        self.view = QTreeView()
-        self.view.setModel(self.model)
-        self.view.setColumnWidth(0, 100)
-        self.view.setColumnWidth(1, 100)
-        self.view.setColumnWidth(2, 50)
-        self.view.setColumnWidth(3, 100)
-        #self.view.setHeaderHidden(True)
-        #self.view.setRootIsDecorated(False)
-        self.view.setSortingEnabled(True)
-        #self.view.header().setDefaultAlignment(Qt.AlignCenter)
-        font = QFont()
-        font.setPointSize(12)
-        #self.view.header().setFont(font)
-        self.view.header().setStretchLastSection(False)
-        self.view.header().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.view.header().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.view.header().setSectionResizeMode(2, QHeaderView.Stretch)
-        self.view.header().setSectionResizeMode(3, QHeaderView.Stretch)
-
-        self.central_widget = QWidget()
-        self.vbox = QVBoxLayout(self.central_widget)
-        self.vbox.addWidget(self.view)
+        #self.central_widget = QWidget()
+        #self.vbox = QVBoxLayout(self.central_widget)
+        #self.vbox.addWidget(self.view)
+        self.central_widget = CentralWidget(self.view)
         self.setCentralWidget(self.central_widget)
 
         invite_action = QAction(
@@ -132,6 +154,9 @@ class MainWindow(QMainWindow):
             QLabel('Connection status goes here :)'))
 
         self.setAcceptDrops(True)
+
+    def on_grid_selected(self, name):  # pylint: disable=no-self-use
+        log.debug("Selected: %s", name)
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
         if event.mimeData().hasUrls:
