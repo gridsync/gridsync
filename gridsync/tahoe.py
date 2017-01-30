@@ -229,7 +229,7 @@ class Tahoe(object):
         settings = {
             'nickname': self.config_get('node', 'nickname'),
             'introducer': self.config_get('client', 'introducer.furl'),
-            'shares-needed': self.config_get('client', 'shares.needed'), 
+            'shares-needed': self.config_get('client', 'shares.needed'),
             'shares-happy': self.config_get('client', 'shares.happy'),
             'shares-total': self.config_get('client', 'shares.total')
         }
