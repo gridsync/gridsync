@@ -65,13 +65,14 @@ class Model(QStandardItemModel):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent):
+    def __init__(self, parent, nodedirs=None):
         super(self.__class__, self).__init__()
         self.parent = parent
+        self.nodedirs = nodedirs
         self.setWindowTitle(settings['application']['name'])
         self.setMinimumSize(QSize(500, 300))
 
-        self.combo_box = ComboBox()
+        self.combo_box = ComboBox(self.nodedirs)
         self.model = Model()
 
         self.view = QTreeView()
