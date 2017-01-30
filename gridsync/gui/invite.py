@@ -236,7 +236,7 @@ class InviteForm(QStackedWidget):
             self.page_2.label.setText(nickname)
 
         self.update_progress(2, 'Creating gateway...')
-        tahoe = Tahoe(os.path.join(config_dir, grid_name))
+        tahoe = Tahoe(os.path.join(config_dir, nickname))
         yield tahoe.create_client(**settings)
         if 'icon_base64' in settings:
             shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon'))
