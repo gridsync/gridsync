@@ -2,6 +2,7 @@
 
 import base64
 import json
+import logging as log
 import os
 import shutil
 import tempfile
@@ -281,8 +282,8 @@ class InviteForm(QStackedWidget):
                 "The invitation process has timed out. Your invite code may "
                 "have expired. Please request a new invite code from your "
                 "inviter and try again.")
-        # XXX: Other errors?
         else:
+            log.error(str(failure))
             return
         msg.exec_()
         self.reset()
