@@ -18,6 +18,7 @@ from twisted.web.client import Agent, readBody
 
 from gridsync.config import Config
 
+
 def is_valid_furl(furl):
     return re.match(r'^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$', furl)
 
@@ -128,13 +129,13 @@ class Tahoe(object):
     @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
-            log.error('No "twistd.pid" file found in {}'.format(self.nodedir))
+            log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
         elif sys.platform == 'win32':
             with open(self.pidfile, 'r') as f:
                 pid = f.read()
             pid = int(pid)
-            log.debug("Trying to kill PID {}...".format(pid))
+            log.debug("Trying to kill PID %d...", pid)
             try:
                 os.kill(pid, signal.SIGTERM)
             except OSError as err:
@@ -192,7 +193,7 @@ class Tahoe(object):
     def create_magic_folder(self, path):
         path = os.path.realpath(os.path.expanduser(path))
         try:
-            os.makedirs(folder)
+            os.makedirs(path)
         except OSError:
             pass
         yield self.await_ready()
