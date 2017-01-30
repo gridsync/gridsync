@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import base64
 import json
 import os
+import shutil
+import tempfile
 
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QFont, QPixmap
@@ -86,7 +89,7 @@ class LineEdit(QLineEdit):
                 self.setText(text)
         elif key == Qt.Key_Escape:
             if text:
-                self.parent.reset()
+                self.setText('')
             #else:
             #    self.parent.close()
         else:
@@ -158,9 +161,18 @@ class ProgressBarWidget(QWidget):
         self.icon = QLabel()
         self.icon.setPixmap(pixmap)
         self.icon.setAlignment(Qt.AlignCenter)
+
+        self.label = QLabel()
+        font = QFont()
+        font.setPointSize(14)
+        self.label.setFont(font)
+        self.label.setStyleSheet("color: grey")
+        self.label.setAlignment(Qt.AlignCenter)
+
         self.progressbar = QProgressBar()
         self.progressbar.setMaximum(5)
         self.progressbar.setTextVisible(False)
+
         self.message = QLabel()
         self.message.setStyleSheet("color: grey")
         self.message.setAlignment(Qt.AlignCenter)
@@ -172,9 +184,10 @@ class ProgressBarWidget(QWidget):
         layout.addWidget(self.icon, 1, 3)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-        layout.addWidget(self.progressbar, 2, 2, 1, 3)
-        layout.addWidget(self.message, 3, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 4, 1)
+        layout.addWidget(self.label, 2, 3, 1, 1)
+        layout.addWidget(self.progressbar, 3, 2, 1, 3)
+        layout.addWidget(self.message, 4, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
     def update_progress(self, step, message):
         self.step = step
@@ -215,9 +228,18 @@ class InviteForm(QStackedWidget):
         else:
             grid_name = settings['introducer'].split('@')[1].split(':')[0]
 
+        if 'icon_base64' in settings:
+            temp = tempfile.NamedTemporaryFile()
+            temp.write(base64.b64decode(settings['icon_base64']))
+            pixmap = QPixmap(temp.name).scaled(128, 128)
+            self.page_2.icon.setPixmap(pixmap)
+            self.page_2.label.setText(grid_name)
+
         self.update_progress(2, 'Creating gateway...')
         tahoe = Tahoe(os.path.join(config_dir, grid_name))
         yield tahoe.create_client(**settings)
+        if 'icon_base64' in settings:
+            shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon.png'))
 
         self.update_progress(3, 'Starting gateway...')
         yield tahoe.start()
@@ -252,7 +274,7 @@ class InviteForm(QStackedWidget):
                 "the information needed to complete the invitation process. "
                 "Please let them know about the error, and try again later "
                 "with a new invite code.")
-        elif failure.type == CancelledError and self.step == 1:
+        elif failure.type == CancelledError and self.page_2.step == 1:
             self.show_error("Invite timed out")
             msg.setWindowTitle("Invite timed out")
             msg.setText(
@@ -274,6 +296,6 @@ class InviteForm(QStackedWidget):
                         global_settings['wormhole']['relay'], code)
             d.addCallback(self.setup)
             d.addErrback(self.show_failure)
-            reactor.callLater(5, d.cancel)
+            reactor.callLater(10, d.cancel)
         else:
             self.show_error("Invalid code")
