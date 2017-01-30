@@ -18,17 +18,7 @@ from twisted.internet.protocol import Protocol, Factory
 
 from gridsync import config_dir, settings
 from gridsync.gui import Gui
-from gridsync.tahoe import Tahoe
-
-
-def get_nodedirs():
-    nodedirs = []
-    for filename in os.listdir(config_dir):
-        filepath = os.path.join(config_dir, filename)
-        confpath = os.path.join(filepath, 'tahoe.cfg')
-        if os.path.isdir(filepath) and os.path.isfile(confpath):
-            nodedirs.append(filepath)
-    return nodedirs
+from gridsync.tahoe import get_nodedirs, Tahoe
 
 
 class CoreProtocol(Protocol):  # pylint: disable=no-init
@@ -58,7 +48,7 @@ class Core(object):
     def stop_gateways(self):  # pylint: disable=no-self-use
         logging.debug("Stopping Tahoe-LAFS gateway(s)...")
         tasks = []
-        for nodedir in get_nodedirs():
+        for nodedir in get_nodedirs(config_dir):
             tasks.append(Tahoe(nodedir).stop())
         yield DeferredList(tasks)
 
@@ -69,7 +59,7 @@ class Core(object):
 
     def start_gateways(self):  # pylint: disable=no-self-use
         logging.debug("Starting Tahoe-LAFS gateway(s)...")
-        for nodedir in get_nodedirs():
+        for nodedir in get_nodedirs(config_dir):
             Tahoe(nodedir).start()
 
     @inlineCallbacks
@@ -101,7 +91,7 @@ class Core(object):
         logging.debug("$PATH is: %s", os.getenv('PATH'))
         logging.debug("Loaded config.txt settings: %s", settings)
 
-        nodedirs = get_nodedirs()
+        nodedirs = get_nodedirs(config_dir)
         for nodedir in nodedirs:
             logging.debug("Found nodedir: %s", nodedir)
 

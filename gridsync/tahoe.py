@@ -23,6 +23,16 @@ def is_valid_furl(furl):
     return re.match(r'^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$', furl)
 
 
+def get_nodedirs(basedir):
+    nodedirs = []
+    for filename in os.listdir(basedir):
+        filepath = os.path.join(basedir, filename)
+        confpath = os.path.join(filepath, 'tahoe.cfg')
+        if os.path.isdir(filepath) and os.path.isfile(confpath):
+            nodedirs.append(filepath)
+    return nodedirs
+
+
 class CommandProtocol(ProcessProtocol):
     def __init__(self, parent, callback_trigger=None):
         self.parent = parent
