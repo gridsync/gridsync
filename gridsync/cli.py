@@ -51,15 +51,17 @@ def main():
     args = parser.parse_args()
 
     if args.debug:
-        logging.basicConfig(format='%(asctime)s %(funcName)s %(message)s',
-                            level=logging.DEBUG, stream=sys.stdout)
+        logging.basicConfig(
+            format='%(asctime)s %(levelname)s %(funcName)s %(message)s',
+            level=logging.DEBUG, stream=sys.stdout)
         from twisted.python.log import startLogging
         startLogging(sys.stdout)
     else:
         appname = settings['application']['name']
         logfile = os.path.join(config_dir, '{}.log'.format(appname))
-        logging.basicConfig(format='%(asctime)s %(funcName)s %(message)s',
-                            level=logging.INFO, filename=logfile)
+        logging.basicConfig(
+            format='%(asctime)s %(levelname)s %(funcName)s %(message)s',
+            level=logging.INFO, filename=logfile)
 
     try:
         core = Core(args)

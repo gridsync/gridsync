@@ -44,7 +44,8 @@ class CommandProtocol(ProcessProtocol):
         self.output.write(data)
         data = data.decode('utf-8')
         for line in data.strip().split('\n'):
-            self.parent.line_received(line)
+            if line:
+                self.parent.line_received(line)
             if not self.done.called and self.trigger and self.trigger in line:
                 self.done.callback(self.transport.pid)
 
@@ -70,6 +71,7 @@ class Tahoe(object):
         self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
         self.nodeurl = None
         self.shares_happy = None
+        self.name = os.path.basename(self.nodedir)
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -77,9 +79,9 @@ class Tahoe(object):
     def config_get(self, section, option):
         return self.config.get(section, option)
 
-    def line_received(self, line):  # pylint: disable=no-self-use
+    def line_received(self, line):
         # TODO: Connect to Core via Qt signals/slots?
-        log.debug(">>> " + line)
+        log.debug("[%s] >>> %s", self.name, line)
 
     def _win32_popen(self, args, env, callback_trigger=None):
         # This is a workaround to prevent Command Prompt windows from opening
@@ -111,6 +113,7 @@ class Tahoe(object):
         args = [exe] + ['-d', self.nodedir] + args
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
+        log.debug("Executing: %s", ' '.join(args))
         if sys.platform == 'win32' and getattr(sys, 'frozen', False):
             from twisted.internet.threads import deferToThread
             output = yield deferToThread(
