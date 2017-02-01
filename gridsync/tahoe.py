@@ -179,7 +179,8 @@ class Tahoe(object):
         resp = yield agent.request('GET'.encode(), self.nodeurl.encode())
         if resp.code == 200:
             html = yield readBody(resp)
-            match = re.search('Connected to <span>(.+?)</span>', html.decode())
+            match = re.search(
+                'Connected to <span>(.+?)</span>', html.decode('utf-8'))
             if match:
                 returnValue(int(match.group(1)))
 
