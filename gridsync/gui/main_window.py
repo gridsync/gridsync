@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
-import logging as log
 import os
 
 from PyQt5.QtWidgets import (
@@ -36,20 +33,16 @@ class ComboBox(QComboBox):
         self.model().item(self.count() - 1).setEnabled(False)
 
 
-class Folder(QStandardItem):
-    def __init__(self, path):
-        super(self.__class__, self).__init__()
-        self.setIcon(QFileIconProvider().icon(QFileInfo(path)))
-        self.setText(os.path.basename(os.path.normpath(path)))
-
-
 class Model(QStandardItemModel):
-    def __init__(self):
+    def __init__(self, nodedir):
         super(self.__class__, self).__init__(0, 4)
+        self.nodedir = nodedir
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Size"))
         self.setHeaderData(3, Qt.Horizontal, QVariant("Action"))
+
+        self.populate()
 
     def data(self, index, role):
         value = super(self.__class__, self).data(index, role)
@@ -58,17 +51,25 @@ class Model(QStandardItemModel):
         return value
 
     def add_folder(self, path):
-        name = Folder(path)
+        folder_icon = QFileIconProvider().icon(QFileInfo(path))
+        folder_basename = os.path.basename(os.path.normpath(path))
+        name = QStandardItem(folder_icon, folder_basename)
         status = QStandardItem()
         size = QStandardItem()
         action = QStandardItem(QIcon(), '')
         self.appendRow([name, status, size, action])
 
+    def populate(self):
+        magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
+        for magic_folder in get_nodedirs(magic_folders_dir):
+            self.add_folder(magic_folder)
+
 
 class View(QTreeView):
-    def __init__(self, model):
+    def __init__(self, nodedir):
         super(self.__class__, self).__init__()
-        self.model = model
+        self.nodedir = nodedir
+        self.model = Model(self.nodedir)
         self.setModel(self.model)
         self.setColumnWidth(0, 100)
         self.setColumnWidth(1, 100)
@@ -77,10 +78,10 @@ class View(QTreeView):
         #self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
-        #self.header().setDefaultAlignment(Qt.AlignCenter)
         font = QFont()
         font.setPointSize(12)
         #self.header().setFont(font)
+        #self.header().setDefaultAlignment(Qt.AlignCenter)
         self.header().setStretchLastSection(False)
         self.header().setSectionResizeMode(0, QHeaderView.Stretch)
         self.header().setSectionResizeMode(1, QHeaderView.Stretch)
@@ -89,16 +90,27 @@ class View(QTreeView):
 
 
 class CentralWidget(QStackedWidget):
-    def __init__(self, view):
+    def __init__(self, nodedirs):
         super(self.__class__, self).__init__()
-        self.view = view
+        self.nodedirs = nodedirs
 
-        self.view_widget = QWidget()
-        layout = QGridLayout(self.view_widget)
-        layout.addWidget(self.view)
+        self.populate(self.nodedirs)
 
-        self.addWidget(self.view_widget)
-        self.setCurrentIndex(0)
+    def add_view_widget(self, nodedir):
+        view = View(nodedir)
+        widget = QWidget()
+        layout = QGridLayout(widget)
+        layout.addWidget(view)
+        self.addWidget(widget)
+
+    def populate(self, nodedirs):
+        for nodedir in sorted(nodedirs):
+            self.add_view_widget(nodedir)
+
+    def add_new_folder(self, path):
+        current_model = self.currentWidget().layout().itemAt(0).widget().model
+        current_model.add_folder(path)
+        # TODO: Create magic-folder
 
 
 class MainWindow(QMainWindow):
@@ -110,15 +122,9 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(QSize(500, 300))
 
         self.combo_box = ComboBox(self.nodedirs)
-        self.combo_box.activated[str].connect(self.on_grid_selected)
+        self.combo_box.activated[int].connect(self.on_grid_selected)
 
-        self.model = Model()
-        self.view = View(self.model)
-
-        #self.central_widget = QWidget()
-        #self.vbox = QVBoxLayout(self.central_widget)
-        #self.vbox.addWidget(self.view)
-        self.central_widget = CentralWidget(self.view)
+        self.central_widget = CentralWidget(self.nodedirs)
         self.setCentralWidget(self.central_widget)
 
         invite_action = QAction(
@@ -155,8 +161,8 @@ class MainWindow(QMainWindow):
 
         self.setAcceptDrops(True)
 
-    def on_grid_selected(self, name):  # pylint: disable=no-self-use
-        log.debug("Selected: %s", name)
+    def on_grid_selected(self, index):
+        self.central_widget.setCurrentIndex(index)
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
         if event.mimeData().hasUrls:
@@ -166,7 +172,7 @@ class MainWindow(QMainWindow):
         if event.mimeData().hasUrls:
             event.accept()
             for url in event.mimeData().urls():
-                self.model.add_folder(url.toLocalFile())
+                self.central_widget.add_new_folder(url.toLocalFile())
 
     def keyPressEvent(self, event):
         key = event.key()
