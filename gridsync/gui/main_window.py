@@ -61,8 +61,9 @@ class Model(QStandardItemModel):
 
     def populate(self):
         magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
-        for magic_folder in get_nodedirs(magic_folders_dir):
-            self.add_folder(magic_folder)
+        if os.path.isdir(magic_folders_dir):
+            for magic_folder in get_nodedirs(magic_folders_dir):
+                self.add_folder(magic_folder)
 
 
 class View(QTreeView):
