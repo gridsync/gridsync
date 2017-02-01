@@ -32,7 +32,7 @@ class Tox(TestCommand):
 requirements = [
     'magic-wormhole',
     'qt5reactor',
-    'treq'
+    'treq',
     'twisted[tls]',
     'watchdog',
 ]
