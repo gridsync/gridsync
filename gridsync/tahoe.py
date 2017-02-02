@@ -8,13 +8,13 @@ import signal
 import sys
 from io import BytesIO
 
+import treq
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks, returnValue
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
-from twisted.web.client import Agent, readBody
 
 from gridsync.config import Config
 
@@ -175,10 +175,9 @@ class Tahoe(object):
 
     @inlineCallbacks
     def get_connected_servers(self):
-        agent = Agent(reactor)
-        resp = yield agent.request('GET'.encode(), self.nodeurl.encode())
+        resp = yield treq.get(self.nodeurl)
         if resp.code == 200:
-            html = yield readBody(resp)
+            html = yield treq.content(resp)
             match = re.search(
                 'Connected to <span>(.+?)</span>', html.decode('utf-8'))
             if match:
