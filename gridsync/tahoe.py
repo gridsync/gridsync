@@ -64,7 +64,7 @@ class CommandProtocol(ProcessProtocol):
 
 class Tahoe(object):
     def __init__(self, nodedir=None, executable=None):
-        self.nodedir = nodedir
+        self.nodedir = os.path.expanduser(nodedir)
         self.executable = executable
         if not self.nodedir:
             self.nodedir = os.path.join(os.path.expanduser('~'), '.tahoe')
