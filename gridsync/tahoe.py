@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import errno
+import json
 import logging as log
 import os
 import re
@@ -72,6 +73,7 @@ class Tahoe(object):
         self.nodeurl = None
         self.shares_happy = None
         self.name = os.path.basename(self.nodedir)
+        self.token = None
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -238,3 +240,16 @@ class Tahoe(object):
         yield tahoe.create_magic_folder(path)
         yield tahoe.stop()
         yield tahoe.start()
+
+    @inlineCallbacks
+    def get_magic_folder_status(self):
+        if not self.token:
+            token_file = os.path.join(
+                self.nodedir, 'private', 'api_auth_token')
+            with open(token_file) as f:
+                self.token = f.read().strip()
+        uri = self.nodeurl + 'magic_folder'
+        resp = yield treq.post(uri, {'token': self.token, 't': 'json'})
+        if resp.code == 200:
+            content = yield treq.content(resp)
+            returnValue(json.loads(content.decode('utf-8')))
