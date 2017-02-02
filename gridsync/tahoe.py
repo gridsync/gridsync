@@ -55,7 +55,7 @@ class CommandProtocol(ProcessProtocol):
 
     def processEnded(self, reason):
         if not self.done.called:
-            self.done.callback(self.output.getvalue())
+            self.done.callback(self.output.getvalue().decode('utf-8'))
 
     def processExited(self, reason):
         if not self.done.called and not isinstance(reason.value, ProcessDone):
