@@ -127,6 +127,11 @@ class Tahoe(object):
         returnValue(output)
 
     @inlineCallbacks
+    def version(self):
+        output = yield self.command(['--version'])
+        returnValue(output.split()[1])
+
+    @inlineCallbacks
     def create_client(self, **kwargs):
         valid_kwargs = ('nickname', 'introducer', 'shares-needed',
                         'shares-happy', 'shares-total')
