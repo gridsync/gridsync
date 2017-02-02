@@ -33,73 +33,15 @@ The Gridsync project intends to overcome some of Tahoe-LAFS' usability barriers 
 * Native look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
 * Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' ``tahoe backup`` command and/or its forthcoming "Magic Folder" utility [*]_ ).
 * Status indicators and desktop notifications -- the user will know, at a glance, when files are being uploaded or downloaded (via system tray icon animations) and will optionally receive notifications (via DBus on GNU/Linux, Notification Center on OS X, etc.) when operations have completed.
-* 'One-click' sharing -- similar to BitTorrent ``magnet:`` links, the IANA-friendly `Gridsync URI specification`_ will allow users to easily join others' storage grids or to synchronize remote Tahoe-LAFS directories with the local filesystem.
-* OS/Desktop-level integration -- Gridsync will (optionally) run at startup, install OS-level URI-handlers, and (eventually) provide context menus for sharing files directly in popular desktop file managers.
+* Easy sharing -- Gridsync will use the `magic-wormhole`_ library to provide human-pronounceable "invite codes" for joining storage grids and sharing folders and files with other users.
 
-.. _Gridsync URI specification: https://github.com/gridsync/gridsync/blob/master/docs/uri_scheme.rst
+.. _magic-wormhole: http://magic-wormhole.io
 
-.. [*] Tahoe-LAFS' "Magic Folder" functionality does not (yet) support Mac OS X or other BSD-based operating systems and is presently in pre-release/beta stage.
-
-
-Sample screenshots
------------
-
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-bundle.png
-
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-wizard.png
-
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-notification.png
-
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/osx-menu.png
-
-
-Current (complete -- or nearly complete) features:
---------------------------------------------------
-
-* Native (.dmg/.app) installation for OS X (with Tahoe-LAFS and dependencies included)
-* Single folder (.zip/.exe) bundle for Windows (with Tahoe-LAFS and dependencies included)
-* Friendly setup wizard with pre-configured storage providers
-* Background daemon to manage (create/start/stop) multiple local Tahoe-LAFS nodes
-* Local filesystem monitoring (via `watchdog`_) for automated backups
-* Remote filesystem monitoring for bi-directional synchronization (partial/broken; see warning below)
-* System tray icon animations
-* Desktop notifications
-
-.. _watchdog: https://pypi.python.org/pypi/watchdog
-
-
-In development / TODO / coming soon:
-------------------------------------
-
-* Unit/integration/system/user tests
-* Drag-and-drop interface for folder management
-* Integration of Tahoe-LAFS' "Magic Folders"
-* `Magic-wormhole`_ support for simplified folder sharing.
-* GNU/Linux distribution packaging (Debian, RPM, Arch PKGBUILD, Gentoo ebuilds, etc.)
-* MSI/NSIS installer for Windows
-* PyPI presence
-
-.. _Magic-wormhole: https://github.com/warner/magic-wormhole
-
-Planned features / coming later:
---------------------------------
-
-* Tor integration and NAT traversal via onion services
-* File manager/context menu integration for Finder (OS X), Explorer (Windows), Nautilus, Konqueror, Thunar, etc. (GNU/Linux)
-* Visual/animated 'map' of shares distribution (think: a graphical version of https://bigasterisk.com/tahoe-playground/)
-
-
-Known issues / caveats:
------------------------
-
-* Gridsync currently lacks a full test suite and the project, on the whole, should be considered alpha quality software at best. Expect major changes to the entire codebase before release.
-* Presently, bi-directional sync works by calling ``tahoe backup`` on filesystem events and periodically polling the target/remote dircap for new snapshots (determining 'current' files based size and mtime). While some minimal conflict detection is in place and no local files are overwritten without first being stored remotely, this scheme is hackish and racey on the whole and should not be used for anything other than trivial, single-client backups (if at all). Consider this a placeholder for Tahoe-LAFS' upcoming "Magic Folders" functionality.
-* Most items available through the systray menu are placeholders only. Again, expect everything here to change and/or go away in the future.
-* Desktop notifications are currently spammy and trigger on every sync. These will also be fixed later to trigger on rare events (e.g., receiving a file update from another client, restoring from a previous snapshot, etc.)
+.. [*] Tahoe-LAFS' "Magic Folder" functionality does not (yet) support Mac OS X or other BSD-based operating systems and is presently marked as experimental.
 
 
 Installation (development builds):
--------------
+----------------------------------
 
 **WARNING: Development builds may be broken in various ways -- particularly on Windows -- and are intended for testing purposes only. Use at your own risk.**
 
