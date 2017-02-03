@@ -64,9 +64,10 @@ class CommandProtocol(ProcessProtocol):
 
 class Tahoe(object):
     def __init__(self, nodedir=None, executable=None):
-        self.nodedir = os.path.expanduser(nodedir)
         self.executable = executable
-        if not self.nodedir:
+        if nodedir:
+            self.nodedir = os.path.expanduser(nodedir)
+        else:
             self.nodedir = os.path.join(os.path.expanduser('~'), '.tahoe')
         self.config = Config(os.path.join(self.nodedir, 'tahoe.cfg'))
         self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
