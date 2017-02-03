@@ -11,12 +11,14 @@ from io import BytesIO
 
 import treq
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks, returnValue
+from twisted.internet.defer import (
+    Deferred, gatherResults, inlineCallbacks, returnValue)
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
+from gridsync import pkgdir
 from gridsync.config import Config
 
 
@@ -259,3 +261,27 @@ class Tahoe(object):
         if resp.code == 200:
             content = yield treq.content(resp)
             returnValue(json.loads(content.decode('utf-8')))
+
+
+@inlineCallbacks
+def select_executable():
+    if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
+        # Because magic-folder on macOS has not yet landed upstream
+        returnValue(os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'))
+    executables = which('tahoe')
+    if executables:
+        tasks = []
+        for executable in executables:
+            log.debug("Found %s; getting version...", executable)
+            tasks.append(Tahoe(executable=executable).version())
+        results = yield gatherResults(tasks)
+        for executable, version in results:
+            log.debug("%s has version '%s'", executable, version)
+            try:
+                major = int(version.split('.')[0])
+                minor = int(version.split('.')[1])
+                if (major, minor) >= (1, 12):
+                    log.debug("Selecting %s", executable)
+                    returnValue(executable)
+            except (IndexError, ValueError):
+                log.warning("Could not parse/compare version of '%s'", version)

@@ -18,7 +18,7 @@ from twisted.internet.protocol import Protocol, Factory
 
 from gridsync import config_dir, settings
 from gridsync.gui import Gui
-from gridsync.tahoe import get_nodedirs, Tahoe
+from gridsync.tahoe import get_nodedirs, select_executable, Tahoe
 
 
 class CoreProtocol(Protocol):  # pylint: disable=no-init
@@ -57,10 +57,19 @@ class Core(object):
         yield self.stop_gateways()
         logging.debug("Stopping reactor...")
 
+    @inlineCallbacks
     def start_gateways(self):  # pylint: disable=no-self-use
-        logging.debug("Starting Tahoe-LAFS gateway(s)...")
-        for nodedir in get_nodedirs(config_dir):
-            Tahoe(nodedir).start()
+        executable = yield select_executable()
+        if not executable:
+            logging.critical(
+                "Could not find a suitable Tahoe-LAFS installation (>= 1.12); "
+                "exiting...")
+            reactor.stop()
+        else:
+            logging.debug("Using executable: %s", executable)
+            logging.debug("Starting Tahoe-LAFS gateway(s)...")
+            for nodedir in get_nodedirs(config_dir):
+                Tahoe(nodedir, executable=executable).start()
 
     @inlineCallbacks
     def first_run(self):
