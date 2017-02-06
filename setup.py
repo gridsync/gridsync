@@ -34,7 +34,6 @@ requirements = [
     'qt5reactor',
     'treq',
     'twisted[tls]',
-    'watchdog',
 ]
 
 # if sys.platform.startswith('linux'):
