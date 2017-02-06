@@ -260,7 +260,7 @@ class Tahoe(object):
         for nodedir in get_nodedirs(self.magic_folders_dir):
             tasks.append(Tahoe(nodedir, executable=self.executable).start())
         yield gatherResults(tasks)
- 
+
     @inlineCallbacks
     def stop_magic_folders(self):
         tasks = []
