@@ -80,6 +80,7 @@ class Tahoe(object):
         self.shares_happy = None
         self.name = os.path.basename(self.nodedir)
         self.token = None
+        self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -172,6 +173,7 @@ class Tahoe(object):
                     raise
         else:
             yield self.command(['stop'])
+        yield self.stop_magic_folders()  # XXX: Move to Core? gatherResults?
 
     @inlineCallbacks
     def start(self):
@@ -184,6 +186,7 @@ class Tahoe(object):
                 f.write(pid)
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
+        yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
         #self.start_monitor()
 
     @inlineCallbacks
@@ -231,13 +234,12 @@ class Tahoe(object):
         # magic-folders per tahoe client, create the magic-folder inside
         # a new nodedir using the current nodedir's connection settings.
         # See https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2792
-        magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
         try:
-            os.makedirs(magic_folders_dir)
+            os.makedirs(self.magic_folders_dir)
         except OSError:
             pass
         folder_name = os.path.basename(os.path.normpath(path))
-        new_nodedir = os.path.join(magic_folders_dir, folder_name)
+        new_nodedir = os.path.join(self.magic_folders_dir, folder_name)
         tahoe = Tahoe(new_nodedir)
         settings = {
             'nickname': self.config_get('node', 'nickname'),
@@ -251,6 +253,20 @@ class Tahoe(object):
         yield tahoe.create_magic_folder(path)
         yield tahoe.stop()
         yield tahoe.start()
+
+    @inlineCallbacks
+    def start_magic_folders(self):
+        tasks = []
+        for nodedir in get_nodedirs(self.magic_folders_dir):
+            tasks.append(Tahoe(nodedir, executable=self.executable).start())
+        yield gatherResults(tasks)
+ 
+    @inlineCallbacks
+    def stop_magic_folders(self):
+        tasks = []
+        for nodedir in get_nodedirs(self.magic_folders_dir):
+            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
+        yield gatherResults(tasks)
 
     @inlineCallbacks
     def get_magic_folder_status(self):
