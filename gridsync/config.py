@@ -5,9 +5,6 @@ try:
     from configparser import RawConfigParser, NoOptionError, NoSectionError
 except ImportError:
     from ConfigParser import RawConfigParser, NoOptionError, NoSectionError  # pylint: disable=import-error
-import logging
-import os
-import yaml
 
 
 class Config(object):
@@ -47,19 +44,3 @@ class Config(object):
             for option, value in self.config.items(section):
                 settings_dict[section][option] = value
         return dict(settings_dict)
-
-
-class YamlConfig(object):
-    def __init__(self, filename):
-        self.filename = filename
-
-    def load(self):
-        with open(self.filename) as f:
-            return yaml.safe_load(f)
-
-    def save(self, settings_dict):
-        logging.info("Saving config to %s", self.filename)
-        with open(self.filename, 'w') as f:
-            os.chmod(self.filename, 0o600)
-            yaml.safe_dump(settings_dict, f, encoding='utf-8',
-                           allow_unicode=True, default_flow_style=False)
