@@ -1,33 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import os
-
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QComboBox, QFormLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
     QMessageBox, QPlainTextEdit, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
 
-from gridsync import config_dir, resource
+from gridsync import resource
 from gridsync.config import Config
 from gridsync.tahoe import is_valid_furl
-
-
-def get_storage_providers():
-    storage_providers = Config(resource('storage_providers.txt')).load()
-    added_providers_db = os.path.join(config_dir, 'storage_providers.txt')
-    added_providers = Config(added_providers_db).load()
-    if added_providers:
-        storage_providers.update(added_providers)
-    return storage_providers
-
-
-def add_storage_provider(name, introducer_furl):
-    added_providers_db = os.path.join(config_dir, 'storage_providers.txt')
-    config = Config(added_providers_db)
-    new_provider = {}
-    new_provider[name] = {'introducer': introducer_furl}
-    config.save(new_provider)
 
 
 class GridComboBox(QWidget):
@@ -108,6 +89,7 @@ class GridSelector(QWidget):
         super(self.__class__, self).__init__()
         self.resize(800, 500)
         self.introducer_furl = None
+        self.storage_providers = None
 
         self.grid_combo_box = GridComboBox()
         self.grid_combo_box.combo_box.activated[str].connect(self.on_selected)
@@ -142,7 +124,8 @@ class GridSelector(QWidget):
         self.populate_combo_box()
 
     def populate_combo_box(self):
-        self.storage_providers = get_storage_providers()
+        self.storage_providers = Config(
+            resource('storage_providers.txt')).load()
         self.combo_box.clear()
         self.combo_box.addItem(" ")
         for name in sorted(self.storage_providers.keys(), reverse=True):
@@ -181,7 +164,7 @@ class GridSelector(QWidget):
     def on_save(self):
         introducer_furl = self.grid_form.introducer_text_edit.toPlainText()
         introducer_furl = introducer_furl.lower().strip().strip('"').strip("'")
-        name = self.grid_form.name_line_edit.text()
+        #name = self.grid_form.name_line_edit.text()
         if not introducer_furl:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
@@ -190,7 +173,7 @@ class GridSelector(QWidget):
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
         elif is_valid_furl(introducer_furl):
-            add_storage_provider(name, introducer_furl)
+            self.introducer_furl = introducer_furl
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
