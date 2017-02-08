@@ -37,6 +37,7 @@ class Core(object):
     def __init__(self, args):
         self.args = args
         self.gui = None
+        self.gateways = []
 
     def notify(self, title, message):
         if self.gui:
@@ -69,7 +70,9 @@ class Core(object):
             logging.debug("Using executable: %s", executable)
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
             for nodedir in get_nodedirs(config_dir):
-                Tahoe(nodedir, executable=executable).start()
+                gateway = Tahoe(nodedir, executable=executable)
+                self.gateways.append(gateway)
+                gateway.start()
 
     @inlineCallbacks
     def first_run(self):
