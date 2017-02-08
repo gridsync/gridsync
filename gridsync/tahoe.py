@@ -148,11 +148,6 @@ class Tahoe(object):
                 args.extend(['--{}'.format(key), str(value)])
         yield self.command(args)
 
-    #@inlineCallbacks
-    #def start_monitor(self):
-    #    furl = os.path.join(self.nodedir, 'private', 'logport.furl')
-    #    yield self.command(['debug', 'flogtool', 'tail', furl])
-
     @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
@@ -187,7 +182,6 @@ class Tahoe(object):
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
-        #self.start_monitor()
 
     @inlineCallbacks
     def get_connected_servers(self):
