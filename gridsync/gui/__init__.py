@@ -38,3 +38,6 @@ class Gui(object):
             self.main_window.hide()
         else:
             self.show_main_window()
+
+    def populate(self, nodedirs):
+        self.main_window.populate(nodedirs)

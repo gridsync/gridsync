@@ -14,13 +14,10 @@ from gridsync.tahoe import get_nodedirs
 
 
 class ComboBox(QComboBox):
-    def __init__(self, nodedirs=None):
+    def __init__(self):
         super(self.__class__, self).__init__()
-        self.populate(nodedirs)
 
     def populate(self, nodedirs):
-        if not nodedirs:
-            nodedirs = get_nodedirs(config_dir)
         self.clear()
         for nodedir in sorted(nodedirs):
             basename = os.path.basename(os.path.normpath(nodedir))
@@ -91,11 +88,12 @@ class View(QTreeView):
 
 
 class CentralWidget(QStackedWidget):
-    def __init__(self, nodedirs):
+    def __init__(self):
         super(self.__class__, self).__init__()
-        self.nodedirs = nodedirs
 
-        self.populate(self.nodedirs)
+    def clear(self):
+        for _ in range(self.count()):
+            self.removeWidget(self.currentWidget())
 
     def add_view_widget(self, nodedir):
         view = View(nodedir)
@@ -105,6 +103,7 @@ class CentralWidget(QStackedWidget):
         self.addWidget(widget)
 
     def populate(self, nodedirs):
+        self.clear()
         for nodedir in sorted(nodedirs):
             self.add_view_widget(nodedir)
 
@@ -122,10 +121,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(settings['application']['name'])
         self.setMinimumSize(QSize(500, 300))
 
-        self.combo_box = ComboBox(self.nodedirs)
+        self.combo_box = ComboBox()
         self.combo_box.activated[int].connect(self.on_grid_selected)
 
-        self.central_widget = CentralWidget(self.nodedirs)
+        self.central_widget = CentralWidget()
         self.setCentralWidget(self.central_widget)
 
         invite_action = QAction(
@@ -161,6 +160,14 @@ class MainWindow(QMainWindow):
             QLabel('Connection status goes here :)'))
 
         self.setAcceptDrops(True)
+
+        self.populate(self.nodedirs)
+
+    def populate(self, nodedirs=None):
+        if not nodedirs:
+            nodedirs = get_nodedirs(config_dir)
+        self.combo_box.populate(nodedirs)
+        self.central_widget.populate(nodedirs)
 
     def on_grid_selected(self, index):
         self.central_widget.setCurrentIndex(index)
