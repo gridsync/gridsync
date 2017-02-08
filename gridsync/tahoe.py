@@ -81,6 +81,7 @@ class Tahoe(object):
         self.name = os.path.basename(self.nodedir)
         self.token = None
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
+        self.magic_folders = []
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -234,7 +235,8 @@ class Tahoe(object):
             pass
         folder_name = os.path.basename(os.path.normpath(path))
         new_nodedir = os.path.join(self.magic_folders_dir, folder_name)
-        tahoe = Tahoe(new_nodedir)
+        magic_folder = Tahoe(new_nodedir)
+        self.magic_folders.append(magic_folder)
         settings = {
             'nickname': self.config_get('node', 'nickname'),
             'introducer': self.config_get('client', 'introducer.furl'),
@@ -242,24 +244,26 @@ class Tahoe(object):
             'shares-happy': self.config_get('client', 'shares.happy'),
             'shares-total': self.config_get('client', 'shares.total')
         }
-        yield tahoe.create_client(**settings)
-        yield tahoe.start()
-        yield tahoe.create_magic_folder(path)
-        yield tahoe.stop()
-        yield tahoe.start()
+        yield magic_folder.create_client(**settings)
+        yield magic_folder.start()
+        yield magic_folder.create_magic_folder(path)
+        yield magic_folder.stop()
+        yield magic_folder.start()
 
     @inlineCallbacks
     def start_magic_folders(self):
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
-            tasks.append(Tahoe(nodedir, executable=self.executable).start())
+            magic_folder = Tahoe(nodedir)
+            self.magic_folders.append(magic_folder)
+            tasks.append(magic_folder.start())
         yield gatherResults(tasks)
 
     @inlineCallbacks
     def stop_magic_folders(self):
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
-            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
+            tasks.append(Tahoe(nodedir).stop())
         yield gatherResults(tasks)
 
     @inlineCallbacks
