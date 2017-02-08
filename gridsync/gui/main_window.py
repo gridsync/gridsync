@@ -9,7 +9,7 @@ from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
 
-from gridsync import config_dir, resource, settings
+from gridsync import resource, settings
 from gridsync.tahoe import get_nodedirs
 
 
@@ -17,11 +17,11 @@ class ComboBox(QComboBox):
     def __init__(self):
         super(self.__class__, self).__init__()
 
-    def populate(self, nodedirs):
+    def populate(self, gateways):
         self.clear()
-        for nodedir in nodedirs:
-            basename = os.path.basename(os.path.normpath(nodedir))
-            iconpath = os.path.join(nodedir, 'icon')
+        for gateway in gateways:
+            basename = os.path.basename(os.path.normpath(gateway.nodedir))
+            iconpath = os.path.join(gateway.nodedir, 'icon')
             if not os.path.isfile(iconpath):
                 iconpath = resource('tahoe-lafs.png')
             self.addItem(QIcon(iconpath), basename)
@@ -102,10 +102,10 @@ class CentralWidget(QStackedWidget):
         layout.addWidget(view)
         self.addWidget(widget)
 
-    def populate(self, nodedirs):
+    def populate(self, gateways):
         self.clear()
-        for nodedir in nodedirs:
-            self.add_view_widget(nodedir)
+        for gateway in gateways:
+            self.add_view_widget(gateway.nodedir)
 
     def add_new_folder(self, path):
         current_model = self.currentWidget().layout().itemAt(0).widget().model
@@ -114,10 +114,9 @@ class CentralWidget(QStackedWidget):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent, nodedirs=None):
+    def __init__(self, parent):
         super(self.__class__, self).__init__()
         self.parent = parent
-        self.nodedirs = nodedirs
         self.setWindowTitle(settings['application']['name'])
         self.setMinimumSize(QSize(500, 300))
 
@@ -161,13 +160,9 @@ class MainWindow(QMainWindow):
 
         self.setAcceptDrops(True)
 
-        self.populate(self.nodedirs)
-
-    def populate(self, nodedirs=None):
-        if not nodedirs:
-            nodedirs = get_nodedirs(config_dir)
-        self.combo_box.populate(nodedirs)
-        self.central_widget.populate(nodedirs)
+    def populate(self, gateways):
+        self.combo_box.populate(gateways)
+        self.central_widget.populate(gateways)
 
     def on_grid_selected(self, index):
         self.central_widget.setCurrentIndex(index)

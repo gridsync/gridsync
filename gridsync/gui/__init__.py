@@ -7,11 +7,10 @@ from gridsync.gui.wizard import Wizard
 
 
 class Gui(object):
-    def __init__(self, core, nodedirs=None):
+    def __init__(self, core):
         self.core = core
-        self.nodedirs = nodedirs
         self.invite_form = InviteForm()
-        self.main_window = MainWindow(self, self.nodedirs)
+        self.main_window = MainWindow(self)
         self.systray = SystemTrayIcon(self)
         self.wizard = Wizard(self)
 
@@ -39,5 +38,5 @@ class Gui(object):
         else:
             self.show_main_window()
 
-    def populate(self, nodedirs):
-        self.main_window.populate(nodedirs)
+    def populate(self, gateways):
+        self.main_window.populate(gateways)

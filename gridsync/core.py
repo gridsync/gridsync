@@ -73,6 +73,7 @@ class Core(object):
                 gateway = Tahoe(nodedir, executable=executable)
                 self.gateways.append(gateway)
                 gateway.start()
+            self.gui.populate(self.gateways)
 
     @inlineCallbacks
     def first_run(self):
@@ -113,7 +114,7 @@ class Core(object):
             reactor.callLater(0, self.start_gateways)
 
         if not self.args.no_gui:
-            self.gui = Gui(self, nodedirs)
+            self.gui = Gui(self)
             self.gui.systray.show()
 
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
