@@ -69,10 +69,10 @@ class View(QTreeView):
         self.nodedir = nodedir
         self.model = Model(self.nodedir)
         self.setModel(self.model)
-        self.setColumnWidth(0, 100)
+        self.setColumnWidth(0, 150)
         self.setColumnWidth(1, 100)
-        self.setColumnWidth(2, 50)
-        self.setColumnWidth(3, 100)
+        self.setColumnWidth(2, 75)
+        self.setColumnWidth(3, 75)
         #self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
@@ -83,8 +83,8 @@ class View(QTreeView):
         self.header().setStretchLastSection(False)
         self.header().setSectionResizeMode(0, QHeaderView.Stretch)
         self.header().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.header().setSectionResizeMode(2, QHeaderView.Stretch)
-        self.header().setSectionResizeMode(3, QHeaderView.Stretch)
+        #self.header().setSectionResizeMode(2, QHeaderView.Stretch)
+        #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
 
 
 class CentralWidget(QStackedWidget):
