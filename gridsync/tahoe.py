@@ -36,7 +36,7 @@ def get_nodedirs(basedir):
                 nodedirs.append(filepath)
     except OSError:
         pass
-    return nodedirs
+    return sorted(nodedirs)
 
 
 class CommandProtocol(ProcessProtocol):

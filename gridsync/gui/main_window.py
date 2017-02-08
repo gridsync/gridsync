@@ -19,7 +19,7 @@ class ComboBox(QComboBox):
 
     def populate(self, nodedirs):
         self.clear()
-        for nodedir in sorted(nodedirs):
+        for nodedir in nodedirs:
             basename = os.path.basename(os.path.normpath(nodedir))
             iconpath = os.path.join(nodedir, 'icon')
             if not os.path.isfile(iconpath):
@@ -104,7 +104,7 @@ class CentralWidget(QStackedWidget):
 
     def populate(self, nodedirs):
         self.clear()
-        for nodedir in sorted(nodedirs):
+        for nodedir in nodedirs:
             self.add_view_widget(nodedir)
 
     def add_new_folder(self, path):
