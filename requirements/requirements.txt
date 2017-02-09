@@ -4,6 +4,7 @@ cffi==1.9.1
 click==6.7
 constantly==15.1.0
 cryptography==1.7.2
+enum34==1.1.6 ; python_version < "3.4"
 hkdf==0.0.3
 humanize==0.5.1
 idna==2.2
