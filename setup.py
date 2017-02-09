@@ -36,8 +36,8 @@ requirements = [
     'twisted[tls]',
 ]
 
-# if sys.platform.startswith('linux'):
-#     requirements += ['dbus-python', 'notify2']
+if sys.platform.startswith('linux'):
+    requirements.append('txdbus')
 
 # Other versions/platforms will need to install PyQt5 separately,
 # as PyPI wheels are only made available for 3.5+ on Linux/Mac/Win
