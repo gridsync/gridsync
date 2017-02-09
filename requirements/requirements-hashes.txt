@@ -199,6 +199,8 @@ Twisted==16.6.0 \
 txaio==2.6.0 \
     --hash=sha256:913bf43ac1000c46b116555db9fcac28ffa8662a9c6e6a50dc22b782d2b44e71 \
     --hash=sha256:7d29676b427d3fb68dc5eb3f9983e6c05eebc14873093143d3c4107d1d3913b3
+txdbus==1.0.13 ; "linux" in sys_platform \
+    --hash=sha256:02aa8979ba7a7153fdd656ab399458ac12d8b6df8115792a73f31c98862b04d6
 zope.interface==4.3.3 \
     --hash=sha256:d2b8f03930c7611998805f0ce4393388f43362a7c14160441def33d4b5ef9b15 \
     --hash=sha256:be53047227ddf0b3ebf299ee6a3ea51181d66c68ae28c6d85a5001af3c7f2934 \
