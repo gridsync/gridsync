@@ -55,6 +55,8 @@ class Core(object):
 
     @inlineCallbacks
     def stop(self):
+        if self.gui:
+            self.gui.hide()
         yield self.stop_gateways()
         logging.debug("Stopping reactor...")
 
@@ -115,7 +117,7 @@ class Core(object):
 
         if not self.args.no_gui:
             self.gui = Gui(self)
-            self.gui.systray.show()
+            self.gui.show()
 
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
