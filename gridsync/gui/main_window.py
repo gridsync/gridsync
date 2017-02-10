@@ -13,7 +13,7 @@ from twisted.internet import reactor
 
 from gridsync import resource, settings
 from gridsync.desktop import open_folder
-from gridsync.tahoe import get_nodedirs, Tahoe
+from gridsync.tahoe import get_nodedirs
 
 
 class ComboBox(QComboBox):
@@ -35,9 +35,9 @@ class ComboBox(QComboBox):
 
 
 class Model(QStandardItemModel):
-    def __init__(self, nodedir):
+    def __init__(self, gateway):
         super(self.__class__, self).__init__(0, 4)
-        self.nodedir = nodedir
+        self.gateway = gateway
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Size"))
@@ -61,17 +61,17 @@ class Model(QStandardItemModel):
         self.appendRow([name, status, size, action])
 
     def populate(self):
-        magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
+        magic_folders_dir = os.path.join(self.gateway.nodedir, 'magic-folders')
         if os.path.isdir(magic_folders_dir):
             for magic_folder in get_nodedirs(magic_folders_dir):
                 self.add_folder(magic_folder)
 
 
 class View(QTreeView):
-    def __init__(self, nodedir):
+    def __init__(self, gateway):
         super(self.__class__, self).__init__()
-        self.nodedir = nodedir
-        self.model = Model(self.nodedir)
+        self.gateway = gateway
+        self.model = Model(self.gateway)
         self.setModel(self.model)
         self.setColumnWidth(0, 150)
         self.setColumnWidth(1, 100)
@@ -96,9 +96,10 @@ class View(QTreeView):
     def on_double_click(self, index):
         item = self.model.itemFromIndex(index)
         if item.column() == 0:
-            nodedir = os.path.join(self.nodedir, 'magic-folders', item.text())
-            ldir = Tahoe(nodedir).config_get('magic_folder', 'local.directory')
-            open_folder(ldir)
+            for mf in self.gateway.magic_folders:
+                if mf.name == item.text():
+                    localdir = mf.config_get('magic_folder', 'local.directory')
+                    open_folder(localdir)
 
 
 class CentralWidget(QStackedWidget):
@@ -109,8 +110,8 @@ class CentralWidget(QStackedWidget):
         for _ in range(self.count()):
             self.removeWidget(self.currentWidget())
 
-    def add_view_widget(self, nodedir):
-        view = View(nodedir)
+    def add_view_widget(self, gateway):
+        view = View(gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
         layout.addWidget(view)
@@ -119,7 +120,7 @@ class CentralWidget(QStackedWidget):
     def populate(self, gateways):
         self.clear()
         for gateway in gateways:
-            self.add_view_widget(gateway.nodedir)
+            self.add_view_widget(gateway)
 
     def add_new_folder(self, path):
         current_model = self.currentWidget().layout().itemAt(0).widget().model
