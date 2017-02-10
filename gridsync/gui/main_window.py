@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
+from twisted.internet import reactor
 
 from gridsync import resource, settings
 from gridsync.tahoe import get_nodedirs
@@ -183,3 +184,6 @@ class MainWindow(QMainWindow):
         key = event.key()
         if key == Qt.Key_Escape:
             self.hide()
+
+    def closeEvent(self, event):
+        reactor.stop()
