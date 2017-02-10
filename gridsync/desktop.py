@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import os
+import subprocess
 import sys
 
 from twisted.internet import reactor
@@ -30,3 +32,13 @@ def notify(systray, title, message, duration=5000):
             systray.showMessage(title, message, msecs=duration)
     else:
         systray.showMessage(title, message, msecs=duration)
+
+
+def open_folder(path):
+    path = os.path.expanduser(path)
+    if sys.platform == 'darwin':
+        subprocess.Popen(['open', path])
+    elif sys.platform == 'win32':
+        subprocess.Popen(['start', path])
+    else:
+        subprocess.Popen(['xdg-open', path])
