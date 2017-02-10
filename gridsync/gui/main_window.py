@@ -3,8 +3,9 @@
 import os
 
 from PyQt5.QtWidgets import (
-    QAction, QComboBox, QFileIconProvider, QGridLayout, QHeaderView, QLabel,
-    QMainWindow, QSizePolicy, QStackedWidget, QTreeView, QWidget)
+    QAbstractItemView, QAction, QComboBox, QFileIconProvider, QGridLayout,
+    QHeaderView, QLabel, QMainWindow, QSizePolicy, QStackedWidget, QTreeView,
+    QWidget)
 from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
@@ -51,13 +52,9 @@ class Model(QStandardItemModel):
         folder_icon = QFileIconProvider().icon(QFileInfo(path))
         folder_basename = os.path.basename(os.path.normpath(path))
         name = QStandardItem(folder_icon, folder_basename)
-        name.setEditable(False)
         status = QStandardItem()
-        status.setEditable(False)
         size = QStandardItem()
-        size.setEditable(False)
         action = QStandardItem(QIcon(), '')
-        action.setEditable(False)
         self.appendRow([name, status, size, action])
 
     def populate(self):
@@ -80,6 +77,7 @@ class View(QTreeView):
         #self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
+        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         font = QFont()
         font.setPointSize(12)
         #self.header().setFont(font)
