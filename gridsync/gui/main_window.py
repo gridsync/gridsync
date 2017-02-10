@@ -51,9 +51,13 @@ class Model(QStandardItemModel):
         folder_icon = QFileIconProvider().icon(QFileInfo(path))
         folder_basename = os.path.basename(os.path.normpath(path))
         name = QStandardItem(folder_icon, folder_basename)
+        name.setEditable(False)
         status = QStandardItem()
+        status.setEditable(False)
         size = QStandardItem()
+        size.setEditable(False)
         action = QStandardItem(QIcon(), '')
+        action.setEditable(False)
         self.appendRow([name, status, size, action])
 
     def populate(self):
