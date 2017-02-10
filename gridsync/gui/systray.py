@@ -51,7 +51,6 @@ class Menu(QMenu):
 
         quit_action = QAction(
             QIcon(''), "&Quit {}".format(name), self)
-        quit_action.setShortcut('Ctrl+Q')
         quit_action.triggered.connect(reactor.stop)
 
         self.addAction(open_action)
