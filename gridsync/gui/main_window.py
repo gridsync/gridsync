@@ -185,5 +185,5 @@ class MainWindow(QMainWindow):
         if key == Qt.Key_Escape:
             self.hide()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event):  # pylint: disable=all
         reactor.stop()
