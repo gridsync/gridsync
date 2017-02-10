@@ -10,6 +10,7 @@ from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
 from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 
 from gridsync import resource, settings
 from gridsync.desktop import open_folder
@@ -170,17 +171,30 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
-        self.status_bar.addPermanentWidget(
-            QLabel('Connection status goes here :)'))
+        self.status_bar_label = QLabel('Initializing...')
+        self.status_bar.addPermanentWidget(self.status_bar_label)
+        #self.status_bar_label.setText('test')
 
         self.setAcceptDrops(True)
+
+        self.grid_status_updater = LoopingCall(self.set_current_grid_status)
 
     def populate(self, gateways):
         self.combo_box.populate(gateways)
         self.central_widget.populate(gateways)
 
+    def current_widget(self):
+        return self.central_widget.currentWidget().layout().itemAt(0).widget()
+
+    def get_current_grid_status(self):
+        return self.current_widget().gateway.status
+
+    def set_current_grid_status(self):
+        self.status_bar_label.setText(self.get_current_grid_status())
+
     def on_grid_selected(self, index):
         self.central_widget.setCurrentIndex(index)
+        self.set_current_grid_status()
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
         if event.mimeData().hasUrls:
