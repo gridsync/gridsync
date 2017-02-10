@@ -12,7 +12,8 @@ from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
 from twisted.internet import reactor
 
 from gridsync import resource, settings
-from gridsync.tahoe import get_nodedirs
+from gridsync.desktop import open_folder
+from gridsync.tahoe import get_nodedirs, Tahoe
 
 
 class ComboBox(QComboBox):
@@ -88,6 +89,15 @@ class View(QTreeView):
         self.header().setSectionResizeMode(1, QHeaderView.Stretch)
         #self.header().setSectionResizeMode(2, QHeaderView.Stretch)
         #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
+
+        self.doubleClicked.connect(self.on_double_click)
+
+    def on_double_click(self, index):
+        item = self.model.itemFromIndex(index)
+        if item.column() == 0:
+            nodedir = os.path.join(self.nodedir, 'magic-folders', item.text())
+            ldir = Tahoe(nodedir).config_get('magic_folder', 'local.directory')
+            open_folder(ldir)
 
 
 class CentralWidget(QStackedWidget):
