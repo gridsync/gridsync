@@ -211,9 +211,11 @@ class Tahoe(object):
         if not connected_servers:
             self.status = "Connecting..."
         elif connected_servers == 1:
-            self.status = "Connected to {} server".format(connected_servers)
+            self.status = "Connected to {} storage node".format(
+                connected_servers)
         else:
-            self.status = "Connected to {} servers".format(connected_servers)
+            self.status = "Connected to {} storage nodes".format(
+                connected_servers)
 
     @inlineCallbacks
     def is_ready(self):
