@@ -194,6 +194,8 @@ class Tahoe(object):
 
     @inlineCallbacks
     def get_connected_servers(self):
+        if not self.nodeurl:
+            return
         try:
             resp = yield treq.get(self.nodeurl)
         except ConnectionRefusedError:
