@@ -188,6 +188,7 @@ class Tahoe(object):
                 f.write(pid)
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
+        self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.status_updater.start(5)
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
 
