@@ -13,7 +13,7 @@ import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
     Deferred, gatherResults, inlineCallbacks, returnValue)
-from twisted.internet.error import ProcessDone
+from twisted.internet.error import ConnectionRefusedError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater, LoopingCall
 from twisted.python.procutils import which
@@ -193,7 +193,10 @@ class Tahoe(object):
 
     @inlineCallbacks
     def get_connected_servers(self):
-        resp = yield treq.get(self.nodeurl)
+        try:
+            resp = yield treq.get(self.nodeurl)
+        except ConnectionRefusedError:
+            return
         if resp.code == 200:
             html = yield treq.content(resp)
             match = re.search(
@@ -203,15 +206,13 @@ class Tahoe(object):
 
     @inlineCallbacks
     def update_status(self):
-        print('checking status...')
         connected_servers = yield self.get_connected_servers()
         if not connected_servers:
-            self.status = "Not connected to any servers.."
+            self.status = "Connecting..."
         elif connected_servers == 1:
             self.status = "Connected to {} server".format(connected_servers)
         else:
             self.status = "Connected to {} servers".format(connected_servers)
-        print(self.status)
 
     @inlineCallbacks
     def is_ready(self):
