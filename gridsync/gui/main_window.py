@@ -10,6 +10,7 @@ from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
 from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
 from gridsync import resource, settings
@@ -35,10 +36,31 @@ class ComboBox(QComboBox):
         self.model().item(self.count() - 1).setEnabled(False)
 
 
+class Monitor(object):
+    def __init__(self, gateway):
+        self.gateway = gateway
+        self.status = ''
+        self.timer = LoopingCall(self.update_status)
+
+    @inlineCallbacks
+    def update_status(self):
+        num_connected = yield self.gateway.get_connected_servers()
+        if not num_connected:
+            self.status = "Connecting..."
+        elif num_connected == 1:
+            self.status = "Connected to {} storage node".format(num_connected)
+        else:
+            self.status = "Connected to {} storage nodes".format(num_connected)
+
+    def start(self, interval=2):
+        self.timer.start(interval, now=True)
+
+
 class Model(QStandardItemModel):
     def __init__(self, gateway):
         super(self.__class__, self).__init__(0, 4)
         self.gateway = gateway
+        self.monitor = Monitor(gateway)
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Size"))
@@ -66,6 +88,7 @@ class Model(QStandardItemModel):
         if os.path.isdir(magic_folders_dir):
             for magic_folder in get_nodedirs(magic_folders_dir):
                 self.add_folder(magic_folder)
+        self.monitor.start()
 
 
 class View(QTreeView):
@@ -182,12 +205,13 @@ class MainWindow(QMainWindow):
     def populate(self, gateways):
         self.combo_box.populate(gateways)
         self.central_widget.populate(gateways)
+        self.grid_status_updater.start(2, now=True)
 
     def current_widget(self):
         return self.central_widget.currentWidget().layout().itemAt(0).widget()
 
     def get_current_grid_status(self):
-        return self.current_widget().gateway.status
+        return self.current_widget().model.monitor.status
 
     def set_current_grid_status(self):
         self.status_bar_label.setText(self.get_current_grid_status())
@@ -195,6 +219,8 @@ class MainWindow(QMainWindow):
     def on_grid_selected(self, index):
         self.central_widget.setCurrentIndex(index)
         self.set_current_grid_status()
+        for call in reactor.getDelayedCalls():
+            print(call.func)
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
         if event.mimeData().hasUrls:

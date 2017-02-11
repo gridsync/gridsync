@@ -13,9 +13,9 @@ import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
     Deferred, gatherResults, inlineCallbacks, returnValue)
-from twisted.internet.error import ConnectionRefusedError, ProcessDone
+from twisted.internet.error import ConnectionRefusedError, ProcessDone  # pylint: disable=redefined-builtin
 from twisted.internet.protocol import ProcessProtocol
-from twisted.internet.task import deferLater, LoopingCall
+from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
 from gridsync import pkgdir
@@ -82,8 +82,6 @@ class Tahoe(object):
         self.token = None
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
         self.magic_folders = []
-        self.status = ''
-        self.status_updater = LoopingCall(self.update_status)
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -153,10 +151,6 @@ class Tahoe(object):
 
     @inlineCallbacks
     def stop(self):
-        try:
-            self.status_updater.stop()
-        except AssertionError:
-            pass
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
@@ -189,7 +183,6 @@ class Tahoe(object):
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
-        self.status_updater.start(5)
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
 
     @inlineCallbacks
@@ -206,18 +199,6 @@ class Tahoe(object):
                 'Connected to <span>(.+?)</span>', html.decode('utf-8'))
             if match:
                 returnValue(int(match.group(1)))
-
-    @inlineCallbacks
-    def update_status(self):
-        connected_servers = yield self.get_connected_servers()
-        if not connected_servers:
-            self.status = "Connecting..."
-        elif connected_servers == 1:
-            self.status = "Connected to {} storage node".format(
-                connected_servers)
-        else:
-            self.status = "Connected to {} storage nodes".format(
-                connected_servers)
 
     @inlineCallbacks
     def is_ready(self):
