@@ -251,8 +251,6 @@ class MainWindow(QMainWindow):
     def on_grid_selected(self, index):
         self.central_widget.setCurrentIndex(index)
         self.set_current_grid_status()
-        for call in reactor.getDelayedCalls():
-            print(call.func)
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
         if event.mimeData().hasUrls:
