@@ -274,6 +274,8 @@ class Tahoe(object):
 
     @inlineCallbacks
     def get_magic_folder_status(self):
+        if not self.nodeurl:
+            return
         if not self.token:
             token_file = os.path.join(
                 self.nodedir, 'private', 'api_auth_token')
