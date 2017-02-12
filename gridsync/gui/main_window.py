@@ -10,7 +10,7 @@ from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.internet.task import LoopingCall
 
 from gridsync import resource, settings
@@ -37,10 +37,22 @@ class ComboBox(QComboBox):
 
 
 class Monitor(object):
-    def __init__(self, gateway):
+    def __init__(self, parent, gateway):
+        self.parent = parent
         self.gateway = gateway
         self.status = ''
         self.timer = LoopingCall(self.update_status)
+        self.magic_folders_status = {}
+
+    @inlineCallbacks
+    def get_magic_folder_state(self, magic_folder):
+        status = yield magic_folder.get_magic_folder_status()
+        state = 0
+        if status:
+            for task in status:
+                if task['status'] == 'queued' or task['status'] == 'started':
+                    state = 1
+        returnValue(state)
 
     @inlineCallbacks
     def update_status(self):
@@ -51,6 +63,11 @@ class Monitor(object):
             self.status = "Connected to {} storage node".format(num_connected)
         else:
             self.status = "Connected to {} storage nodes".format(num_connected)
+        if self.gateway.magic_folders:
+            for magic_folder in self.gateway.magic_folders:
+                state = yield self.get_magic_folder_state(magic_folder)
+                self.magic_folders_status[magic_folder.name] = state
+            self.parent.update(self.magic_folders_status)
 
     def start(self, interval=2):
         self.timer.start(interval, now=True)
@@ -60,11 +77,14 @@ class Model(QStandardItemModel):
     def __init__(self, gateway):
         super(self.__class__, self).__init__(0, 4)
         self.gateway = gateway
-        self.monitor = Monitor(gateway)
+        self.monitor = Monitor(self, gateway)
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Size"))
         self.setHeaderData(3, Qt.Horizontal, QVariant("Action"))
+
+        self.icon_up_to_date = QIcon(resource('checkmark.png'))
+        self.icon_syncing = QIcon(resource('sync.png'))
 
         self.populate()
 
@@ -89,6 +109,18 @@ class Model(QStandardItemModel):
             for magic_folder in get_nodedirs(magic_folders_dir):
                 self.add_folder(magic_folder)
         self.monitor.start()
+
+    def update(self, data):
+        for folder, state in data.items():
+            for row in range(self.rowCount()):
+                if folder == self.item(row, 0).text():
+                    if state == 0:
+                        icon = self.icon_up_to_date
+                        text = "Up to date"
+                    else:
+                        icon = self.icon_syncing
+                        text = "Syncing"
+                    self.setItem(row, 1, QStandardItem(icon, text))
 
 
 class View(QTreeView):
