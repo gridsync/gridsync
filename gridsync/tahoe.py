@@ -223,16 +223,6 @@ class Tahoe(object):
 
     @inlineCallbacks
     def create_magic_folder(self, path):
-        path = os.path.realpath(os.path.expanduser(path))
-        try:
-            os.makedirs(path)
-        except OSError:
-            pass
-        yield self.await_ready()
-        yield self.command(['magic-folder', 'create', 'magic:', 'admin', path])
-
-    @inlineCallbacks
-    def create_magic_folder_in_subdir(self, path):
         # Because Tahoe-LAFS doesn't currently support having multiple
         # magic-folders per tahoe client, create the magic-folder inside
         # a new nodedir using the current nodedir's connection settings.
@@ -241,9 +231,13 @@ class Tahoe(object):
             os.makedirs(self.magic_folders_dir)
         except OSError:
             pass
-        folder_name = os.path.basename(os.path.normpath(path))
-        new_nodedir = os.path.join(self.magic_folders_dir, folder_name)
-        magic_folder = Tahoe(new_nodedir)
+        path = os.path.realpath(os.path.expanduser(path))
+        try:
+            os.makedirs(path)
+        except OSError:
+            pass
+        basename = os.path.basename(path)
+        magic_folder = Tahoe(os.path.join(self.magic_folders_dir, basename))
         self.magic_folders.append(magic_folder)
         settings = {
             'nickname': self.config_get('node', 'nickname'),
@@ -254,7 +248,9 @@ class Tahoe(object):
         }
         yield magic_folder.create_client(**settings)
         yield magic_folder.start()
-        yield magic_folder.create_magic_folder(path)
+        yield magic_folder.await_ready()
+        yield magic_folder.command(
+            ['magic-folder', 'create', 'magic:', 'admin', path])
         yield magic_folder.stop()
         yield magic_folder.start()
 
