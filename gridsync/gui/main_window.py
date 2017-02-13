@@ -182,7 +182,7 @@ class CentralWidget(QStackedWidget):
     def add_new_folder(self, path):
         current_model = self.currentWidget().layout().itemAt(0).widget().model
         current_model.add_folder(path)
-        # TODO: Create magic-folder
+        current_model.gateway.create_magic_folder(path)
 
 
 class MainWindow(QMainWindow):
