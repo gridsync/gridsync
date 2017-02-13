@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os
 
 from PyQt5.QtWidgets import (
@@ -253,10 +254,21 @@ class MainWindow(QMainWindow):
         self.set_current_grid_status()
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
+        logging.debug(event)
+        if event.mimeData().hasUrls:
+            event.accept()
+
+    def dragLeaveEvent(self, event):  # pylint: disable=no-self-use
+        logging.debug(event)
+        event.accept()
+
+    def dragMoveEvent(self, event):  # pylint: disable=no-self-use
+        logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
 
     def dropEvent(self, event):
+        logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
             for url in event.mimeData().urls():
