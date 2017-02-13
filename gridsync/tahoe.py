@@ -280,7 +280,10 @@ class Tahoe(object):
             with open(token_file) as f:
                 self.token = f.read().strip()
         uri = self.nodeurl + 'magic_folder'
-        resp = yield treq.post(uri, {'token': self.token, 't': 'json'})
+        try:
+            resp = yield treq.post(uri, {'token': self.token, 't': 'json'})
+        except ConnectionRefusedError:
+            return
         if resp.code == 200:
             content = yield treq.content(resp)
             returnValue(json.loads(content.decode('utf-8')))
@@ -295,7 +298,10 @@ class Tahoe(object):
             with open(mf_dircap_file) as f:
                 self.magic_folder_dircap = f.read().strip()
         uri = '{}uri/{}/?t=json'.format(self.nodeurl, self.magic_folder_dircap)
-        resp = yield treq.get(uri)
+        try:
+            resp = yield treq.get(uri)
+        except ConnectionRefusedError:
+            return
         if resp.code == 200:
             size = 0
             content = yield treq.content(resp)
