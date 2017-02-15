@@ -105,10 +105,8 @@ class Model(QStandardItemModel):
         self.appendRow([name, status, size, action])
 
     def populate(self):
-        magic_folders_dir = os.path.join(self.gateway.nodedir, 'magic-folders')
-        if os.path.isdir(magic_folders_dir):
-            for magic_folder in get_nodedirs(magic_folders_dir):
-                self.add_folder(magic_folder)
+        for magic_folder in get_nodedirs(self.gateway.magic_folders_dir):
+            self.add_folder(magic_folder)
         self.monitor.start()
 
     def update(self, data):
