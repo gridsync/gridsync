@@ -128,8 +128,8 @@ class View(QTreeView):
     def __init__(self, gateway):
         super(self.__class__, self).__init__()
         self.gateway = gateway
-        self.model = Model(self.gateway)
-        self.setModel(self.model)
+        self.setModel(Model(self.gateway))
+        self.setAcceptDrops(True)
         self.setColumnWidth(0, 150)
         self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 75)
@@ -151,12 +151,37 @@ class View(QTreeView):
         self.doubleClicked.connect(self.on_double_click)
 
     def on_double_click(self, index):
-        item = self.model.itemFromIndex(index)
+        item = self.model().itemFromIndex(index)
         if item.column() == 0:
             for mf in self.gateway.magic_folders:
                 if mf.name == item.text():
                     localdir = mf.config_get('magic_folder', 'local.directory')
                     open_folder(localdir)
+
+    def add_new_folder(self, path):
+        self.model().add_folder(path)
+        self.gateway.create_magic_folder(path)
+
+    def dragEnterEvent(self, event):  # pylint: disable=no-self-use
+        logging.debug(event)
+        if event.mimeData().hasUrls:
+            event.accept()
+
+    def dragLeaveEvent(self, event):  # pylint: disable=no-self-use
+        logging.debug(event)
+        event.accept()
+
+    def dragMoveEvent(self, event):  # pylint: disable=no-self-use
+        logging.debug(event)
+        if event.mimeData().hasUrls:
+            event.accept()
+
+    def dropEvent(self, event):
+        logging.debug(event)
+        if event.mimeData().hasUrls:
+            event.accept()
+            for url in event.mimeData().urls():
+                self.add_new_folder(url.toLocalFile())
 
 
 class CentralWidget(QStackedWidget):
@@ -178,12 +203,6 @@ class CentralWidget(QStackedWidget):
         self.clear()
         for gateway in gateways:
             self.add_view_widget(gateway)
-
-    def add_new_folder(self, path):
-        current_model = self.currentWidget().layout().itemAt(0).widget().model
-        current_model.add_folder(path)
-        current_model.gateway.create_magic_folder(path)
-
 
 class MainWindow(QMainWindow):
     def __init__(self, parent):
@@ -229,9 +248,6 @@ class MainWindow(QMainWindow):
         self.status_bar = self.statusBar()
         self.status_bar_label = QLabel('Initializing...')
         self.status_bar.addPermanentWidget(self.status_bar_label)
-        #self.status_bar_label.setText('test')
-
-        self.setAcceptDrops(True)
 
         self.grid_status_updater = LoopingCall(self.set_current_grid_status)
 
@@ -244,7 +260,7 @@ class MainWindow(QMainWindow):
         return self.central_widget.currentWidget().layout().itemAt(0).widget()
 
     def get_current_grid_status(self):
-        return self.current_widget().model.monitor.status
+        return self.current_widget().model().monitor.status
 
     def set_current_grid_status(self):
         self.status_bar_label.setText(self.get_current_grid_status())
@@ -252,27 +268,6 @@ class MainWindow(QMainWindow):
     def on_grid_selected(self, index):
         self.central_widget.setCurrentIndex(index)
         self.set_current_grid_status()
-
-    def dragEnterEvent(self, event):  # pylint: disable=no-self-use
-        logging.debug(event)
-        if event.mimeData().hasUrls:
-            event.accept()
-
-    def dragLeaveEvent(self, event):  # pylint: disable=no-self-use
-        logging.debug(event)
-        event.accept()
-
-    def dragMoveEvent(self, event):  # pylint: disable=no-self-use
-        logging.debug(event)
-        if event.mimeData().hasUrls:
-            event.accept()
-
-    def dropEvent(self, event):
-        logging.debug(event)
-        if event.mimeData().hasUrls:
-            event.accept()
-            for url in event.mimeData().urls():
-                self.central_widget.add_new_folder(url.toLocalFile())
 
     def keyPressEvent(self, event):
         key = event.key()
