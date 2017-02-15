@@ -237,7 +237,9 @@ class Tahoe(object):
         except OSError:
             pass
         basename = os.path.basename(path)
-        magic_folder = Tahoe(os.path.join(self.magic_folders_dir, basename))
+        magic_folder = Tahoe(
+            os.path.join(self.magic_folders_dir, basename),
+            executable=self.executable)
         self.magic_folders.append(magic_folder)
         settings = {
             'nickname': self.config_get('node', 'nickname'),
@@ -258,7 +260,7 @@ class Tahoe(object):
     def start_magic_folders(self):
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
-            magic_folder = Tahoe(nodedir)
+            magic_folder = Tahoe(nodedir, executable=self.executable)
             self.magic_folders.append(magic_folder)
             tasks.append(magic_folder.start())
         yield gatherResults(tasks)
@@ -267,7 +269,7 @@ class Tahoe(object):
     def stop_magic_folders(self):
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
-            tasks.append(Tahoe(nodedir).stop())
+            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
         yield gatherResults(tasks)
 
     @inlineCallbacks
