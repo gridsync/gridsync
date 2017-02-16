@@ -60,11 +60,15 @@ class Monitor(object):
     def update_status(self):
         num_connected = yield self.gateway.get_connected_servers()
         if not num_connected:
-            self.status = "Connecting..."
+            status = "Connecting..."
         elif num_connected == 1:
-            self.status = "Connected to {} storage node".format(num_connected)
+            status = "Connected to {} storage node".format(num_connected)
         else:
-            self.status = "Connected to {} storage nodes".format(num_connected)
+            status = "Connected to {} storage nodes".format(num_connected)
+        if num_connected and status != self.status:
+            self.gui.show_message(self.gateway.name, status)
+        self.status = status
+
         if self.gateway.magic_folders:
             for magic_folder in self.gateway.magic_folders:
                 state = yield self.get_magic_folder_state(magic_folder)
