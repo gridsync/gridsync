@@ -55,5 +55,5 @@ When Bob types the above code (``1-insincere-christmas``) into his Gridsync desk
 Bob, of course, does not see any of this; the only thing that Bob needs to know or see in order to join the grid is the invite code provided to him by Alice (``1-insincere-christmas``).
 
 
-In the future, invite codes will be extended to provide additional information (e.g., allowing grid operators to specify an identifying icon) and may be used for additional purposes (e.g., sharing files or folders between users).
+In the future, invite codes may be extended to provide additional information to clients or be used for additional purposes beyond initial the initial setup/configuration process (e.g., to share files or folders between existing users).
 
