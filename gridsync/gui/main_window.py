@@ -38,9 +38,10 @@ class ComboBox(QComboBox):
 
 
 class Monitor(object):
-    def __init__(self, parent, gateway):
-        self.parent = parent
+    def __init__(self, model, gateway):
+        self.model = model
         self.gateway = gateway
+        self.gui = self.model.gui
         self.status = ''
         self.timer = LoopingCall(self.update_status)
         self.magic_folders_status = {}
@@ -68,15 +69,16 @@ class Monitor(object):
             for magic_folder in self.gateway.magic_folders:
                 state = yield self.get_magic_folder_state(magic_folder)
                 self.magic_folders_status[magic_folder.name] = state
-            self.parent.update(self.magic_folders_status)
+            self.model.update(self.magic_folders_status)
 
     def start(self, interval=2):
         self.timer.start(interval, now=True)
 
 
 class Model(QStandardItemModel):
-    def __init__(self, gateway):
+    def __init__(self, gui, gateway):
         super(self.__class__, self).__init__(0, 4)
+        self.gui = gui
         self.gateway = gateway
         self.monitor = Monitor(self, gateway)
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
@@ -123,10 +125,11 @@ class Model(QStandardItemModel):
 
 
 class View(QTreeView):
-    def __init__(self, gateway):
+    def __init__(self, gui, gateway):
         super(self.__class__, self).__init__()
+        self.gui = gui
         self.gateway = gateway
-        self.setModel(Model(self.gateway))
+        self.setModel(Model(self.gui, self.gateway))
         self.setAcceptDrops(True)
         self.setColumnWidth(0, 150)
         self.setColumnWidth(1, 100)
@@ -183,15 +186,16 @@ class View(QTreeView):
 
 
 class CentralWidget(QStackedWidget):
-    def __init__(self):
+    def __init__(self, gui):
         super(self.__class__, self).__init__()
+        self.gui = gui
 
     def clear(self):
         for _ in range(self.count()):
             self.removeWidget(self.currentWidget())
 
     def add_view_widget(self, gateway):
-        view = View(gateway)
+        view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
         layout.addWidget(view)
@@ -202,24 +206,25 @@ class CentralWidget(QStackedWidget):
         for gateway in gateways:
             self.add_view_widget(gateway)
 
+
 class MainWindow(QMainWindow):
-    def __init__(self, parent):
+    def __init__(self, gui):
         super(self.__class__, self).__init__()
-        self.parent = parent
+        self.gui = gui
         self.setWindowTitle(settings['application']['name'])
         self.setMinimumSize(QSize(500, 300))
 
         self.combo_box = ComboBox()
         self.combo_box.activated[int].connect(self.on_grid_selected)
 
-        self.central_widget = CentralWidget()
+        self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
         invite_action = QAction(
             QIcon(resource('mail-envelope-open')), 'Enter Invite Code', self)
         invite_action.setStatusTip('Enter Invite Code')
         invite_action.setShortcut(QKeySequence.Open)
-        invite_action.triggered.connect(self.parent.show_invite_form)
+        invite_action.triggered.connect(self.gui.show_invite_form)
 
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
