@@ -13,7 +13,7 @@ Currently, Gridsync expects the information received through a wormhole to fulfi
     shares-happy
     shares-total
 
-In addition to the above, grid operators may also include an image into the wormhole response, visually identifying their grid or storage service to end-users within the application. The image must be in a format `recognized by QImageReader https://doc.qt.io/qt-5/qimagereader.html#supportedImageFormats`_ and be included in the JSON response as the value corresponding to a key named ``icon_base64``.
+In addition to the above, grid operators may also include an image into the wormhole response, visually identifying their grid or storage service to end-users within the application. The image must be in a format `recognized by QImageReader <https://doc.qt.io/qt-5/qimagereader.html#supportedImageFormats>`_ and be included in the JSON response as the value corresponding to a key named ``icon_base64``.
 
 
 Example
