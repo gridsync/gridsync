@@ -208,9 +208,11 @@ class Tahoe(object):
     @inlineCallbacks
     def is_ready(self):
         if not self.shares_happy:
-            self.shares_happy = int(self.config_get('client', 'shares.happy'))
+            returnValue(False)
         connected_servers = yield self.get_connected_servers()
-        if connected_servers >= self.shares_happy:
+        if not connected_servers:
+            returnValue(False)
+        elif connected_servers >= self.shares_happy:
             returnValue(True)
         else:
             returnValue(False)
