@@ -176,7 +176,7 @@ class Tahoe(object):
     @inlineCallbacks
     def start(self):
         if os.path.isfile(self.pidfile):
-            self.stop()
+            yield self.stop()
         pid = yield self.command(['run'], 'client running')
         pid = str(pid)
         if sys.platform == 'win32' and pid.isdigit():
