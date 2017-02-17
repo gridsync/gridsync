@@ -80,7 +80,7 @@ class Tahoe(object):
         self.nodeurl = None
         self.shares_happy = None
         self.name = os.path.basename(self.nodedir)
-        self.token = None
+        self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
         self.magic_folders = []
         self.magic_folder_dircap = None
@@ -184,6 +184,9 @@ class Tahoe(object):
                 f.write(pid)
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
+        token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
+        with open(token_file) as f:
+            self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
 
@@ -274,16 +277,11 @@ class Tahoe(object):
 
     @inlineCallbacks
     def get_magic_folder_status(self):
-        if not self.nodeurl:
+        if not self.nodeurl or not self.api_token:
             return
-        if not self.token:
-            token_file = os.path.join(
-                self.nodedir, 'private', 'api_auth_token')
-            with open(token_file) as f:
-                self.token = f.read().strip()
         uri = self.nodeurl + 'magic_folder'
         try:
-            resp = yield treq.post(uri, {'token': self.token, 't': 'json'})
+            resp = yield treq.post(uri, {'token': self.api_token, 't': 'json'})
         except ConnectionRefusedError:
             return
         if resp.code == 200:
