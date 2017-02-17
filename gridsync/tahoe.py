@@ -291,23 +291,34 @@ class Tahoe(object):
             returnValue(json.loads(content.decode('utf-8')))
 
     @inlineCallbacks
+    def get_json_from_dircap(self, dircap):
+        if not self.nodeurl:
+            return
+        uri = '{}uri/{}/?t=json'.format(self.nodeurl, dircap)
+        try:
+            resp = yield treq.get(uri)
+        except ConnectionRefusedError:
+            return
+        if resp.code == 200:
+            content = yield treq.content(resp)
+            returnValue(json.loads(content.decode('utf-8')))
+ 
+    @inlineCallbacks
     def get_magic_folder_size(self):
         if not self.nodeurl:
             return
         if not self.magic_folder_dircap:
             mf_dircap_file = os.path.join(
                 self.nodedir, 'private', 'magic_folder_dircap')
-            with open(mf_dircap_file) as f:
-                self.magic_folder_dircap = f.read().strip()
-        uri = '{}uri/{}/?t=json'.format(self.nodeurl, self.magic_folder_dircap)
-        try:
-            resp = yield treq.get(uri)
-        except ConnectionRefusedError:
-            return
-        if resp.code == 200:
+            try:
+                with open(mf_dircap_file) as f:
+                    self.magic_folder_dircap = f.read().strip()
+            except OSError:
+                return
+        content = yield self.get_json_from_dircap(self.magic_folder_dircap)
+        if content:
             size = 0
-            content = yield treq.content(resp)
-            filenodes = json.loads(content.decode('utf-8'))[1]['children']
+            filenodes = content[1]['children']
             for filenode in filenodes:
                 size += int(filenodes[filenode][1]['size'])
             returnValue(b2h(size))
