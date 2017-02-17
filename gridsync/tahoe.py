@@ -83,6 +83,7 @@ class Tahoe(object):
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
         self.magic_folders = []
         self.magic_folder_dircap = None
+        self.collective_dircap = None
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -321,6 +322,25 @@ class Tahoe(object):
             for filenode in filenodes:
                 size += int(filenodes[filenode][1]['size'])
             returnValue(size)
+
+    @inlineCallbacks
+    def get_magic_folder_members(self):
+        if not self.nodeurl:
+            return
+        if not self.collective_dircap:
+            collective_dircap_file = os.path.join(
+                self.nodedir, 'private', 'collective_dircap')
+            try:
+                with open(collective_dircap_file) as f:
+                    self.collective_dircap = f.read().strip()
+            except OSError:
+                return
+        content = yield self.get_json_from_dircap(self.collective_dircap)
+        if content:
+            members = []
+            for member in content[1]['children']:
+                members.append(member)
+            returnValue(members)
 
 
 @inlineCallbacks
