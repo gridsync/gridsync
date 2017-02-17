@@ -20,7 +20,6 @@ from twisted.python.procutils import which
 
 from gridsync import pkgdir
 from gridsync.config import Config
-from gridsync.util import b2h
 
 
 def is_valid_furl(furl):
@@ -302,7 +301,7 @@ class Tahoe(object):
         if resp.code == 200:
             content = yield treq.content(resp)
             returnValue(json.loads(content.decode('utf-8')))
- 
+
     @inlineCallbacks
     def get_magic_folder_size(self):
         if not self.nodeurl:
@@ -321,7 +320,7 @@ class Tahoe(object):
             filenodes = content[1]['children']
             for filenode in filenodes:
                 size += int(filenodes[filenode][1]['size'])
-            returnValue(b2h(size))
+            returnValue(size)
 
 
 @inlineCallbacks
