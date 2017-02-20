@@ -16,7 +16,7 @@ def notify(systray, title, message, duration=5000):
     logging.debug(
         "Sending notification: title=%s message=%s", title, message)
     if sys.platform.startswith('linux'):
-        from txdbus import client
+        from txdbus import client  # pylint: disable=import-error
         name = settings['application']['name']
         icon = resource(settings['application']['tray_icon'])
         try:
