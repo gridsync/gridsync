@@ -95,7 +95,7 @@ class SelectGridPage(QWizardPage):
 
         layout = QGridLayout(self)
         layout.addWidget(self.grid_selector)
-        layout.addWidget(help_text)
+        #layout.addWidget(help_text)
 
     def validatePage(self):
         if self.grid_selector.introducer_furl:
