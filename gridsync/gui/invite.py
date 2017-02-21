@@ -249,8 +249,6 @@ class InviteForm(QStackedWidget):
         yield tahoe.await_ready()
 
         self.update_progress(5, 'Done!')
-        # TODO: Open local folder with file manager instead?
-        yield tahoe.command(['webopen'])
 
     def show_failure(self, failure):
         msg = QMessageBox(self)
