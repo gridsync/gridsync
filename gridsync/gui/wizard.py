@@ -19,10 +19,10 @@ class WelcomePage(QWizardPage):
             "Store. Unlike most traditional 'cloud' storage services, any "
             "data stored inside a Tahoe-LAFS storage grid is safe and secure "
             "by default; nobody can read or alter the files stored in a grid "
-            "without your permission -- not even the owners of the computers "
-            "that host them.\n\n"
+            "without your permission -- not even the owners of the storage "
+            "nodes that comprise it.\n\n"
             "To get started, you will need to join a storage grid -- either "
-            "by entering an invite code from a a storage provider or by "
+            "by entering an invite code from a storage provider or by "
             "selecting a grid from a list of public providers.\n\n".format(
                 settings['application']['name']))
         label.setWordWrap(True)
