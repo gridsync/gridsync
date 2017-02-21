@@ -149,7 +149,7 @@ class Model(QStandardItemModel):
         name = QStandardItem(folder_icon, folder_basename)
         status = QStandardItem()
         size = QStandardItem()
-        action = QStandardItem(QIcon(), '')
+        action = QStandardItem(QIcon(resource('share.png')), '')
         self.appendRow([name, status, size, action])
 
     def populate(self):
