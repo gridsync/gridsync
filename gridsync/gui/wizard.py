@@ -116,10 +116,9 @@ class SelectGridPage(QWizardPage):
 
 
 class Wizard(QWizard):
-    def __init__(self, parent):
+    def __init__(self):
         super(self.__class__, self).__init__()
-        self.parent = parent
-        self.is_complete = False
+        self.gateway = None
         self.setWindowTitle("{} - Welcome".format(
             settings['application']['name']))
         #self.resize(800, 500)
@@ -152,5 +151,4 @@ class Wizard(QWizard):
             self.close()
 
     def on_finished(self):
-        self.is_complete = True
-        self.parent.show_main_window()
+        self.gateway = self.invite_code_page.invite_form.gateway

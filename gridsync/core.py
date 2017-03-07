@@ -88,10 +88,11 @@ class Core(object):
                 self.start_gateways()
         else:
             self.gui.exec_wizard()
-            if not self.gui.wizard.is_complete:
+            if not self.gui.wizard.gateway:
                 logging.debug("Setup wizard not completed; exiting")
                 reactor.stop()
             else:
+                self.gui.populate([self.gui.wizard.gateway])
                 self.gui.show()
 
     def start(self):

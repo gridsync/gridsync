@@ -13,7 +13,7 @@ class Gui(object):
         self.invite_form = InviteForm()
         self.main_window = MainWindow(self)
         self.systray = SystemTrayIcon(self)
-        self.wizard = Wizard(self)
+        self.wizard = Wizard()
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)

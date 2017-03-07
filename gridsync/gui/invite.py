@@ -202,6 +202,7 @@ class ProgressBarWidget(QWidget):
 class InviteForm(QStackedWidget):
     def __init__(self):
         super(self.__class__, self).__init__()
+        self.gateway = None
         self.resize(500, 333)
         self.page_1 = CodeEntryWidget(self)
         self.page_2 = ProgressBarWidget()
@@ -238,6 +239,7 @@ class InviteForm(QStackedWidget):
 
         self.update_progress(2, 'Creating gateway...')
         tahoe = Tahoe(os.path.join(config_dir, nickname))
+        self.gateway = tahoe
         yield tahoe.create_client(**settings)
         if 'icon_base64' in settings:
             shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon'))
