@@ -3,14 +3,12 @@
 
 import argparse
 import logging
-import os
 import socket
 import sys
 
 from twisted.internet.error import CannotListenError
 
 from gridsync import __doc__ as description
-from gridsync import config_dir, settings
 from gridsync._version import __version__
 from gridsync.core import Core
 
