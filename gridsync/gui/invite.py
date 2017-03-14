@@ -262,7 +262,7 @@ class InviteForm(QStackedWidget):
             self.show_error("Invite confirmation failed")
             msg.setWindowTitle("Invite confirmation failed")
             msg.setText(
-                "Either you mistyped your invite code, or a potential "
+                "Either you mistyped your invite code or a potential "
                 "attacker tried to guess your code and failed. To try "
                 "again, you will need to obtain a new invite code from "
                 "your inviter.")  # or "service provider"?
