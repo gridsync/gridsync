@@ -36,7 +36,7 @@ class ComboBox(QComboBox):
             self.addItem(QIcon(iconpath), basename)
         self.insertSeparator(self.count())
         self.addItem(" Add new...")
-        self.model().item(self.count() - 1).setEnabled(False)
+        #self.model().item(self.count() - 1).setEnabled(False)
 
 
 class Monitor(object):
@@ -297,11 +297,11 @@ class MainWindow(QMainWindow):
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toolbar.setMovable(False)
-        self.toolbar.addAction(invite_action)
+        #self.toolbar.addAction(invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
-        self.toolbar.addAction(preferences_action)
+        #self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
         self.status_bar_label = QLabel('Initializing...')
@@ -324,8 +324,11 @@ class MainWindow(QMainWindow):
         self.status_bar_label.setText(self.get_current_grid_status())
 
     def on_grid_selected(self, index):
-        self.central_widget.setCurrentIndex(index)
-        self.set_current_grid_status()
+        if index == self.combo_box.count() - 1:
+            self.gui.show_invite_form()
+        else:
+            self.central_widget.setCurrentIndex(index)
+            self.set_current_grid_status()
 
     def keyPressEvent(self, event):
         key = event.key()
