@@ -267,7 +267,7 @@ class InviteForm(QStackedWidget):
         else:
             nickname = settings['introducer'].split('@')[1].split(':')[0]
 
-        self.update_progress(2, 'Creating gateway to {}...'.format(nickname))
+        self.update_progress(2, 'Connecting to {}...'.format(nickname))
         if 'icon_base64' in settings:
             temp = tempfile.NamedTemporaryFile()
             temp.write(base64.b64decode(settings['icon_base64']))
@@ -284,7 +284,7 @@ class InviteForm(QStackedWidget):
         if 'icon_base64' in settings:
             shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon'))
 
-        self.update_progress(3, 'Starting gateway to {}...'.format(nickname))
+        self.update_progress(3, 'Connecting to {}...'.format(nickname))
         yield tahoe.start()
 
         self.update_progress(4, 'Connecting to {}...'.format(nickname))
