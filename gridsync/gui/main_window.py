@@ -61,7 +61,7 @@ class Monitor(object):
 
     def notify_updated_files(self, magic_folder):
         if 'updated_files' in self.status[magic_folder]:
-            title = magic_folder.name + " folder updated"
+            title = magic_folder.name + " folder updated and encrypted"
             message = "Updated " + humanized_list(
                 self.status[magic_folder]['updated_files'])
             self.gui.show_message(title, message)
