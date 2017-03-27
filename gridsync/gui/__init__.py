@@ -10,10 +10,10 @@ from gridsync.gui.wizard import Wizard
 class Gui(object):
     def __init__(self, core):
         self.core = core
-        self.invite_form = InviteForm()
+        self.invite_form = InviteForm(self)
         self.main_window = MainWindow(self)
         self.systray = SystemTrayIcon(self)
-        self.wizard = Wizard()
+        self.wizard = Wizard(self)
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)

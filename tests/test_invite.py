@@ -24,5 +24,5 @@ def test_valid_code_is_valid():
 
 
 def test_init_invite_form():
-    invite_form = InviteForm()
+    invite_form = InviteForm(None)
     assert invite_form

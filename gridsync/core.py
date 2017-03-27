@@ -87,13 +87,15 @@ class Core(object):
                 yield tahoe.create_client(**defaults)
                 self.start_gateways()
         else:
-            self.gui.exec_wizard()
-            if not self.gui.wizard.gateway:
-                logging.debug("Setup wizard not completed; exiting")
-                reactor.stop()
-            else:
-                self.gui.populate([self.gui.wizard.gateway])
-                self.gui.show()
+            self.gui.hide()
+            self.gui.show_invite_form()
+            #self.gui.exec_wizard()
+            #if not self.gui.wizard.gateway:
+            #    logging.debug("Setup wizard not completed; exiting")
+            #    reactor.stop()
+            #else:
+            #    self.gui.populate([self.gui.wizard.gateway])
+            #    self.gui.show()
 
     def start(self):
         # Listen on a port to prevent multiple instances from running

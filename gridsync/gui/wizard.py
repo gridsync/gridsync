@@ -60,9 +60,10 @@ class WelcomePage(QWizardPage):
 
 
 class InviteCodePage(QWizardPage):
-    def __init__(self):
+    def __init__(self, gui):
         super(self.__class__, self).__init__()
-        self.invite_form = InviteForm()
+        self.gui = gui
+        self.invite_form = InviteForm(self.gui)
         layout = QGridLayout(self)
         layout.addWidget(self.invite_form)
 
@@ -116,8 +117,9 @@ class SelectGridPage(QWizardPage):
 
 
 class Wizard(QWizard):
-    def __init__(self):
+    def __init__(self, gui):
         super(self.__class__, self).__init__()
+        self.gui = gui
         self.gateway = None
         self.setWindowTitle("{} - Welcome".format(
             settings['application']['name']))
@@ -125,7 +127,7 @@ class Wizard(QWizard):
         self.resize(640, 480)
 
         self.welcome_page = WelcomePage()
-        self.invite_code_page = InviteCodePage()
+        self.invite_code_page = InviteCodePage(self.gui)
         self.select_grid_page = SelectGridPage()
 
         self.setPage(1, self.welcome_page)

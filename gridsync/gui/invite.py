@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QProgressBar, QSizePolicy, QSpacerItem, QStackedWidget, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
+from twisted.internet.task import deferLater
 from wormhole.errors import WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.xfer_util import receive
@@ -103,9 +104,16 @@ class CodeEntryWidget(QWidget):
         self.parent = parent
 
         self.icon = QLabel()
-        pixmap = QPixmap(resource('mail-envelope-closed.png')).scaled(128, 128)
+        pixmap = QPixmap(resource('gridsync.png')).scaled(220, 220)
         self.icon.setPixmap(pixmap)
         self.icon.setAlignment(Qt.AlignCenter)
+
+        self.slogan = QLabel("<i>Some slogan goes here.</i>")
+        font = QFont()
+        font.setPointSize(12)
+        self.slogan.setFont(font)
+        self.slogan.setStyleSheet("color: grey")
+        self.slogan.setAlignment(Qt.AlignCenter)
 
         self.label = QLabel("Enter invite code:")
         font = QFont()
@@ -117,8 +125,7 @@ class CodeEntryWidget(QWidget):
         self.lineedit = LineEdit(self)
         self.lineedit.returnPressed.connect(self.parent.return_pressed)
 
-        self.checkbox = QCheckBox(self)
-        self.checkbox.setText("Always connect using Tor")
+        self.checkbox = QCheckBox("Connect over the Tor network")
         self.checkbox.setEnabled(True)
         self.checkbox.setCheckable(False)
         self.checkbox.setStyleSheet("color: grey")
@@ -129,6 +136,14 @@ class CodeEntryWidget(QWidget):
         self.message.setAlignment(Qt.AlignCenter)
         self.message.hide()
 
+        self.help = QLabel()
+        self.help.setText("<a href>I don't have an invite code</a>")
+        font = QFont()
+        font.setPointSize(9)
+        self.help.setFont(font)
+        self.help.setAlignment(Qt.AlignCenter)
+        #self.help.linkActivated.connect(self.on_click)
+
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
@@ -136,18 +151,22 @@ class CodeEntryWidget(QWidget):
         layout.addWidget(self.icon, 1, 3)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-        layout.addWidget(self.label, 2, 3, 1, 1)
-        layout.addWidget(self.lineedit, 3, 2, 1, 3)
-        layout.addWidget(self.checkbox, 4, 3)
-        layout.addWidget(self.message, 4, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
+        layout.addWidget(self.slogan, 2, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 3, 1)
+        layout.addWidget(self.label, 4, 3, 1, 1)
+        layout.addWidget(self.lineedit, 5, 2, 1, 3)
+        #layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        #layout.addWidget(self.checkbox, 6, 3, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.message, 7, 3)
+        layout.addWidget(self.help, 8, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
 
     def show_error(self, message):
         self.message.setText(message)
-        self.checkbox.hide()
+        #self.checkbox.hide()
         self.message.show()
         reactor.callLater(3, self.message.hide)
-        reactor.callLater(3, self.checkbox.show)
+        #reactor.callLater(3, self.checkbox.show)
 
     def reset(self):
         self.lineedit.setText('')
@@ -158,17 +177,30 @@ class ProgressBarWidget(QWidget):
         super(self.__class__, self).__init__()
         self.step = 0
 
-        self.icon = QLabel()
-        pixmap = QPixmap(resource('mail-envelope-open.png')).scaled(128, 128)
-        self.icon.setPixmap(pixmap)
-        self.icon.setAlignment(Qt.AlignCenter)
+        self.icon_server = QLabel()
+        pixmap = QPixmap(resource('pixel.png')).scaled(220, 220)
+        self.icon_server.setPixmap(pixmap)
+        self.icon_server.setAlignment(Qt.AlignCenter)
 
-        self.label = QLabel()
-        font = QFont()
-        font.setPointSize(14)
-        self.label.setFont(font)
-        self.label.setStyleSheet("color: grey")
-        self.label.setAlignment(Qt.AlignCenter)
+        self.icon_overlay = QLabel()
+        pixmap = QPixmap(resource('pixel.png')).scaled(75, 75)
+        self.icon_overlay.setPixmap(pixmap)
+        self.icon_overlay.setAlignment(Qt.AlignHCenter)
+
+        self.icon_connection = QLabel()
+        pixmap = QPixmap(resource('wifi.png')).scaled(128, 128)
+        self.icon_connection.setPixmap(pixmap)
+        self.icon_connection.setAlignment(Qt.AlignCenter)
+
+        self.icon_client = QLabel()
+        pixmap = QPixmap(resource('laptop.png')).scaled(128, 128)
+        self.icon_client.setPixmap(pixmap)
+        self.icon_client.setAlignment(Qt.AlignCenter)
+
+        self.checkmark = QLabel()
+        pixmap = QPixmap(resource('pixel.png')).scaled(32, 32)
+        self.checkmark.setPixmap(pixmap)
+        self.checkmark.setAlignment(Qt.AlignCenter)
 
         self.progressbar = QProgressBar()
         self.progressbar.setMaximum(5)
@@ -182,13 +214,16 @@ class ProgressBarWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
-        layout.addWidget(self.icon, 1, 3)
+        layout.addWidget(self.icon_server, 1, 3)
+        layout.addWidget(self.icon_overlay, 1, 3)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-        layout.addWidget(self.label, 2, 3, 1, 1)
-        layout.addWidget(self.progressbar, 3, 2, 1, 3)
-        layout.addWidget(self.message, 4, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
+        layout.addWidget(self.icon_connection, 2, 3)
+        layout.addWidget(self.icon_client, 3, 3)
+        layout.addWidget(self.checkmark, 4, 3, 1, 1)
+        layout.addWidget(self.progressbar, 5, 2, 1, 3)
+        layout.addWidget(self.message, 6, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 7, 1)
 
     def update_progress(self, step, message):
         self.step = step
@@ -200,10 +235,12 @@ class ProgressBarWidget(QWidget):
 
 
 class InviteForm(QStackedWidget):
-    def __init__(self):
+    def __init__(self, gui):
         super(self.__class__, self).__init__()
+        self.gui = gui
         self.gateway = None
-        self.resize(500, 333)
+        self.resize(400, 500)
+        self.setWindowTitle(global_settings['application']['name'])
         self.page_1 = CodeEntryWidget(self)
         self.page_2 = ProgressBarWidget()
 
@@ -230,27 +267,38 @@ class InviteForm(QStackedWidget):
         else:
             nickname = settings['introducer'].split('@')[1].split(':')[0]
 
+        self.update_progress(2, 'Creating gateway to {}...'.format(nickname))
         if 'icon_base64' in settings:
             temp = tempfile.NamedTemporaryFile()
             temp.write(base64.b64decode(settings['icon_base64']))
-            pixmap = QPixmap(temp.name).scaled(128, 128)
-            self.page_2.icon.setPixmap(pixmap)
-            self.page_2.label.setText(nickname)
+            pixmap = QPixmap(temp.name).scaled(100, 100)
+            self.page_2.icon_overlay.setPixmap(pixmap)
 
-        self.update_progress(2, 'Creating gateway...')
+        pixmap = QPixmap(resource('lines_dotted.png')).scaled(128, 128)
+        self.page_2.icon_connection.setPixmap(pixmap)
+        pixmap = QPixmap(resource('cloud_storage.png')).scaled(220, 220)
+        self.page_2.icon_server.setPixmap(pixmap)
         tahoe = Tahoe(os.path.join(config_dir, nickname))
         self.gateway = tahoe
         yield tahoe.create_client(**settings)
         if 'icon_base64' in settings:
             shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon'))
 
-        self.update_progress(3, 'Starting gateway...')
+        self.update_progress(3, 'Starting gateway to {}...'.format(nickname))
         yield tahoe.start()
 
-        self.update_progress(4, 'Connecting to grid...')
+        self.update_progress(4, 'Connecting to {}...'.format(nickname))
         yield tahoe.await_ready()
 
         self.update_progress(5, 'Done!')
+        pixmap = QPixmap(resource('lines_solid.png')).scaled(128, 128)
+        self.page_2.icon_connection.setPixmap(pixmap)
+        pixmap = QPixmap(resource('green_checkmark.png')).scaled(32, 32)
+        self.page_2.checkmark.setPixmap(pixmap)
+        self.gui.populate([self.gateway])
+        yield deferLater(reactor, 3, lambda: None)
+        self.gui.show()
+        self.close()
 
     def show_failure(self, failure):
         msg = QMessageBox(self)
@@ -292,11 +340,11 @@ class InviteForm(QStackedWidget):
         code = self.page_1.lineedit.text().lower()
         if is_valid(code):
             self.setCurrentIndex(1)
-            self.update_progress(1, 'Opening wormhole...')
+            self.update_progress(1, 'Responding to invite...')
             d = receive(reactor, global_settings['wormhole']['appid'],
                         global_settings['wormhole']['relay'], code)
             d.addCallback(self.setup)
             d.addErrback(self.show_failure)
-            reactor.callLater(10, d.cancel)
+            reactor.callLater(20, d.cancel)
         else:
             self.show_error("Invalid code")
