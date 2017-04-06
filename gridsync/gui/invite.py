@@ -178,7 +178,7 @@ class ProgressBarWidget(QWidget):
         self.step = 0
 
         self.icon_server = QLabel()
-        pixmap = QPixmap(resource('pixel.png')).scaled(220, 220)
+        pixmap = QPixmap(resource('cloud.png')).scaled(220, 220)
         self.icon_server.setPixmap(pixmap)
         self.icon_server.setAlignment(Qt.AlignCenter)
 
