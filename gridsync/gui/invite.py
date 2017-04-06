@@ -108,7 +108,7 @@ class CodeEntryWidget(QWidget):
         self.icon.setPixmap(pixmap)
         self.icon.setAlignment(Qt.AlignCenter)
 
-        self.slogan = QLabel("<i>Secure, distributed storage.</i>")
+        self.slogan = QLabel("<i>Encrypted, distributed storage</i>")
         font = QFont()
         font.setPointSize(12)
         self.slogan.setFont(font)
