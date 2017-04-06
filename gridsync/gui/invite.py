@@ -340,7 +340,7 @@ class InviteForm(QStackedWidget):
         code = self.page_1.lineedit.text().lower()
         if is_valid(code):
             self.setCurrentIndex(1)
-            self.update_progress(1, 'Responding to invite...')
+            self.update_progress(1, 'Verifying invitation code...')
             d = receive(reactor, global_settings['wormhole']['appid'],
                         global_settings['wormhole']['relay'], code)
             d.addCallback(self.setup)
