@@ -21,5 +21,5 @@ docs_url = docs.gridsync.io
 issues_url = https://github.com/gridsync/gridsync/issues
 
 [wormhole]
-appid = gridsync.io/wormhole/invite
+appid = tahoe-lafs.org/tahoe-lafs/v1
 relay = ws://wormhole.gridsync.io:4000/v1
