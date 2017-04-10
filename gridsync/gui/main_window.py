@@ -6,8 +6,8 @@ from collections import defaultdict
 
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileIconProvider, QGridLayout,
-    QHeaderView, QLabel, QMainWindow, QSizePolicy, QStackedWidget, QTreeView,
-    QWidget)
+    QHeaderView, QLabel, QMainWindow, QMessageBox, QSizePolicy,
+    QStackedWidget, QTreeView, QWidget)
 from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
@@ -336,4 +336,14 @@ class MainWindow(QMainWindow):
             self.hide()
 
     def closeEvent(self, event):  # pylint: disable=all
-        reactor.stop()
+        reply = QMessageBox.question(
+            self, "Exit {}?".format(settings['application']['name']),
+            "Are you sure you wish to quit? If you quit, {} will stop "
+            "synchronizing your folders until you run it again.".format(
+                settings['application']['name']),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+            reactor.stop()
+        else:
+            event.ignore()
