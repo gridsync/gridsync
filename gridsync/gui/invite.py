@@ -40,13 +40,12 @@ def is_valid(code):
         return False
     elif not words[2] in wordlist:
         return False
-    else:
-        return True
+    return True
 
 
 class Completer(QCompleter):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(Completer, self).__init__()
         self.setCaseSensitivity(Qt.CaseInsensitive)
         self.setMaxVisibleItems(5)
         #self.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
@@ -65,7 +64,7 @@ class Completer(QCompleter):
 
 class LineEdit(QLineEdit):
     def __init__(self, parent=None):
-        super(self.__class__, self).__init__()
+        super(LineEdit, self).__init__()
         self.parent = parent
         font = QFont()
         font.setPointSize(16)
@@ -100,7 +99,7 @@ class LineEdit(QLineEdit):
 
 class CodeEntryWidget(QWidget):
     def __init__(self, parent=None):
-        super(self.__class__, self).__init__()
+        super(CodeEntryWidget, self).__init__()
         self.parent = parent
 
         self.icon = QLabel()
@@ -174,7 +173,7 @@ class CodeEntryWidget(QWidget):
 
 class ProgressBarWidget(QWidget):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(ProgressBarWidget, self).__init__()
         self.step = 0
 
         self.icon_server = QLabel()
@@ -236,7 +235,7 @@ class ProgressBarWidget(QWidget):
 
 class InviteForm(QStackedWidget):
     def __init__(self, gui):
-        super(self.__class__, self).__init__()
+        super(InviteForm, self).__init__()
         self.gui = gui
         self.gateway = None
         self.resize(400, 500)

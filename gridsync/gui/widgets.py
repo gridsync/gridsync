@@ -13,7 +13,7 @@ from gridsync.tahoe import is_valid_furl
 
 class GridComboBox(QWidget):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(GridComboBox, self).__init__()
 
         #self.label = QLabel('Storage provider:')
         #self.label.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, 0))
@@ -29,7 +29,7 @@ class GridComboBox(QWidget):
 
 class GridDescription(QWidget):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(GridDescription, self).__init__()
 
         self.image = QLabel()
 
@@ -49,7 +49,7 @@ class GridDescription(QWidget):
 
 class GridForm(QWidget):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(GridForm, self).__init__()
 
         self.name_label = QLabel("Name (optional):")
 
@@ -86,7 +86,7 @@ class GridForm(QWidget):
 
 class GridSelector(QWidget):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(GridSelector, self).__init__()
         self.resize(800, 500)
         self.introducer_furl = None
         self.storage_providers = None

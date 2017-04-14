@@ -26,6 +26,5 @@ def humanized_list(list_, kind='files'):
         return " and ".join(list_)
     elif len(list_) == 3:
         return "{}, {}, and {}".format(*list_)
-    else:
-        return "{}, {}, and {} other {}".format(list_[0], list_[1],
-                                                len(list_) - 2, kind)
+    return "{}, {}, and {} other {}".format(list_[0], list_[1],
+                                            len(list_) - 2, kind)
