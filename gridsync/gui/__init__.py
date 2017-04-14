@@ -4,7 +4,6 @@ from gridsync.desktop import notify
 from gridsync.gui.invite import InviteForm
 from gridsync.gui.main_window import MainWindow
 from gridsync.gui.systray import SystemTrayIcon
-from gridsync.gui.wizard import Wizard
 
 
 class Gui(object):
@@ -13,7 +12,6 @@ class Gui(object):
         self.invite_form = InviteForm(self)
         self.main_window = MainWindow(self)
         self.systray = SystemTrayIcon(self)
-        self.wizard = Wizard(self)
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)
@@ -25,9 +23,6 @@ class Gui(object):
     def show_main_window(self):
         self.main_window.show()
         self.main_window.raise_()
-
-    def exec_wizard(self):
-        self.wizard.exec_()
 
     def show(self):
         self.systray.show()
