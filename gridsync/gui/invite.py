@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
 from twisted.internet.task import deferLater
-from wormhole.errors import WrongPasswordError
+from wormhole.errors import WelcomeError, WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.xfer_util import receive
 
@@ -305,7 +305,16 @@ class InviteForm(QStackedWidget):
         msg.setStandardButtons(QMessageBox.Retry)
         msg.setEscapeButton(QMessageBox.Retry)
         msg.setDetailedText(str(failure))
-        if failure.type == WrongPasswordError:
+        if failure.type == WelcomeError:
+            self.show_error("Invite refused")
+            msg.setWindowTitle("Invite refused")
+            msg.setText(
+                "The server negotiating your invitation is online but is "
+                "currently refusing to process any invitations. This may "
+                "indicate that your version of {} is out-of-date, in which "
+                "case you should upgrade to the latest version and try again."
+                .format(global_settings['application']['name']))
+        elif failure.type == WrongPasswordError:
             self.show_error("Invite confirmation failed")
             msg.setWindowTitle("Invite confirmation failed")
             msg.setText(
