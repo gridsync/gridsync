@@ -15,6 +15,8 @@ Currently, Gridsync expects the information received through a wormhole to fulfi
 
 In addition to the above, grid operators may also include an image into the wormhole response, visually identifying their grid or storage service to end-users within the application. The image must be in a format `recognized by QImageReader <https://doc.qt.io/qt-5/qimagereader.html#supportedImageFormats>`_ and be included in the JSON response as the value corresponding to a key named ``icon_base64``.
 
+Lastly, all JSON responses adhering to the stardand laid out in this document should also include a ``version`` key with a value of ``1``.
+
 
 Example
 -------
@@ -27,6 +29,7 @@ If Alice (the operator of a storage test grid) wishes to invite Bob (an end user
 
     JSON=\
     '{
+        "version": 1,
         "nickname": "TestGrid",
         "introducer": "pb://3kzbib3v5i7gmtd2vkjujfywqiwzintw@test.gridsync.io:44800/2qdq2buyzmwq6xuxl2sdzyej5vswhkqs",
         "shares-needed": "1",
