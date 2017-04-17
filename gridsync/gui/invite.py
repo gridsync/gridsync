@@ -43,6 +43,10 @@ def is_valid(code):
     return True
 
 
+class UpgradeRequiredError(Exception):
+    pass
+
+
 class Completer(QCompleter):
     def __init__(self):
         super(Completer, self).__init__()
@@ -261,6 +265,9 @@ class InviteForm(QStackedWidget):
     def setup(self, settings):
         settings = json.loads(settings)
 
+        if 'version' in settings and int(settings['version']) > 1:
+            raise UpgradeRequiredError
+
         if 'nickname' in settings:
             nickname = settings['nickname']
         else:
@@ -338,6 +345,15 @@ class InviteForm(QStackedWidget):
                 "The invitation process has timed out. Your invite code may "
                 "have expired. Please request a new invite code from your "
                 "inviter and try again.")
+        elif failure.type == UpgradeRequiredError:
+            self.show_error("Upgrade required")
+            msg.setWindowTitle("Upgrade required")
+            msg.setText(
+                "Your version of {} is out-of-date. Please upgrade to the "
+                "latest version and try again with a new invite code.".format(
+                    global_settings['application']['name']))
+            msg.setIcon(QMessageBox.Critical)
+            msg.setStandardButtons(QMessageBox.Ok)
         else:
             log.error(str(failure))
             return
