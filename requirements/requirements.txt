@@ -1,6 +1,6 @@
 asn1crypto==0.22.0
 attrs==16.3.0
-autobahn==0.18.1
+autobahn==0.18.2
 Automat==0.5.0
 cffi==1.10.0
 click==6.7
@@ -31,6 +31,6 @@ spake2==0.7
 tqdm==4.11.2
 treq==17.3.1
 Twisted==17.1.0
-txaio==2.6.2
+txaio==2.7.0
 txdbus==1.0.13 ; "linux" in sys_platform
 zope.interface==4.3.3
