@@ -5,6 +5,8 @@ import os
 import subprocess
 import sys
 
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtGui import QClipboard
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -42,3 +44,21 @@ def open_folder(path):
         subprocess.Popen(['start', path])
     else:
         subprocess.Popen(['xdg-open', path])
+
+
+def get_clipboard_modes():
+    clipboard = QCoreApplication.instance().clipboard()
+    modes = [QClipboard.Clipboard]
+    if clipboard.supportsSelection():
+        modes.append(QClipboard.Selection)
+    if clipboard.supportsFindBuffer():
+        modes.append(QClipboard.FindBuffer)
+    return modes
+
+
+def get_clipboard_text(mode=QClipboard.Clipboard):
+    return QCoreApplication.instance().clipboard().text(mode)
+
+
+def set_clipboard_text(text, mode=QClipboard.Clipboard):
+    QCoreApplication.instance().clipboard().setText(text, mode)
