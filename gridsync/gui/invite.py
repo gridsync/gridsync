@@ -95,13 +95,17 @@ class LineEdit(QLineEdit):
         text = (text if text else self.text())
         if not text:
             self.button_action.setIcon(QIcon())
+            self.button_action.setToolTip('')
             for mode in get_clipboard_modes():
                 if is_valid(get_clipboard_text(mode)):
                     self.button_action.setIcon(QIcon(resource('paste.png')))
+                    self.button_action.setToolTip("Paste")
         elif is_valid(text):
             self.button_action.setIcon(QIcon(resource('arrow-right.png')))
+            self.button_action.setToolTip("Go")
         else:
             self.button_action.setIcon(QIcon(resource('close.png')))
+            self.button_action.setToolTip("Clear")
 
     def keyPressEvent(self, event):
         key = event.key()
