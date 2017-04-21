@@ -8,7 +8,7 @@ from gridsync.config import Config
 
 __author__ = 'Christopher R. Wood'
 __url__ = 'https://github.com/gridsync/gridsync'
-__license__ = 'GPL'
+__license__ = 'GPLv3'
 __version__ = _version.__version__
 
 

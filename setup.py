@@ -77,7 +77,7 @@ setup(
         "Intended Audience :: System Administrators",
         "License :: DFSG approved",
         "License :: OSI Approved",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Natural Language :: English",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft",
