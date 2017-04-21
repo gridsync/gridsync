@@ -8,10 +8,11 @@ import shutil
 import tempfile
 
 from PyQt5.QtCore import Qt, QStringListModel
-from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
-    QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit, QMessageBox,
-    QProgressBar, QSizePolicy, QSpacerItem, QStackedWidget, QWidget)
+    QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
+    QMessageBox, QProgressBar, QSizePolicy, QSpacerItem, QStackedWidget,
+    QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
 from twisted.internet.task import deferLater
@@ -21,6 +22,7 @@ from wormhole.xfer_util import receive
 
 from gridsync import config_dir, resource
 from gridsync import settings as global_settings
+from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.tahoe import Tahoe
 
 
@@ -80,23 +82,37 @@ class LineEdit(QLineEdit):
         self.setCompleter(completer)
         self.setAlignment(Qt.AlignCenter)
         #self.setPlaceholderText("Enter invite code")
+        self.button_action = QAction(QIcon(), '', self)
+        self.addAction(self.button_action, 1)
+        self.addAction(QAction(QIcon(), '', self), 0)  # for symmetry
+
+        completer.highlighted.connect(self.update_button)
+        self.textChanged.connect(self.update_button)
+
+        self.update_button()
+
+    def update_button(self, text=None):
+        text = (text if text else self.text())
+        if not text:
+            self.button_action.setIcon(QIcon())
+            for mode in get_clipboard_modes():
+                if is_valid(get_clipboard_text(mode)):
+                    self.button_action.setIcon(QIcon(resource('paste.png')))
+        elif is_valid(text):
+            self.button_action.setIcon(QIcon(resource('arrow-right.png')))
+        else:
+            self.button_action.setIcon(QIcon(resource('close.png')))
 
     def keyPressEvent(self, event):
         key = event.key()
         text = self.text()
-        if key == Qt.Key_Space:
-            if text and not text.endswith('-'):
-                self.setText(text + '-')
-        elif key == Qt.Key_Tab:
+        if key in (Qt.Key_Space, Qt.Key_Minus, Qt.Key_Tab):
             if text and len(text.split('-')) < 3 and not text.endswith('-'):
                 self.setText(text + '-')
             else:
                 self.setText(text)
-        elif key == Qt.Key_Escape:
-            if text:
-                self.setText('')
-            #else:
-            #    self.parent.close()
+        elif text and key == Qt.Key_Escape:
+            self.setText('')
         else:
             return QLineEdit.keyPressEvent(self, event)
 
@@ -126,7 +142,6 @@ class CodeEntryWidget(QWidget):
         self.label.setAlignment(Qt.AlignCenter)
 
         self.lineedit = LineEdit(self)
-        self.lineedit.returnPressed.connect(self.parent.return_pressed)
 
         self.checkbox = QCheckBox("Connect over the Tor network")
         self.checkbox.setEnabled(True)
@@ -250,6 +265,12 @@ class InviteForm(QStackedWidget):
         self.addWidget(self.page_1)
         self.addWidget(self.page_2)
 
+        self.lineedit = self.page_1.lineedit
+        self.button_action = self.lineedit.button_action
+
+        self.lineedit.returnPressed.connect(self.return_pressed)
+        self.button_action.triggered.connect(self.button_clicked)
+
     def update_progress(self, step, message):
         self.page_2.update_progress(step, message)
 
@@ -360,15 +381,30 @@ class InviteForm(QStackedWidget):
         msg.exec_()
         self.reset()
 
+    def go(self, code):
+        self.setCurrentIndex(1)
+        self.update_progress(1, 'Verifying invitation code...')
+        d = receive(reactor, global_settings['wormhole']['appid'],
+                    global_settings['wormhole']['relay'], code)
+        d.addCallback(self.setup)
+        d.addErrback(self.show_failure)
+        reactor.callLater(20, d.cancel)
+
     def return_pressed(self):
-        code = self.page_1.lineedit.text().lower()
+        code = self.lineedit.text().lower()
         if is_valid(code):
-            self.setCurrentIndex(1)
-            self.update_progress(1, 'Verifying invitation code...')
-            d = receive(reactor, global_settings['wormhole']['appid'],
-                        global_settings['wormhole']['relay'], code)
-            d.addCallback(self.setup)
-            d.addErrback(self.show_failure)
-            reactor.callLater(20, d.cancel)
+            self.go(code)
         else:
             self.show_error("Invalid code")
+
+    def button_clicked(self):
+        code = self.lineedit.text().lower()
+        if not code:
+            for mode in get_clipboard_modes():
+                text = get_clipboard_text(mode)
+                if is_valid(text):
+                    self.lineedit.setText(text)
+        elif is_valid(code):
+            self.go(code)
+        else:
+            self.reset()
