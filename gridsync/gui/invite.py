@@ -11,11 +11,10 @@ from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
-    QMessageBox, QProgressBar, QSizePolicy, QSpacerItem, QStackedWidget,
-    QWidget)
+    QPushButton, QMessageBox, QProgressBar, QSizePolicy, QSpacerItem,
+    QStackedWidget, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
-from twisted.internet.task import deferLater
 from wormhole.errors import WelcomeError, WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.xfer_util import receive
@@ -232,6 +231,9 @@ class ProgressBarWidget(QWidget):
         self.message.setStyleSheet("color: grey")
         self.message.setAlignment(Qt.AlignCenter)
 
+        self.finish_button = QPushButton("Finish")
+        self.finish_button.hide()
+
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
@@ -245,6 +247,7 @@ class ProgressBarWidget(QWidget):
         layout.addWidget(self.checkmark, 4, 3, 1, 1)
         layout.addWidget(self.progressbar, 5, 2, 1, 3)
         layout.addWidget(self.message, 6, 3)
+        layout.addWidget(self.finish_button, 6, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 7, 1)
 
     def update_progress(self, step, message):
@@ -271,9 +274,11 @@ class InviteForm(QStackedWidget):
 
         self.lineedit = self.page_1.lineedit
         self.button_action = self.lineedit.button_action
+        self.finish_button = self.page_2.finish_button
 
         self.lineedit.returnPressed.connect(self.return_pressed)
         self.button_action.triggered.connect(self.button_clicked)
+        self.finish_button.clicked.connect(self.finish_button_clicked)
 
     def update_progress(self, step, message):
         self.page_2.update_progress(step, message)
@@ -327,9 +332,7 @@ class InviteForm(QStackedWidget):
         pixmap = QPixmap(resource('green_checkmark.png')).scaled(32, 32)
         self.page_2.checkmark.setPixmap(pixmap)
         self.gui.populate([self.gateway])
-        yield deferLater(reactor, 3, lambda: None)
-        self.gui.show()
-        self.close()
+        self.finish_button.show()
 
     def show_failure(self, failure):
         msg = QMessageBox(self)
@@ -412,3 +415,7 @@ class InviteForm(QStackedWidget):
             self.go(code)
         else:
             self.reset()
+
+    def finish_button_clicked(self):
+        self.gui.show()
+        self.close()
