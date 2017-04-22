@@ -12,7 +12,7 @@ from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
     QPushButton, QMessageBox, QProgressBar, QSizePolicy, QSpacerItem,
-    QStackedWidget, QWidget)
+    QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import WelcomeError, WrongPasswordError
@@ -234,8 +234,12 @@ class ProgressBarWidget(QWidget):
         self.finish_button = QPushButton("Finish")
         self.finish_button.hide()
 
+        self.cancel_button = QToolButton()
+        self.cancel_button.setIcon(QIcon(resource('close.png')))
+        self.cancel_button.setStyleSheet('border: 0px; padding: 0px;')
+
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
+        layout.addWidget(self.cancel_button, 0, 5)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
         layout.addWidget(self.icon_server, 1, 3)
@@ -274,10 +278,12 @@ class InviteForm(QStackedWidget):
 
         self.lineedit = self.page_1.lineedit
         self.button_action = self.lineedit.button_action
+        self.cancel_button = self.page_2.cancel_button
         self.finish_button = self.page_2.finish_button
 
         self.lineedit.returnPressed.connect(self.return_pressed)
         self.button_action.triggered.connect(self.button_clicked)
+        self.cancel_button.clicked.connect(self.cancel_button_clicked)
         self.finish_button.clicked.connect(self.finish_button_clicked)
 
     def update_progress(self, step, message):
@@ -414,6 +420,16 @@ class InviteForm(QStackedWidget):
         elif is_valid(code):
             self.go(code)
         else:
+            self.reset()
+
+    def cancel_button_clicked(self):
+        reply = QMessageBox.question(
+            self, "Cancel setup?",
+            "Are you sure you wish to cancel the {} setup process? "
+            "If you do, you may need to obtain a new invite code.".format(
+                global_settings['application']['name']),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
             self.reset()
 
     def finish_button_clicked(self):
