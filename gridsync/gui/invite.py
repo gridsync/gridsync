@@ -22,7 +22,8 @@ from wormhole.xfer_util import receive
 from gridsync import config_dir, resource
 from gridsync import settings as global_settings
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
-from gridsync.tahoe import Tahoe
+from gridsync.tahoe import is_valid_furl, Tahoe
+from gridsync.gui.widgets import TahoeConfigForm
 
 
 wordlist = []
@@ -272,19 +273,29 @@ class InviteForm(QStackedWidget):
         self.setWindowTitle(global_settings['application']['name'])
         self.page_1 = CodeEntryWidget(self)
         self.page_2 = ProgressBarWidget()
+        self.page_3 = TahoeConfigForm()
 
         self.addWidget(self.page_1)
         self.addWidget(self.page_2)
+        self.addWidget(self.page_3)
 
         self.lineedit = self.page_1.lineedit
         self.button_action = self.lineedit.button_action
         self.cancel_button = self.page_2.cancel_button
         self.finish_button = self.page_2.finish_button
+        self.buttonbox = self.page_3.buttonbox
+        self.help = self.page_1.help
 
         self.lineedit.returnPressed.connect(self.return_pressed)
         self.button_action.triggered.connect(self.button_clicked)
         self.cancel_button.clicked.connect(self.cancel_button_clicked)
         self.finish_button.clicked.connect(self.finish_button_clicked)
+        self.buttonbox.accepted.connect(self.on_accepted)
+        self.buttonbox.rejected.connect(self.reset)
+        self.help.linkActivated.connect(self.on_link_activated)
+
+    def on_link_activated(self):
+        self.setCurrentIndex(2)
 
     def update_progress(self, step, message):
         self.page_2.update_progress(step, message)
@@ -295,11 +306,15 @@ class InviteForm(QStackedWidget):
     def reset(self):
         self.page_1.reset()
         self.page_2.reset()
+        self.page_3.reset()
         self.setCurrentIndex(0)
 
     @inlineCallbacks
     def setup(self, settings):
-        settings = json.loads(settings)
+        try:
+            settings = json.loads(settings)
+        except TypeError:
+            pass
 
         if 'version' in settings and int(settings['version']) > 1:
             raise UpgradeRequiredError
@@ -431,6 +446,25 @@ class InviteForm(QStackedWidget):
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.reset()
+
+    def on_accepted(self):
+        settings = self.page_3.get_settings()
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(global_settings['application']['name'])
+        msg.setStandardButtons(QMessageBox.Ok)
+        if not settings['nickname']:
+            msg.setText("Please enter a name.")
+            msg.exec_()
+        elif not settings['introducer']:
+            msg.setText("Please enter an Introducer fURL.")
+            msg.exec_()
+        elif not is_valid_furl(settings['introducer']):
+            msg.setText("Please enter a valid Introducer fURL.")
+            msg.exec_()
+        else:
+            self.setCurrentIndex(1)
+            self.setup(settings)
 
     def finish_button_clicked(self):
         self.gui.show()
