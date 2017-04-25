@@ -64,7 +64,7 @@ call pip install --upgrade pip
 call pip install -r .\requirements\requirements-hashes.txt
 ::call pip install --upgrade sip
 ::call pip install --upgrade pyqt5
-call pip install git+https://github.com/gridsync/qt5reactor.git
+call pip install --upgrade git+https://github.com/gridsync/qt5reactor.git
 call pip install . 
 ::call pip install pyinstaller==3.2.1
 call pip install pyinstaller==3.1.1
