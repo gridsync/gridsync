@@ -87,7 +87,6 @@ class Core(object):
                 yield tahoe.create_client(**defaults)
                 self.start_gateways()
         else:
-            self.gui.hide()
             self.gui.show_invite_form()
 
     def start(self):
@@ -113,7 +112,7 @@ class Core(object):
 
         if not self.args.no_gui:
             self.gui = Gui(self)
-            self.gui.show()
+            self.gui.systray.show()
 
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
