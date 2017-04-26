@@ -216,8 +216,7 @@ class View(QTreeView):
                     localdir = mf.config_get('magic_folder', 'local.directory')
                     open_folder(localdir)
 
-    def confirm_remove(self, item):
-        folder = item.text()
+    def confirm_remove(self, folder):
         reply = QMessageBox.question(
             self, "Remove '{}'?".format(folder),
             "Are you sure you wish to remove the '{}' folder? If you do, it "
@@ -227,14 +226,16 @@ class View(QTreeView):
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.gateway.remove_magic_folder(folder)
-            self.model().removeRow(item.row())
+            self.model().removeRow(self.model().get_row_from_name(folder))
 
     def on_right_click(self, position):
         item = self.model().itemFromIndex(self.indexAt(position))
         if item:
+            folder = self.model().item(item.row(), 0).text()
             menu = QMenu()
             remove_action = QAction(QIcon(resource('close.png')), "Remove")
-            remove_action.triggered.connect(lambda: self.confirm_remove(item))
+            remove_action.triggered.connect(
+                lambda: self.confirm_remove(folder))
             menu.addAction(remove_action)
             menu.exec_(self.viewport().mapToGlobal(position))
 
