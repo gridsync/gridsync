@@ -5,6 +5,7 @@ import json
 import logging as log
 import os
 import re
+import shutil
 import signal
 import sys
 from io import BytesIO
@@ -276,6 +277,14 @@ class Tahoe(object):
         for nodedir in get_nodedirs(self.magic_folders_dir):
             tasks.append(Tahoe(nodedir, executable=self.executable).stop())
         yield gatherResults(tasks)
+
+    @inlineCallbacks
+    def remove_magic_folder(self, name):
+        for magic_folder in self.magic_folders:
+            if magic_folder.name == name:
+                self.magic_folders.remove(magic_folder)
+                yield magic_folder.stop()
+                shutil.rmtree(magic_folder.nodedir, ignore_errors=True)
 
     @inlineCallbacks
     def get_magic_folder_status(self):
