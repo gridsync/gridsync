@@ -15,7 +15,7 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
-from gridsync import resource, settings
+from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
 from gridsync.tahoe import get_nodedirs
 from gridsync.util import b2h, humanized_list
@@ -222,7 +222,7 @@ class View(QTreeView):
             "Are you sure you wish to remove the '{}' folder? If you do, it "
             "will remain on your computer, however, {} will no longer "
             "synchronize its contents with {}.".format(
-                folder, settings['application']['name'], self.gateway.name),
+                folder, APP_NAME, self.gateway.name),
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.gateway.remove_magic_folder(folder)
@@ -291,7 +291,7 @@ class MainWindow(QMainWindow):
     def __init__(self, gui):
         super(MainWindow, self).__init__()
         self.gui = gui
-        self.setWindowTitle(settings['application']['name'])
+        self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
 
         self.combo_box = ComboBox()
@@ -362,10 +362,10 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):  # pylint: disable=all
         reply = QMessageBox.question(
-            self, "Exit {}?".format(settings['application']['name']),
+            self, "Exit {}?".format(APP_NAME),
             "Are you sure you wish to quit? If you quit, {} will stop "
             "synchronizing your folders until you run it again.".format(
-                settings['application']['name']),
+                APP_NAME),
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             event.accept()

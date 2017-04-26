@@ -53,19 +53,19 @@ settings = Config(os.path.join(pkgdir, 'resources', 'config.txt')).load()
 if not settings:
     settings = default_settings
 
+APP_NAME = settings['application']['name']
 
 if sys.platform == 'win32':
     config_dir = os.path.join(
-        os.getenv('APPDATA'), settings['application']['name'])
+        os.getenv('APPDATA'), APP_NAME)
 elif sys.platform == 'darwin':
     config_dir = os.path.join(
-        os.path.expanduser('~'), 'Library', 'Application Support',
-        settings['application']['name'])
+        os.path.expanduser('~'), 'Library', 'Application Support', APP_NAME)
 else:
     config_home = os.environ.get(
         'XDG_CONFIG_HOME', os.path.join(os.path.expanduser('~'), '.config'))
     config_dir = os.path.join(
-        config_home, settings['application']['name'].lower())
+        config_home, APP_NAME.lower())
 
 
 def resource(filename):

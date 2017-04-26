@@ -19,7 +19,7 @@ from wormhole.errors import WelcomeError, WrongPasswordError
 from wormhole.wordlist import raw_words
 from wormhole.xfer_util import receive
 
-from gridsync import config_dir, resource
+from gridsync import config_dir, resource, APP_NAME
 from gridsync import settings as global_settings
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.tahoe import is_valid_furl, Tahoe
@@ -270,7 +270,7 @@ class InviteForm(QStackedWidget):
         self.gui = gui
         self.gateway = None
         self.resize(400, 500)
-        self.setWindowTitle(global_settings['application']['name'])
+        self.setWindowTitle(APP_NAME)
         self.page_1 = CodeEntryWidget(self)
         self.page_2 = ProgressBarWidget()
         self.page_3 = TahoeConfigForm()
@@ -369,7 +369,7 @@ class InviteForm(QStackedWidget):
                 "currently refusing to process any invitations. This may "
                 "indicate that your version of {} is out-of-date, in which "
                 "case you should upgrade to the latest version and try again."
-                .format(global_settings['application']['name']))
+                .format(APP_NAME))
         elif failure.type == WrongPasswordError:
             self.show_error("Invite confirmation failed")
             msg.setWindowTitle("Invite confirmation failed")
@@ -400,7 +400,7 @@ class InviteForm(QStackedWidget):
             msg.setText(
                 "Your version of {} is out-of-date. Please upgrade to the "
                 "latest version and try again with a new invite code.".format(
-                    global_settings['application']['name']))
+                    APP_NAME))
             msg.setIcon(QMessageBox.Critical)
             msg.setStandardButtons(QMessageBox.Ok)
         else:
@@ -442,7 +442,7 @@ class InviteForm(QStackedWidget):
             self, "Cancel setup?",
             "Are you sure you wish to cancel the {} setup process? "
             "If you do, you may need to obtain a new invite code.".format(
-                global_settings['application']['name']),
+                APP_NAME),
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.reset()
@@ -451,7 +451,7 @@ class InviteForm(QStackedWidget):
         settings = self.page_3.get_settings()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
-        msg.setWindowTitle(global_settings['application']['name'])
+        msg.setWindowTitle(APP_NAME)
         msg.setStandardButtons(QMessageBox.Ok)
         if not settings['nickname']:
             msg.setText("Please enter a name.")

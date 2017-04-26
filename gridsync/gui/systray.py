@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon
 from twisted.internet import reactor
 
-from gridsync import resource, settings
+from gridsync import resource, settings, APP_NAME
 
 
 def open_documentation():
@@ -27,9 +27,8 @@ class Menu(QMenu):
     def populate(self):
         self.clear()
         logging.debug("(Re-)populating systray menu...")
-        name = settings['application']['name']
 
-        open_action = QAction(QIcon(''), "Open {}".format(name), self)
+        open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
         open_action.triggered.connect(self.parent.parent.show_main_window)
 
         documentation_action = QAction(
@@ -39,7 +38,7 @@ class Menu(QMenu):
         issue_action = QAction(QIcon(''), "Report Issue...", self)
         issue_action.triggered.connect(open_issue)
 
-        about_action = QAction(QIcon(''), "About {}...".format(name), self)
+        about_action = QAction(QIcon(''), "About {}...".format(APP_NAME), self)
         about_action.setEnabled(False)
 
         help_menu = QMenu(self)
@@ -50,7 +49,7 @@ class Menu(QMenu):
         help_menu.addAction(about_action)
 
         quit_action = QAction(
-            QIcon(''), "&Quit {}".format(name), self)
+            QIcon(''), "&Quit {}".format(APP_NAME), self)
         quit_action.triggered.connect(reactor.stop)
 
         self.addAction(open_action)
