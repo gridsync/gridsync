@@ -6,7 +6,7 @@ from collections import defaultdict
 
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileIconProvider, QGridLayout,
-    QHeaderView, QLabel, QMainWindow, QMessageBox, QSizePolicy,
+    QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy,
     QStackedWidget, QTreeView, QWidget)
 from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
@@ -190,6 +190,7 @@ class View(QTreeView):
         self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 75)
         self.setColumnWidth(3, 75)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
         #self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
@@ -205,6 +206,7 @@ class View(QTreeView):
         #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
 
         self.doubleClicked.connect(self.on_double_click)
+        self.customContextMenuRequested.connect(self.on_right_click)
 
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
@@ -213,6 +215,28 @@ class View(QTreeView):
                 if mf.name == item.text():
                     localdir = mf.config_get('magic_folder', 'local.directory')
                     open_folder(localdir)
+
+    def confirm_remove(self, item):
+        folder = item.text()
+        reply = QMessageBox.question(
+            self, "Remove '{}'?".format(folder),
+            "Are you sure you wish to remove the '{}' folder? If you do, it "
+            "will remain on your computer, however, {} will no longer "
+            "synchronize its contents with {}.".format(
+                folder, settings['application']['name'], self.gateway.name),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.gateway.remove_magic_folder(folder)
+            self.model().removeRow(item.row())
+
+    def on_right_click(self, position):
+        item = self.model().itemFromIndex(self.indexAt(position))
+        if item:
+            menu = QMenu()
+            remove_action = QAction(QIcon(resource('close.png')), "Remove")
+            remove_action.triggered.connect(lambda: self.confirm_remove(item))
+            menu.addAction(remove_action)
+            menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_new_folder(self, path):
         self.model().add_folder(path)
