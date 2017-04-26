@@ -123,14 +123,14 @@ class Monitor(object):
 
 class Model(QStandardItemModel):
     def __init__(self, gui, gateway):
-        super(Model, self).__init__(0, 4)
+        super(Model, self).__init__(0, 3)
         self.gui = gui
         self.gateway = gateway
         self.monitor = Monitor(self, gateway)
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Size"))
-        self.setHeaderData(3, Qt.Horizontal, QVariant("Action"))
+        #self.setHeaderData(3, Qt.Horizontal, QVariant("Action"))
 
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
         self.icon_syncing = QIcon(resource('sync.png'))
@@ -149,8 +149,8 @@ class Model(QStandardItemModel):
         name = QStandardItem(folder_icon, folder_basename)
         status = QStandardItem()
         size = QStandardItem()
-        action = QStandardItem(QIcon(resource('share.png')), '')
-        self.appendRow([name, status, size, action])
+        #action = QStandardItem(QIcon(resource('share.png')), '')
+        self.appendRow([name, status, size])
 
     def populate(self):
         for magic_folder in get_nodedirs(self.gateway.magic_folders_dir):
@@ -189,7 +189,7 @@ class View(QTreeView):
         self.setColumnWidth(0, 150)
         self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 75)
-        self.setColumnWidth(3, 75)
+        #self.setColumnWidth(3, 75)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         #self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
