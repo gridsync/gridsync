@@ -23,7 +23,7 @@ from gridsync.util import b2h, humanized_list
 
 class ComboBox(QComboBox):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(ComboBox, self).__init__()
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
     def populate(self, gateways):
@@ -123,7 +123,7 @@ class Monitor(object):
 
 class Model(QStandardItemModel):
     def __init__(self, gui, gateway):
-        super(self.__class__, self).__init__(0, 4)
+        super(Model, self).__init__(0, 4)
         self.gui = gui
         self.gateway = gateway
         self.monitor = Monitor(self, gateway)
@@ -138,7 +138,7 @@ class Model(QStandardItemModel):
         self.populate()
 
     def data(self, index, role):
-        value = super(self.__class__, self).data(index, role)
+        value = super(Model, self).data(index, role)
         if role == Qt.SizeHintRole:
             return QSize(0, 30)
         return value
@@ -181,7 +181,7 @@ class Model(QStandardItemModel):
 
 class View(QTreeView):
     def __init__(self, gui, gateway):
-        super(self.__class__, self).__init__()
+        super(View, self).__init__()
         self.gui = gui
         self.gateway = gateway
         self.setModel(Model(self.gui, self.gateway))
@@ -266,7 +266,7 @@ class View(QTreeView):
 
 class CentralWidget(QStackedWidget):
     def __init__(self, gui):
-        super(self.__class__, self).__init__()
+        super(CentralWidget, self).__init__()
         self.gui = gui
 
     def clear(self):
@@ -288,7 +288,7 @@ class CentralWidget(QStackedWidget):
 
 class MainWindow(QMainWindow):
     def __init__(self, gui):
-        super(self.__class__, self).__init__()
+        super(MainWindow, self).__init__()
         self.gui = gui
         self.setWindowTitle(settings['application']['name'])
         self.setMinimumSize(QSize(500, 300))
