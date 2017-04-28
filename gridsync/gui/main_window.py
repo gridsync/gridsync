@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (
     QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy,
     QStackedWidget, QTreeView, QWidget)
 from PyQt5.QtGui import (
-    QFont, QIcon, QKeySequence, QStandardItem, QStandardItemModel)
-from PyQt5.QtCore import QFileInfo, QSize, Qt, QVariant
+    QFont, QIcon, QKeySequence, QPixmap, QStandardItem, QStandardItemModel)
+from PyQt5.QtCore import QEvent, QFileInfo, QSize, Qt, QVariant
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
@@ -40,9 +40,9 @@ class ComboBox(QComboBox):
 
 
 class Monitor(object):
-    def __init__(self, model, gateway):
+    def __init__(self, model):
         self.model = model
-        self.gateway = gateway
+        self.gateway = self.model.gateway
         self.gui = self.model.gui
         self.grid_status = ''
         self.status = defaultdict(dict)
@@ -122,11 +122,12 @@ class Monitor(object):
 
 
 class Model(QStandardItemModel):
-    def __init__(self, gui, gateway):
+    def __init__(self, view):
         super(Model, self).__init__(0, 3)
-        self.gui = gui
-        self.gateway = gateway
-        self.monitor = Monitor(self, gateway)
+        self.view = view
+        self.gui = self.view.gui
+        self.gateway = self.view.gateway
+        self.monitor = Monitor(self)
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Size"))
@@ -184,19 +185,19 @@ class View(QTreeView):
         super(View, self).__init__()
         self.gui = gui
         self.gateway = gateway
-        self.setModel(Model(self.gui, self.gateway))
+        self.setModel(Model(self))
         self.setAcceptDrops(True)
         self.setColumnWidth(0, 150)
         self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 75)
         #self.setColumnWidth(3, 75)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        #self.setHeaderHidden(True)
+        self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        font = QFont()
-        font.setPointSize(12)
+        #font = QFont()
+        #font.setPointSize(12)
         #self.header().setFont(font)
         #self.header().setDefaultAlignment(Qt.AlignCenter)
         self.header().setStretchLastSection(False)
@@ -205,8 +206,41 @@ class View(QTreeView):
         #self.header().setSectionResizeMode(2, QHeaderView.Stretch)
         #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
 
+        self.drop_text = QLabel(self)
+        self.drop_text.setText('<i>Drop folders here</i>')
+        drop_text_font = QFont()
+        drop_text_font.setPointSize(14)
+        self.drop_text.setFont(drop_text_font)
+        self.drop_text.setStyleSheet('color: grey')
+        self.drop_text.setAlignment(Qt.AlignCenter)
+        self.drop_text.setAcceptDrops(True)
+        self.drop_text.installEventFilter(self)
+
+        self.drop_pixmap = QLabel(self)
+        self.drop_pixmap.setPixmap(QPixmap(resource('drop_zone.svg')))
+        self.drop_pixmap.setScaledContents(True)
+        self.drop_pixmap.setAcceptDrops(True)
+        self.drop_pixmap.installEventFilter(self)
+
+        layout = QGridLayout(self)
+        layout.addWidget(self.drop_text, 0, 0)
+        layout.addWidget(self.drop_pixmap, 0, 0)
+
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
+
+    def show_drop_label(self):
+        self.setHeaderHidden(True)
+        try:
+            self.drop_text.show()
+            self.drop_pixmap.show()
+        except AttributeError:
+            pass
+
+    def hide_drop_label(self):
+        self.setHeaderHidden(False)
+        self.drop_text.hide()
+        self.drop_pixmap.hide()
 
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
@@ -227,6 +261,8 @@ class View(QTreeView):
         if reply == QMessageBox.Yes:
             self.gateway.remove_magic_folder(folder)
             self.model().removeRow(self.model().get_row_from_name(folder))
+            if not self.gateway.magic_folders:
+                self.show_drop_label()
 
     def on_right_click(self, position):
         item = self.model().itemFromIndex(self.indexAt(position))
@@ -240,6 +276,7 @@ class View(QTreeView):
             menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_new_folder(self, path):
+        self.hide_drop_label()
         self.model().add_folder(path)
         self.gateway.create_magic_folder(path)
 
@@ -263,6 +300,21 @@ class View(QTreeView):
             event.accept()
             for url in event.mimeData().urls():
                 self.add_new_folder(url.toLocalFile())
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.DragEnter:
+            self.dragEnterEvent(event)
+            return True
+        elif event.type() == QEvent.DragLeave:
+            self.dragLeaveEvent(event)
+            return True
+        elif event.type() == QEvent.DragMove:
+            self.dragMoveEvent(event)
+            return True
+        elif event.type() == QEvent.Drop:
+            self.dropEvent(event)
+            return True
+        return False
 
 
 class CentralWidget(QStackedWidget):
