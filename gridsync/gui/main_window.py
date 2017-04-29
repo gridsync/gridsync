@@ -215,16 +215,17 @@ class View(QTreeView):
         self.drop_text.setAlignment(Qt.AlignCenter)
         self.drop_text.setAcceptDrops(True)
         self.drop_text.installEventFilter(self)
+        self.drop_text.setSizePolicy(QSizePolicy.Expanding, 0)
 
         self.drop_pixmap = QLabel(self)
-        self.drop_pixmap.setPixmap(QPixmap(resource('drop_zone.svg')))
+        self.drop_pixmap.setPixmap(QPixmap(resource('drop_zone.png')))
         self.drop_pixmap.setScaledContents(True)
         self.drop_pixmap.setAcceptDrops(True)
         self.drop_pixmap.installEventFilter(self)
 
         layout = QGridLayout(self)
-        layout.addWidget(self.drop_text, 0, 0)
-        layout.addWidget(self.drop_pixmap, 0, 0)
+        layout.addWidget(self.drop_pixmap, 1, 1, 6, 3)
+        layout.addWidget(self.drop_text, 5, 2)
 
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
