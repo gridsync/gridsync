@@ -136,8 +136,6 @@ class Model(QStandardItemModel):
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
         self.icon_syncing = QIcon(resource('sync.png'))
 
-        self.populate()
-
     def data(self, index, role):
         value = super(Model, self).data(index, role)
         if role == Qt.SizeHintRole:
@@ -152,6 +150,7 @@ class Model(QStandardItemModel):
         size = QStandardItem()
         #action = QStandardItem(QIcon(resource('share.png')), '')
         self.appendRow([name, status, size])
+        self.view.hide_drop_label()
 
     def populate(self):
         for magic_folder in get_nodedirs(self.gateway.magic_folders_dir):
@@ -230,13 +229,12 @@ class View(QTreeView):
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
 
+        self.model().populate()
+
     def show_drop_label(self):
         self.setHeaderHidden(True)
-        try:
-            self.drop_text.show()
-            self.drop_pixmap.show()
-        except AttributeError:
-            pass
+        self.drop_text.show()
+        self.drop_pixmap.show()
 
     def hide_drop_label(self):
         self.setHeaderHidden(False)
