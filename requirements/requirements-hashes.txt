@@ -95,7 +95,7 @@ idna==2.5 \
 incremental==16.10.1 \
     --hash=sha256:cc00a35f9e9621ddec0a5e7d17271f3f26244873c4aec67eda06f2db8302e04b \
     --hash=sha256:14ad6b720ec47aad6c9caa83e47db1843e2b9b98742da5dda08e16a99f400342
-ipaddress==1.0.18 ; python_version < "3.3" \
+ipaddress==1.0.18 \
     --hash=sha256:d34cf15d95ce9a734560f7400a8bd2ac2606f378e2a1d0eadbf1c98707e7c74a \
     --hash=sha256:5d8534c8e185f2d8a1fda1ef73f2c8f4b23264e8e30063feeb9511d492a413e1
 magic-wormhole==0.9.2 \
