@@ -95,7 +95,7 @@ idna==2.5 \
 incremental==16.10.1 \
     --hash=sha256:cc00a35f9e9621ddec0a5e7d17271f3f26244873c4aec67eda06f2db8302e04b \
     --hash=sha256:14ad6b720ec47aad6c9caa83e47db1843e2b9b98742da5dda08e16a99f400342
-ipaddress==1.0.18 \
+ipaddress==1.0.18 ; python_version < "3.3" \
     --hash=sha256:d34cf15d95ce9a734560f7400a8bd2ac2606f378e2a1d0eadbf1c98707e7c74a \
     --hash=sha256:5d8534c8e185f2d8a1fda1ef73f2c8f4b23264e8e30063feeb9511d492a413e1
 magic-wormhole==0.9.2 \
@@ -164,12 +164,7 @@ pypiwin32==219 ; sys_platform == "win32" \
     --hash=sha256:69f63942403f5a6262f05602106ef4921db582df83c59b1a3571995652a6c762 \
     --hash=sha256:5e0101cb712a3b90ee1ccdf8b90ae48958c78e8f1584e958db85bb1a403a91d2 \
     --hash=sha256:06d478295c89dbdd4187e1ac099bb8eab93c29e298bded4e2fbc77009287fa44
-PyQt5==5.6 ; python_version >= "3.5" and sys_platform == "win32" \
-    --hash=sha256:b280a77c27b16a4c05fc4810f31a40039d7bfd6e83cd69c2eb79d4dbe7d29974 \
-    --hash=sha256:5b3e419dd6579d4aa90ece6aaac69054e9be3dcd90c47ff82b044c3151fdc008 \
-    --hash=sha256:5454b38f2e441dfa1df3e9cee7530c70c2663f6c54ba37ac22adf40b3c49e976 \
-    --hash=sha256:b8507d9e86059240af59a5a62bf946b710f501d0173740c505451f13cbee30f0
-PyQt5==5.8.2 ; python_version >= "3.5" and sys_platform != "win32" \
+PyQt5==5.8.2 ; python_version >= "3.5" \
     --hash=sha256:2d259f5c1e78ebe2e0df517bdbafb573be8e4aea7efdc3a6477020a5f475c1cf \
     --hash=sha256:eb8ea061e688b91837c4d284d6345ea6ec89516738ee7ea74c3ada9866f01823 \
     --hash=sha256:e6b6e45ef1cf2bb3bf95e3a360660c4dc6df1b50ed7777c8c92e7533cf1ece18 \
@@ -182,12 +177,7 @@ requests==2.13.0 \
 service_identity==16.0.0 \
     --hash=sha256:5c63e1532135f7171cb33e8b2f31c758c3ce0654e6eb198573e23d01128678d4 \
     --hash=sha256:0630e222f59f91f3db498be46b1d879ff220955d7bbad719a5cb9ad14e3c3036
-SIP==4.18.1 ; python_version >= "3.5" and sys_platform == "win32" \
-    --hash=sha256:dd4bbdebcb6921f095db7a5b82b90f5076a11071c4f59b474e64af8527c4b64c \
-    --hash=sha256:31c00020731574b135deedd41460c47f1ac11636da7b0816d1c1b44f18501c8f \
-    --hash=sha256:b5b3958b69ad5bcfa983ed589bf21178f4f955995e22abb2db3e1c3ee1b72397 \
-    --hash=sha256:529d77130e0e445679c9f596b082ea3f29d343ffc4759043b3da3443c98a4e01
-SIP==4.19.2 ; python_version >= "3.5" and sys_platform != "win32" \
+SIP==4.19.2 ; python_version >= "3.5" \
     --hash=sha256:34e0966ce35e90ced5ece96648646491012bb75f6212214930d110c2b9870856 \
     --hash=sha256:b93329313ec0264a095d380a280b36e5739eabccb420610b705f25dd0c51d159 \
     --hash=sha256:78561cde6bf71253a959f4c7da60800adfaf1172739c677e79e2a76a9862b2cb \
