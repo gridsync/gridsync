@@ -6,6 +6,7 @@
 ::  2) Python 2.7 <https://www.python.org>
 ::
 ::  3) Python 3.5 (not 3.6; see PyInstaller#2331) <https://www.python.org>
+::      -Select "Add Python 3.5 to PATH" option during install
 ::
 ::  4) Microsoft Visual C++ Compiler for Python 2.7 <https://aka.ms/vcpython27>
 ::
