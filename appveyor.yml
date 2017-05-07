@@ -25,7 +25,14 @@ build: off
 before_test:
   - "set"
   - "python --version"
+  - "python -c \"import sys; print(sys.executable)\""
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - "py -2.7 --version"
+  - "py -2.7 -c \"import sys; print(sys.executable)\""
+  - "py -2.7 -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - "py -3.5 --version"
+  - "py -3.5 -c \"import sys; print(sys.executable)\""
+  - "py -3.5 -c \"import struct; print(struct.calcsize('P') * 8)\""
   #- "python scripts\\print_hashes.py ."
 test_script:
   - "python -m pytest"
