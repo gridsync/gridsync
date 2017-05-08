@@ -118,7 +118,7 @@ class Tahoe(object):
         if proc.returncode:
             raise subprocess.CalledProcessError(proc.returncode, args)
         else:
-            return output.getvalue()
+            return str(output.getvalue())
 
     @inlineCallbacks
     def command(self, args, callback_trigger=None):
