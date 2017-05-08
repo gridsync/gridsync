@@ -5,7 +5,6 @@ import json
 import logging as log
 import os
 import shutil
-import tempfile
 
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QFont, QIcon, QPixmap
@@ -326,9 +325,10 @@ class InviteForm(QStackedWidget):
 
         self.update_progress(2, 'Connecting to {}...'.format(nickname))
         if 'icon_base64' in settings:
-            temp = tempfile.NamedTemporaryFile()
-            temp.write(base64.b64decode(settings['icon_base64']))
-            pixmap = QPixmap(temp.name).scaled(100, 100)
+            temp_file = os.path.join(config_dir, '.icon.tmp')
+            with open(temp_file, 'wb') as f:
+                f.write(base64.b64decode(settings['icon_base64']))
+            pixmap = QPixmap(temp_file).scaled(100, 100)
             self.page_2.icon_overlay.setPixmap(pixmap)
 
         pixmap = QPixmap(resource('lines_dotted.png')).scaled(128, 128)
@@ -339,7 +339,7 @@ class InviteForm(QStackedWidget):
         self.gateway = tahoe
         yield tahoe.create_client(**settings)
         if 'icon_base64' in settings:
-            shutil.copy2(temp.name, os.path.join(tahoe.nodedir, 'icon'))
+            shutil.copy2(temp_file, os.path.join(tahoe.nodedir, 'icon'))
 
         self.update_progress(3, 'Connecting to {}...'.format(nickname))
         yield tahoe.start()
