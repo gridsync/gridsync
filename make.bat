@@ -18,6 +18,18 @@
 
 @echo off
 
+if defined APPVEYOR (
+    if %PYTHON_ARCH% == 64 (
+        set PYTHON2=C:\Python27-x64\python.exe
+    ) else (
+        set PYTHON2=C:\Python27\python.exe
+    )
+    set PYTHON3=%PYTHON%\python.exe
+) else (
+    set PYTHON2=py -2.7
+    set PYTHON3=py -3.5
+)
+
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="pytest" call :pytest
@@ -45,8 +57,8 @@ call python -m pytest || exit /b 1
 goto :eof
 
 :frozen-tahoe
-call py -2.7 -m pip install --upgrade setuptools pip virtualenv
-call py -2.7 -m virtualenv --clear .\build\venv-tahoe
+call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
+call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 ::call powershell -Command "(New-Object Net.WebClient).DownloadFile('https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.zip', '.\build\tahoe-lafs.zip')"
 ::call C:\Python27\python.exe -m zipfile -e .\build\tahoe-lafs.zip .\build
@@ -75,7 +87,7 @@ if exist .\dist\Tahoe-LAFS.zip (
 ) else (
     call :frozen-tahoe
 )
-call py -3.5 -m venv --clear .\build\venv-gridsync
+call %PYTHON3% -m venv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
 call pip install --upgrade setuptools pip
 call pip install -r .\requirements\requirements-hashes.txt
