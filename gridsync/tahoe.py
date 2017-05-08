@@ -165,11 +165,9 @@ class Tahoe(object):
             try:
                 os.kill(pid, signal.SIGTERM)
             except OSError as err:
-                log.error(err)
-                if err.errno == errno.ESRCH or err.errno == errno.EINVAL:
-                    os.remove(self.pidfile)
-                else:
-                    raise
+                if err.errno not in (errno.ESRCH, errno.EINVAL):
+                    log.error(err)
+            os.remove(self.pidfile)
         else:
             yield self.command(['stop'])
         yield self.stop_magic_folders()  # XXX: Move to Core? gatherResults?
