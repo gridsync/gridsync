@@ -73,12 +73,12 @@ Mac OS X [*]_ :
 
 Windows (64-bit):
 
-1. Download `Gridsync-win64.zip`_
+1. Download `Gridsync-win32.zip`_
 2. Extract the contained Gridsync folder anywhere
 
 
 .. _Gridsync.dmg: https://buildbot.gridsync.io/packages/Gridsync.dmg
-.. _Gridsync-win64.zip: https://buildbot.gridsync.io/packages/Gridsync-win64.zip
+.. _Gridsync-win32.zip: https://buildbot.gridsync.io/packages/Gridsync-win32.zip
 
 
 .. [*] Mac OS X users may have to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
