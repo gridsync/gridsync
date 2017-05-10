@@ -6,6 +6,7 @@ try:
     from configparser import RawConfigParser
 except ImportError:
     from ConfigParser import RawConfigParser
+from distutils.sysconfig import get_python_lib
 import os
 import shutil
 import sys
@@ -29,9 +30,7 @@ shutil.copy2('config.txt', os.path.join('gridsync', 'resources'))
 
 pathex_paths = []
 if sys.platform == "win32":
-    qt_bin_path = os.path.join(
-        'build', 'venv-gridsync', 'Lib', 'site-packages', 'PyQt5', 'Qt', 'bin')
-    pathex_paths.append(os.path.realpath(qt_bin_path))
+    pathex_paths.append(os.path.join(get_python_lib(), 'PyQt5', 'Qt', 'bin'))
 
 
 a = Analysis(['../gridsync/cli.py'],
