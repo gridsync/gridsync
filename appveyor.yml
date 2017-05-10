@@ -17,7 +17,7 @@ matrix:
   #allow_failures:
   #  - PYTHON: "C:\\Python35"
 install:
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86;%PATH%"
   - "pip install --disable-pip-version-check --user --upgrade pip"
   - "pip install pyqt5 pytest pytest-cov pytest-qt"
   - "%CMD_IN_ENV% pip install ."
