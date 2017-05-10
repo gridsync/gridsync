@@ -37,7 +37,15 @@ before_test:
 test_script:
   - "python -m pytest"
 after_test:
-  - "make all"
+  #- "make all"
+  - "pip install --upgrade setuptools pip"
+  - "pip install -r .\\requirements\\requirements-hashes.txt"
+  - "pip install --upgrade git+https://github.com/gridsync/qt5reactor.git"
+  - "pip install ."
+  - "pip install pyinstaller==3.2.1"
+  - "pip list"
+  - "set PYTHONHASHSEED=1"
+  - "pyinstaller -y --clean --log-level=DEBUG .\\misc\\gridsync.spec"
   #- "python scripts\\print_hashes.py dist"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
   - "dir .\\dist\\Gridsync"
