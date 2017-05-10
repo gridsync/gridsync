@@ -1,6 +1,6 @@
 asn1crypto==0.22.0
 attrs==16.3.0
-autobahn==0.18.2
+autobahn==17.5.1
 Automat==0.5.0
 cffi==1.10.0
 click==6.7
@@ -21,7 +21,7 @@ pyOpenSSL==17.0.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
 qt5reactor==0.3
-requests==2.13.0
+requests==2.14.2
 service_identity==16.0.0
 SIP==4.19.2 ; python_version >= "3.5"
 six==1.10.0
@@ -29,6 +29,6 @@ spake2==0.7
 tqdm==4.11.2
 treq==17.3.1
 Twisted==17.1.0
-txaio==2.7.0
+txaio==2.7.1
 txdbus==1.0.13 ; "linux" in sys_platform
-zope.interface==4.3.3
+zope.interface==4.4.0
