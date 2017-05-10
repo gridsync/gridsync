@@ -55,7 +55,7 @@ Screenshots:
 Installation (development builds):
 ----------------------------------
 
-**WARNING: Development builds may be broken in various ways -- particularly on Windows -- and are intended for testing purposes only. Use at your own risk.**
+**WARNING: Development builds may be broken in various ways and are intended for testing purposes only. Use at your own risk.**
 
 GNU/Linux, inside a virtualenv (tested on Debian 8.6 "jessie" and Ubuntu 16.10 "Yakkety Yak"):
 
@@ -71,7 +71,7 @@ Mac OS X [*]_ :
 1. Download `Gridsync.dmg`_
 2. Drag the contained Gridsync.app bundle anywhere (e.g., `~/Applications`)
 
-Windows (64-bit):
+Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
 
 1. Download `Gridsync-win32.zip`_
 2. Extract the contained Gridsync folder anywhere
