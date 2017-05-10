@@ -38,6 +38,7 @@ test_script:
   - "python -m pytest"
 after_test:
   #- "make all"
+  - "make frozen-tahoe"
   - "pip install --upgrade setuptools pip"
   - "pip install -r .\\requirements\\requirements-hashes.txt"
   - "pip install --upgrade git+https://github.com/gridsync/qt5reactor.git"
