@@ -1,10 +1,4 @@
-# Adapted from https://github.com/ogrisel/python-appveyor-demo
 environment:
-  global:
-    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
-    # /E:ON and /V:ON options are not enabled in the batch script intepreter
-    # See: http://stackoverflow.com/a/13751649/163740
-    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\misc\\run_with_env.cmd"
   matrix:
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5.x"
@@ -18,8 +12,8 @@ matrix:
   #  - PYTHON: "C:\\Python35"
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "%PYTHON%\\python.exe -m pip install --user --upgrade setuptools pip"
-  - "%PYTHON%\\python.exe -m pip install --user --upgrade . pytest pytest-cov tox"
+  - "pip install --upgrade setuptools pip"
+  - "pip install --upgrade . pytest pytest-cov tox"
 build: off
 before_test:
   - "set"
@@ -32,10 +26,9 @@ before_test:
   - "py -3.5 --version"
   - "py -3.5 -c \"import sys; print(sys.executable)\""
   - "py -3.5 -c \"import struct; print(struct.calcsize('P') * 8)\""
-  #- "python scripts\\print_hashes.py ."
 test_script:
-  - "%PYTHON%\\python.exe -m pytest"
-  - "%PYTHON%\\python.exe -m tox -e py35"
+  - "pytest"
+  - "tox -e py35"
 after_test:
   - "make all"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
