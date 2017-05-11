@@ -23,6 +23,7 @@ install:
   - "%CMD_IN_ENV% pip install ."
 build: off
 before_test:
+  - "where /r c:\\ api-ms-win-core-synch-l1-2-0.dll"
   - "set"
   - "python --version"
   - "python -c \"import sys; print(sys.executable)\""
