@@ -19,7 +19,7 @@ matrix:
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "%PYTHON%\\python.exe -m pip install --user --upgrade setuptools pip"
-  - "%PYTHON%\\python.exe -m pip install --user --upgrade . pytest tox"
+  - "%PYTHON%\\python.exe -m pip install --user --upgrade . pytest pytest-cov tox"
 build: off
 before_test:
   - "set"
