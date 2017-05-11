@@ -18,7 +18,7 @@ matrix:
   #  - PYTHON: "C:\\Python35"
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "pip install --disable-pip-version-check --user --upgrade pip"
+  - "pip install --disable-pip-version-check --user --upgrade setuptools pip"
   - "pip install pyqt5 pytest pytest-cov pytest-qt"
   - "pip install ."
 build: off
