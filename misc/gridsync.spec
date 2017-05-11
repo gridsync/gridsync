@@ -84,9 +84,6 @@ else:
     print('WARNING: No Tahoe-LAFS bundle found!')
     print('##################################################################')
 
-#if 'APPVEYOR' in os.environ:
-#    shutil.copy2('c:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x86\\api-ms-win-core-synch-l1-2-0.dll', 'dist\\Gridsync\\api-ms-win-core-synch-l1-2-0.dll')
-
 
 print('Creating zip archive...')
 base_name = os.path.join('dist', settings['application']['name'])

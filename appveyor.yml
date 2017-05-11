@@ -23,7 +23,6 @@ install:
   - "%CMD_IN_ENV% pip install ."
 build: off
 before_test:
-  #- "where /r c:\\ api-ms-win-core-synch-l1-2-0.dll"
   - "set"
   - "python --version"
   - "python -c \"import sys; print(sys.executable)\""
@@ -39,16 +38,6 @@ test_script:
   - "python -m pytest"
 after_test:
   - "make all"
-  #- "make frozen-tahoe"
-  #- "pip install --upgrade setuptools pip"
-  #- "pip install -r .\\requirements\\requirements-hashes.txt"
-  #- "pip install --upgrade git+https://github.com/gridsync/qt5reactor.git"
-  #- "pip install ."
-  #- "%CMD_IN_ENV% pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip"
-  #- "pip list"
-  #- "set PYTHONHASHSEED=1"
-  #- "%CMD_IN_ENV% pyinstaller -y --clean --log-level=DEBUG .\\misc\\gridsync.spec"
-  #- "python scripts\\print_hashes.py dist"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
   - "dir .\\dist\\Gridsync"
   - "dir .\\dist\\Gridsync\\Tahoe-LAFS"
