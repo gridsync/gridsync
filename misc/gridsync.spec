@@ -84,7 +84,7 @@ else:
     print('##################################################################')
 
 if 'APPVEYOR' in os.environ:
-    shutil.copy2('c:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\x86\api-ms-win-core-synch-l1-2-0.dll', 'dist\Gridsync\api-ms-win-core-synch-l1-2-0.dll')
+    shutil.copy2('c:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x86\\api-ms-win-core-synch-l1-2-0.dll', 'dist\\Gridsync\\api-ms-win-core-synch-l1-2-0.dll')
 
 
 print('Creating zip archive...')
