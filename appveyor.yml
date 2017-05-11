@@ -17,13 +17,13 @@ matrix:
   #allow_failures:
   #  - PYTHON: "C:\\Python35"
 install:
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86;%PATH%"
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86;C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x86;%PATH%"
   - "pip install --disable-pip-version-check --user --upgrade pip"
   - "pip install pyqt5 pytest pytest-cov pytest-qt"
   - "%CMD_IN_ENV% pip install ."
 build: off
 before_test:
-  - "where /r c:\\ api-ms-win-core-synch-l1-2-0.dll"
+  #- "where /r c:\\ api-ms-win-core-synch-l1-2-0.dll"
   - "set"
   - "python --version"
   - "python -c \"import sys; print(sys.executable)\""
