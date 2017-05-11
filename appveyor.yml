@@ -19,10 +19,8 @@ before_test:
 test_script:
   - "tox -e py35,flake8,pylint"
 after_test:
-  - "make all"
+  - "make"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
-  - "dir .\\dist\\Gridsync"
-  - "dir .\\dist\\Gridsync\\Tahoe-LAFS"
   - ".\\dist\\Gridsync\\Gridsync.exe --tahoe-version"
 artifacts:
   - path: dist\Gridsync.zip
