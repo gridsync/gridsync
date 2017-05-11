@@ -18,9 +18,8 @@ matrix:
   #  - PYTHON: "C:\\Python35"
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "pip install --user --upgrade setuptools pip tox"
-  #- "pip install pyqt5 pytest pytest-cov pytest-qt"
-  #- "pip install ."
+  - "%PYTHON%\\python.exe -m pip install --user --upgrade setuptools pip"
+  - "%PYTHON%\\python.exe -m pip install --user --upgrade . pytest tox"
 build: off
 before_test:
   - "set"
@@ -35,7 +34,7 @@ before_test:
   - "py -3.5 -c \"import struct; print(struct.calcsize('P') * 8)\""
   #- "python scripts\\print_hashes.py ."
 test_script:
-  #- "python -m pytest"
+  - "%PYTHON%\\python.exe -m pytest"
   - "%PYTHON%\\python.exe -m tox -e py35"
 after_test:
   - "make all"
