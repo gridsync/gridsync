@@ -8,26 +8,15 @@ environment:
       PYTHON_ARCH: "32"
 matrix:
   fast_finish: true
-  #allow_failures:
-  #  - PYTHON: "C:\\Python35"
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "pip install --upgrade setuptools pip"
-  - "pip install --upgrade . pytest pytest-cov tox"
+  - "pip install --upgrade setuptools pip tox"
 build: off
 before_test:
-  - "set"
   - "python --version"
   - "python -c \"import sys; print(sys.executable)\""
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
-  - "py -2.7 --version"
-  - "py -2.7 -c \"import sys; print(sys.executable)\""
-  - "py -2.7 -c \"import struct; print(struct.calcsize('P') * 8)\""
-  - "py -3.5 --version"
-  - "py -3.5 -c \"import sys; print(sys.executable)\""
-  - "py -3.5 -c \"import struct; print(struct.calcsize('P') * 8)\""
 test_script:
-  - "pytest"
   - "tox -e py35"
 after_test:
   - "make all"
