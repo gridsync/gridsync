@@ -36,7 +36,7 @@ before_test:
   #- "python scripts\\print_hashes.py ."
 test_script:
   #- "python -m pytest"
-  - "tox -e py35"
+  - "%PYTHON%\\python.exe -m tox -e py35"
 after_test:
   - "make all"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
