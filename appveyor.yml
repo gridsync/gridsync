@@ -18,9 +18,9 @@ matrix:
   #  - PYTHON: "C:\\Python35"
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - "pip install --disable-pip-version-check --user --upgrade setuptools pip"
-  - "pip install pyqt5 pytest pytest-cov pytest-qt"
-  - "pip install ."
+  - "pip install --user --upgrade setuptools pip tox"
+  #- "pip install pyqt5 pytest pytest-cov pytest-qt"
+  #- "pip install ."
 build: off
 before_test:
   - "set"
@@ -35,7 +35,8 @@ before_test:
   - "py -3.5 -c \"import struct; print(struct.calcsize('P') * 8)\""
   #- "python scripts\\print_hashes.py ."
 test_script:
-  - "python -m pytest"
+  #- "python -m pytest"
+  - "tox -e py35"
 after_test:
   - "make all"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
