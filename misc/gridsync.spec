@@ -31,7 +31,8 @@ shutil.copy2('config.txt', os.path.join('gridsync', 'resources'))
 pathex_paths = []
 if sys.platform == "win32":
     pathex_paths.append(os.path.join(get_python_lib(), 'PyQt5', 'Qt', 'bin'))
-
+    pathex_paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files (x86)', 'Windows Kits', '10', 'bin', 'x86'))
+    pathex_paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files (x86)', 'Windows Kits', '10', 'Redist', 'ucrt', 'DLLs', 'x86'))
 
 a = Analysis(['../gridsync/cli.py'],
              pathex=pathex_paths,
@@ -83,8 +84,8 @@ else:
     print('WARNING: No Tahoe-LAFS bundle found!')
     print('##################################################################')
 
-if 'APPVEYOR' in os.environ:
-    shutil.copy2('c:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x86\\api-ms-win-core-synch-l1-2-0.dll', 'dist\\Gridsync\\api-ms-win-core-synch-l1-2-0.dll')
+#if 'APPVEYOR' in os.environ:
+#    shutil.copy2('c:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x86\\api-ms-win-core-synch-l1-2-0.dll', 'dist\\Gridsync\\api-ms-win-core-synch-l1-2-0.dll')
 
 
 print('Creating zip archive...')
