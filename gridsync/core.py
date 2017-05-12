@@ -132,11 +132,9 @@ class Core(object):
         logging.debug("$PATH is: %s", os.getenv('PATH'))
         logging.debug("Loaded config.txt settings: %s", settings)
 
+        self.gui = Gui(self)
+        self.gui.systray.show()
+
         reactor.callLater(0, self.start_gateways)
-
-        if not self.args.no_gui:
-            self.gui = Gui(self)
-            self.gui.systray.show()
-
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()

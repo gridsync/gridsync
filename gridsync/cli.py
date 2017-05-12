@@ -32,11 +32,6 @@ def main():
         action='store_true',
         help='Print debug messages to STDOUT.')
     parser.add_argument(
-        '-g',
-        '--no-gui',
-        action='store_true',
-        help='Run without GUI.')
-    parser.add_argument(
         '--tahoe-version',
         nargs=0,
         action=TahoeVersion,
