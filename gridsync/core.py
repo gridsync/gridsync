@@ -83,8 +83,7 @@ class Core(object):
 
     @inlineCallbacks
     def stop(self):
-        if self.gui:
-            self.gui.hide()
+        self.gui.hide()
         yield self.stop_gateways()
         logging.debug("Stopping reactor...")
 
