@@ -13,12 +13,13 @@ import qt5reactor
 qt5reactor.install()
 
 from twisted.internet import reactor
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import DeferredList, gatherResults, inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
+from twisted.python.procutils import which
 
-from gridsync import config_dir, settings
+from gridsync import config_dir, pkgdir, settings
 from gridsync.gui import Gui
-from gridsync.tahoe import get_nodedirs, select_executable, Tahoe
+from gridsync.tahoe import get_nodedirs, Tahoe
 
 
 class CoreProtocol(Protocol):  # pylint: disable=no-init
@@ -38,6 +39,39 @@ class Core(object):
         self.args = args
         self.gui = None
         self.gateways = []
+        self.executable = None
+
+    @inlineCallbacks
+    def select_executable(self):
+        if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
+            # Because magic-folder on macOS has not yet landed upstream
+            self.executable = os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe')
+            logging.debug("Selected executable: %s", self.executable)
+            return
+        executables = which('tahoe')
+        if executables:
+            tasks = []
+            for executable in executables:
+                logging.debug("Found %s; getting version...", executable)
+                tasks.append(Tahoe(executable=executable).version())
+            results = yield gatherResults(tasks)
+            for executable, version in results:
+                logging.debug("%s has version '%s'", executable, version)
+                try:
+                    major = int(version.split('.')[0])
+                    minor = int(version.split('.')[1])
+                    if (major, minor) >= (1, 12):
+                        self.executable = executable
+                        logging.debug("Selected executable: %s", executable)
+                        return
+                except (IndexError, ValueError):
+                    logging.warning(
+                        "Could not parse/compare version of '%s'", version)
+        if not self.executable:
+            logging.critical(
+                "Could not find a suitable 'tahoe' executable in your PATH. "
+                "Please install Tahoe-LAFS (version >= 1.12) and try again.")
+            reactor.stop()
 
     def notify(self, title, message):
         if self.gui:
@@ -46,11 +80,11 @@ class Core(object):
             print(title, message)
 
     @inlineCallbacks
-    def stop_gateways(self):  # pylint: disable=no-self-use
+    def stop_gateways(self):
         logging.debug("Stopping Tahoe-LAFS gateway(s)...")
         tasks = []
         for nodedir in get_nodedirs(config_dir):
-            tasks.append(Tahoe(nodedir).stop())
+            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
         yield DeferredList(tasks)
 
     @inlineCallbacks
@@ -61,33 +95,30 @@ class Core(object):
         logging.debug("Stopping reactor...")
 
     @inlineCallbacks
-    def start_gateways(self):  # pylint: disable=no-self-use
-        executable = yield select_executable()
-        if not executable:
-            logging.critical(
-                "Could not find a suitable Tahoe-LAFS installation (>= 1.12); "
-                "exiting...")
-            reactor.stop()
-        else:
-            logging.debug("Using executable: %s", executable)
+    def start_gateways(self):
+        nodedirs = get_nodedirs(config_dir)
+        if nodedirs:
+            yield self.select_executable()
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
-            for nodedir in get_nodedirs(config_dir):
-                gateway = Tahoe(nodedir, executable=executable)
+            for nodedir in nodedirs:
+                gateway = Tahoe(nodedir, executable=self.executable)
                 self.gateways.append(gateway)
                 gateway.start()
             self.gui.populate(self.gateways)
-
-    @inlineCallbacks
-    def first_run(self):
-        defaults = settings['default']
-        if defaults['provider_name']:
-            nodedir = os.path.join(config_dir, defaults['provider_name'])
-            if not os.path.isdir(nodedir):
-                tahoe = Tahoe(nodedir)
-                yield tahoe.create_client(**defaults)
-                self.start_gateways()
         else:
-            self.gui.show_invite_form()
+            defaults = settings['default']
+            if defaults['provider_name']:
+                nodedir = os.path.join(config_dir, defaults['provider_name'])
+                yield self.select_executable()
+                gateway = Tahoe(nodedir, executable=self.executable)
+                self.gateways.append(gateway)
+                # TODO: Show setup progress dialog
+                yield gateway.create_client(**defaults)
+                gateway.start()
+                self.gui.populate(self.gateways)
+            else:
+                self.gui.show_invite_form()
+                yield self.select_executable()
 
     def start(self):
         # Listen on a port to prevent multiple instances from running
@@ -101,14 +132,7 @@ class Core(object):
         logging.debug("$PATH is: %s", os.getenv('PATH'))
         logging.debug("Loaded config.txt settings: %s", settings)
 
-        nodedirs = get_nodedirs(config_dir)
-        for nodedir in nodedirs:
-            logging.debug("Found nodedir: %s", nodedir)
-
-        if not nodedirs:
-            reactor.callLater(0, self.first_run)
-        else:
-            reactor.callLater(0, self.start_gateways)
+        reactor.callLater(0, self.start_gateways)
 
         if not self.args.no_gui:
             self.gui = Gui(self)

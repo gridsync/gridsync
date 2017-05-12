@@ -19,7 +19,6 @@ from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
-from gridsync import pkgdir
 from gridsync.config import Config
 
 
@@ -34,6 +33,7 @@ def get_nodedirs(basedir):
             filepath = os.path.join(basedir, filename)
             confpath = os.path.join(filepath, 'tahoe.cfg')
             if os.path.isdir(filepath) and os.path.isfile(confpath):
+                log.debug("Found nodedir: %s", filepath)
                 nodedirs.append(filepath)
     except OSError:
         pass
@@ -348,27 +348,3 @@ class Tahoe(object):
             for member in content[1]['children']:
                 members.append(member)
             returnValue(members)
-
-
-@inlineCallbacks
-def select_executable():
-    if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
-        # Because magic-folder on macOS has not yet landed upstream
-        returnValue(os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'))
-    executables = which('tahoe')
-    if executables:
-        tasks = []
-        for executable in executables:
-            log.debug("Found %s; getting version...", executable)
-            tasks.append(Tahoe(executable=executable).version())
-        results = yield gatherResults(tasks)
-        for executable, version in results:
-            log.debug("%s has version '%s'", executable, version)
-            try:
-                major = int(version.split('.')[0])
-                minor = int(version.split('.')[1])
-                if (major, minor) >= (1, 12):
-                    log.debug("Selecting %s", executable)
-                    returnValue(executable)
-            except (IndexError, ValueError):
-                log.warning("Could not parse/compare version of '%s'", version)
