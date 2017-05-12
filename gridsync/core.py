@@ -73,12 +73,6 @@ class Core(object):
                 "Please install Tahoe-LAFS (version >= 1.12) and try again.")
             reactor.stop()
 
-    def notify(self, title, message):
-        if self.gui:
-            self.gui.show_message(title, message)
-        else:
-            print(title, message)
-
     @inlineCallbacks
     def stop_gateways(self):
         logging.debug("Stopping Tahoe-LAFS gateway(s)...")
