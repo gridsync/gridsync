@@ -31,4 +31,4 @@ treq==17.3.1
 Twisted==17.1.0
 txaio==2.7.1
 txdbus==1.0.13 ; "linux" in sys_platform
-zope.interface==4.4.0
+zope.interface==4.4.1
