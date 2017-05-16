@@ -268,7 +268,8 @@ class View(QTreeView):
         if item:
             folder = self.model().item(item.row(), 0).text()
             menu = QMenu()
-            remove_action = QAction(QIcon(resource('close.png')), "Remove")
+            remove_action = QAction(
+                QIcon(resource('close.png')), "Remove", menu)
             remove_action.triggered.connect(
                 lambda: self.confirm_remove(folder))
             menu.addAction(remove_action)
