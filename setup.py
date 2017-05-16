@@ -45,6 +45,9 @@ python_version = (sys.version_info.major, sys.version_info.minor)
 if python_version >= (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
     requirements.append('pyqt5')
 
+if python_version < (3, 2):
+    requirements.append('configparser')
+
 
 module_file = open("gridsync/__init__.py").read()
 metadata = dict(re.findall("__([a-z]+)__\s*=\s*'([^']+)'", module_file))

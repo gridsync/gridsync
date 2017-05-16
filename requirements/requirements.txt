@@ -4,6 +4,7 @@ autobahn==17.5.1
 Automat==0.5.0
 cffi==1.10.0
 click==6.7
+configparser==3.5.0 ; python_version < "3.2"
 constantly==15.1.0
 cryptography==1.8.1
 enum34==1.1.6 ; python_version < "3.4"

@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-try:
-    from configparser import RawConfigParser, NoOptionError, NoSectionError
-except ImportError:
-    from ConfigParser import RawConfigParser, NoOptionError, NoSectionError  # pylint: disable=import-error
+from configparser import RawConfigParser, NoOptionError, NoSectionError
 
 
 class Config(object):
