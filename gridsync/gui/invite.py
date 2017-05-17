@@ -469,3 +469,4 @@ class InviteForm(QStackedWidget):
     def finish_button_clicked(self):
         self.gui.show()
         self.close()
+        self.reset()
