@@ -40,15 +40,15 @@ class EncodingParameters(QWidget):
 
         self.total_label = QLabel("shares.total (N)")
         self.total_spinbox = QSpinBox()
-        self.total_spinbox.setMinimum(1)
+        self.total_spinbox.setRange(1, 255)
 
         self.needed_label = QLabel("shares.needed (K)")
         self.needed_spinbox = QSpinBox()
-        self.needed_spinbox.setMinimum(1)
+        self.needed_spinbox.setRange(1, 255)
 
         self.happy_label = QLabel("shares.happy (H)")
         self.happy_spinbox = QSpinBox()
-        self.happy_spinbox.setMinimum(1)
+        self.happy_spinbox.setRange(1, 255)
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1, 1, 4)
