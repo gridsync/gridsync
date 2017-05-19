@@ -91,7 +91,6 @@ call %PYTHON3% -m venv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
 call pip install --upgrade setuptools pip
 call pip install -r .\requirements\requirements-hashes.txt
-call pip install --upgrade git+https://github.com/gridsync/qt5reactor.git
 call pip install . 
 call pip install pyinstaller==3.2.1
 call pip list
