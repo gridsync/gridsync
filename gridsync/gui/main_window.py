@@ -299,7 +299,9 @@ class View(QTreeView):
         if event.mimeData().hasUrls:
             event.accept()
             for url in event.mimeData().urls():
-                self.add_new_folder(url.toLocalFile())
+                path = url.toLocalFile()
+                if os.path.isdir(path):
+                    self.add_new_folder(path)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.DragEnter:
