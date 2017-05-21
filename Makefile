@@ -195,9 +195,16 @@ frozen-tahoe:
 	#curl --progress-bar --output build/tahoe-lafs.tar.bz2 --location \
 	#	https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
 	#tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
-	#git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
-	git clone -b 1432.osx-watchdog-stable.10 \
-		https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
+	#git clone -b 1432.osx-watchdog-stable.10 \
+	#	https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
+	case `uname` in \
+		Darwin) \
+			git clone -b 1432.osx-watchdog-stable.10 https://github.com/david415/tahoe-lafs.git build/tahoe-lafs \
+		;; \
+		*) \
+			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs \
+		;; \
+	esac
 	virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	cp misc/tahoe.spec build/tahoe-lafs && \
@@ -215,14 +222,13 @@ frozen-tahoe:
 install:
 	pip3 install --upgrade .
 
-app:
-	# OS X only
+frozen:
 	if [ -f dist/Tahoe-LAFS.zip ] ; then \
 		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	virtualenv --clear --python=python3 build/venv-gridsync
+	virtualenv --clear --python=python3.5 build/venv-gridsync
 	source build/venv-gridsync/bin/activate && \
 	pip install --upgrade pip && \
 	pip install -r requirements/requirements-hashes.txt && \
@@ -231,6 +237,8 @@ app:
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
+
+app: frozen
 	#cp misc/Info.plist dist/Gridsync.app/Contents  # TODO: write out on build
 
 dmg: app
