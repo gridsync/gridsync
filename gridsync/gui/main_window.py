@@ -4,6 +4,7 @@ import logging
 import os
 from collections import defaultdict
 
+from humanize import naturalsize
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileIconProvider, QGridLayout,
     QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy,
@@ -18,7 +19,7 @@ from twisted.internet.task import LoopingCall
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
 from gridsync.tahoe import get_nodedirs
-from gridsync.util import b2h, humanized_list
+from gridsync.util import humanized_list
 
 
 class ComboBox(QComboBox):
@@ -176,7 +177,8 @@ class Model(QStandardItemModel):
             self.get_row_from_name(name), 1, QStandardItem(icon, text))
 
     def set_size(self, name, size):
-        self.setItem(self.get_row_from_name(name), 2, QStandardItem(b2h(size)))
+        self.setItem(
+            self.get_row_from_name(name), 2, QStandardItem(naturalsize(size)))
 
 
 class View(QTreeView):
