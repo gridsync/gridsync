@@ -73,12 +73,12 @@ app = BUNDLE(coll,
 
 tahoe_bundle_path = os.path.join('dist', 'Tahoe-LAFS')
 if os.path.isdir(tahoe_bundle_path):
-    print("Copying {} to {}...".format(tahoe_bundle_path, dest))
     if sys.platform == 'darwin':
         dest = os.path.join(
             'dist', app_name + '.app', 'Contents', 'MacOS', 'Tahoe-LAFS')
     else:
         dest = os.path.join('dist', app_name, 'Tahoe-LAFS')
+    print("Copying {} to {}...".format(tahoe_bundle_path, dest))
     shutil.copytree(tahoe_bundle_path, dest)
     print("Done")
 else:
