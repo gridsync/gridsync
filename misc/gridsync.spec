@@ -23,6 +23,7 @@ for section in config.sections():
         print("[{}] {} = {}".format(section, option, value))
         settings[section][option] = value
 print('--------------------------------------------------------------------')
+app_name = settings['application']['name']
 
 
 shutil.copy2('config.txt', os.path.join('gridsync', 'resources'))
@@ -49,7 +50,7 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=None)
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name=settings['application']['name'],
+          name=app_name,
           debug=True,
           strip=False,
           upx=False,
@@ -61,22 +62,21 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=False,
-               name=settings['application']['name'])
+               name=app_name)
 app = BUNDLE(coll,
-             name=(settings['application']['name'] + '.app'),
+             name=(app_name + '.app'),
              icon=settings['build']['mac_icon'],
              bundle_identifier=settings['build']['mac_bundle_identifier'])
 
 
 tahoe_bundle_path = os.path.join('dist', 'Tahoe-LAFS')
 if os.path.isdir(tahoe_bundle_path):
-    app_name = settings['application']['name']
+    print("Copying {} to {}...".format(tahoe_bundle_path, dest))
     if sys.platform == 'darwin':
         dest = os.path.join(
             'dist', app_name + '.app', 'Contents', 'MacOS', 'Tahoe-LAFS')
     else:
         dest = os.path.join('dist', app_name, 'Tahoe-LAFS')
-    print("Copying {} to {}...".format(tahoe_bundle_path, dest))
     shutil.copytree(tahoe_bundle_path, dest)
     print("Done")
 else:
@@ -85,7 +85,13 @@ else:
     print('##################################################################')
 
 
+if sys.platform.startswith('linux'):
+    src = os.path.join('dist', app_name, app_name)
+    dest = os.path.join('dist', app_name, app_name.lower())
+    shutil.move(src, dest)
+
+
 print('Creating zip archive...')
-base_name = os.path.join('dist', settings['application']['name'])
-shutil.make_archive(base_name, 'zip', 'dist', settings['application']['name'])
+base_name = os.path.join('dist', app_name)
+shutil.make_archive(base_name, 'zip', 'dist', app_name)
 print('Done!')
