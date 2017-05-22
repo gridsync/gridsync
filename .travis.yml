@@ -40,8 +40,8 @@ script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ls -al build; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo chown -R travis:travis build; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then make frozen; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then dist/Gridsync/Gridsync --version; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then dist/Gridsync/Gridsync --tahoe-version; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/Gridsync --version; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/Gridsync --tahoe-version; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then tox -e py35,flake8; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --create-dirs -o dist/Tahoe-LAFS.zip https://buildbot.gridsync.io/tahoe-lafs/Tahoe-LAFS-osx.zip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
