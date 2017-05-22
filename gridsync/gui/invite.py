@@ -416,7 +416,7 @@ class InviteForm(QStackedWidget):
                     global_settings['wormhole']['relay'], code)
         d.addCallback(self.setup)
         d.addErrback(self.show_failure)
-        reactor.callLater(20, d.cancel)
+        reactor.callLater(60, d.cancel)
 
     def return_pressed(self):
         code = self.lineedit.text().lower()
