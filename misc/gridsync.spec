@@ -56,7 +56,7 @@ exe = EXE(pyz,
           debug=False,
           strip=False,
           upx=False,
-          console=True,
+          console=False,
           icon=settings['build']['win_icon'])
 coll = COLLECT(exe,
                a.binaries,
