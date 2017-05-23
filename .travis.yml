@@ -29,7 +29,7 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python3 -m pip install tox coveralls; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make pyqt; fi
 before_script:
-  - env
+  #- env
   - which python && python --version
   - which python2 && python2 --version
   - which python3 && python3 --version
@@ -43,7 +43,7 @@ script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/gridsync --version; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/gridsync --tahoe-version; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then tox -e py35,flake8; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --create-dirs -o dist/Tahoe-LAFS.zip https://buildbot.gridsync.io/tahoe-lafs/Tahoe-LAFS-osx.zip; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --create-dirs -o dist/Tahoe-LAFS.zip https://buildbot.gridsync.io/artifacts/Tahoe-LAFS-Mac.zip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then make all; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python scripts/print_hashes.py dist; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/Gridsync --version; fi
@@ -59,3 +59,16 @@ notifications:
     template:
       - "[%{repository_name}:%{branch}] %{commit}: %{commit_subject} (%{author}) %{message}"
       - "Details: %{build_url} | Changes: %{compare_url}"
+before_deploy:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then mv dist/Gridsync.zip dist/Gridsync-Linux.zip; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then mv dist/Gridsync.dmg dist/Gridsync-Mac.dmg; fi
+deploy:
+  provider: releases
+  api_key:
+    secure: hVOzLVw5sc2mrZJrm0mqZ7eYOI2CA2lAE0Hu8MAJPmOHlh40W0u6/QqPklzyD0jx/0jdhwiFPcSYFwNwqYEVrUQ4i2QdwN83aldzxkuykN+cgeon57yC/n0EFTx8RpjO+Erj67vhC7QCjjvTPuLY3SLZIAFYaMoAP120OxuCn3cYsDE2aXaapRZfoptCG4EZLlQkq6/TiU0rKGJhZFAEzSkeyyMu/dZLJAvZN1ImLExRE8zu9bfxgXF98H6JFWfCMeBY58UkuDoY87HVMlulZIQee2JKF2E/X+LtiwcOjTu1HBzPhLsqPQiJCtln6w2m8khrqsxCr2M+TgFrWTA3p8iI9LH8Xy8EzRnWsU/aBRaC3z5tVim6vIivLOQu1ooiMoQq3RXwSFyTLtyV77tOBfXc2C5FNwwMMbqGA+eMSEJZwdPlkWz578ohEYVSRXdi7gNLA+SCPGQ+lT/RgaVbvG249YosYIlS+R7vQiztatKQ/IuhOH4UrAVOmp3REapLMcl7I4MoEG2W38Al6ceeLaXiZttm4Qee7fYKkTe1y81kt0AXTMnOyy+I2VROmKdLaFEG1SY8XT93Mwdf8SEF7RSwBgtd87kYxPi3Dpa5pnznj6EjhEmVKd3I6r8Urqm+7X0WhO8z9OKDhtj9zSfqJsOokCgUb57JZBGochTmuR4=
+  file_glob: true
+  file: dist/Gridsync-*.*
+  skip_cleanup: true
+  prerelease: true
+  on:
+    tags: true

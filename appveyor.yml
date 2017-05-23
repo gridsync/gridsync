@@ -22,9 +22,10 @@ after_test:
   - "make"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
   - ".\\dist\\Gridsync\\Gridsync.exe --tahoe-version"
+  - "move .\\dist\\Gridsync.zip .\\dist\\Gridsync-Windows.zip"
 artifacts:
-  - path: dist\Gridsync.zip
-    name: Gridsync-win$(PYTHON_ARCH).zip
+  - path: dist\Gridsync-Windows.zip
+    name: Gridsync-Windows.zip
 on_success:
   - "python misc/irc-notify.py [{project_name}:{branch}] {short_commit}: \"{message}\" ({author}) {color_code}3Succeeded,Details: {build_url},Commit: {commit_url}"
 on_failure:
@@ -32,3 +33,13 @@ on_failure:
 notifications:
   - provider: Webhook
     url: https://ci.gridsync.io:8080
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: 7MqXbCzCSmPXcKfaSz1OxAcxgso41W0x6SWQeQiMnRjTbGPn4LqHC6oIuFIsM6g7
+  artifact: dist\Gridsync-Windows.zip
+  description: $(appveyor_repo_commit_message)
+  prerelease: true
+  force_update: true
+  on:
+    appveyor_repo_tag: true
