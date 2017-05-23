@@ -147,7 +147,7 @@ class Model(QStandardItemModel):
         folder_icon = QFileIconProvider().icon(QFileInfo(path))
         folder_basename = os.path.basename(os.path.normpath(path))
         name = QStandardItem(folder_icon, folder_basename)
-        status = QStandardItem()
+        status = QStandardItem(QIcon(), "Initializing...")
         size = QStandardItem()
         #action = QStandardItem(QIcon(resource('share.png')), '')
         self.appendRow([name, status, size])
@@ -166,7 +166,7 @@ class Model(QStandardItemModel):
     def set_status(self, name, status):
         if not status:
             icon = QIcon()
-            text = None
+            text = "Initializing..."
         elif status == 1:
             icon = self.icon_syncing
             text = "Syncing"
