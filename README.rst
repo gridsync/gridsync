@@ -52,10 +52,42 @@ Screenshots:
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/notification.png
 
 
-Installation (development builds):
-----------------------------------
+Installation and running (development builds):
+----------------------------------------------
 
-**WARNING: Development builds may be broken in various ways and are intended for testing purposes only. Use at your own risk.**
+**Binary distributions:**
+
+Unsigned binary distributions (currently tracking the `master` branch) are available for all three major desktop platforms. These packages, however, should not be considered trustworthy or reliable in any way and are intended for testing purposes only. Please excercise appropriate caution when using these files (ideally by downloading and running them inside a disposable virtual machine).
+
+For GNU/Linux (tested on Debian 8 and Fedora 23):
+
+1. Download `Gridsync-Linux.zip`_
+2. Extract the enclosed "Gridsync" folder anywhere
+3. Run the contained ``gridsync`` binary
+
+.. _Gridsync-Linux.zip: https://buildbot.gridsync.io/artifacts/Gridsync-Linux.zip
+
+For macOS [*]_ :
+
+1. Download `Gridsync-Mac.dmg`_
+2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
+3. Double-click ``Gridsync.app``
+
+.. _Gridsync-Mac.dmg: https://buildbot.gridsync.io/artifacts/Gridsync-Mac.dmg
+
+For Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
+
+1. Download `Gridsync-Windows.zip`_
+2. Extract the enclosed "Gridsync" folder anywhere
+3. Run the contained ``Gridsync.exe`` binary
+
+.. _Gridsync-Windows.zip: https://buildbot.gridsync.io/artifacts/Gridsync-Windows.zip
+
+
+.. [*] macOS users may need to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
+
+
+**From source:**
 
 GNU/Linux, inside a virtualenv (tested on Debian 8.6 "jessie" and Ubuntu 16.10 "Yakkety Yak"):
 
@@ -65,40 +97,6 @@ GNU/Linux, inside a virtualenv (tested on Debian 8.6 "jessie" and Ubuntu 16.10 "
 4. ``~/.local/venvs/gridsync/bin/pip install --find-links=https://tahoe-lafs.org/deps/ git+https://github.com/tahoe-lafs/tahoe-lafs.git``
 5. ``~/.local/venvs/gridsync/bin/pip install git+https://github.com/gridsync/gridsync.git``
 6. ``PATH=$PATH:~/.local/venvs/gridsync/bin gridsync``
-
-macOS [*]_ :
-
-1. Download `Gridsync.dmg`_
-2. Drag the contained Gridsync.app bundle anywhere (e.g., `~/Applications`)
-
-Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
-
-1. Download `Gridsync-win32.zip`_
-2. Extract the contained Gridsync folder anywhere
-
-
-.. _Gridsync.dmg: https://buildbot.gridsync.io/packages/Gridsync.dmg
-.. _Gridsync-win32.zip: https://buildbot.gridsync.io/packages/Gridsync-win32.zip
-
-
-.. [*] macOS users may have to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
-
-
-Running:
---------
-
-Linux:
-
-* From the command-line: ``gridsync`` (or ``gridsync --help`` for available options)
-
-macOS X:
-
-* Double click ``Gridsync.app``
-
-Windows:
-
-* Double click ``Gridsync.exe``
-
 
 Contributing:
 -------------
