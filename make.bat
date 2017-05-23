@@ -95,7 +95,7 @@ call pip install .
 call pip install pyinstaller==3.2.1
 call pip list
 call set PYTHONHASHSEED=1
-call pyinstaller -y --clean --log-level=DEBUG misc\gridsync.spec
+call pyinstaller -y --clean misc\gridsync.spec
 call set PYTHONHASHSEED=
 call deactivate
 goto :eof
