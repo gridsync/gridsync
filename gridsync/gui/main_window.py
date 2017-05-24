@@ -203,6 +203,8 @@ class View(QTreeView):
         #self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setSelectionMode(QAbstractItemView.NoSelection)
+        self.setFocusPolicy(Qt.NoFocus)
         #font = QFont()
         #font.setPointSize(12)
         #self.header().setFont(font)
