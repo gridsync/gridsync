@@ -139,16 +139,17 @@ ui:
 sip:
 	mkdir -p build/sip
 	curl --progress-bar --retry 20 --output "build/sip.tar.gz" --location \
-		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.gz"
+		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.19.2/sip-4.19.2.tar.gz"
 	tar zxf build/sip.tar.gz -C build/sip --strip-components=1
 	cd build/sip && $${PYTHON=python} configure.py --incdir=build/sip/sipinc
 	$(MAKE) -C build/sip -j 4
 	$(MAKE) -C build/sip install
 
 pyqt: sip
+	# apt-get install qtbase5-dev
 	mkdir -p build/pyqt
 	curl --progress-bar --retry 20 --output "build/pyqt.tar.gz" --location \
-		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7.1/PyQt5_gpl-5.7.1.tar.gz"
+		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.8.2/PyQt5_gpl-5.8.2.tar.gz"
 	tar zxf build/pyqt.tar.gz -C build/pyqt --strip-components=1
 	cd build/pyqt && \
 		QT_SELECT=qt5 $${PYTHON=python} configure.py \
