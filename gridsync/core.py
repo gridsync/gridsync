@@ -40,6 +40,7 @@ class Core(object):
         self.gui = None
         self.gateways = []
         self.executable = None
+        self.operations = []
 
     @inlineCallbacks
     def select_executable(self):

@@ -63,7 +63,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__()
         self.parent = parent
 
-        self.setIcon(QIcon(resource(settings['application']['tray_icon'])))
+        self.icon = QIcon(resource(settings['application']['tray_icon']))
+        self.setIcon(self.icon)
 
         self.menu = Menu(self)
         self.setContextMenu(self.menu)
@@ -72,15 +73,17 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.animation = QMovie()
         self.animation.setFileName(
             resource(settings['application']['tray_icon_sync']))
-        self.animation.updated.connect(self.update_animation_frame)
+        self.animation.updated.connect(self.update)
         self.animation.setCacheMode(True)
 
-    def update_animation_frame(self):
-        self.setIcon(QIcon(self.animation.currentPixmap()))
+    def update(self):
+        if self.parent.core.operations:
+            self.animation.setPaused(False)
+            self.setIcon(QIcon(self.animation.currentPixmap()))
+        else:
+            self.animation.setPaused(True)
+            self.setIcon(self.icon)
 
-    def set_icon(self, resource_file):
-        self.setIcon(QIcon(resource(resource_file)))
-
-    def on_click(self, value):  # pylint: disable=no-self-use
+    def on_click(self, value):
         if value == QSystemTrayIcon.Trigger:
             self.parent.toggle()

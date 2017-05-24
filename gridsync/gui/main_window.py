@@ -96,6 +96,12 @@ class Monitor(object):
                 self.notify_updated_files(magic_folder)
                 size = yield magic_folder.get_magic_folder_size()
                 self.model.set_size(magic_folder.name, size)
+                if magic_folder in self.gui.core.operations:
+                    self.gui.core.operations.remove(magic_folder)
+            elif state == 1:
+                if magic_folder not in self.gui.core.operations:
+                    self.gui.core.operations.append(magic_folder)
+            self.gui.systray.update()
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         self.model.set_status(magic_folder.name, state)
