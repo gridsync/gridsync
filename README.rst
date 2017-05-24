@@ -89,14 +89,26 @@ For Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
 
 **From source:**
 
-GNU/Linux, inside a virtualenv (tested on Debian 8.6 "jessie" and Ubuntu 16.10 "Yakkety Yak"):
+Because Tahoe-LAFS has not yet been ported to python3, and because some GNU/Linux distributions might contain especially old packages for some dependencies (including Tahoe-LAFS and Qt5), it is recommended to install and run Tahoe-LAFS and Gridsync inside their own virtual environments using updated dependencies from PyPI (ideally with hashes verified). Installing and running Gridsync with python3.5 (instead of python2) furthermore avoids having to install Qt5/PyQt5 manually (since PyQt5 wheels containing Qt5 are now available on PyPI for python 3.5+).
 
-1. ``sudo apt-get install virtualenv git build-essential python-dev libssl-dev libffi-dev python-pyqt5``
-2. ``virtualenv --python=python2 --system-site-packages ~/.local/venvs/gridsync``
-3. ``~/.local/venvs/gridsync/bin/pip install --upgrade pip setuptools``
-4. ``~/.local/venvs/gridsync/bin/pip install --find-links=https://tahoe-lafs.org/deps/ git+https://github.com/tahoe-lafs/tahoe-lafs.git``
-5. ``~/.local/venvs/gridsync/bin/pip install git+https://github.com/gridsync/gridsync.git``
-6. ``PATH=$PATH:~/.local/venvs/gridsync/bin gridsync``
+The following series of steps (run from the top level of the Gridsync source tree) should work on most Debian-based GNU/Linux distributions:
+
+.. code-block:: shell-session
+
+    sudo apt-get install virtualenv git build-essential python-dev libssl-dev libffi-dev python3.5-dev
+    virtualenv --python=python2 ./venv2
+    ./venv2/bin/pip install --upgrade setuptools pip
+    ./venv2/bin/pip install tahoe-lafs
+    virtualenv --python=python3.5 ./venv3
+    ./venv3/bin/pip install --upgrade setuptools pip
+    ./venv3/bin/pip install -r requirements/requirements-hashes.txt
+    ./venv3/bin/pip install .
+    PATH=$PATH:./venv2/bin ./venv3/bin/gridsync
+
+Users of other distributions and operating systems should modify the above steps as required (for example, by installing Xcode on macOS in addition to python -- or the dependencies listed at the top of `make.bat`_ in the case of Windows).
+
+.. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
+
 
 Contributing:
 -------------
