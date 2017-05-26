@@ -127,7 +127,7 @@ class Core(object):
         logging.debug("Loaded config.txt settings: %s", settings)
 
         self.gui = Gui(self)
-        self.gui.systray.show()
+        self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)

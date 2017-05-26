@@ -24,6 +24,12 @@ class Gui(object):
         self.main_window.show()
         self.main_window.raise_()
 
+    def show_systray(self):
+        if self.systray.isSystemTrayAvailable():
+            self.systray.show()
+        else:
+            self.show_main_window()
+
     def show(self):
         self.systray.show()
         self.show_main_window()
