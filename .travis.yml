@@ -60,7 +60,7 @@ notifications:
       - "[%{repository_name}:%{branch}] %{commit}: %{commit_subject} (%{author}) %{message}"
       - "Details: %{build_url} | Changes: %{compare_url}"
 before_deploy:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then mv dist/Gridsync.zip dist/Gridsync-Linux.zip; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then mv dist/Gridsync.tar.gz dist/Gridsync-Linux.tar.gz; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then mv dist/Gridsync.dmg dist/Gridsync-Mac.dmg; fi
 deploy:
   provider: releases
