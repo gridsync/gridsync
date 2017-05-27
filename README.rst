@@ -95,7 +95,7 @@ The following series of steps (run from the top level of the Gridsync source tre
 
 .. code-block:: shell-session
 
-    sudo apt-get install virtualenv git build-essential python-dev libssl-dev libffi-dev python3.5-dev
+    sudo apt-get install virtualenv build-essential python-dev libssl-dev libffi-dev python3.5-dev
     virtualenv --python=python2 ./venv2
     ./venv2/bin/pip install --upgrade setuptools pip
     ./venv2/bin/pip install tahoe-lafs
@@ -104,6 +104,7 @@ The following series of steps (run from the top level of the Gridsync source tre
     ./venv3/bin/pip install -r requirements/requirements-hashes.txt
     ./venv3/bin/pip install .
     PATH=$PATH:./venv2/bin ./venv3/bin/gridsync
+
 
 Users of other distributions and operating systems should modify the above steps as required (for example, by installing Xcode on macOS in addition to python -- or the dependencies listed at the top of `make.bat`_ in the case of Windows).
 
