@@ -93,7 +93,11 @@ if sys.platform.startswith('linux'):
     shutil.move(src, dest)
 
 
-print('Creating zip archive...')
+print('Creating archive...')
 base_name = os.path.join('dist', app_name)
-shutil.make_archive(base_name, 'zip', 'dist', app_name)
+if sys.platform == 'win32':
+    format = 'zip'
+else:
+    format = 'gztar'
+shutil.make_archive(base_name, format, 'dist', app_name)
 print('Done!')
