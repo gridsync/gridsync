@@ -65,7 +65,7 @@ For GNU/Linux (tested on Debian 8 and Fedora 23):
 2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
 3. Run the contained ``gridsync`` binary
 
-.. _Gridsync-Linux.zip: https://buildbot.gridsync.io/artifacts/Gridsync-Linux.tar.gz
+.. _Gridsync-Linux.tar.gz: https://buildbot.gridsync.io/artifacts/Gridsync-Linux.tar.gz
 
 For macOS [*]_ :
 
