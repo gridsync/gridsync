@@ -61,11 +61,11 @@ Unsigned binary distributions (currently tracking the `master` branch) are avail
 
 For GNU/Linux (tested on Debian 8 and Fedora 23):
 
-1. Download `Gridsync-Linux.zip`_
-2. Extract the enclosed "Gridsync" folder anywhere
+1. Download `Gridsync-Linux.tar.gz`_
+2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
 3. Run the contained ``gridsync`` binary
 
-.. _Gridsync-Linux.zip: https://buildbot.gridsync.io/artifacts/Gridsync-Linux.zip
+.. _Gridsync-Linux.zip: https://buildbot.gridsync.io/artifacts/Gridsync-Linux.tar.gz
 
 For macOS [*]_ :
 
