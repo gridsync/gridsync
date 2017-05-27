@@ -1,17 +1,17 @@
 asn1crypto==0.22.0
-attrs==16.3.0
+attrs==17.2.0
 autobahn==17.5.1
-Automat==0.5.0
+Automat==0.6.0
 cffi==1.10.0
 click==6.7
 configparser==3.5.0 ; python_version < "3.2"
 constantly==15.1.0
-cryptography==1.8.1
+cryptography==1.8.2
 enum34==1.1.6 ; python_version < "3.4"
 hkdf==0.0.3
 humanize==0.5.1
 idna==2.5
-incremental==16.10.1
+incremental==17.5.0
 ipaddress==1.0.18
 magic-wormhole==0.9.2
 pyasn1==0.2.3
@@ -22,8 +22,8 @@ pyOpenSSL==17.0.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
 qt5reactor==0.4
-requests==2.14.2
-service_identity==16.0.0
+requests==2.16.3
+service_identity==17.0.0
 SIP==4.19.2 ; python_version >= "3.5"
 six==1.10.0
 spake2==0.7
