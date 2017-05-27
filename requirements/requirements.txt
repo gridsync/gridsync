@@ -2,7 +2,9 @@ asn1crypto==0.22.0
 attrs==17.2.0
 autobahn==17.5.1
 Automat==0.6.0
+certifi==2017.4.17
 cffi==1.10.0
+chardet==3.0.3
 click==6.7
 configparser==3.5.0 ; python_version < "3.2"
 constantly==15.1.0
@@ -32,4 +34,5 @@ treq==17.3.1
 Twisted==17.1.0
 txaio==2.7.1
 txdbus==1.0.13 ; "linux" in sys_platform
+urllib3==1.21.1
 zope.interface==4.4.1
