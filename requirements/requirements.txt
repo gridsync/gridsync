@@ -24,12 +24,12 @@ pyOpenSSL==17.0.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
 qt5reactor==0.4
-requests==2.16.3
+requests==2.16.5
 service_identity==17.0.0
 SIP==4.19.2 ; python_version >= "3.5"
 six==1.10.0
 spake2==0.7
-tqdm==4.11.2
+tqdm==4.13.0
 treq==17.3.1
 Twisted==17.1.0
 txaio==2.7.1
