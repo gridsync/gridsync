@@ -431,7 +431,7 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         key = event.key()
-        if key == Qt.Key_Escape:
+        if key == Qt.Key_Escape and self.gui.systray.isSystemTrayAvailable():
             self.hide()
 
     def closeEvent(self, event):
