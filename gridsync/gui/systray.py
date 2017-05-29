@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import sys
 import webbrowser
 
 from PyQt5.QtGui import QIcon, QMovie
@@ -85,5 +86,5 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.setIcon(self.icon)
 
     def on_click(self, value):
-        if value == QSystemTrayIcon.Trigger:
+        if value == QSystemTrayIcon.Trigger and sys.platform != 'darwin':
             self.parent.toggle()
