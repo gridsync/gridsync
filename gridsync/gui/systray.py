@@ -5,7 +5,7 @@ import sys
 import webbrowser
 
 from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon
+from PyQt5.QtWidgets import QAction, QMenu, QMessageBox, QSystemTrayIcon
 from twisted.internet import reactor
 
 from gridsync import resource, settings, APP_NAME
@@ -51,12 +51,22 @@ class Menu(QMenu):
 
         quit_action = QAction(
             QIcon(''), "&Quit {}".format(APP_NAME), self)
-        quit_action.triggered.connect(reactor.stop)
+        quit_action.triggered.connect(self.confirm_quit)
 
         self.addAction(open_action)
         self.addMenu(help_menu)
         self.addSeparator()
         self.addAction(quit_action)
+
+    def confirm_quit(self):
+        reply = QMessageBox.question(
+            self, "Exit {}?".format(APP_NAME),
+            "Are you sure you wish to quit? If you quit, {} will stop "
+            "synchronizing your folders until you run it again.".format(
+                APP_NAME),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            reactor.stop()
 
 
 class SystemTrayIcon(QSystemTrayIcon):
