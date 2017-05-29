@@ -5,8 +5,7 @@ import sys
 import webbrowser
 
 from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import QAction, QMenu, QMessageBox, QSystemTrayIcon
-from twisted.internet import reactor
+from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon
 
 from gridsync import resource, settings, APP_NAME
 
@@ -23,6 +22,7 @@ class Menu(QMenu):
     def __init__(self, parent):
         super(Menu, self).__init__()
         self.parent = parent
+        self.gui = self.parent.parent
         self.populate()
 
     def populate(self):
@@ -30,7 +30,7 @@ class Menu(QMenu):
         logging.debug("(Re-)populating systray menu...")
 
         open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
-        open_action.triggered.connect(self.parent.parent.show_main_window)
+        open_action.triggered.connect(self.gui.show_main_window)
 
         documentation_action = QAction(
             QIcon(''), "Browse Documentation...", self)
@@ -51,22 +51,12 @@ class Menu(QMenu):
 
         quit_action = QAction(
             QIcon(''), "&Quit {}".format(APP_NAME), self)
-        quit_action.triggered.connect(self.confirm_quit)
+        quit_action.triggered.connect(self.gui.main_window.confirm_quit)
 
         self.addAction(open_action)
         self.addMenu(help_menu)
         self.addSeparator()
         self.addAction(quit_action)
-
-    def confirm_quit(self):
-        reply = QMessageBox.question(
-            self, "Exit {}?".format(APP_NAME),
-            "Are you sure you wish to quit? If you quit, {} will stop "
-            "synchronizing your folders until you run it again.".format(
-                APP_NAME),
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            reactor.stop()
 
 
 class SystemTrayIcon(QSystemTrayIcon):

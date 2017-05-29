@@ -419,6 +419,16 @@ class MainWindow(QMainWindow):
             self.central_widget.setCurrentIndex(index)
             self.set_current_grid_status()
 
+    def confirm_quit(self):
+        reply = QMessageBox.question(
+            self, "Exit {}?".format(APP_NAME),
+            "Are you sure you wish to quit? If you quit, {} will stop "
+            "synchronizing your folders until you run it again.".format(
+                APP_NAME),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            reactor.stop()
+
     def keyPressEvent(self, event):
         key = event.key()
         if key == Qt.Key_Escape:
@@ -428,14 +438,5 @@ class MainWindow(QMainWindow):
         if self.gui.systray.isSystemTrayAvailable():
             event.accept()
         else:
-            reply = QMessageBox.question(
-                self, "Exit {}?".format(APP_NAME),
-                "Are you sure you wish to quit? If you quit, {} will stop "
-                "synchronizing your folders until you run it again.".format(
-                    APP_NAME),
-                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes:
-                event.accept()
-                reactor.stop()
-            else:
-                event.ignore()
+            event.ignore()
+            self.confirm_quit()
