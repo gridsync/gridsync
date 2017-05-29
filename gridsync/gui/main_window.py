@@ -69,7 +69,7 @@ class Monitor(object):
             self.status[magic_folder]['updated_files'] = []
             logging.debug("Cleared updated_files list")
 
-    def get_state_from_status(self, status):
+    def get_state_from_status(self, status):  # pylint: disable=no-self-use
         state = 0
         if status:
             for task in status:
@@ -313,7 +313,7 @@ class View(QTreeView):
                 if os.path.isdir(path):
                     self.add_new_folder(path)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj, event):  # pylint: disable=unused-argument
         if event.type() == QEvent.DragEnter:
             self.dragEnterEvent(event)
             return True
