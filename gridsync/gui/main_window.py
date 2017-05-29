@@ -424,15 +424,18 @@ class MainWindow(QMainWindow):
         if key == Qt.Key_Escape:
             self.hide()
 
-    def closeEvent(self, event):  # pylint: disable=all
-        reply = QMessageBox.question(
-            self, "Exit {}?".format(APP_NAME),
-            "Are you sure you wish to quit? If you quit, {} will stop "
-            "synchronizing your folders until you run it again.".format(
-                APP_NAME),
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+    def closeEvent(self, event):
+        if self.gui.systray.isSystemTrayAvailable():
             event.accept()
-            reactor.stop()
         else:
-            event.ignore()
+            reply = QMessageBox.question(
+                self, "Exit {}?".format(APP_NAME),
+                "Are you sure you wish to quit? If you quit, {} will stop "
+                "synchronizing your folders until you run it again.".format(
+                    APP_NAME),
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                event.accept()
+                reactor.stop()
+            else:
+                event.ignore()
