@@ -87,4 +87,4 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def on_click(self, value):
         if value == QSystemTrayIcon.Trigger and sys.platform != 'darwin':
-            self.parent.toggle()
+            self.parent.show_main_window()
