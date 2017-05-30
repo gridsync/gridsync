@@ -1,3 +1,4 @@
+.DEFAULT_GOAL := all
 SHELL := /bin/bash
 .PHONY: tahoe
 
@@ -258,7 +259,11 @@ dmg: app
 	#mv dist/dmg/Gridsync.app dist
 	#rm -rf dist/dmg
 
-all: dmg
+all:
+	@case `uname` in \
+		Darwin)	$(MAKE) dmg ;; \
+		*) $(MAKE) frozen ;; \
+	esac
 
 uninstall:
 	pip3 uninstall -y gridsync
