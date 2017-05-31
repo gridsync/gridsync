@@ -364,17 +364,16 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        invite_action = QAction(
-            QIcon(resource('mail-envelope-open')), 'Enter Invite Code', self)
-        invite_action.setStatusTip('Enter Invite Code')
-        invite_action.setShortcut(QKeySequence.Open)
-        invite_action.triggered.connect(self.gui.show_invite_form)
+        #invite_action = QAction(
+        #    QIcon(resource('mail-envelope-open')), 'Enter Invite Code', self)
+        #invite_action.setStatusTip('Enter Invite Code')
+        #invite_action.setShortcut(QKeySequence.Open)
+        #invite_action.triggered.connect(self.gui.show_invite_form)
 
-        preferences_action = QAction(
-            QIcon(resource('preferences.png')), 'Preferences', self)
-        preferences_action.setStatusTip('Preferences')
-        preferences_action.setShortcut(QKeySequence.Preferences)
-        #preferences_action.triggered.connect(self.close)
+        #preferences_action = QAction(
+        #    QIcon(resource('preferences.png')), 'Preferences', self)
+        #preferences_action.setStatusTip('Preferences')
+        #preferences_action.setShortcut(QKeySequence.Preferences)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
