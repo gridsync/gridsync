@@ -18,6 +18,7 @@ from twisted.internet.task import LoopingCall
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
+from gridsync.gui.widgets import CompositePixmap
 from gridsync.tahoe import get_nodedirs
 from gridsync.util import humanized_list
 
@@ -152,7 +153,11 @@ class Model(QStandardItemModel):
     def add_folder(self, path):
         folder_icon = QFileIconProvider().icon(QFileInfo(path))
         folder_basename = os.path.basename(os.path.normpath(path))
-        name = QStandardItem(folder_icon, folder_basename)
+        #name = QStandardItem(folder_icon, folder_basename)
+        folder_pixmap = folder_icon.pixmap(256, 256)
+        lock_pixmap = resource('lock-closed-green.svg')
+        composite_pixmap = CompositePixmap(folder_pixmap, lock_pixmap)
+        name = QStandardItem(QIcon(composite_pixmap), folder_basename)
         status = QStandardItem(QIcon(), "Initializing...")
         size = QStandardItem()
         #action = QStandardItem(QIcon(resource('share.png')), '')
@@ -214,6 +219,7 @@ class View(QTreeView):
         self.header().setSectionResizeMode(1, QHeaderView.Stretch)
         #self.header().setSectionResizeMode(2, QHeaderView.Stretch)
         #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
+        self.setIconSize(QSize(24, 24))
 
         self.drop_text = QLabel(self)
         self.drop_text.setText('<i>Drop folders here</i>')
