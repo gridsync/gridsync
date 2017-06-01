@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy,
     QStackedWidget, QTreeView, QWidget)
 from PyQt5.QtGui import (
-    QFont, QIcon, QKeySequence, QPixmap, QStandardItem, QStandardItemModel)
+    QFont, QIcon, QPixmap, QStandardItem, QStandardItemModel)
 from PyQt5.QtCore import QEvent, QFileInfo, QSize, Qt, QVariant
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
