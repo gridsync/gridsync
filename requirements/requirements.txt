@@ -8,7 +8,7 @@ chardet==3.0.3
 click==6.7
 configparser==3.5.0 ; python_version < "3.2"
 constantly==15.1.0
-cryptography==1.8.2
+cryptography==1.9
 enum34==1.1.6 ; python_version < "3.4"
 hkdf==0.0.3
 humanize==0.5.1
@@ -24,15 +24,15 @@ pyOpenSSL==17.0.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
 qt5reactor==0.4
-requests==2.16.5
+requests==2.17.3
 service_identity==17.0.0
 SIP==4.19.2 ; python_version >= "3.5"
 six==1.10.0
 spake2==0.7
-tqdm==4.13.0
+tqdm==4.14.0
 treq==17.3.1
 Twisted==17.1.0
 txaio==2.7.1
-txdbus==1.0.13 ; "linux" in sys_platform
+txdbus==1.0.14 ; "linux" in sys_platform
 urllib3==1.21.1
 zope.interface==4.4.1
