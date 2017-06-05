@@ -3,8 +3,9 @@
 import logging
 import os
 from collections import defaultdict
+from datetime import datetime
 
-from humanize import naturalsize
+from humanize import naturalsize, naturaltime
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileIconProvider, QGridLayout,
     QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy,
@@ -70,21 +71,27 @@ class Monitor(object):
             self.status[magic_folder]['updated_files'] = []
             logging.debug("Cleared updated_files list")
 
-    def get_state_from_status(self, status):  # pylint: disable=no-self-use
+    def parse_status(self, status):  # pylint: disable=no-self-use
         state = 0
+        t = 0
         if status:
             for task in status:
+                if 'success_at' in task and task['success_at'] > t:
+                    t = task['success_at']
                 if task['status'] == 'queued' or task['status'] == 'started':
                     if not task['path'].endswith('/'):
                         state = 1  # "Syncing"
             if not state:
                 state = 2  # "Up to date"
-        return state
+        last_sync = ''
+        if t:
+            last_sync = naturaltime(datetime.now() - datetime.fromtimestamp(t))
+        return state, last_sync
 
     @inlineCallbacks
     def check_magic_folder_status(self, magic_folder):
         status = yield magic_folder.get_magic_folder_status()
-        state = self.get_state_from_status(status)
+        state, last_sync = self.parse_status(status)
         prev = self.status[magic_folder]
         if status and prev:
             if prev['status'] and status != prev['status']:
@@ -106,6 +113,7 @@ class Monitor(object):
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         self.model.set_status(magic_folder.name, state)
+        self.model.set_last_sync(magic_folder.name, last_sync)
 
     @inlineCallbacks
     def check_grid_status(self):
@@ -131,15 +139,16 @@ class Monitor(object):
 
 class Model(QStandardItemModel):
     def __init__(self, view):
-        super(Model, self).__init__(0, 3)
+        super(Model, self).__init__(0, 4)
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
         self.monitor = Monitor(self)
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
-        self.setHeaderData(2, Qt.Horizontal, QVariant("Size"))
-        #self.setHeaderData(3, Qt.Horizontal, QVariant("Action"))
+        self.setHeaderData(2, Qt.Horizontal, QVariant("Last sync"))
+        self.setHeaderData(3, Qt.Horizontal, QVariant("Size"))
+        #self.setHeaderData(4, Qt.Horizontal, QVariant("Action"))
 
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
         self.icon_syncing = QIcon(resource('sync.png'))
@@ -187,9 +196,12 @@ class Model(QStandardItemModel):
         self.setItem(
             self.get_row_from_name(name), 1, QStandardItem(icon, text))
 
+    def set_last_sync(self, name, text):
+        self.setItem(self.get_row_from_name(name), 2, QStandardItem(text))
+
     def set_size(self, name, size):
         self.setItem(
-            self.get_row_from_name(name), 2, QStandardItem(naturalsize(size)))
+            self.get_row_from_name(name), 3, QStandardItem(naturalsize(size)))
 
 
 class View(QTreeView):
@@ -199,10 +211,10 @@ class View(QTreeView):
         self.gateway = gateway
         self.setModel(Model(self))
         self.setAcceptDrops(True)
-        self.setColumnWidth(0, 150)
-        self.setColumnWidth(1, 100)
-        self.setColumnWidth(2, 75)
-        #self.setColumnWidth(3, 75)
+        #self.setColumnWidth(0, 150)
+        #self.setColumnWidth(1, 100)
+        self.setColumnWidth(2, 120)
+        self.setColumnWidth(3, 75)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
