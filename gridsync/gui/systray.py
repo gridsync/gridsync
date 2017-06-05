@@ -39,15 +39,15 @@ class Menu(QMenu):
         issue_action = QAction(QIcon(''), "Report Issue...", self)
         issue_action.triggered.connect(open_issue)
 
-        about_action = QAction(QIcon(''), "About {}...".format(APP_NAME), self)
-        about_action.setEnabled(False)
+        #about_action = QAction(QIcon(''), "About {}...".format(APP_NAME), self)
+        #about_action.setEnabled(False)
 
         help_menu = QMenu(self)
         help_menu.setTitle("Help")
         help_menu.addAction(documentation_action)
         help_menu.addAction(issue_action)
-        help_menu.addSeparator()
-        help_menu.addAction(about_action)
+        #help_menu.addSeparator()
+        #help_menu.addAction(about_action)
 
         quit_action = QAction(
             QIcon(''), "&Quit {}".format(APP_NAME), self)
