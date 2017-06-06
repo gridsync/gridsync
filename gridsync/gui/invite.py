@@ -5,6 +5,7 @@ import json
 import logging as log
 import os
 import shutil
+from binascii import Error
 
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QFont, QIcon, QPixmap
@@ -327,7 +328,10 @@ class InviteForm(QStackedWidget):
         if 'icon_base64' in settings:
             temp_file = os.path.join(config_dir, '.icon.tmp')
             with open(temp_file, 'wb') as f:
-                f.write(base64.b64decode(settings['icon_base64']))
+                try:
+                    f.write(base64.b64decode(settings['icon_base64']))
+                except (Error, TypeError):
+                    pass
             pixmap = QPixmap(temp_file).scaled(100, 100)
             self.page_2.icon_overlay.setPixmap(pixmap)
 
