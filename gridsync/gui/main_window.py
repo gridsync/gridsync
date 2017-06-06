@@ -33,10 +33,10 @@ class ComboBox(QComboBox):
         self.clear()
         for gateway in gateways:
             basename = os.path.basename(os.path.normpath(gateway.nodedir))
-            iconpath = os.path.join(gateway.nodedir, 'icon')
-            if not os.path.isfile(iconpath):
-                iconpath = resource('tahoe-lafs.png')
-            self.addItem(QIcon(iconpath), basename)
+            icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
+            if not icon.availableSizes():
+                icon = QIcon(resource('tahoe-lafs.png'))
+            self.addItem(icon, basename)
         self.insertSeparator(self.count())
         self.addItem(" Add new...")
         #self.model().item(self.count() - 1).setEnabled(False)
