@@ -1,7 +1,7 @@
 [application]
 name = Gridsync
 tray_icon = gridsync.png
-tray_icon_sync = sync.gif
+tray_icon_sync = gridsync.gif
 
 [build]
 mac_bundle_identifier = io.gridsync.Gridsync

@@ -120,7 +120,7 @@ gif: pngs
 		-dispose 2 \
 		-delay 8 \
 		-loop 0 \
-		build/frames/frame*.png build/sync.gif
+		build/frames/frame*.png build/gridsync.gif
 	convert \
 		-resize 256x256 \
 		-dispose 2 \
