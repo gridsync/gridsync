@@ -20,6 +20,7 @@ from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
 from gridsync.config import Config
+from gridsync.errors import NodedirExistsError
 
 
 def is_valid_furl(furl):
@@ -144,6 +145,8 @@ class Tahoe(object):
 
     @inlineCallbacks
     def create_client(self, **kwargs):
+        if os.path.exists(self.nodedir):
+            raise NodedirExistsError
         valid_kwargs = ('nickname', 'introducer', 'shares-needed',
                         'shares-happy', 'shares-total')
         args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
