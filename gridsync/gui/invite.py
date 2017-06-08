@@ -22,6 +22,7 @@ from wormhole.xfer_util import receive
 from gridsync import config_dir, resource, APP_NAME
 from gridsync import settings as global_settings
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
+from gridsync.errors import UpgradeRequiredError
 from gridsync.tahoe import is_valid_furl, Tahoe
 from gridsync.gui.widgets import TahoeConfigForm
 
@@ -43,10 +44,6 @@ def is_valid(code):
     elif not words[2] in wordlist:
         return False
     return True
-
-
-class UpgradeRequiredError(Exception):
-    pass
 
 
 class Completer(QCompleter):
