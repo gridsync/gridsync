@@ -10,9 +10,9 @@ from binascii import Error
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
-    QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
-    QPushButton, QMessageBox, QProgressBar, QSizePolicy, QSpacerItem,
-    QStackedWidget, QToolButton, QWidget)
+    QAction, QCheckBox, QCompleter, QInputDialog, QGridLayout, QLabel,
+    QLineEdit, QPushButton, QMessageBox, QProgressBar, QSizePolicy,
+    QSpacerItem, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import WelcomeError, WrongPasswordError
@@ -306,7 +306,7 @@ class InviteForm(QStackedWidget):
         self.page_3.reset()
         self.setCurrentIndex(0)
 
-    @inlineCallbacks
+    @inlineCallbacks  # noqa: max-complexity=11 XXX
     def setup(self, settings):
         try:
             settings = json.loads(settings)
@@ -336,6 +336,14 @@ class InviteForm(QStackedWidget):
         self.page_2.icon_connection.setPixmap(pixmap)
         pixmap = QPixmap(resource('cloud_storage.png')).scaled(220, 220)
         self.page_2.icon_server.setPixmap(pixmap)
+        while os.path.isdir(os.path.join(config_dir, nickname)):
+            title = "{} - Choose a name".format(APP_NAME)
+            label = "Please choose a different name for this connection:"
+            if nickname:
+                label = '{} is already connected to "{}".\n\n{}'.format(
+                    APP_NAME, nickname, label)
+            nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
+
         tahoe = Tahoe(os.path.join(config_dir, nickname))
         self.gateway = tahoe
         yield tahoe.create_client(**settings)
