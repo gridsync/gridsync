@@ -422,7 +422,10 @@ class MainWindow(QMainWindow):
                 self.gateways.append(gateway)
         self.combo_box.populate(self.gateways)
         self.central_widget.populate(self.gateways)
-        self.grid_status_updater.start(2, now=True)
+        try:
+            self.grid_status_updater.start(2, now=True)
+        except AssertionError:  # Tried to start an already running LoopingCall
+            pass
 
     def current_widget(self):
         return self.central_widget.currentWidget().layout().itemAt(0).widget()
