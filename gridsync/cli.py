@@ -3,7 +3,6 @@
 
 import argparse
 import logging
-import socket
 import sys
 
 from twisted.internet.error import CannotListenError
@@ -23,10 +22,6 @@ class TahoeVersion(argparse.Action):
 def main():
     parser = argparse.ArgumentParser(
         description=description)
-    parser.add_argument(
-        'command',
-        nargs='*',
-        help='Command to send (e.g., "quit").')
     parser.add_argument(
         '--debug',
         action='store_true',
@@ -60,19 +55,8 @@ def main():
         core = Core(args)
         core.start()
     except CannotListenError:
-        if args.command:
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect(("localhost", 52045))
-                s.send(' '.join(args.command).encode())
-                return 0
-            except OSError as err:
-                logging.error("Error sending command(s) '%s': %s",
-                              ' '.join(args.command), str(err))
-                return 1
-        else:
-            logging.error("Gridsync already running.")
-            return 1
+        logging.error("Gridsync already running.")
+        return 1
 
 
 if __name__ == "__main__":

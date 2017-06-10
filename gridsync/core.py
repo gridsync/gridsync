@@ -22,16 +22,8 @@ from gridsync.gui import Gui
 from gridsync.tahoe import get_nodedirs, Tahoe
 
 
-class CoreProtocol(Protocol):  # pylint: disable=no-init
-    def dataReceived(self, data):
-        command = data.decode()
-        logging.debug("Received command: %s", command)
-        if command.lower() in ('stop', 'quit', 'exit'):
-            reactor.stop()
-
-
 class CoreFactory(Factory):  # pylint: disable=no-init
-    protocol = CoreProtocol
+    protocol = Protocol
 
 
 class Core(object):
