@@ -259,6 +259,7 @@ class ProgressBarWidget(QWidget):
 
     def reset(self):
         self.update_progress(0, '')
+        self.finish_button.hide()
 
 
 class InviteForm(QStackedWidget):
