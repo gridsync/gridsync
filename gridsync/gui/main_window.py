@@ -373,6 +373,7 @@ class MainWindow(QMainWindow):
     def __init__(self, gui):
         super(MainWindow, self).__init__()
         self.gui = gui
+        self.gateways = []
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
 
@@ -416,8 +417,11 @@ class MainWindow(QMainWindow):
         self.grid_status_updater = LoopingCall(self.set_current_grid_status)
 
     def populate(self, gateways):
-        self.combo_box.populate(gateways)
-        self.central_widget.populate(gateways)
+        for gateway in gateways:
+            if gateway not in self.gateways:
+                self.gateways.append(gateway)
+        self.combo_box.populate(self.gateways)
+        self.central_widget.populate(self.gateways)
         self.grid_status_updater.start(2, now=True)
 
     def current_widget(self):
