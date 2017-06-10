@@ -6,13 +6,13 @@ from collections import defaultdict
 from datetime import datetime
 
 from humanize import naturalsize, naturaltime
+from PyQt5.QtCore import QEvent, QFileInfo, QSize, Qt, QVariant
+from PyQt5.QtGui import (
+    QFont, QIcon, QPixmap, QStandardItem, QStandardItemModel)
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileIconProvider, QGridLayout,
     QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy,
     QStackedWidget, QTreeView, QWidget)
-from PyQt5.QtGui import (
-    QFont, QIcon, QPixmap, QStandardItem, QStandardItemModel)
-from PyQt5.QtCore import QEvent, QFileInfo, QSize, Qt, QVariant
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
