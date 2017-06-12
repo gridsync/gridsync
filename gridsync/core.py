@@ -12,14 +12,18 @@ app = QApplication(sys.argv)
 import qt5reactor
 qt5reactor.install()
 
+from PyQt5.QtGui import QIcon
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredList, gatherResults, inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
 from twisted.python.procutils import which
 
-from gridsync import config_dir, pkgdir, settings
+from gridsync import config_dir, pkgdir, resource, settings
 from gridsync.gui import Gui
 from gridsync.tahoe import get_nodedirs, Tahoe
+
+
+app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
 
 
 class CoreFactory(Factory):  # pylint: disable=no-init
