@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from gridsync.desktop import notify
-from gridsync.gui.invite import InviteForm
+from gridsync.gui.setup import SetupForm
 from gridsync.gui.main_window import MainWindow
 from gridsync.gui.systray import SystemTrayIcon
 
@@ -9,16 +9,16 @@ from gridsync.gui.systray import SystemTrayIcon
 class Gui(object):
     def __init__(self, core):
         self.core = core
-        self.invite_form = InviteForm(self)
+        self.setup_form = SetupForm(self)
         self.main_window = MainWindow(self)
         self.systray = SystemTrayIcon(self)
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)
 
-    def show_invite_form(self):
-        self.invite_form.show()
-        self.invite_form.raise_()
+    def show_setup_form(self):
+        self.setup_form.show()
+        self.setup_form.raise_()
 
     def show_main_window(self):
         self.main_window.show()

@@ -438,7 +438,7 @@ class MainWindow(QMainWindow):
 
     def on_grid_selected(self, index):
         if index == self.combo_box.count() - 1:
-            self.gui.show_invite_form()
+            self.gui.show_setup_form()
         else:
             self.central_widget.setCurrentIndex(index)
             self.set_current_grid_status()

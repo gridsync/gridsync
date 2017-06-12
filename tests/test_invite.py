@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from gridsync.gui.invite import is_valid, InviteForm
+from gridsync.invite import is_valid
 
 
 def test_invalid_code_not_three_words():
@@ -21,8 +21,3 @@ def test_invalid_code_third_word_not_in_wordlist():
 
 def test_valid_code_is_valid():
     assert is_valid('1-cranky-tapeworm')
-
-
-def test_init_invite_form():
-    invite_form = InviteForm(None)
-    assert invite_form

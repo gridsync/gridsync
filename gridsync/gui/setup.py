@@ -16,34 +16,13 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import WelcomeError, WrongPasswordError
-from wormhole.wordlist import raw_words
-from wormhole.xfer_util import receive
 
 from gridsync import config_dir, resource, APP_NAME
-from gridsync import settings as global_settings
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
+from gridsync.invite import wordlist, is_valid, wormhole_receive
 from gridsync.tahoe import is_valid_furl, Tahoe
 from gridsync.gui.widgets import TahoeConfigForm
-
-
-wordlist = []
-for word in raw_words.items():
-    wordlist.extend(word[1])
-wordlist = sorted([word.lower() for word in wordlist])
-
-
-def is_valid(code):
-    words = code.split('-')
-    if len(words) != 3:
-        return False
-    elif not words[0].isdigit():
-        return False
-    elif not words[1] in wordlist:
-        return False
-    elif not words[2] in wordlist:
-        return False
-    return True
 
 
 class Completer(QCompleter):
@@ -262,9 +241,9 @@ class ProgressBarWidget(QWidget):
         self.finish_button.hide()
 
 
-class InviteForm(QStackedWidget):
+class SetupForm(QStackedWidget):
     def __init__(self, gui):
-        super(InviteForm, self).__init__()
+        super(SetupForm, self).__init__()
         self.gui = gui
         self.gateway = None
         self.resize(400, 500)
@@ -422,8 +401,7 @@ class InviteForm(QStackedWidget):
     def go(self, code):
         self.setCurrentIndex(1)
         self.update_progress(1, 'Verifying invitation code...')
-        d = receive(reactor, global_settings['wormhole']['appid'],
-                    global_settings['wormhole']['relay'], code)
+        d = wormhole_receive(code)
         d.addCallback(self.setup)
         d.addErrback(self.show_failure)
         reactor.callLater(60, d.cancel)
