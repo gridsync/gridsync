@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 app = QApplication(sys.argv)
 # qt5reactor must be 'installed' after initializing QApplication but
@@ -12,7 +13,6 @@ app = QApplication(sys.argv)
 import qt5reactor
 qt5reactor.install()
 
-from PyQt5.QtGui import QIcon
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredList, gatherResults, inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
