@@ -127,6 +127,12 @@ gif: pngs
 		-delay 8 \
 		-loop 0 \
 		build/frames/onion-frame*.png build/onion-sync.gif
+	convert \
+		-resize 256x256 \
+		-dispose 2 \
+		-delay 7 \
+		-loop 0 \
+		images/frames/waiting-*.png build/waiting.gif
 
 resources: gif
 	pyrcc5 misc/resources.qrc -o gridsync/resources.py
