@@ -8,10 +8,10 @@ import shutil
 from binascii import Error
 
 from PyQt5.QtCore import Qt, QStringListModel
-from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QInputDialog, QGridLayout, QLabel,
-    QLineEdit, QPushButton, QMessageBox, QProgressBar, QSizePolicy,
+    QLineEdit, QPushButton, QMessageBox, QProgressBar, QShortcut, QSizePolicy,
     QSpacerItem, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
@@ -269,6 +269,12 @@ class SetupForm(QStackedWidget):
         self.buttonbox = self.page_3.buttonbox
         self.help = self.page_1.help
 
+        self.shortcut_close = QShortcut(QKeySequence.Close, self)
+        self.shortcut_close.activated.connect(self.close)
+
+        self.shortcut_quit = QShortcut(QKeySequence.Quit, self)
+        self.shortcut_quit.activated.connect(self.close)
+
         self.lineedit.returnPressed.connect(self.return_pressed)
         self.button_action.triggered.connect(self.button_clicked)
         self.cancel_button.clicked.connect(self.cancel_button_clicked)
@@ -467,3 +473,15 @@ class SetupForm(QStackedWidget):
         self.gui.show()
         self.close()
         self.reset()
+
+    def closeEvent(self, event):
+        if self.gui.main_window.gateways:
+            event.accept()
+        else:
+            event.ignore()
+            reply = QMessageBox.question(
+                self, "Exit setup?", "{} has not yet been configured. "
+                "Are you sure you wish to exit?".format(APP_NAME),
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                reactor.stop()
