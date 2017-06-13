@@ -236,6 +236,10 @@ class ProgressBarWidget(QWidget):
         self.progressbar.setValue(step)
         self.message.setText(message)
 
+    def is_complete(self):
+        if self.progressbar.value() == self.progressbar.maximum():
+            return True
+
     def reset(self):
         self.update_progress(0, '')
         self.finish_button.hide()
@@ -428,6 +432,9 @@ class SetupForm(QStackedWidget):
             self.reset()
 
     def cancel_button_clicked(self):
+        if self.page_2.is_complete():
+            self.finish_button_clicked()
+            return
         reply = QMessageBox.question(
             self, "Cancel setup?",
             "Are you sure you wish to cancel the {} setup process? "
