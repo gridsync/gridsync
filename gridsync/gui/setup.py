@@ -239,6 +239,8 @@ class ProgressBarWidget(QWidget):
     def reset(self):
         self.update_progress(0, '')
         self.finish_button.hide()
+        pixmap = QPixmap(resource('pixel.png')).scaled(32, 32)
+        self.checkmark.setPixmap(pixmap)
 
 
 class SetupForm(QStackedWidget):
