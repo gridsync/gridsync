@@ -8,11 +8,11 @@ from datetime import datetime
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QEvent, QFileInfo, QSize, Qt, QVariant
 from PyQt5.QtGui import (
-    QFont, QIcon, QPixmap, QStandardItem, QStandardItemModel)
+    QFont, QIcon, QKeySequence, QPixmap, QStandardItem, QStandardItemModel)
 from PyQt5.QtWidgets import (
-    QAbstractItemView, QAction, QComboBox, QFileIconProvider, QGridLayout,
-    QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox, QSizePolicy,
-    QStackedWidget, QTreeView, QWidget)
+    QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
+    QGridLayout, QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox,
+    QShortcut, QSizePolicy, QStackedWidget, QTreeView, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
@@ -377,6 +377,18 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
 
+        self.shortcut_new = QShortcut(QKeySequence.New, self)
+        self.shortcut_new.activated.connect(self.gui.show_setup_form)
+
+        self.shortcut_open = QShortcut(QKeySequence.Open, self)
+        self.shortcut_open.activated.connect(self.select_folder)
+
+        self.shortcut_close = QShortcut(QKeySequence.Close, self)
+        self.shortcut_close.activated.connect(self.close)
+
+        self.shortcut_quit = QShortcut(QKeySequence.Quit, self)
+        self.shortcut_quit.activated.connect(self.confirm_quit)
+
         self.combo_box = ComboBox()
         self.combo_box.activated[int].connect(self.on_grid_selected)
 
@@ -427,11 +439,24 @@ class MainWindow(QMainWindow):
         except AssertionError:  # Tried to start an already running LoopingCall
             pass
 
-    def current_widget(self):
+    def current_view(self):
         return self.central_widget.currentWidget().layout().itemAt(0).widget()
 
+    def select_folder(self):
+        try:
+            view = self.current_view()
+        except AttributeError:
+            return
+        dialog = QFileDialog(self, "Please select a folder")
+        dialog.setDirectory(os.path.expanduser('~'))
+        dialog.setFileMode(QFileDialog.Directory)
+        dialog.setOption(QFileDialog.ShowDirsOnly)
+        if dialog.exec_():
+            for folder in dialog.selectedFiles():
+                view.add_new_folder(folder)
+
     def get_current_grid_status(self):
-        return self.current_widget().model().monitor.grid_status
+        return self.current_view().model().monitor.grid_status
 
     def set_current_grid_status(self):
         self.status_bar_label.setText(self.get_current_grid_status())
