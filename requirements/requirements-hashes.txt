@@ -187,9 +187,9 @@ PyQt5==5.8.2 ; python_version >= "3.5" \
     --hash=sha256:f118e54f69f8477c90124ffbeea11690135745e48d6bdda6a3a0be8658fb65f0
 qt5reactor==0.4 \
     --hash=sha256:f75e7315d865775e3b9efc5279391cb20f4d4b593b323ca33bedd0c22460cce6
-requests==2.17.3 \
-    --hash=sha256:baf701b4a9d4cbe40169e8ab77816f7abadbad502ba459c30f7a2bc138e4d612 \
-    --hash=sha256:8d29f97ed1541709b57caddb77bb20592411d7ca10ec4f03275f49ee8456e225
+requests==2.18.1 \
+    --hash=sha256:6afd3371c1f4c1970497cdcace5c5ecbbe58267bf05ca1abd93d99d170803ab7 \
+    --hash=sha256:c6f3bdf4a4323ac7b45d01e04a6f6c20e32a052cd04de81e05103abc049ad9b9
 service_identity==17.0.0 \
     --hash=sha256:0e76f3c042cc0f5c7e6da002cf646f59dc4023962d1d1166343ce53bdad39e17 \
     --hash=sha256:4001fbb3da19e0df22c47a06d29681a398473af4aa9d745eca525b3b2c2302ab
