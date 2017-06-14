@@ -6,13 +6,16 @@ from collections import defaultdict
 from datetime import datetime
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QEvent, QFileInfo, QSize, Qt, QVariant
+from PyQt5.QtCore import (
+    pyqtSignal, QEvent, QFileInfo, QPoint, QSize, Qt, QVariant)
 from PyQt5.QtGui import (
-    QFont, QIcon, QKeySequence, QPixmap, QStandardItem, QStandardItemModel)
+    QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
+    QStandardItemModel)
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
     QGridLayout, QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox,
-    QShortcut, QSizePolicy, QStackedWidget, QTreeView, QWidget)
+    QShortcut, QSizePolicy, QStackedWidget, QStyledItemDelegate, QTreeView,
+    QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
@@ -150,6 +153,7 @@ class Model(QStandardItemModel):
         self.setHeaderData(3, Qt.Horizontal, QVariant("Size"))
         #self.setHeaderData(4, Qt.Horizontal, QVariant("Action"))
 
+        self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
         self.icon_syncing = QIcon(resource('sync.png'))
 
@@ -185,7 +189,7 @@ class Model(QStandardItemModel):
 
     def set_status(self, name, status):
         if not status:
-            icon = QIcon()
+            icon = self.icon_blank
             text = "Initializing..."
         elif status == 1:
             icon = self.icon_syncing
@@ -193,8 +197,9 @@ class Model(QStandardItemModel):
         else:
             icon = self.icon_up_to_date
             text = "Up to date"
-        self.setItem(
-            self.get_row_from_name(name), 1, QStandardItem(icon, text))
+        item = QStandardItem(icon, text)
+        item.setData(status, Qt.UserRole)
+        self.setItem(self.get_row_from_name(name), 1, item)
 
     def set_last_sync(self, name, text):
         self.setItem(self.get_row_from_name(name), 2, QStandardItem(text))
@@ -204,12 +209,40 @@ class Model(QStandardItemModel):
             self.get_row_from_name(name), 3, QStandardItem(naturalsize(size)))
 
 
+class Delegate(QStyledItemDelegate):
+
+    updated = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(Delegate, self).__init__(parent=None)
+        self.parent = parent
+        self.movie = QMovie(resource('waiting.gif'))
+        #self.movie.frameChanged.connect(self.parent.viewport().update)
+        self.movie.frameChanged.connect(self.updated)
+
+    def paint(self, painter, option, index):
+        column = index.column()
+        if column == 1:
+            status = index.data(Qt.UserRole)
+            if not status:  # "Initializing..."
+                point = option.rect.topLeft()
+                pixmap = self.movie.currentPixmap().scaled(20, 20)
+                painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
+                option.rect = option.rect.translated(pixmap.width(), 0)
+        super(Delegate, self).paint(painter, option, index)
+
+
 class View(QTreeView):
     def __init__(self, gui, gateway):
         super(View, self).__init__()
         self.gui = gui
         self.gateway = gateway
         self.setModel(Model(self))
+        delegate = Delegate(self)
+        delegate.updated.connect(self.viewport().update)
+        delegate.movie.start()
+        self.setItemDelegate(delegate)
+
         self.setAcceptDrops(True)
         #self.setColumnWidth(0, 150)
         #self.setColumnWidth(1, 100)
