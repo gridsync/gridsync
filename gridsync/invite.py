@@ -2,7 +2,10 @@
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
-from wormhole.wordlist import raw_words
+try:
+    from wormhole.wordlist import raw_words
+except ImportError:  # TODO: Switch to new magic-wormhole completion API
+    from wormhole._wordlist import raw_words
 from wormhole.xfer_util import receive
 
 from gridsync import settings
