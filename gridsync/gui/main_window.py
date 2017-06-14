@@ -147,6 +147,7 @@ class Model(QStandardItemModel):
         self.gui = self.view.gui
         self.gateway = self.view.gateway
         self.monitor = Monitor(self)
+        self.status_dict = {}
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Last sync"))
@@ -176,6 +177,7 @@ class Model(QStandardItemModel):
         #action = QStandardItem(QIcon(resource('share.png')), '')
         self.appendRow([name, status, size])
         self.view.hide_drop_label()
+        self.set_status(folder_basename, 0)
 
     def populate(self):
         for magic_folder in get_nodedirs(self.gateway.magic_folders_dir):
@@ -200,6 +202,7 @@ class Model(QStandardItemModel):
         item = QStandardItem(icon, text)
         item.setData(status, Qt.UserRole)
         self.setItem(self.get_row_from_name(name), 1, item)
+        self.status_dict[name] = status
 
     def set_last_sync(self, name, text):
         self.setItem(self.get_row_from_name(name), 2, QStandardItem(text))
@@ -217,8 +220,12 @@ class Delegate(QStyledItemDelegate):
         super(Delegate, self).__init__(parent=None)
         self.parent = parent
         self.movie = QMovie(resource('waiting.gif'))
-        #self.movie.frameChanged.connect(self.parent.viewport().update)
-        self.movie.frameChanged.connect(self.updated)
+        self.movie.setCacheMode(True)
+        self.movie.frameChanged.connect(self.on_frame_changed)
+
+    def on_frame_changed(self):
+        if 0 in self.parent.model().status_dict.values():
+            self.updated.emit()
 
     def paint(self, painter, option, index):
         column = index.column()
