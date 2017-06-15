@@ -19,6 +19,7 @@ from twisted.internet.protocol import Protocol, Factory
 from twisted.python.procutils import which
 
 from gridsync import config_dir, pkgdir, resource, settings
+from gridsync import msg
 from gridsync.gui import Gui
 from gridsync.tahoe import get_nodedirs, Tahoe
 
@@ -65,7 +66,8 @@ class Core(object):
                     logging.warning(
                         "Could not parse/compare version of '%s'", version)
         if not self.executable:
-            logging.critical(
+            msg.critical(
+                "Tahoe-LAFS not found",
                 "Could not find a suitable 'tahoe' executable in your PATH. "
                 "Please install Tahoe-LAFS (version >= 1.12) and try again.")
             reactor.stop()

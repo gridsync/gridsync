@@ -7,9 +7,11 @@ import sys
 
 from twisted.internet.error import CannotListenError
 
+from gridsync import APP_NAME
 from gridsync import __doc__ as description
 from gridsync._version import __version__
 from gridsync.core import Core
+from gridsync import msg
 
 
 class TahoeVersion(argparse.Action):
@@ -55,7 +57,9 @@ def main():
         core = Core(args)
         core.start()
     except CannotListenError:
-        logging.error("Gridsync already running.")
+        msg.critical(
+            "{} already running".format(APP_NAME),
+            "{} is already running.".format(APP_NAME))
         return 1
 
 
