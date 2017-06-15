@@ -37,4 +37,4 @@ txaio==2.8.0
 txdbus==1.0.14 ; "linux" in sys_platform
 txtorcon==0.19.3
 urllib3==1.21.1
-zope.interface==4.4.1
+zope.interface==4.4.2
