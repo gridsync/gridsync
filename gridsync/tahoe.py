@@ -348,6 +348,8 @@ class Tahoe(object):
         content = yield self.get_json_from_dircap(self.collective_dircap)
         if content:
             members = []
-            for member in content[1]['children']:
-                members.append(member)
+            children = content[1]['children'] 
+            for member in children:
+                readcap = children[member][1]['ro_uri']
+                members.append((member, readcap))
             returnValue(members)
