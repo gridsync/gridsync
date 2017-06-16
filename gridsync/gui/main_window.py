@@ -402,6 +402,7 @@ class MainWindow(QMainWindow):
 
     def set_current_grid_status(self):
         self.status_bar_label.setText(self.get_current_grid_status())
+        self.gui.systray.update()
 
     def on_grid_selected(self, index):
         if index == self.combo_box.count() - 1:

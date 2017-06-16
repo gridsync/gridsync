@@ -78,7 +78,6 @@ class Monitor(object):
             elif state == 1:
                 if magic_folder not in self.gui.core.operations:
                     self.gui.core.operations.append(magic_folder)
-            self.gui.systray.update()
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         self.model.set_status(magic_folder.name, state)
