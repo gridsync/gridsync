@@ -351,5 +351,13 @@ class Tahoe(object):
             children = content[1]['children']
             for member in children:
                 readcap = children[member][1]['ro_uri']
-                members.append((member, readcap))
+                if self.magic_folder_dircap:
+                    my_fingerprint = self.magic_folder_dircap.split(':')[-1]
+                    fingerprint = readcap.split(':')[-1]
+                    if fingerprint == my_fingerprint:
+                        members.insert(0, (member, readcap))
+                    else:
+                        members.append((member, readcap))
+                else:
+                    members.append((member, readcap))
             returnValue(members)
