@@ -302,7 +302,7 @@ class Tahoe(object):
 
     @inlineCallbacks
     def get_json_from_dircap(self, dircap):
-        if not self.nodeurl:
+        if not dircap or not self.nodeurl:
             return
         uri = '{}uri/{}/?t=json'.format(self.nodeurl, dircap)
         try:
@@ -313,39 +313,23 @@ class Tahoe(object):
             content = yield treq.content(resp)
             returnValue(json.loads(content.decode('utf-8')))
 
-    @inlineCallbacks
-    def get_magic_folder_size(self):
-        if not self.nodeurl:
+    def get_cap_from_file(self, filepath):
+        try:
+            with open(filepath) as f:
+                cap = f.read().strip()
+        except OSError:
             return
-        if not self.magic_folder_dircap:
-            mf_dircap_file = os.path.join(
-                self.nodedir, 'private', 'magic_folder_dircap')
-            try:
-                with open(mf_dircap_file) as f:
-                    self.magic_folder_dircap = f.read().strip()
-            except OSError:
-                return
-        content = yield self.get_json_from_dircap(self.magic_folder_dircap)
-        if content:
-            size = 0
-            filenodes = content[1]['children']
-            for filenode in filenodes:
-                size += int(filenodes[filenode][1]['size'])
-            returnValue(size)
+        return cap
+
+    def get_collective_dircap(self):
+        if not self.collective_dircap:
+            path = os.path.join(self.nodedir, 'private', 'collective_dircap')
+            self.collective_dircap = self.get_cap_from_file(path)
+        return self.collective_dircap
 
     @inlineCallbacks
     def get_magic_folder_members(self):
-        if not self.nodeurl:
-            return
-        if not self.collective_dircap:
-            collective_dircap_file = os.path.join(
-                self.nodedir, 'private', 'collective_dircap')
-            try:
-                with open(collective_dircap_file) as f:
-                    self.collective_dircap = f.read().strip()
-            except OSError:
-                return
-        content = yield self.get_json_from_dircap(self.collective_dircap)
+        content = yield self.get_json_from_dircap(self.get_collective_dircap())
         if content:
             members = []
             children = content[1]['children']
@@ -361,3 +345,23 @@ class Tahoe(object):
                 else:
                     members.append((member, readcap))
             returnValue(members)
+
+    def get_magic_folder_dircap(self):
+        if not self.magic_folder_dircap:
+            path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
+            self.magic_folder_dircap = self.get_cap_from_file(path)
+        return self.magic_folder_dircap
+
+    def size_from_content(self, content):
+        size = 0
+        filenodes = content[1]['children']
+        for filenode in filenodes:
+            size += int(filenodes[filenode][1]['size'])
+        return size 
+
+    @inlineCallbacks
+    def get_magic_folder_size(self):
+        content = yield self.get_json_from_dircap(
+            self.get_magic_folder_dircap())
+        if content:
+            returnValue(self.size_from_content(content))
