@@ -328,8 +328,9 @@ class Tahoe(object):
         return self.collective_dircap
 
     @inlineCallbacks
-    def get_magic_folder_members(self):
-        content = yield self.get_json(self.get_collective_dircap())
+    def get_magic_folder_members(self, content=None):
+        if not content:
+            content = yield self.get_json(self.get_collective_dircap())
         if content:
             members = []
             children = content[1]['children']
@@ -360,7 +361,8 @@ class Tahoe(object):
         return size 
 
     @inlineCallbacks
-    def get_magic_folder_size(self):
-        content = yield self.get_json(self.get_magic_folder_dircap())
+    def get_magic_folder_size(self, content=None):
+        if not content:
+            content = yield self.get_json(self.get_magic_folder_dircap())
         if content:
             returnValue(self.size_from_content(content))
