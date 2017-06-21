@@ -313,7 +313,8 @@ class Tahoe(object):
             content = yield treq.content(resp)
             returnValue(json.loads(content.decode('utf-8')))
 
-    def read_cap_from_file(self, filepath):
+    @staticmethod
+    def read_cap_from_file(filepath):
         try:
             with open(filepath) as f:
                 cap = f.read().strip()
@@ -353,7 +354,8 @@ class Tahoe(object):
             self.magic_folder_dircap = self.read_cap_from_file(path)
         return self.magic_folder_dircap
 
-    def size_from_content(self, content):
+    @staticmethod
+    def size_from_content(content):
         size = 0
         filenodes = content[1]['children']
         for filenode in filenodes:
