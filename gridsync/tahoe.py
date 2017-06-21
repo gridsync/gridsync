@@ -358,7 +358,7 @@ class Tahoe(object):
         filenodes = content[1]['children']
         for filenode in filenodes:
             size += int(filenodes[filenode][1]['size'])
-        return size 
+        return size
 
     @inlineCallbacks
     def get_magic_folder_size(self, content=None):
