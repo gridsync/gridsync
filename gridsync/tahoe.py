@@ -69,7 +69,7 @@ class CommandProtocol(ProcessProtocol):
             self.done.errback(reason)
 
 
-class Tahoe(object):
+class Tahoe(object):  # pylint: disable=too-many-public-methods
     def __init__(self, nodedir=None, executable=None):
         self.executable = executable
         if nodedir:
