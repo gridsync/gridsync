@@ -119,10 +119,11 @@ class Monitor(object):
             self.model.gui.show_message(self.model.gateway.name, grid_status)
         self.grid_status = grid_status
 
+    @inlineCallbacks
     def check_status(self):
-        self.check_grid_status()
+        yield self.check_grid_status()
         for magic_folder in self.model.gateway.magic_folders:
-            self.check_magic_folder_status(magic_folder)
+            yield self.check_magic_folder_status(magic_folder)
 
     def start(self, interval=2):
         self.timer.start(interval, now=True)
