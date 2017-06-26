@@ -80,7 +80,6 @@ class Monitor(object):
         #sync_start_time = 0
         if status and prev:
             if state == 1:  # "Syncing"
-                _, size, _ = yield magic_folder.get_magic_folder_info()
                 if prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", magic_folder.name)
                     self.add_operation(magic_folder)
@@ -92,13 +91,13 @@ class Monitor(object):
                     for item in status:
                         if item not in prev['status']:
                             self.add_updated_file(magic_folder, item['path'])
-                self.model.set_size(magic_folder.name, size)
             elif state == 2 and prev['state'] == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", magic_folder.name)
-                _, size, _ = yield magic_folder.get_magic_folder_info()
-                self.model.set_size(magic_folder.name, size)
                 self.remove_operation(magic_folder)
                 self.notify_updated_files(magic_folder)
+            if state in (1, 2) and prev['state'] != 2:
+                _, size, _ = yield magic_folder.get_magic_folder_info()
+                self.model.set_size(magic_folder.name, size)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         #self.status[magic_folder]['sync_start_time'] = sync_start_time
