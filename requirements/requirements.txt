@@ -1,6 +1,6 @@
 asn1crypto==0.22.0
 attrs==17.2.0
-autobahn==17.6.1
+autobahn==17.6.2
 Automat==0.6.0
 certifi==2017.4.17
 cffi==1.10.0
@@ -16,7 +16,7 @@ hyperlink==17.2.1
 idna==2.5
 incremental==17.5.0
 ipaddress==1.0.18
-magic-wormhole==0.9.2
+magic-wormhole==0.10.1
 pyasn1==0.2.3
 pyasn1-modules==0.0.9
 pycparser==2.17
