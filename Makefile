@@ -133,6 +133,11 @@ gif: pngs
 		-delay 7 \
 		-loop 0 \
 		images/frames/waiting-*.png build/waiting.gif
+	convert \
+		-dispose 2 \
+		-delay 4 \
+		-loop 0 \
+		images/frames/sync-*.png build/sync.gif
 
 resources: gif
 	pyrcc5 misc/resources.qrc -o gridsync/resources.py
