@@ -58,7 +58,6 @@ class Model(QStandardItemModel):
 
         self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
-        self.icon_syncing = QIcon(resource('sync.png'))
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)
