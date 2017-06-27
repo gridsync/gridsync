@@ -96,7 +96,7 @@ class Model(QStandardItemModel):
             icon = self.icon_blank
             text = "Initializing..."
         elif status == 1:
-            icon = self.icon_syncing
+            icon = self.icon_blank
             text = "Syncing"
         else:
             icon = self.icon_up_to_date
@@ -121,21 +121,34 @@ class Delegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super(Delegate, self).__init__(parent=None)
         self.parent = parent
-        self.movie = QMovie(resource('waiting.gif'))
-        self.movie.setCacheMode(True)
-        self.movie.frameChanged.connect(self.on_frame_changed)
+        self.waiting_movie = QMovie(resource('waiting.gif'))
+        self.waiting_movie.setCacheMode(True)
+        self.waiting_movie.frameChanged.connect(self.on_frame_changed)
+        self.sync_movie = QMovie(resource('sync.gif'))
+        self.sync_movie.setCacheMode(True)
+        self.sync_movie.frameChanged.connect(self.on_frame_changed)
 
     def on_frame_changed(self):
-        if 0 in self.parent.model().status_dict.values():
+        values = self.parent.model().status_dict.values()
+        if 0 in values or 1 in values:
             self.updated.emit()
+        else:
+            self.waiting_movie.setPaused(True)
+            self.sync_movie.setPaused(True)
 
     def paint(self, painter, option, index):
         column = index.column()
         if column == 1:
+            pixmap = None
             status = index.data(Qt.UserRole)
             if not status:  # "Initializing..."
+                self.waiting_movie.setPaused(False)
+                pixmap = self.waiting_movie.currentPixmap().scaled(20, 20)
+            elif status == 1:  # "Syncing"
+                self.sync_movie.setPaused(False)
+                pixmap = self.sync_movie.currentPixmap().scaled(20, 20)
+            if pixmap:
                 point = option.rect.topLeft()
-                pixmap = self.movie.currentPixmap().scaled(20, 20)
                 painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
                 option.rect = option.rect.translated(pixmap.width(), 0)
         super(Delegate, self).paint(painter, option, index)
@@ -149,7 +162,6 @@ class View(QTreeView):
         self.setModel(Model(self))
         delegate = Delegate(self)
         delegate.updated.connect(self.viewport().update)
-        delegate.movie.start()
         self.setItemDelegate(delegate)
 
         self.setAcceptDrops(True)
