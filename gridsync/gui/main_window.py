@@ -4,8 +4,7 @@ import logging
 import os
 
 from humanize import naturalsize
-from PyQt5.QtCore import (
-    pyqtSignal, QEvent, QFileInfo, QPoint, QSize, Qt, QVariant)
+from PyQt5.QtCore import QEvent, QFileInfo, QPoint, QSize, Qt, QVariant
 from PyQt5.QtGui import (
     QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
     QStandardItemModel)
@@ -114,9 +113,6 @@ class Model(QStandardItemModel):
 
 
 class Delegate(QStyledItemDelegate):
-
-    updated = pyqtSignal()
-
     def __init__(self, parent=None):
         super(Delegate, self).__init__(parent=None)
         self.parent = parent
@@ -130,7 +126,7 @@ class Delegate(QStyledItemDelegate):
     def on_frame_changed(self):
         values = self.parent.model().status_dict.values()
         if 0 in values or 1 in values:
-            self.updated.emit()
+            self.parent.viewport().update()
         else:
             self.waiting_movie.setPaused(True)
             self.sync_movie.setPaused(True)
@@ -159,9 +155,7 @@ class View(QTreeView):
         self.gui = gui
         self.gateway = gateway
         self.setModel(Model(self))
-        delegate = Delegate(self)
-        delegate.updated.connect(self.viewport().update)
-        self.setItemDelegate(delegate)
+        self.setItemDelegate(Delegate(self))
 
         self.setAcceptDrops(True)
         #self.setColumnWidth(0, 150)
