@@ -7,6 +7,7 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 from distutils.sysconfig import get_python_lib
+import hashlib
 import os
 import shutil
 import sys
@@ -97,7 +98,17 @@ print('Creating archive...')
 base_name = os.path.join('dist', app_name)
 if sys.platform == 'win32':
     format = 'zip'
+    suffix = '.zip'
 else:
     format = 'gztar'
+    suffix = '.tar.gz'
 shutil.make_archive(base_name, format, 'dist', app_name)
 print('Done!')
+
+print("Hashing (SHA256)...")
+archive_path = base_name + suffix
+hasher = hashlib.sha256()
+with open(archive_path, 'rb') as f:
+    for block in iter(lambda: f.read(4096), b''):
+        hasher.update(block)
+print("{}  {}".format(hasher.hexdigest(), archive_path))
