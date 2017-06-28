@@ -4,6 +4,7 @@ try:
     from configparser import RawConfigParser
 except ImportError:
     from ConfigParser import RawConfigParser
+import hashlib
 import subprocess
 
 
@@ -20,3 +21,10 @@ name = settings['application']['name']
 path = 'dist/{}.dmg'.format(name)
 
 subprocess.call(['dmgbuild', '-s', 'misc/dmgbuild_settings.py', name, path])
+
+print("Hashing (SHA256)...")
+hasher = hashlib.sha256()
+with open(path, 'rb') as f:
+    for block in iter(lambda: f.read(4096), b''):
+        hasher.update(block)
+print("{}  {}".format(hasher.hexdigest(), path))
