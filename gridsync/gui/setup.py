@@ -15,8 +15,8 @@ from PyQt5.QtWidgets import (
     QSpacerItem, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
-from wormhole.errors import WelcomeError, WrongPasswordError
-
+from wormhole.errors import (
+    ServerConnectionError, WelcomeError, WrongPasswordError)
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
@@ -357,6 +357,7 @@ class SetupForm(QStackedWidget):
         self.finish_button.show()
 
     def show_failure(self, failure):
+        log.error(str(failure))
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Retry)
@@ -404,9 +405,17 @@ class SetupForm(QStackedWidget):
                     APP_NAME))
             msg.setIcon(QMessageBox.Critical)
             msg.setStandardButtons(QMessageBox.Ok)
+        elif failure.type == ServerConnectionError:
+            self.show_error("Server Connection Error")
+            msg.setWindowTitle("Server Connection Error")
+            msg.setText(
+                "An error occured while connecting to the server. This could "
+                "mean that the server is currently down or that there is some "
+                "other problem with your connection. Please try again later.")
         else:
-            log.error(str(failure))
-            return
+            self.show_error(str(failure.type.__name__))
+            msg.setWindowTitle(str(failure.type.__name__))
+            msg.setText(str(failure.value))
         msg.exec_()
         self.reset()
 
