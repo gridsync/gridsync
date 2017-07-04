@@ -153,6 +153,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         for key, value in kwargs.items():
             if key in valid_kwargs:
                 args.extend(['--{}'.format(key), str(value)])
+            elif key in ['needed', 'happy', 'total']:
+                args.extend(['--shares-{}'.format(key), str(value)])
         yield self.command(args)
 
     @inlineCallbacks
