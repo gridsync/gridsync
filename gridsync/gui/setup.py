@@ -13,10 +13,12 @@ from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QInputDialog, QGridLayout, QLabel,
     QLineEdit, QPushButton, QMessageBox, QProgressBar, QShortcut, QSizePolicy,
     QSpacerItem, QStackedWidget, QToolButton, QWidget)
+import treq
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
+
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
@@ -298,8 +300,12 @@ class SetupForm(QStackedWidget):
         self.page_3.reset()
         self.setCurrentIndex(0)
 
-    @inlineCallbacks  # noqa: max-complexity=11 XXX
-    def setup(self, settings):
+    def load_service_icon(self, filepath):
+        pixmap = QPixmap(filepath).scaled(100, 100)
+        self.page_2.icon_overlay.setPixmap(pixmap)
+
+    @inlineCallbacks  # noqa: max-complexity=15 XXX
+    def setup(self, settings):  # pylint: disable=too-many-statements
         try:
             settings = json.loads(settings)
         except TypeError:
@@ -314,15 +320,36 @@ class SetupForm(QStackedWidget):
             nickname = settings['introducer'].split('@')[1].split(':')[0]
 
         self.update_progress(2, 'Connecting to {}...'.format(nickname))
+        icon_path = None
         if 'icon_base64' in settings:
-            temp_file = os.path.join(config_dir, '.icon.tmp')
-            with open(temp_file, 'wb') as f:
+            icon_path = os.path.join(config_dir, '.icon.tmp')
+            with open(icon_path, 'wb') as f:
                 try:
                     f.write(base64.b64decode(settings['icon_base64']))
                 except (Error, TypeError):
                     pass
-            pixmap = QPixmap(temp_file).scaled(100, 100)
-            self.page_2.icon_overlay.setPixmap(pixmap)
+            self.load_service_icon(icon_path)
+        elif 'icon_url' in settings:
+            # A temporary(?) measure to get around the performance issues
+            # observed when transferring a base64-encoded icon through Least
+            # Authority's wormhole server. Hopefully this will go away.. See:
+            # https://github.com/LeastAuthority/leastauthority.com/issues/539
+            log.debug("Fetching service icon from %s...", settings['icon_url'])
+            icon_path = os.path.join(config_dir, '.icon.tmp')
+            try:
+                # It's probably not worth cancelling or holding-up the setup
+                # process if fetching/writing the icon fails (particularly
+                # if doing so would require the user to get a new invite code)
+                # so just log a warning for now if something goes wrong...
+                resp = yield treq.get(settings['icon_url'])
+                if resp.code == 200:
+                    content = yield treq.content(resp)
+                    log.debug("Received %i bytes", len(content))
+                    with open(icon_path, 'wb') as f:
+                        f.write(content)
+                    self.load_service_icon(icon_path)
+            except Exception as e:  # pylint: disable=broad-except
+                log.warn("Error fetching service icon: %s", str(e))
 
         pixmap = QPixmap(resource('lines_dotted.png')).scaled(128, 128)
         self.page_2.icon_connection.setPixmap(pixmap)
@@ -339,8 +366,8 @@ class SetupForm(QStackedWidget):
         tahoe = Tahoe(os.path.join(config_dir, nickname))
         self.gateway = tahoe
         yield tahoe.create_client(**settings)
-        if 'icon_base64' in settings:
-            shutil.copy2(temp_file, os.path.join(tahoe.nodedir, 'icon'))
+        if icon_path:
+            shutil.move(icon_path, os.path.join(tahoe.nodedir, 'icon'))
 
         self.update_progress(3, 'Connecting to {}...'.format(nickname))
         yield tahoe.start()
