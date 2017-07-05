@@ -237,6 +237,16 @@ class ProgressBarWidget(QWidget):
         self.step = step
         self.progressbar.setValue(step)
         self.message.setText(message)
+        if step == 2:  # "Connecting to <nickname>..."
+            pixmap = QPixmap(resource('lines_dotted.png')).scaled(128, 128)
+            self.icon_connection.setPixmap(pixmap)
+            pixmap = QPixmap(resource('cloud_storage.png')).scaled(220, 220)
+            self.icon_server.setPixmap(pixmap)
+        elif step == 5:  # "Done!"
+            pixmap = QPixmap(resource('lines_solid.png')).scaled(128, 128)
+            self.icon_connection.setPixmap(pixmap)
+            pixmap = QPixmap(resource('green_checkmark.png')).scaled(32, 32)
+            self.checkmark.setPixmap(pixmap)
 
     def is_complete(self):
         if self.progressbar.value() == self.progressbar.maximum():
@@ -351,10 +361,6 @@ class SetupForm(QStackedWidget):
             except Exception as e:  # pylint: disable=broad-except
                 log.warn("Error fetching service icon: %s", str(e))
 
-        pixmap = QPixmap(resource('lines_dotted.png')).scaled(128, 128)
-        self.page_2.icon_connection.setPixmap(pixmap)
-        pixmap = QPixmap(resource('cloud_storage.png')).scaled(220, 220)
-        self.page_2.icon_server.setPixmap(pixmap)
         while os.path.isdir(os.path.join(config_dir, nickname)):
             title = "{} - Choose a name".format(APP_NAME)
             label = "Please choose a different name for this connection:"
@@ -376,10 +382,6 @@ class SetupForm(QStackedWidget):
         yield tahoe.await_ready()
 
         self.update_progress(5, 'Done!')
-        pixmap = QPixmap(resource('lines_solid.png')).scaled(128, 128)
-        self.page_2.icon_connection.setPixmap(pixmap)
-        pixmap = QPixmap(resource('green_checkmark.png')).scaled(32, 32)
-        self.page_2.checkmark.setPixmap(pixmap)
         self.gui.populate([self.gateway])
         self.finish_button.show()
 
