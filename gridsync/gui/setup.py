@@ -359,7 +359,7 @@ class SetupForm(QStackedWidget):
                         f.write(content)
                     self.load_service_icon(icon_path)
             except Exception as e:  # pylint: disable=broad-except
-                log.warn("Error fetching service icon: %s", str(e))
+                log.warning("Error fetching service icon: %s", str(e))
 
         while os.path.isdir(os.path.join(config_dir, nickname)):
             title = "{} - Choose a name".format(APP_NAME)

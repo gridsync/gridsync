@@ -54,8 +54,8 @@ def wormhole_receive(code):
     data = json.loads(data.decode('utf-8'))
     offer = data.get('offer', None)
     if offer:
-        logging.warn("The message-sender appears to be using the older, "
-                     "'xfer_util'-based version of the invite protocol.")
+        logging.warning("The message-sender appears to be using the older, "
+                        "'xfer_util'-based version of the invite protocol.")
         msg = None
         if 'message' in offer:
             msg = offer['message']
