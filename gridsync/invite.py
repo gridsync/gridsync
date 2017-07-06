@@ -13,10 +13,10 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API
 
 from gridsync import settings
 
+
 APPID = settings['wormhole']['appid']
 RELAY = settings['wormhole']['relay']
-#APPID = "tahoe-lafs.org/lafs"  # XXX
-# https://github.com/tahoe-lafs/tahoe-lafs/pull/418#pullrequestreview-47916533
+
 
 wordlist = []
 for word in raw_words.items():
@@ -47,21 +47,31 @@ def wormhole_receive(code):
     logging.debug("Using code: %s", code)
 
     client_intro = {"abilities": {"client-v1": {}}}
-    wh.send_message(json.dumps(client_intro).encode("utf-8"))
+    wh.send_message(json.dumps(client_intro).encode('utf-8'))
 
-    server_intro = yield wh.get_message()
-    server_intro = json.loads(server_intro.decode("utf-8"))
-    logging.debug("Received server introduction: %s", server_intro)
+    data = yield wh.get_message()
+    data = json.loads(data.decode('utf-8'))
+    offer = data.get('offer', None)
+    if offer:
+        logging.warn("The message-sender appears to be using the older, "
+                     "'xfer_util'-based version of the invite protocol.")
+        msg = None
+        if 'message' in offer:
+            msg = offer['message']
+            ack = {'answer': {'message_ack': 'ok'}}
+            wh.send_message(json.dumps(ack).encode('utf-8'))
+        else:
+            raise Exception("Unknown offer type: {}".format(offer.keys()))
+    else:
+        logging.debug("Received server introduction: %s", data)
+        if 'abilities' not in data:  # XXX: Raise UpgradeRequiredError?
+            raise Exception("No 'abilities' in server introduction")
+        if 'server-v1' not in data['abilities']:
+            raise Exception("No 'server-v1' in server abilities")
 
-    # XXX: raise UpgradeRequiredError? Handle "old" xfer_util-based protocol?
-    if 'abilities' not in server_intro:
-        raise Exception("No 'abilities' in server introduction")
-    if 'server-v1' not in server_intro['abilities']:
-        raise Exception("No 'server-v1' in server abilities")
+        msg = yield wh.get_message()
+        msg = json.loads(msg.decode("utf-8"))
 
-    msg = yield wh.get_message()
-    msg = json.loads(msg.decode("utf-8"))
     logging.debug("Received message: %s", msg)
-
     yield wh.close()
     returnValue(msg)
