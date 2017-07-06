@@ -12,6 +12,7 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API
     from wormhole._wordlist import raw_words
 
 from gridsync import settings
+from gridsync.errors import UpgradeRequiredError
 
 
 APPID = settings['wormhole']['appid']
@@ -64,10 +65,10 @@ def wormhole_receive(code):
             raise Exception("Unknown offer type: {}".format(offer.keys()))
     else:
         logging.debug("Received server introduction: %s", data)
-        if 'abilities' not in data:  # XXX: Raise UpgradeRequiredError?
-            raise Exception("No 'abilities' in server introduction")
+        if 'abilities' not in data:
+            raise UpgradeRequiredError
         if 'server-v1' not in data['abilities']:
-            raise Exception("No 'server-v1' in server abilities")
+            raise UpgradeRequiredError
 
         msg = yield wh.get_message()
         msg = json.loads(msg.decode("utf-8"))
