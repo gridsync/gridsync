@@ -376,7 +376,10 @@ class SetupForm(QStackedWidget):
         self.gateway = tahoe
         yield tahoe.create_client(**settings)
         if icon_path:
-            shutil.move(icon_path, os.path.join(tahoe.nodedir, 'icon'))
+            try:
+                shutil.copy(icon_path, os.path.join(tahoe.nodedir, 'icon'))
+            except OSError:
+                pass
 
         self.update_progress(3, 'Connecting to {}...'.format(nickname))
         yield tahoe.start()
