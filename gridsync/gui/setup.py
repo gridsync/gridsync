@@ -315,7 +315,7 @@ class SetupForm(QStackedWidget):
         self.page_2.icon_overlay.setPixmap(pixmap)
 
     @inlineCallbacks  # noqa: max-complexity=15 XXX
-    def setup(self, settings):  # pylint: disable=too-many-statements
+    def setup(self, settings):  # pylint: disable=too-many-statements,too-many-branches
         try:
             settings = json.loads(settings)
         except TypeError:
