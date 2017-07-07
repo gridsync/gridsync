@@ -45,7 +45,7 @@ def wormhole_receive(code):
     welcome = yield wh.get_welcome()
     logging.debug("Connected to wormhole server; got welcome: %s", welcome)
     wh.set_code(code)
-    logging.debug("Using code: %s", code)
+    logging.debug("Using code: %s (APPID is '%s')", code, APPID)
 
     client_intro = {"abilities": {"client-v1": {}}}
     wh.send_message(json.dumps(client_intro).encode('utf-8'))
