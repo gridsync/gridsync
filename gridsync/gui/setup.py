@@ -331,7 +331,10 @@ class SetupForm(QStackedWidget):
 
         self.update_progress(2, 'Connecting to {}...'.format(nickname))
         icon_path = None
-        if 'icon_base64' in settings:
+        if nickname == 'Least Authority S4':
+            icon_path = resource('leastauthority.com.icon')
+            self.load_service_icon(icon_path)
+        elif 'icon_base64' in settings:
             icon_path = os.path.join(config_dir, '.icon.tmp')
             with open(icon_path, 'wb') as f:
                 try:
