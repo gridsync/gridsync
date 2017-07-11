@@ -46,7 +46,6 @@ This should display output containing the following lines:
 pub   rsa4096/0x2777E1A5 2017-06-28 [SC] [expires: 2022-06-27]
       Key fingerprint = D2E7 EFD9 B780 8437 D91E  CD13 D38A 20A6 2777 E1A5
 uid           [ unknown] Gridsync Release Signing Key
-
 ```
 
 If the "Key fingerprint" line above matches what you see on your computer, the key has been successfully imported.
