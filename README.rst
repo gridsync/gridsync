@@ -109,6 +109,19 @@ Users of other distributions and operating systems should modify the above steps
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
 
 
+Known issues and limitations:
+-----------------------------
+
+While Gridsync ultimately aims to provide an easy-to-use frontend for users of Tahoe-LAFS, at present, its interface only supports a very limited subset of Tahoe-LAFS's underlying features and potential use-cases (namely, it provides simplified means for joining storage grids, creating and removing personal "magic-folders," and receiving status updates and notifications pertaining to those processes as they occur). Accordingly, users should not (yet) expect Gridsync to provide a complete backup solution or to serve as a stand-in replacement for other tools with robust sharing and collaboration capabilities.
+
+In addition, it should be noted that Tahoe-LAFS's "magic-folder" functionality itself is currently considered "experimental" and has a number of known issues and bugs that users should be aware of. For example, magic-folders currently `do not preserve metadata`_ (such as file modification times), will often `overwrite local file permissions`_, and have been known to `create duplicate copies of local files`_. A more complete listing of upstream issues relating to Tahoe-LAFS's magic-folders can be found on the official `Tahoe-LAFS project website`_.
+
+.. _do not preserve metadata: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2882
+.. _overwrite local file permissions: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2881
+.. _create duplicate copies of local files: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2880
+.. _Tahoe-LAFS project website: https://tahoe-lafs.org/trac/tahoe-lafs/search?q=magic-folder&noquickjump=1&ticket=on
+
+
 Contributing:
 -------------
 
