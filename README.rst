@@ -50,36 +50,44 @@ Screenshots:
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/notification.png
 
 
-Installation and running (development builds):
-----------------------------------------------
+Installation and running:
+-------------------------
 
-**Binary distributions:**
+**Stable releases:**
 
-Unsigned binary distributions (currently tracking the `master` branch) are available for all three major desktop platforms. These packages, however, should not be considered trustworthy or reliable in any way and are intended for testing purposes only. Please excercise appropriate caution when using these files (ideally by downloading and running them inside a disposable virtual machine).
+Downloads for "stable" releases of Gridsync can be found on the project's `GitHub Releases page`_ and include pre-built/binary distrubitions for all three major desktop platforms. Users wishing to install these packages are strongly urged to `verify their signatures`_ before running and should additionally take into consideration the fact that these packages are presently compiled by third-party services (namely `Travis-CI`_ and `AppVeyor`_). As a result -- and until reproducible builds have been fully implemented -- some users may wish instead to build or install Gridsync manually from source (see below).
 
-For GNU/Linux (tested on Debian 8 and Fedora 23):
+.. _GitHub Releases page: https://github.com/gridsync/gridsync/releases
+.. _verify their signatures: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
+.. _Travis-CI: https://travis-ci.org/gridsync/gridsync
+.. _AppVeyor: https://ci.appveyor.com/project/crwood/gridsync
 
-1. Download `Gridsync-Linux.tar.gz`_
+To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23):
+
+1. Download `Gridsync-Linux.tar.gz` (and `verify`_ its signature)
 2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
 3. Run the contained ``gridsync`` binary
 
-.. _Gridsync-Linux.tar.gz: https://buildbot.gridsync.io/artifacts/Gridsync-Linux.tar.gz
+.. _Gridsync-Linux.tar.gz: https://github.com/gridsync/gridsync/releases
+.. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-For macOS [*]_ :
+To install and run Gridsync on macOS [*]_ :
 
-1. Download `Gridsync-Mac.dmg`_
+1. Download `Gridsync-Mac.dmg`_ (and `verify`_ its signature)
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
 3. Double-click ``Gridsync.app``
 
-.. _Gridsync-Mac.dmg: https://buildbot.gridsync.io/artifacts/Gridsync-Mac.dmg
+.. _Gridsync-Mac.dmg: https://github.com/gridsync/gridsync/releases
+.. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-For Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
+To install and run Gridsync on Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
 
-1. Download `Gridsync-Windows.zip`_
+1. Download `Gridsync-Windows.zip`_ (and `verify`_ its signature)
 2. Extract the enclosed "Gridsync" folder anywhere
 3. Run the contained ``Gridsync.exe`` binary
 
-.. _Gridsync-Windows.zip: https://buildbot.gridsync.io/artifacts/Gridsync-Windows.zip
+.. _Gridsync-Windows.zip: https://github.com/gridsync/gridsync/releases
+.. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
 
 .. [*] macOS users may need to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
@@ -89,7 +97,7 @@ For Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
 
 Because Tahoe-LAFS has not yet been ported to python3, and because some GNU/Linux distributions might contain especially old packages for some dependencies (including Tahoe-LAFS and Qt5), it is recommended to install and run Tahoe-LAFS and Gridsync inside their own virtual environments using updated dependencies from PyPI (ideally with hashes verified). Installing and running Gridsync with python3.5 (instead of python2) furthermore avoids having to install Qt5/PyQt5 manually (since PyQt5 wheels containing Qt5 are now available on PyPI for python 3.5+).
 
-The following series of steps (run from the top level of the Gridsync source tree) should work on most Debian-based GNU/Linux distributions:
+The following series of steps (run from the top level of the Gridsync source tree) should work on Debian-based GNU/Linux distributions:
 
 .. code-block:: shell-session
 
@@ -107,6 +115,13 @@ The following series of steps (run from the top level of the Gridsync source tre
 Users of other distributions and operating systems should modify the above steps as required (for example, by installing Xcode on macOS in addition to python -- or the dependencies listed at the top of `make.bat`_ in the case of Windows).
 
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
+
+
+**Development builds:**
+
+Unsigned binary distributions (currently tracking the `master` branch) are also available from the `project buildbot's "artifacts" directory`_. These packages, however, should not be considered trustworthy or reliable in any way and are made available only for testing purposes by developers. Please excercise appropriate caution when using these files (ideally by downloading and running them inside a disposable virtual machine).
+
+.. _project buildbot's "artifacts" directory: https://buildbot.gridsync.io/artifacts/
 
 
 Known issues and limitations:
