@@ -68,7 +68,9 @@ class Monitor(object):
             if not state:
                 state = 2  # "Up to date"
         last_sync = ''
-        if t:
+        if state == 1:
+            last_sync = "In progress"
+        elif t:
             last_sync = naturaltime(datetime.now() - datetime.fromtimestamp(t))
         return state, last_sync, kind, path, failures
 
