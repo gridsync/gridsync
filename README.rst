@@ -64,7 +64,7 @@ Downloads for "stable" releases of Gridsync can be found on the project's `GitHu
 
 To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23):
 
-1. Download `Gridsync-Linux.tar.gz` (and `verify`_ its signature)
+1. Download `Gridsync-Linux.tar.gz`_ (and `verify`_ its signature)
 2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
 3. Run the contained ``gridsync`` binary
 
