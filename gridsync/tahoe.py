@@ -14,7 +14,7 @@ import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
     Deferred, gatherResults, inlineCallbacks, returnValue)
-from twisted.internet.error import ConnectionRefusedError, ProcessDone  # pylint: disable=redefined-builtin
+from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
@@ -296,7 +296,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         uri = self.nodeurl + 'magic_folder'
         try:
             resp = yield treq.post(uri, {'token': self.api_token, 't': 'json'})
-        except ConnectionRefusedError:
+        except ConnectError:
             return
         if resp.code == 200:
             content = yield treq.content(resp)
