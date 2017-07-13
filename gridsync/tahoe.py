@@ -200,7 +200,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             return
         try:
             resp = yield treq.get(self.nodeurl)
-        except ConnectionRefusedError:
+        except ConnectError:
             return
         if resp.code == 200:
             html = yield treq.content(resp)
@@ -309,7 +309,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         uri = '{}uri/{}/?t=json'.format(self.nodeurl, cap)
         try:
             resp = yield treq.get(uri)
-        except ConnectionRefusedError:
+        except ConnectError:
             return
         if resp.code == 200:
             content = yield treq.content(resp)
