@@ -39,7 +39,7 @@ deploy:
     secure: 7MqXbCzCSmPXcKfaSz1OxAcxgso41W0x6SWQeQiMnRjTbGPn4LqHC6oIuFIsM6g7
   artifact: dist\Gridsync-Windows.zip
   description: $(appveyor_repo_commit_message)
-  draft: true
+  draft: false
   prerelease: true
   force_update: true
   on:
