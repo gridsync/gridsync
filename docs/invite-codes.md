@@ -10,9 +10,9 @@ An _invite code_ is a short combination of numbers and words (e.g., `9-hamburger
 What are invite codes used for?
 -------------------------------
 
-In Gridsync, invite codes are currently used as a means for storage service providers to send required account-related information to users (such as the address or "introducer fURL" of a storage grid and other configuration information) without requiring those users to enter this information manually. Knowing and entering an invite code is thus typically sufficient -- and the only step required -- to configure Gridsync "from scratch" after installation.
+In Gridsync, invite codes are currently used as a means for storage service providers to send required account-related information to users (such as the address or "introducer fURL" of a storage grid and other important configuration information) without requiring those users to enter this information manually. Knowing and entering an invite code is thus typically sufficient – and is usually the only step required – to configure Gridsync "from scratch" after installation.
 
-In the future, invite codes will be used by Gridsync for additional purposes (such as pairing account information between computers and sharing files and folders between users).
+In the future, invite codes will be used by Gridsync for additional purposes (like pairing account information to other devices and sharing files and folders between computers or other users).
 
 
 Why use invite codes (instead of, e.g., passwords or email)?
@@ -20,7 +20,7 @@ Why use invite codes (instead of, e.g., passwords or email)?
 
 Since invite codes are short, human-pronounceable, and comprised from a known list of phonetically distinct words, they are generally easier to memorize, communicate, and type than other forms of credententials (e.g., username/password combinations with specific requirements for length or complexity). Accordingly, the use of invite codes can help to drastically reduce the chances of user-error and subsequent frustration (e.g., from making typos, forgetting one's password and requiring a reset, and so forth).
 
-In addition to the obvious usability improvements, because invite codes can only be used a single time before expiring, their usage helps to protect against certain classes of all-too-common attacks: when credentials are delivered over email, for example, your email provider necessarily gains access to that information (as does anybody else who might access your email account later on). By using invite codes to receive or exchange credentials in a more direct fashion, any such third parties are naturally excluded from knowing the content -- or even the _existence_ -- of the information being exchanged.
+In addition to the obvious usability improvements, because invite codes can only be used a single time before expiring, their usage helps to protect against certain classes of all-too-common attacks: when credentials are delivered over email, for example, your email provider necessarily gains access to that information (as does anybody else who might access your email account later on). By using invite codes to receive or exchange credentials in a more direct fashion, any such third parties are naturally excluded from knowing the content – or even the _existence_ – of the information being exchanged.
 
 
 How are invite codes secure?
