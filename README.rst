@@ -71,7 +71,7 @@ To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23):
 .. _Gridsync-Linux.tar.gz: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on macOS (OS X 10.10 and later)[*]_:
+To install and run Gridsync on macOS (OS X 10.10 and later)[*]_ :
 
 1. Download `Gridsync-Mac.dmg`_ (and `verify`_ its signature)
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
