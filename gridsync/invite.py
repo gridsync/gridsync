@@ -76,3 +76,33 @@ def wormhole_receive(code):
     logging.debug("Received message: %s", msg)
     yield wh.close()
     returnValue(msg)
+
+
+@inlineCallbacks
+def wormhole_send(msg, code=None):
+    logging.debug("Connecting to %s...", RELAY)
+    wh = wormhole.create(APPID, RELAY, reactor)
+    welcome = yield wh.get_welcome()
+    logging.debug("Connected to wormhole server; got welcome: %s", welcome)
+    if code is None:
+        wh.allocate_code()
+        logging.debug("Generating code...")
+        code = yield wh.get_code()
+    else:
+        wh.set_code(code)
+    logging.debug("Using code: %s (APPID is '%s')", code, APPID)
+
+    server_intro = {"abilities": {"server-v1": {}}}
+    wh.send_message(json.dumps(server_intro).encode('utf-8'))
+
+    data = yield wh.get_message()
+    data = json.loads(data.decode('utf-8'))
+    logging.debug("Received client introduction: %s", data)
+    if 'abilities' not in data:
+        raise UpgradeRequiredError
+    if 'client-v1' not in data['abilities']:
+        raise UpgradeRequiredError
+
+    logging.debug("Sending message: %s", msg)
+    wh.send_message(json.dumps(msg).encode('utf-8'))
+    yield wh.close()
