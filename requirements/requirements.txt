@@ -12,7 +12,7 @@ cryptography==2.0
 enum34==1.1.6 ; python_version < "3.4"
 hkdf==0.0.3
 humanize==0.5.1
-hyperlink==17.2.1
+hyperlink==17.3.0
 idna==2.5
 incremental==17.5.0
 ipaddress==1.0.18
