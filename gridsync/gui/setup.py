@@ -315,7 +315,7 @@ class SetupForm(QStackedWidget):
         self.page_2.icon_overlay.setPixmap(pixmap)
 
     @inlineCallbacks  # noqa: max-complexity=15 XXX
-    def setup(self, settings):  # pylint: disable=too-many-branches
+    def setup(self, settings):  # pylint: disable=too-many-statements,too-many-branches
         if 'version' in settings and int(settings['version']) > 1:
             raise UpgradeRequiredError
 
