@@ -193,7 +193,7 @@ class ProgressBarWidget(QWidget):
         self.icon_connection.setAlignment(Qt.AlignCenter)
 
         self.icon_client = QLabel()
-        pixmap = QPixmap(resource('laptop.png')).scaled(128, 128)
+        pixmap = QPixmap(resource('laptop-with-icon.png')).scaled(128, 128)
         self.icon_client.setPixmap(pixmap)
         self.icon_client.setAlignment(Qt.AlignCenter)
 
