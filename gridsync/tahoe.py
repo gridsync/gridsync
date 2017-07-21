@@ -93,6 +93,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def config_get(self, section, option):
         return self.config.get(section, option)
 
+    def get_settings(self):
+        settings = {
+            'nickname': self.name,
+            'introducer': self.config_get('client', 'introducer.furl'),
+            'shares-needed': self.config_get('client', 'shares.needed'),
+            'shares-happy': self.config_get('client', 'shares.happy'),
+            'shares-total': self.config_get('client', 'shares.total')
+        }
+        icon_path = os.path.join(self.nodedir, 'icon')
+        icon_url_path = icon_path + '.url'
+        if os.path.exists(icon_url_path):
+            with open(icon_url_path) as f:
+                settings['icon_url'] = f.read().strip()
+        # XXX: Support 'icon_base64'?
+        return settings
+
     def line_received(self, line):
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
