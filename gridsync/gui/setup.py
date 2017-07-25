@@ -375,8 +375,14 @@ class SetupForm(QStackedWidget):
         if icon_path:
             try:
                 shutil.copy(icon_path, os.path.join(tahoe.nodedir, 'icon'))
-            except OSError:
-                pass
+            except OSError as err:
+                log.warning("Error copying icon file: %s", str(err))
+        if 'icon_url' in settings:
+            try:
+                with open(os.path.join(tahoe.nodedir, 'icon.url'), 'w') as f:
+                    f.write(settings['icon_url'])
+            except OSError as err:
+                log.warning("Error writing icon url to file: %s", str(err))
 
         self.update_progress(3, 'Connecting to {}...'.format(nickname))
         yield tahoe.start()
