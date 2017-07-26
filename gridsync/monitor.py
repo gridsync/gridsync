@@ -9,6 +9,7 @@ from humanize import naturaltime
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
+from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
 
@@ -43,7 +44,8 @@ class Monitor(object):
             title = magic_folder.name + " updated and encrypted"
             message = "Updated " + humanized_list(
                 self.status[magic_folder]['updated_files'])
-            self.model.gui.show_message(title, message)
+            if get_preference('notifications', 'folder') != 'false':
+                self.model.gui.show_message(title, message)
             self.status[magic_folder]['updated_files'] = []
             logging.debug("Cleared updated_files list")
 
@@ -117,7 +119,9 @@ class Monitor(object):
         else:
             grid_status = "Connected to {} storage nodes".format(num_connected)
         if num_connected and grid_status != self.grid_status:
-            self.model.gui.show_message(self.model.gateway.name, grid_status)
+            if get_preference('notifications', 'connection') != 'false':
+                self.model.gui.show_message(
+                    self.model.gateway.name, grid_status)
         self.grid_status = grid_status
 
     @inlineCallbacks
