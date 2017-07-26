@@ -17,7 +17,7 @@ idna==2.5
 incremental==17.5.0
 ipaddress==1.0.18
 magic-wormhole==0.10.2
-pyasn1==0.2.3
+pyasn1==0.3.1
 pyasn1-modules==0.0.9
 pycparser==2.18
 PyNaCl==1.1.2
@@ -25,16 +25,16 @@ pyOpenSSL==17.2.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
 qt5reactor==0.4
-requests==2.18.1
+requests==2.18.2
 service_identity==17.0.0
 SIP==4.19.2 ; python_version >= "3.5"
 six==1.10.0
 spake2==0.7
-tqdm==4.14.0
+tqdm==4.15.0
 treq==17.3.1
 Twisted==17.5.0
 txaio==2.8.1
 txdbus==1.1.0 ; "linux" in sys_platform
 txtorcon==0.19.3
-urllib3==1.21.1
+urllib3==1.22
 zope.interface==4.4.2
