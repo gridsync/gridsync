@@ -2,13 +2,13 @@ asn1crypto==0.22.0
 attrs==17.2.0
 autobahn==17.7.1
 Automat==0.6.0
-certifi==2017.4.17
+certifi==2017.7.27.1
 cffi==1.10.0
 chardet==3.0.4
 click==6.7
 configparser==3.5.0 ; python_version < "3.2"
 constantly==15.1.0
-cryptography==2.0
+cryptography==2.0.2
 enum34==1.1.6 ; python_version < "3.4"
 hkdf==0.0.3
 humanize==0.5.1
@@ -18,7 +18,7 @@ incremental==17.5.0
 ipaddress==1.0.18
 magic-wormhole==0.10.2
 pyasn1==0.3.1
-pyasn1-modules==0.0.9
+pyasn1-modules==0.0.10
 pycparser==2.18
 PyNaCl==1.1.2
 pyOpenSSL==17.2.0
