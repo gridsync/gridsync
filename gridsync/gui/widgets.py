@@ -190,7 +190,6 @@ class PreferencesWidget(QWidget):
             self.checkbox_invite.setCheckState(Qt.Checked)
 
     def on_checkbox_connection_changed(self, state):
-        print(state)
         if state:
             set_preference('notifications', 'connection', 'true')
         else:
