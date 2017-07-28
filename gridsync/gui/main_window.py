@@ -18,7 +18,7 @@ from twisted.internet.task import LoopingCall
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
-from gridsync.gui.widgets import CompositePixmap
+from gridsync.gui.widgets import CompositePixmap, PreferencesWidget
 from gridsync.monitor import Monitor
 from gridsync.tahoe import get_nodedirs
 
@@ -35,7 +35,7 @@ class ComboBox(QComboBox):
             icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
             if not icon.availableSizes():
                 icon = QIcon(resource('tahoe-lafs.png'))
-            self.addItem(icon, basename)
+            self.addItem(icon, basename, gateway)
         self.insertSeparator(self.count())
         self.addItem(" Add new...")
         #self.model().item(self.count() - 1).setEnabled(False)
@@ -342,16 +342,15 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        #invite_action = QAction(
-        #    QIcon(resource('mail-envelope-open')), 'Enter Invite Code', self)
-        #invite_action.setStatusTip('Enter Invite Code')
-        #invite_action.setShortcut(QKeySequence.Open)
-        #invite_action.triggered.connect(self.gui.show_invite_form)
+        pair_action = QAction(
+            QIcon(resource('laptop.png')), 'Pair a device...', self)
+        pair_action.setStatusTip('Pair a device...')
 
-        #preferences_action = QAction(
-        #    QIcon(resource('preferences.png')), 'Preferences', self)
-        #preferences_action.setStatusTip('Preferences')
-        #preferences_action.setShortcut(QKeySequence.Preferences)
+        preferences_action = QAction(
+            QIcon(resource('preferences.png')), 'Preferences', self)
+        preferences_action.setStatusTip('Preferences')
+        preferences_action.setShortcut(QKeySequence.Preferences)
+        preferences_action.triggered.connect(self.toggle_preferences_widget)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
@@ -363,15 +362,18 @@ class MainWindow(QMainWindow):
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toolbar.setMovable(False)
-        #self.toolbar.addAction(invite_action)
+        self.toolbar.addAction(pair_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
-        #self.toolbar.addAction(preferences_action)
+        self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
         self.status_bar_label = QLabel('Initializing...')
         self.status_bar.addPermanentWidget(self.status_bar_label)
+
+        self.preferences_widget = PreferencesWidget()
+        self.preferences_widget.accepted.connect(self.show_selected_grid_view)
 
         self.grid_status_updater = LoopingCall(self.set_current_grid_status)
 
@@ -381,6 +383,7 @@ class MainWindow(QMainWindow):
                 self.gateways.append(gateway)
         self.combo_box.populate(self.gateways)
         self.central_widget.populate(self.gateways)
+        self.central_widget.addWidget(self.preferences_widget)
         try:
             self.grid_status_updater.start(2, now=True)
         except AssertionError:  # Tried to start an already running LoopingCall
@@ -402,11 +405,11 @@ class MainWindow(QMainWindow):
             for folder in dialog.selectedFiles():
                 view.add_new_folder(folder)
 
-    def get_current_grid_status(self):
-        return self.current_view().model().monitor.grid_status
-
     def set_current_grid_status(self):
-        self.status_bar_label.setText(self.get_current_grid_status())
+        if self.central_widget.currentWidget() == self.preferences_widget:
+            return
+        self.status_bar_label.setText(
+            self.current_view().model().monitor.grid_status)
         self.gui.systray.update()
 
     def on_grid_selected(self, index):
@@ -414,7 +417,30 @@ class MainWindow(QMainWindow):
             self.gui.show_setup_form()
         else:
             self.central_widget.setCurrentIndex(index)
+            self.status_bar.show()
             self.set_current_grid_status()
+
+    def show_selected_grid_view(self):
+        for i in range(self.central_widget.count()):
+            widget = self.central_widget.widget(i)
+            try:
+                gateway = widget.layout().itemAt(0).widget().gateway
+            except AttributeError:
+                continue
+            if gateway == self.combo_box.currentData():
+                self.central_widget.setCurrentIndex(i)
+                self.status_bar.show()
+                self.set_current_grid_status()
+                return
+
+    def toggle_preferences_widget(self):
+        if self.central_widget.currentWidget() == self.preferences_widget:
+            self.show_selected_grid_view()
+        else:
+            self.status_bar.hide()
+            for i in range(self.central_widget.count()):
+                if self.central_widget.widget(i) == self.preferences_widget:
+                    self.central_widget.setCurrentIndex(i)
 
     def confirm_quit(self):
         reply = QMessageBox.question(
