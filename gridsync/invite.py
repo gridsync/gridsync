@@ -45,6 +45,7 @@ class Wormhole(QObject):
     got_code = pyqtSignal(str)
     got_message = pyqtSignal(dict)
     closed = pyqtSignal()
+    send_completed = pyqtSignal()
 
     def __init__(self):
         super(Wormhole, self).__init__()
@@ -128,6 +129,7 @@ class Wormhole(QObject):
         logging.debug("Sending message: %s", msg)
         self._wormhole.send_message(json.dumps(msg).encode('utf-8'))
         yield self.close()
+        self.send_completed.emit()
 
 
 @inlineCallbacks
