@@ -43,6 +43,7 @@ class Wormhole(QObject):
 
     got_welcome = pyqtSignal(dict)
     got_code = pyqtSignal(str)
+    got_introduction = pyqtSignal()
     got_message = pyqtSignal(dict)
     closed = pyqtSignal()
     send_completed = pyqtSignal()
@@ -94,6 +95,7 @@ class Wormhole(QObject):
                 raise UpgradeRequiredError
             if 'server-v1' not in data['abilities']:
                 raise UpgradeRequiredError
+            self.got_introduction.emit()
 
             msg = yield self._wormhole.get_message()
             msg = json.loads(msg.decode("utf-8"))
@@ -125,6 +127,7 @@ class Wormhole(QObject):
             raise UpgradeRequiredError
         if 'client-v1' not in data['abilities']:
             raise UpgradeRequiredError
+        self.got_introduction.emit()
 
         logging.debug("Sending message: %s", msg)
         self._wormhole.send_message(json.dumps(msg).encode('utf-8'))
