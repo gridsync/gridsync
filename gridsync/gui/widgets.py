@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import os
 
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtGui import QFont, QPainter, QPixmap
+from PyQt5.QtGui import QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialogButtonBox, QFormLayout, QGridLayout,
-    QGroupBox, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy,
-    QSpacerItem, QSpinBox, QWidget)
+    QGroupBox, QLabel, QLineEdit, QMessageBox, QPlainTextEdit, QProgressBar,
+    QPushButton, QSizePolicy, QSpacerItem, QSpinBox, QToolButton, QWidget)
 
+from gridsync import resource, APP_NAME
+from gridsync.desktop import get_clipboard_modes, set_clipboard_text
+from gridsync.invite import Wormhole
 from gridsync.preferences import set_preference, get_preference
 
 
@@ -206,3 +208,165 @@ class PreferencesWidget(QWidget):
             set_preference('notifications', 'invite', 'true')
         else:
             set_preference('notifications', 'invite', 'false')
+
+
+class PairWidget(QWidget):
+    done = pyqtSignal(QWidget)
+
+    def __init__(self, gateway, gui):  # pylint:disable=too-many-statements
+        super(PairWidget, self).__init__()
+        self.gateway = gateway
+        self.gui = gui
+        self.settings = {}
+        self.wormhole = None
+
+        self.grid_icon_label = QLabel(self)
+        icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
+        if not icon.availableSizes():
+            icon = QIcon(resource('tahoe-lafs.png'))
+        self.grid_icon_label.setPixmap(icon.pixmap(50, 50))
+
+        self.grid_name_label = QLabel(self.gateway.name)
+        font = QFont()
+        font.setPointSize(18)
+        self.grid_name_label.setFont(font)
+        self.grid_name_label.setAlignment(Qt.AlignCenter)
+
+        label_layout = QGridLayout()
+        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        label_layout.addWidget(self.grid_icon_label, 1, 2)
+        label_layout.addWidget(self.grid_name_label, 1, 3)
+        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+
+        #self.instructions = QLabel(
+        #    'To pair another device with {} to {}, click the "Generate '
+        #    'invite code" button below and enter the invite code that appears '
+        #    'on the new device. Pairing another device will allow it to '
+        #    'connect to {}, upload new folders, and (in the future) share and '
+        #    'sync folders between other connected devices.\n\n'
+        #    'Note that the invite code you generate will remain valid only so '
+        #    'long as this window remains open and will expire immediately '
+        #    'when used.'.format(
+        #        APP_NAME, self.gateway.name, self.gateway.name))
+        self.instructions = QLabel(
+            'To pair another device with {}, install {} on that device and '
+            'click the "Generate invite code" button below. The invite code '
+            'that appears can then be entered on the new device, allowing it '
+            'to connect to {}, upload new folders, and (in the future) share '
+            'and sync folders between other connected devices.\n\n'
+            'Note that the invite code you generate will remain valid only so '
+            'long as this window remains open and will expire immediately '
+            'when used.'.format(
+                self.gateway.name, APP_NAME, self.gateway.name))
+        self.instructions.setWordWrap(True)
+
+        self.waiting_label = QLabel("Generating invite code...")
+
+        self.code_label = QLabel()
+        font = QFont()
+        font.setPointSize(18)
+        #font.setBold(True)
+        #font.setItalic(True)
+        self.code_label.setFont(font)
+        self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.code_label.hide()
+
+        self.copy_button = QToolButton()
+        self.copy_button.setIcon(QIcon(resource('paste.png')))
+        self.copy_button.setToolTip("Copy to clipboard")
+        self.copy_button.setStyleSheet('border: 0px; padding: 0px;')
+        self.copy_button.hide()
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMaximum(2)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.hide()
+
+        self.code_box = QGroupBox()
+        box_layout = QGridLayout(self.code_box)
+        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        box_layout.addWidget(self.waiting_label, 1, 2)
+        box_layout.addWidget(self.code_label, 1, 3)
+        box_layout.addWidget(self.copy_button, 1, 4)
+        #box_layout.addWidget(self.progress_bar, 1, 1, 1, 5)
+        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        self.code_box.hide()
+
+        self.generate_button = QPushButton("Generate invite code")
+
+        self.close_button = QPushButton("Close and cancel")
+        self.close_button.hide()
+
+        layout = QGridLayout(self)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addLayout(label_layout, 1, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
+        layout.addWidget(self.instructions, 3, 2, 1, 3)
+        layout.addWidget(self.code_box, 4, 2, 1, 3)
+        layout.addWidget(self.progress_bar, 4, 2, 1, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
+        layout.addWidget(self.generate_button, 10, 3)
+        layout.addWidget(self.close_button, 11, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 20, 1)
+
+        self.generate_button.clicked.connect(self.on_button_clicked)
+        self.copy_button.clicked.connect(self.on_copy_button_clicked)
+        self.close_button.clicked.connect(self.close)
+
+    def on_got_code(self, code):
+        self.code_label.setText(code)
+        self.instructions.hide()
+        self.code_box.show()
+        self.waiting_label.hide()
+        self.code_label.show()
+        self.copy_button.show()
+
+    def on_got_introduction(self):
+        self.code_box.hide()
+        self.progress_bar.show()
+        self.progress_bar.setValue(1)
+
+    def on_send_completed(self):
+        self.code_box.hide()
+        self.progress_bar.show()
+        self.progress_bar.setValue(2)
+        if get_preference('notifications', 'invite') != 'false':
+            self.gui.show_message(
+                "Pairing complete",
+                "Your invitation to {} was accepted".format(self.gateway.name))
+
+    def on_copy_button_clicked(self):
+        code = self.code_label.text()
+        for mode in get_clipboard_modes():
+            set_clipboard_text(code, mode)
+
+    def on_button_clicked(self):
+        self.wormhole = Wormhole()
+        self.wormhole.got_code.connect(self.on_got_code)
+        self.wormhole.got_introduction.connect(self.on_got_introduction)
+        self.wormhole.send_completed.connect(self.on_send_completed)
+        self.instructions.hide()
+        self.code_box.show()
+        self.generate_button.hide()
+        self.close_button.show()
+        self.settings = self.gateway.get_settings()
+        self.wormhole.send(self.settings)
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(
+            self, "Cancel invitation?",
+            'Are you sure you wish to cancel the invitation to "{}"?\n\n'
+            'The invite code "{}" will no longer be valid.'.format(
+                self.gateway.name, self.code_label.text()),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.wormhole.close()  # XXX wormhole.errors.LonelyError
+            event.accept()
+        else:
+            event.ignore()
