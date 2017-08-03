@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import re
+import struct
 import sys
 
 from setuptools import setup
@@ -45,6 +46,18 @@ if sys.platform.startswith('linux'):
 python_version = (sys.version_info.major, sys.version_info.minor)
 if python_version >= (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
     requirements.append('pyqt5')
+
+    # PyQt5 wheels are not available for 32-bit Linux;
+    # see https://github.com/gridsync/gridsync/issues/45
+    if sys.platform == 'linux' and (struct.calcsize('P') * 8) == 32:
+        try:
+            import PyQt5  # noqa; F401 (imported but unused)
+        except ImportError:
+            sys.exit(
+                "PyQt5 wheels are not available on this platform. Please "
+                "manually install PyQt5 into this environment and try again.")
+        requirements.remove('pyqt5')
+
 
 if python_version < (3, 2):
     requirements.append('configparser')
