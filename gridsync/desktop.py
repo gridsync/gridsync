@@ -62,4 +62,4 @@ def get_clipboard_text(mode=QClipboard.Clipboard):
 
 def set_clipboard_text(text, mode=QClipboard.Clipboard):
     QCoreApplication.instance().clipboard().setText(text, mode)
-    logging.debug("Copied text '{}' to clipboard {}".format(text, mode))
+    logging.debug("Copied text '%s' to clipboard %i", text, mode)
