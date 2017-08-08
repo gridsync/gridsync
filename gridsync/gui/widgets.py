@@ -424,3 +424,7 @@ class PairWidget(QWidget):
                 event.ignore()
         else:
             event.accept()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close()
