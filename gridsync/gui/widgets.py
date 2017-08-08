@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os
 
 from PyQt5.QtCore import pyqtSignal, Qt
@@ -8,6 +9,7 @@ from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialogButtonBox, QFormLayout, QGridLayout,
     QGroupBox, QLabel, QLineEdit, QMessageBox, QPlainTextEdit, QProgressBar,
     QPushButton, QSizePolicy, QSpacerItem, QSpinBox, QToolButton, QWidget)
+import wormhole.errors
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
@@ -345,6 +347,41 @@ class PairWidget(QWidget):
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
 
+    def handle_failure(self, failure):
+        logging.error(str(failure))
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Retry)
+        msg.setEscapeButton(QMessageBox.Retry)
+        msg.setDetailedText(str(failure))
+        if failure.type == wormhole.errors.ServerConnectionError:
+            msg.setWindowTitle("Server Connection Error")
+            msg.setText(
+                "An error occured while connecting to the server. This could "
+                "mean that the server is currently down or that there is some "
+                "other problem with your connection. Please try again later.")
+        elif failure.type == wormhole.errors.WelcomeError:
+            msg.setWindowTitle("Invite refused")
+            msg.setText(
+                "The server negotiating your invitation is online but is "
+                "currently refusing to process any invitations. This may "
+                "indicate that your version of {} is out-of-date, in which "
+                "case you should upgrade to the latest version and try again."
+                .format(APP_NAME))
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setEscapeButton(QMessageBox.Ok)
+        elif failure.type == wormhole.errors.WrongPasswordError:
+            msg.setWindowTitle("Invite confirmation failed")
+            msg.setText(
+                "Either your recipient mistyped the invite code or a "
+                "potential attacker tried to guess the code and failed.\n\n"
+                "You could try again, giving your recipient and any potential "
+                "attacker(s) another chance.")
+        else:
+            msg.setWindowTitle(str(failure.type.__name__))
+            msg.setText(str(failure.value))
+        msg.exec_()
+
     def on_button_clicked(self):
         self.wormhole = Wormhole()
         self.wormhole.got_code.connect(self.on_got_code)
@@ -355,7 +392,7 @@ class PairWidget(QWidget):
         self.generate_button.hide()
         self.close_button.show()
         self.settings = self.gateway.get_settings()
-        self.wormhole.send(self.settings)
+        self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
@@ -366,7 +403,7 @@ class PairWidget(QWidget):
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No)
         if reply == QMessageBox.Yes:
-            self.wormhole.close()  # XXX wormhole.errors.LonelyError
+            self.wormhole.close()
             event.accept()
         else:
             event.ignore()
