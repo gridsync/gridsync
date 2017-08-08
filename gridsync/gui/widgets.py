@@ -358,7 +358,6 @@ class PairWidget(QWidget):
         self.generate_button.show()
 
     def handle_failure(self, failure):
-        logging.error(str(failure))
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Retry)
@@ -387,9 +386,13 @@ class PairWidget(QWidget):
                 "potential attacker tried to guess the code and failed.\n\n"
                 "You could try again, giving your recipient and any potential "
                 "attacker(s) another chance.")
+        elif failure.type == wormhole.errors.LonelyError:
+            self.reset()
+            return
         else:
             msg.setWindowTitle(str(failure.type.__name__))
             msg.setText(str(failure.value))
+        logging.error(str(failure))
         msg.exec_()
         self.reset()
 
