@@ -347,6 +347,16 @@ class PairWidget(QWidget):
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
 
+    def reset(self):
+        self.code_label.setText('')
+        self.code_label.hide()
+        self.copy_button.hide()
+        self.code_box.hide()
+        self.close_button.hide()
+        self.instructions.show()
+        self.waiting_label.show()
+        self.generate_button.show()
+
     def handle_failure(self, failure):
         logging.error(str(failure))
         msg = QMessageBox(self)
@@ -381,6 +391,7 @@ class PairWidget(QWidget):
             msg.setWindowTitle(str(failure.type.__name__))
             msg.setText(str(failure.value))
         msg.exec_()
+        self.reset()
 
     def on_button_clicked(self):
         self.wormhole = Wormhole()
