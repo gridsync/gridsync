@@ -406,15 +406,18 @@ class PairWidget(QWidget):
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(
-            self, "Cancel invitation?",
-            'Are you sure you wish to cancel the invitation to "{}"?\n\n'
-            'The invite code "{}" will no longer be valid.'.format(
-                self.gateway.name, self.code_label.text()),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            self.wormhole.close()
-            event.accept()
+        if self.code_label.text():
+            reply = QMessageBox.question(
+                self, "Cancel invitation?",
+                'Are you sure you wish to cancel the invitation to "{}"?\n\n'
+                'The invite code "{}" will no longer be valid.'.format(
+                    self.gateway.name, self.code_label.text()),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                self.wormhole.close()
+                event.accept()
+            else:
+                event.ignore()
         else:
-            event.ignore()
+            event.accept()
