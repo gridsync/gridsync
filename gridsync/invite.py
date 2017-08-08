@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
 from wormhole import wormhole
+from wormhole.errors import WormholeError
 try:
     from wormhole.wordlist import raw_words
 except ImportError:  # TODO: Switch to new magic-wormhole completion API
@@ -62,7 +63,10 @@ class Wormhole(QObject):
     @inlineCallbacks
     def close(self):
         logging.debug("Closing wormhole...")
-        yield self._wormhole.close()
+        try:
+            yield self._wormhole.close()
+        except WormholeError:
+            pass
         logging.debug("Wormhole closed.")
         self.closed.emit()
 
