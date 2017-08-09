@@ -413,7 +413,7 @@ class PairWidget(QWidget):
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
     def closeEvent(self, event):
-        if self.code_label.text():
+        if self.code_label.text() and self.progress_bar.value() != 2:
             reply = QMessageBox.question(
                 self, "Cancel invitation?",
                 'Are you sure you wish to cancel the invitation to "{}"?\n\n'
