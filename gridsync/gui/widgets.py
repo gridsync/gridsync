@@ -341,6 +341,7 @@ class PairWidget(QWidget):
         self.code_box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(2)
+        self.close_button.setText("Finish")
         if get_preference('notifications', 'invite') != 'false':
             self.gui.show_message(
                 "Pairing complete",
