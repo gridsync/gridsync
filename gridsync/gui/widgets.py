@@ -262,6 +262,10 @@ class PairWidget(QWidget):
                 self.gateway.name, APP_NAME, self.gateway.name))
         self.instructions.setWordWrap(True)
 
+        self.instructions_box = QGroupBox()
+        instructions_box_layout = QGridLayout(self.instructions_box)
+        instructions_box_layout.addWidget(self.instructions)
+
         self.waiting_label = QLabel("Generating invite code...")
 
         self.code_label = QLabel()
@@ -308,7 +312,7 @@ class PairWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
         layout.addLayout(label_layout, 1, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
-        layout.addWidget(self.instructions, 3, 2, 1, 3)
+        layout.addWidget(self.instructions_box, 3, 2, 1, 3)
         layout.addWidget(self.code_box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
@@ -322,7 +326,7 @@ class PairWidget(QWidget):
 
     def on_got_code(self, code):
         self.code_label.setText(code)
-        self.instructions.hide()
+        self.instructions_box.hide()
         self.code_box.show()
         self.waiting_label.hide()
         self.code_label.show()
@@ -353,7 +357,7 @@ class PairWidget(QWidget):
         self.copy_button.hide()
         self.code_box.hide()
         self.close_button.hide()
-        self.instructions.show()
+        self.instructions_box.show()
         self.waiting_label.show()
         self.generate_button.show()
 
@@ -401,7 +405,7 @@ class PairWidget(QWidget):
         self.wormhole.got_code.connect(self.on_got_code)
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
-        self.instructions.hide()
+        self.instructions_box.hide()
         self.code_box.show()
         self.generate_button.hide()
         self.close_button.show()
