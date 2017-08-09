@@ -289,6 +289,8 @@ class PairWidget(QWidget):
         self.progress_bar.hide()
 
         self.code_box = QGroupBox()
+        self.code_box.setAlignment(Qt.AlignCenter)
+        self.code_box.setStyleSheet('QGroupBox {font-size: 16px}')
         box_layout = QGridLayout(self.code_box)
         box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
         box_layout.addWidget(self.waiting_label, 1, 2)
@@ -327,6 +329,7 @@ class PairWidget(QWidget):
     def on_got_code(self, code):
         self.code_label.setText(code)
         self.instructions_box.hide()
+        self.code_box.setTitle("Your invite code is:")
         self.code_box.show()
         self.waiting_label.hide()
         self.code_label.show()
