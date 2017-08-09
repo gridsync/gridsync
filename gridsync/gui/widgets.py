@@ -359,33 +359,33 @@ class PairWidget(QWidget):
 
     def handle_failure(self, failure):
         msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Retry)
         msg.setEscapeButton(QMessageBox.Retry)
+        msg.setIcon(QMessageBox.Warning)
         msg.setDetailedText(str(failure))
         if failure.type == wormhole.errors.ServerConnectionError:
-            msg.setWindowTitle("Server Connection Error")
             msg.setText(
                 "An error occured while connecting to the server. This could "
                 "mean that the server is currently down or that there is some "
                 "other problem with your connection. Please try again later.")
+            msg.setWindowTitle("Server Connection Error")
         elif failure.type == wormhole.errors.WelcomeError:
-            msg.setWindowTitle("Invite refused")
             msg.setText(
-                "The server negotiating your invitation is online but is "
-                "currently refusing to process any invitations. This may "
+                "The server negotiating your invitation is online but "
+                "is currently refusing to process any invitations. This may "
                 "indicate that your version of {} is out-of-date, in which "
                 "case you should upgrade to the latest version and try again."
                 .format(APP_NAME))
+            msg.setWindowTitle("Invite refused")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.setEscapeButton(QMessageBox.Ok)
         elif failure.type == wormhole.errors.WrongPasswordError:
-            msg.setWindowTitle("Invite confirmation failed")
             msg.setText(
                 "Either your recipient mistyped the invite code or a "
                 "potential attacker tried to guess the code and failed.\n\n"
                 "You could try again, giving your recipient and any potential "
                 "attacker(s) another chance.")
+            msg.setWindowTitle("Invite confirmation failed")
         elif failure.type == wormhole.errors.LonelyError:
             self.reset()
             return
