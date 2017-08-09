@@ -11,8 +11,8 @@ from PyQt5.QtGui import (
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
     QGridLayout, QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox,
-    QShortcut, QSizePolicy, QStackedWidget, QStyledItemDelegate, QTreeView,
-    QWidget)
+    QPushButton, QShortcut, QSizePolicy, QSpacerItem, QStackedWidget,
+    QStyledItemDelegate, QTreeView, QWidget)
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
@@ -150,7 +150,7 @@ class Delegate(QStyledItemDelegate):
 
 
 class View(QTreeView):
-    def __init__(self, gui, gateway):
+    def __init__(self, gui, gateway):  # pylint: disable=too-many-statements
         super(View, self).__init__()
         self.gui = gui
         self.gateway = gateway
@@ -180,8 +180,20 @@ class View(QTreeView):
         #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
         self.setIconSize(QSize(24, 24))
 
+        self.drop_outline = QLabel(self)
+        self.drop_outline.setPixmap(QPixmap(resource('drop_zone_outline.png')))
+        self.drop_outline.setScaledContents(True)
+        self.drop_outline.setAcceptDrops(True)
+        self.drop_outline.installEventFilter(self)
+
+        self.drop_icon = QLabel(self)
+        self.drop_icon.setPixmap(QPixmap(resource('upload.png')))
+        self.drop_icon.setAlignment(Qt.AlignCenter)
+        self.drop_icon.setAcceptDrops(True)
+        self.drop_icon.installEventFilter(self)
+
         self.drop_text = QLabel(self)
-        self.drop_text.setText('<i>Drop folders here</i>')
+        self.drop_text.setText("Drop folders here")
         drop_text_font = QFont()
         drop_text_font.setPointSize(14)
         self.drop_text.setFont(drop_text_font)
@@ -191,15 +203,29 @@ class View(QTreeView):
         self.drop_text.installEventFilter(self)
         self.drop_text.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        self.drop_pixmap = QLabel(self)
-        self.drop_pixmap.setPixmap(QPixmap(resource('drop_zone.png')))
-        self.drop_pixmap.setScaledContents(True)
-        self.drop_pixmap.setAcceptDrops(True)
-        self.drop_pixmap.installEventFilter(self)
+        self.drop_subtext = QLabel(self)
+        self.drop_subtext.setText("Added folders will sync automatically")
+        self.drop_subtext.setStyleSheet('color: grey')
+        self.drop_subtext.setAlignment(Qt.AlignCenter)
+        self.drop_subtext.setAcceptDrops(True)
+        self.drop_subtext.installEventFilter(self)
+        self.drop_subtext.setSizePolicy(QSizePolicy.Expanding, 0)
+
+        self.select_folder_button = QPushButton("Select...", self)
+        self.select_folder_button.setAcceptDrops(True)
+        self.select_folder_button.installEventFilter(self)
+        self.select_folder_button.clicked.connect(self.select_folder)
 
         layout = QGridLayout(self)
-        layout.addWidget(self.drop_pixmap, 1, 1, 6, 3)
-        layout.addWidget(self.drop_text, 5, 2)
+        layout.addWidget(self.drop_outline, 1, 1, 9, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
+        layout.addWidget(self.drop_icon, 2, 2, 3, 1)
+        layout.addWidget(self.drop_text, 6, 1, 1, 3)
+        layout.addWidget(self.drop_subtext, 7, 1, 1, 3)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 8, 1)
+        layout.addWidget(self.select_folder_button, 8, 2)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 8, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
 
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
@@ -208,13 +234,19 @@ class View(QTreeView):
 
     def show_drop_label(self):
         self.setHeaderHidden(True)
+        self.drop_outline.show()
+        self.drop_icon.show()
         self.drop_text.show()
-        self.drop_pixmap.show()
+        self.drop_subtext.show()
+        self.select_folder_button.show()
 
     def hide_drop_label(self):
         self.setHeaderHidden(False)
+        self.drop_outline.hide()
+        self.drop_icon.hide()
         self.drop_text.hide()
-        self.drop_pixmap.hide()
+        self.drop_subtext.hide()
+        self.select_folder_button.hide()
 
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
@@ -254,6 +286,15 @@ class View(QTreeView):
         self.hide_drop_label()
         self.model().add_folder(path)
         self.gateway.create_magic_folder(path)
+
+    def select_folder(self):
+        dialog = QFileDialog(self, "Please select a folder")
+        dialog.setDirectory(os.path.expanduser('~'))
+        dialog.setFileMode(QFileDialog.Directory)
+        dialog.setOption(QFileDialog.ShowDirsOnly)
+        if dialog.exec_():
+            for folder in dialog.selectedFiles():
+                self.add_new_folder(folder)
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
         logging.debug(event)
@@ -400,13 +441,14 @@ class MainWindow(QMainWindow):
             view = self.current_view()
         except AttributeError:
             return
-        dialog = QFileDialog(self, "Please select a folder")
-        dialog.setDirectory(os.path.expanduser('~'))
-        dialog.setFileMode(QFileDialog.Directory)
-        dialog.setOption(QFileDialog.ShowDirsOnly)
-        if dialog.exec_():
-            for folder in dialog.selectedFiles():
-                view.add_new_folder(folder)
+        view.select_folder()
+        #dialog = QFileDialog(self, "Please select a folder")
+        #dialog.setDirectory(os.path.expanduser('~'))
+        #dialog.setFileMode(QFileDialog.Directory)
+        #dialog.setOption(QFileDialog.ShowDirsOnly)
+        #if dialog.exec_():
+        #    for folder in dialog.selectedFiles():
+        #        view.add_new_folder(folder)
 
     def set_current_grid_status(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
