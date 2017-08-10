@@ -442,13 +442,6 @@ class MainWindow(QMainWindow):
         except AttributeError:
             return
         view.select_folder()
-        #dialog = QFileDialog(self, "Please select a folder")
-        #dialog.setDirectory(os.path.expanduser('~'))
-        #dialog.setFileMode(QFileDialog.Directory)
-        #dialog.setOption(QFileDialog.ShowDirsOnly)
-        #if dialog.exec_():
-        #    for folder in dialog.selectedFiles():
-        #        view.add_new_folder(folder)
 
     def set_current_grid_status(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
