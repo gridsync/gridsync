@@ -62,7 +62,7 @@ Downloads for "stable" releases of Gridsync can be found on the project's `GitHu
 .. _Travis-CI: https://travis-ci.org/gridsync/gridsync
 .. _AppVeyor: https://ci.appveyor.com/project/crwood/gridsync
 
-To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23):
+To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23; 64-bit only):
 
 1. Download `Gridsync-Linux.tar.gz`_ (and `verify`_ its signature)
 2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
