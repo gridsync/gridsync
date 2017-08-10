@@ -2,6 +2,7 @@
 
 import logging
 import os
+import sys
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QFont, QIcon, QPainter, QPixmap
@@ -288,6 +289,13 @@ class PairWidget(QWidget):
         self.progress_bar.setTextVisible(False)
         self.progress_bar.hide()
 
+        self.code_box_title = QLabel("Your invite code is:")
+        self.code_box_title.setAlignment(Qt.AlignCenter)
+        font = QFont()
+        font.setPointSize(16)
+        self.code_box_title.setFont(font)
+        self.code_box_title.hide()
+
         self.code_box = QGroupBox()
         self.code_box.setAlignment(Qt.AlignCenter)
         self.code_box.setStyleSheet('QGroupBox {font-size: 16px}')
@@ -315,6 +323,7 @@ class PairWidget(QWidget):
         layout.addLayout(label_layout, 1, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
         layout.addWidget(self.instructions_box, 3, 2, 1, 3)
+        layout.addWidget(self.code_box_title, 3, 2, 1, 3)
         layout.addWidget(self.code_box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
@@ -329,7 +338,10 @@ class PairWidget(QWidget):
     def on_got_code(self, code):
         self.code_label.setText(code)
         self.instructions_box.hide()
-        self.code_box.setTitle("Your invite code is:")
+        if sys.platform == 'darwin':
+            self.code_box_title.show()
+        else:
+            self.code_box.setTitle("Your invite code is:")
         self.code_box.show()
         self.waiting_label.hide()
         self.code_label.show()
@@ -359,6 +371,7 @@ class PairWidget(QWidget):
         self.code_label.setText('')
         self.code_label.hide()
         self.copy_button.hide()
+        self.code_box_title.hide()
         self.code_box.hide()
         self.close_button.hide()
         self.instructions_box.show()
