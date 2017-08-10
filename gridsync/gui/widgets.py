@@ -272,8 +272,6 @@ class PairWidget(QWidget):
         self.code_label = QLabel()
         font = QFont()
         font.setPointSize(18)
-        #font.setBold(True)
-        #font.setItalic(True)
         self.code_label.setFont(font)
         self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.code_label.hide()
@@ -304,7 +302,6 @@ class PairWidget(QWidget):
         box_layout.addWidget(self.waiting_label, 1, 2)
         box_layout.addWidget(self.code_label, 1, 3)
         box_layout.addWidget(self.copy_button, 1, 4)
-        #box_layout.addWidget(self.progress_bar, 1, 1, 1, 5)
         box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
         self.code_box.hide()
 
