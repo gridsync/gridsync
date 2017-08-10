@@ -15,7 +15,7 @@ try:
     with open(auto_deps) as f, open('_auto_deps.py.modified', 'w+') as n:
         n.write(f.read()
             .replace('"setuptools >=','#"setuptools >=')
-            .replace('"shutilwhich >=','#"shutilwhich >='))
+            .replace('"magic-wormhole >=','#"magic-wormhole >='))  # XXX "PackagingError: no version info for magic-wormhole
     shutil.move('_auto_deps.py.modified', auto_deps)
 except Exception as e:
     sys.exit(e)
