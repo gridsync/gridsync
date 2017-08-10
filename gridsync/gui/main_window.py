@@ -470,6 +470,8 @@ class MainWindow(QMainWindow):
                 self.status_bar.show()
                 self.set_current_grid_status()
                 return
+        self.combo_box.setCurrentIndex(0)  # Fallback to 0 if none selected
+        self.on_grid_selected(0)
 
     def toggle_preferences_widget(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
