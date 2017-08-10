@@ -488,10 +488,12 @@ class MainWindow(QMainWindow):
                     self.central_widget.setCurrentIndex(i)
 
     def open_pair_widget(self):
-        pair_widget = PairWidget(self.current_view().gateway, self.gui)
-        self.active_pair_widgets.append(pair_widget)
-        pair_widget.done.connect(self.active_pair_widgets.remove)
-        pair_widget.show()
+        gateway = self.combo_box.currentData()
+        if gateway:
+            pair_widget = PairWidget(gateway, self.gui)
+            self.active_pair_widgets.append(pair_widget)
+            pair_widget.done.connect(self.active_pair_widgets.remove)
+            pair_widget.show()
 
     def confirm_quit(self):
         reply = QMessageBox.question(
