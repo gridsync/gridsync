@@ -403,6 +403,7 @@ class MainWindow(QMainWindow):
         self.toolbar = self.addToolBar('')
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(pair_action)
         self.toolbar.addWidget(spacer_left)
