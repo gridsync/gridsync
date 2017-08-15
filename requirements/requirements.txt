@@ -13,7 +13,7 @@ enum34==1.1.6 ; python_version < "3.4"
 hkdf==0.0.3
 humanize==0.5.1
 hyperlink==17.3.0
-idna==2.5
+idna==2.6
 incremental==17.5.0
 ipaddress==1.0.18
 magic-wormhole==0.10.2
@@ -25,7 +25,7 @@ pyOpenSSL==17.2.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
 qt5reactor==0.4
-requests==2.18.3
+requests==2.18.4
 service_identity==17.0.0
 SIP==4.19.2 ; python_version >= "3.5"
 six==1.10.0

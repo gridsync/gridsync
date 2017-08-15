@@ -104,9 +104,9 @@ humanize==0.5.1 \
 hyperlink==17.3.0 \
     --hash=sha256:1b0b685bdfb7de50aaed43c97c8ce5f9ed2fbbc6f97b5e1d7be479f44e35bb09 \
     --hash=sha256:ddadbbdda2b94182da14be1b5d26ec3188dfdf9687b9b8c8d810f52f79b7af1a
-idna==2.5 \
-    --hash=sha256:cc19709fd6d0cbfed39ea875d29ba6d4e22c0cebc510a76d6302a28385e8bb70 \
-    --hash=sha256:3cb5ce08046c4e3a560fc02f138d0ac63e00f8ce5901a56b32ec8b7994082aab
+idna==2.6 \
+    --hash=sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4 \
+    --hash=sha256:2c6a5de3089009e3da7c5dde64a141dbc8551d5b7f6cf4ed7c2568d0cc520a8f
 incremental==17.5.0 \
     --hash=sha256:717e12246dddf231a349175f48d74d93e2897244939173b01974ab6661406b9f \
     --hash=sha256:7b751696aaf36eebfab537e458929e194460051ccad279c72b755a167eebd4b3
@@ -199,9 +199,9 @@ PyQt5==5.8.2 ; python_version >= "3.5" \
     --hash=sha256:f118e54f69f8477c90124ffbeea11690135745e48d6bdda6a3a0be8658fb65f0
 qt5reactor==0.4 \
     --hash=sha256:f75e7315d865775e3b9efc5279391cb20f4d4b593b323ca33bedd0c22460cce6
-requests==2.18.3 \
-    --hash=sha256:b62be4ec5999c24d10c98d248a136e7db20ca6616a2b65060cd9399417331e8a \
-    --hash=sha256:fb68a7baef4965c12d9cd67c0f5a46e6e28be3d8c7b6910c758fbcc99880b518
+requests==2.18.4 \
+    --hash=sha256:6a1b267aa90cac58ac3a765d067950e7dbbf75b1da07e895d1f594193a40a38b \
+    --hash=sha256:9c443e7324ba5b85070c4a818ade28bfabedf16ea10206da1132edaa6dda237e
 service_identity==17.0.0 \
     --hash=sha256:0e76f3c042cc0f5c7e6da002cf646f59dc4023962d1d1166343ce53bdad39e17 \
     --hash=sha256:4001fbb3da19e0df22c47a06d29681a398473af4aa9d745eca525b3b2c2302ab
