@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
     QGridLayout, QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox,
     QPushButton, QShortcut, QSizePolicy, QSpacerItem, QStackedWidget,
-    QStyledItemDelegate, QTreeView, QWidget)
+    QStyledItemDelegate, QToolBar, QToolButton, QTreeView, QWidget)
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
@@ -41,9 +41,23 @@ class ComboBox(QComboBox):
         #self.model().item(self.count() - 1).setEnabled(False)
 
 
+class ActionBar(QToolBar):
+    def __init__(self, nodedir):
+        super(QToolBar, self).__init__()
+        self.nodedir = nodedir
+        self.share_widget = None
+        self.setIconSize(QSize(16, 16))
+
+        self.share_action = QAction(
+            QIcon(resource('share.png')), 'Share...', self)
+        self.share_action.setStatusTip('Share...')
+
+        self.addAction(self.share_action)
+
+
 class Model(QStandardItemModel):
     def __init__(self, view):
-        super(Model, self).__init__(0, 4)
+        super(Model, self).__init__(0, 5)
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
@@ -53,7 +67,7 @@ class Model(QStandardItemModel):
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Last sync"))
         self.setHeaderData(3, Qt.Horizontal, QVariant("Size"))
-        #self.setHeaderData(4, Qt.Horizontal, QVariant("Action"))
+        self.setHeaderData(4, Qt.Horizontal, QVariant("Action"))
 
         self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
@@ -74,8 +88,10 @@ class Model(QStandardItemModel):
         name = QStandardItem(QIcon(composite_pixmap), folder_basename)
         status = QStandardItem(QIcon(), "Initializing...")
         size = QStandardItem()
-        #action = QStandardItem(QIcon(resource('share.png')), '')
-        self.appendRow([name, status, size])
+        action = QStandardItem()
+        action_bar = ActionBar(path)
+        self.appendRow([name, status, size, QStandardItem(), action])
+        self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
         self.set_status(folder_basename, 0)
 
@@ -162,6 +178,7 @@ class View(QTreeView):
         #self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 120)
         self.setColumnWidth(3, 75)
+        self.setColumnWidth(4, 50)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
