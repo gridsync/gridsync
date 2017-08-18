@@ -100,11 +100,6 @@ class Model(QStandardItemModel):
             self.add_folder(magic_folder)
         self.monitor.start()
 
-    def get_row_from_name(self, name):
-        for row in range(self.rowCount()):
-            if name == self.item(row).text():
-                return row
-
     def set_status(self, name, status):
         if not status:
             icon = self.icon_blank
@@ -117,15 +112,15 @@ class Model(QStandardItemModel):
             text = "Up to date"
         item = QStandardItem(icon, text)
         item.setData(status, Qt.UserRole)
-        self.setItem(self.get_row_from_name(name), 1, item)
+        self.setItem(self.findItems(name)[0].row(), 1, item)
         self.status_dict[name] = status
 
     def set_last_sync(self, name, text):
-        self.setItem(self.get_row_from_name(name), 2, QStandardItem(text))
+        self.setItem(self.findItems(name)[0].row(), 2, QStandardItem(text))
 
     def set_size(self, name, size):
         self.setItem(
-            self.get_row_from_name(name), 3, QStandardItem(naturalsize(size)))
+            self.findItems(name)[0].row(), 3, QStandardItem(naturalsize(size)))
 
 
 class Delegate(QStyledItemDelegate):
@@ -283,7 +278,7 @@ class View(QTreeView):
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.gateway.remove_magic_folder(folder)
-            self.model().removeRow(self.model().get_row_from_name(folder))
+            self.model().removeRow(self.model().findItems(folder)[0].row())
             if not self.gateway.magic_folders:
                 self.show_drop_label()
 
