@@ -101,9 +101,9 @@ hkdf==0.0.3 \
     --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
 humanize==0.5.1 \
     --hash=sha256:a43f57115831ac7c70de098e6ac46ac13be00d69abbf60bdcac251344785bb19
-hyperlink==17.3.0 \
-    --hash=sha256:1b0b685bdfb7de50aaed43c97c8ce5f9ed2fbbc6f97b5e1d7be479f44e35bb09 \
-    --hash=sha256:ddadbbdda2b94182da14be1b5d26ec3188dfdf9687b9b8c8d810f52f79b7af1a
+hyperlink==17.3.1 \
+    --hash=sha256:1ec8e11fb4f5b330f25864bf8cfd3133dff1a3637dfd14fa441297df15fc7cf9 \
+    --hash=sha256:bc4ffdbde9bdad204d507bd8f554f16bba82dd356f6130cb16f41422909c33bc
 idna==2.6 \
     --hash=sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4 \
     --hash=sha256:2c6a5de3089009e3da7c5dde64a141dbc8551d5b7f6cf4ed7c2568d0cc520a8f
@@ -223,9 +223,9 @@ spake2==0.7 \
 tqdm==4.15.0 \
     --hash=sha256:9f019dcbec25b5b4cb1bbf43e5c346e0d6a001fe4f598d70283d379e5314e202 \
     --hash=sha256:6ec1dc74efacf2cda936b4a6cf4082ce224c76763bdec9f17e437c8cfcaa9953
-treq==17.7.0 \
-    --hash=sha256:376063af0fb15212976fb3be2901016424dd6d54a224354a6d57353d721d4e30 \
-    --hash=sha256:1f4ad7038a69cb0eb680c115c655bb9b1d2c6459a6d6ba62103be6efc7bafbae
+treq==17.8.0 \
+    --hash=sha256:33e50235eb270bf7a16c71347ed18115ce1d6ae1735714d1af99a3fa9b18072b \
+    --hash=sha256:ef72d2d5e0b24bdf29267b608fa33df0ac401743af8524438b073e1fb2b66f16
 Twisted==17.5.0 \
     --hash=sha256:60cfb24a20a14d8113bbbdc15601da895f6c025189cb660b6dd1e73623675419 \
     --hash=sha256:f198a494f0df2482f7c5f99d7f3eef33d22763ffc76641b36fec476b878002ea
