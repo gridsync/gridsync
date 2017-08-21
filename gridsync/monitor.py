@@ -18,6 +18,7 @@ class Monitor(object):
         self.model = model
         self.grid_status = ''
         self.status = defaultdict(dict)
+        self.members = []
         self.timer = LoopingCall(self.check_status)
 
     def add_operation(self, item):
@@ -76,7 +77,7 @@ class Monitor(object):
             last_sync = naturaltime(datetime.now() - datetime.fromtimestamp(t))
         return state, last_sync, kind, path, failures
 
-    @inlineCallbacks
+    @inlineCallbacks  # noqa: max-complexity=13 XXX
     def check_magic_folder_status(self, magic_folder):
         prev = self.status[magic_folder]
         status = yield magic_folder.get_magic_folder_status()
@@ -100,14 +101,19 @@ class Monitor(object):
                 self.remove_operation(magic_folder)
                 self.notify_updated_files(magic_folder)
             if state in (1, 2) and prev['state'] != 2:
-                _, size, _ = yield magic_folder.get_magic_folder_info()
+                members, size, _ = yield magic_folder.get_magic_folder_info()
+                if len(members) > 1:
+                    for member in members:
+                        if member not in self.members:
+                            self.model.add_member(magic_folder.name, member[0])
+                            self.members.append(member)
                 self.model.set_size(magic_folder.name, size)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         #self.status[magic_folder]['sync_start_time'] = sync_start_time
         self.model.set_status(magic_folder.name, state)
         self.model.set_last_sync(magic_folder.name, last_sync)
-        # TODO: Notify failures/conflicts, update members
+        # TODO: Notify failures/conflicts
 
     @inlineCallbacks
     def check_grid_status(self):
