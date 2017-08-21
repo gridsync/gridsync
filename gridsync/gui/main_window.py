@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
     QGridLayout, QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox,
     QPushButton, QShortcut, QSizePolicy, QSpacerItem, QStackedWidget,
-    QStyledItemDelegate, QToolBar, QToolButton, QTreeView, QWidget)
+    QStyledItemDelegate, QToolBar, QTreeView, QWidget)
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
@@ -43,7 +43,7 @@ class ComboBox(QComboBox):
 
 class ActionBar(QToolBar):
     def __init__(self, nodedir):
-        super(QToolBar, self).__init__()
+        super(ActionBar, self).__init__()
         self.nodedir = nodedir
         self.share_widget = None
         self.setIconSize(QSize(16, 16))
@@ -71,6 +71,7 @@ class Model(QStandardItemModel):
 
         self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
+        self.icon_user = QIcon(resource('user.png'))
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)
@@ -94,6 +95,11 @@ class Model(QStandardItemModel):
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
         self.set_status(folder_basename, 0)
+
+    def add_member(self, folder, member):
+        items = self.findItems(folder)
+        if items:
+            items[0].appendRow([QStandardItem(self.icon_user, member)])
 
     def populate(self):
         for magic_folder in get_nodedirs(self.gateway.magic_folders_dir):
