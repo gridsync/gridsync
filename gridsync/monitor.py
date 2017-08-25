@@ -19,6 +19,7 @@ class Monitor(object):
         self.grid_status = ''
         self.status = defaultdict(dict)
         self.members = []
+        self.files = {}
         self.timer = LoopingCall(self.check_status)
 
     def add_operation(self, item):
@@ -103,11 +104,10 @@ class Monitor(object):
                 self.notify_updated_files(magic_folder)
             if state in (1, 2) and prev['state'] != 2:
                 members, size, _ = yield magic_folder.get_magic_folder_info()
-                if len(members) > 1:
-                    for member in members:
-                        if member not in self.members:
-                            self.model.add_member(magic_folder.name, member[0])
-                            self.members.append(member)
+                for member in members:
+                    if member not in self.members:
+                        self.model.add_member(magic_folder.name, member[0])
+                        self.members.append(member)
                 self.model.set_size(magic_folder.name, size)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
