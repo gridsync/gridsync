@@ -42,13 +42,14 @@ class Monitor(object):
 
     def notify_updated_files(self, magic_folder):
         if 'updated_files' in self.status[magic_folder]:
-            title = magic_folder.name + " updated and encrypted"
-            message = "Updated " + humanized_list(
-                self.status[magic_folder]['updated_files'])
-            if get_preference('notifications', 'folder') != 'false':
-                self.model.gui.show_message(title, message)
-            self.status[magic_folder]['updated_files'] = []
-            logging.debug("Cleared updated_files list")
+            updated_files = self.status[magic_folder]['updated_files']
+            if updated_files:
+                title = magic_folder.name + " updated and encrypted"
+                message = "Updated " + humanized_list(updated_files)
+                if get_preference('notifications', 'folder') != 'false':
+                    self.model.gui.show_message(title, message)
+                self.status[magic_folder]['updated_files'] = []
+                logging.debug("Cleared updated_files list")
 
     @staticmethod
     def parse_status(status):
