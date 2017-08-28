@@ -285,6 +285,12 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield magic_folder.start()
 
     @inlineCallbacks
+    def magic_folder_invite(self, nickname):
+        code = yield self.command(
+            ['magic-folder', 'invite', 'magic:', nickname])
+        returnValue(code.strip())
+
+    @inlineCallbacks
     def start_magic_folders(self):
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
