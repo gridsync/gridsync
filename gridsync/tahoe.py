@@ -85,6 +85,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
         self.magic_folders = []
         self.magic_folder_dircap = None
+        self.magic_folder_nickname = None
         self.magic_folder_path = None
         self.collective_dircap = None
 
@@ -376,6 +377,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                     my_fingerprint = self.magic_folder_dircap.split(':')[-1]
                     fingerprint = readcap.split(':')[-1]
                     if fingerprint == my_fingerprint:
+                        self.magic_folder_nickname = member
                         members.insert(0, (member, readcap))
                     else:
                         members.append((member, readcap))
