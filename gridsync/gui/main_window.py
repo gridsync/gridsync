@@ -18,7 +18,8 @@ from twisted.internet.task import LoopingCall
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
-from gridsync.gui.widgets import CompositePixmap, PreferencesWidget, PairWidget
+from gridsync.gui.widgets import (
+    CompositePixmap, PreferencesWidget, PairWidget, ShareWidget)
 from gridsync.monitor import Monitor
 from gridsync.tahoe import get_nodedirs
 
@@ -51,8 +52,13 @@ class ActionBar(QToolBar):
         self.share_action = QAction(
             QIcon(resource('share.png')), 'Share...', self)
         self.share_action.setStatusTip('Share...')
-
         self.addAction(self.share_action)
+
+        self.share_action.triggered.connect(self.open_share_widget)
+
+    def open_share_widget(self):
+        self.share_widget = ShareWidget(self.nodedir)
+        self.share_widget.show()
 
 
 class Model(QStandardItemModel):
