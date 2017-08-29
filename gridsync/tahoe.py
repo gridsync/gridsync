@@ -355,6 +355,12 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             self.collective_dircap = self.read_cap_from_file(path)
         return self.collective_dircap
 
+    def get_magic_folder_dircap(self):
+        if not self.magic_folder_dircap:
+            path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
+            self.magic_folder_dircap = self.read_cap_from_file(path)
+        return self.magic_folder_dircap
+
     @inlineCallbacks
     def get_magic_folder_members(self, content=None):
         if not content:
@@ -362,6 +368,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if content:
             members = []
             children = content[1]['children']
+            if not self.magic_folder_dircap:
+                self.get_magic_folder_dircap()
             for member in children:
                 readcap = children[member][1]['ro_uri']
                 if self.magic_folder_dircap:
@@ -374,12 +382,6 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 else:
                     members.append((member, readcap))
             returnValue(members)
-
-    def get_magic_folder_dircap(self):
-        if not self.magic_folder_dircap:
-            path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
-            self.magic_folder_dircap = self.read_cap_from_file(path)
-        return self.magic_folder_dircap
 
     @staticmethod
     def size_from_content(content):
