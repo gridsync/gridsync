@@ -413,7 +413,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 children = json_data[1]['children']
                 for filenode in children:
                     filepath = filenode.replace('@_', os.path.sep)
-                    size = int(children[filenode][1]['size'])
+                    try:
+                        size = int(children[filenode][1]['size'])
+                    except KeyError:  # if linked manually
+                        continue
                     sizes_dict[member][filepath] = size
                     total_size += size
         returnValue((members, total_size, sizes_dict))
