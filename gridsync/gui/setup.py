@@ -390,9 +390,9 @@ class SetupForm(QStackedWidget):
         self.update_progress(4, 'Connecting to {}...'.format(nickname))
         yield tahoe.await_ready()
 
-        self.update_progress(5, 'Generating rootcap...'.format(nickname))
+        self.update_progress(5, 'Generating rootcap...')
         yield tahoe.create_rootcap()
-        
+
         self.update_progress(6, 'Done!')
         self.gui.populate([self.gateway])
         self.finish_button.show()
