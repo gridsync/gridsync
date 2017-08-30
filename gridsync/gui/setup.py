@@ -203,7 +203,7 @@ class ProgressBarWidget(QWidget):
         self.checkmark.setAlignment(Qt.AlignCenter)
 
         self.progressbar = QProgressBar()
-        self.progressbar.setMaximum(5)
+        self.progressbar.setMaximum(6)
         self.progressbar.setTextVisible(False)
 
         self.message = QLabel()
@@ -390,7 +390,10 @@ class SetupForm(QStackedWidget):
         self.update_progress(4, 'Connecting to {}...'.format(nickname))
         yield tahoe.await_ready()
 
-        self.update_progress(5, 'Done!')
+        self.update_progress(5, 'Generating rootcap...'.format(nickname))
+        yield tahoe.create_rootcap()
+        
+        self.update_progress(6, 'Done!')
         self.gui.populate([self.gateway])
         self.finish_button.show()
 
