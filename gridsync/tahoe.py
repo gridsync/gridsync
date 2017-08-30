@@ -76,6 +76,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             self.nodedir = os.path.expanduser(nodedir)
         else:
             self.nodedir = os.path.join(os.path.expanduser('~'), '.tahoe')
+        self.rootcap_path = os.path.join(self.nodedir, 'private', 'rootcap')
         self.config = Config(os.path.join(self.nodedir, 'tahoe.cfg'))
         self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
         self.nodeurl = None
@@ -249,6 +250,27 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         while not ready:
             yield deferLater(reactor, 0.2, lambda: None)
             ready = yield self.is_ready()
+
+    @inlineCallbacks
+    def mkdir(self):
+        resp = yield treq.post(self.nodeurl + 'uri', params={'t': 'mkdir'})
+        if resp.code == 200:
+            content = yield treq.content(resp)
+            returnValue(content.decode('utf-8').strip())
+        else:
+            raise Exception(
+                "Error creating Tahoe-LAFS directory: {}".format(resp.code))
+
+    @inlineCallbacks
+    def create_rootcap(self):
+        log.debug("Creating rootcap...")
+        if os.path.exists(self.rootcap_path):
+            raise OSError(
+                "Rootcap file already exists: {}".format(self.rootcap_path))
+        rootcap = yield self.mkdir()
+        with open(self.rootcap_path, 'w') as f:
+            f.write(rootcap)
+        log.debug("Rootcap saved to file: %s", self.rootcap_path)
 
     @inlineCallbacks
     def create_magic_folder(self, path):
