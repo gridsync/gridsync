@@ -112,6 +112,32 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         # XXX: Support 'icon_base64'?
         return settings
 
+    def get_aliases(self):
+        aliases = {}
+        aliases_file = os.path.join(self.nodedir, 'private', 'aliases')
+        try:
+            with open(aliases_file) as f:
+                for line in f.readlines():
+                    if not line.startswith('#'):
+                        try:
+                            name, cap = line.split(':', 1)
+                            aliases[name + ':'] = cap.strip()
+                        except ValueError:
+                            pass
+            return aliases
+        except IOError:
+            return
+
+    def get_alias(self, alias):
+        if not alias.endswith(':'):
+            alias = alias + ':'
+        try:
+            for name, cap in self.get_aliases().items():
+                if name == alias:
+                    return cap
+        except AttributeError:
+            return
+
     def line_received(self, line):
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
