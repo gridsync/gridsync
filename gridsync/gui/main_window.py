@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shutil
 
 from humanize import naturalsize
 from PyQt5.QtCore import QEvent, QFileInfo, QPoint, QSize, Qt, QVariant
@@ -412,6 +413,12 @@ class MainWindow(QMainWindow):
         pair_action.setStatusTip('Pair a device...')
         pair_action.triggered.connect(self.open_pair_widget)
 
+        export_action = QAction(
+            QIcon(resource('export.png')), 'Export Recovery Key', self)
+        export_action.setStatusTip('Export Recovery Key...')
+        export_action.setShortcut(QKeySequence.Save)
+        export_action.triggered.connect(self.export_recovery_key)
+
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
         preferences_action.setStatusTip('Preferences')
@@ -433,6 +440,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
+        self.toolbar.addAction(export_action)
         self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
@@ -497,6 +505,41 @@ class MainWindow(QMainWindow):
                 return
         self.combo_box.setCurrentIndex(0)  # Fallback to 0 if none selected
         self.on_grid_selected(0)
+
+    def export_recovery_key(self):
+        self.show_selected_grid_view()
+        gateway = self.current_view().gateway
+        keyfile = gateway.name + ' Recovery Key.json'
+        recovery_key_path = os.path.join(gateway.nodedir, 'private', keyfile)
+        if not os.path.exists(recovery_key_path):
+            # XXX Log a warning and re-dump from tahoe.cfg instead?
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Error")
+            msg.setText("Could not export Recovery Key.\n\n"
+                        "The file '{}' was not found".format(recovery_key_path))
+            msg.exec_()
+            return
+        dest_default = os.path.join(os.path.expanduser('~'), keyfile)
+        dest, _ = QFileDialog.getSaveFileName(
+            self, "Select a destination", dest_default)
+        if not dest:
+            return
+        try:
+            shutil.copy(recovery_key_path, dest)
+        except Exception as e:  # pylint: disable=broad-except
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Error exporting Recovery Key")
+            msg.setText(str(e))
+            msg.exec_()
+            return
+        if os.path.isfile(dest):
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("Export successful")
+            msg.setText("Recovery Key successfully exported to {}".format(dest))
+            msg.exec_()
 
     def toggle_preferences_widget(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
