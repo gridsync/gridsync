@@ -298,6 +298,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         with open(self.rootcap_path, 'w') as f:
             f.write(rootcap)
         log.debug("Rootcap saved to file: %s", self.rootcap_path)
+        returnValue(rootcap)
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
