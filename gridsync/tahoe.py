@@ -13,7 +13,7 @@ from io import BytesIO
 import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
-    Deferred, gatherResults, inlineCallbacks, returnValue)
+    Deferred, DeferredLock, gatherResults, inlineCallbacks, returnValue)
 from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
@@ -89,6 +89,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.magic_folder_nickname = None
         self.magic_folder_path = None
         self.collective_dircap = None
+        self.lock = DeferredLock()
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -300,9 +301,11 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
+        lock = yield self.lock.acquire()
         resp = yield treq.post(
             '{}uri/{}/?t=uri&name={}&uri={}'.format(
                 self.nodeurl, dircap, childname, childcap))
+        yield lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
             raise Exception(content.decode('utf-8'))
