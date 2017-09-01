@@ -523,9 +523,47 @@ class SetupForm(QStackedWidget):
             self.setCurrentIndex(1)
             self.setup(settings)
 
+    def prompt_for_export(self, gateway):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.Yes)
+        button_export = msg.button(QMessageBox.Yes)
+        button_export.setText("Export...")
+        button_skip = msg.button(QMessageBox.No)
+        button_skip.setText("Skip")
+        msg.setWindowTitle("Export Recovery Key?")
+        # "Now that {} is configured..."
+        msg.setText(
+            "Before uploading any folders to {}, it is <b>strongly "
+            "recommended</b> that you <i>export a Recovery Key</i> and store "
+            "it in a safe and secure location (such as an encrypted USB drive "
+            "that only you have access to).\n\nA Recovery Key will allow you "
+            "to restore any of the folders you've uploaded to {} in the event "
+            "that something goes wrong with your computer (e.g., hardware "
+            "failure, accidental data-loss, theft, and so on).".format(
+                APP_NAME, gateway.name))  # XXX Re-word/improve..
+        msg.setDetailedText(
+            "A 'Recovery Key' is a small file that contains enough "
+            "configuration information to re-establish secure contact with "
+            "your cloud storage provider and download your other secret data "
+            "keys. Because this file contains secret information "
+            "(specifically, your Tahoe-LAFS 'introducer fURL' -- which grants "
+            "access to your grid -- and your 'rootcap' -- which grants full "
+            "access to all of your uploaded folders), it is important that "
+            "you keep this file safe and secure; do not share your Recovery "
+            "Key with anybody!")  # XXX Re-word/improve..
+        reply = msg.exec_()
+        if reply == QMessageBox.Yes:
+            self.gui.main_window.export_recovery_key()
+        else:
+            # TODO: Nag user; "Are you sure?"
+            pass
+
     def finish_button_clicked(self):
         self.gui.show()
         self.close()
+        self.prompt_for_export(self.gateway)
         self.reset()
 
     def closeEvent(self, event):
