@@ -509,24 +509,13 @@ class MainWindow(QMainWindow):
     def export_recovery_key(self):
         self.show_selected_grid_view()
         gateway = self.current_view().gateway
-        keyfile = gateway.name + ' Recovery Key.json'
-        recovery_key_path = os.path.join(gateway.nodedir, 'private', keyfile)
-        if not os.path.exists(recovery_key_path):
-            # XXX Log a warning and re-dump from tahoe.cfg instead?
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Critical)
-            msg.setWindowTitle("Error")
-            msg.setText("Could not export Recovery Key.\n\n"
-                        "The file '{}' was not found".format(recovery_key_path))
-            msg.exec_()
-            return
-        dest_default = os.path.join(os.path.expanduser('~'), keyfile)
         dest, _ = QFileDialog.getSaveFileName(
-            self, "Select a destination", dest_default)
+            self, "Select a destination", os.path.join(
+                os.path.expanduser('~'), gateway.name + ' Recovery Key.json'))
         if not dest:
             return
         try:
-            shutil.copy(recovery_key_path, dest)
+            gateway.export(dest)
         except Exception as e:  # pylint: disable=broad-except
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
