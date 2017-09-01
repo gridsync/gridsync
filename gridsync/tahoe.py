@@ -113,6 +113,15 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         # XXX: Support 'icon_base64'?
         return settings
 
+    def export(self, dest):
+        log.debug("Exporting settings to '%s'...", dest)
+        settings = self.get_settings()
+        settings['rootcap'] = self.read_cap_from_file(self.rootcap_path)
+        # TODO Verify integrity?
+        with open(dest, 'w') as f:
+            f.write(json.dumps(settings))
+        log.debug("Exported settings to '%s'", dest)
+
     def get_aliases(self):
         aliases = {}
         aliases_file = os.path.join(self.nodedir, 'private', 'aliases')
