@@ -391,12 +391,11 @@ class SetupForm(QStackedWidget):
         yield tahoe.await_ready()
 
         self.update_progress(5, 'Generating Recovery Key...')
-        settings['rootcap'] = yield tahoe.create_rootcap()
-        recovery_key_path = os.path.join(
-                tahoe.nodedir, 'private', nickname + ' Recovery Key.json')
-        with open(recovery_key_path, 'w') as f:
+        yield tahoe.create_rootcap()
+        settings_json = os.path.join(tahoe.nodedir, 'private', 'settings.json') 
+        with open(settings_json, 'w') as f:
             f.write(json.dumps(settings))
-        log.debug("Recovery Key written to %s", recovery_key_path)
+        # TODO: Upload, link to rootcap
 
         self.update_progress(6, 'Done!')
         self.gui.populate([self.gateway])
