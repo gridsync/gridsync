@@ -538,7 +538,7 @@ class SetupForm(QStackedWidget):
             "Before uploading any folders to {}, it is <b>strongly "
             "recommended</b> that you <i>export a Recovery Key</i> and store "
             "it in a safe and secure location (such as an encrypted USB drive "
-            "that only you have access to).\n\nA Recovery Key will allow you "
+            "that only you have access to).<p><p>A Recovery Key will allow you "
             "to restore any of the folders you've uploaded to {} in the event "
             "that something goes wrong with your computer (e.g., hardware "
             "failure, accidental data-loss, theft, and so on).".format(
