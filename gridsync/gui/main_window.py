@@ -44,9 +44,12 @@ class ComboBox(QComboBox):
 
 
 class ActionBar(QToolBar):
-    def __init__(self, nodedir):
+    def __init__(self, parent, basename):
         super(ActionBar, self).__init__()
-        self.nodedir = nodedir
+        self.parent = parent
+        self.basename = basename
+        self.gateway = self.parent.gateway
+        self.gui = self.parent.gui
         self.share_widget = None
         self.setIconSize(QSize(16, 16))
 
@@ -58,7 +61,7 @@ class ActionBar(QToolBar):
         self.share_action.triggered.connect(self.open_share_widget)
 
     def open_share_widget(self):
-        self.share_widget = ShareWidget(self.nodedir)
+        self.share_widget = ShareWidget(self.gateway, self.gui, self.basename)
         self.share_widget.show()
 
 
@@ -97,7 +100,7 @@ class Model(QStandardItemModel):
         status = QStandardItem(QIcon(), "Initializing...")
         size = QStandardItem()
         action = QStandardItem()
-        action_bar = ActionBar(path)
+        action_bar = ActionBar(self, folder_basename)
         self.appendRow([name, status, size, QStandardItem(), action])
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
