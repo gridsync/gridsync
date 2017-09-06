@@ -361,6 +361,11 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.link(rootcap, basename + ' (personal)',
                         magic_folder.get_magic_folder_dircap())
 
+    def get_magic_folder_gateway(self, name):
+        for gateway in self.magic_folders:
+            if gateway.name == name:
+                return gateway
+
     @inlineCallbacks
     def magic_folder_invite(self, nickname):
         code = yield self.command(
