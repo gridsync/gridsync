@@ -19,8 +19,7 @@ from twisted.internet.task import LoopingCall
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
-from gridsync.gui.widgets import (
-    CompositePixmap, PreferencesWidget, PairWidget, ShareWidget)
+from gridsync.gui.widgets import CompositePixmap, PreferencesWidget, ShareWidget
 from gridsync.monitor import Monitor
 from gridsync.tahoe import get_nodedirs
 
@@ -545,7 +544,7 @@ class MainWindow(QMainWindow):
     def open_pair_widget(self):
         gateway = self.combo_box.currentData()
         if gateway:
-            pair_widget = PairWidget(gateway, self.gui)
+            pair_widget = ShareWidget(gateway, self.gui)
             self.active_pair_widgets.append(pair_widget)
             pair_widget.done.connect(self.active_pair_widgets.remove)
             pair_widget.show()
