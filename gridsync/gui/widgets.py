@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 import os
 import sys
@@ -7,9 +8,10 @@ import sys
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
-    QCheckBox, QComboBox, QDialogButtonBox, QFormLayout, QGridLayout,
-    QGroupBox, QLabel, QLineEdit, QMessageBox, QPlainTextEdit, QProgressBar,
-    QPushButton, QSizePolicy, QSpacerItem, QSpinBox, QToolButton, QWidget)
+    QCheckBox, QComboBox, QDialogButtonBox, QFileDialog, QFormLayout,
+    QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox, QPlainTextEdit,
+    QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QSpinBox,
+    QToolButton, QWidget)
 import wormhole.errors
 
 from gridsync import resource, APP_NAME
@@ -101,12 +103,36 @@ class EncodingParameters(QWidget):
             self.happy_spinbox.setValue(value)
 
 
+class RestoreSelector(QWidget):
+    def __init__(self, parent):
+        super(RestoreSelector, self).__init__()
+        self.parent = parent
+        self.lineedit = QLineEdit(self)
+        self.button = QPushButton("Select file...")
+        layout = QGridLayout(self)
+        layout.addWidget(self.lineedit, 1, 1)
+        layout.addWidget(self.button, 1, 2)
+
+        self.button.clicked.connect(self.select_file)
+
+    def select_file(self):
+        dialog = QFileDialog(self, "Select a Recovery Key")
+        dialog.setFileMode(QFileDialog.ExistingFile)
+        if dialog.exec_():
+            selected_file = dialog.selectedFiles()[0]
+            self.lineedit.setText(selected_file)
+            self.parent.load_from_json_file(selected_file)
+
+
 class TahoeConfigForm(QWidget):
     def __init__(self):
         super(TahoeConfigForm, self).__init__()
+        self.rootcap = None
+        self.settings = {}
 
         self.connection_settings = ConnectionSettings()
         self.encoding_parameters = EncodingParameters()
+        self.restore_selector = RestoreSelector(self)
 
         connection_settings_gbox = QGroupBox(self)
         connection_settings_gbox.setTitle("Connection settings:")
@@ -118,6 +144,11 @@ class TahoeConfigForm(QWidget):
         encoding_parameters_gbox_layout = QGridLayout(encoding_parameters_gbox)
         encoding_parameters_gbox_layout.addWidget(self.encoding_parameters)
 
+        restore_selector_gbox = QGroupBox(self)
+        restore_selector_gbox.setTitle("Restore from Recovery Key:")
+        restore_selector_gbox_layout = QGridLayout(restore_selector_gbox)
+        restore_selector_gbox_layout.addWidget(self.restore_selector)
+
         self.buttonbox = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
 
@@ -125,24 +156,83 @@ class TahoeConfigForm(QWidget):
         layout.addWidget(connection_settings_gbox)
         layout.addWidget(encoding_parameters_gbox)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
+        layout.addWidget(restore_selector_gbox)
         layout.addWidget(self.buttonbox)
 
+    def set_name(self, name):
+        self.connection_settings.name_line_edit.setText(name)
+
+    def set_introducer(self, introducer):
+        self.connection_settings.introducer_text_edit.setPlainText(introducer)
+
+    def set_shares_total(self, shares):
+        self.encoding_parameters.total_spinbox.setValue(int(shares))
+
+    def set_shares_needed(self, shares):
+        self.encoding_parameters.needed_spinbox.setValue(int(shares))
+
+    def set_shares_happy(self, shares):
+        self.encoding_parameters.happy_spinbox.setValue(int(shares))
+
+    def get_name(self):
+        return self.connection_settings.name_line_edit.text().strip()
+
+    def get_introducer(self):
+        furl = self.connection_settings.introducer_text_edit.toPlainText()
+        return furl.lower().strip()
+
+    def get_shares_total(self):
+        return self.encoding_parameters.total_spinbox.value()
+
+    def get_shares_needed(self):
+        return self.encoding_parameters.needed_spinbox.value()
+
+    def get_shares_happy(self):
+        return self.encoding_parameters.happy_spinbox.value()
+
     def reset(self):
-        self.connection_settings.name_line_edit.setText('')
-        self.connection_settings.introducer_text_edit.setPlainText('')
-        self.encoding_parameters.total_spinbox.setValue(1)
-        self.encoding_parameters.needed_spinbox.setValue(1)
-        self.encoding_parameters.happy_spinbox.setValue(1)
+        self.set_name('')
+        self.set_introducer('')
+        self.set_shares_total(1)
+        self.set_shares_needed(1)
+        self.set_shares_happy(1)
+        self.rootcap = None
 
     def get_settings(self):
-        furl = self.connection_settings.introducer_text_edit.toPlainText()
         return {
-            'nickname': self.connection_settings.name_line_edit.text().strip(),
-            'introducer': furl.lower().strip(),
-            'shares-total': self.encoding_parameters.total_spinbox.value(),
-            'shares-needed': self.encoding_parameters.needed_spinbox.value(),
-            'shares-happy': self.encoding_parameters.happy_spinbox.value()
+            'nickname': self.get_name(),
+            'introducer': self.get_introducer(),
+            'shares-total': self.get_shares_total(),
+            'shares-needed': self.get_shares_needed(),
+            'shares-happy': self.get_shares_happy(),
+            'rootcap': self.rootcap  # Maybe this should be user-settable?
         }
+
+    def load_from_json_file(self, path):
+        try:
+            with open(path, 'r') as f:
+                settings = json.loads(f.read())
+        except json.decoder.JSONDecodeError as err:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Error importing file")
+            msg.setText(str(err))
+            msg.exec_()
+            self.reset()
+            return
+        for key, value in settings.items():
+            if key == 'nickname':
+                self.set_name(value)
+            elif key == 'introducer':
+                self.set_introducer(value)
+            elif key == 'shares-total':
+                self.set_shares_total(value)
+            elif key == 'shares-needed':
+                self.set_shares_total(value)
+            elif key == 'shares-happy':
+                self.set_shares_total(value)
+            elif key == 'rootcap':
+                self.rootcap = value
 
 
 class PreferencesWidget(QWidget):
