@@ -410,6 +410,11 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
+        invite_action = QAction(
+            QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
+        invite_action.setStatusTip('Enter an Invite Code...')
+        invite_action.triggered.connect(self.gui.show_setup_form)
+
         pair_action = QAction(
             QIcon(resource('laptop.png')), 'Pair a device...', self)
         pair_action.setStatusTip('Pair a device...')
@@ -438,6 +443,7 @@ class MainWindow(QMainWindow):
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
+        self.toolbar.addAction(invite_action)
         self.toolbar.addAction(pair_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
