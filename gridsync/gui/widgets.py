@@ -430,13 +430,11 @@ class ShareWidget(QWidget):
         font.setPointSize(18)
         self.code_label.setFont(font)
         self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.code_label.hide()
 
         self.copy_button = QToolButton()
         self.copy_button.setIcon(QIcon(resource('paste.png')))
         self.copy_button.setToolTip("Copy to clipboard")
         self.copy_button.setStyleSheet('border: 0px; padding: 0px;')
-        self.copy_button.hide()
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximum(2)
@@ -448,7 +446,6 @@ class ShareWidget(QWidget):
         font = QFont()
         font.setPointSize(16)
         self.code_box_title.setFont(font)
-        self.code_box_title.hide()
 
         self.code_box = QGroupBox()
         self.code_box.setAlignment(Qt.AlignCenter)
@@ -459,12 +456,10 @@ class ShareWidget(QWidget):
         box_layout.addWidget(self.code_label, 1, 3)
         box_layout.addWidget(self.copy_button, 1, 4)
         box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-        self.code_box.hide()
 
         self.generate_button = QPushButton("Generate invite code")
 
         self.close_button = QPushButton("Close and cancel")
-        self.close_button.hide()
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
@@ -489,6 +484,8 @@ class ShareWidget(QWidget):
         self.lineedit.returnPressed.connect(self.go)
         self.copy_button.clicked.connect(self.on_copy_button_clicked)
         self.close_button.clicked.connect(self.close)
+
+        self.reset()
 
     def on_got_code(self, code):
         self.code_label.setText(code)
