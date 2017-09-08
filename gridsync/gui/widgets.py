@@ -5,13 +5,13 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt
 from PyQt5.QtGui import QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialogButtonBox, QFileDialog, QFormLayout,
-    QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox, QPlainTextEdit,
-    QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QSpinBox,
-    QToolButton, QWidget)
+    QFileIconProvider, QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox,
+    QPlainTextEdit, QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
+    QSpinBox, QToolButton, QWidget)
 import wormhole.errors
 
 from gridsync import resource, APP_NAME
@@ -303,59 +303,123 @@ class PreferencesWidget(QWidget):
             set_preference('notifications', 'invite', 'false')
 
 
-class PairWidget(QWidget):
+class ShareWidget(QWidget):
     done = pyqtSignal(QWidget)
 
-    def __init__(self, gateway, gui):  # pylint:disable=too-many-statements
-        super(PairWidget, self).__init__()
+    def __init__(self, gateway, gui, folder_name=None):  # pylint:disable=too-many-statements
+        super(ShareWidget, self).__init__()
         self.gateway = gateway
         self.gui = gui
+        self.folder_name = folder_name
         self.settings = {}
         self.wormhole = None
+        self.magic_folder_gateway = None
 
-        self.grid_icon_label = QLabel(self)
-        icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
-        if not icon.availableSizes():
-            icon = QIcon(resource('tahoe-lafs.png'))
-        self.grid_icon_label.setPixmap(icon.pixmap(50, 50))
+        if self.folder_name:
+            self.magic_folder_gateway = self.gateway.get_magic_folder_gateway(
+                folder_name)
 
-        self.grid_name_label = QLabel(self.gateway.name)
+        self.icon_label = QLabel(self)
+        if self.magic_folder_gateway:
+            icon = QFileIconProvider().icon(QFileInfo(
+                self.magic_folder_gateway.magic_folder_path))
+        else:
+            icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
+            if not icon.availableSizes():
+                icon = QIcon(resource('tahoe-lafs.png'))
+        self.icon_label.setPixmap(icon.pixmap(50, 50))
+
+        self.name_label = QLabel(self)
+        if self.magic_folder_gateway:
+            self.name_label.setText(self.folder_name)
+        else:
+            self.name_label.setText(self.gateway.name)
+
         font = QFont()
         font.setPointSize(18)
-        self.grid_name_label.setFont(font)
-        self.grid_name_label.setAlignment(Qt.AlignCenter)
+        self.name_label.setFont(font)
+        self.name_label.setAlignment(Qt.AlignCenter)
 
         label_layout = QGridLayout()
         label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        label_layout.addWidget(self.grid_icon_label, 1, 2)
-        label_layout.addWidget(self.grid_name_label, 1, 3)
+        label_layout.addWidget(self.icon_label, 1, 2)
+        label_layout.addWidget(self.name_label, 1, 3)
         label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
 
-        #self.instructions = QLabel(
-        #    'To pair another device with {} to {}, click the "Generate '
-        #    'invite code" button below and enter the invite code that appears '
-        #    'on the new device. Pairing another device will allow it to '
-        #    'connect to {}, upload new folders, and (in the future) share and '
-        #    'sync folders between other connected devices.\n\n'
-        #    'Note that the invite code you generate will remain valid only so '
-        #    'long as this window remains open and will expire immediately '
-        #    'when used.'.format(
-        #        APP_NAME, self.gateway.name, self.gateway.name))
-        self.instructions = QLabel(
-            'To pair another device with {}, install {} on that device and '
-            'click the "Generate invite code" button below. The invite code '
-            'that appears can then be entered on the new device, allowing it '
-            'to connect to {}, upload new folders, and (in the future) share '
-            'and sync folders between other connected devices.\n\n'
-            'Note that the invite code you generate will remain valid only so '
-            'long as this window remains open and will expire immediately '
-            'when used.'.format(
+        self.recipient_label = QLabel("Recipient name:")
+        #font = QFont()
+        #font.setPointSize(12)
+        #self.recipient_label.setFont(font)
+
+        self.lineedit = QLineEdit(self)
+        #font = QFont()
+        #font.setPointSize(12)
+        #self.lineedit.setFont(font)
+        self.lineedit.setPlaceholderText('e.g., "Bob"')
+
+        self.lineedit_layout = QGridLayout()
+        self.lineedit_layout.addItem(
+                QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        self.lineedit_layout.addWidget(self.recipient_label, 1, 2)
+        self.lineedit_layout.addWidget(self.lineedit, 1, 3)
+        self.lineedit_layout.addItem(
+                QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+
+        pair_instructions = (
+            'To connect another device to {}, install {} on that device and '
+            'click the "Generate invite code" button below. The code that '
+            'appears can then be entered on the new device, allowing it to '
+            'connect to {} and upload new folders.\n\n'
+            'This operation will not disclose or share any of your existing '
+            'folders with the new device.'.format(
                 self.gateway.name, APP_NAME, self.gateway.name))
+
+        pair_subtext = (
+            'Only enter invite codes on devices you trust; '
+            'access to {} cannot be revoked once granted.'.format(
+                self.gateway.name))
+
+        share_folder_instructions = (
+            # "To invite another user to {}"?
+            'To share the folder "{}" with another user of {}, enter a name '
+            'for that person below and click the "Generate invite code" '
+            'button. The code that appears can then be entered by that '
+            'person, allowing them to download a copy of {} and add new files '
+            'to yours.'.format(self.folder_name, APP_NAME, self.folder_name))
+            # "Any future changes made to this folder will be synchronized between other members"?
+
+        share_folder_subtext = (
+            'Only extend invites to persons that you trust; '
+            'granting access to {} is irrevocable and will also allow the '
+            'recipient to upload additional folders to {}'.format(
+                self.folder_name, self.gateway.name))
+
+        self.instructions = QLabel(self)
         self.instructions.setWordWrap(True)
+        if self.magic_folder_gateway:
+            self.instructions.setText(share_folder_instructions)
+        else:
+            self.instructions.setText(pair_instructions)
 
         self.instructions_box = QGroupBox()
         instructions_box_layout = QGridLayout(self.instructions_box)
         instructions_box_layout.addWidget(self.instructions)
+        if self.magic_folder_gateway:
+            instructions_box_layout.addLayout(self.lineedit_layout, 2, 0)
+        else:
+            self.lineedit.hide()
+
+        self.subtext_label = QLabel(self)
+        font = QFont()
+        font.setPointSize(10)
+        self.subtext_label.setFont(font)
+        self.subtext_label.setStyleSheet("color: grey")
+        self.subtext_label.setWordWrap(True)
+        self.subtext_label.setAlignment(Qt.AlignCenter)
+        if self.magic_folder_gateway:
+            self.subtext_label.setText(share_folder_subtext)
+        else:
+            self.subtext_label.setText(pair_subtext)
 
         self.waiting_label = QLabel("Generating invite code...")
 
@@ -413,6 +477,7 @@ class PairWidget(QWidget):
         layout.addWidget(self.code_box_title, 3, 2, 1, 3)
         layout.addWidget(self.code_box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
+        layout.addWidget(self.subtext_label, 5, 2, 1, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
         layout.addWidget(self.generate_button, 10, 3)
         layout.addWidget(self.close_button, 11, 3)
@@ -433,20 +498,27 @@ class PairWidget(QWidget):
         self.waiting_label.hide()
         self.code_label.show()
         self.copy_button.show()
+        self.subtext_label.show()
+        self.subtext_label.setText(
+            "This code will remain active only while this window is open and "
+            "will expire immediately when used.")
 
     def on_got_introduction(self):
         self.code_box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(1)
+        self.subtext_label.setText(
+            "Connection established; sending credentials...")
 
     def on_send_completed(self):
         self.code_box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(2)
         self.close_button.setText("Finish")
+        self.subtext_label.setText("Invite complete!")  # XXX: Add name? Time?
         if get_preference('notifications', 'invite') != 'false':
             self.gui.show_message(
-                "Pairing complete",
+                "Invite successful",
                 "Your invitation to {} was accepted".format(self.gateway.name))
 
     def on_copy_button_clicked(self):
@@ -511,6 +583,7 @@ class PairWidget(QWidget):
         self.wormhole.send_completed.connect(self.on_send_completed)
         self.instructions_box.hide()
         self.code_box.show()
+        self.subtext_label.setText("This could take a few seconds...")
         self.generate_button.hide()
         self.close_button.show()
         self.settings = self.gateway.get_settings()
