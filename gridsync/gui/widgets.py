@@ -442,7 +442,7 @@ class ShareWidget(QWidget):
         self.progress_bar.setTextVisible(False)
         self.progress_bar.hide()
 
-        self.code_box_title = QLabel("Your invite code is:")
+        self.code_box_title = QLabel(self)
         self.code_box_title.setAlignment(Qt.AlignCenter)
         font = QFont()
         font.setPointSize(16)
@@ -491,10 +491,15 @@ class ShareWidget(QWidget):
     def on_got_code(self, code):
         self.code_label.setText(code)
         self.instructions_box.hide()
+        if self.recipient:
+            title = "{}'s invite code is:".format(self.recipient)
+        else:
+            title = "Your invite code is:"
         if sys.platform == 'darwin':
+            self.code_box_title.setText(title)
             self.code_box_title.show()
         else:
-            self.code_box.setTitle("Your invite code is:")
+            self.code_box.setTitle(title)
         self.code_box.show()
         self.waiting_label.hide()
         self.code_label.show()
