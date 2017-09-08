@@ -314,6 +314,7 @@ class ShareWidget(QWidget):
         self.settings = {}
         self.wormhole = None
         self.magic_folder_gateway = None
+        self.recipient = ''
 
         if self.folder_name:
             self.magic_folder_gateway = self.gateway.get_magic_folder_gateway(
@@ -535,6 +536,7 @@ class ShareWidget(QWidget):
         self.code_box.hide()
         self.close_button.hide()
         self.instructions_box.show()
+        self.recipient = ''
         self.waiting_label.show()
         self.generate_button.show()
 
@@ -578,6 +580,17 @@ class ShareWidget(QWidget):
         self.reset()
 
     def on_button_clicked(self):
+        if self.magic_folder_gateway:
+            recipient = self.lineedit.text()
+            if recipient:
+                self.recipient = recipient
+            else:
+                msg = QMessageBox(self)
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Recipient required")
+                msg.setText("Please enter a recipient name.")
+                msg.exec_()
+                return
         self.wormhole = Wormhole()
         self.wormhole.got_code.connect(self.on_got_code)
         self.wormhole.got_introduction.connect(self.on_got_introduction)
