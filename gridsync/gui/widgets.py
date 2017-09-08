@@ -525,6 +525,7 @@ class ShareWidget(QWidget):
         code = self.code_label.text()
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
+        self.subtext_label.setText("Copied '{}' to clipboard!".format(code))
 
     def reset(self):
         self.code_label.setText('')
