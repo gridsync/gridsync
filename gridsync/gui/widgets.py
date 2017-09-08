@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import json
 import logging
 import os
@@ -521,11 +522,16 @@ class ShareWidget(QWidget):
         self.progress_bar.show()
         self.progress_bar.setValue(2)
         self.close_button.setText("Finish")
-        self.subtext_label.setText("Invite complete!")  # XXX: Add name? Time?
+        if self.recipient:
+            text = "{}'s invitation to {} was accepted".format(
+                    self.recipient, self.folder_name)
+        else:
+            text = "Your invitation to {} was accepted".format(
+                    self.gateway.name)
+        self.subtext_label.setText("Invite complete! {} at {}".format(
+            text, datetime.now().strftime('%H:%M')))
         if get_preference('notifications', 'invite') != 'false':
-            self.gui.show_message(
-                "Invite successful",
-                "Your invitation to {} was accepted".format(self.gateway.name))
+            self.gui.show_message("Invite successful", text)
 
     def on_copy_button_clicked(self):
         code = self.code_label.text()
