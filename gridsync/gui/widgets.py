@@ -485,7 +485,8 @@ class ShareWidget(QWidget):
         layout.addWidget(self.close_button, 11, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 20, 1)
 
-        self.generate_button.clicked.connect(self.on_button_clicked)
+        self.generate_button.clicked.connect(self.go)
+        self.lineedit.returnPressed.connect(self.go)
         self.copy_button.clicked.connect(self.on_copy_button_clicked)
         self.close_button.clicked.connect(self.close)
 
@@ -590,7 +591,7 @@ class ShareWidget(QWidget):
         msg.exec_()
         self.reset()
 
-    def on_button_clicked(self):
+    def go(self):
         if self.magic_folder_gateway:
             recipient = self.lineedit.text()
             if recipient:
