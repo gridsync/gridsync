@@ -85,6 +85,8 @@ class Monitor(object):
         status = yield magic_folder.get_magic_folder_status()
         state, last_sync, kind, filepath, _ = self.parse_status(status)
         #sync_start_time = 0
+        if not prev:
+            self.model.set_data(magic_folder.name, magic_folder)
         if status and prev:
             if state == 1:  # "Syncing"
                 if prev['state'] != 1:  # Sync just started
