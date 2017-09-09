@@ -90,6 +90,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.magic_folder_path = None
         self.collective_dircap = None
         self.lock = DeferredLock()
+        self.rootcap = None
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -303,11 +304,11 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if os.path.exists(self.rootcap_path):
             raise OSError(
                 "Rootcap file already exists: {}".format(self.rootcap_path))
-        rootcap = yield self.mkdir()
+        self.rootcap = yield self.mkdir()
         with open(self.rootcap_path, 'w') as f:
-            f.write(rootcap)
+            f.write(self.rootcap)
         log.debug("Rootcap saved to file: %s", self.rootcap_path)
-        returnValue(rootcap)
+        returnValue(self.rootcap)
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
@@ -430,6 +431,11 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         except OSError:
             return
         return cap
+
+    def get_rootcap(self):
+        if not self.rootcap:
+            self.rootcap = self.read_cap_from_file(self.rootcap_path)
+        return self.rootcap
 
     def get_collective_dircap(self):
         if not self.collective_dircap:
