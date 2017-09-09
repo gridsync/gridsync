@@ -104,6 +104,10 @@ class Monitor(object):
                 logging.debug("Sync complete (%s)", magic_folder.name)
                 self.remove_operation(magic_folder)
                 self.notify_updated_files(magic_folder)
+                self.model.update_folder_icon(
+                    magic_folder.name,
+                    magic_folder.magic_folder_path,
+                    'lock-closed-green.svg')
             if state in (1, 2) and prev['state'] != 2:
                 members, size, _ = yield magic_folder.get_magic_folder_info()
                 for member in members:
