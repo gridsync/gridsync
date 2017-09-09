@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
-from gridsync import resource, APP_NAME
+from gridsync import resource, APP_NAME, config_dir
 from gridsync.desktop import open_folder
 from gridsync.gui.widgets import CompositePixmap, PreferencesWidget, ShareWidget
 from gridsync.monitor import Monitor
@@ -81,6 +81,7 @@ class Model(QStandardItemModel):
         self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
         self.icon_user = QIcon(resource('user.png'))
+        self.icon_folder = QFileIconProvider().icon(QFileInfo(config_dir))
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)
@@ -88,19 +89,17 @@ class Model(QStandardItemModel):
             return QSize(0, 30)
         return value
 
-    def add_folder(self, path):
-        folder_icon = QFileIconProvider().icon(QFileInfo(path))
+    def add_folder(self, path, data=None):
         folder_basename = os.path.basename(os.path.normpath(path))
-        #name = QStandardItem(folder_icon, folder_basename)
-        folder_pixmap = folder_icon.pixmap(256, 256)
-        lock_pixmap = resource('lock-closed-green.svg')
-        composite_pixmap = CompositePixmap(folder_pixmap, lock_pixmap)
+        composite_pixmap = CompositePixmap(self.icon_folder.pixmap(256, 256))
         name = QStandardItem(QIcon(composite_pixmap), folder_basename)
-        status = QStandardItem(QIcon(), "Initializing...")
+        name.setData(data, Qt.UserRole)
+        status = QStandardItem()
+        last_sync = QStandardItem()
         size = QStandardItem()
         action = QStandardItem()
+        self.appendRow([name, status, last_sync, size, action])
         action_bar = ActionBar(self, folder_basename)
-        self.appendRow([name, status, size, QStandardItem(), action])
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
         self.set_status(folder_basename, 0)
@@ -114,6 +113,22 @@ class Model(QStandardItemModel):
         for magic_folder in get_nodedirs(self.gateway.magic_folders_dir):
             self.add_folder(magic_folder)
         self.monitor.start()
+
+    def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
+        items = self.findItems(folder_name)
+        if items:
+            folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
+            folder_pixmap = folder_icon.pixmap(256, 256)
+            if overlay_file:
+                pixmap = CompositePixmap(folder_pixmap, resource(overlay_file))
+            else:
+                pixmap = CompositePixmap(folder_pixmap)
+            items[0].setIcon(QIcon(pixmap))
+
+    def set_data(self, folder_name, data):
+        items = self.findItems(folder_name)
+        if items:
+            items[0].setData(data, Qt.UserRole)
 
     def set_status(self, name, status):
         if not status:
