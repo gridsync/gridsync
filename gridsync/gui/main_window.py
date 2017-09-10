@@ -90,16 +90,20 @@ class Model(QStandardItemModel):
         return value
 
     def add_folder(self, path, data=None):
-        folder_basename = os.path.basename(os.path.normpath(path))
+        basename = os.path.basename(os.path.normpath(path))
+        if self.findItems(basename):
+            logging.warning(
+                "Tried to add a folder (%s) that already exists", basename)
+            return
         composite_pixmap = CompositePixmap(self.icon_folder.pixmap(256, 256))
-        name = QStandardItem(QIcon(composite_pixmap), folder_basename)
+        name = QStandardItem(QIcon(composite_pixmap), basename)
         name.setData(data, Qt.UserRole)
         status = QStandardItem()
         last_sync = QStandardItem()
         size = QStandardItem()
         action = QStandardItem()
         self.appendRow([name, status, last_sync, size, action])
-        action_bar = ActionBar(self, folder_basename)
+        action_bar = ActionBar(self, basename)
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
         self.set_status(folder_basename, 0)
