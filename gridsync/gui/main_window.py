@@ -107,7 +107,7 @@ class Model(QStandardItemModel):
         action_bar = ActionBar(self, basename)
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
-        self.set_status(folder_basename, 0)
+        self.set_status(basename, 0)
 
     def add_member(self, folder, member):
         items = self.findItems(folder)
