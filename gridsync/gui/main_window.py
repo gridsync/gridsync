@@ -131,18 +131,17 @@ class Model(QStandardItemModel):
             items[0].setData(data, Qt.UserRole)
 
     def set_status(self, name, status):
+        item = self.item(self.findItems(name)[0].row(), 1)
         if not status:
-            icon = self.icon_blank
-            text = "Initializing..."
+            item.setIcon(self.icon_blank)
+            item.setText("Initializing...")
         elif status == 1:
-            icon = self.icon_blank
-            text = "Syncing"
+            item.setIcon(self.icon_blank)
+            item.setText("Syncing")
         else:
-            icon = self.icon_up_to_date
-            text = "Up to date"
-        item = QStandardItem(icon, text)
+            item.setIcon(self.icon_up_to_date)
+            item.setText("Up to date")
         item.setData(status, Qt.UserRole)
-        self.setItem(self.findItems(name)[0].row(), 1, item)
         self.status_dict[name] = status
 
     def set_last_sync(self, name, text):
