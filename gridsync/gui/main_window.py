@@ -89,7 +89,7 @@ class Model(QStandardItemModel):
             return QSize(0, 30)
         return value
 
-    def add_folder(self, path, name_data=None, status_data=None):
+    def add_folder(self, path, name_data=None, status_data=0):
         basename = os.path.basename(os.path.normpath(path))
         if self.findItems(basename):
             logging.warning(
@@ -99,7 +99,6 @@ class Model(QStandardItemModel):
         name = QStandardItem(QIcon(composite_pixmap), basename)
         name.setData(name_data, Qt.UserRole)
         status = QStandardItem()
-        status.setData(status_data, Qt.UserRole)
         last_sync = QStandardItem()
         size = QStandardItem()
         action = QStandardItem()
@@ -107,7 +106,7 @@ class Model(QStandardItemModel):
         action_bar = ActionBar(self, basename)
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
-        self.set_status(basename, 0)
+        self.set_status(basename, status_data)
 
     def add_member(self, folder, member):
         items = self.findItems(folder)
