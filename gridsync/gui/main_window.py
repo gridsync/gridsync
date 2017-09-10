@@ -142,7 +142,7 @@ class Model(QStandardItemModel):
         elif status == 1:
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
-        else:
+        elif status == 2:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
         item.setData(status, Qt.UserRole)
