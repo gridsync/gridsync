@@ -57,6 +57,10 @@ class ActionBar(QToolBar):
         self.share_action.setStatusTip('Share...')
         self.share_action.triggered.connect(self.open_share_widget)
 
+        self.download_action = QAction(
+            QIcon(resource('download.png')), 'Download...', self)
+        self.download_action.setStatusTip('Download...')
+
     def open_share_widget(self):
         self.share_widget = ShareWidget(self.gateway, self.gui, self.basename)
         self.share_widget.show()
@@ -64,6 +68,8 @@ class ActionBar(QToolBar):
     def add_share_button(self):
         self.addAction(self.share_action)
 
+    def add_download_button(self):
+        self.addAction(self.download_action)
 
 class Model(QStandardItemModel):
     def __init__(self, view):
@@ -161,6 +167,11 @@ class Model(QStandardItemModel):
         action_item = self.item(self.findItems(name)[0].row(), 4)
         action_bar = action_item.data(Qt.UserRole)
         action_bar.add_share_button()
+
+    def add_download_button(self, name):
+        action_item = self.item(self.findItems(name)[0].row(), 4)
+        action_bar = action_item.data(Qt.UserRole)
+        action_bar.add_download_button()
 
 
 class Delegate(QStyledItemDelegate):
