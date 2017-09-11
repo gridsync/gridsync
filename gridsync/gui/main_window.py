@@ -55,13 +55,14 @@ class ActionBar(QToolBar):
         self.share_action = QAction(
             QIcon(resource('share.png')), 'Share...', self)
         self.share_action.setStatusTip('Share...')
-        self.addAction(self.share_action)
-
         self.share_action.triggered.connect(self.open_share_widget)
 
     def open_share_widget(self):
         self.share_widget = ShareWidget(self.gateway, self.gui, self.basename)
         self.share_widget.show()
+
+    def add_share_button(self):
+        self.addAction(self.share_action)
 
 
 class Model(QStandardItemModel):
@@ -105,6 +106,7 @@ class Model(QStandardItemModel):
         self.appendRow([name, status, last_sync, size, action])
         action_bar = ActionBar(self, basename)
         self.view.setIndexWidget(action.index(), action_bar)
+        action.setData(action_bar, Qt.UserRole)
         self.view.hide_drop_label()
         self.set_status(basename, status_data)
 
@@ -154,6 +156,11 @@ class Model(QStandardItemModel):
     def set_size(self, name, size):
         self.setItem(
             self.findItems(name)[0].row(), 3, QStandardItem(naturalsize(size)))
+
+    def add_share_button(self, name):
+        action_item = self.item(self.findItems(name)[0].row(), 4)
+        action_bar = action_item.data(Qt.UserRole)
+        action_bar.add_share_button()
 
 
 class Delegate(QStyledItemDelegate):
