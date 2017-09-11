@@ -7,7 +7,7 @@ import shutil
 from humanize import naturalsize
 from PyQt5.QtCore import QEvent, QFileInfo, QPoint, QSize, Qt, QVariant
 from PyQt5.QtGui import (
-    QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
+    QColor, QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
     QStandardItemModel)
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
@@ -155,6 +155,15 @@ class Model(QStandardItemModel):
             item.setText("Up to date")
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
+
+    def fade_row(self, folder_name):
+        row = self.findItems(folder_name)[0].row()
+        for i in range(4):
+            item = self.item(row, i)
+            font = item.font()
+            font.setItalic(True)
+            item.setFont(font)
+            item.setForeground(QColor('grey'))
 
     def set_last_sync(self, name, text):
         self.setItem(self.findItems(name)[0].row(), 2, QStandardItem(text))
