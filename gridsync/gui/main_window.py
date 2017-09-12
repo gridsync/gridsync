@@ -157,7 +157,11 @@ class Model(QStandardItemModel):
         self.status_dict[name] = status
 
     def fade_row(self, folder_name):
-        row = self.findItems(folder_name)[0].row()
+        folder_item = self.findItems(folder_name)[0]
+        composite_pixmap = CompositePixmap(
+            self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
+        folder_item.setIcon(QIcon(composite_pixmap))
+        row = folder_item.row()
         for i in range(4):
             item = self.item(row, i)
             font = item.font()
