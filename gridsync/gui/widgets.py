@@ -7,7 +7,7 @@ import os
 import sys
 
 from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt
-from PyQt5.QtGui import QFont, QIcon, QPainter, QPixmap
+from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialogButtonBox, QFileDialog, QFormLayout,
     QFileIconProvider, QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox,
@@ -22,9 +22,14 @@ from gridsync.preferences import set_preference, get_preference
 
 
 class CompositePixmap(QPixmap):
-    def __init__(self, pixmap, overlay=None):
+    def __init__(self, pixmap, overlay=None, grayout=False):
         super(CompositePixmap, self).__init__()
         base_pixmap = QPixmap(pixmap)
+        if grayout:
+            painter = QPainter(base_pixmap)
+            painter.setCompositionMode(painter.CompositionMode_SourceIn)
+            painter.fillRect(base_pixmap.rect(), QColor(128, 128, 128, 128))
+            painter.end()
         if overlay:
             width = int(base_pixmap.size().width() / 2)
             height = int(base_pixmap.size().height() / 2)
