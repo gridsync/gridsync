@@ -166,11 +166,12 @@ class Model(QStandardItemModel):
             item.setForeground(QColor('grey'))
 
     def set_last_sync(self, name, text):
-        self.setItem(self.findItems(name)[0].row(), 2, QStandardItem(text))
+        self.item(self.findItems(name)[0].row(), 2).setText(text)
 
     def set_size(self, name, size):
-        self.setItem(
-            self.findItems(name)[0].row(), 3, QStandardItem(naturalsize(size)))
+        item = self.item(self.findItems(name)[0].row(), 3)
+        item.setText(naturalsize(size))
+        item.setData(size, Qt.UserRole)
 
     def add_share_button(self, name):
         action_item = self.item(self.findItems(name)[0].row(), 4)
