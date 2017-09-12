@@ -89,6 +89,9 @@ class Model(QStandardItemModel):
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
         self.icon_user = QIcon(resource('user.png'))
         self.icon_folder = QFileIconProvider().icon(QFileInfo(config_dir))
+        composite_pixmap = CompositePixmap(
+            self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
+        self.icon_folder_gray = QIcon(composite_pixmap)
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)
@@ -158,16 +161,14 @@ class Model(QStandardItemModel):
 
     def fade_row(self, folder_name):
         folder_item = self.findItems(folder_name)[0]
-        composite_pixmap = CompositePixmap(
-            self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
-        folder_item.setIcon(QIcon(composite_pixmap))
+        folder_item.setIcon(self.icon_folder_gray)
         row = folder_item.row()
         for i in range(4):
             item = self.item(row, i)
             font = item.font()
             font.setItalic(True)
             item.setFont(font)
-            item.setForeground(QColor('grey'))
+            item.setForeground(QColor('gray'))
 
     def set_last_sync(self, name, text):
         self.item(self.findItems(name)[0].row(), 2).setText(text)
