@@ -8,6 +8,7 @@ import re
 import shutil
 import signal
 import sys
+from collections import defaultdict
 from io import BytesIO
 
 import treq
@@ -448,6 +449,28 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
             self.magic_folder_dircap = self.read_cap_from_file(path)
         return self.magic_folder_dircap
+
+    @inlineCallbacks
+    def get_magic_folders_from_rootcap(self, content=None):
+        if not content:
+            content = yield self.get_json(self.get_rootcap())
+        if content:
+            folders = defaultdict(dict)
+            for name, data in content[1]['children'].items():
+                data_dict = data[1]
+                if name.endswith(' (collective)'):
+                    prefix = name.split(' (collective)')[0]
+                    if 'rw_uri' in data_dict:
+                        folders[prefix]['collective'] = data_dict['rw_uri']
+                    else:
+                        folders[prefix]['collective'] = data_dict['ro_uri']
+                elif name.endswith(' (personal)'):
+                    prefix = name.split(' (personal)')[0]
+                    if 'rw_uri' in data_dict:
+                        folders[prefix]['personal'] = data_dict['rw_uri']
+                    else:
+                        folders[prefix]['personal'] = data_dict['ro_uri']
+            returnValue(folders)
 
     @inlineCallbacks
     def get_magic_folder_members(self, content=None):
