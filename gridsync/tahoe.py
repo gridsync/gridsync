@@ -42,6 +42,14 @@ def get_nodedirs(basedir):
     return sorted(nodedirs)
 
 
+class TahoeError(Exception):
+    pass
+
+
+class TahoeCommandError(TahoeError):
+    pass
+
+
 class CommandProtocol(ProcessProtocol):
     def __init__(self, parent, callback_trigger=None):
         self.parent = parent
@@ -67,7 +75,9 @@ class CommandProtocol(ProcessProtocol):
 
     def processExited(self, reason):
         if not self.done.called and not isinstance(reason.value, ProcessDone):
-            self.done.errback(reason)
+            self.done.errback(
+                TahoeCommandError(
+                    self.output.getvalue().decode('utf-8').strip()))
 
 
 class Tahoe(object):  # pylint: disable=too-many-public-methods
@@ -174,9 +184,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return proc.pid
         proc.poll()
         if proc.returncode:
-            raise subprocess.CalledProcessError(proc.returncode, args)
+            raise TahoeCommandError(str(output.getvalue()).strip())
         else:
-            return str(output.getvalue())
+            return str(output.getvalue()).strip()
 
     @inlineCallbacks
     def command(self, args, callback_trigger=None):
