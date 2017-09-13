@@ -3,7 +3,9 @@
 import json
 import logging
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject, QStringListModel, Qt
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QAction, QCompleter, QLineEdit
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
 from wormhole import wormhole
@@ -13,7 +15,8 @@ try:
 except ImportError:  # TODO: Switch to new magic-wormhole completion API
     from wormhole._wordlist import raw_words
 
-from gridsync import settings
+from gridsync import settings, resource
+from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 
 
@@ -38,6 +41,101 @@ def is_valid(code):
     elif not words[2] in wordlist:
         return False
     return True
+
+
+class InviteCodeCompleter(QCompleter):
+    def __init__(self):
+        super(InviteCodeCompleter, self).__init__()
+        self.setCaseSensitivity(Qt.CaseInsensitive)
+        self.setCompletionMode(QCompleter.InlineCompletion)
+
+    def pathFromIndex(self, index):
+        path = QCompleter.pathFromIndex(self, index)
+        words = self.widget().text().split('-')
+        if len(words) > 1:
+            path = '{}-{}'.format('-'.join(words[:-1]), path)
+        return path
+
+    def splitPath(self, path):  # pylint: disable=no-self-use
+        return [str(path.split('-')[-1])]
+
+
+class InviteCodeLineEdit(QLineEdit):
+
+    error = pyqtSignal(str)
+    go = pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        super(InviteCodeLineEdit, self).__init__()
+        self.parent = parent
+        model = QStringListModel()
+        model.setStringList(wordlist)
+        completer = InviteCodeCompleter()
+        completer.setModel(model)
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
+        self.setCompleter(completer)
+        self.setAlignment(Qt.AlignCenter)
+        #self.setPlaceholderText("Enter invite code")
+        self.action_button = QAction(QIcon(), '', self)
+        self.addAction(self.action_button, 1)
+        self.addAction(QAction(QIcon(), '', self), 0)  # for symmetry
+
+        completer.highlighted.connect(self.update_action_button)
+        self.textChanged.connect(self.update_action_button)
+        self.returnPressed.connect(self.return_pressed)
+        self.action_button.triggered.connect(self.button_clicked)
+
+        self.update_action_button()
+
+    def update_action_button(self, text=None):
+        text = (text if text else self.text())
+        if not text:
+            self.action_button.setIcon(QIcon())
+            self.action_button.setToolTip('')
+            for mode in get_clipboard_modes():
+                if is_valid(get_clipboard_text(mode)):
+                    self.action_button.setIcon(QIcon(resource('paste.png')))
+                    self.action_button.setToolTip("Paste")
+        elif is_valid(text):
+            self.action_button.setIcon(QIcon(resource('arrow-right.png')))
+            self.action_button.setToolTip("Go")
+        else:
+            self.action_button.setIcon(QIcon(resource('close.png')))
+            self.action_button.setToolTip("Clear")
+
+    def keyPressEvent(self, event):
+        key = event.key()
+        text = self.text()
+        if key in (Qt.Key_Space, Qt.Key_Minus, Qt.Key_Tab):
+            if text and len(text.split('-')) < 3 and not text.endswith('-'):
+                self.setText(text + '-')
+            else:
+                self.setText(text)
+        elif text and key == Qt.Key_Escape:
+            self.setText('')
+        else:
+            return QLineEdit.keyPressEvent(self, event)
+
+    def return_pressed(self):
+        code = self.text().lower()
+        if is_valid(code):
+            self.go.emit(code)
+        else:
+            self.error.emit("Invalid code")
+
+    def button_clicked(self):
+        code = self.text().lower()
+        if not code:
+            for mode in get_clipboard_modes():
+                text = get_clipboard_text(mode)
+                if is_valid(text):
+                    self.setText(text)
+        elif is_valid(code):
+            self.go.emit(code)
+        else:
+            self.setText('')
 
 
 class Wormhole(QObject):

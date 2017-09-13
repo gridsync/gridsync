@@ -7,11 +7,11 @@ import os
 import shutil
 from binascii import Error
 
-from PyQt5.QtCore import Qt, QStringListModel
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
 from PyQt5.QtWidgets import (
-    QAction, QCheckBox, QCompleter, QInputDialog, QGridLayout, QLabel,
-    QLineEdit, QPushButton, QMessageBox, QProgressBar, QShortcut, QSizePolicy,
+    QCheckBox, QInputDialog, QGridLayout, QLabel,
+    QPushButton, QMessageBox, QProgressBar, QShortcut, QSizePolicy,
     QSpacerItem, QStackedWidget, QToolButton, QWidget)
 import treq
 from twisted.internet import reactor
@@ -20,83 +20,10 @@ from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
 from gridsync import config_dir, resource, APP_NAME
-from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
-from gridsync.invite import wordlist, is_valid, wormhole_receive
+from gridsync.invite import wormhole_receive, InviteCodeLineEdit
 from gridsync.tahoe import is_valid_furl, Tahoe
 from gridsync.gui.widgets import TahoeConfigForm
-
-
-class Completer(QCompleter):
-    def __init__(self):
-        super(Completer, self).__init__()
-        self.setCaseSensitivity(Qt.CaseInsensitive)
-        self.setMaxVisibleItems(5)
-        #self.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-        self.setCompletionMode(QCompleter.InlineCompletion)
-
-    def pathFromIndex(self, index):
-        path = QCompleter.pathFromIndex(self, index)
-        words = self.widget().text().split('-')
-        if len(words) > 1:
-            path = '{}-{}'.format('-'.join(words[:-1]), path)
-        return path
-
-    def splitPath(self, path):  # pylint: disable=no-self-use
-        return [str(path.split('-')[-1])]
-
-
-class LineEdit(QLineEdit):
-    def __init__(self, parent=None):
-        super(LineEdit, self).__init__()
-        self.parent = parent
-        font = QFont()
-        font.setPointSize(16)
-        model = QStringListModel()
-        model.setStringList(wordlist)
-        completer = Completer()
-        completer.setModel(model)
-        self.setFont(font)
-        self.setCompleter(completer)
-        self.setAlignment(Qt.AlignCenter)
-        #self.setPlaceholderText("Enter invite code")
-        self.button_action = QAction(QIcon(), '', self)
-        self.addAction(self.button_action, 1)
-        self.addAction(QAction(QIcon(), '', self), 0)  # for symmetry
-
-        completer.highlighted.connect(self.update_button)
-        self.textChanged.connect(self.update_button)
-
-        self.update_button()
-
-    def update_button(self, text=None):
-        text = (text if text else self.text())
-        if not text:
-            self.button_action.setIcon(QIcon())
-            self.button_action.setToolTip('')
-            for mode in get_clipboard_modes():
-                if is_valid(get_clipboard_text(mode)):
-                    self.button_action.setIcon(QIcon(resource('paste.png')))
-                    self.button_action.setToolTip("Paste")
-        elif is_valid(text):
-            self.button_action.setIcon(QIcon(resource('arrow-right.png')))
-            self.button_action.setToolTip("Go")
-        else:
-            self.button_action.setIcon(QIcon(resource('close.png')))
-            self.button_action.setToolTip("Clear")
-
-    def keyPressEvent(self, event):
-        key = event.key()
-        text = self.text()
-        if key in (Qt.Key_Space, Qt.Key_Minus, Qt.Key_Tab):
-            if text and len(text.split('-')) < 3 and not text.endswith('-'):
-                self.setText(text + '-')
-            else:
-                self.setText(text)
-        elif text and key == Qt.Key_Escape:
-            self.setText('')
-        else:
-            return QLineEdit.keyPressEvent(self, event)
 
 
 class CodeEntryWidget(QWidget):
@@ -123,7 +50,7 @@ class CodeEntryWidget(QWidget):
         self.label.setStyleSheet("color: grey")
         self.label.setAlignment(Qt.AlignCenter)
 
-        self.lineedit = LineEdit(self)
+        self.lineedit = InviteCodeLineEdit(self)
 
         self.checkbox = QCheckBox("Connect over the Tor network")
         self.checkbox.setEnabled(True)
@@ -275,7 +202,6 @@ class SetupForm(QStackedWidget):
         self.addWidget(self.page_3)
 
         self.lineedit = self.page_1.lineedit
-        self.button_action = self.lineedit.button_action
         self.cancel_button = self.page_2.cancel_button
         self.finish_button = self.page_2.finish_button
         self.buttonbox = self.page_3.buttonbox
@@ -287,8 +213,8 @@ class SetupForm(QStackedWidget):
         self.shortcut_quit = QShortcut(QKeySequence.Quit, self)
         self.shortcut_quit.activated.connect(self.close)
 
-        self.lineedit.returnPressed.connect(self.return_pressed)
-        self.button_action.triggered.connect(self.button_clicked)
+        self.lineedit.go.connect(self.go)
+        self.lineedit.error.connect(self.show_error)
         self.cancel_button.clicked.connect(self.cancel_button_clicked)
         self.finish_button.clicked.connect(self.finish_button_clicked)
         self.buttonbox.accepted.connect(self.on_accepted)
@@ -392,7 +318,7 @@ class SetupForm(QStackedWidget):
 
         self.update_progress(5, 'Generating Recovery Key...')
         yield tahoe.create_rootcap()
-        settings_json = os.path.join(tahoe.nodedir, 'private', 'settings.json') 
+        settings_json = os.path.join(tahoe.nodedir, 'private', 'settings.json')
         with open(settings_json, 'w') as f:
             f.write(json.dumps(settings))
         # TODO: Upload, link to rootcap
@@ -471,25 +397,6 @@ class SetupForm(QStackedWidget):
         d.addCallback(self.setup)
         d.addErrback(self.show_failure)
         reactor.callLater(60, d.cancel)
-
-    def return_pressed(self):
-        code = self.lineedit.text().lower()
-        if is_valid(code):
-            self.go(code)
-        else:
-            self.show_error("Invalid code")
-
-    def button_clicked(self):
-        code = self.lineedit.text().lower()
-        if not code:
-            for mode in get_clipboard_modes():
-                text = get_clipboard_text(mode)
-                if is_valid(text):
-                    self.lineedit.setText(text)
-        elif is_valid(code):
-            self.go(code)
-        else:
-            self.reset()
 
     def cancel_button_clicked(self):
         if self.page_2.is_complete():
