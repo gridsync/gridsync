@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import base64
 import json
 import logging as log
 import os
-import shutil
-from binascii import Error
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
@@ -13,16 +10,16 @@ from PyQt5.QtWidgets import (
     QCheckBox, QInputDialog, QGridLayout, QLabel,
     QPushButton, QMessageBox, QProgressBar, QShortcut, QSizePolicy,
     QSpacerItem, QStackedWidget, QToolButton, QWidget)
-import treq
 from twisted.internet import reactor
-from twisted.internet.defer import CancelledError, inlineCallbacks
+from twisted.internet.defer import CancelledError
 from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import wormhole_receive, InviteCodeLineEdit
-from gridsync.tahoe import is_valid_furl, Tahoe
+from gridsync.setup import Setup
+from gridsync.tahoe import is_valid_furl
 from gridsync.gui.widgets import TahoeConfigForm
 
 
@@ -191,6 +188,7 @@ class SetupForm(QStackedWidget):
         super(SetupForm, self).__init__()
         self.gui = gui
         self.gateway = None
+        self.setup_runner = None
         self.resize(400, 500)
         self.setWindowTitle(APP_NAME)
         self.page_1 = CodeEntryWidget(self)
@@ -239,93 +237,6 @@ class SetupForm(QStackedWidget):
     def load_service_icon(self, filepath):
         pixmap = QPixmap(filepath).scaled(100, 100)
         self.page_2.icon_overlay.setPixmap(pixmap)
-
-    @inlineCallbacks  # noqa: max-complexity=15 XXX
-    def setup(self, settings):  # pylint: disable=too-many-statements,too-many-branches
-        if 'version' in settings and int(settings['version']) > 1:
-            raise UpgradeRequiredError
-
-        if 'nickname' in settings:
-            nickname = settings['nickname']
-        else:
-            nickname = settings['introducer'].split('@')[1].split(':')[0]
-
-        self.update_progress(2, 'Connecting to {}...'.format(nickname))
-        icon_path = None
-        if nickname == 'Least Authority S4':
-            icon_path = resource('leastauthority.com.icon')
-            self.load_service_icon(icon_path)
-        elif 'icon_base64' in settings:
-            icon_path = os.path.join(config_dir, '.icon.tmp')
-            with open(icon_path, 'wb') as f:
-                try:
-                    f.write(base64.b64decode(settings['icon_base64']))
-                except (Error, TypeError):
-                    pass
-            self.load_service_icon(icon_path)
-        elif 'icon_url' in settings:
-            # A temporary(?) measure to get around the performance issues
-            # observed when transferring a base64-encoded icon through Least
-            # Authority's wormhole server. Hopefully this will go away.. See:
-            # https://github.com/LeastAuthority/leastauthority.com/issues/539
-            log.debug("Fetching service icon from %s...", settings['icon_url'])
-            icon_path = os.path.join(config_dir, '.icon.tmp')
-            try:
-                # It's probably not worth cancelling or holding-up the setup
-                # process if fetching/writing the icon fails (particularly
-                # if doing so would require the user to get a new invite code)
-                # so just log a warning for now if something goes wrong...
-                resp = yield treq.get(settings['icon_url'])
-                if resp.code == 200:
-                    content = yield treq.content(resp)
-                    log.debug("Received %i bytes", len(content))
-                    with open(icon_path, 'wb') as f:
-                        f.write(content)
-                    self.load_service_icon(icon_path)
-                else:
-                    log.warning("Error fetching service icon: %i", resp.code)
-            except Exception as e:  # pylint: disable=broad-except
-                log.warning("Error fetching service icon: %s", str(e))
-
-        while os.path.isdir(os.path.join(config_dir, nickname)):
-            title = "{} - Choose a name".format(APP_NAME)
-            label = "Please choose a different name for this connection:"
-            if nickname:
-                label = '{} is already connected to "{}".\n\n{}'.format(
-                    APP_NAME, nickname, label)
-            nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
-
-        tahoe = Tahoe(os.path.join(config_dir, nickname))
-        self.gateway = tahoe
-        yield tahoe.create_client(**settings)
-        if icon_path:
-            try:
-                shutil.copy(icon_path, os.path.join(tahoe.nodedir, 'icon'))
-            except OSError as err:
-                log.warning("Error copying icon file: %s", str(err))
-        if 'icon_url' in settings:
-            try:
-                with open(os.path.join(tahoe.nodedir, 'icon.url'), 'w') as f:
-                    f.write(settings['icon_url'])
-            except OSError as err:
-                log.warning("Error writing icon url to file: %s", str(err))
-
-        self.update_progress(3, 'Connecting to {}...'.format(nickname))
-        yield tahoe.start()
-
-        self.update_progress(4, 'Connecting to {}...'.format(nickname))
-        yield tahoe.await_ready()
-
-        self.update_progress(5, 'Generating Recovery Key...')
-        yield tahoe.create_rootcap()
-        settings_json = os.path.join(tahoe.nodedir, 'private', 'settings.json')
-        with open(settings_json, 'w') as f:
-            f.write(json.dumps(settings))
-        # TODO: Upload, link to rootcap
-
-        self.update_progress(6, 'Done!')
-        self.gui.populate([self.gateway])
-        self.finish_button.show()
 
     def show_failure(self, failure):
         log.error(str(failure))
@@ -390,11 +301,33 @@ class SetupForm(QStackedWidget):
         msg.exec_()
         self.reset()
 
+    def on_done(self, gateway):
+        self.gateway = gateway
+        self.gui.populate([gateway])
+        self.finish_button.show()
+
+    def verify_settings(self, settings):
+        nickname = settings['nickname']
+        while os.path.isdir(os.path.join(config_dir, nickname)):
+            title = "{} - Choose a name".format(APP_NAME)
+            label = "Please choose a different name for this connection:"
+            if nickname:
+                label = '{} is already connected to "{}".\n\n{}'.format(
+                    APP_NAME, nickname, label)
+            nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
+        settings['nickname'] = nickname
+        self.setup_runner = Setup()
+        self.setup_runner.update_progress.connect(self.update_progress)
+        self.setup_runner.got_icon.connect(self.load_service_icon)
+        self.setup_runner.done.connect(self.on_done)
+        d = self.setup_runner.run(settings)
+        d.addErrback(self.show_failure)
+
     def go(self, code):
         self.setCurrentIndex(1)
         self.update_progress(1, 'Verifying invitation code...')
         d = wormhole_receive(code)
-        d.addCallback(self.setup)
+        d.addCallback(self.verify_settings)
         d.addErrback(self.show_failure)
         reactor.callLater(60, d.cancel)
 
@@ -428,7 +361,7 @@ class SetupForm(QStackedWidget):
             msg.exec_()
         else:
             self.setCurrentIndex(1)
-            self.setup(settings)
+            self.verify_settings(settings)
 
     def prompt_for_export(self, gateway):
         msg = QMessageBox(self)
