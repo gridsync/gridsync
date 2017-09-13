@@ -396,6 +396,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         returnValue(code.strip())
 
     @inlineCallbacks
+    def magic_folder_uninvite(self, nickname):
+        yield self.unlink(self.get_alias('magic'), nickname)
+
+    @inlineCallbacks
     def start_magic_folders(self):
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
