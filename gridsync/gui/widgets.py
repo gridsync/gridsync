@@ -650,6 +650,9 @@ class ShareWidget(QWidget):
                 QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.wormhole.close()
+                if self.magic_folder_gateway:
+                    self.magic_folder_gateway.magic_folder_uninvite(
+                        self.recipient)
                 event.accept()
             else:
                 event.ignore()
