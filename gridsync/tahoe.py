@@ -333,6 +333,17 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             raise Exception(content.decode('utf-8'))
 
     @inlineCallbacks
+    def unlink(self, dircap, childname):
+        lock = yield self.lock.acquire()
+        resp = yield treq.post(
+            '{}uri/{}/?t=unlink&name={}'.format(
+                self.nodeurl, dircap, childname))
+        yield lock.release()
+        if resp.code != 200:
+            content = yield treq.content(resp)
+            raise Exception(content.decode('utf-8'))
+
+    @inlineCallbacks
     def create_magic_folder(self, path):
         # Because Tahoe-LAFS doesn't currently support having multiple
         # magic-folders per tahoe client, create the magic-folder inside
