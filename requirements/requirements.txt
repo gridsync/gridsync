@@ -16,12 +16,12 @@ hyperlink==17.3.1
 idna==2.6
 incremental==17.5.0
 ipaddress==1.0.18
-magic-wormhole==0.10.2
+magic-wormhole==0.10.3
 pyasn1==0.3.4
 pyasn1-modules==0.1.4
 pycparser==2.18
 PyNaCl==1.1.2
-pyOpenSSL==17.2.0
+pyOpenSSL==17.3.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
 qt5reactor==0.4

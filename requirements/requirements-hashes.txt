@@ -113,9 +113,9 @@ incremental==17.5.0 \
 ipaddress==1.0.18 \
     --hash=sha256:d34cf15d95ce9a734560f7400a8bd2ac2606f378e2a1d0eadbf1c98707e7c74a \
     --hash=sha256:5d8534c8e185f2d8a1fda1ef73f2c8f4b23264e8e30063feeb9511d492a413e1
-magic-wormhole==0.10.2 \
-    --hash=sha256:55a423247faee7a0644d25f37760495978cd494ba0274fefd8cd1fad493954ee \
-    --hash=sha256:ad8f474e62341f266b0f790f40e1360d873bc731dac005ff65d1d33a18f21c91
+magic-wormhole==0.10.3 \
+    --hash=sha256:48465d58f9c0d729dc586627cf280830e7ed59f9e7999946ae1d763c6b8db999 \
+    --hash=sha256:085edc1cb50d49e3a5ebb04610ddb3418a9936ec95ebffe18f128cc872ca3d23
 pyasn1==0.3.4 \
     --hash=sha256:5afb7a0af5ac7360017151e6e8bee3a669ef31e2496a3abc20fc69d9e6fe40c3 \
     --hash=sha256:fdb7e0bf06f06564fa1f4c002f0f0eebb4ffe167f97a1879d6beac2a8129308b \
@@ -173,9 +173,9 @@ PyNaCl==1.1.2 \
     --hash=sha256:ffb74ac578b3b80b1d2d5a23a6dd7b1d6682e5fce6a7b3d21b46b180a5546055 \
     --hash=sha256:b796d95704b674100bd99fc42bbde9f8f2ccddae8599a4d4bbcb518428dfbfed \
     --hash=sha256:32f52b754abf07c319c04ce16905109cab44b0e7f7c79497431d3b2000f8af8c
-pyOpenSSL==17.2.0 \
-    --hash=sha256:c8959e441c2d85d646f3d6e9024ec02b2fc8dda92596e44ce3460b3a476bc694 \
-    --hash=sha256:5d617ce36b07c51f330aa63b83bf7f25c40a0e95958876d54d1982f8c91b4834
+pyOpenSSL==17.3.0 \
+    --hash=sha256:aade9985b93eaec51b0c0a2a60d14bb8dcff1ff8e36fe542e3c22812ec07315e \
+    --hash=sha256:29630b9064a82e04d8242ea01d7c93d70ec320f5e3ed48e95fcabc6b1d0f6c76
 pypiwin32==219 ; sys_platform == "win32" \
     --hash=sha256:5618522ad9c2b229d8a9a1c5175d135a397bf70d6db1d352adf0131aa5321258 \
     --hash=sha256:fbe640e946e2fcd983048e2c40bee28eba884a9e0178fb1cf03e1d365abd8e3f \
