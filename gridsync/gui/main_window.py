@@ -468,8 +468,8 @@ class MainWindow(QMainWindow):
         invite_action.triggered.connect(self.open_invite_receiver)
 
         pair_action = QAction(
-            QIcon(resource('laptop.png')), 'Pair a device...', self)
-        pair_action.setStatusTip('Pair a device...')
+            QIcon(resource('laptop.png')), 'Connect another device...', self)
+        pair_action.setStatusTip('Connect another device...')
         pair_action.triggered.connect(self.open_pair_widget)
 
         export_action = QAction(
