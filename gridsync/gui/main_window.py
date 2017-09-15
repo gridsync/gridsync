@@ -19,7 +19,8 @@ from twisted.internet.task import LoopingCall
 
 from gridsync import resource, APP_NAME, config_dir
 from gridsync.desktop import open_folder
-from gridsync.gui.widgets import CompositePixmap, PreferencesWidget, ShareWidget
+from gridsync.gui.widgets import (
+    CompositePixmap, InviteReceiver, PreferencesWidget, ShareWidget)
 from gridsync.monitor import Monitor
 from gridsync.tahoe import get_nodedirs
 
@@ -464,7 +465,7 @@ class MainWindow(QMainWindow):
         invite_action = QAction(
             QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
         invite_action.setStatusTip('Enter an Invite Code...')
-        invite_action.triggered.connect(self.gui.show_setup_form)
+        invite_action.triggered.connect(self.open_invite_receiver)
 
         pair_action = QAction(
             QIcon(resource('laptop.png')), 'Pair a device...', self)
@@ -510,6 +511,7 @@ class MainWindow(QMainWindow):
         self.preferences_widget.accepted.connect(self.show_selected_grid_view)
 
         self.active_pair_widgets = []
+        self.active_invite_receivers = []
 
         self.grid_status_updater = LoopingCall(self.set_current_grid_status)
 
@@ -597,6 +599,12 @@ class MainWindow(QMainWindow):
             for i in range(self.central_widget.count()):
                 if self.central_widget.widget(i) == self.preferences_widget:
                     self.central_widget.setCurrentIndex(i)
+
+    def open_invite_receiver(self):
+        invite_receiver = InviteReceiver()
+        self.active_invite_receivers.append(invite_receiver)
+        invite_receiver.done.connect(self.active_invite_receivers.remove)
+        invite_receiver.show()
 
     def open_pair_widget(self):
         gateway = self.combo_box.currentData()
