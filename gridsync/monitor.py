@@ -133,11 +133,12 @@ class Monitor(object):
             if not self.model.findItems(name):
                 self.model.add_folder(name, caps, 3)
                 self.model.fade_row(name)
-                self.model.set_last_sync(name, "Never")
                 c = yield self.model.gateway.get_json(caps['collective'])
                 m = yield self.model.gateway.get_magic_folder_members(c)
-                _, s, _, _ = yield self.model.gateway.get_magic_folder_info(m)
+                _, s, t, _ = yield self.model.gateway.get_magic_folder_info(m)
                 self.model.set_size(name, s)
+                mtime = naturaltime(datetime.now() - datetime.fromtimestamp(t))
+                self.model.set_last_sync(name, mtime)
                 self.model.add_download_button(name)
 
     @inlineCallbacks
