@@ -89,10 +89,11 @@ class Monitor(object):
             self.model.set_data(magic_folder.name, magic_folder)
         if status and prev:
             if state == 1:  # "Syncing"
-                if prev['state'] == 0:  # First sync after initializing
+                if prev['state'] == 0:  # First sync after restoring
                     self.model.unfade_row(magic_folder.name)
                     self.model.update_folder_icon(
                         magic_folder.name, magic_folder.magic_folder_path)
+                    self.add_operation(magic_folder)
                 elif prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", magic_folder.name)
                     self.add_operation(magic_folder)
