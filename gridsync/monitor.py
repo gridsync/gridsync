@@ -123,6 +123,20 @@ class Monitor(object):
         # TODO: Notify failures/conflicts
 
     @inlineCallbacks
+    def scan_rootcap(self):
+        folders = yield self.model.gateway.get_magic_folders_from_rootcap()
+        for name, caps in folders.items():
+            if not self.model.findItems(name):
+                self.model.add_folder(name, caps, 3)
+                self.model.fade_row(name)
+                self.model.set_last_sync(name, "Never")
+                c = yield self.model.gateway.get_json(caps['collective'])
+                m = yield self.model.gateway.get_magic_folder_members(c)
+                _, s, _ = yield self.model.gateway.get_magic_folder_info(m)
+                self.model.set_size(name, s)
+                self.model.add_download_button(name)
+
+    @inlineCallbacks
     def check_grid_status(self):
         num_connected = yield self.model.gateway.get_connected_servers()
         if not num_connected:
@@ -135,6 +149,7 @@ class Monitor(object):
             if get_preference('notifications', 'connection') != 'false':
                 self.model.gui.show_message(
                     self.model.gateway.name, grid_status)
+            yield self.scan_rootcap()
         self.grid_status = grid_status
 
     @inlineCallbacks
