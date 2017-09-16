@@ -344,7 +344,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             raise Exception(content.decode('utf-8'))
 
     @inlineCallbacks
-    def create_magic_folder(self, path):
+    def create_magic_folder(self, path, join_code=None):
         # Because Tahoe-LAFS doesn't currently support having multiple
         # magic-folders per tahoe client, create the magic-folder inside
         # a new nodedir using the current nodedir's connection settings.
@@ -373,6 +373,18 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield magic_folder.create_client(**settings)
         yield magic_folder.start()
         yield magic_folder.await_ready()
+        if join_code:  # XXX
+            collective_cap, personal_cap = join_code.split('+')
+            if collective_cap.startswith('URI:DIR2:'):  # is admin
+                magic_folder.command(['add-alias', 'magic:', collective_cap])
+                data = yield self.get_json(collective_cap)
+                collective_cap_ro = data[1]['ro_uri']  # diminish to readcap
+                join_code = "{}+{}".format(collective_cap_ro, personal_cap)
+            yield magic_folder.command(
+                ['magic-folder', 'join', join_code, path])
+            yield magic_folder.stop()
+            yield magic_folder.start()
+            returnValue(magic_folder)
         yield magic_folder.command(
             ['magic-folder', 'create', 'magic:', 'admin', path])
         yield magic_folder.stop()
