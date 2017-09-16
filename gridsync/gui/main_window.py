@@ -183,6 +183,17 @@ class Model(QStandardItemModel):
             item.setFont(font)
             item.setForeground(QColor('gray'))
 
+    def unfade_row(self, folder_name):
+        default_foreground = QStandardItem().foreground()
+        folder_item = self.findItems(folder_name)[0]
+        row = folder_item.row()
+        for i in range(4):
+            item = self.item(row, i)
+            font = item.font()
+            font.setItalic(False)
+            item.setFont(font)
+            item.setForeground(default_foreground)
+
     def set_last_sync(self, name, text):
         self.item(self.findItems(name)[0].row(), 2).setText(text)
 
