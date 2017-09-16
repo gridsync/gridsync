@@ -99,8 +99,13 @@ class Setup(QObject):
         self.update_progress.emit(4, 'Connecting to {}...'.format(nickname))
         yield tahoe.await_ready()
 
-        self.update_progress.emit(5, 'Generating Recovery Key...')
-        yield tahoe.create_rootcap()
+        if 'rootcap' in settings:
+            self.update_progress.emit(5, 'Loading Recovery Key...')
+            with open(tahoe.rootcap_path, 'w') as f:  # XXX
+                f.write(settings['rootcap'])
+        else:
+            self.update_progress.emit(5, 'Generating Recovery Key...')
+            yield tahoe.create_rootcap()
         settings_json = os.path.join(tahoe.nodedir, 'private', 'settings.json')
         with open(settings_json, 'w') as f:
             f.write(json.dumps(settings))
