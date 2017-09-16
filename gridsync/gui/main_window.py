@@ -61,10 +61,22 @@ class ActionBar(QToolBar):
         self.download_action = QAction(
             QIcon(resource('download.png')), 'Download...', self)
         self.download_action.setStatusTip('Download...')
+        self.download_action.triggered.connect(self.select_download_location)
 
     def open_share_widget(self):
         self.share_widget = ShareWidget(self.gateway, self.gui, self.basename)
         self.share_widget.show()
+
+    def select_download_location(self):
+        data = self.parent.findItems(self.basename)[0].data(Qt.UserRole)
+        join_code = "{}+{}".format(data['collective'], data['personal'])
+        dest = QFileDialog.getExistingDirectory(
+            self, "Select a destination for '{}'".format(self.basename),
+            os.path.expanduser('~'))
+        if not dest:
+            return
+        path = os.path.join(dest, self.basename)
+        d = self.gateway.create_magic_folder(path, join_code)  # XXX
 
     def add_share_button(self):
         self.addAction(self.share_action)
@@ -601,7 +613,7 @@ class MainWindow(QMainWindow):
                     self.central_widget.setCurrentIndex(i)
 
     def open_invite_receiver(self):
-        invite_receiver = InviteReceiver()
+        invite_receiver = InviteReceiver(self.gui)
         self.active_invite_receivers.append(invite_receiver)
         invite_receiver.done.connect(self.active_invite_receivers.remove)
         invite_receiver.show()
