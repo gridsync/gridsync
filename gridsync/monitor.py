@@ -113,8 +113,8 @@ class Monitor(object):
                     magic_folder.magic_folder_path,
                     'lock-closed-green.svg')
             if state in (1, 2) and prev['state'] != 2:
-                members, size, _ = yield magic_folder.get_magic_folder_info()
-                for member in members:
+                mems, size, _, _ = yield magic_folder.get_magic_folder_info()
+                for member in mems:
                     if member not in self.members:
                         self.model.add_member(magic_folder.name, member[0])
                         self.members.append(member)
@@ -136,7 +136,7 @@ class Monitor(object):
                 self.model.set_last_sync(name, "Never")
                 c = yield self.model.gateway.get_json(caps['collective'])
                 m = yield self.model.gateway.get_magic_folder_members(c)
-                _, s, _ = yield self.model.gateway.get_magic_folder_info(m)
+                _, s, _, _ = yield self.model.gateway.get_magic_folder_info(m)
                 self.model.set_size(name, s)
                 self.model.add_download_button(name)
 
