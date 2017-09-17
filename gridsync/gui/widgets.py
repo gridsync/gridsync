@@ -528,7 +528,7 @@ class ShareWidget(QWidget):
         self.progress_bar.show()
         self.progress_bar.setValue(1)
         self.subtext_label.setText(
-            "Connection established; sending credentials...")
+            "Connection established; sending invite...")
 
     def on_send_completed(self):
         self.code_box.hide()
@@ -542,7 +542,7 @@ class ShareWidget(QWidget):
         else:
             text = "Your invitation to {} was accepted".format(
                     self.gateway.name)
-        self.subtext_label.setText("Invite complete! {} at {}".format(
+        self.subtext_label.setText("Invite successful!\n {} at {}".format(
             text, datetime.now().strftime('%H:%M')))
         if get_preference('notifications', 'invite') != 'false':
             self.gui.show_message("Invite successful", text)
