@@ -339,13 +339,14 @@ class View(QTreeView):
 
         self.model().populate()
 
-    def show_drop_label(self):
-        self.setHeaderHidden(True)
-        self.drop_outline.show()
-        self.drop_icon.show()
-        self.drop_text.show()
-        self.drop_subtext.show()
-        self.select_folder_button.show()
+    def show_drop_label(self, _=None):
+        if not self.model().rowCount():
+            self.setHeaderHidden(True)
+            self.drop_outline.show()
+            self.drop_icon.show()
+            self.drop_text.show()
+            self.drop_subtext.show()
+            self.select_folder_button.show()
 
     def hide_drop_label(self):
         self.setHeaderHidden(False)
@@ -374,9 +375,8 @@ class View(QTreeView):
         if reply == QMessageBox.Yes:
             self.gateway.remove_magic_folder(folder)
             self.model().removeRow(self.model().findItems(folder)[0].row())
-            self.model().monitor.scan_rootcap()
-            if not self.gateway.magic_folders:
-                self.show_drop_label()
+            d = self.model().monitor.scan_rootcap()
+            d.addCallback(self.show_drop_label)
 
     def on_right_click(self, position):
         item = self.model().itemFromIndex(self.indexAt(position))
