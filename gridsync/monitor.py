@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import datetime
 
 from humanize import naturaltime
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.internet.task import LoopingCall
 
 from gridsync.preferences import get_preference
@@ -115,10 +115,11 @@ class Monitor(object):
                     'lock-closed-green.svg')
             if state in (1, 2) and prev['state'] != 2:
                 mems, size, _, _ = yield magic_folder.get_magic_folder_info()
-                for member in mems:
-                    if member not in self.members:
-                        self.model.add_member(magic_folder.name, member[0])
-                        self.members.append(member)
+                if len(mems) > 1:
+                    for member in mems:
+                        if member not in self.members:
+                            self.model.add_member(magic_folder.name, member[0])
+                            self.members.append(member)
                 self.model.set_size(magic_folder.name, size)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
