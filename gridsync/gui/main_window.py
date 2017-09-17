@@ -447,6 +447,7 @@ class CentralWidget(QStackedWidget):
     def __init__(self, gui):
         super(CentralWidget, self).__init__()
         self.gui = gui
+        self.views = []
 
     def clear(self):
         for _ in range(self.count()):
@@ -458,6 +459,7 @@ class CentralWidget(QStackedWidget):
         layout = QGridLayout(widget)
         layout.addWidget(view)
         self.addWidget(widget)
+        self.views.append(view)
 
     def populate(self, gateways):
         self.clear()
@@ -629,8 +631,13 @@ class MainWindow(QMainWindow):
                 if self.central_widget.widget(i) == self.preferences_widget:
                     self.central_widget.setCurrentIndex(i)
 
+    def on_invite_received(self, receiver):
+        for view in self.central_widget.views:
+            view.model().monitor.scan_rootcap('star.png')
+
     def open_invite_receiver(self):
         invite_receiver = InviteReceiver(self.gui)
+        invite_receiver.done.connect(self.on_invite_received)
         invite_receiver.closed.connect(self.active_invite_receivers.remove)
         invite_receiver.show()
         self.active_invite_receivers.append(invite_receiver)
