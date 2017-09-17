@@ -13,12 +13,13 @@ from PyQt5.QtWidgets import (
     QFileIconProvider, QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox,
     QPlainTextEdit, QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
     QSpinBox, QToolButton, QWidget)
+from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 import wormhole.errors
 
-from gridsync import resource, APP_NAME
+from gridsync import resource, APP_NAME, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.invite import Wormhole
+from gridsync.invite import Wormhole, InviteCodeLineEdit
 from gridsync.preferences import set_preference, get_preference
 from gridsync.tahoe import TahoeCommandError
 
@@ -313,6 +314,7 @@ class PreferencesWidget(QWidget):
 
 class ShareWidget(QWidget):
     done = pyqtSignal(QWidget)
+    closed = pyqtSignal(QWidget)
 
     def __init__(self, gateway, gui, folder_name=None):  # pylint:disable=too-many-statements
         super(ShareWidget, self).__init__()
@@ -487,7 +489,7 @@ class ShareWidget(QWidget):
         layout.addWidget(self.close_button, 11, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 20, 1)
 
-        self.generate_button.clicked.connect(self.go)
+        self.generate_button.pressed.connect(self.go)
         self.lineedit.returnPressed.connect(self.go)
         self.copy_button.clicked.connect(self.on_copy_button_clicked)
         self.close_button.clicked.connect(self.close)
@@ -654,11 +656,170 @@ class ShareWidget(QWidget):
                     self.magic_folder_gateway.magic_folder_uninvite(
                         self.recipient)
                 event.accept()
+                self.closed.emit(self)
             else:
                 event.ignore()
         else:
             event.accept()
+            self.closed.emit(self)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
+
+
+class InviteReceiver(QWidget):
+    done = pyqtSignal(QWidget)
+    closed = pyqtSignal(QWidget)
+
+    def __init__(self, parent=None):
+        super(InviteReceiver, self).__init__()
+        self.parent = parent
+        self.wormhole = None
+
+        self.mail_closed_icon = QLabel()
+        self.mail_closed_icon.setPixmap(
+            QPixmap(resource('mail-envelope-closed.png')).scaled(128, 128))
+        self.mail_closed_icon.setAlignment(Qt.AlignCenter)
+
+        self.mail_open_icon = QLabel()
+        self.mail_open_icon.setPixmap(
+            QPixmap(resource('mail-envelope-open.png')).scaled(128, 128))
+        self.mail_open_icon.setAlignment(Qt.AlignCenter)
+
+        self.folder_icon = QLabel()
+        icon = QFileIconProvider().icon(QFileInfo(config_dir))
+        self.folder_icon.setPixmap(icon.pixmap(128, 128))
+        self.folder_icon.setAlignment(Qt.AlignCenter)
+
+        self.label = QLabel("Enter invite code:")
+        font = QFont()
+        font.setPointSize(14)
+        self.label.setFont(font)
+        self.label.setStyleSheet("color: grey")
+        self.label.setAlignment(Qt.AlignCenter)
+
+        self.lineedit = InviteCodeLineEdit(self)
+        self.lineedit.error.connect(self.show_error)
+        self.lineedit.go.connect(self.go)
+
+        self.progressbar = QProgressBar(self)
+        self.progressbar.setMaximum(5)  # XXX
+        self.progressbar.setTextVisible(False)
+
+        self.message_label = QLabel()
+        self.message_label.setStyleSheet("color: grey")
+        self.message_label.setAlignment(Qt.AlignCenter)
+
+        self.error_label = QLabel()
+        self.error_label.setStyleSheet("color: red")
+        self.error_label.setAlignment(Qt.AlignCenter)
+
+        self.close_button = QPushButton("Close")
+        self.close_button.clicked.connect(self.close)
+
+        layout = QGridLayout(self)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addWidget(self.mail_closed_icon, 1, 2, 1, 3)
+        layout.addWidget(self.mail_open_icon, 1, 2, 1, 3)
+        layout.addWidget(self.folder_icon, 1, 2, 1, 3)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addWidget(self.label, 2, 3, 1, 1)
+        layout.addWidget(self.lineedit, 3, 2, 1, 3)
+        layout.addWidget(self.progressbar, 3, 2, 1, 3)
+        layout.addWidget(self.message_label, 4, 1, 1, 5)
+        layout.addWidget(self.error_label, 4, 2, 1, 3)
+        layout.addWidget(self.close_button, 5, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+
+        self.reset()
+
+    def reset(self):
+        self.mail_open_icon.hide()
+        self.folder_icon.hide()
+        self.mail_closed_icon.show()
+        self.label.setText("Enter invite code:")
+        self.lineedit.show()
+        self.lineedit.setText('')
+        self.progressbar.hide()
+        self.message_label.setText(
+            "Invite codes can be used to join a grid or a folder")
+        self.error_label.setText('')
+        self.error_label.hide()
+        self.close_button.hide()
+
+    def show_error(self, text):
+        self.error_label.setText(text)
+        self.message_label.hide()
+        self.error_label.show()
+        reactor.callLater(3, self.error_label.hide)
+        reactor.callLater(3, self.message_label.show)
+
+    def update_progress(self, step, message):
+        self.progressbar.setValue(step)
+        self.message_label.setText(message)
+        if step == 3:
+            self.mail_closed_icon.hide()
+            self.mail_open_icon.show()
+        if step == 4:
+            self.mail_open_icon.hide()
+            self.folder_icon.show()
+        if step == 5:
+            self.close_button.show()
+            self.done.emit(self)
+            self.label.setPixmap(
+                QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+
+    @inlineCallbacks
+    def parse_message(self, message):
+        if 'magic-folder-name' in message and 'magic-folder-code' in message:
+            for gateway in self.parent.main_window.gateways:
+                introducer = gateway.config_get('client', 'introducer.furl')
+                if introducer == message['introducer']:
+                    tahoe = gateway
+            if not tahoe:
+                return  # TODO: Create tahoe client to new grid, then link
+            collective, personal = message['magic-folder-code'].split('+')
+            basename = message['magic-folder-name'] + str(self)
+            self.update_progress(4, 'Joining folder "{}"...'.format(basename))
+            yield tahoe.link(
+                tahoe.get_rootcap(),
+                basename + ' (collective)',
+                collective
+            )
+            yield tahoe.link(
+                tahoe.get_rootcap(),
+                basename + ' (personal)',
+                personal
+            )
+            self.update_progress(
+                5, 'Successfully joined folder "{}"!\n"{}" is now available '
+                'for download'.format(basename, basename))
+        else:
+            return  # TODO: Create tahoe client to new grid, then link
+
+    def got_message(self, message):
+        self.update_progress(3, "Reading invitation...")
+        self.parse_message(message)
+
+    def got_introduction(self):
+        self.update_progress(2, "Connected; opening invitation..")
+
+    def go(self, code):
+        self.reset()
+        self.label.setText(' ')
+        self.lineedit.hide()
+        self.progressbar.show()
+        self.update_progress(1, "Verifying invitation...")
+        self.wormhole = Wormhole()
+        self.wormhole.got_introduction.connect(self.got_introduction)
+        self.wormhole.got_message.connect(self.got_message)
+        d = self.wormhole.receive(code)
+        # XXX d.addErrback
+
+    def closeEvent(self, event):
+        event.accept()
+        self.closed.emit(self)
