@@ -631,17 +631,17 @@ class MainWindow(QMainWindow):
 
     def open_invite_receiver(self):
         invite_receiver = InviteReceiver(self.gui)
-        self.active_invite_receivers.append(invite_receiver)
-        invite_receiver.done.connect(self.active_invite_receivers.remove)
+        invite_receiver.closed.connect(self.active_invite_receivers.remove)
         invite_receiver.show()
+        self.active_invite_receivers.append(invite_receiver)
 
     def open_pair_widget(self):
         gateway = self.combo_box.currentData()
         if gateway:
             pair_widget = ShareWidget(gateway, self.gui)
-            self.active_pair_widgets.append(pair_widget)
-            pair_widget.done.connect(self.active_pair_widgets.remove)
+            pair_widget.closed.connect(self.active_pair_widgets.remove)
             pair_widget.show()
+            self.active_pair_widgets.append(pair_widget)
 
     def confirm_quit(self):
         reply = QMessageBox.question(
