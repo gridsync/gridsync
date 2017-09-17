@@ -130,9 +130,12 @@ class Monitor(object):
 
     @inlineCallbacks
     def scan_rootcap(self, overlay_file=None):
+        logging.debug("Scanning {} rootcap...".format(self.model.gateway.name))
         folders = yield self.model.gateway.get_magic_folders_from_rootcap()
         for name, caps in folders.items():
             if not self.model.findItems(name):
+                logging.debug(
+                    "Found new folder '{}' in rootcap; adding...".format(name))
                 self.model.add_folder(name, caps, 3)
                 self.model.fade_row(name, overlay_file)
                 c = yield self.model.gateway.get_json(caps['collective'])
