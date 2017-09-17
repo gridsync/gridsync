@@ -121,6 +121,8 @@ class Monitor(object):
                             self.model.add_member(magic_folder.name, member[0])
                             self.members.append(member)
                 self.model.set_size(magic_folder.name, size)
+                self.model.hide_download_button(magic_folder.name)  # XXX
+                self.model.show_share_button(magic_folder.name)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         #self.status[magic_folder]['sync_start_time'] = sync_start_time
@@ -144,7 +146,8 @@ class Monitor(object):
                 self.model.set_size(name, s)
                 mtime = naturaltime(datetime.now() - datetime.fromtimestamp(t))
                 self.model.set_last_sync(name, mtime)
-                self.model.add_download_button(name)
+                self.model.hide_share_button(name)  # XXX
+                self.model.show_download_button(name)
 
     @inlineCallbacks
     def check_grid_status(self):

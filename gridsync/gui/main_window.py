@@ -57,11 +57,15 @@ class ActionBar(QToolBar):
             QIcon(resource('share.png')), 'Share...', self)
         self.share_action.setStatusTip('Share...')
         self.share_action.triggered.connect(self.open_share_widget)
+        self.addAction(self.share_action)
+        self.share_action.setVisible(False)
 
         self.download_action = QAction(
             QIcon(resource('download.png')), 'Download...', self)
         self.download_action.setStatusTip('Download...')
         self.download_action.triggered.connect(self.select_download_location)
+        self.addAction(self.download_action)
+        self.download_action.setVisible(False)
 
     def open_share_widget(self):
         self.share_widget = ShareWidget(self.gateway, self.gui, self.basename)
@@ -78,11 +82,18 @@ class ActionBar(QToolBar):
         path = os.path.join(dest, self.basename)
         d = self.gateway.create_magic_folder(path, join_code)  # XXX
 
-    def add_share_button(self):
-        self.addAction(self.share_action)
+    def show_share_button(self):
+        self.share_action.setVisible(True)
 
-    def add_download_button(self):
-        self.addAction(self.download_action)
+    def hide_share_button(self):
+        self.share_action.setVisible(False)
+
+    def show_download_button(self):
+        self.download_action.setVisible(True)
+
+    def hide_download_button(self):
+        self.download_action.setVisible(False)
+
 
 class Model(QStandardItemModel):
     def __init__(self, view):
@@ -207,15 +218,25 @@ class Model(QStandardItemModel):
         item.setText(naturalsize(size))
         item.setData(size, Qt.UserRole)
 
-    def add_share_button(self, name):
+    def show_share_button(self, name):
         action_item = self.item(self.findItems(name)[0].row(), 4)
         action_bar = action_item.data(Qt.UserRole)
-        action_bar.add_share_button()
+        action_bar.show_share_button()
 
-    def add_download_button(self, name):
+    def hide_share_button(self, name):
         action_item = self.item(self.findItems(name)[0].row(), 4)
         action_bar = action_item.data(Qt.UserRole)
-        action_bar.add_download_button()
+        action_bar.hide_share_button()
+
+    def show_download_button(self, name):
+        action_item = self.item(self.findItems(name)[0].row(), 4)
+        action_bar = action_item.data(Qt.UserRole)
+        action_bar.show_download_button()
+
+    def hide_download_button(self, name):
+        action_item = self.item(self.findItems(name)[0].row(), 4)
+        action_bar = action_item.data(Qt.UserRole)
+        action_bar.hide_download_button()
 
 
 class Delegate(QStyledItemDelegate):
