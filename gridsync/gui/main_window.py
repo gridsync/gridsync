@@ -172,9 +172,14 @@ class Model(QStandardItemModel):
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
-    def fade_row(self, folder_name):
+    def fade_row(self, folder_name, overlay_file=None):
         folder_item = self.findItems(folder_name)[0]
-        folder_item.setIcon(self.icon_folder_gray)
+        if overlay_file:
+            folder_pixmap = self.icon_folder_gray.pixmap(256, 256)
+            pixmap = CompositePixmap(folder_pixmap, resource(overlay_file))
+            folder_item.setIcon(QIcon(pixmap))
+        else:
+            folder_item.setIcon(self.icon_folder_gray)
         row = folder_item.row()
         for i in range(4):
             item = self.item(row, i)
@@ -369,6 +374,7 @@ class View(QTreeView):
         if reply == QMessageBox.Yes:
             self.gateway.remove_magic_folder(folder)
             self.model().removeRow(self.model().findItems(folder)[0].row())
+            self.model().monitor.scan_rootcap()
             if not self.gateway.magic_folders:
                 self.show_drop_label()
 
