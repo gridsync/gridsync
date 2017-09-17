@@ -128,12 +128,12 @@ class Monitor(object):
         # TODO: Notify failures/conflicts
 
     @inlineCallbacks
-    def scan_rootcap(self):
+    def scan_rootcap(self, overlay_file=None):
         folders = yield self.model.gateway.get_magic_folders_from_rootcap()
         for name, caps in folders.items():
             if not self.model.findItems(name):
                 self.model.add_folder(name, caps, 3)
-                self.model.fade_row(name)
+                self.model.fade_row(name, overlay_file)
                 c = yield self.model.gateway.get_json(caps['collective'])
                 m = yield self.model.gateway.get_magic_folder_members(c)
                 _, s, t, _ = yield self.model.gateway.get_magic_folder_info(m)
