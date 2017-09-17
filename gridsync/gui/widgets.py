@@ -358,15 +358,15 @@ class ShareWidget(QWidget):
         label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
 
         self.recipient_label = QLabel("Recipient name:")
-        #font = QFont()
-        #font.setPointSize(12)
-        #self.recipient_label.setFont(font)
+        font = QFont()
+        font.setPointSize(12)
+        self.recipient_label.setFont(font)
 
         self.lineedit = QLineEdit(self)
-        #font = QFont()
-        #font.setPointSize(12)
-        #self.lineedit.setFont(font)
-        self.lineedit.setPlaceholderText('e.g., "Bob"')
+        font = QFont()
+        font.setPointSize(12)
+        self.lineedit.setFont(font)
+        #self.lineedit.setPlaceholderText('e.g., "Bob"')
 
         self.lineedit_layout = QGridLayout()
         self.lineedit_layout.addItem(
@@ -377,31 +377,30 @@ class ShareWidget(QWidget):
                 QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
 
         pair_instructions = (
-            'To connect another device to {}, install {} on that device and '
-            'click the "Generate invite code" button below. The code that '
-            'appears can then be entered on the new device, allowing it to '
-            'connect to {} and upload new folders.\n\n'
-            'This operation will not disclose or share any of your existing '
-            'folders with the new device.'.format(
-                self.gateway.name, APP_NAME, self.gateway.name))
+            'To connect another device to {}, click the "Generate invite '
+            'code" button below and enter the code that appears on the new '
+            'device. Connecting a new device to {} will allow it to upload '
+            'new folders and consume storage resources.\n\n'
+            'This operation will not disclose any of your existing folders '
+            'to the new device; use the "Share" button to give other devices '
+            'or users access to your folders.'.format(
+                self.gateway.name, self.gateway.name))
 
         pair_subtext = (
             'Only enter invite codes on devices you trust; '
-            'access to {} cannot be revoked once granted.'.format(
-                self.gateway.name))
+            'access to storage grids cannot be revoked once granted.')
 
         share_folder_instructions = (
             # "To invite another user to {}"?
-            'To share the folder "{}" with another user of {}, enter a name '
-            'for that person below and click the "Generate invite code" '
-            'button. The code that appears can then be entered by that '
-            'person, allowing them to download a copy of {} and add new files '
-            'to yours.'.format(self.folder_name, APP_NAME, self.folder_name))
+            'To share the folder "{}" with another user or device, enter a '
+            'name below and click the "Generate invite code" button. Entering '            'the code that appears into {} will allow that person or device '
+            'to download a copy of "{}" and make changes to yours.\n'.format(
+                self.folder_name, APP_NAME, self.folder_name))
             # "Any future changes made to this folder will be synchronized between other members"?
 
         share_folder_subtext = (
             'Only extend invites to persons that you trust; '
-            'granting access to {} is irrevocable and will also allow the '
+            'granting access to "{}" is irrevocable and will allow the '
             'recipient to upload additional folders to {}'.format(
                 self.folder_name, self.gateway.name))
 
