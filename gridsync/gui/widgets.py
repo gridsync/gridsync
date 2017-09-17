@@ -444,6 +444,12 @@ class ShareWidget(QWidget):
         self.copy_button.setToolTip("Copy to clipboard")
         self.copy_button.setStyleSheet('border: 0px; padding: 0px;')
 
+        self.checkmark = QLabel()
+        self.checkmark.setPixmap(
+                QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+        self.checkmark.hide()
+        self.checkmark.setAlignment(Qt.AlignCenter)
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximum(2)
         self.progress_bar.setTextVisible(False)
@@ -480,6 +486,7 @@ class ShareWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
         layout.addWidget(self.instructions_box, 3, 2, 1, 3)
         layout.addWidget(self.code_box_title, 3, 2, 1, 3)
+        layout.addWidget(self.checkmark, 3, 3)
         layout.addWidget(self.code_box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addWidget(self.subtext_label, 5, 2, 1, 3)
@@ -527,6 +534,7 @@ class ShareWidget(QWidget):
         self.code_box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(2)
+        self.checkmark.show()
         self.close_button.setText("Finish")
         if self.recipient:
             text = "{}'s invitation to {} was accepted".format(
@@ -549,6 +557,7 @@ class ShareWidget(QWidget):
         self.code_label.setText('')
         self.code_label.hide()
         self.copy_button.hide()
+        self.checkmark.hide()
         self.code_box_title.hide()
         self.code_box.hide()
         self.close_button.hide()
