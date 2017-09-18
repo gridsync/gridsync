@@ -3,6 +3,7 @@
 import logging
 import os
 import shutil
+import sys
 
 from humanize import naturalsize
 from PyQt5.QtCore import QEvent, QFileInfo, QPoint, QSize, Qt, QVariant
@@ -52,6 +53,9 @@ class ActionBar(QToolBar):
         self.gui = self.parent.gui
         self.share_widget = None
         self.setIconSize(QSize(16, 16))
+        if sys.platform == 'darwin':
+            # See: https://bugreports.qt.io/browse/QTBUG-12717
+            self.setStyleSheet('background-color: white; border 0px white')
 
         self.share_action = QAction(
             QIcon(resource('share.png')), 'Share...', self)

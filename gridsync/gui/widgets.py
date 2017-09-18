@@ -524,6 +524,8 @@ class ShareWidget(QWidget):
             "will expire immediately when used.")
 
     def on_got_introduction(self):
+        if sys.platform == 'darwin':
+            self.code_box_title.hide()
         self.code_box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(1)
