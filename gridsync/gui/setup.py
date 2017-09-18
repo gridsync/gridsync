@@ -377,22 +377,19 @@ class SetupForm(QStackedWidget):
         msg.setText(
             "Before uploading any folders to {}, it is <b>strongly "
             "recommended</b> that you <i>export a Recovery Key</i> and store "
-            "it in a safe and secure location (such as an encrypted USB drive "
-            "that only you have access to).<p><p>A Recovery Key will allow you "
-            "to restore any of the folders you've uploaded to {} in the event "
-            "that something goes wrong with your computer (e.g., hardware "
-            "failure, accidental data-loss, theft, and so on).".format(
-                APP_NAME, gateway.name))  # XXX Re-word/improve..
+            "it in a safe and secure location (such as an encrypted USB drive)"
+            ".<p><p>Possessing a Recovery Key will allow you to restore "
+            "access to any of the folders you've uploaded to {} in the event "
+            "that something goes wrong (e.g., hardware failure, accidental "
+            "data-loss).".format(gateway.name, gateway.name))
         msg.setDetailedText(
-            "A 'Recovery Key' is a small file that contains enough "
-            "configuration information to re-establish secure contact with "
-            "your cloud storage provider and download your other secret data "
-            "keys. Because this file contains secret information "
-            "(specifically, your Tahoe-LAFS 'introducer fURL' -- which grants "
-            "access to your grid -- and your 'rootcap' -- which grants full "
-            "access to all of your uploaded folders), it is important that "
-            "you keep this file safe and secure; do not share your Recovery "
-            "Key with anybody!")  # XXX Re-word/improve..
+            "A 'Recovery Key' is a small file that contains enough information"
+            " (a Tahoe-LAFS 'Introducer fURL' and 'rootcap') to re-establish "
+            "a connection with your storage provider and restore your "
+            "previously-uploaded folders. Because access to this file is "
+            "sufficient to access to any of the the data you've stored, it is "
+            "important that you keep this file safe and secure; do not share "
+            "your Recovery Key with anybody!")
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
             self.gui.main_window.export_recovery_key()
