@@ -154,10 +154,14 @@ class Monitor(object):
         num_connected = yield self.model.gateway.get_connected_servers()
         if not num_connected:
             grid_status = "Connecting..."
-        elif num_connected == 1:
-            grid_status = "Connected to {} storage node".format(num_connected)
+        #elif num_connected == 1:
+        #    grid_status = "Connected to {} storage node".format(num_connected)
+        #else:
+        #    grid_status = "Connected to {} storage nodes".format(num_connected)
+        # TODO: Consider "connected" if num_connected >= "happiness" threshold
         else:
-            grid_status = "Connected to {} storage nodes".format(num_connected)
+            grid_status = "Connected to {}".format(self.model.gateway.name)
+            # TODO: Add available storage space?
         if num_connected and grid_status != self.grid_status:
             if get_preference('notifications', 'connection') != 'false':
                 self.model.gui.show_message(
