@@ -791,7 +791,7 @@ class InviteReceiver(QWidget):
             if not tahoe:
                 return  # TODO: Create tahoe client to new grid, then link
             collective, personal = message['magic-folder-code'].split('+')
-            basename = message['magic-folder-name'] + str(self)
+            basename = message['magic-folder-name']
             self.update_progress(4, 'Joining folder "{}"...'.format(basename))
             yield tahoe.link(
                 tahoe.get_rootcap(),
