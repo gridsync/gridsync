@@ -384,7 +384,7 @@ class View(QTreeView):
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
         if item.column() == 0:
-            for mf in self.gateway.magic_folders:
+            for mf in self.gateway.magic_folder_clients:
                 if mf.name == item.text():
                     localdir = mf.config_get('magic_folder', 'local.directory')
                     open_folder(localdir)

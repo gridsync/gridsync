@@ -172,7 +172,7 @@ class Monitor(object):
     @inlineCallbacks
     def check_status(self):
         yield self.check_grid_status()
-        for magic_folder in self.model.gateway.magic_folders:
+        for magic_folder in self.model.gateway.magic_folder_clients:
             yield self.check_magic_folder_status(magic_folder)
 
     def start(self, interval=2):

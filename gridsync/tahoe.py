@@ -95,7 +95,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.name = os.path.basename(self.nodedir)
         self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
-        self.magic_folders = []
+        self.magic_folder_clients = []
         self.magic_folder_dircap = None
         self.magic_folder_nickname = None
         self.magic_folder_path = None
@@ -362,7 +362,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         magic_folder = Tahoe(
             os.path.join(self.magic_folders_dir, basename),
             executable=self.executable)
-        self.magic_folders.append(magic_folder)
+        self.magic_folder_clients.append(magic_folder)
         settings = {
             'nickname': self.config_get('node', 'nickname'),
             'introducer': self.config_get('client', 'introducer.furl'),
@@ -397,7 +397,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                         magic_folder.get_magic_folder_dircap())
 
     def get_magic_folder_gateway(self, name):
-        for gateway in self.magic_folders:
+        for gateway in self.magic_folder_clients:
             if gateway.name == name:
                 return gateway
 
@@ -416,7 +416,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
             magic_folder = Tahoe(nodedir, executable=self.executable)
-            self.magic_folders.append(magic_folder)
+            self.magic_folder_clients.append(magic_folder)
             tasks.append(magic_folder.start())
         yield gatherResults(tasks)
 
@@ -429,9 +429,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def remove_magic_folder(self, name):
-        for magic_folder in self.magic_folders:
+        for magic_folder in self.magic_folder_clients:
             if magic_folder.name == name:
-                self.magic_folders.remove(magic_folder)
+                self.magic_folder_clients.remove(magic_folder)
                 yield magic_folder.stop()
                 shutil.rmtree(magic_folder.nodedir, ignore_errors=True)
 
