@@ -82,36 +82,37 @@ class Monitor(object):
 
     @inlineCallbacks  # noqa: max-complexity=13 XXX
     def check_magic_folder_status(self, magic_folder):
+        name = magic_folder.name
         prev = self.status[magic_folder]
         status = yield magic_folder.get_magic_folder_status()
         state, last_sync, kind, filepath, _ = self.parse_status(status)
         #sync_start_time = 0
         if not prev:
-            self.model.set_data(magic_folder.name, magic_folder)
+            self.model.set_data(name, magic_folder)
         if status and prev:
             if state == 1:  # "Syncing"
                 if prev['state'] == 0:  # First sync after restoring
-                    self.model.unfade_row(magic_folder.name)
+                    self.model.unfade_row(name)
                     self.model.update_folder_icon(
-                        magic_folder.name, magic_folder.magic_folder_path)
+                        name, magic_folder.magic_folder_path)
                     self.add_operation(magic_folder)
                 elif prev['state'] != 1:  # Sync just started
-                    logging.debug("Sync started (%s)", magic_folder.name)
+                    logging.debug("Sync started (%s)", name)
                     self.add_operation(magic_folder)
                     #sync_start_time = time.time()
                 elif prev['state'] == 1:  # Sync started earlier; still going
-                    logging.debug("Sync in progress (%s)", magic_folder.name)
+                    logging.debug("Sync in progress (%s)", name)
                     logging.debug("%sing %s...", kind, filepath)
                     #sync_start_time = prev['sync_start_time']
                     for item in status:
                         if item not in prev['status']:
                             self.add_updated_file(magic_folder, item['path'])
             elif state == 2 and prev['state'] == 1:  # Sync just finished
-                logging.debug("Sync complete (%s)", magic_folder.name)
+                logging.debug("Sync complete (%s)", name)
                 self.remove_operation(magic_folder)
                 self.notify_updated_files(magic_folder)
                 self.model.update_folder_icon(
-                    magic_folder.name,
+                    name,
                     magic_folder.magic_folder_path,
                     'lock-closed-green.svg')
             if state in (1, 2) and prev['state'] != 2:
@@ -119,16 +120,16 @@ class Monitor(object):
                 if len(mems) > 1:
                     for member in mems:
                         if member not in self.members:
-                            self.model.add_member(magic_folder.name, member[0])
+                            self.model.add_member(name, member[0])
                             self.members.append(member)
-                self.model.set_size(magic_folder.name, size)
-                self.model.hide_download_button(magic_folder.name)  # XXX
-                self.model.show_share_button(magic_folder.name)
+                self.model.set_size(name, size)
+                self.model.hide_download_button(name)  # XXX
+                self.model.show_share_button(name)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         #self.status[magic_folder]['sync_start_time'] = sync_start_time
-        self.model.set_status(magic_folder.name, state)
-        self.model.set_last_sync(magic_folder.name, last_sync)
+        self.model.set_status(name, state)
+        self.model.set_last_sync(name, last_sync)
         # TODO: Notify failures/conflicts
 
     @inlineCallbacks
