@@ -436,13 +436,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 shutil.rmtree(magic_folder.nodedir, ignore_errors=True)
 
     @inlineCallbacks
-    def get_magic_folder_status(self, name='default'):
-        if not self.nodeurl or not self.api_token:
+    def get_magic_folder_status(self, name=None):
+        nodeurl = self.nodeurl
+        token = self.api_token
+        if name:
+            if self.magic_folder_clients:
+                gateway = self.get_magic_folder_gateway(name)
+                if gateway:
+                    nodeurl = gateway.nodeurl
+                    token = gateway.api_token
+            data = {'token': token, 'name': name, 't': 'json'}
+        else:
+            data = {'token': token, 't': 'json'}
+        if not nodeurl or not token:
             return
         try:
-            resp = yield treq.post(
-                self.nodeurl + 'magic_folder',
-                {'token': self.api_token, 'name': name, 't': 'json'})
+            resp = yield treq.post(nodeurl + 'magic_folder', data)
         except ConnectError:
             return
         if resp.code == 200:
