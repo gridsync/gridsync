@@ -16,6 +16,7 @@ from gridsync.util import humanized_list
 class Monitor(object):
     def __init__(self, model):
         self.model = model
+        self.gateway = self.model.gateway
         self.grid_status = ''
         self.status = defaultdict(dict)
         self.members = []
@@ -132,17 +133,17 @@ class Monitor(object):
 
     @inlineCallbacks
     def scan_rootcap(self, overlay_file=None):
-        logging.debug("Scanning {} rootcap...".format(self.model.gateway.name))
-        folders = yield self.model.gateway.get_magic_folders_from_rootcap()
+        logging.debug("Scanning {} rootcap...".format(self.gateway.name))
+        folders = yield self.gateway.get_magic_folders_from_rootcap()
         for name, caps in folders.items():
             if not self.model.findItems(name):
                 logging.debug(
                     "Found new folder '{}' in rootcap; adding...".format(name))
                 self.model.add_folder(name, caps, 3)
                 self.model.fade_row(name, overlay_file)
-                c = yield self.model.gateway.get_json(caps['collective'])
-                m = yield self.model.gateway.get_magic_folder_members(c)
-                _, s, t, _ = yield self.model.gateway.get_magic_folder_info(m)
+                c = yield self.gateway.get_json(caps['collective'])
+                m = yield self.gateway.get_magic_folder_members(c)
+                _, s, t, _ = yield self.gateway.get_magic_folder_info(m)
                 self.model.set_size(name, s)
                 mtime = naturaltime(datetime.now() - datetime.fromtimestamp(t))
                 self.model.set_last_sync(name, mtime)
@@ -151,7 +152,7 @@ class Monitor(object):
 
     @inlineCallbacks
     def check_grid_status(self):
-        num_connected = yield self.model.gateway.get_connected_servers()
+        num_connected = yield self.gateway.get_connected_servers()
         if not num_connected:
             grid_status = "Connecting..."
         #elif num_connected == 1:
@@ -160,19 +161,19 @@ class Monitor(object):
         #    grid_status = "Connected to {} storage nodes".format(num_connected)
         # TODO: Consider "connected" if num_connected >= "happiness" threshold
         else:
-            grid_status = "Connected to {}".format(self.model.gateway.name)
+            grid_status = "Connected to {}".format(self.gateway.name)
             # TODO: Add available storage space?
         if num_connected and grid_status != self.grid_status:
             if get_preference('notifications', 'connection') != 'false':
                 self.model.gui.show_message(
-                    self.model.gateway.name, grid_status)
+                    self.gateway.name, grid_status)
             yield self.scan_rootcap()
         self.grid_status = grid_status
 
     @inlineCallbacks
     def check_status(self):
         yield self.check_grid_status()
-        for magic_folder in self.model.gateway.magic_folder_clients:
+        for magic_folder in self.gateway.magic_folder_clients:
             yield self.check_magic_folder_status(magic_folder)
 
     def start(self, interval=2):
