@@ -24,6 +24,7 @@ PyNaCl==1.1.2
 pyOpenSSL==17.3.0
 pypiwin32==219 ; sys_platform == "win32"
 PyQt5==5.8.2 ; python_version >= "3.5"
+PyYAML==3.12
 qt5reactor==0.4
 requests==2.18.4
 service_identity==17.0.0
