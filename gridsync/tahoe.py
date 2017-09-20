@@ -103,6 +103,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.collective_dircap = None
         self.lock = DeferredLock()
         self.rootcap = None
+        self.magic_folders = {}
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -270,6 +271,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.magic_folder_path = self.config_get(
             'magic_folder', 'local.directory')
+        self.magic_folders = self.load_magic_folders_yaml()
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
 
     @inlineCallbacks
