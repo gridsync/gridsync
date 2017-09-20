@@ -333,7 +333,7 @@ class ShareWidget(QWidget):
         self.icon_label = QLabel(self)
         if self.magic_folder_gateway:
             icon = QFileIconProvider().icon(QFileInfo(
-                self.magic_folder_gateway.magic_folder_path))
+                self.gateway.get_magic_folder_directory(folder_name)))
         else:
             icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
             if not icon.availableSizes():

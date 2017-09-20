@@ -97,13 +97,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
         self.magic_folder_clients = []
-        self.magic_folder_dircap = None
-        self.magic_folder_nickname = None
-        self.magic_folder_path = None
-        self.collective_dircap = None
         self.lock = DeferredLock()
         self.rootcap = None
-        self.magic_folders = {}
+        self.magic_folders = defaultdict(dict)
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -269,9 +265,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         with open(token_file) as f:
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
-        self.magic_folder_path = self.config_get(
-            'magic_folder', 'local.directory')
-        self.magic_folders = self.load_magic_folders_yaml()
+        data = self.load_magic_folders_yaml()
+        if data:
+            for key, value in data.items():  # to preserve defaultdict
+                self.magic_folders[key] = value
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
 
     @inlineCallbacks
@@ -496,17 +493,53 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             self.rootcap = self.read_cap_from_file(self.rootcap_path)
         return self.rootcap
 
-    def get_collective_dircap(self):
-        if not self.collective_dircap:
+    def get_collective_dircap(self, name=None):
+        if name in self.magic_folders:
+            try:
+                return self.magic_folders[name]['collective_dircap']
+            except KeyError:
+                pass
+        gateway = self.get_magic_folder_gateway(name)
+        if gateway:
+            path = os.path.join(self.magic_folders_dir, name, 'private',
+                                'collective_dircap')
+        else:
             path = os.path.join(self.nodedir, 'private', 'collective_dircap')
-            self.collective_dircap = self.read_cap_from_file(path)
-        return self.collective_dircap
+            name = 'default'
+        cap = self.read_cap_from_file(path)
+        self.magic_folders[name]['collective_dircap'] = cap
+        return cap
 
-    def get_magic_folder_dircap(self):
-        if not self.magic_folder_dircap:
+    def get_magic_folder_dircap(self, name=None):
+        if name in self.magic_folders:
+            try:
+                return self.magic_folders[name]['upload_dircap']
+            except KeyError:
+                pass
+        gateway = self.get_magic_folder_gateway(name)
+        if gateway:
+            path = os.path.join(self.magic_folders_dir, name, 'private',
+                                'magic_folder_dircap')
+        else:
             path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
-            self.magic_folder_dircap = self.read_cap_from_file(path)
-        return self.magic_folder_dircap
+            name = 'default'
+        cap = self.read_cap_from_file(path)
+        self.magic_folders[name]['upload_dircap'] = cap
+        return cap
+
+    def get_magic_folder_directory(self, name=None):
+        if name in self.magic_folders:
+            try:
+                return self.magic_folders[name]['directory']
+            except KeyError:
+                pass
+        gateway = self.get_magic_folder_gateway(name)
+        if gateway:
+            directory = gateway.config_get('magic_folder', 'local.directory')
+        else:
+            directory = self.config_get('magic_folder', 'local.directory')
+        self.magic_folders[name]['directory'] = directory
+        return directory
 
     @inlineCallbacks
     def get_magic_folders_from_rootcap(self, content=None):
@@ -531,21 +564,20 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             returnValue(folders)
 
     @inlineCallbacks
-    def get_magic_folder_members(self, content=None):
+    def get_magic_folder_members(self, name=None, content=None):
         if not content:
-            content = yield self.get_json(self.get_collective_dircap())
+            content = yield self.get_json(self.get_collective_dircap(name))
         if content:
             members = []
             children = content[1]['children']
-            if not self.magic_folder_dircap:
-                self.get_magic_folder_dircap()
+            magic_folder_dircap = self.get_magic_folder_dircap(name)
             for member in children:
                 readcap = children[member][1]['ro_uri']
-                if self.magic_folder_dircap:
-                    my_fingerprint = self.magic_folder_dircap.split(':')[-1]
+                if magic_folder_dircap:
+                    my_fingerprint = magic_folder_dircap.split(':')[-1]
                     fingerprint = readcap.split(':')[-1]
                     if fingerprint == my_fingerprint:
-                        self.magic_folder_nickname = member
+                        self.magic_folders[name]['member'] = member
                         members.insert(0, (member, readcap))
                     else:
                         members.append((member, readcap))
@@ -562,19 +594,19 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         return size
 
     @inlineCallbacks
-    def get_magic_folder_size(self, content=None):
+    def get_magic_folder_size(self, name=None, content=None):
         if not content:
-            content = yield self.get_json(self.get_magic_folder_dircap())
+            content = yield self.get_json(self.get_magic_folder_dircap(name))
         if content:
             returnValue(self.size_from_content(content))
 
     @inlineCallbacks
-    def get_magic_folder_info(self, members=None):
+    def get_magic_folder_info(self, name=None, members=None):
         total_size = 0
         sizes_dict = {}
         latest_mtime = 0
         if not members:
-            members = yield self.get_magic_folder_members()
+            members = yield self.get_magic_folder_members(name)
         if members:
             for member, dircap in reversed(members):
                 sizes_dict[member] = {}

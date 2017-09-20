@@ -84,7 +84,7 @@ class Monitor(object):
     def check_magic_folder_status(self, magic_folder):
         name = magic_folder.name
         prev = self.status[magic_folder]
-        status = yield magic_folder.get_magic_folder_status()
+        status = yield self.gateway.get_magic_folder_status(name)
         state, last_sync, kind, filepath, _ = self.parse_status(status)
         #sync_start_time = 0
         if not prev:
@@ -94,7 +94,7 @@ class Monitor(object):
                 if prev['state'] == 0:  # First sync after restoring
                     self.model.unfade_row(name)
                     self.model.update_folder_icon(
-                        name, magic_folder.magic_folder_path)
+                        name, self.gateway.get_magic_folder_directory(name))
                     self.add_operation(magic_folder)
                 elif prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", name)
@@ -113,10 +113,11 @@ class Monitor(object):
                 self.notify_updated_files(magic_folder)
                 self.model.update_folder_icon(
                     name,
-                    magic_folder.magic_folder_path,
+                    self.gateway.get_magic_folder_directory(name),
                     'lock-closed-green.svg')
             if state in (1, 2) and prev['state'] != 2:
-                mems, size, _, _ = yield magic_folder.get_magic_folder_info()
+                mems, size, _, _ = yield self.gateway.get_magic_folder_info(
+                    name)
                 if len(mems) > 1:
                     for member in mems:
                         if member not in self.members:
@@ -143,8 +144,8 @@ class Monitor(object):
                 self.model.add_folder(name, caps, 3)
                 self.model.fade_row(name, overlay_file)
                 c = yield self.gateway.get_json(caps['collective'])
-                m = yield self.gateway.get_magic_folder_members(c)
-                _, s, t, _ = yield self.gateway.get_magic_folder_info(m)
+                m = yield self.gateway.get_magic_folder_members(name, c)
+                _, s, t, _ = yield self.gateway.get_magic_folder_info(name, m)
                 self.model.set_size(name, s)
                 mtime = naturaltime(datetime.now() - datetime.fromtimestamp(t))
                 self.model.set_last_sync(name, mtime)
