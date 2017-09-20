@@ -19,6 +19,7 @@ from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
+import yaml
 
 from gridsync.config import Config
 from gridsync.errors import NodedirExistsError
@@ -158,6 +159,14 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 if name == alias:
                     return cap
         except AttributeError:
+            return
+
+    def load_magic_folders_yaml(self):
+        yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
+        try:
+            with open(yaml_path) as f:
+                return yaml.safe_load(f)
+        except OSError:
             return
 
     def line_received(self, line):
