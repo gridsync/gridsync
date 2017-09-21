@@ -47,7 +47,7 @@ class ConnectionSettings(QWidget):
     def __init__(self):
         super(ConnectionSettings, self).__init__()
 
-        self.name_label = QLabel("Name:")
+        self.name_label = QLabel("Grid name:")
         self.name_line_edit = QLineEdit()
 
         self.introducer_label = QLabel("Introducer fURL:")
