@@ -37,6 +37,7 @@ requirements = [
     'qt5reactor',
     'treq',
     'twisted[tls]',
+    'zxcvbn-python',
 ]
 
 if sys.platform.startswith('linux'):
