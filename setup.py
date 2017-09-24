@@ -33,6 +33,7 @@ class Tox(TestCommand):
 requirements = [
     'humanize',
     'magic-wormhole',
+    'PyNaCl',
     'pyyaml',
     'qt5reactor',
     'treq',
