@@ -11,7 +11,7 @@ from gridsync.crypto import (
 try:
     from nacl.pwhash import kdf_argon2i
     ARGON2I_AVAILABLE = True
-except:
+except ImportError:
     ARGON2I_AVAILABLE = False
 
 
