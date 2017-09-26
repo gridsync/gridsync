@@ -46,8 +46,7 @@ def encrypt(message, password, use_scrypt=False):
             memlimit=SCRYPT_MEMLIMIT_SENSITIVE   # 1073741824
         )
     box = SecretBox(key)
-    nonce = random(SecretBox.NONCE_SIZE)  # 24
-    encrypted = box.encrypt(message, nonce)
+    encrypted = box.encrypt(message)
     return version + salt + encrypted
 
 
