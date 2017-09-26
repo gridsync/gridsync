@@ -89,8 +89,6 @@ class PasswordCreationWidget(QWidget):
             self.progressbar.setValue(0)
             return
         res = zxcvbn(text)
-        #from pprint import pprint
-        #pprint(res)
         t = res['crack_times_display']['offline_slow_hashing_1e4_per_second']
         self.time_label.setText("Time to crack: {}".format(t))
         s = res['crack_times_seconds']['offline_slow_hashing_1e4_per_second']
@@ -121,11 +119,3 @@ class PasswordCreationWidget(QWidget):
             self.rating_label.setToolTip(warning)
             self.password_field.setToolTip(warning)
             self.warning_label.setText(warning)
-
-
-if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication([])
-    w = PasswordCreationWidget()
-    w.show()
-    app.exec_()
