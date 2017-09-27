@@ -247,7 +247,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                     log.error(err)
             os.remove(self.pidfile)
         else:
-            yield self.command(['stop'])
+            try:
+                yield self.command(['stop'])
+            except TahoeCommandError:
+                pass
         yield self.stop_magic_folders()  # XXX: Move to Core? gatherResults?
 
     @inlineCallbacks
