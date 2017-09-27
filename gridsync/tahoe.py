@@ -249,7 +249,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         else:
             try:
                 yield self.command(['stop'])
-            except TahoeCommandError:
+            except TahoeCommandError:  # Process already dead/not running
                 pass
         yield self.stop_magic_folders()  # XXX: Move to Core? gatherResults?
 
