@@ -335,10 +335,12 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
         lock = yield self.lock.acquire()
-        resp = yield treq.post(
-            '{}uri/{}/?t=uri&name={}&uri={}'.format(
-                self.nodeurl, dircap, childname, childcap))
-        yield lock.release()
+        try:
+            resp = yield treq.post(
+                '{}uri/{}/?t=uri&name={}&uri={}'.format(
+                    self.nodeurl, dircap, childname, childcap))
+        finally:
+            yield lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
             raise Exception(content.decode('utf-8'))
@@ -346,10 +348,12 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def unlink(self, dircap, childname):
         lock = yield self.lock.acquire()
-        resp = yield treq.post(
-            '{}uri/{}/?t=unlink&name={}'.format(
-                self.nodeurl, dircap, childname))
-        yield lock.release()
+        try:
+            resp = yield treq.post(
+                '{}uri/{}/?t=unlink&name={}'.format(
+                    self.nodeurl, dircap, childname))
+        finally:
+            yield lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
             raise Exception(content.decode('utf-8'))
