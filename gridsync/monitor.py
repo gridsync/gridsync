@@ -126,7 +126,7 @@ class Monitor(QObject):
             if state in (1, 2) and prev['state'] != 2:
                 mems, size, _, _ = yield self.gateway.get_magic_folder_info(
                     name)
-                if len(mems) > 1:
+                if mems and len(mems) > 1:
                     for member in mems:
                         if member not in self.members:
                             self.model.add_member(name, member[0])
