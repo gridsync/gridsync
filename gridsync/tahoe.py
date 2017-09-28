@@ -333,6 +333,31 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         returnValue(self.rootcap)
 
     @inlineCallbacks
+    def upload(self, local_path):
+        log.debug("Uploading %s...", local_path)
+        with open(local_path, 'rb') as f:
+            resp = yield treq.put('{}uri'.format(self.nodeurl), f)
+        if resp.code == 200:
+            content = yield treq.content(resp)
+            log.debug("Successfully uploaded %s", local_path)
+            returnValue(content.decode('utf-8'))
+        else:
+            content = yield treq.content(resp)
+            raise Exception(content.decode('utf-8'))
+
+    @inlineCallbacks
+    def download(self, cap, local_path):
+        log.debug("Downloading %s...", local_path)
+        resp = yield treq.get('{}uri/{}'.format(self.nodeurl, cap))
+        if resp.code == 200:
+            with open(local_path, 'wb') as f:
+                yield treq.collect(resp, f.write)
+            log.debug("Successfully downloaded %s", local_path)
+        else:
+            content = yield treq.content(resp)
+            raise Exception(content.decode('utf-8'))
+
+    @inlineCallbacks
     def link(self, dircap, childname, childcap):
         lock = yield self.lock.acquire()
         try:
