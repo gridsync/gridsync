@@ -121,6 +121,11 @@ class Model(QStandardItemModel):
             self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
         self.icon_folder_gray = QIcon(composite_pixmap)
 
+        self.monitor.data_updated.connect(self.set_data)
+        self.monitor.status_updated.connect(self.set_status)
+        self.monitor.last_sync_updated.connect(self.set_last_sync)
+        self.monitor.size_updated.connect(self.set_size)
+
     def data(self, index, role):
         value = super(Model, self).data(index, role)
         if role == Qt.SizeHintRole:

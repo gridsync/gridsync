@@ -5,6 +5,7 @@ import logging
 from collections import defaultdict
 from datetime import datetime
 
+from PyQt5.QtCore import pyqtSignal, QObject
 from humanize import naturaltime
 from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.internet.task import LoopingCall
@@ -13,8 +14,15 @@ from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
 
-class Monitor(object):
+class Monitor(QObject):
+
+    data_updated = pyqtSignal(str, object)
+    status_updated = pyqtSignal(str, int)  
+    last_sync_updated = pyqtSignal(str, str)
+    size_updated = pyqtSignal(str, int)  
+
     def __init__(self, model):
+        super(Monitor, self).__init__()
         self.model = model
         self.gateway = self.model.gateway
         self.grid_status = ''
@@ -88,7 +96,7 @@ class Monitor(object):
         state, last_sync, kind, filepath, _ = self.parse_status(status)
         #sync_start_time = 0
         if not prev:
-            self.model.set_data(name, magic_folder)
+            self.data_updated.emit(name, magic_folder)
         if status and prev:
             if state == 1:  # "Syncing"
                 if prev['state'] == 0:  # First sync after restoring
@@ -123,14 +131,14 @@ class Monitor(object):
                         if member not in self.members:
                             self.model.add_member(name, member[0])
                             self.members.append(member)
-                self.model.set_size(name, size)
+                self.size_updated.emit(name, size)
                 self.model.hide_download_button(name)  # XXX
                 self.model.show_share_button(name)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
         #self.status[magic_folder]['sync_start_time'] = sync_start_time
-        self.model.set_status(name, state)
-        self.model.set_last_sync(name, last_sync)
+        self.status_updated.emit(name, state)
+        self.last_sync_updated.emit(name, last_sync)
         # TODO: Notify failures/conflicts
 
     @inlineCallbacks
