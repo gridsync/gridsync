@@ -6,7 +6,8 @@ import shutil
 import sys
 
 from humanize import naturalsize
-from PyQt5.QtCore import QEvent, QFileInfo, QPoint, QSize, Qt, QVariant
+from PyQt5.QtCore import (
+    pyqtSlot, QEvent, QFileInfo, QPoint, QSize, Qt, QVariant)
 from PyQt5.QtGui import (
     QColor, QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
     QStandardItemModel)
@@ -173,11 +174,13 @@ class Model(QStandardItemModel):
                 pixmap = CompositePixmap(folder_pixmap)
             items[0].setIcon(QIcon(pixmap))
 
+    @pyqtSlot(str, object)
     def set_data(self, folder_name, data):
         items = self.findItems(folder_name)
         if items:
             items[0].setData(data, Qt.UserRole)
 
+    @pyqtSlot(str, int)
     def set_status(self, name, status):
         item = self.item(self.findItems(name)[0].row(), 1)
         if not status:
@@ -219,9 +222,11 @@ class Model(QStandardItemModel):
             item.setFont(font)
             item.setForeground(default_foreground)
 
+    @pyqtSlot(str, str)
     def set_last_sync(self, name, text):
         self.item(self.findItems(name)[0].row(), 2).setText(text)
 
+    @pyqtSlot(str, int)
     def set_size(self, name, size):
         item = self.item(self.findItems(name)[0].row(), 3)
         item.setText(naturalsize(size))
