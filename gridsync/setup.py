@@ -13,7 +13,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from gridsync import config_dir, resource
 from gridsync.errors import UpgradeRequiredError
-from gridsync.tahoe import Tahoe
+from gridsync.tahoe import Tahoe, select_executable
 
 
 class Setup(QObject):
@@ -79,7 +79,8 @@ class Setup(QObject):
                 yield self.fetch_service_icon(settings['icon_url'], icon_path)
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
-        tahoe = Tahoe(os.path.join(config_dir, nickname))
+        exe = yield select_executable()
+        tahoe = Tahoe(os.path.join(config_dir, nickname), executable=exe)
         yield tahoe.create_client(**settings)
         if icon_path:
             try:
