@@ -14,14 +14,13 @@ import qt5reactor
 qt5reactor.install()
 
 from twisted.internet import reactor
-from twisted.internet.defer import DeferredList, gatherResults, inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
-from twisted.python.procutils import which
 
-from gridsync import config_dir, pkgdir, resource, settings
+from gridsync import config_dir, resource, settings
 from gridsync import msg
 from gridsync.gui import Gui
-from gridsync.tahoe import get_nodedirs, Tahoe
+from gridsync.tahoe import get_nodedirs, Tahoe, select_executable
 
 
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
@@ -41,30 +40,8 @@ class Core(object):
 
     @inlineCallbacks
     def select_executable(self):
-        if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
-            # Because magic-folder on macOS has not yet landed upstream
-            self.executable = os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe')
-            logging.debug("Selected executable: %s", self.executable)
-            return
-        executables = which('tahoe')
-        if executables:
-            tasks = []
-            for executable in executables:
-                logging.debug("Found %s; getting version...", executable)
-                tasks.append(Tahoe(executable=executable).version())
-            results = yield gatherResults(tasks)
-            for executable, version in results:
-                logging.debug("%s has version '%s'", executable, version)
-                try:
-                    major = int(version.split('.')[0])
-                    minor = int(version.split('.')[1])
-                    if (major, minor) >= (1, 12):
-                        self.executable = executable
-                        logging.debug("Selected executable: %s", executable)
-                        return
-                except (IndexError, ValueError):
-                    logging.warning(
-                        "Could not parse/compare version of '%s'", version)
+        self.executable = yield select_executable()
+        logging.debug("Selected executable: %s", self.executable)
         if not self.executable:
             msg.critical(
                 "Tahoe-LAFS not found",

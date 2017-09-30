@@ -21,6 +21,7 @@ from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 import yaml
 
+from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import NodedirExistsError
 
@@ -660,3 +661,26 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                     if mt > latest_mtime:
                         latest_mtime = mt
         returnValue((members, total_size, latest_mtime, sizes_dict))
+
+
+@inlineCallbacks
+def select_executable():
+    if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
+        # Because magic-folder on macOS has not yet landed upstream
+        returnValue(os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'))
+    executables = which('tahoe')
+    if executables:
+        tasks = []
+        for executable in executables:
+            log.debug("Found %s; getting version...", executable)
+            tasks.append(Tahoe(executable=executable).version())
+        results = yield gatherResults(tasks)
+        for executable, version in results:
+            log.debug("%s has version '%s'", executable, version)
+            try:
+                major = int(version.split('.')[0])
+                minor = int(version.split('.')[1])
+                if (major, minor) >= (1, 12):
+                    returnValue(executable)
+            except (IndexError, ValueError):
+                log.warning("Could not parse/compare version of '%s'", version)
