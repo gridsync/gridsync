@@ -461,7 +461,13 @@ class View(QTreeView):
                 path = url.toLocalFile()
                 if os.path.isdir(path):
                     self.add_new_folder(path)
-
+                else:
+                    QMessageBox.critical(
+                        self, "Cannot add {}.".format(path),
+                        "Cannot add '{}'.\n\n{} currently only supports "
+                        "uploading and syncing folders, and not individual "
+                        "files. Please try again.".format(path, APP_NAME))
+                    
     def eventFilter(self, obj, event):  # pylint: disable=unused-argument
         if event.type() == QEvent.DragEnter:
             self.dragEnterEvent(event)
