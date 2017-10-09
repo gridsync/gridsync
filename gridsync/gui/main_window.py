@@ -3,7 +3,6 @@
 from datetime import datetime
 import logging
 import os
-import shutil
 import sys
 
 from humanize import naturalsize, naturaltime
@@ -267,7 +266,6 @@ class Model(QStandardItemModel):
                     naturaltime(datetime.now() - datetime.fromtimestamp(data)))
 
 
-
 class Delegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super(Delegate, self).__init__(parent=None)
@@ -482,7 +480,7 @@ class View(QTreeView):
                         "Cannot add '{}'.\n\n{} currently only supports "
                         "uploading and syncing folders, and not individual "
                         "files. Please try again.".format(path, APP_NAME))
-                    
+
     def eventFilter(self, obj, event):  # pylint: disable=unused-argument
         if event.type() == QEvent.DragEnter:
             self.dragEnterEvent(event)

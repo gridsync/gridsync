@@ -5,7 +5,7 @@ import logging
 from collections import defaultdict
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
 from gridsync.preferences import get_preference
@@ -137,12 +137,12 @@ class Monitor(QObject):
 
     @inlineCallbacks
     def scan_rootcap(self, overlay_file=None):
-        logging.debug("Scanning {} rootcap...".format(self.gateway.name))
+        logging.debug("Scanning %s rootcap...", self.gateway.name)
         folders = yield self.gateway.get_magic_folders_from_rootcap()
         for name, caps in folders.items():
             if not self.model.findItems(name):
                 logging.debug(
-                    "Found new folder '{}' in rootcap; adding...".format(name))
+                    "Found new folder '%s' in rootcap; adding...", name)
                 self.model.add_folder(name, caps, 3)
                 self.model.fade_row(name, overlay_file)
                 c = yield self.gateway.get_json(caps['collective'])
