@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import logging
 import os
 import shutil
 import sys
 
-from humanize import naturalsize
+from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import (
     pyqtSlot, QEvent, QFileInfo, QPoint, QSize, Qt, QVariant)
 from PyQt5.QtGui import (
@@ -110,7 +111,7 @@ class Model(QStandardItemModel):
         self.status_dict = {}
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
-        self.setHeaderData(2, Qt.Horizontal, QVariant("Last sync"))
+        self.setHeaderData(2, Qt.Horizontal, QVariant("Last modified"))
         self.setHeaderData(3, Qt.Horizontal, QVariant("Size"))
         self.setHeaderData(4, Qt.Horizontal, QVariant("Action"))
 
@@ -124,7 +125,8 @@ class Model(QStandardItemModel):
 
         self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
-        self.monitor.last_sync_updated.connect(self.set_last_sync)
+        #self.monitor.last_sync_updated.connect(self.set_last_sync)
+        self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
 
     def data(self, index, role):
@@ -225,6 +227,13 @@ class Model(QStandardItemModel):
     @pyqtSlot(str, str)
     def set_last_sync(self, name, text):
         self.item(self.findItems(name)[0].row(), 2).setText(text)
+
+    @pyqtSlot(str, int)
+    def set_mtime(self, name, time):
+        item = self.item(self.findItems(name)[0].row(), 2)
+        item.setData(time, Qt.UserRole)
+        item.setText(
+            naturaltime(datetime.now() - datetime.fromtimestamp(time)))
 
     @pyqtSlot(str, int)
     def set_size(self, name, size):

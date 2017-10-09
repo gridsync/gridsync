@@ -19,6 +19,7 @@ class Monitor(QObject):
     data_updated = pyqtSignal(str, object)
     status_updated = pyqtSignal(str, int)  
     last_sync_updated = pyqtSignal(str, str)
+    mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, int)  
 
     def __init__(self, model):
@@ -124,7 +125,7 @@ class Monitor(QObject):
                     self.gateway.get_magic_folder_directory(name),
                     'lock-closed-green.svg')
             if state in (1, 2) and prev['state'] != 2:
-                mems, size, _, _ = yield self.gateway.get_magic_folder_info(
+                mems, size, t, _ = yield self.gateway.get_magic_folder_info(
                     name)
                 if mems and len(mems) > 1:
                     for member in mems:
@@ -132,6 +133,7 @@ class Monitor(QObject):
                             self.model.add_member(name, member[0])
                             self.members.append(member)
                 self.size_updated.emit(name, size)
+                self.mtime_updated.emit(name, t)
                 self.model.hide_download_button(name)  # XXX
                 self.model.show_share_button(name)
         self.status[magic_folder]['status'] = status
@@ -155,8 +157,9 @@ class Monitor(QObject):
                 m = yield self.gateway.get_magic_folder_members(name, c)
                 _, s, t, _ = yield self.gateway.get_magic_folder_info(name, m)
                 self.model.set_size(name, s)
-                mtime = naturaltime(datetime.now() - datetime.fromtimestamp(t))
-                self.model.set_last_sync(name, mtime)
+                #mtime = naturaltime(datetime.now() - datetime.fromtimestamp(t))
+                #self.model.set_last_sync(name, mtime)
+                self.mtime_updated.emit(name, t)
                 self.model.hide_share_button(name)  # XXX
                 self.model.show_download_button(name)
 
