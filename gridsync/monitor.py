@@ -3,10 +3,8 @@
 import logging
 #import time
 from collections import defaultdict
-from datetime import datetime
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from humanize import naturaltime
 from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.internet.task import LoopingCall
 
@@ -17,10 +15,9 @@ from gridsync.util import humanized_list
 class Monitor(QObject):
 
     data_updated = pyqtSignal(str, object)
-    status_updated = pyqtSignal(str, int)  
-    last_sync_updated = pyqtSignal(str, str)
+    status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
-    size_updated = pyqtSignal(str, int)  
+    size_updated = pyqtSignal(str, int)
     check_finished = pyqtSignal()
 
     def __init__(self, model):
@@ -83,19 +80,14 @@ class Monitor(QObject):
                     failures.append(task['path'])
             if not state:
                 state = 2  # "Up to date"
-        last_sync = ''
-        if state == 1:
-            last_sync = "In progress"
-        elif t:
-            last_sync = naturaltime(datetime.now() - datetime.fromtimestamp(t))
-        return state, last_sync, kind, path, failures
+        return state, kind, path, failures
 
     @inlineCallbacks  # noqa: max-complexity=13 XXX
     def check_magic_folder_status(self, magic_folder):
         name = magic_folder.name
         prev = self.status[magic_folder]
         status = yield self.gateway.get_magic_folder_status(name)
-        state, last_sync, kind, filepath, _ = self.parse_status(status)
+        state, kind, filepath, _ = self.parse_status(status)
         #sync_start_time = 0
         if not prev:
             self.data_updated.emit(name, magic_folder)
@@ -141,7 +133,6 @@ class Monitor(QObject):
         self.status[magic_folder]['state'] = state
         #self.status[magic_folder]['sync_start_time'] = sync_start_time
         self.status_updated.emit(name, state)
-        self.last_sync_updated.emit(name, last_sync)
         # TODO: Notify failures/conflicts
 
     @inlineCallbacks
@@ -158,8 +149,6 @@ class Monitor(QObject):
                 m = yield self.gateway.get_magic_folder_members(name, c)
                 _, s, t, _ = yield self.gateway.get_magic_folder_info(name, m)
                 self.model.set_size(name, s)
-                #mtime = naturaltime(datetime.now() - datetime.fromtimestamp(t))
-                #self.model.set_last_sync(name, mtime)
                 self.mtime_updated.emit(name, t)
                 self.model.hide_share_button(name)  # XXX
                 self.model.show_download_button(name)

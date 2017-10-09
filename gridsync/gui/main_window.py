@@ -125,7 +125,6 @@ class Model(QStandardItemModel):
 
         self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
-        #self.monitor.last_sync_updated.connect(self.set_last_sync)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
         self.monitor.check_finished.connect(self.update_natural_times)
@@ -146,10 +145,10 @@ class Model(QStandardItemModel):
         name = QStandardItem(QIcon(composite_pixmap), basename)
         name.setData(name_data, Qt.UserRole)
         status = QStandardItem()
-        last_sync = QStandardItem()
+        mtime = QStandardItem()
         size = QStandardItem()
         action = QStandardItem()
-        self.appendRow([name, status, last_sync, size, action])
+        self.appendRow([name, status, mtime, size, action])
         action_bar = ActionBar(self, basename)
         self.view.setIndexWidget(action.index(), action_bar)
         action.setData(action_bar, Qt.UserRole)
@@ -224,10 +223,6 @@ class Model(QStandardItemModel):
             font.setItalic(False)
             item.setFont(font)
             item.setForeground(default_foreground)
-
-    @pyqtSlot(str, str)
-    def set_last_sync(self, name, text):
-        self.item(self.findItems(name)[0].row(), 2).setText(text)
 
     @pyqtSlot(str, int)
     def set_mtime(self, name, time):
