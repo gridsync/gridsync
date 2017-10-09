@@ -148,7 +148,7 @@ class Monitor(QObject):
                 c = yield self.gateway.get_json(caps['collective'])
                 m = yield self.gateway.get_magic_folder_members(name, c)
                 _, s, t, _ = yield self.gateway.get_magic_folder_info(name, m)
-                self.model.set_size(name, s)
+                self.size_updated.emit(name, s)
                 self.mtime_updated.emit(name, t)
                 self.model.hide_share_button(name)  # XXX
                 self.model.show_download_button(name)
