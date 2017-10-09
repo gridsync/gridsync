@@ -128,6 +128,7 @@ class Model(QStandardItemModel):
         #self.monitor.last_sync_updated.connect(self.set_last_sync)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
+        self.monitor.check_finished.connect(self.update_natural_times)
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)
@@ -260,6 +261,16 @@ class Model(QStandardItemModel):
         action_item = self.item(self.findItems(name)[0].row(), 4)
         action_bar = action_item.data(Qt.UserRole)
         action_bar.hide_download_button()
+
+    @pyqtSlot()
+    def update_natural_times(self):
+        for i in range(self.rowCount()):
+            item = self.item(i, 2)
+            data = item.data(Qt.UserRole)
+            if data:
+                item.setText(
+                    naturaltime(datetime.now() - datetime.fromtimestamp(data)))
+
 
 
 class Delegate(QStyledItemDelegate):

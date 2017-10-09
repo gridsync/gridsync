@@ -21,6 +21,7 @@ class Monitor(QObject):
     last_sync_updated = pyqtSignal(str, str)
     mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, int)  
+    check_finished = pyqtSignal()
 
     def __init__(self, model):
         super(Monitor, self).__init__()
@@ -188,6 +189,7 @@ class Monitor(QObject):
         yield self.check_grid_status()
         for magic_folder in self.gateway.magic_folder_clients:
             yield self.check_magic_folder_status(magic_folder)
+        self.check_finished.emit()
 
     def start(self, interval=2):
         self.timer.start(interval, now=True)
