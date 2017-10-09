@@ -18,6 +18,8 @@ class Monitor(QObject):
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, int)
+    sync_started = pyqtSignal(tuple)
+    sync_finished = pyqtSignal(tuple)
     check_finished = pyqtSignal()
 
     def __init__(self, model):
@@ -29,14 +31,6 @@ class Monitor(QObject):
         self.members = []
         self.files = {}
         self.timer = LoopingCall(self.check_status)
-
-    def add_operation(self, item):
-        if item not in self.model.gui.core.operations:
-            self.model.gui.core.operations.append(item)
-
-    def remove_operation(self, item):
-        if item in self.model.gui.core.operations:
-            self.model.gui.core.operations.remove(item)
 
     def add_updated_file(self, magic_folder, path):
         if 'updated_files' not in self.status[magic_folder]:
@@ -97,10 +91,10 @@ class Monitor(QObject):
                     self.model.unfade_row(name)
                     self.model.update_folder_icon(
                         name, self.gateway.get_magic_folder_directory(name))
-                    self.add_operation(magic_folder)
+                    self.sync_started.emit((self.gateway, name))
                 elif prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", name)
-                    self.add_operation(magic_folder)
+                    self.sync_started.emit((self.gateway, name))
                     #sync_start_time = time.time()
                 elif prev['state'] == 1:  # Sync started earlier; still going
                     logging.debug("Sync in progress (%s)", name)
@@ -111,7 +105,7 @@ class Monitor(QObject):
                             self.add_updated_file(magic_folder, item['path'])
             elif state == 2 and prev['state'] == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", name)
-                self.remove_operation(magic_folder)
+                self.sync_finished.emit((self.gateway, name))
                 self.notify_updated_files(magic_folder)
                 self.model.update_folder_icon(
                     name,

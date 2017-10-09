@@ -126,6 +126,8 @@ class Model(QStandardItemModel):
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
+        self.monitor.sync_started.connect(self.gui.core.operations.append)
+        self.monitor.sync_finished.connect(self.gui.core.operations.remove)
         self.monitor.check_finished.connect(self.update_natural_times)
 
     def data(self, index, role):
