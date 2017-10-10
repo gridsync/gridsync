@@ -145,13 +145,12 @@ class Monitor(QObject):
     @inlineCallbacks
     def check_grid_status(self):
         num_connected = yield self.gateway.get_connected_servers()
-        if not num_connected:
+        num_needed = self.gateway.shares_happy
+        if not num_connected or not num_needed:
             grid_status = "Connecting..."
-        #elif num_connected == 1:
-        #    grid_status = "Connected to {} storage node".format(num_connected)
-        #else:
-        #    grid_status = "Connected to {} storage nodes".format(num_connected)
-        # TODO: Consider "connected" if num_connected >= "happiness" threshold
+        elif num_connected < num_needed:
+            grid_status = "Connecting ({}/{} nodes)...".format(
+                num_connected, num_needed)
         else:
             grid_status = "Connected to {}".format(self.gateway.name)
             # TODO: Add available storage space?
