@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-#import time
 from collections import defaultdict
 
 from PyQt5.QtCore import pyqtSignal, QObject
@@ -82,7 +81,6 @@ class Monitor(QObject):
         prev = self.status[magic_folder]
         status = yield self.gateway.get_magic_folder_status(name)
         state, kind, filepath, _ = self.parse_status(status)
-        #sync_start_time = 0
         if not prev:
             self.data_updated.emit(name, magic_folder)
         if status and prev:
@@ -95,11 +93,9 @@ class Monitor(QObject):
                 elif prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", name)
                     self.sync_started.emit((self.gateway, name))
-                    #sync_start_time = time.time()
                 elif prev['state'] == 1:  # Sync started earlier; still going
                     logging.debug("Sync in progress (%s)", name)
                     logging.debug("%sing %s...", kind, filepath)
-                    #sync_start_time = prev['sync_start_time']
                     for item in status:
                         if item not in prev['status']:
                             self.add_updated_file(magic_folder, item['path'])
@@ -125,7 +121,6 @@ class Monitor(QObject):
                 self.model.show_share_button(name)
         self.status[magic_folder]['status'] = status
         self.status[magic_folder]['state'] = state
-        #self.status[magic_folder]['sync_start_time'] = sync_start_time
         self.status_updated.emit(name, state)
         # TODO: Notify failures/conflicts
 
