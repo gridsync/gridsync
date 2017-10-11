@@ -126,6 +126,7 @@ class Model(QStandardItemModel):
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
+        self.monitor.member_added.connect(self.add_member)
         self.monitor.first_sync_started.connect(self.on_first_sync)
         self.monitor.sync_started.connect(self.gui.core.operations.append)
         self.monitor.sync_finished.connect(self.gui.core.operations.remove)
@@ -157,6 +158,7 @@ class Model(QStandardItemModel):
         self.view.hide_drop_label()
         self.set_status(basename, status_data)
 
+    @pyqtSlot(str, str)
     def add_member(self, folder, member):
         items = self.findItems(folder)
         if items:

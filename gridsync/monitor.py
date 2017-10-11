@@ -17,6 +17,7 @@ class Monitor(QObject):
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, int)
+    member_added = pyqtSignal(str, str)
     first_sync_started = pyqtSignal(str, str)
     sync_started = pyqtSignal(tuple)
     sync_finished = pyqtSignal(tuple)
@@ -112,7 +113,7 @@ class Monitor(QObject):
                 if mems and len(mems) > 1:
                     for member in mems:
                         if member not in self.members:
-                            self.model.add_member(name, member[0])
+                            self.member_added.emit(name, member[0])
                             self.members.append(member)
                 self.size_updated.emit(name, size)
                 self.mtime_updated.emit(name, t)
