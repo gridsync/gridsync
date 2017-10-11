@@ -28,7 +28,6 @@ class Monitor(QObject):
         self.grid_status = ''
         self.status = defaultdict(dict)
         self.members = []
-        self.files = {}
         self.timer = LoopingCall(self.check_status)
 
     def add_updated_file(self, magic_folder, path):
