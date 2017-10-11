@@ -109,7 +109,7 @@ class Model(QStandardItemModel):
         self.gateway = self.view.gateway
         self.monitor = Monitor(self)
         self.status_dict = {}
-        self.grid_status = 'test'
+        self.grid_status = ''
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Last modified"))
