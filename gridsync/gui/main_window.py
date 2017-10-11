@@ -17,7 +17,6 @@ from PyQt5.QtWidgets import (
     QPushButton, QShortcut, QSizePolicy, QSpacerItem, QStackedWidget,
     QStyledItemDelegate, QToolBar, QTreeView, QWidget)
 from twisted.internet import reactor
-from twisted.internet.task import LoopingCall
 
 from gridsync import resource, APP_NAME, config_dir
 from gridsync.desktop import open_folder
@@ -635,8 +634,6 @@ class MainWindow(QMainWindow):
         self.active_pair_widgets = []
         self.active_invite_receivers = []
 
-        self.grid_status_updater = LoopingCall(self.set_current_grid_status)
-
     def populate(self, gateways):
         for gateway in gateways:
             if gateway not in self.gateways:
@@ -644,10 +641,6 @@ class MainWindow(QMainWindow):
         self.combo_box.populate(self.gateways)
         self.central_widget.populate(self.gateways)
         self.central_widget.addWidget(self.preferences_widget)
-        try:
-            self.grid_status_updater.start(2, now=True)
-        except AssertionError:  # Tried to start an already running LoopingCall
-            pass
 
     def current_view(self):
         return self.central_widget.currentWidget().layout().itemAt(0).widget()
