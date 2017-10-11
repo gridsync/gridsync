@@ -124,6 +124,7 @@ class Model(QStandardItemModel):
         self.icon_folder_gray = QIcon(composite_pixmap)
 
         self.monitor.connected.connect(self.on_connected)
+        self.monitor.disconnected.connect(self.on_disconnected)
         self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
@@ -139,6 +140,12 @@ class Model(QStandardItemModel):
         if get_preference('notifications', 'connection') != 'false':
             self.gui.show_message(
                 grid_name, "Connected to {}".format(grid_name))
+
+    @pyqtSlot(str)
+    def on_disconnected(self, grid_name):
+        if get_preference('notifications', 'connection') != 'false':
+            self.gui.show_message(
+                grid_name, "Disonnected from {}".format(grid_name))
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)
