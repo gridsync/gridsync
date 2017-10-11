@@ -24,6 +24,7 @@ from gridsync.desktop import open_folder
 from gridsync.gui.widgets import (
     CompositePixmap, InviteReceiver, PreferencesWidget, ShareWidget)
 from gridsync.monitor import Monitor
+from gridsync.preferences import get_preference
 from gridsync.tahoe import get_nodedirs
 
 
@@ -122,6 +123,7 @@ class Model(QStandardItemModel):
             self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
         self.icon_folder_gray = QIcon(composite_pixmap)
 
+        self.monitor.connected.connect(self.on_connected)
         self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
@@ -131,6 +133,12 @@ class Model(QStandardItemModel):
         self.monitor.sync_started.connect(self.gui.core.operations.append)
         self.monitor.sync_finished.connect(self.gui.core.operations.remove)
         self.monitor.check_finished.connect(self.update_natural_times)
+
+    @pyqtSlot(str)
+    def on_connected(self, grid_name):
+        if get_preference('notifications', 'connection') != 'false':
+            self.gui.show_message(
+                grid_name, "Connected to {}".format(grid_name))
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)

@@ -13,6 +13,7 @@ from gridsync.util import humanized_list
 
 class Monitor(QObject):
 
+    connected = pyqtSignal(str) 
     data_updated = pyqtSignal(str, object)
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
@@ -154,9 +155,7 @@ class Monitor(QObject):
             grid_status = "Connected to {}".format(self.gateway.name)
             # TODO: Add available storage space?
         if num_connected and grid_status != self.grid_status:
-            if get_preference('notifications', 'connection') != 'false':
-                self.model.gui.show_message(
-                    self.gateway.name, grid_status)
+            self.connected.emit(self.gateway.name)
             yield self.scan_rootcap()
         self.grid_status = grid_status
 
