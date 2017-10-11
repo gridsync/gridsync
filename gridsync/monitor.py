@@ -17,6 +17,7 @@ class Monitor(QObject):
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, int)
+    first_sync_started = pyqtSignal(str, str)
     sync_started = pyqtSignal(tuple)
     sync_finished = pyqtSignal(tuple)
     check_finished = pyqtSignal()
@@ -85,8 +86,7 @@ class Monitor(QObject):
         if status and prev:
             if state == 1:  # "Syncing"
                 if prev['state'] == 0:  # First sync after restoring
-                    self.model.unfade_row(name)
-                    self.model.update_folder_icon(
+                    self.first_sync_started.emit(
                         name, self.gateway.get_magic_folder_directory(name))
                     self.sync_started.emit((self.gateway, name))
                 elif prev['state'] != 1:  # Sync just started
