@@ -145,6 +145,7 @@ class Model(QStandardItemModel):
         elif num_connected >= num_happy:
             self.grid_status = "Connected ({}/{} nodes)".format(
                 num_connected, num_happy)
+        self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
 
     @pyqtSlot(str)
     def on_connected(self, grid_name):
