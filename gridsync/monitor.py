@@ -14,6 +14,8 @@ from gridsync.util import humanized_list
 class Monitor(QObject):
 
     connected = pyqtSignal(str) 
+    disconnected = pyqtSignal(str)
+    nodes_updated = pyqtSignal(int, int)
     data_updated = pyqtSignal(str, object)
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
@@ -32,6 +34,9 @@ class Monitor(QObject):
         self.status = defaultdict(dict)
         self.members = []
         self.timer = LoopingCall(self.check_status)
+        self.num_connected = 0
+        self.num_happy = 0
+        self.is_connected = False
 
     def add_updated_file(self, magic_folder, path):
         if 'updated_files' not in self.status[magic_folder]:
@@ -145,19 +150,34 @@ class Monitor(QObject):
     @inlineCallbacks
     def check_grid_status(self):
         num_connected = yield self.gateway.get_connected_servers()
-        num_needed = self.gateway.shares_happy
-        if not num_connected or not num_needed:
-            grid_status = "Connecting..."
-        elif num_connected < num_needed:
-            grid_status = "Connecting ({}/{} nodes)...".format(
-                num_connected, num_needed)
-        else:
-            grid_status = "Connected to {}".format(self.gateway.name)
-            # TODO: Add available storage space?
-        if num_connected and grid_status != self.grid_status:
-            self.connected.emit(self.gateway.name)
-            yield self.scan_rootcap()
-        self.grid_status = grid_status
+        if not num_connected:
+            num_connected = 0
+        num_happy = self.gateway.shares_happy
+        if not num_happy:
+            num_happy = 0
+
+        if not num_connected or not num_happy:
+            self.grid_status = "Connecting..."
+        elif num_happy and num_connected < num_happy:
+            self.grid_status = "Connecting ({}/{} nodes)...".format(
+                num_connected, num_happy)
+        elif num_happy and num_connected >= num_happy:
+            self.grid_status = "Connected to {}".format(self.gateway.name)
+
+        if num_connected != self.num_connected or num_happy != self.num_happy:
+            self.nodes_updated.emit(num_connected, num_happy)
+            if num_happy and num_connected >= num_happy:
+                if not self.is_connected:
+                    self.is_connected = True
+                    self.connected.emit(self.gateway.name)
+                    # TODO: Add available storage space?
+                    yield self.scan_rootcap()  # TODO: Move to Monitor
+            elif num_happy and num_connected < num_happy:
+                if self.is_connected:
+                    self.is_connected = False
+                    self.disconnected.emit(self.gateway.name)
+            self.num_connected = num_connected
+            self.num_happy = num_happy
 
     @inlineCallbacks
     def check_status(self):
