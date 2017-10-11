@@ -89,8 +89,7 @@ class Monitor(QObject):
                 if prev['state'] == 0:  # First sync after restoring
                     self.first_sync_started.emit(
                         name, self.gateway.get_magic_folder_directory(name))
-                    self.sync_started.emit((self.gateway, name))
-                elif prev['state'] != 1:  # Sync just started
+                if prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", name)
                     self.sync_started.emit((self.gateway, name))
                 elif prev['state'] == 1:  # Sync started earlier; still going
