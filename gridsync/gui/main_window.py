@@ -109,6 +109,7 @@ class Model(QStandardItemModel):
         self.gateway = self.view.gateway
         self.monitor = Monitor(self)
         self.status_dict = {}
+        self.grid_status = 'test'
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Last modified"))
@@ -125,6 +126,7 @@ class Model(QStandardItemModel):
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
+        self.monitor.nodes_updated.connect(self.on_nodes_updated)
         self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
@@ -134,6 +136,15 @@ class Model(QStandardItemModel):
         self.monitor.sync_started.connect(self.gui.core.operations.append)
         self.monitor.sync_finished.connect(self.gui.core.operations.remove)
         self.monitor.check_finished.connect(self.update_natural_times)
+
+    @pyqtSlot(int, int)
+    def on_nodes_updated(self, num_connected, num_happy):
+        if num_connected < num_happy:
+            self.grid_status = "Connecting ({}/{} nodes)...".format(
+                num_connected, num_happy)
+        elif num_connected >= num_happy:
+            self.grid_status = "Connected ({}/{} nodes)".format(
+                num_connected, num_happy)
 
     @pyqtSlot(str)
     def on_connected(self, grid_name):
@@ -651,7 +662,7 @@ class MainWindow(QMainWindow):
         if self.central_widget.currentWidget() == self.preferences_widget:
             return
         self.status_bar_label.setText(
-            self.current_view().model().monitor.grid_status)
+            self.current_view().model().grid_status)
         self.gui.systray.update()
 
     def on_grid_selected(self, index):

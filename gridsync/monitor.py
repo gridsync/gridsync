@@ -30,7 +30,6 @@ class Monitor(QObject):
         super(Monitor, self).__init__()
         self.model = model
         self.gateway = self.model.gateway
-        self.grid_status = ''
         self.status = defaultdict(dict)
         self.members = []
         self.timer = LoopingCall(self.check_status)
@@ -155,15 +154,6 @@ class Monitor(QObject):
         num_happy = self.gateway.shares_happy
         if not num_happy:
             num_happy = 0
-
-        if not num_connected or not num_happy:
-            self.grid_status = "Connecting..."
-        elif num_happy and num_connected < num_happy:
-            self.grid_status = "Connecting ({}/{} nodes)...".format(
-                num_connected, num_happy)
-        elif num_happy and num_connected >= num_happy:
-            self.grid_status = "Connected to {}".format(self.gateway.name)
-
         if num_connected != self.num_connected or num_happy != self.num_happy:
             self.nodes_updated.emit(num_connected, num_happy)
             if num_happy and num_connected >= num_happy:
