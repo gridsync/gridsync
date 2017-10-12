@@ -25,6 +25,7 @@ from gridsync.gui.widgets import (
 from gridsync.monitor import Monitor
 from gridsync.preferences import get_preference
 from gridsync.tahoe import get_nodedirs
+from gridsync.util import humanized_list
 
 
 class ComboBox(QComboBox):
@@ -136,6 +137,7 @@ class Model(QStandardItemModel):
         self.monitor.first_sync_started.connect(self.on_first_sync)
         self.monitor.sync_started.connect(self.gui.core.operations.append)
         self.monitor.sync_finished.connect(self.gui.core.operations.remove)
+        self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
 
     def on_space_updated(self, size):
@@ -163,6 +165,13 @@ class Model(QStandardItemModel):
         if get_preference('notifications', 'connection') != 'false':
             self.gui.show_message(
                 grid_name, "Disonnected from {}".format(grid_name))
+
+    @pyqtSlot(str, list)
+    def on_updated_files(self, folder_name, files_list):
+        if get_preference('notifications', 'folder') != 'false':
+            self.gui.show_message(
+                folder_name + " updated and encrypted",
+                "Updated " + humanized_list(files_list))
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)

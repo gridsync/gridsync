@@ -7,9 +7,6 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
-from gridsync.preferences import get_preference
-from gridsync.util import humanized_list
-
 
 class Monitor(QObject):
 
@@ -25,6 +22,7 @@ class Monitor(QObject):
     first_sync_started = pyqtSignal(str, str)
     sync_started = pyqtSignal(tuple)
     sync_finished = pyqtSignal(tuple)
+    files_updated = pyqtSignal(str, list)
     check_finished = pyqtSignal()
 
     def __init__(self, model):
@@ -50,16 +48,13 @@ class Monitor(QObject):
             self.status[magic_folder]['updated_files'].append(path)
             logging.debug("Added %s to updated_files list", path)
 
-    def notify_updated_files(self, magic_folder):
+    def notify_updated_files(self, folder_name, magic_folder):
         if 'updated_files' in self.status[magic_folder]:
             updated_files = self.status[magic_folder]['updated_files']
             if updated_files:
-                title = magic_folder.name + " updated and encrypted"
-                message = "Updated " + humanized_list(updated_files)
-                if get_preference('notifications', 'folder') != 'false':
-                    self.model.gui.show_message(title, message)
                 self.status[magic_folder]['updated_files'] = []
                 logging.debug("Cleared updated_files list")
+                self.files_updated.emit(folder_name, updated_files)
 
     @staticmethod
     def parse_status(status):
@@ -108,7 +103,7 @@ class Monitor(QObject):
             elif state == 2 and prev['state'] == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", name)
                 self.sync_finished.emit((self.gateway, name))
-                self.notify_updated_files(magic_folder)
+                self.notify_updated_files(name, magic_folder)
                 self.model.update_folder_icon(
                     name,
                     self.gateway.get_magic_folder_directory(name),
