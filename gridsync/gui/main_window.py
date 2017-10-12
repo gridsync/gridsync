@@ -274,15 +274,14 @@ class Model(QStandardItemModel):
         self.unfade_row(folder_name)
         self.update_folder_icon(folder_name, folder_path)
 
-    @pyqtSlot(tuple)
-    def on_sync_started(self, operation):
-        self.gui.core.operations.append(operation)
+    @pyqtSlot(str)
+    def on_sync_started(self, folder_name):
+        self.gui.core.operations.append((self.gateway, folder_name))
         self.gui.systray.update()
 
-    @pyqtSlot(tuple)
-    def on_sync_finished(self, operation):
-        self.gui.core.operations.remove(operation)
-        _, folder_name = operation
+    @pyqtSlot(str)
+    def on_sync_finished(self, folder_name):
+        self.gui.core.operations.remove((self.gateway, folder_name))
         self.update_folder_icon(
             folder_name,
             self.gateway.get_magic_folder_directory(folder_name),

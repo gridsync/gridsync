@@ -20,8 +20,8 @@ class Monitor(QObject):
     size_updated = pyqtSignal(str, int)
     member_added = pyqtSignal(str, str)
     first_sync_started = pyqtSignal(str, str)
-    sync_started = pyqtSignal(tuple)
-    sync_finished = pyqtSignal(tuple)
+    sync_started = pyqtSignal(str)
+    sync_finished = pyqtSignal(str)
     files_updated = pyqtSignal(str, list)
     check_finished = pyqtSignal()
 
@@ -93,7 +93,7 @@ class Monitor(QObject):
                         name, self.gateway.get_magic_folder_directory(name))
                 if prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", name)
-                    self.sync_started.emit((self.gateway, name))
+                    self.sync_started.emit(name)
                 elif prev['state'] == 1:  # Sync started earlier; still going
                     logging.debug("Sync in progress (%s)", name)
                     logging.debug("%sing %s...", kind, filepath)
@@ -102,7 +102,7 @@ class Monitor(QObject):
                             self.add_updated_file(magic_folder, item['path'])
             elif state == 2 and prev['state'] == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", name)
-                self.sync_finished.emit((self.gateway, name))
+                self.sync_finished.emit(name)
                 self.notify_updated_files(name, magic_folder)
             if state in (1, 2) and prev['state'] != 2:
                 mems, size, t, _ = yield self.gateway.get_magic_folder_info(
