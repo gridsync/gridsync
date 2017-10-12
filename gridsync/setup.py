@@ -101,7 +101,7 @@ class Setup(QObject):
         yield tahoe.await_ready()
 
         settings_path = os.path.join(tahoe.nodedir, 'private', 'settings.json')
-        if 'rootcap' in settings:
+        if settings.get('rootcap'):
             self.update_progress.emit(5, 'Loading Recovery Key...')
             with open(tahoe.rootcap_path, 'w') as f:  # XXX
                 f.write(settings['rootcap'])
