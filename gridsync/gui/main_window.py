@@ -269,10 +269,11 @@ class Model(QStandardItemModel):
             item.setFont(font)
             item.setForeground(default_foreground)
 
-    @pyqtSlot(str, str)
-    def on_first_sync(self, folder_name, folder_path):
+    @pyqtSlot(str)
+    def on_first_sync(self, folder_name):
         self.unfade_row(folder_name)
-        self.update_folder_icon(folder_name, folder_path)
+        self.update_folder_icon(
+            folder_name, self.gateway.get_magic_folder_directory(folder_name))
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):

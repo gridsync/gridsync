@@ -19,7 +19,7 @@ class Monitor(QObject):
     mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, int)
     member_added = pyqtSignal(str, str)
-    first_sync_started = pyqtSignal(str, str)
+    first_sync_started = pyqtSignal(str)
     sync_started = pyqtSignal(str)
     sync_finished = pyqtSignal(str)
     files_updated = pyqtSignal(str, list)
@@ -89,8 +89,7 @@ class Monitor(QObject):
         if status and prev:
             if state == 1:  # "Syncing"
                 if prev['state'] == 0:  # First sync after restoring
-                    self.first_sync_started.emit(
-                        name, self.gateway.get_magic_folder_directory(name))
+                    self.first_sync_started.emit(name)
                 if prev['state'] != 1:  # Sync just started
                     logging.debug("Sync started (%s)", name)
                     self.sync_started.emit(name)
