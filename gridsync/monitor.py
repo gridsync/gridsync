@@ -37,22 +37,22 @@ class Monitor(QObject):
         self.is_connected = False
         self.available_space = 0
 
-    def add_updated_file(self, magic_folder, path):
-        if 'updated_files' not in self.status[magic_folder]:
-            self.status[magic_folder]['updated_files'] = []
-        if path in self.status[magic_folder]['updated_files']:
+    def add_updated_file(self, folder_name, path):
+        if 'updated_files' not in self.status[folder_name]:
+            self.status[folder_name]['updated_files'] = []
+        if path in self.status[folder_name]['updated_files']:
             return
         elif path.endswith('/') or path.endswith('~') or path.isdigit():
             return
         else:
-            self.status[magic_folder]['updated_files'].append(path)
+            self.status[folder_name]['updated_files'].append(path)
             logging.debug("Added %s to updated_files list", path)
 
-    def notify_updated_files(self, folder_name, magic_folder):
-        if 'updated_files' in self.status[magic_folder]:
-            updated_files = self.status[magic_folder]['updated_files']
+    def notify_updated_files(self, folder_name):
+        if 'updated_files' in self.status[folder_name]:
+            updated_files = self.status[folder_name]['updated_files']
             if updated_files:
-                self.status[magic_folder]['updated_files'] = []
+                self.status[folder_name]['updated_files'] = []
                 logging.debug("Cleared updated_files list")
                 self.files_updated.emit(folder_name, updated_files)
 
@@ -79,13 +79,12 @@ class Monitor(QObject):
         return state, kind, path, failures
 
     @inlineCallbacks  # noqa: max-complexity=13 XXX
-    def check_magic_folder_status(self, magic_folder):
-        name = magic_folder.name
-        prev = self.status[magic_folder]
+    def check_magic_folder_status(self, name):
+        prev = self.status[name]
         status = yield self.gateway.get_magic_folder_status(name)
         state, kind, filepath, _ = self.parse_status(status)
-        if not prev:
-            self.data_updated.emit(name, magic_folder)
+        #if not prev:
+        #    self.data_updated.emit(name, magic_folder)
         if status and prev:
             if state == 1:  # "Syncing"
                 if prev['state'] == 0:  # First sync after restoring
@@ -98,11 +97,11 @@ class Monitor(QObject):
                     logging.debug("%sing %s...", kind, filepath)
                     for item in status:
                         if item not in prev['status']:
-                            self.add_updated_file(magic_folder, item['path'])
+                            self.add_updated_file(name, item['path'])
             elif state == 2 and prev['state'] == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", name)
                 self.sync_finished.emit(name)
-                self.notify_updated_files(name, magic_folder)
+                self.notify_updated_files(name)
             if state in (1, 2) and prev['state'] != 2:
                 mems, size, t, _ = yield self.gateway.get_magic_folder_info(
                     name)
@@ -115,8 +114,8 @@ class Monitor(QObject):
                 self.mtime_updated.emit(name, t)
                 self.model.hide_download_button(name)  # XXX
                 self.model.show_share_button(name)
-        self.status[magic_folder]['status'] = status
-        self.status[magic_folder]['state'] = state
+        self.status[name]['status'] = status
+        self.status[name]['state'] = state
         self.status_updated.emit(name, state)
         # TODO: Notify failures/conflicts
 
@@ -169,8 +168,8 @@ class Monitor(QObject):
     @inlineCallbacks
     def check_status(self):
         yield self.check_grid_status()
-        for magic_folder in self.gateway.magic_folder_clients:
-            yield self.check_magic_folder_status(magic_folder)
+        for magic_folder in self.gateway.magic_folder_clients:  # XXX
+            yield self.check_magic_folder_status(magic_folder.name)
         self.check_finished.emit()
 
     def start(self, interval=2):
