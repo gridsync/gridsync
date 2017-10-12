@@ -135,7 +135,7 @@ class Model(QStandardItemModel):
         self.monitor.size_updated.connect(self.set_size)
         self.monitor.member_added.connect(self.add_member)
         self.monitor.first_sync_started.connect(self.on_first_sync)
-        self.monitor.sync_started.connect(self.gui.core.operations.append)
+        self.monitor.sync_started.connect(self.on_sync_started)
         self.monitor.sync_finished.connect(self.gui.core.operations.remove)
         self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
@@ -273,6 +273,11 @@ class Model(QStandardItemModel):
     def on_first_sync(self, folder_name, folder_path):
         self.unfade_row(folder_name)
         self.update_folder_icon(folder_name, folder_path)
+
+    @pyqtSlot(tuple)
+    def on_sync_started(self, operation):
+        self.gui.core.operations.append(operation)
+        self.gui.systray.update()
 
     @pyqtSlot(str, int)
     def set_mtime(self, name, time):
