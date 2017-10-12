@@ -24,6 +24,7 @@ import yaml
 from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import NodedirExistsError
+from gridsync.util import dehumanized_size
 
 
 def is_valid_furl(furl):
@@ -274,6 +275,53 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             for key, value in data.items():  # to preserve defaultdict
                 self.magic_folders[key] = value
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
+
+    @staticmethod
+    def _parse_welcome_page(html):
+        # XXX: This can be removed once a new, stable version of
+        # Tahoe-LAFS is released with Trac ticket #2476 resolved.
+        # See: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
+        match = re.search('Connected to <span>(.+?)</span>', html)
+        servers_connected = (int(match.group(1)) if match else 0)
+        match = re.search("of <span>(.+?)</span> known storage servers", html)
+        servers_known = (int(match.group(1)) if match else 0)
+        available_space = 0
+        for s in re.findall('"service-available-space">(.+?)</td>', html):
+            try:
+                size = dehumanized_size(s)
+            except ValueError:
+                continue
+            available_space += size
+        return servers_connected, servers_known, available_space
+
+    @inlineCallbacks
+    def get_grid_status(self):
+        if not self.nodeurl:
+            return
+        try:
+            resp = yield treq.get(self.nodeurl + '?t=json')  # not yet released
+        except ConnectError:
+            return
+        if resp.code == 200:
+            content = yield treq.content(resp)
+            content = content.decode('utf-8')
+            try:
+                content = json.loads(content)
+            except json.decoder.JSONDecodeError:
+                # See: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
+                connected, known, space = self._parse_welcome_page(content)
+                returnValue((connected, known, space))
+            servers_connected = 0
+            servers_known = 0
+            available_space = 0
+            if 'servers' in content:
+                servers = content['servers']
+                servers_known = len(servers)
+                for server in servers:
+                    if server['connection_status'].startswith('Connected'):
+                        servers_connected += 1
+                        available_space += server['available_space']
+            returnValue((servers_connected, servers_known, available_space))
 
     @inlineCallbacks
     def get_connected_servers(self):
