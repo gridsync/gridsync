@@ -104,10 +104,6 @@ class Monitor(QObject):
                 logging.debug("Sync complete (%s)", name)
                 self.sync_finished.emit((self.gateway, name))
                 self.notify_updated_files(name, magic_folder)
-                self.model.update_folder_icon(
-                    name,
-                    self.gateway.get_magic_folder_directory(name),
-                    'lock-closed-green.svg')
             if state in (1, 2) and prev['state'] != 2:
                 mems, size, t, _ = yield self.gateway.get_magic_folder_info(
                     name)
