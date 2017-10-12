@@ -109,6 +109,7 @@ class Model(QStandardItemModel):
         self.monitor = Monitor(self)
         self.status_dict = {}
         self.grid_status = ''
+        self.available_space = 0
         self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
         self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
         self.setHeaderData(2, Qt.Horizontal, QVariant("Last modified"))
@@ -126,6 +127,7 @@ class Model(QStandardItemModel):
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
         self.monitor.nodes_updated.connect(self.on_nodes_updated)
+        self.monitor.space_updated.connect(self.on_space_updated)
         self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
@@ -136,14 +138,18 @@ class Model(QStandardItemModel):
         self.monitor.sync_finished.connect(self.gui.core.operations.remove)
         self.monitor.check_finished.connect(self.update_natural_times)
 
+    def on_space_updated(self, size):
+        self.available_space = size
+
     @pyqtSlot(int, int)
     def on_nodes_updated(self, num_connected, num_happy):
         if num_connected < num_happy:
             self.grid_status = "Connecting ({}/{} nodes)...".format(
                 num_connected, num_happy)
         elif num_connected >= num_happy:
-            self.grid_status = "Connected ({}/{} nodes)".format(
-                num_connected, num_happy)
+            obj = ('node' if num_connected == 1 else 'nodes')
+            self.grid_status = "Connected to {} {}; {} available".format(
+                num_connected, obj, naturalsize(self.available_space))
         self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
 
     @pyqtSlot(str)
