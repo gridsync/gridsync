@@ -206,7 +206,7 @@ class Model(QStandardItemModel):
             items[0].appendRow([QStandardItem(self.icon_user, member)])
 
     def populate(self):
-        for magic_folder in self.gateway.load_magic_folders().keys():
+        for magic_folder in list(self.gateway.load_magic_folders().keys()):
             self.add_folder(magic_folder)
         self.monitor.start()
 

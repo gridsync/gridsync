@@ -162,7 +162,7 @@ class Monitor(QObject):
     @inlineCallbacks
     def check_status(self):
         yield self.check_grid_status()
-        for magic_folder in self.gateway.magic_folders.keys():
+        for magic_folder in list(self.gateway.magic_folders.keys()):
             yield self.check_magic_folder_status(magic_folder)
         self.check_finished.emit()
 
