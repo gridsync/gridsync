@@ -98,7 +98,6 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.name = os.path.basename(self.nodedir)
         self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, 'magic-folders')
-        self.magic_folder_clients = []
         self.lock = DeferredLock()
         self.rootcap = None
         self.magic_folders = defaultdict(dict)
@@ -457,7 +456,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         magic_folder = Tahoe(
             os.path.join(self.magic_folders_dir, basename),
             executable=self.executable)
-        self.magic_folder_clients.append(magic_folder)
+        self.magic_folders[basename] = {
+            'directory': path,
+            'client': magic_folder
+        }
         settings = {
             'nickname': self.config_get('node', 'nickname'),
             'introducer': self.config_get('client', 'introducer.furl'),
@@ -484,7 +486,6 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             ['magic-folder', 'create', 'magic:', 'admin', path])
         yield magic_folder.stop()
         yield magic_folder.start()
-        self.magic_folders[basename] = {'directory': path}
 
         rootcap = self.read_cap_from_file(self.rootcap_path)
         yield self.link(rootcap, basename + ' (collective)',
@@ -493,9 +494,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                         magic_folder.get_magic_folder_dircap())
 
     def get_magic_folder_gateway(self, name):
-        for gateway in self.magic_folder_clients:
-            if gateway.name == name:
-                return gateway
+        for folder, settings in self.magic_folders.items():
+            if folder == name:
+                return settings.get('client')
 
     @inlineCallbacks
     def magic_folder_invite(self, nickname):
@@ -514,7 +515,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             nodedir = settings.get('nodedir')
             if nodedir:
                 client = Tahoe(nodedir, executable=self.executable)
-                self.magic_folder_clients.append(client)
+                self.magic_folders[folder]['client'] = client
                 tasks.append(client.start())
         yield gatherResults(tasks)
 
@@ -527,22 +528,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def remove_magic_folder(self, name):
-        for magic_folder in self.magic_folder_clients:
-            if magic_folder.name == name:
-                self.magic_folder_clients.remove(magic_folder)
-                yield magic_folder.stop()
-                shutil.rmtree(magic_folder.nodedir, ignore_errors=True)
+        if name in self.magic_folders:
+            client = self.magic_folders[name].get('client')
+            if client:
+                del self.magic_folders[name]
+                yield client.stop()
+                shutil.rmtree(client.nodedir, ignore_errors=True)
 
     @inlineCallbacks
     def get_magic_folder_status(self, name=None):
         nodeurl = self.nodeurl
         token = self.api_token
         if name:
-            if self.magic_folder_clients:
-                gateway = self.get_magic_folder_gateway(name)
-                if gateway:
-                    nodeurl = gateway.nodeurl
-                    token = gateway.api_token
+            gateway = self.get_magic_folder_gateway(name)
+            if gateway:
+                nodeurl = gateway.nodeurl
+                token = gateway.api_token
             data = {'token': token, 'name': name, 't': 'json'}
         else:
             data = {'token': token, 't': 'json'}
