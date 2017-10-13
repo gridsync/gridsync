@@ -24,7 +24,6 @@ from gridsync.gui.widgets import (
     CompositePixmap, InviteReceiver, PreferencesWidget, ShareWidget)
 from gridsync.monitor import Monitor
 from gridsync.preferences import get_preference
-from gridsync.tahoe import get_nodedirs
 from gridsync.util import humanized_list
 
 
@@ -206,7 +205,7 @@ class Model(QStandardItemModel):
             items[0].appendRow([QStandardItem(self.icon_user, member)])
 
     def populate(self):
-        for magic_folder in get_nodedirs(self.gateway.magic_folders_dir):
+        for magic_folder in self.gateway.load_magic_folders().keys():
             self.add_folder(magic_folder)
         self.monitor.start()
 
@@ -229,7 +228,10 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str, int)
     def set_status(self, name, status):
-        item = self.item(self.findItems(name)[0].row(), 1)
+        items = self.findItems(name)
+        if not items:
+            return
+        item = self.item(items[0].row(), 1)
         if not status:
             item.setIcon(self.icon_blank)
             item.setText("Initializing...")
@@ -472,10 +474,9 @@ class View(QTreeView):
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
         if item.column() == 0:
-            for mf in self.gateway.magic_folder_clients:
-                if mf.name == item.text():
-                    localdir = mf.config_get('magic_folder', 'local.directory')
-                    open_folder(localdir)
+            name = item.text()
+            if name in self.gateway.magic_folders:
+                open_folder(self.gateway.magic_folders[name]['directory'])
 
     def confirm_remove(self, folder):
         reply = QMessageBox.question(
