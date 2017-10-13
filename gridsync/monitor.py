@@ -84,8 +84,6 @@ class Monitor(QObject):
         prev = self.status[name]
         status = yield self.gateway.get_magic_folder_status(name)
         state, kind, filepath, _ = self.parse_status(status)
-        #if not prev:
-        #    self.data_updated.emit(name, magic_folder)
         if status and prev:
             if state == 1:  # "Syncing"
                 if prev['state'] == 0:  # First sync after restoring
