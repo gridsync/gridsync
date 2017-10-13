@@ -24,6 +24,7 @@ class Monitor(QObject):
     sync_finished = pyqtSignal(str)
     files_updated = pyqtSignal(str, list)
     check_finished = pyqtSignal()
+    remote_folder_added = pyqtSignal(str, dict, str)
 
     def __init__(self, model):
         super(Monitor, self).__init__()
@@ -127,15 +128,12 @@ class Monitor(QObject):
             if not self.model.findItems(name):
                 logging.debug(
                     "Found new folder '%s' in rootcap; adding...", name)
-                self.model.add_folder(name, caps, 3)
-                self.model.fade_row(name, overlay_file)
+                self.remote_folder_added.emit(name, caps, overlay_file)
                 c = yield self.gateway.get_json(caps['collective'])
                 m = yield self.gateway.get_magic_folder_members(name, c)
                 _, s, t, _ = yield self.gateway.get_magic_folder_info(name, m)
                 self.size_updated.emit(name, s)
                 self.mtime_updated.emit(name, t)
-                self.model.hide_share_button(name)  # XXX
-                self.model.show_download_button(name)
 
     @inlineCallbacks
     def check_grid_status(self):

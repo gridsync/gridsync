@@ -138,6 +138,7 @@ class Model(QStandardItemModel):
         self.monitor.sync_finished.connect(self.on_sync_finished)
         self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
+        self.monitor.remote_folder_added.connect(self.add_remote_folder)
 
     def on_space_updated(self, size):
         self.available_space = size
@@ -331,6 +332,13 @@ class Model(QStandardItemModel):
             if data:
                 item.setText(
                     naturaltime(datetime.now() - datetime.fromtimestamp(data)))
+
+    @pyqtSlot(str, dict, str)
+    def add_remote_folder(self, folder_name, caps, overlay_file=None):
+        self.add_folder(folder_name, caps, 3)
+        self.fade_row(folder_name, overlay_file)
+        self.hide_share_button(folder_name)
+        self.show_download_button(folder_name)
 
 
 class Delegate(QStyledItemDelegate):
