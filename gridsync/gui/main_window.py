@@ -198,6 +198,7 @@ class Model(QStandardItemModel):
         action.setData(action_bar, Qt.UserRole)
         self.view.hide_drop_label()
         self.set_status(basename, status_data)
+        self.show_share_button(basename)  # TODO: Ensure user has admin privs
 
     @pyqtSlot(str, str)
     def add_member(self, folder, member):
