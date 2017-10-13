@@ -160,13 +160,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         except AttributeError:
             return
 
-    def load_magic_folders_yaml(self):
+    def load_magic_folders(self):
+        data = None
         yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
         try:
             with open(yaml_path) as f:
-                return yaml.safe_load(f)
+                data = yaml.safe_load(f)
         except OSError:
-            return
+            pass 
+        if data:
+            for key, value in data.items():  # to preserve defaultdict
+                self.magic_folders[key] = value
+        for nodedir in get_nodedirs(self.magic_folders_dir):
+            folder_name = os.path.basename(nodedir)
+            if folder_name not in self.magic_folders:
+                self.magic_folders[folder_name] = {'nodedir': nodedir}
+        return self.magic_folders
 
     def line_received(self, line):
         # TODO: Connect to Core via Qt signals/slots?
@@ -270,10 +279,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         with open(token_file) as f:
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
-        data = self.load_magic_folders_yaml()
-        if data:
-            for key, value in data.items():  # to preserve defaultdict
-                self.magic_folders[key] = value
+        self.load_magic_folders()
         yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
 
     @staticmethod
