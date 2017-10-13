@@ -168,8 +168,8 @@ class Monitor(QObject):
     @inlineCallbacks
     def check_status(self):
         yield self.check_grid_status()
-        for magic_folder in self.gateway.magic_folder_clients:  # XXX
-            yield self.check_magic_folder_status(magic_folder.name)
+        for magic_folder in self.gateway.magic_folders.keys():
+            yield self.check_magic_folder_status(magic_folder)
         self.check_finished.emit()
 
     def start(self, interval=2):
