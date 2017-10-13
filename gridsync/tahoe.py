@@ -484,6 +484,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             ['magic-folder', 'create', 'magic:', 'admin', path])
         yield magic_folder.stop()
         yield magic_folder.start()
+        self.magic_folders[basename] = {'directory': path}
 
         rootcap = self.read_cap_from_file(self.rootcap_path)
         yield self.link(rootcap, basename + ' (collective)',
@@ -509,10 +510,12 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def start_magic_folders(self):
         tasks = []
-        for nodedir in get_nodedirs(self.magic_folders_dir):
-            magic_folder = Tahoe(nodedir, executable=self.executable)
-            self.magic_folder_clients.append(magic_folder)
-            tasks.append(magic_folder.start())
+        for folder, settings in self.magic_folders.items():
+            nodedir = settings.get('nodedir')
+            if nodedir:
+                client = Tahoe(nodedir, executable=self.executable)
+                self.magic_folder_clients.append(client)
+                tasks.append(client.start())
         yield gatherResults(tasks)
 
     @inlineCallbacks
