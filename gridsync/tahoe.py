@@ -619,7 +619,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
             name = 'default'
         cap = self.read_cap_from_file(path)
-        self.magic_folders[name]['upload_dircap'] = cap
+        if cap:
+            self.magic_folders[name]['upload_dircap'] = cap
         return cap
 
     def get_magic_folder_directory(self, name=None):
