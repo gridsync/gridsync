@@ -173,7 +173,11 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         for nodedir in get_nodedirs(self.magic_folders_dir):
             folder_name = os.path.basename(nodedir)
             if folder_name not in self.magic_folders:
-                self.magic_folders[folder_name] = {'nodedir': nodedir}
+                config = Config(os.path.join(nodedir, 'tahoe.cfg'))
+                self.magic_folders[folder_name] = {
+                    'nodedir': nodedir,
+                    'directory': config.get('magic_folder', 'local.directory')
+                }
         return self.magic_folders
 
     def line_received(self, line):
