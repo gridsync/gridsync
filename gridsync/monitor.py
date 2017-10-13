@@ -113,8 +113,6 @@ class Monitor(QObject):
                             self.members.append(member)
                 self.size_updated.emit(name, size)
                 self.mtime_updated.emit(name, t)
-                self.model.hide_download_button(name)  # XXX
-                self.model.show_share_button(name)
         self.status[name]['status'] = status
         self.status[name]['state'] = state
         self.status_updated.emit(name, state)
