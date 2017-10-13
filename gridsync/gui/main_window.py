@@ -6,8 +6,7 @@ import os
 import sys
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import (
-    pyqtSlot, QEvent, QFileInfo, QPoint, QSize, Qt, QVariant)
+from PyQt5.QtCore import pyqtSlot, QEvent, QFileInfo, QPoint, QSize, Qt
 from PyQt5.QtGui import (
     QColor, QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
     QStandardItemModel)
@@ -110,11 +109,11 @@ class Model(QStandardItemModel):
         self.status_dict = {}
         self.grid_status = ''
         self.available_space = 0
-        self.setHeaderData(0, Qt.Horizontal, QVariant("Name"))
-        self.setHeaderData(1, Qt.Horizontal, QVariant("Status"))
-        self.setHeaderData(2, Qt.Horizontal, QVariant("Last modified"))
-        self.setHeaderData(3, Qt.Horizontal, QVariant("Size"))
-        self.setHeaderData(4, Qt.Horizontal, QVariant("Action"))
+        self.setHeaderData(0, Qt.Horizontal, "Name")
+        self.setHeaderData(1, Qt.Horizontal, "Status")
+        self.setHeaderData(2, Qt.Horizontal, "Last modified")
+        self.setHeaderData(3, Qt.Horizontal, "Size")
+        self.setHeaderData(4, Qt.Horizontal, "Action")
 
         self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
