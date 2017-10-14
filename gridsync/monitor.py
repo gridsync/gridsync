@@ -10,7 +10,7 @@ from twisted.internet.task import LoopingCall
 
 class Monitor(QObject):
 
-    connected = pyqtSignal(str) 
+    connected = pyqtSignal(str)
     disconnected = pyqtSignal(str)
     nodes_updated = pyqtSignal(int, int)
     space_updated = pyqtSignal(object)
