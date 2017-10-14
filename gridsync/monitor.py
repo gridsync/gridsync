@@ -79,10 +79,9 @@ class Monitor(QObject):
                 state = 2  # "Up to date"
         return state, kind, path, failures
 
-    @inlineCallbacks  # noqa: max-complexity=13 XXX
-    def check_magic_folder_status(self, name):
+    def process_magic_folder_status(self, name, status):
+        remote_scan_needed = False
         prev = self.status[name]
-        status = yield self.gateway.get_magic_folder_status(name)
         state, kind, filepath, _ = self.parse_status(status)
         if status and prev:
             if state == 1:  # "Syncing"
@@ -102,19 +101,24 @@ class Monitor(QObject):
                 self.sync_finished.emit(name)
                 self.notify_updated_files(name)
             if state in (1, 2) and prev['state'] != 2:
-                mems, size, t, _ = yield self.gateway.get_magic_folder_info(
-                    name)
-                if mems and len(mems) > 1:
-                    for member in mems:
-                        if member not in self.members:
-                            self.member_added.emit(name, member[0])
-                            self.members.append(member)
-                self.size_updated.emit(name, size)
-                self.mtime_updated.emit(name, t)
+                remote_scan_needed = True
         self.status[name]['status'] = status
         self.status[name]['state'] = state
         self.status_updated.emit(name, state)
         # TODO: Notify failures/conflicts
+        return remote_scan_needed
+
+    @inlineCallbacks
+    def do_remote_scan(self, name, members=None):
+        mems, size, t, _ = yield self.gateway.get_magic_folder_info(
+            name, members)
+        if mems and len(mems) > 1:
+            for member in mems:
+                if member not in self.members:
+                    self.member_added.emit(name, member[0])
+                    self.members.append(member)
+        self.size_updated.emit(name, size)
+        self.mtime_updated.emit(name, t)
 
     @inlineCallbacks
     def scan_rootcap(self, overlay_file=None):
@@ -126,10 +130,8 @@ class Monitor(QObject):
                     "Found new folder '%s' in rootcap; adding...", name)
                 self.remote_folder_added.emit(name, caps, overlay_file)
                 c = yield self.gateway.get_json(caps['collective'])
-                m = yield self.gateway.get_magic_folder_members(name, c)
-                _, s, t, _ = yield self.gateway.get_magic_folder_info(name, m)
-                self.size_updated.emit(name, s)
-                self.mtime_updated.emit(name, t)
+                members = yield self.gateway.get_magic_folder_members(name, c)
+                yield self.do_remote_scan(name, members)
 
     @inlineCallbacks
     def check_grid_status(self):
@@ -162,8 +164,11 @@ class Monitor(QObject):
     @inlineCallbacks
     def check_status(self):
         yield self.check_grid_status()
-        for magic_folder in list(self.gateway.magic_folders.keys()):
-            yield self.check_magic_folder_status(magic_folder)
+        for folder in list(self.gateway.magic_folders.keys()):
+            status = yield self.gateway.get_magic_folder_status(folder)
+            scan_needed = self.process_magic_folder_status(folder, status)
+            if scan_needed:
+                yield self.do_remote_scan(folder)
         self.check_finished.emit()
 
     def start(self, interval=2):
