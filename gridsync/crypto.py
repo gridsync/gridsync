@@ -9,31 +9,31 @@ from nacl.utils import random
 
 try:
     from nacl.pwhash import (
-        kdf_argon2i, ARGON2I_SALTBYTES, ARGON2I_OPSLIMIT_SENSITIVE,
-        ARGON2I_MEMLIMIT_SENSITIVE)
-    ARGON2I_AVAILABLE = True
+        kdf_argon2id, ARGON2_SALTBYTES, ARGON2ID_OPSLIMIT_SENSITIVE,
+        ARGON2ID_MEMLIMIT_SENSITIVE)
+    ARGON2_AVAILABLE = True
 except ImportError:
-    ARGON2I_AVAILABLE = False
+    ARGON2_AVAILABLE = False
 
 
 class VersionError(CryptoError):
     pass
 
 
-class Argon2iNotAvailableError(VersionError):
+class Argon2NotAvailableError(VersionError):
     pass
 
 
 def encrypt(message, password, use_scrypt=False):
-    if ARGON2I_AVAILABLE and not use_scrypt:
+    if ARGON2_AVAILABLE and not use_scrypt:
         version = b'2'
-        salt = random(ARGON2I_SALTBYTES)  # 16
-        key = kdf_argon2i(
+        salt = random(ARGON2_SALTBYTES)  # 16
+        key = kdf_argon2id(
             SecretBox.KEY_SIZE,  # 32
             password,
             salt,
-            opslimit=ARGON2I_OPSLIMIT_SENSITIVE,  # 8
-            memlimit=ARGON2I_MEMLIMIT_SENSITIVE   # 536870912
+            opslimit=ARGON2ID_OPSLIMIT_SENSITIVE,  # 4
+            memlimit=ARGON2ID_MEMLIMIT_SENSITIVE   # 1073741824
         )
     else:
         version = b'1'
@@ -54,17 +54,17 @@ def decrypt(ciphertext, password):
     version = ciphertext[:1]
     ciphertext = ciphertext[1:]
     if version == b'2':
-        if not ARGON2I_AVAILABLE:
-            raise Argon2iNotAvailableError(
+        if not ARGON2_AVAILABLE:
+            raise Argon2NotAvailableError(
                 "Argon2i is not available; PyNaCl may be out-of-date")
-        salt = ciphertext[:ARGON2I_SALTBYTES]  # 16
-        encrypted = ciphertext[ARGON2I_SALTBYTES:]
-        key = kdf_argon2i(
+        salt = ciphertext[:ARGON2_SALTBYTES]  # 16
+        encrypted = ciphertext[ARGON2_SALTBYTES:]
+        key = kdf_argon2id(
             SecretBox.KEY_SIZE,  # 32
             password,
             salt,
-            opslimit=ARGON2I_OPSLIMIT_SENSITIVE,  # 8
-            memlimit=ARGON2I_MEMLIMIT_SENSITIVE   # 536870912
+            opslimit=ARGON2ID_OPSLIMIT_SENSITIVE,  # 4
+            memlimit=ARGON2ID_MEMLIMIT_SENSITIVE   # 1073741824
         )
     elif version == b'1':
         salt = ciphertext[:SCRYPT_SALTBYTES]  # 32
