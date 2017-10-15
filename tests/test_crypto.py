@@ -6,13 +6,7 @@ import nacl
 import pytest
 
 from gridsync.crypto import (
-    Argon2iNotAvailableError, VersionError, encrypt, decrypt)
-
-try:
-    from nacl.pwhash import kdf_argon2i
-    ARGON2I_AVAILABLE = True
-except ImportError:
-    ARGON2I_AVAILABLE = False
+    ARGON2_AVAILABLE, Argon2NotAvailableError, VersionError, encrypt, decrypt)
 
 
 @pytest.fixture(scope='module')
@@ -35,7 +29,7 @@ def test_scrypt_saltbytes():
     assert nacl.pwhash.SCRYPT_SALTBYTES == 32
 
 
-def test_scryt_opslimit():
+def test_scrypt_opslimit():
     assert nacl.pwhash.SCRYPT_OPSLIMIT_SENSITIVE == 33554432
 
 
@@ -43,25 +37,25 @@ def test_scrypt_memlimit():
     assert nacl.pwhash.SCRYPT_MEMLIMIT_SENSITIVE == 1073741824
 
 
-def test_argon2i_saltbytes():
-    if not ARGON2I_AVAILABLE:
-        pytest.skip("Argon2i is not available; PyNaCl may be out-of-date "
+def test_argon2_saltbytes():
+    if not ARGON2_AVAILABLE:
+        pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
                     "(current version: {})".format(nacl.__version__))
-    assert nacl.pwhash.ARGON2I_SALTBYTES == 16
+    assert nacl.pwhash.ARGON2_SALTBYTES == 16
 
 
-def test_argon2i_opslimit():
-    if not ARGON2I_AVAILABLE:
-        pytest.skip("Argon2i is not available; PyNaCl may be out-of-date "
+def test_argon2id_opslimit():
+    if not ARGON2_AVAILABLE:
+        pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
                     "(current version: {})".format(nacl.__version__))
-    assert nacl.pwhash.ARGON2I_OPSLIMIT_SENSITIVE == 8
+    assert nacl.pwhash.ARGON2ID_OPSLIMIT_SENSITIVE == 4
 
 
-def test_argon2i_memlimit():
-    if not ARGON2I_AVAILABLE:
-        pytest.skip("Argon2i is not available; PyNaCl may be out-of-date "
+def test_argon2id_memlimit():
+    if not ARGON2_AVAILABLE:
+        pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
                     "(current version: {})".format(nacl.__version__))
-    assert nacl.pwhash.ARGON2I_MEMLIMIT_SENSITIVE == 536870912
+    assert nacl.pwhash.ARGON2ID_MEMLIMIT_SENSITIVE == 1073741824
 
 
 def test_secretbox_key_size():
@@ -88,10 +82,10 @@ def test_decrypt_fail_incorrect_password(ciphertext):
         assert decrypt(ciphertext, b'password1') == b'message'
 
 
-def test_decrypt_fail_argon2i_unavailable(monkeypatch):
+def test_decrypt_fail_argon2id_unavailable(monkeypatch):
     monkeypatch.setattr(
-        "gridsync.crypto.ARGON2I_AVAILABLE", False, raising=True)
-    with pytest.raises(Argon2iNotAvailableError):
+        "gridsync.crypto.ARGON2_AVAILABLE", False, raising=True)
+    with pytest.raises(Argon2NotAvailableError):
         assert decrypt(b'2ciphertext', b'password') == b'message'
 
 
