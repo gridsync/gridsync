@@ -105,7 +105,7 @@ class Model(QStandardItemModel):
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
-        self.monitor = Monitor(self)
+        self.monitor = Monitor(self.gateway)
         self.status_dict = {}
         self.grid_status = ''
         self.available_space = 0
