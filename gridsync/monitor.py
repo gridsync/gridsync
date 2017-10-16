@@ -37,6 +37,7 @@ class Monitor(QObject):
         self.num_happy = 0
         self.is_connected = False
         self.available_space = 0
+        self.known_folders = []
 
     def add_updated_file(self, folder_name, path):
         if 'updated_files' not in self.status[folder_name]:
@@ -124,10 +125,12 @@ class Monitor(QObject):
     def scan_rootcap(self, overlay_file=None):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
         folders = yield self.gateway.get_magic_folders_from_rootcap()
+        known = list(self.gateway.magic_folders.keys()) + self.known_folders
         for name, caps in folders.items():
-            if not self.model.findItems(name):
+            if name not in known:
                 logging.debug(
                     "Found new folder '%s' in rootcap; adding...", name)
+                self.known_folders.append(name)
                 self.remote_folder_added.emit(name, caps, overlay_file)
                 c = yield self.gateway.get_json(caps['collective'])
                 members = yield self.gateway.get_magic_folder_members(name, c)
