@@ -26,10 +26,9 @@ class Monitor(QObject):
     check_finished = pyqtSignal()
     remote_folder_added = pyqtSignal(str, dict, str)
 
-    def __init__(self, model):
+    def __init__(self, gateway):
         super(Monitor, self).__init__()
-        self.model = model
-        self.gateway = self.model.gateway
+        self.gateway = gateway
         self.status = defaultdict(dict)
         self.members = []
         self.timer = LoopingCall(self.check_status)
