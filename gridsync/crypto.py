@@ -57,7 +57,7 @@ def decrypt(ciphertext, password):
     if version == b'2':
         if not ARGON2_AVAILABLE:
             raise Argon2NotAvailableError(
-                "Argon2i is not available; PyNaCl may be out-of-date")
+                "Argon2 is not available; PyNaCl may be out-of-date")
         salt = ciphertext[:ARGON2_SALTBYTES]  # 16
         encrypted = ciphertext[ARGON2_SALTBYTES:]
         key = kdf_argon2id(
