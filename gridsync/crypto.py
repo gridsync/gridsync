@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import pyqtSignal, QObject
 from nacl.exceptions import CryptoError
 from nacl.pwhash import (
     kdf_scryptsalsa208sha256, SCRYPT_SALTBYTES, SCRYPT_OPSLIMIT_SENSITIVE,
@@ -81,3 +82,26 @@ def decrypt(ciphertext, password):
     box = SecretBox(key)
     plaintext = box.decrypt(encrypted)
     return plaintext
+
+
+class Crypter(QObject):
+
+    succeeded = pyqtSignal(object)  # bytes (python3) or str (python2)
+    failed = pyqtSignal(str)
+
+    def __init__(self, data, password):
+        super(Crypter, self).__init__()
+        self.data = data
+        self.password = password
+
+    def encrypt(self):
+        try:
+            self.succeeded.emit(encrypt(self.data, self.password))
+        except Exception as err:  # pylint: disable=broad-except
+            self.failed.emit(str(err))
+
+    def decrypt(self):
+        try:
+            self.succeeded.emit(decrypt(self.data, self.password))
+        except Exception as err:  # pylint: disable=broad-except
+            self.failed.emit(str(err))
