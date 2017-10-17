@@ -5,8 +5,10 @@ import sys
 import nacl
 import pytest
 
+import gridsync
 from gridsync.crypto import (
-    ARGON2_AVAILABLE, Argon2NotAvailableError, VersionError, encrypt, decrypt)
+    ARGON2_AVAILABLE, Argon2NotAvailableError, VersionError, encrypt, decrypt,
+    Crypter)
 
 
 @pytest.fixture(scope='module')
@@ -23,6 +25,11 @@ def ciphertext_with_scrypt():
         pytest.skip("Broken on PyNaCl version 1.1.2 under python2. "
                     "See: https://github.com/pyca/pynacl/issues/293")
     return encrypt(b'message', b'password', use_scrypt=True)
+
+
+@pytest.fixture(scope='module')
+def crypter():
+    return Crypter(b'data', b'password')
 
 
 def test_scrypt_saltbytes():
@@ -92,3 +99,27 @@ def test_decrypt_fail_argon2id_unavailable(monkeypatch):
 def test_decrypt_fail_incorrect_version_byte():
     with pytest.raises(VersionError):
         assert decrypt(b'3ciphertext', b'password') == b'message'
+
+
+def test_crypter_encrypt_succeeded_signal(crypter, monkeypatch, qtbot):
+    monkeypatch.setattr('gridsync.crypto.encrypt', lambda x, y: b'1ciphertext')
+    with qtbot.wait_signal(crypter.succeeded):
+        crypter.encrypt()
+
+
+def test_crypter_encrypt_failed_signal(crypter, monkeypatch, qtbot):
+    monkeypatch.delattr('gridsync.crypto.encrypt')
+    with qtbot.wait_signal(crypter.failed):
+        crypter.encrypt()
+
+
+def test_crypter_decrypt_succeeded_signal(crypter, monkeypatch, qtbot):
+    monkeypatch.setattr('gridsync.crypto.decrypt', lambda x, y: b'message')
+    with qtbot.wait_signal(crypter.succeeded):
+        crypter.decrypt()
+
+
+def test_crypter_decrypt_failed_signal(crypter, monkeypatch, qtbot):
+    monkeypatch.delattr('gridsync.crypto.decrypt')
+    with qtbot.wait_signal(crypter.failed):
+        crypter.decrypt()
