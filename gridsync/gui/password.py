@@ -124,5 +124,11 @@ class PasswordCreationWidget(QWidget):
             self.password_field.setToolTip(warning)
             self.warning_label.setText(warning)
 
+    def reset(self):
+        self.password_field.setText(None)
+        self.update_stats(None)
+
     def on_return_pressed(self):
         self.done.emit(self.password_field.text())
+        self.close()
+        self.reset()
