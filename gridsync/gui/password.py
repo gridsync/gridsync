@@ -128,7 +128,14 @@ class PasswordCreationWidget(QWidget):
         self.password_field.setText(None)
         self.update_stats(None)
 
+    def closeEvent(self, event):
+        event.accept()
+        self.reset()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close()
+
     def on_return_pressed(self):
         self.done.emit(self.password_field.text())
         self.close()
-        self.reset()
