@@ -120,9 +120,22 @@ class PasswordCreationWidget(QWidget):
             self.update_color('#00B400')
             self.progressbar.setValue(4)
         warning = res['feedback']['warning']
-        if warning:
-            self.rating_label.setToolTip(warning)
+        try:
+            suggestion = "Suggestion: " + res['feedback']['suggestions'][0]
+        except IndexError:
+            suggestion = None
+        if warning and suggestion:
             self.warning_label.setText(warning)
+            self.rating_label.setToolTip(
+                warning + '\n\n' + suggestion)
+        elif warning:
+            self.warning_label.setText(warning)
+            self.rating_label.setToolTip(warning)
+        elif suggestion:
+            self.rating_label.setToolTip(suggestion)
+        else:
+            self.rating_label.setToolTip(None)
+            self.warning_label.setText(None)
 
     def reset(self):
         self.password_field.setText(None)
