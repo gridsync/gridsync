@@ -122,7 +122,6 @@ class PasswordCreationWidget(QWidget):
         warning = res['feedback']['warning']
         if warning:
             self.rating_label.setToolTip(warning)
-            self.password_field.setToolTip(warning)
             self.warning_label.setText(warning)
 
     def reset(self):
