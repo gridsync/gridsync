@@ -80,7 +80,8 @@ class PasswordCreationWidget(QWidget):
         self.update_color('transparent')
 
     def update_color(self, color):
-        self.rating_label.setStyleSheet('color: {}'.format(color))
+        self.rating_label.setStyleSheet(
+            'QLabel {{ color: {} }}'.format(color))
         self.progressbar.setStyleSheet(
             'QProgressBar {{ background-color: transparent }}'
             'QProgressBar::chunk {{ background-color: {} }}'.format(color))
@@ -100,7 +101,7 @@ class PasswordCreationWidget(QWidget):
         if seconds == 0:
             self.rating_label.setText("Very weak")
             self.update_color('lightgray')
-            self.rating_label.setStyleSheet('color: gray')
+            self.rating_label.setStyleSheet('QLabel { color: gray }')
             self.progressbar.setValue(1)
         elif seconds < 86400:  # 1 day
             self.rating_label.setText("Weak")
