@@ -392,7 +392,7 @@ class SetupForm(QStackedWidget):
             "your Recovery Key with anybody!")
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
-            self.gui.main_window.export_recovery_key()
+            self.gui.main_window.password_widget.show()  # XXX
         else:
             # TODO: Nag user; "Are you sure?"
             pass

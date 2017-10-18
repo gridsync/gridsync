@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import json
 import logging
 import os
 import sys
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import pyqtSlot, QEvent, QFileInfo, QPoint, QSize, Qt
+from PyQt5.QtCore import (
+    pyqtSlot, QEvent, QFileInfo, QPoint, QSize, Qt, QThread)
 from PyQt5.QtGui import (
     QColor, QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
     QStandardItemModel)
@@ -18,7 +20,9 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir
+from gridsync.crypto import Crypter
 from gridsync.desktop import open_folder
+from gridsync.gui.password import PasswordCreationWidget
 from gridsync.gui.widgets import (
     CompositePixmap, InviteReceiver, PreferencesWidget, ShareWidget)
 from gridsync.monitor import Monitor
@@ -600,8 +604,16 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.gui = gui
         self.gateways = []
+        self.crypter = None
+        self.crypter_thread = None
+        self.export_data = None
+        self.export_dest = None
+
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
+
+        self.password_widget = PasswordCreationWidget()
+        self.password_widget.done.connect(self.export_recovery_key)
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
         self.shortcut_new.activated.connect(self.gui.show_setup_form)
@@ -635,7 +647,7 @@ class MainWindow(QMainWindow):
             QIcon(resource('export.png')), 'Export Recovery Key', self)
         export_action.setStatusTip('Export Recovery Key...')
         export_action.setShortcut(QKeySequence.Save)
-        export_action.triggered.connect(self.export_recovery_key)
+        export_action.triggered.connect(self.password_widget.show)
 
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
@@ -720,9 +732,73 @@ class MainWindow(QMainWindow):
         self.combo_box.setCurrentIndex(0)  # Fallback to 0 if none selected
         self.on_grid_selected(0)
 
-    def export_recovery_key(self):
-        self.show_selected_grid_view()
-        gateway = self.current_view().gateway
+    def show_error_msg(self, title, text):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setWindowTitle(str(title))
+        msg.setText(str(text))
+        msg.exec_()
+
+    def show_info_msg(self, title, text):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(str(title))
+        msg.setText(str(text))
+        msg.exec_()
+
+    def confirm_export(self, path):
+        if os.path.isfile(path):  # TODO: Confirm contents?
+            self.show_info_msg(
+                "Export successful",
+                "Recovery Key successfully exported to {}".format(path))
+        else:
+            self.show_error_msg(
+                "Error exporting Recovery Key",
+                "Destination file not found after export: {}".format(path))
+
+    def on_encryption_succeeded(self, ciphertext):
+        self.crypter_thread.quit()
+        if self.export_dest:
+            with open(self.export_dest, 'wb') as f:
+                f.write(ciphertext)
+            self.confirm_export(self.export_dest)
+            self.export_dest = None
+        else:
+            self.export_data = ciphertext
+        self.crypter_thread.wait()
+
+    def on_encryption_failed(self, message):
+        self.crypter_thread.quit()
+        self.show_error_msg(
+            "Error encrypting data",
+            "Encryption failed: " + message)
+        self.crypter_thread.wait()
+
+    def export_encrypted_recovery(self, gateway, password):
+        settings = gateway.get_settings()
+        data = json.dumps(settings)
+        self.crypter = Crypter(data.encode(), password.encode())
+        self.crypter_thread = QThread()
+        self.crypter.moveToThread(self.crypter_thread)
+        self.crypter.succeeded.connect(self.on_encryption_succeeded)
+        self.crypter.failed.connect(self.on_encryption_failed)
+        self.crypter_thread.started.connect(self.crypter.encrypt)
+        self.crypter_thread.start()
+        dest, _ = QFileDialog.getSaveFileName(
+            self, "Select a destination", os.path.join(
+                os.path.expanduser('~'),
+                gateway.name + ' Recovery Key.json.encrypted'))
+        if not dest:
+            return
+        if self.export_data:
+            with open(dest, 'wb') as f:
+                f.write(self.export_data)
+            self.confirm_export(dest)
+            self.export_data = None
+        else:
+            self.export_dest = dest
+
+    def export_plaintext_recovery(self, gateway):
         dest, _ = QFileDialog.getSaveFileName(
             self, "Select a destination", os.path.join(
                 os.path.expanduser('~'), gateway.name + ' Recovery Key.json'))
@@ -731,18 +807,17 @@ class MainWindow(QMainWindow):
         try:
             gateway.export(dest)
         except Exception as e:  # pylint: disable=broad-except
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Critical)
-            msg.setWindowTitle("Error exporting Recovery Key")
-            msg.setText(str(e))
-            msg.exec_()
+            self.show_error_msg("Error exporting Recovery Key", str(e))
             return
-        if os.path.isfile(dest):
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Information)
-            msg.setWindowTitle("Export successful")
-            msg.setText("Recovery Key successfully exported to {}".format(dest))
-            msg.exec_()
+        self.confirm_export(dest)
+
+    def export_recovery_key(self, password=None):
+        self.show_selected_grid_view()
+        gateway = self.current_view().gateway
+        if password:
+            self.export_encrypted_recovery(gateway, password)
+        else:
+            self.export_plaintext_recovery(gateway)
 
     def toggle_preferences_widget(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
