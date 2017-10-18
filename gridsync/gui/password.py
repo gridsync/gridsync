@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QAction, QGridLayout, QLabel, QLineEdit, QProgressBar, QSizePolicy,
@@ -30,6 +30,9 @@ class PasswordLineEdit(QLineEdit):
 
 
 class PasswordCreationWidget(QWidget):
+
+    done = pyqtSignal(str)
+
     def __init__(self):
         super(PasswordCreationWidget, self).__init__()
         self.setMinimumSize(400, 200)
@@ -72,6 +75,7 @@ class PasswordCreationWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 8, 1)
 
         self.password_field.textChanged.connect(self.update_stats)
+        self.password_field.returnPressed.connect(self.on_return_pressed)
 
         self.update_color('transparent')
 
@@ -119,3 +123,6 @@ class PasswordCreationWidget(QWidget):
             self.rating_label.setToolTip(warning)
             self.password_field.setToolTip(warning)
             self.warning_label.setText(warning)
+
+    def on_return_pressed(self):
+        self.done.emit(self.password_field.text())
