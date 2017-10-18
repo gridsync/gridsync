@@ -150,5 +150,6 @@ class PasswordCreationWidget(QWidget):
             self.close()
 
     def on_return_pressed(self):
-        self.done.emit(self.password_field.text())
+        password = self.password_field.text()
         self.close()
+        self.done.emit(password)
