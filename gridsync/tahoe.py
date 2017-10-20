@@ -166,7 +166,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             with open(yaml_path) as f:
                 data = yaml.safe_load(f)
         except OSError:
-            pass 
+            pass
         if data:
             for key, value in data.items():  # to preserve defaultdict
                 self.magic_folders[key] = value
