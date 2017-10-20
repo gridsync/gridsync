@@ -329,7 +329,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 for server in servers:
                     if server['connection_status'].startswith('Connected'):
                         servers_connected += 1
-                        available_space += server['available_space']
+                        if server['available_space']:
+                            available_space += server['available_space']
             returnValue((servers_connected, servers_known, available_space))
 
     @inlineCallbacks
