@@ -443,11 +443,54 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             raise Exception(content.decode('utf-8'))
 
     @inlineCallbacks
-    def create_magic_folder(self, path, join_code=None):
-        # Because Tahoe-LAFS doesn't currently support having multiple
+    def _create_magic_folder_subclient(self, path, join_code=None):
+        # Because Tahoe-LAFS doesn't (yet) support having multiple
         # magic-folders per tahoe client, create the magic-folder inside
         # a new nodedir using the current nodedir's connection settings.
         # See https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2792
+        basename = os.path.basename(path)
+        subclient = Tahoe(
+            os.path.join(self.magic_folders_dir, basename),
+            executable=self.executable)
+        self.magic_folders[basename] = {
+            'directory': path,
+            'client': subclient
+        }
+        settings = {
+            'nickname': self.config_get('node', 'nickname'),
+            'introducer': self.config_get('client', 'introducer.furl'),
+            'shares-needed': self.config_get('client', 'shares.needed'),
+            'shares-happy': self.config_get('client', 'shares.happy'),
+            'shares-total': self.config_get('client', 'shares.total')
+        }
+        yield subclient.create_client(**settings)
+        yield subclient.start()
+        yield subclient.await_ready()
+        if join_code:  # XXX
+            collective_cap, personal_cap = join_code.split('+')
+            if collective_cap.startswith('URI:DIR2:'):  # is admin
+                subclient.command(['add-alias', 'magic:', collective_cap])
+                data = yield self.get_json(collective_cap)
+                collective_cap_ro = data[1]['ro_uri']  # diminish to readcap
+                join_code = "{}+{}".format(collective_cap_ro, personal_cap)
+            yield subclient.command(
+                ['magic-folder', 'join', join_code, path])
+            yield subclient.stop()
+            yield subclient.start()
+            returnValue(subclient)
+        yield subclient.command(
+            ['magic-folder', 'create', 'magic:', 'admin', path])
+        yield subclient.stop()
+        yield subclient.start()
+
+        rootcap = self.read_cap_from_file(self.rootcap_path)
+        yield self.link(rootcap, basename + ' (collective)',
+                        subclient.get_alias('magic'))
+        yield self.link(rootcap, basename + ' (personal)',
+                        subclient.get_magic_folder_dircap())
+
+    @inlineCallbacks
+    def create_magic_folder(self, path, join_code=None):
         try:
             os.makedirs(self.magic_folders_dir)
         except OSError:
@@ -457,46 +500,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             os.makedirs(path)
         except OSError:
             pass
-        basename = os.path.basename(path)
-        magic_folder = Tahoe(
-            os.path.join(self.magic_folders_dir, basename),
-            executable=self.executable)
-        self.magic_folders[basename] = {
-            'directory': path,
-            'client': magic_folder
-        }
-        settings = {
-            'nickname': self.config_get('node', 'nickname'),
-            'introducer': self.config_get('client', 'introducer.furl'),
-            'shares-needed': self.config_get('client', 'shares.needed'),
-            'shares-happy': self.config_get('client', 'shares.happy'),
-            'shares-total': self.config_get('client', 'shares.total')
-        }
-        yield magic_folder.create_client(**settings)
-        yield magic_folder.start()
-        yield magic_folder.await_ready()
-        if join_code:  # XXX
-            collective_cap, personal_cap = join_code.split('+')
-            if collective_cap.startswith('URI:DIR2:'):  # is admin
-                magic_folder.command(['add-alias', 'magic:', collective_cap])
-                data = yield self.get_json(collective_cap)
-                collective_cap_ro = data[1]['ro_uri']  # diminish to readcap
-                join_code = "{}+{}".format(collective_cap_ro, personal_cap)
-            yield magic_folder.command(
-                ['magic-folder', 'join', join_code, path])
-            yield magic_folder.stop()
-            yield magic_folder.start()
-            returnValue(magic_folder)
-        yield magic_folder.command(
-            ['magic-folder', 'create', 'magic:', 'admin', path])
-        yield magic_folder.stop()
-        yield magic_folder.start()
+        name = os.path.basename(path)
+        try:
+            yield self.command(['magic-folder', 'create', '-n', name,
+                                name + ':', 'admin', path])
+        except TahoeCommandError as err:
+            if str(err).endswith('not recognized'):
+                yield self._create_magic_folder_subclient(path, join_code)
+                return
+        yield self.stop()
+        yield self.start()
 
         rootcap = self.read_cap_from_file(self.rootcap_path)
         yield self.link(rootcap, basename + ' (collective)',
-                        magic_folder.get_alias('magic'))
+                        self.get_alias('name'))
         yield self.link(rootcap, basename + ' (personal)',
-                        magic_folder.get_magic_folder_dircap())
+                        self.get_magic_folder_dircap(name))
 
     def get_magic_folder_gateway(self, name):
         for folder, settings in self.magic_folders.items():
@@ -535,10 +554,13 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def remove_magic_folder(self, name):
         if name in self.magic_folders:
             client = self.magic_folders[name].get('client')
+            del self.magic_folders[name]
             if client:
-                del self.magic_folders[name]
+                yield self.command(['magic-folder', 'leave'])
                 yield client.stop()
                 shutil.rmtree(client.nodedir, ignore_errors=True)
+            else:
+                yield self.command(['magic-folder', 'leave', '-n', name])
 
     @inlineCallbacks
     def get_magic_folder_status(self, name=None):
@@ -750,3 +772,6 @@ def select_executable():
                     returnValue(executable)
             except (IndexError, ValueError):
                 log.warning("Could not parse/compare version of '%s'", version)
+                if version == 'unknown':
+                    # TODO: Check for multi-magic-folder support
+                    returnValue(executable)
