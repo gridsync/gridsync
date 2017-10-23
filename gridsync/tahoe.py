@@ -549,7 +549,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             if gateway:
                 nodeurl = gateway.nodeurl
                 token = gateway.api_token
-            data = {'token': token, 'name': name, 't': 'json'}
+                data = {'token': token, 't': 'json'}
+            else:
+                data = {'token': token, 'name': name, 't': 'json'}
         else:
             data = {'token': token, 't': 'json'}
         if not nodeurl or not token:
