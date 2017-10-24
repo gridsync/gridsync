@@ -8,7 +8,7 @@ chardet==3.0.4
 click==6.7
 configparser==3.5.0 ; python_version < "3.2"
 constantly==15.1.0
-cryptography==2.1.1
+cryptography==2.1.2
 enum34==1.1.6 ; python_version < "3.4"
 hkdf==0.0.3
 humanize==0.5.1
