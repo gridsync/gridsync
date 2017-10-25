@@ -53,6 +53,10 @@ class TahoeCommandError(TahoeError):
     pass
 
 
+class TahoeWebError(TahoeError):
+    pass
+
+
 class CommandProtocol(ProcessProtocol):
     def __init__(self, parent, callback_trigger=None):
         self.parent = parent
@@ -376,7 +380,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             content = yield treq.content(resp)
             returnValue(content.decode('utf-8').strip())
         else:
-            raise Exception(
+            raise TahoeWebError(
                 "Error creating Tahoe-LAFS directory: {}".format(resp.code))
 
     @inlineCallbacks
@@ -402,7 +406,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             returnValue(content.decode('utf-8'))
         else:
             content = yield treq.content(resp)
-            raise Exception(content.decode('utf-8'))
+            raise TahoeWebError(content.decode('utf-8'))
 
     @inlineCallbacks
     def download(self, cap, local_path):
@@ -414,7 +418,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             log.debug("Successfully downloaded %s", local_path)
         else:
             content = yield treq.content(resp)
-            raise Exception(content.decode('utf-8'))
+            raise TahoeWebError(content.decode('utf-8'))
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
@@ -427,7 +431,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             yield lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
-            raise Exception(content.decode('utf-8'))
+            raise TahoeWebError(content.decode('utf-8'))
 
     @inlineCallbacks
     def unlink(self, dircap, childname):
@@ -440,7 +444,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             yield lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
-            raise Exception(content.decode('utf-8'))
+            raise TahoeWebError(content.decode('utf-8'))
 
     @inlineCallbacks
     def _create_magic_folder_subclient(self, path, join_code=None):
