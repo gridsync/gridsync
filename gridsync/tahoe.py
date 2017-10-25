@@ -298,7 +298,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         for s in re.findall('"service-available-space">(.+?)</td>', html):
             try:
                 size = dehumanized_size(s)
-            except ValueError:
+            except ValueError:  # "N/A"
                 continue
             available_space += size
         return servers_connected, servers_known, available_space
