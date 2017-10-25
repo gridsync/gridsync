@@ -3,7 +3,9 @@
 import os
 
 import pytest
+from twisted.internet.defer import returnValue
 
+from gridsync.errors import NodedirExistsError
 from gridsync.tahoe import (
     is_valid_furl, get_nodedirs, TahoeError, TahoeCommandError, Tahoe)
 
@@ -71,6 +73,12 @@ def test_raise_tahoe_command_error():
         raise TahoeCommandError
 
 
+def test_tahoe_default_nodedir():
+    tahoe_client = Tahoe()
+    assert tahoe_client.nodedir == os.path.join(
+        os.path.expanduser('~'), '.tahoe')
+
+
 def test_config_get(tahoe):
     assert tahoe.config_get('node', 'nickname') == 'default'
 
@@ -136,3 +144,40 @@ def test_tahoe_version(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: 'test 1')
     version = yield tahoe.version()
     assert version == (None, '1')
+
+
+@pytest.inlineCallbacks
+def test_tahoe_create_client_nodedir_exists_error(tahoe):
+    with pytest.raises(NodedirExistsError):
+        output = yield tahoe.create_client()
+
+
+@pytest.inlineCallbacks
+def test_tahoe_create_client_args(tahoe, monkeypatch):
+    monkeypatch.setattr('os.path.exists', lambda x: False)
+    def return_args(_, args):
+        returnValue(args)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
+    args = yield tahoe.create_client(nickname='test_nickname')
+    assert set(['--nickname', 'test_nickname']).issubset(set(args))
+
+
+@pytest.inlineCallbacks
+def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
+    monkeypatch.setattr('os.path.exists', lambda x: False)
+    def return_args(_, args):
+        returnValue(args)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
+    args = yield tahoe.create_client(happy=7)
+    assert set(['--shares-happy', '7']).issubset(set(args))
+
+
+def test_parse_welcome_page(tahoe):  # tahoe-lafs=<1.12.1
+    html = '''
+        Connected to <span>3</span>of <span>10</span> known storage servers
+        <td class="service-available-space">N/A</td>
+        <td class="service-available-space">1kB</td>
+        <td class="service-available-space">1kB</td>
+    '''
+    connected, known, space = tahoe._parse_welcome_page(html)
+    assert (connected, known, space) == (3, 10, 2048)
