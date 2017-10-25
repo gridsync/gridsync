@@ -172,6 +172,34 @@ def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     assert set(['--shares-happy', '7']).issubset(set(args))
 
 
+def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
+    pidfile = os.path.join(tahoe.nodedir, 'twistd.pid')
+    with open(pidfile, 'w') as f:
+        f.write('4194305')
+    pids_killed = [None]
+    def fake_kill(pid, _):
+        pids_killed[0] = pid
+    files_removed = [None]
+    def fake_remove(file):
+        files_removed[0] = file
+    monkeypatch.setattr('os.kill', fake_kill)
+    monkeypatch.setattr('os.remove', fake_remove)
+    monkeypatch.setattr('gridsync.tahoe.get_nodedirs', lambda _: [])
+    monkeypatch.setattr('sys.platform', 'win32')
+    tahoe.stop()
+    assert (pids_killed[0], files_removed[0]) == (4194305, pidfile)
+
+
+@pytest.inlineCallbacks
+def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
+    def return_args(_, args):
+        returnValue(args)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
+    monkeypatch.setattr('sys.platform', 'linux')
+    output = yield tahoe.stop()
+    assert output == ['stop']
+
+
 def test_parse_welcome_page(tahoe):  # tahoe-lafs=<1.12.1
     html = '''
         Connected to <span>3</span>of <span>10</span> known storage servers
