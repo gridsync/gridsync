@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import os
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 import pytest
+import treq
 from twisted.internet.defer import returnValue
 
 from gridsync.errors import NodedirExistsError
 from gridsync.tahoe import (
-    is_valid_furl, get_nodedirs, TahoeError, TahoeCommandError, Tahoe)
+    is_valid_furl, get_nodedirs, TahoeError, TahoeCommandError, TahoeWebError,
+    Tahoe)
 
 
 @pytest.fixture(scope='module')
@@ -21,8 +27,6 @@ def tahoe(tmpdir_factory):
     os.mkdir(private_dir)
     with open(os.path.join(private_dir, 'aliases'), 'w') as f:
         f.write('test_alias: test_cap')
-    with open(os.path.join(private_dir, 'rootcap'), 'w') as f:
-        f.write('test_rootcap')
     with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
         f.write("test_folder: {directory: test_dir}")
     magic_folder_subdir = os.path.join(
@@ -30,6 +34,7 @@ def tahoe(tmpdir_factory):
     os.makedirs(magic_folder_subdir)
     with open(os.path.join(magic_folder_subdir, 'tahoe.cfg'), 'w') as f:
         f.write('[magic_folder]\nlocal.directory = /Test')
+    client.nodeurl = 'http://127.0.0.1:65536/'
     return client
 
 
@@ -73,6 +78,11 @@ def test_raise_tahoe_command_error():
         raise TahoeCommandError
 
 
+def test_raise_tahoe_web_error():
+    with pytest.raises(TahoeWebError):
+        raise TahoeWebError
+
+
 def test_tahoe_default_nodedir():
     tahoe_client = Tahoe()
     assert tahoe_client.nodedir == os.path.join(
@@ -92,9 +102,9 @@ def test_get_settings(tahoe):
     settings = tahoe.get_settings()
     nickname = settings['nickname']
     icon_url = settings['icon_url']
-    rootcap = settings['rootcap']
-    assert (nickname, icon_url, rootcap) == (tahoe.name, 'test_url',
-                                             'test_rootcap')
+    #rootcap = settings['rootcap']
+    assert (nickname, icon_url) == (tahoe.name, 'test_url')
+                                             #'test_rootcap')
 
 def test_export(tahoe, tmpdir_factory):
     dest = os.path.join(str(tmpdir_factory.getbasetemp()), 'settings.json')
@@ -176,18 +186,18 @@ def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
     pidfile = os.path.join(tahoe.nodedir, 'twistd.pid')
     with open(pidfile, 'w') as f:
         f.write('4194305')
-    pids_killed = [None]
+    killed = [None]
     def fake_kill(pid, _):
-        pids_killed[0] = pid
-    files_removed = [None]
+        killed[0] = pid
+    removed = [None]
     def fake_remove(file):
-        files_removed[0] = file
+        removed[0] = file
     monkeypatch.setattr('os.kill', fake_kill)
     monkeypatch.setattr('os.remove', fake_remove)
     monkeypatch.setattr('gridsync.tahoe.get_nodedirs', lambda _: [])
     monkeypatch.setattr('sys.platform', 'win32')
     tahoe.stop()
-    assert (pids_killed[0], files_removed[0]) == (4194305, pidfile)
+    assert (killed[0], removed[0]) == (4194305, pidfile)
 
 
 @pytest.inlineCallbacks
@@ -209,3 +219,162 @@ def test_parse_welcome_page(tahoe):  # tahoe-lafs=<1.12.1
     '''
     connected, known, space = tahoe._parse_welcome_page(html)
     assert (connected, known, space) == (3, 10, 2048)
+
+
+@pytest.inlineCallbacks
+def test_get_grid_status(tahoe, monkeypatch):
+    def fake_get(*args, **kwargs):
+        response = MagicMock()
+        response.code = 200
+        return response
+    json_content = b'''{
+        "introducers": {
+            "statuses": [
+                "Connected to introducer.local:3456 via tcp"
+            ]
+        },
+        "servers": [
+            {
+                "connection_status": "Trying to connect",
+                "nodeid": "v0-aaaaaaaaaaaaaaaaaaaaaaaa",
+                "last_received_data": null,
+                "version": null,
+                "available_space": null,
+                "nickname": "node1"
+            },
+            {
+                "connection_status": "Connected to tcp:node2:4567 via tcp",
+                "nodeid": "v0-bbbbbbbbbbbbbbbbbbbbbbbb",
+                "last_received_data": 1509126406.799392,
+                "version": "tahoe-lafs/1.12.1",
+                "available_space": 1024,
+                "nickname": "node2"
+            },
+            {
+                "connection_status": "Connected to tcp:node3:5678 via tcp",
+                "nodeid": "v0-cccccccccccccccccccccccc",
+                "last_received_data": 1509126406.799392,
+                "version": "tahoe-lafs/1.12.1",
+                "available_space": 2048,
+                "nickname": "node3"
+            }
+        ]
+    }'''
+    monkeypatch.setattr('treq.get', fake_get)
+    monkeypatch.setattr('treq.content', lambda _: json_content)
+    num_connected, num_known, available_space = yield tahoe.get_grid_status()
+    assert (num_connected, num_known, available_space) == (2, 3, 3072)
+
+
+@pytest.inlineCallbacks
+def test_get_connected_servers(tahoe, monkeypatch):
+    def fake_get(*args, **kwargs):
+        response = MagicMock()
+        response.code = 200
+        return response
+    html = b'Connected to <span>3</span>of <span>10</span>'
+    monkeypatch.setattr('treq.get', fake_get)
+    monkeypatch.setattr('treq.content', lambda _: html)
+    output = yield tahoe.get_connected_servers()
+    assert output == 3
+
+
+@pytest.inlineCallbacks
+def test_is_ready_false_not_shares_happy(tahoe, monkeypatch):
+    output = yield tahoe.is_ready()
+    assert output == False
+
+
+@pytest.inlineCallbacks
+def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
+    tahoe.shares_happy = 7
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.get_connected_servers', lambda _: None)
+    output = yield tahoe.is_ready()
+    assert output == False
+
+
+@pytest.inlineCallbacks
+def test_is_ready_true(tahoe, monkeypatch):
+    tahoe.shares_happy = 7
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.get_connected_servers', lambda _: 10)
+    output = yield tahoe.is_ready()
+    assert output == True
+
+
+@pytest.inlineCallbacks
+def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
+    tahoe.shares_happy = 7
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.get_connected_servers', lambda _: 3)
+    output = yield tahoe.is_ready()
+    assert output == False
+
+
+@pytest.inlineCallbacks
+def test_await_ready(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.is_ready', lambda _: True)
+    yield tahoe.await_ready()
+    assert True
+
+
+@pytest.inlineCallbacks
+def test_tahoe_mkdir(tahoe, monkeypatch):
+    def fake_post(*args, **kwargs):
+        response = MagicMock()
+        response.code = 200
+        return response
+    monkeypatch.setattr('treq.post', fake_post)
+    monkeypatch.setattr('treq.content', lambda _: b'URI:DIR2:abc234:def567')
+    output = yield tahoe.mkdir()
+    assert output == 'URI:DIR2:abc234:def567'
+
+
+@pytest.inlineCallbacks
+def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
+    def fake_post(*args, **kwargs):
+        response = MagicMock()
+        response.code = 500
+        return response
+    monkeypatch.setattr('treq.post', fake_post)
+    monkeypatch.setattr('treq.content', lambda _: b'test content')
+    with pytest.raises(TahoeWebError):
+        yield tahoe.mkdir()
+
+
+@pytest.inlineCallbacks
+def test_create_rootcap(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
+    output = yield tahoe.create_rootcap()
+    assert output == 'URI:DIR2:abc'
+
+
+@pytest.inlineCallbacks
+def test_create_rootcap_already_exists(tahoe, monkeypatch):
+    with pytest.raises(OSError):
+        yield tahoe.create_rootcap()
+
+
+@pytest.inlineCallbacks
+def test_tahoe_upload(tahoe, monkeypatch, tmpdir_factory):
+    def fake_put(*args, **kwargs):
+        response = MagicMock()
+        response.code = 200
+        return response
+    monkeypatch.setattr('treq.put', fake_put)
+    monkeypatch.setattr('treq.content', lambda _: b'test_cap')
+    output = yield tahoe.upload(tahoe.rootcap_path)
+    assert output == 'test_cap'
+
+
+@pytest.inlineCallbacks
+def test_tahoe_upload_fail_code_500(tahoe, monkeypatch, tmpdir_factory):
+    def fake_put(*args, **kwargs):
+        response = MagicMock()
+        response.code = 500
+        return response
+    monkeypatch.setattr('treq.put', fake_put)
+    monkeypatch.setattr('treq.content', lambda _: b'test content')
+    with pytest.raises(TahoeWebError):
+        yield tahoe.upload(tahoe.rootcap_path)
