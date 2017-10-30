@@ -521,7 +521,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.link(rootcap, basename + ' (personal)',
                         self.get_magic_folder_dircap(name))
 
-    def get_magic_folder_gateway(self, name):
+    def get_magic_folder_client(self, name):
         for folder, settings in self.magic_folders.items():
             if folder == name:
                 return settings.get('client')
@@ -534,7 +534,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def magic_folder_uninvite(self, nickname):
-        yield self.unlink(self.get_alias('magic'), nickname)
+        yield self.unlink(self.get_alias('magic'), nickname)  # FIXME: No alias
 
     @inlineCallbacks
     def start_magic_folders(self):
@@ -571,7 +571,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         nodeurl = self.nodeurl
         token = self.api_token
         if name:
-            gateway = self.get_magic_folder_gateway(name)
+            gateway = self.get_magic_folder_client(name)
             if gateway:
                 nodeurl = gateway.nodeurl
                 token = gateway.api_token
@@ -623,7 +623,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['collective_dircap']
             except KeyError:
                 pass
-        gateway = self.get_magic_folder_gateway(name)
+        gateway = self.get_magic_folder_client(name)
         if gateway:
             path = os.path.join(self.magic_folders_dir, name, 'private',
                                 'collective_dircap')
@@ -640,7 +640,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['upload_dircap']
             except KeyError:
                 pass
-        gateway = self.get_magic_folder_gateway(name)
+        gateway = self.get_magic_folder_client(name)
         if gateway:
             path = os.path.join(self.magic_folders_dir, name, 'private',
                                 'magic_folder_dircap')
@@ -658,7 +658,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['directory']
             except KeyError:
                 pass
-        gateway = self.get_magic_folder_gateway(name)
+        gateway = self.get_magic_folder_client(name)
         if gateway:
             directory = gateway.config_get('magic_folder', 'local.directory')
         else:

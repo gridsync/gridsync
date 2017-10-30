@@ -327,7 +327,7 @@ class ShareWidget(QWidget):
         self.recipient = ''
 
         if self.folder_name:
-            self.magic_folder_gateway = self.gateway.get_magic_folder_gateway(
+            self.magic_folder_gateway = self.gateway.get_magic_folder_client(
                 folder_name)
 
         self.icon_label = QLabel(self)
