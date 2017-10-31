@@ -630,25 +630,24 @@ class ShareWidget(QWidget):
         self.generate_button.hide()
         self.close_button.show()
         self.settings = self.gateway.get_settings()
-        if self.magic_folder_gateway:
-            try:
-                code = yield self.magic_folder_gateway.magic_folder_invite(
-                    recipient)
-            except TahoeCommandError as err:
-                self.wormhole.close()
-                if str(err).startswith('magic-folder: failed to create link'):
-                    msg = QMessageBox(self)
-                    msg.setIcon(QMessageBox.Critical)
-                    msg.setWindowTitle("Invite Error")
-                    msg.setText(
-                        "Error inviting '{}'. It looks like {} is already a "
-                        "member of the folder {}.".format(
-                            recipient, recipient, self.folder_name))
-                    msg.exec_()
-                    self.close()
-                    return
-            self.settings['magic-folder-code'] = code
-            self.settings['magic-folder-name'] = self.folder_name
+        try:
+            code = yield self.gateway.magic_folder_invite(
+                self.folder_name, recipient)
+        except TahoeCommandError as err:
+            self.wormhole.close()
+            if str(err).startswith('magic-folder: failed to create link'):
+                msg = QMessageBox(self)
+                msg.setIcon(QMessageBox.Critical)
+                msg.setWindowTitle("Invite Error")
+                msg.setText(
+                    "Error inviting '{}'. It looks like {} is already a "
+                    "member of the folder {}.".format(
+                        recipient, recipient, self.folder_name))
+                msg.exec_()
+                self.close()
+                return
+        self.settings['magic-folder-code'] = code
+        self.settings['magic-folder-name'] = self.folder_name
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
     def closeEvent(self, event):
@@ -662,9 +661,8 @@ class ShareWidget(QWidget):
                 QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.wormhole.close()
-                if self.magic_folder_gateway:
-                    self.magic_folder_gateway.magic_folder_uninvite(
-                        self.recipient)
+                self.gateway.magic_folder_uninvite(
+                    self.folder_name, self.recipient)
                 event.accept()
                 self.closed.emit(self)
             else:

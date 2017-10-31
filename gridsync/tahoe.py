@@ -527,14 +527,23 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return settings.get('client')
 
     @inlineCallbacks
-    def magic_folder_invite(self, nickname):
-        code = yield self.command(
-            ['magic-folder', 'invite', 'magic:', nickname])
+    def magic_folder_invite(self, name, nickname):
+        client = self.get_magic_folder_client(name)
+        if client:
+            code = yield client.command(
+                ['magic-folder', 'invite', 'magic:', nickname])
+        else:
+            code = yield self.command(
+                ['magic-folder', 'invite', '-n', name, name + ':', nickname])
         returnValue(code.strip())
 
     @inlineCallbacks
-    def magic_folder_uninvite(self, nickname):
-        yield self.unlink(self.get_alias('magic'), nickname)  # FIXME: No alias
+    def magic_folder_uninvite(self, name, nickname):
+        client = self.get_magic_folder_client(name)
+        if client:
+            yield client.unlink(client.get_alias('magic'), nickname)
+        else:
+            yield self.unlink(self.get_alias(name), nickname)
 
     @inlineCallbacks
     def start_magic_folders(self):
