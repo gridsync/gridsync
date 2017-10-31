@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from hashlib import sha256
 import sys
 
 import nacl
@@ -11,12 +12,16 @@ from gridsync.crypto import (
     Crypter)
 
 
+def fast_kdf(*args, **kwargs):
+    return sha256(args[1]).hexdigest()[:32].encode()
+
+
 @pytest.fixture(scope='module')
-def ciphertext():
+def ciphertext_with_argon2():
     if nacl.__version__ == '1.1.2' and sys.version_info.major == 2:
         pytest.skip("Broken on PyNaCl version 1.1.2 under python2. "
                     "See: https://github.com/pyca/pynacl/issues/293")
-    return encrypt(b'message', b'password')
+    return encrypt(b'message', b'password', use_scrypt=False)
 
 
 @pytest.fixture(scope='module')
@@ -73,20 +78,39 @@ def test_secretbox_nonce_size():
     assert nacl.secret.SecretBox.NONCE_SIZE == 24
 
 
-@pytest.mark.slow
-def test_decrypt_success(ciphertext):
+def test_encrypt_decrypt_success_monkeypatch(monkeypatch):
+    monkeypatch.setattr('gridsync.crypto.kdf_argon2id', fast_kdf)
+    ciphertext = encrypt(b'message', b'password')
     assert decrypt(ciphertext, b'password') == b'message'
 
 
-@pytest.mark.slow
-def test_decrypt_success_with_scrypt(ciphertext_with_scrypt):
-    assert decrypt(ciphertext_with_scrypt, b'password') == b'message'
+def test_encrypt_decrypt_success_with_scrypt_monkeypatch(monkeypatch):
+    monkeypatch.setattr('gridsync.crypto.kdf_scryptsalsa208sha256', fast_kdf)
+    ciphertext = encrypt(b'message', b'password', use_scrypt=True)
+    assert decrypt(ciphertext, b'password') == b'message'
 
 
-@pytest.mark.slow
-def test_decrypt_fail_incorrect_password(ciphertext):
+def test_encrypt_decrypt_fail_incorrect_password_monkeypatch(monkeypatch):
+    monkeypatch.setattr('gridsync.crypto.kdf_argon2id', fast_kdf)
+    ciphertext = encrypt(b'message', b'password')
     with pytest.raises(nacl.exceptions.CryptoError):
-        assert decrypt(ciphertext, b'password1') == b'message'
+        assert decrypt(ciphertext, b'hunter2') == b'message'
+
+
+#@pytest.mark.slow
+#def test_decrypt_success_slow(ciphertext_with_argon2):
+#    assert decrypt(ciphertext_with_argon2, b'password') == b'message'
+
+
+#@pytest.mark.slow
+#def test_decrypt_success_with_scrypt_slow(ciphertext_with_scrypt):
+#    assert decrypt(ciphertext_with_scrypt, b'password') == b'message'
+
+
+#@pytest.mark.slow
+#def test_decrypt_fail_incorrect_password_slow(ciphertext_with_argon2):
+#    with pytest.raises(nacl.exceptions.CryptoError):
+#        assert decrypt(ciphertext_with_argon2, b'password1') == b'message'
 
 
 def test_decrypt_fail_argon2id_unavailable(monkeypatch):
