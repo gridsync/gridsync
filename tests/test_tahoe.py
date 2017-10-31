@@ -456,7 +456,16 @@ def test_tahoe_get_magic_folder_client_none(tahoe):
 @pytest.inlineCallbacks
 def test_tahoe_magic_folder_invite(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: 'code123')
-    output = yield tahoe.magic_folder_invite('Bob')
+    output = yield tahoe.magic_folder_invite('Test Folder', 'Bob')
+    assert output == 'code123'
+
+
+@pytest.inlineCallbacks
+def test_tahoe_magic_folder_invite_from_subclient(tahoe, monkeypatch):
+    subclient = MagicMock()
+    subclient.command = lambda _: 'code123'
+    tahoe.magic_folders['TestInviteFolder'] = {'client': subclient}
+    output = yield tahoe.magic_folder_invite('TestInviteFolder', 'Bob')
     assert output == 'code123'
 
 
@@ -464,5 +473,14 @@ def test_tahoe_magic_folder_invite(tahoe, monkeypatch):
 def test_tahoe_magic_folder_uninvite(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.unlink', lambda x, y, z: None)
     monkeypatch.setattr('gridsync.tahoe.Tahoe.get_alias', lambda x, y: 'test')
-    yield tahoe.magic_folder_uninvite('Bob')
+    yield tahoe.magic_folder_uninvite('Test Folder', 'Bob')
+    assert True
+
+
+@pytest.inlineCallbacks
+def test_tahoe_magic_folder_uninvite_from_subclient(tahoe, monkeypatch):
+    tahoe.magic_folders['TestUninviteFolder'] = {'client': MagicMock()}
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.unlink', lambda x, y, z: None)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.get_alias', lambda x, y: 'test')
+    yield tahoe.magic_folder_uninvite('TestUninviteFolder', 'Bob')
     assert True
