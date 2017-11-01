@@ -9,9 +9,7 @@ from nacl.secret import SecretBox
 from nacl.utils import random
 
 try:
-    from nacl.pwhash import (
-        kdf_argon2id, ARGON2_SALTBYTES, ARGON2ID_OPSLIMIT_SENSITIVE,
-        ARGON2ID_MEMLIMIT_SENSITIVE)
+    from nacl.pwhash import argon2id
     ARGON2_AVAILABLE = True
 except ImportError:
     ARGON2_AVAILABLE = False
@@ -28,13 +26,13 @@ class Argon2NotAvailableError(VersionError):
 def encrypt(message, password, use_scrypt=False):
     if ARGON2_AVAILABLE and not use_scrypt:
         version = b'2'
-        salt = random(ARGON2_SALTBYTES)  # 16
-        key = kdf_argon2id(
+        salt = random(argon2id.SALTBYTES)  # 16
+        key = argon2id.kdf(
             SecretBox.KEY_SIZE,  # 32
             password,
             salt,
-            opslimit=ARGON2ID_OPSLIMIT_SENSITIVE,  # 4
-            memlimit=ARGON2ID_MEMLIMIT_SENSITIVE   # 1073741824
+            opslimit=argon2id.OPSLIMIT_SENSITIVE,  # 4
+            memlimit=argon2id.MEMLIMIT_SENSITIVE   # 1073741824
         )
     else:
         version = b'1'
@@ -58,14 +56,14 @@ def decrypt(ciphertext, password):
         if not ARGON2_AVAILABLE:
             raise Argon2NotAvailableError(
                 "Argon2 is not available; PyNaCl may be out-of-date")
-        salt = ciphertext[:ARGON2_SALTBYTES]  # 16
-        encrypted = ciphertext[ARGON2_SALTBYTES:]
-        key = kdf_argon2id(
+        salt = ciphertext[:argon2id.SALTBYTES]  # 16
+        encrypted = ciphertext[argon2id.SALTBYTES:]
+        key = argon2id.kdf(
             SecretBox.KEY_SIZE,  # 32
             password,
             salt,
-            opslimit=ARGON2ID_OPSLIMIT_SENSITIVE,  # 4
-            memlimit=ARGON2ID_MEMLIMIT_SENSITIVE   # 1073741824
+            opslimit=argon2id.OPSLIMIT_SENSITIVE,  # 4
+            memlimit=argon2id.MEMLIMIT_SENSITIVE   # 1073741824
         )
     elif version == b'1':
         salt = ciphertext[:SCRYPT_SALTBYTES]  # 32
