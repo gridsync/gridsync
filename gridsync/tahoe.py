@@ -516,9 +516,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.start()
 
         rootcap = self.read_cap_from_file(self.rootcap_path)
-        yield self.link(rootcap, basename + ' (collective)',
-                        self.get_alias('name'))
-        yield self.link(rootcap, basename + ' (personal)',
+        yield self.link(rootcap, name + ' (collective)',
+                        self.get_alias(name))
+        yield self.link(rootcap, name + ' (personal)',
                         self.get_magic_folder_dircap(name))
 
     def get_magic_folder_client(self, name):
