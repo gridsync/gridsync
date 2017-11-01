@@ -53,21 +53,21 @@ def test_argon2_saltbytes():
     if not ARGON2_AVAILABLE:
         pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
                     "(current version: {})".format(nacl.__version__))
-    assert nacl.pwhash.ARGON2_SALTBYTES == 16
+    assert nacl.pwhash.argon2id.SALTBYTES == 16
 
 
 def test_argon2id_opslimit():
     if not ARGON2_AVAILABLE:
         pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
                     "(current version: {})".format(nacl.__version__))
-    assert nacl.pwhash.ARGON2ID_OPSLIMIT_SENSITIVE == 4
+    assert nacl.pwhash.argon2id.OPSLIMIT_SENSITIVE == 4
 
 
 def test_argon2id_memlimit():
     if not ARGON2_AVAILABLE:
         pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
                     "(current version: {})".format(nacl.__version__))
-    assert nacl.pwhash.ARGON2ID_MEMLIMIT_SENSITIVE == 1073741824
+    assert nacl.pwhash.argon2id.MEMLIMIT_SENSITIVE == 1073741824
 
 
 def test_secretbox_key_size():
@@ -78,39 +78,52 @@ def test_secretbox_nonce_size():
     assert nacl.secret.SecretBox.NONCE_SIZE == 24
 
 
-def test_encrypt_decrypt_success_monkeypatch(monkeypatch):
-    monkeypatch.setattr('gridsync.crypto.kdf_argon2id', fast_kdf)
+def test_encrypt_decrypt_success_argon2_monkeypatch(monkeypatch):
+    if not ARGON2_AVAILABLE:
+        pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
+                    "(current version: {})".format(nacl.__version__))
+    monkeypatch.setattr('gridsync.crypto.argon2id.kdf', fast_kdf)
     ciphertext = encrypt(b'message', b'password')
     assert decrypt(ciphertext, b'password') == b'message'
 
 
-def test_encrypt_decrypt_success_with_scrypt_monkeypatch(monkeypatch):
-    monkeypatch.setattr('gridsync.crypto.kdf_scryptsalsa208sha256', fast_kdf)
-    ciphertext = encrypt(b'message', b'password', use_scrypt=True)
-    assert decrypt(ciphertext, b'password') == b'message'
-
-
-def test_encrypt_decrypt_fail_incorrect_password_monkeypatch(monkeypatch):
-    monkeypatch.setattr('gridsync.crypto.kdf_argon2id', fast_kdf)
+def test_encrypt_decrypt_fail_wrong_password_argon2_monkeypatch(monkeypatch):
+    if not ARGON2_AVAILABLE:
+        pytest.skip("Argon2id is not available; PyNaCl may be out-of-date "
+                    "(current version: {})".format(nacl.__version__))
+    monkeypatch.setattr('gridsync.crypto.argon2id.kdf', fast_kdf)
     ciphertext = encrypt(b'message', b'password')
     with pytest.raises(nacl.exceptions.CryptoError):
         assert decrypt(ciphertext, b'hunter2') == b'message'
 
 
-#@pytest.mark.slow
-#def test_decrypt_success_slow(ciphertext_with_argon2):
-#    assert decrypt(ciphertext_with_argon2, b'password') == b'message'
+def test_encrypt_decrypt_success_scrypt_monkeypatch(monkeypatch):
+    monkeypatch.setattr('gridsync.crypto.kdf_scryptsalsa208sha256', fast_kdf)
+    ciphertext = encrypt(b'message', b'password', use_scrypt=True)
+    assert decrypt(ciphertext, b'password') == b'message'
 
 
-#@pytest.mark.slow
-#def test_decrypt_success_with_scrypt_slow(ciphertext_with_scrypt):
-#    assert decrypt(ciphertext_with_scrypt, b'password') == b'message'
+def test_encrypt_decrypt_fail_wrong_password_scrypt_monkeypatch(monkeypatch):
+    monkeypatch.setattr('gridsync.crypto.kdf_scryptsalsa208sha256', fast_kdf)
+    ciphertext = encrypt(b'message', b'password', use_scrypt=True)
+    with pytest.raises(nacl.exceptions.CryptoError):
+        assert decrypt(ciphertext, b'hunter2') == b'message'
 
 
-#@pytest.mark.slow
-#def test_decrypt_fail_incorrect_password_slow(ciphertext_with_argon2):
-#    with pytest.raises(nacl.exceptions.CryptoError):
-#        assert decrypt(ciphertext_with_argon2, b'password1') == b'message'
+@pytest.mark.slow
+def test_decrypt_success_slow(ciphertext_with_argon2):
+    assert decrypt(ciphertext_with_argon2, b'password') == b'message'
+
+
+@pytest.mark.slow
+def test_decrypt_success_with_scrypt_slow(ciphertext_with_scrypt):
+    assert decrypt(ciphertext_with_scrypt, b'password') == b'message'
+
+
+@pytest.mark.slow
+def test_decrypt_fail_incorrect_password_slow(ciphertext_with_argon2):
+    with pytest.raises(nacl.exceptions.CryptoError):
+        assert decrypt(ciphertext_with_argon2, b'password1') == b'message'
 
 
 def test_decrypt_fail_argon2id_unavailable(monkeypatch):
