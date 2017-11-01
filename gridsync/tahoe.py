@@ -249,6 +249,15 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.command(args)
 
     @inlineCallbacks
+    def _stop_magic_folder_subclients(self):
+        # For magic-folders created by '_create_magic_folder_subclient' below;
+        # provides support for multiple magic-folders on older tahoe clients 
+        tasks = []
+        for nodedir in get_nodedirs(self.magic_folders_dir):
+            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
+        yield gatherResults(tasks)
+
+    @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
@@ -269,7 +278,20 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 yield self.command(['stop'])
             except TahoeCommandError:  # Process already dead/not running
                 pass
-        yield self.stop_magic_folders()  # XXX: Move to Core? gatherResults?
+        yield self._stop_magic_folder_subclients()
+
+    @inlineCallbacks
+    def _start_magic_folder_subclients(self):
+        # For magic-folders created by '_create_magic_folder_subclient' below;
+        # provides support for multiple magic-folders on older tahoe clients 
+        tasks = []
+        for folder, settings in self.magic_folders.items():
+            nodedir = settings.get('nodedir')
+            if nodedir:
+                client = Tahoe(nodedir, executable=self.executable)
+                self.magic_folders[folder]['client'] = client
+                tasks.append(client.start())
+        yield gatherResults(tasks)
 
     @inlineCallbacks
     def start(self):
@@ -287,7 +309,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
-        yield self.start_magic_folders()  # XXX: Move to Core? gatherResults?
+        yield self._start_magic_folder_subclients()
 
     @staticmethod
     def _parse_welcome_page(html):
@@ -544,24 +566,6 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             yield client.unlink(client.get_alias('magic'), nickname)
         else:
             yield self.unlink(self.get_alias(name), nickname)
-
-    @inlineCallbacks
-    def start_magic_folders(self):
-        tasks = []
-        for folder, settings in self.magic_folders.items():
-            nodedir = settings.get('nodedir')
-            if nodedir:
-                client = Tahoe(nodedir, executable=self.executable)
-                self.magic_folders[folder]['client'] = client
-                tasks.append(client.start())
-        yield gatherResults(tasks)
-
-    @inlineCallbacks
-    def stop_magic_folders(self):
-        tasks = []
-        for nodedir in get_nodedirs(self.magic_folders_dir):
-            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
-        yield gatherResults(tasks)
 
     @inlineCallbacks
     def remove_magic_folder(self, name):
