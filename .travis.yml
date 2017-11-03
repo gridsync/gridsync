@@ -10,10 +10,11 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5 python3-pip; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export PATH=/usr/bin:$PATH; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 2.7.13; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.5.3; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.6.2; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv rehash; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 2.7.13; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.5.3; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.6.2; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv rehash; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv global 2.7.13 3.5.3; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python2 -m pip install --user --upgrade setuptools pip; fi
