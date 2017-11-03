@@ -6,20 +6,20 @@ matrix:
     - os: osx
       osx_image: xcode6.4
 install:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get update; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5 python3-pip; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get update; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5 python3-pip; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export PATH=/usr/bin:$PATH; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 2.7.13; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.5.3; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.6.2; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.6.2; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv rehash; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv global 2.7.13 3.5.3 3.6.2; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python2 -m pip install --user --upgrade setuptools pip; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade setuptools pip; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade tox coveralls; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv global 2.7.13 3.5.3 3.6.2; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python2 -m pip install --user --upgrade setuptools pip; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade setuptools pip; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade tox coveralls; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo make pyqt; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo chown -R travis:travis build; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
@@ -32,13 +32,13 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 2.7.13; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.5.3; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.2; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv rehash; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv global 2.7.13 3.5.3 3.6.2; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv versions; fi
+  - pyenv rehash; fi
+  - pyenv global 2.7.13 3.5.3 3.6.2; fi
+  - pyenv versions; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=/usr/local/bin:~/.pyenv/shims:$PATH; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python2 -m pip install --upgrade setuptools pip; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python3 -m pip install --upgrade setuptools pip; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python3 -m pip install --upgrade tox coveralls; fi
+  - python2 -m pip install --upgrade setuptools pip; fi
+  - python3 -m pip install --upgrade setuptools pip; fi
+  - python3 -m pip install --upgrade tox coveralls; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then PYTHON=python2 make pyqt; fi
 before_script:
   #- env
