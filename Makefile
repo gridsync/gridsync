@@ -215,7 +215,8 @@ frozen-tahoe:
 			git clone -b 1432.osx-watchdog-stable.10 https://github.com/david415/tahoe-lafs.git build/tahoe-lafs \
 		;; \
 		*) \
-			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs \
+			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
+			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout tahoe-lafs-1.12.1 \
 		;; \
 	esac
 	virtualenv --clear --python=python2 build/venv-tahoe
