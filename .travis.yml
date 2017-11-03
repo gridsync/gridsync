@@ -8,7 +8,7 @@ matrix:
 install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get update; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y qtbase5-dev python3-pyqt5 python3-pip; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export PATH=/usr/bin:$PATH; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export PATH=/usr/bin:$PATH; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python2 -m pip install --user --upgrade setuptools pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade setuptools pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade tox coveralls; fi
