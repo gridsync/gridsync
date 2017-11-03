@@ -12,6 +12,7 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python2 -m pip install --user --upgrade setuptools pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade setuptools pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m pip install --user --upgrade tox coveralls; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo make pyqt; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo chown -R travis:travis build; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
