@@ -31,10 +31,10 @@ before_script:
   - which python2.7 && python2.7 --version
   - which python3 && python3 --version
   - which python3.5 && python3.5 --version
-  - which tox && tox --version
+  #- which tox && tox --version
   - which virtualenv && virtualenv --version
 script:
-  - tox
+  - python3 -m tox
   - make all
   - dist/Tahoe-LAFS/tahoe --version-and-path
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/gridsync --version; fi
