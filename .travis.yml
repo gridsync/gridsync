@@ -25,14 +25,15 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew upgrade pyenv; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python python3 qt5; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew link --force qt5; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python python3 qt5; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew link --force qt5; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv install --list; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv versions; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.5.3; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv rehash; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv global 3.5.3; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv versions; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=/usr/local/bin:~/.pyenv/shims:$PATH; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=/usr/local/bin:~/.pyenv/shims:$PATH; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python2 -m pip install --upgrade setuptools pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python3 -m pip install --upgrade setuptools pip; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python3 -m pip install --upgrade tox coveralls; fi
