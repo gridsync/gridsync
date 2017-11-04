@@ -6,7 +6,7 @@ import pytest
 from PyQt5.QtWidgets import QMessageBox
 
 
-@pytest.mark.skipif('CI' in os.environ, reason="Fails on Travis-CI/AppVeyor")
+#@pytest.mark.skipif('CI' in os.environ, reason="Fails on Travis-CI/AppVeyor")
 def test_pyqt59_shortcut_key_press_regression(qtbot):
     msg = QMessageBox()
     qtbot.add_widget(msg)
