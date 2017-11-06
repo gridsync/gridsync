@@ -11,6 +11,7 @@ def humanized_list(list_, kind='files'):
     return "{}, {}, and {} other {}".format(list_[0], list_[1],
                                             len(list_) - 2, kind)
 
+
 def dehumanized_size(s):
     if not s:
         return 0

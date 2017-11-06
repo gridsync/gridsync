@@ -6,7 +6,6 @@ import sys
 import nacl
 import pytest
 
-import gridsync
 from gridsync.crypto import (
     ARGON2_AVAILABLE, Argon2NotAvailableError, VersionError, encrypt, decrypt,
     Crypter)

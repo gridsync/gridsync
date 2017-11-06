@@ -370,11 +370,11 @@ class ShareWidget(QWidget):
 
         self.lineedit_layout = QGridLayout()
         self.lineedit_layout.addItem(
-                QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
         self.lineedit_layout.addWidget(self.recipient_label, 1, 2)
         self.lineedit_layout.addWidget(self.lineedit, 1, 3)
         self.lineedit_layout.addItem(
-                QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
 
         pair_instructions = (
             'To connect another device to {}, click the "Generate invite '
@@ -393,10 +393,11 @@ class ShareWidget(QWidget):
         share_folder_instructions = (
             # "To invite another user to {}"?
             'To share the folder "{}" with another user or device, enter a '
-            'name below and click the "Generate invite code" button. Entering '            'the code that appears into {} will allow that person or device '
+            'name below and click the "Generate invite code" button. Entering '
+            'the code that appears into {} will allow that person or device '
             'to download a copy of "{}" and make changes to yours.\n'.format(
                 self.folder_name, APP_NAME, self.folder_name))
-            # "Any future changes made to this folder will be synchronized between other members"?
+        #"Any future changes made to this folder will be synchronized between other members"?
 
         share_folder_subtext = (
             'Only extend invites to persons that you trust; '
@@ -446,7 +447,7 @@ class ShareWidget(QWidget):
 
         self.checkmark = QLabel()
         self.checkmark.setPixmap(
-                QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
         self.checkmark.hide()
         self.checkmark.setAlignment(Qt.AlignCenter)
 
@@ -540,10 +541,10 @@ class ShareWidget(QWidget):
         self.close_button.setText("Finish")
         if self.recipient:
             text = "{}'s invitation to {} was accepted".format(
-                    self.recipient, self.folder_name)
+                self.recipient, self.folder_name)
         else:
             text = "Your invitation to {} was accepted".format(
-                    self.gateway.name)
+                self.gateway.name)
         self.subtext_label.setText("Invite successful!\n {} at {}".format(
             text, datetime.now().strftime('%H:%M')))
         if get_preference('notifications', 'invite') != 'false':
@@ -825,7 +826,7 @@ class InviteReceiver(QWidget):
         self.wormhole = Wormhole()
         self.wormhole.got_introduction.connect(self.got_introduction)
         self.wormhole.got_message.connect(self.got_message)
-        d = self.wormhole.receive(code)
+        self.wormhole.receive(code)
         # XXX d.addErrback
 
     def closeEvent(self, event):

@@ -88,7 +88,7 @@ class ActionBar(QToolBar):
         if not dest:
             return
         path = os.path.join(dest, self.basename)
-        d = self.gateway.create_magic_folder(path, join_code)  # XXX
+        self.gateway.create_magic_folder(path, join_code)  # XXX
 
     def show_share_button(self):
         self.share_action.setVisible(True)
@@ -861,7 +861,7 @@ class MainWindow(QMainWindow):
                 if self.central_widget.widget(i) == self.preferences_widget:
                     self.central_widget.setCurrentIndex(i)
 
-    def on_invite_received(self, receiver):
+    def on_invite_received(self, _):
         for view in self.central_widget.views:
             view.model().monitor.scan_rootcap('star.png')
 

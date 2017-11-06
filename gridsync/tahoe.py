@@ -251,7 +251,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def _stop_magic_folder_subclients(self):
         # For magic-folders created by '_create_magic_folder_subclient' below;
-        # provides support for multiple magic-folders on older tahoe clients 
+        # provides support for multiple magic-folders on older tahoe clients
         tasks = []
         for nodedir in get_nodedirs(self.magic_folders_dir):
             tasks.append(Tahoe(nodedir, executable=self.executable).stop())
@@ -283,7 +283,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def _start_magic_folder_subclients(self):
         # For magic-folders created by '_create_magic_folder_subclient' below;
-        # provides support for multiple magic-folders on older tahoe clients 
+        # provides support for multiple magic-folders on older tahoe clients
         tasks = []
         for folder, settings in self.magic_folders.items():
             nodedir = settings.get('nodedir')
@@ -329,7 +329,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             available_space += size
         return servers_connected, servers_known, available_space
 
-    @inlineCallbacks
+    @inlineCallbacks  # noqa: max-complexity=11 XXX
     def get_grid_status(self):
         if not self.nodeurl:
             return

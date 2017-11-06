@@ -7,7 +7,6 @@ except ImportError:
     from mock import MagicMock
 
 import pytest
-import treq
 from twisted.internet.defer import returnValue
 
 from gridsync.errors import NodedirExistsError
@@ -138,9 +137,8 @@ def test_get_settings(tahoe):
     settings = tahoe.get_settings()
     nickname = settings['nickname']
     icon_url = settings['icon_url']
-    #rootcap = settings['rootcap']
     assert (nickname, icon_url) == (tahoe.name, 'test_url')
-                                             #'test_rootcap')
+
 
 def test_export(tahoe, tmpdir_factory):
     dest = os.path.join(str(tmpdir_factory.getbasetemp()), 'settings.json')
@@ -195,12 +193,13 @@ def test_tahoe_version(tahoe, monkeypatch):
 @pytest.inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(NodedirExistsError):
-        output = yield tahoe.create_client()
+        yield tahoe.create_client()
 
 
 @pytest.inlineCallbacks
 def test_tahoe_create_client_args(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
+
     def return_args(_, args):
         returnValue(args)
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
@@ -211,6 +210,7 @@ def test_tahoe_create_client_args(tahoe, monkeypatch):
 @pytest.inlineCallbacks
 def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
+
     def return_args(_, args):
         returnValue(args)
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
@@ -223,9 +223,11 @@ def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
     with open(pidfile, 'w') as f:
         f.write('4194305')
     killed = [None]
+
     def fake_kill(pid, _):
         killed[0] = pid
     removed = [None]
+
     def fake_remove(file):
         removed[0] = file
     monkeypatch.setattr('os.kill', fake_kill)
@@ -310,7 +312,7 @@ def test_get_connected_servers(tahoe, monkeypatch):
 @pytest.inlineCallbacks
 def test_is_ready_false_not_shares_happy(tahoe, monkeypatch):
     output = yield tahoe.is_ready()
-    assert output == False
+    assert output is False
 
 
 @pytest.inlineCallbacks
@@ -319,7 +321,7 @@ def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
     monkeypatch.setattr(
         'gridsync.tahoe.Tahoe.get_connected_servers', lambda _: None)
     output = yield tahoe.is_ready()
-    assert output == False
+    assert output is False
 
 
 @pytest.inlineCallbacks
@@ -328,7 +330,7 @@ def test_is_ready_true(tahoe, monkeypatch):
     monkeypatch.setattr(
         'gridsync.tahoe.Tahoe.get_connected_servers', lambda _: 10)
     output = yield tahoe.is_ready()
-    assert output == True
+    assert output is True
 
 
 @pytest.inlineCallbacks
@@ -337,7 +339,7 @@ def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
     monkeypatch.setattr(
         'gridsync.tahoe.Tahoe.get_connected_servers', lambda _: 3)
     output = yield tahoe.is_ready()
-    assert output == False
+    assert output is False
 
 
 @pytest.inlineCallbacks
@@ -409,7 +411,6 @@ def test_tahoe_download(tahoe, monkeypatch):
 def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr('treq.get', fake_get_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
-    location = os.path.join(tahoe.nodedir, 'test_downloaded_file')
     with pytest.raises(TahoeWebError):
         yield tahoe.download('test_cap', os.path.join(tahoe.nodedir, 'nofile'))
 
@@ -450,7 +451,7 @@ def test_tahoe_get_magic_folder_client(tahoe):
 
 
 def test_tahoe_get_magic_folder_client_none(tahoe):
-    assert tahoe.get_magic_folder_client('Non-existent Folder') == None
+    assert tahoe.get_magic_folder_client('Non-existent Folder') is None
 
 
 @pytest.inlineCallbacks

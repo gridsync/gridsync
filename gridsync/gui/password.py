@@ -86,7 +86,7 @@ class PasswordCreationWidget(QWidget):
             'QProgressBar {{ background-color: transparent }}'
             'QProgressBar::chunk {{ background-color: {} }}'.format(color))
 
-    def update_stats(self, text):
+    def update_stats(self, text):  # noqa: max-complexity=11 XXX
         if not text:
             self.time_label.setText('')
             self.warning_label.setText('')
