@@ -53,7 +53,7 @@ def fake_post_code_500(*args, **kwargs):
 
 @pytest.fixture(scope='module')
 def tahoe(tmpdir_factory):
-    client = Tahoe(str(tmpdir_factory.mktemp('tahoe')))
+    client = Tahoe(str(tmpdir_factory.mktemp('tahoe')), executable='tahoe_exe')
     with open(os.path.join(client.nodedir, 'tahoe.cfg'), 'w') as f:
         f.write('[node]\nnickname = default')
     with open(os.path.join(client.nodedir, 'icon.url'), 'w') as f:
@@ -187,7 +187,7 @@ def test_tahoe_command_win32_monkeypatch(tahoe, monkeypatch):
 def test_tahoe_version(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: 'test 1')
     version = yield tahoe.version()
-    assert version == (None, '1')
+    assert version == ('tahoe_exe', '1')
 
 
 @pytest.inlineCallbacks
