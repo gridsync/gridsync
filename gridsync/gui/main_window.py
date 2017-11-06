@@ -167,7 +167,7 @@ class Model(QStandardItemModel):
     def on_disconnected(self, grid_name):
         if get_preference('notifications', 'connection') != 'false':
             self.gui.show_message(
-                grid_name, "Disonnected from {}".format(grid_name))
+                grid_name, "Disconnected from {}".format(grid_name))
 
     @pyqtSlot(str, list)
     def on_updated_files(self, folder_name, files_list):
