@@ -124,6 +124,8 @@ class Monitor(QObject):
     def scan_rootcap(self, overlay_file=None):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
         folders = yield self.gateway.get_magic_folders_from_rootcap()
+        if not folders:
+            return
         known = list(self.gateway.magic_folders.keys()) + self.known_folders
         for name, caps in folders.items():
             if name not in known:
