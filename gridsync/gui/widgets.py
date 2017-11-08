@@ -323,15 +323,10 @@ class ShareWidget(QWidget):
         self.folder_name = folder_name
         self.settings = {}
         self.wormhole = None
-        self.magic_folder_gateway = None
         self.recipient = ''
 
-        if self.folder_name:
-            self.magic_folder_gateway = self.gateway.get_magic_folder_client(
-                folder_name)
-
         self.icon_label = QLabel(self)
-        if self.magic_folder_gateway:
+        if self.folder_name:
             icon = QFileIconProvider().icon(QFileInfo(
                 self.gateway.get_magic_folder_directory(folder_name)))
         else:
@@ -341,7 +336,7 @@ class ShareWidget(QWidget):
         self.icon_label.setPixmap(icon.pixmap(50, 50))
 
         self.name_label = QLabel(self)
-        if self.magic_folder_gateway:
+        if self.folder_name:
             self.name_label.setText(self.folder_name)
         else:
             self.name_label.setText(self.gateway.name)
@@ -407,7 +402,7 @@ class ShareWidget(QWidget):
 
         self.instructions = QLabel(self)
         self.instructions.setWordWrap(True)
-        if self.magic_folder_gateway:
+        if self.folder_name:
             self.instructions.setText(share_folder_instructions)
         else:
             self.instructions.setText(pair_instructions)
@@ -415,7 +410,7 @@ class ShareWidget(QWidget):
         self.instructions_box = QGroupBox()
         instructions_box_layout = QGridLayout(self.instructions_box)
         instructions_box_layout.addWidget(self.instructions)
-        if self.magic_folder_gateway:
+        if self.folder_name:
             instructions_box_layout.addLayout(self.lineedit_layout, 2, 0)
         else:
             self.lineedit.hide()
@@ -427,7 +422,7 @@ class ShareWidget(QWidget):
         self.subtext_label.setStyleSheet("color: grey")
         self.subtext_label.setWordWrap(True)
         self.subtext_label.setAlignment(Qt.AlignCenter)
-        if self.magic_folder_gateway:
+        if self.folder_name:
             self.subtext_label.setText(share_folder_subtext)
         else:
             self.subtext_label.setText(pair_subtext)
@@ -610,7 +605,7 @@ class ShareWidget(QWidget):
 
     @inlineCallbacks
     def go(self):
-        if self.magic_folder_gateway:
+        if self.folder_name:
             recipient = self.lineedit.text()
             if recipient:
                 self.recipient = recipient
@@ -631,24 +626,25 @@ class ShareWidget(QWidget):
         self.generate_button.hide()
         self.close_button.show()
         self.settings = self.gateway.get_settings()
-        try:
-            code = yield self.gateway.magic_folder_invite(
-                self.folder_name, recipient)
-        except TahoeCommandError as err:
-            self.wormhole.close()
-            if str(err).startswith('magic-folder: failed to create link'):
-                msg = QMessageBox(self)
-                msg.setIcon(QMessageBox.Critical)
-                msg.setWindowTitle("Invite Error")
-                msg.setText(
-                    "Error inviting '{}'. It looks like {} is already a "
-                    "member of the folder {}.".format(
-                        recipient, recipient, self.folder_name))
-                msg.exec_()
-                self.close()
-                return
-        self.settings['magic-folder-code'] = code
-        self.settings['magic-folder-name'] = self.folder_name
+        if self.folder_name:
+            try:
+                code = yield self.gateway.magic_folder_invite(
+                    self.folder_name, recipient)
+            except TahoeCommandError as err:
+                self.wormhole.close()
+                if str(err).startswith('magic-folder: failed to create link'):
+                    msg = QMessageBox(self)
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.setWindowTitle("Invite Error")
+                    msg.setText(
+                        "Error inviting '{}'. It looks like {} is already a "
+                        "member of the folder {}.".format(
+                            recipient, recipient, self.folder_name))
+                    msg.exec_()
+                    self.close()
+                    return
+            self.settings['magic-folder-code'] = code
+            self.settings['magic-folder-name'] = self.folder_name
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
     def closeEvent(self, event):
