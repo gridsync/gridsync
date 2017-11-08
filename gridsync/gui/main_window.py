@@ -508,11 +508,33 @@ class View(QTreeView):
         item = self.model().itemFromIndex(self.indexAt(position))
         if item:
             folder = self.model().item(item.row(), 0).text()
+            folder_info = self.gateway.magic_folders.get(folder)
             menu = QMenu()
             remove_action = QAction(
                 QIcon(resource('close.png')), "Remove {}".format(folder), menu)
             remove_action.triggered.connect(
                 lambda: self.confirm_remove(folder))
+            share_menu = QMenu()
+            share_menu.setTitle("Share")
+            share_menu.setIcon(QIcon(resource('share.png')))
+            invite_action = QAction("Using Invite Code...")
+            # TODO: Add trigger
+            share_menu.addAction(invite_action)
+            if folder_info:
+                open_action = QAction("Open")
+                open_action.triggered.connect(
+                    lambda: open_folder(folder_info['directory']))
+                menu.addAction(open_action)
+                menu.addMenu(share_menu)
+            else:
+                download_action = QAction(
+                    QIcon(resource('download.png')), 'Download...', self)
+                download_action.setStatusTip('Download...')
+                # TODO: Add trigger
+                menu.addAction(download_action)
+                menu.addMenu(share_menu)
+                share_menu.setEnabled(False)
+            menu.addSeparator()
             menu.addAction(remove_action)
             menu.exec_(self.viewport().mapToGlobal(position))
 
