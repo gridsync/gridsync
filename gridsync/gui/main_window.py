@@ -387,6 +387,7 @@ class View(QTreeView):
         super(View, self).__init__()
         self.gui = gui
         self.gateway = gateway
+        self.share_widgets = []
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
 
@@ -490,6 +491,22 @@ class View(QTreeView):
             if name in self.gateway.magic_folders:
                 open_folder(self.gateway.magic_folders[name]['directory'])
 
+    def open_share_widget(self, folder_name):
+        share_widget = ShareWidget(self.gateway, self.gui, folder_name)
+        self.share_widgets.append(share_widget)  # TODO: Remove on close
+        share_widget.show()
+
+    def select_download_location(self, folder_name):
+        data = self.model().findItems(folder_name)[0].data(Qt.UserRole)
+        join_code = "{}+{}".format(data['collective'], data['personal'])
+        dest = QFileDialog.getExistingDirectory(
+            self, "Select a destination for '{}'".format(folder_name),
+            os.path.expanduser('~'))
+        if not dest:
+            return
+        path = os.path.join(dest, folder_name)
+        self.gateway.create_magic_folder(path, join_code)  # XXX
+
     def confirm_remove(self, folder):
         reply = QMessageBox.question(
             self, "Remove '{}'?".format(folder),
@@ -518,7 +535,8 @@ class View(QTreeView):
             share_menu.setTitle("Share")
             share_menu.setIcon(QIcon(resource('share.png')))
             invite_action = QAction("Using Invite Code...")
-            # TODO: Add trigger
+            invite_action.triggered.connect(
+                lambda: self.open_share_widget(folder))
             share_menu.addAction(invite_action)
             if folder_info:
                 open_action = QAction("Open")
@@ -530,7 +548,8 @@ class View(QTreeView):
                 download_action = QAction(
                     QIcon(resource('download.png')), 'Download...', self)
                 download_action.setStatusTip('Download...')
-                # TODO: Add trigger
+                download_action.triggered.connect(
+                    lambda: self.select_download_location(folder))
                 menu.addAction(download_action)
                 menu.addMenu(share_menu)
                 share_menu.setEnabled(False)
