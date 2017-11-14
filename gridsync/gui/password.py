@@ -33,7 +33,7 @@ class PasswordDialog(QDialog):
 
     done = pyqtSignal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, show_stats=True):
         super(PasswordDialog, self).__init__(parent)
         self.setMinimumWidth(400)
 
@@ -44,34 +44,36 @@ class PasswordDialog(QDialog):
         self.password_label.setStyleSheet('color: gray')
 
         self.password_field = PasswordLineEdit()
-
-        self.progressbar = QProgressBar()
-        self.progressbar.setMaximum(4)
-        self.progressbar.setTextVisible(False)
-        self.progressbar.setFixedHeight(5)
-        self.progressbar.setStyleSheet(
-            'QProgressBar { background-color: transparent }'
-            'QProgressBar::chunk { background-color: gray }'
-        )
-
-        self.rating_label = QLabel()
-        self.rating_label.setAlignment(Qt.AlignRight)
-
-        self.time_label = QLabel()
-        self.time_label.setStyleSheet('color: gray')
+        self.password_field.returnPressed.connect(self.on_return_pressed)
 
         layout = QGridLayout(self)
         layout.addWidget(self.password_label, 1, 1)
         layout.addWidget(self.password_field, 2, 1)
-        layout.addWidget(self.progressbar, 3, 1)
-        layout.addWidget(self.time_label, 4, 1)
-        layout.addWidget(self.rating_label, 4, 1)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 8, 1)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
-        self.password_field.textChanged.connect(self.update_stats)
-        self.password_field.returnPressed.connect(self.on_return_pressed)
+        if show_stats:
+            self.progressbar = QProgressBar()
+            self.progressbar.setMaximum(4)
+            self.progressbar.setTextVisible(False)
+            self.progressbar.setFixedHeight(5)
+            self.progressbar.setStyleSheet(
+                'QProgressBar { background-color: transparent }'
+                'QProgressBar::chunk { background-color: gray }'
+            )
 
-        self.update_color('transparent')
+            self.rating_label = QLabel()
+            self.rating_label.setAlignment(Qt.AlignRight)
+
+            self.time_label = QLabel()
+            self.time_label.setStyleSheet('color: gray')
+
+            layout.addWidget(self.progressbar, 3, 1)
+            layout.addWidget(self.time_label, 4, 1)
+            layout.addWidget(self.rating_label, 4, 1)
+
+            self.password_field.textChanged.connect(self.update_stats)
+
+            self.update_color('transparent')
 
     def update_color(self, color):
         self.rating_label.setStyleSheet(
@@ -147,8 +149,8 @@ class PasswordDialog(QDialog):
         self.done.emit(password)
 
     @staticmethod
-    def get_password(parent=None, label=None):
-        dialog = PasswordDialog(parent)
+    def get_password(parent=None, label=None, show_stats=True):
+        dialog = PasswordDialog(parent, show_stats)
         if label:
             dialog.password_label.setText(label)
         result = dialog.exec_()
