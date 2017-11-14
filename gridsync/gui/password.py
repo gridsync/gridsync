@@ -35,7 +35,7 @@ class PasswordCreationWidget(QWidget):
 
     def __init__(self):
         super(PasswordCreationWidget, self).__init__()
-        self.setMinimumSize(400, 200)
+        self.setMinimumWidth(400)
 
         self.password_label = QLabel("Password:")
         font = QFont()
@@ -60,18 +60,12 @@ class PasswordCreationWidget(QWidget):
         self.time_label = QLabel()
         self.time_label.setStyleSheet('color: gray')
 
-        self.warning_label = QLabel()
-        self.warning_label.setAlignment(Qt.AlignCenter)
-        self.warning_label.setWordWrap(True)
-
         layout = QGridLayout(self)
         layout.addWidget(self.password_label, 1, 1)
         layout.addWidget(self.password_field, 2, 1)
         layout.addWidget(self.progressbar, 3, 1)
         layout.addWidget(self.time_label, 4, 1)
         layout.addWidget(self.rating_label, 4, 1)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
-        layout.addWidget(self.warning_label, 7, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 8, 1)
 
         self.password_field.textChanged.connect(self.update_stats)
@@ -89,7 +83,6 @@ class PasswordCreationWidget(QWidget):
     def update_stats(self, text):  # noqa: max-complexity=11 XXX
         if not text:
             self.time_label.setText('')
-            self.warning_label.setText('')
             self.rating_label.setText('')
             self.progressbar.setValue(0)
             return
@@ -125,17 +118,14 @@ class PasswordCreationWidget(QWidget):
         except IndexError:
             suggestion = None
         if warning and suggestion:
-            self.warning_label.setText(warning)
             self.rating_label.setToolTip(
                 warning + '\n\n' + suggestion)
         elif warning:
-            self.warning_label.setText(warning)
             self.rating_label.setToolTip(warning)
         elif suggestion:
             self.rating_label.setToolTip(suggestion)
         else:
             self.rating_label.setToolTip(None)
-            self.warning_label.setText(None)
 
     def reset(self):
         self.password_field.setText(None)
