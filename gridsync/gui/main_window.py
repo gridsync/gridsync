@@ -884,7 +884,8 @@ class MainWindow(QMainWindow):
     def export_recovery_key(self):
         self.show_selected_grid_view()
         gateway = self.current_view().gateway
-        password, ok = PasswordDialog.get_password()
+        password, ok = PasswordDialog.get_password(
+            self, "Encryption passphrase (optional):")
         if ok and password:
             self.export_encrypted_recovery(gateway, password)
         elif ok:
