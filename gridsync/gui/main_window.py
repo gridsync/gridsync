@@ -652,9 +652,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
 
-        self.password_dialog = PasswordDialog()
-        self.password_dialog.done.connect(self.export_recovery_key)
-
         self.shortcut_new = QShortcut(QKeySequence.New, self)
         self.shortcut_new.activated.connect(self.gui.show_setup_form)
 
@@ -719,7 +716,7 @@ class MainWindow(QMainWindow):
             QIcon(resource('export.png')), 'Export Recovery Key', self)
         export_action.setStatusTip('Export Recovery Key...')
         export_action.setShortcut(QKeySequence.Save)
-        export_action.triggered.connect(self.password_dialog.show)
+        export_action.triggered.connect(self.export_recovery_key)
 
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
@@ -884,12 +881,13 @@ class MainWindow(QMainWindow):
             return
         self.confirm_export(dest)
 
-    def export_recovery_key(self, password=None):
+    def export_recovery_key(self):
         self.show_selected_grid_view()
         gateway = self.current_view().gateway
-        if password:
+        password, ok = PasswordDialog.get_password()
+        if ok and password:
             self.export_encrypted_recovery(gateway, password)
-        else:
+        elif ok:
             self.export_plaintext_recovery(gateway)
 
     def toggle_preferences_widget(self):
