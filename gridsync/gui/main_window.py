@@ -48,64 +48,64 @@ class ComboBox(QComboBox):
         #self.model().item(self.count() - 1).setEnabled(False)
 
 
-class ActionBar(QToolBar):
-    def __init__(self, parent, basename):
-        super(ActionBar, self).__init__()
-        self.parent = parent
-        self.basename = basename
-        self.gateway = self.parent.gateway
-        self.gui = self.parent.gui
-        self.share_widget = None
-        self.setIconSize(QSize(16, 16))
-        if sys.platform == 'darwin':
-            # See: https://bugreports.qt.io/browse/QTBUG-12717
-            self.setStyleSheet('background-color: white; border: 0px white')
+#class ActionBar(QToolBar):
+#    def __init__(self, parent, basename):
+#        super(ActionBar, self).__init__()
+#        self.parent = parent
+#        self.basename = basename
+#        self.gateway = self.parent.gateway
+#        self.gui = self.parent.gui
+#        self.share_widget = None
+#        self.setIconSize(QSize(16, 16))
+#        if sys.platform == 'darwin':
+#            # See: https://bugreports.qt.io/browse/QTBUG-12717
+#            self.setStyleSheet('background-color: white; border: 0px white')
 
-        self.share_action = QAction(
-            QIcon(resource('share.png')), 'Share...', self)
-        self.share_action.setStatusTip('Share...')
-        self.share_action.triggered.connect(self.open_share_widget)
-        self.addAction(self.share_action)
-        self.share_action.setVisible(False)
+#        self.share_action = QAction(
+#            QIcon(resource('share.png')), 'Share...', self)
+#        self.share_action.setStatusTip('Share...')
+#        self.share_action.triggered.connect(self.open_share_widget)
+#        self.addAction(self.share_action)
+#        self.share_action.setVisible(False)
 
-        self.download_action = QAction(
-            QIcon(resource('download.png')), 'Download...', self)
-        self.download_action.setStatusTip('Download...')
-        self.download_action.triggered.connect(self.select_download_location)
-        self.addAction(self.download_action)
-        self.download_action.setVisible(False)
+#        self.download_action = QAction(
+#            QIcon(resource('download.png')), 'Download...', self)
+#        self.download_action.setStatusTip('Download...')
+#        self.download_action.triggered.connect(self.select_download_location)
+#        self.addAction(self.download_action)
+#        self.download_action.setVisible(False)
 
-    def open_share_widget(self):
-        self.share_widget = ShareWidget(self.gateway, self.gui, self.basename)
-        self.share_widget.show()
+#    def open_share_widget(self):
+#        self.share_widget = ShareWidget(self.gateway, self.gui, self.basename)
+#        self.share_widget.show()
 
-    def select_download_location(self):
-        data = self.parent.findItems(self.basename)[0].data(Qt.UserRole)
-        join_code = "{}+{}".format(data['collective'], data['personal'])
-        dest = QFileDialog.getExistingDirectory(
-            self, "Select a destination for '{}'".format(self.basename),
-            os.path.expanduser('~'))
-        if not dest:
-            return
-        path = os.path.join(dest, self.basename)
-        self.gateway.create_magic_folder(path, join_code)  # XXX
+#    def select_download_location(self):
+#        data = self.parent.findItems(self.basename)[0].data(Qt.UserRole)
+#        join_code = "{}+{}".format(data['collective'], data['personal'])
+#        dest = QFileDialog.getExistingDirectory(
+#            self, "Select a destination for '{}'".format(self.basename),
+#            os.path.expanduser('~'))
+#        if not dest:
+#            return
+#        path = os.path.join(dest, self.basename)
+#        self.gateway.create_magic_folder(path, join_code)  # XXX
 
-    def show_share_button(self):
-        self.share_action.setVisible(True)
+#    def show_share_button(self):
+#        self.share_action.setVisible(True)
 
-    def hide_share_button(self):
-        self.share_action.setVisible(False)
+#    def hide_share_button(self):
+#        self.share_action.setVisible(False)
 
-    def show_download_button(self):
-        self.download_action.setVisible(True)
+#    def show_download_button(self):
+#        self.download_action.setVisible(True)
 
-    def hide_download_button(self):
-        self.download_action.setVisible(False)
+#    def hide_download_button(self):
+#        self.download_action.setVisible(False)
 
 
 class Model(QStandardItemModel):
     def __init__(self, view):
-        super(Model, self).__init__(0, 5)
+        super(Model, self).__init__(0, 4)
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
@@ -117,7 +117,7 @@ class Model(QStandardItemModel):
         self.setHeaderData(1, Qt.Horizontal, "Status")
         self.setHeaderData(2, Qt.Horizontal, "Last modified")
         self.setHeaderData(3, Qt.Horizontal, "Size")
-        self.setHeaderData(4, Qt.Horizontal, "Action")
+        #self.setHeaderData(4, Qt.Horizontal, "Action")
 
         self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
@@ -194,14 +194,14 @@ class Model(QStandardItemModel):
         status = QStandardItem()
         mtime = QStandardItem()
         size = QStandardItem()
-        action = QStandardItem()
-        self.appendRow([name, status, mtime, size, action])
-        action_bar = ActionBar(self, basename)
-        self.view.setIndexWidget(action.index(), action_bar)
-        action.setData(action_bar, Qt.UserRole)
+        #action = QStandardItem()
+        self.appendRow([name, status, mtime, size])
+        #action_bar = ActionBar(self, basename)
+        #self.view.setIndexWidget(action.index(), action_bar)
+        #action.setData(action_bar, Qt.UserRole)
         self.view.hide_drop_label()
         self.set_status(basename, status_data)
-        self.show_share_button(basename)  # TODO: Ensure user has admin privs
+        #self.show_share_button(basename)  # TODO: Ensure user has admin privs
 
     @pyqtSlot(str, str)
     def add_member(self, folder, member):
@@ -308,25 +308,25 @@ class Model(QStandardItemModel):
         item.setText(naturalsize(size))
         item.setData(size, Qt.UserRole)
 
-    def show_share_button(self, name):
-        action_item = self.item(self.findItems(name)[0].row(), 4)
-        action_bar = action_item.data(Qt.UserRole)
-        action_bar.show_share_button()
+    #def show_share_button(self, name):
+    #    action_item = self.item(self.findItems(name)[0].row(), 4)
+    #    action_bar = action_item.data(Qt.UserRole)
+    #    action_bar.show_share_button()
 
-    def hide_share_button(self, name):
-        action_item = self.item(self.findItems(name)[0].row(), 4)
-        action_bar = action_item.data(Qt.UserRole)
-        action_bar.hide_share_button()
+    #def hide_share_button(self, name):
+    #    action_item = self.item(self.findItems(name)[0].row(), 4)
+    #    action_bar = action_item.data(Qt.UserRole)
+    #    action_bar.hide_share_button()
 
-    def show_download_button(self, name):
-        action_item = self.item(self.findItems(name)[0].row(), 4)
-        action_bar = action_item.data(Qt.UserRole)
-        action_bar.show_download_button()
+    #def show_download_button(self, name):
+    #    action_item = self.item(self.findItems(name)[0].row(), 4)
+    #    action_bar = action_item.data(Qt.UserRole)
+    #    action_bar.show_download_button()
 
-    def hide_download_button(self, name):
-        action_item = self.item(self.findItems(name)[0].row(), 4)
-        action_bar = action_item.data(Qt.UserRole)
-        action_bar.hide_download_button()
+    #def hide_download_button(self, name):
+    #    action_item = self.item(self.findItems(name)[0].row(), 4)
+    #    action_bar = action_item.data(Qt.UserRole)
+    #    action_bar.hide_download_button()
 
     @pyqtSlot()
     def update_natural_times(self):
@@ -341,8 +341,8 @@ class Model(QStandardItemModel):
     def add_remote_folder(self, folder_name, caps, overlay_file=None):
         self.add_folder(folder_name, caps, 3)
         self.fade_row(folder_name, overlay_file)
-        self.hide_share_button(folder_name)
-        self.show_download_button(folder_name)
+        #self.hide_share_button(folder_name)
+        #self.show_download_button(folder_name)
 
 
 class Delegate(QStyledItemDelegate):
@@ -396,7 +396,7 @@ class View(QTreeView):
         #self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 120)
         self.setColumnWidth(3, 75)
-        self.setColumnWidth(4, 50)
+        #self.setColumnWidth(4, 50)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
