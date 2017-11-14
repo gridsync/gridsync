@@ -33,8 +33,8 @@ class PasswordDialog(QDialog):
 
     done = pyqtSignal(str)
 
-    def __init__(self):
-        super(PasswordDialog, self).__init__()
+    def __init__(self, parent=None):
+        super(PasswordDialog, self).__init__(parent)
         self.setMinimumWidth(400)
 
         self.password_label = QLabel("Password:")
@@ -147,7 +147,9 @@ class PasswordDialog(QDialog):
         self.done.emit(password)
 
     @staticmethod
-    def get_password():
-        dialog = PasswordDialog()
+    def get_password(parent=None, label=None):
+        dialog = PasswordDialog(parent)
+        if label:
+            dialog.password_label.setText(label)
         result = dialog.exec_()
         return (dialog.password_field.text(), result)
