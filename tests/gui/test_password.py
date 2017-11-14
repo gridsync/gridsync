@@ -2,7 +2,7 @@
 
 import pytest
 
-from gridsync.gui.password import PasswordLineEdit, PasswordCreationWidget
+from gridsync.gui.password import PasswordLineEdit, PasswordDialog
 
 
 @pytest.fixture(scope='module')
@@ -12,8 +12,8 @@ def password_line_edit():
 
 
 @pytest.fixture(scope='module')
-def password_line_creation_widget():
-    widget = PasswordCreationWidget()
+def password_dialog():
+    widget = PasswordDialog()
     return widget
 
 
@@ -27,31 +27,31 @@ def test_password_line_edit_toggle_visibility_off(password_line_edit):
     assert password_line_edit.echoMode() == PasswordLineEdit.Password
 
 
-def test_password_creation_widget_very_weak(password_line_creation_widget):
-    password_line_creation_widget.update_stats('test')
-    assert password_line_creation_widget.progressbar.value() == 1
+def test_password_dialog_very_weak(password_dialog):
+    password_dialog.update_stats('test')
+    assert password_dialog.progressbar.value() == 1
 
 
-def test_password_creation_widget_weak(password_line_creation_widget):
-    password_line_creation_widget.update_stats('test12345')
-    assert password_line_creation_widget.progressbar.value() == 1
+def test_password_dialog_weak(password_dialog):
+    password_dialog.update_stats('test12345')
+    assert password_dialog.progressbar.value() == 1
 
 
-def test_password_creation_widget_alright(password_line_creation_widget):
-    password_line_creation_widget.update_stats('testing 123 test')
-    assert password_line_creation_widget.progressbar.value() == 2
+def test_password_dialog_alright(password_dialog):
+    password_dialog.update_stats('testing 123 test')
+    assert password_dialog.progressbar.value() == 2
 
 
-def test_password_creation_widget_good(password_line_creation_widget):
-    password_line_creation_widget.update_stats('testing 123 test !')
-    assert password_line_creation_widget.progressbar.value() == 3
+def test_password_dialog_good(password_dialog):
+    password_dialog.update_stats('testing 123 test !')
+    assert password_dialog.progressbar.value() == 3
 
 
-def test_password_creation_widget_excellent(password_line_creation_widget):
-    password_line_creation_widget.update_stats('testing 123 test ! :)')
-    assert password_line_creation_widget.progressbar.value() == 4
+def test_password_dialog_excellent(password_dialog):
+    password_dialog.update_stats('testing 123 test ! :)')
+    assert password_dialog.progressbar.value() == 4
 
 
-def test_password_creation_widget_blank(password_line_creation_widget):
-    password_line_creation_widget.update_stats('')
-    assert password_line_creation_widget.progressbar.value() == 0
+def test_password_dialog_blank(password_dialog):
+    password_dialog.update_stats('')
+    assert password_dialog.progressbar.value() == 0

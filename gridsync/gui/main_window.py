@@ -22,7 +22,7 @@ from twisted.internet import reactor
 from gridsync import resource, APP_NAME, config_dir
 from gridsync.crypto import Crypter
 from gridsync.desktop import open_folder
-from gridsync.gui.password import PasswordCreationWidget
+from gridsync.gui.password import PasswordDialog
 from gridsync.gui.widgets import (
     CompositePixmap, InviteReceiver, PreferencesWidget, ShareWidget)
 from gridsync.monitor import Monitor
@@ -653,8 +653,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
 
-        self.password_widget = PasswordCreationWidget()
-        self.password_widget.done.connect(self.export_recovery_key)
+        self.password_dialog = PasswordDialog()
+        self.password_dialog.done.connect(self.export_recovery_key)
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
         self.shortcut_new.activated.connect(self.gui.show_setup_form)
@@ -720,7 +720,7 @@ class MainWindow(QMainWindow):
             QIcon(resource('export.png')), 'Export Recovery Key', self)
         export_action.setStatusTip('Export Recovery Key...')
         export_action.setShortcut(QKeySequence.Save)
-        export_action.triggered.connect(self.password_widget.show)
+        export_action.triggered.connect(self.password_dialog.show)
 
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)

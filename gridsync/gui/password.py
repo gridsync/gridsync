@@ -29,12 +29,12 @@ class PasswordLineEdit(QLineEdit):
             self.setEchoMode(QLineEdit.Password)
 
 
-class PasswordCreationWidget(QWidget):
+class PasswordDialog(QWidget):
 
     done = pyqtSignal(str)
 
     def __init__(self):
-        super(PasswordCreationWidget, self).__init__()
+        super(PasswordDialog, self).__init__()
         self.setMinimumWidth(400)
 
         self.password_label = QLabel("Password:")
