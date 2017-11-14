@@ -3,8 +3,8 @@
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
-    QAction, QGridLayout, QLabel, QLineEdit, QProgressBar, QSizePolicy,
-    QSpacerItem, QWidget)
+    QAction, QDialog, QGridLayout, QLabel, QLineEdit, QProgressBar,
+    QSizePolicy, QSpacerItem)
 from zxcvbn import zxcvbn
 
 from gridsync import resource
@@ -29,7 +29,7 @@ class PasswordLineEdit(QLineEdit):
             self.setEchoMode(QLineEdit.Password)
 
 
-class PasswordDialog(QWidget):
+class PasswordDialog(QDialog):
 
     done = pyqtSignal(str)
 
@@ -132,8 +132,9 @@ class PasswordDialog(QWidget):
         self.update_stats(None)
 
     def closeEvent(self, event):
+        self.setResult(QDialog.Rejected)
         event.accept()
-        self.reset()
+        #self.reset()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
@@ -142,4 +143,11 @@ class PasswordDialog(QWidget):
     def on_return_pressed(self):
         password = self.password_field.text()
         self.close()
+        self.setResult(QDialog.Accepted)
         self.done.emit(password)
+
+    @staticmethod
+    def get_password():
+        dialog = PasswordDialog()
+        result = dialog.exec_()
+        return (dialog.password_field.text(), result)
