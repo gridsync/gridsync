@@ -4,7 +4,6 @@ from datetime import datetime
 import json
 import logging
 import os
-import sys
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import (
@@ -16,7 +15,7 @@ from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
     QGridLayout, QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox,
     QPushButton, QShortcut, QSizePolicy, QSpacerItem, QStackedWidget,
-    QStyledItemDelegate, QToolBar, QToolButton, QTreeView, QWidget)
+    QStyledItemDelegate, QToolButton, QTreeView, QWidget)
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir
