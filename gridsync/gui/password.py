@@ -10,25 +10,6 @@ from zxcvbn import zxcvbn
 from gridsync import resource
 
 
-class PasswordLineEdit(QLineEdit):
-    def __init__(self):
-        super(PasswordLineEdit, self).__init__()
-        font = QFont()
-        font.setPointSize(14)
-        self.setFont(font)
-        self.setEchoMode(QLineEdit.Password)
-        self.action = QAction(
-            QIcon(resource('eye.png')), "Toggle visibility", self)
-        self.addAction(self.action, QLineEdit.TrailingPosition)
-        self.action.triggered.connect(self.toggle_visibility)
-
-    def toggle_visibility(self, _):
-        if self.echoMode() == QLineEdit.Password:
-            self.setEchoMode(QLineEdit.Normal)
-        else:
-            self.setEchoMode(QLineEdit.Password)
-
-
 class PasswordDialog(QDialog):
 
     done = pyqtSignal(str)
@@ -43,7 +24,16 @@ class PasswordDialog(QDialog):
         self.password_label.setFont(font)
         self.password_label.setStyleSheet('color: gray')
 
-        self.password_field = PasswordLineEdit()
+        self.password_field = QLineEdit(self)
+        font = QFont()
+        font.setPointSize(14)
+        self.password_field.setFont(font)
+        self.password_field.setEchoMode(QLineEdit.Password)
+        self.visibility_action = QAction(
+            QIcon(resource('eye.png')), "Toggle visibility")
+        self.visibility_action.triggered.connect(self.toggle_visibility)
+        self.password_field.addAction(
+            self.visibility_action, QLineEdit.TrailingPosition)
         self.password_field.returnPressed.connect(self.on_return_pressed)
 
         layout = QGridLayout(self)
@@ -81,6 +71,12 @@ class PasswordDialog(QDialog):
         self.progressbar.setStyleSheet(
             'QProgressBar {{ background-color: transparent }}'
             'QProgressBar::chunk {{ background-color: {} }}'.format(color))
+
+    def toggle_visibility(self, _):
+        if self.password_field.echoMode() == QLineEdit.Password:
+            self.password_field.setEchoMode(QLineEdit.Normal)
+        else:
+            self.password_field.setEchoMode(QLineEdit.Password)
 
     def update_stats(self, text):  # noqa: max-complexity=11 XXX
         if not text:
