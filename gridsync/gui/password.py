@@ -30,7 +30,7 @@ class PasswordDialog(QDialog):
             QIcon(resource('eye.png')), "Toggle visibility")
         action.triggered.connect(self.toggle_visibility)
         self.lineedit.addAction(action, QLineEdit.TrailingPosition)
-        self.lineedit.returnPressed.connect(self.on_return_pressed)
+        self.lineedit.returnPressed.connect(self.accept)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label, 1, 1)
@@ -121,17 +121,9 @@ class PasswordDialog(QDialog):
         else:
             self.rating_label.setToolTip(None)
 
-    def closeEvent(self, event):
-        event.accept()
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
-            self.setResult(QDialog.Rejected)
-            self.close()
-
-    def on_return_pressed(self):
-        self.close()
-        self.setResult(QDialog.Accepted)
+            self.reject()
 
     @staticmethod
     def get_password(parent=None, label=None, show_stats=True):
