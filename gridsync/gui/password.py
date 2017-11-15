@@ -129,12 +129,12 @@ class PasswordDialog(QDialog):
         self.update_stats(None)
 
     def closeEvent(self, event):
-        self.setResult(QDialog.Rejected)
         event.accept()
         #self.reset()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
+            self.setResult(QDialog.Rejected)
             self.close()
 
     def on_return_pressed(self):
