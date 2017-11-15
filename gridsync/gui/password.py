@@ -18,27 +18,26 @@ class PasswordDialog(QDialog):
         super(PasswordDialog, self).__init__(parent)
         self.setMinimumWidth(400)
 
-        self.password_label = QLabel("Password:")
+        self.label = QLabel("Password:")
         font = QFont()
         font.setPointSize(14)
-        self.password_label.setFont(font)
-        self.password_label.setStyleSheet('color: gray')
+        self.label.setFont(font)
+        self.label.setStyleSheet('color: gray')
 
-        self.password_field = QLineEdit(self)
+        self.lineedit = QLineEdit(self)
         font = QFont()
         font.setPointSize(14)
-        self.password_field.setFont(font)
-        self.password_field.setEchoMode(QLineEdit.Password)
-        self.visibility_action = QAction(
+        self.lineedit.setFont(font)
+        self.lineedit.setEchoMode(QLineEdit.Password)
+        action = QAction(
             QIcon(resource('eye.png')), "Toggle visibility")
-        self.visibility_action.triggered.connect(self.toggle_visibility)
-        self.password_field.addAction(
-            self.visibility_action, QLineEdit.TrailingPosition)
-        self.password_field.returnPressed.connect(self.on_return_pressed)
+        action.triggered.connect(self.toggle_visibility)
+        self.lineedit.addAction(action, QLineEdit.TrailingPosition)
+        self.lineedit.returnPressed.connect(self.on_return_pressed)
 
         layout = QGridLayout(self)
-        layout.addWidget(self.password_label, 1, 1)
-        layout.addWidget(self.password_field, 2, 1)
+        layout.addWidget(self.label, 1, 1)
+        layout.addWidget(self.lineedit, 2, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
         if show_stats:
@@ -61,7 +60,7 @@ class PasswordDialog(QDialog):
             layout.addWidget(self.time_label, 4, 1)
             layout.addWidget(self.rating_label, 4, 1)
 
-            self.password_field.textChanged.connect(self.update_stats)
+            self.lineedit.textChanged.connect(self.update_stats)
 
             self.update_color('transparent')
 
@@ -73,10 +72,10 @@ class PasswordDialog(QDialog):
             'QProgressBar::chunk {{ background-color: {} }}'.format(color))
 
     def toggle_visibility(self, _):
-        if self.password_field.echoMode() == QLineEdit.Password:
-            self.password_field.setEchoMode(QLineEdit.Normal)
+        if self.lineedit.echoMode() == QLineEdit.Password:
+            self.lineedit.setEchoMode(QLineEdit.Normal)
         else:
-            self.password_field.setEchoMode(QLineEdit.Password)
+            self.lineedit.setEchoMode(QLineEdit.Password)
 
     def update_stats(self, text):  # noqa: max-complexity=11 XXX
         if not text:
@@ -126,7 +125,7 @@ class PasswordDialog(QDialog):
             self.rating_label.setToolTip(None)
 
     def reset(self):
-        self.password_field.setText(None)
+        self.lineedit.setText(None)
         self.update_stats(None)
 
     def closeEvent(self, event):
@@ -139,7 +138,7 @@ class PasswordDialog(QDialog):
             self.close()
 
     def on_return_pressed(self):
-        password = self.password_field.text()
+        password = self.lineedit.text()
         self.close()
         self.setResult(QDialog.Accepted)
         self.done.emit(password)
@@ -148,6 +147,6 @@ class PasswordDialog(QDialog):
     def get_password(parent=None, label=None, show_stats=True):
         dialog = PasswordDialog(parent, show_stats)
         if label:
-            dialog.password_label.setText(label)
+            dialog.label.setText(label)
         result = dialog.exec_()
-        return (dialog.password_field.text(), result)
+        return (dialog.lineedit.text(), result)
