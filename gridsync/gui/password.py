@@ -112,8 +112,7 @@ class PasswordDialog(QDialog):
         except IndexError:
             suggestion = None
         if warning and suggestion:
-            self.rating_label.setToolTip(
-                warning + '\n\n' + suggestion)
+            self.rating_label.setToolTip(warning + '\n\n' + suggestion)
         elif warning:
             self.rating_label.setToolTip(warning)
         elif suggestion:
