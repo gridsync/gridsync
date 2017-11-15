@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtWidgets import QLineEdit
 import pytest
 
-from gridsync.gui.password import PasswordLineEdit, PasswordDialog
-
-
-@pytest.fixture(scope='module')
-def password_line_edit():
-    widget = PasswordLineEdit()
-    return widget
+from gridsync.gui.password import PasswordDialog
 
 
 @pytest.fixture(scope='module')
@@ -17,14 +12,14 @@ def password_dialog():
     return widget
 
 
-def test_password_line_edit_toggle_visibility_on(password_line_edit):
-    password_line_edit.action.triggered.emit()
-    assert password_line_edit.echoMode() == PasswordLineEdit.Normal
+def test_password_line_edit_toggle_visibility_on(password_dialog):
+    password_dialog.toggle_visibility()
+    assert password_dialog.lineedit.echoMode() == QLineEdit.Normal
 
 
-def test_password_line_edit_toggle_visibility_off(password_line_edit):
-    password_line_edit.action.triggered.emit()
-    assert password_line_edit.echoMode() == PasswordLineEdit.Password
+def test_password_line_edit_toggle_visibility_off(password_dialog):
+    password_dialog.toggle_visibility()
+    assert password_dialog.lineedit.echoMode() == QLineEdit.Password
 
 
 def test_password_dialog_very_weak(password_dialog):
