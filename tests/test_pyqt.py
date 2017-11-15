@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import QMessageBox
 
 @pytest.mark.skipif('CI' in os.environ, reason="Fails on Travis-CI/AppVeyor")
 @pytest.mark.xfail(PYQT_VERSION_STR == '5.9', reason="Fails on PyQt 5.9")
+# https://bugreports.qt.io/browse/QTBUG-61197
+# https://bugreports.qt.io/browse/QTBUG-54119
 def test_pyqt59_shortcut_key_press_regression(qtbot):
     msg = QMessageBox()
     qtbot.add_widget(msg)
