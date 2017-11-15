@@ -71,7 +71,7 @@ class PasswordDialog(QDialog):
             'QProgressBar {{ background-color: transparent }}'
             'QProgressBar::chunk {{ background-color: {} }}'.format(color))
 
-    def toggle_visibility(self, _):
+    def toggle_visibility(self):
         if self.lineedit.echoMode() == QLineEdit.Password:
             self.lineedit.setEchoMode(QLineEdit.Normal)
         else:
