@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QAction, QDialog, QGridLayout, QLabel, QLineEdit, QProgressBar,
@@ -11,9 +11,6 @@ from gridsync import resource
 
 
 class PasswordDialog(QDialog):
-
-    done = pyqtSignal(str)
-
     def __init__(self, parent=None, show_stats=True):
         super(PasswordDialog, self).__init__(parent)
         self.setMinimumWidth(400)
@@ -133,10 +130,8 @@ class PasswordDialog(QDialog):
             self.close()
 
     def on_return_pressed(self):
-        password = self.lineedit.text()
         self.close()
         self.setResult(QDialog.Accepted)
-        self.done.emit(password)
 
     @staticmethod
     def get_password(parent=None, label=None, show_stats=True):
