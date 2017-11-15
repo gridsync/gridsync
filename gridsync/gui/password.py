@@ -124,13 +124,8 @@ class PasswordDialog(QDialog):
         else:
             self.rating_label.setToolTip(None)
 
-    def reset(self):
-        self.lineedit.setText(None)
-        self.update_stats(None)
-
     def closeEvent(self, event):
         event.accept()
-        #self.reset()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
