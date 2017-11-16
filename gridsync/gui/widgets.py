@@ -272,7 +272,7 @@ class TahoeConfigForm(QWidget):
         try:
             with open(path, 'rb') as f:
                 content = f.read()
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             error(self, type(e).__name__, str(e))
             return
         self.parse_content(content)
