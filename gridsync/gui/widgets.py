@@ -6,7 +6,7 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt
+from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QThread
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialogButtonBox, QFileDialog, QFormLayout,
@@ -18,8 +18,11 @@ from twisted.internet.defer import inlineCallbacks
 import wormhole.errors
 
 from gridsync import resource, APP_NAME, config_dir
+from gridsync.crypto import Crypter
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
+from gridsync.gui.password import PasswordDialog
 from gridsync.invite import Wormhole, InviteCodeLineEdit
+from gridsync.msg import error
 from gridsync.preferences import set_preference, get_preference
 from gridsync.tahoe import TahoeCommandError
 
@@ -130,7 +133,7 @@ class RestoreSelector(QWidget):
         if dialog.exec_():
             selected_file = dialog.selectedFiles()[0]
             self.lineedit.setText(selected_file)
-            self.parent.load_from_json_file(selected_file)
+            self.parent.load_from_file(selected_file)
 
 
 class TahoeConfigForm(QWidget):
@@ -138,6 +141,8 @@ class TahoeConfigForm(QWidget):
         super(TahoeConfigForm, self).__init__()
         self.rootcap = None
         self.settings = {}
+        self.crypter = None
+        self.crypter_thread = None
 
         self.connection_settings = ConnectionSettings()
         self.encoding_parameters = EncodingParameters()
@@ -217,19 +222,8 @@ class TahoeConfigForm(QWidget):
             'rootcap': self.rootcap  # Maybe this should be user-settable?
         }
 
-    def load_from_json_file(self, path):
-        try:
-            with open(path, 'r') as f:
-                settings = json.loads(f.read())
-        except json.decoder.JSONDecodeError as err:
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Critical)
-            msg.setWindowTitle("Error importing file")
-            msg.setText(str(err))
-            msg.exec_()
-            self.reset()
-            return
-        for key, value in settings.items():
+    def load_settings(self, settings_dict):
+        for key, value in settings_dict.items():
             if key == 'nickname':
                 self.set_name(value)
             elif key == 'introducer':
@@ -242,6 +236,46 @@ class TahoeConfigForm(QWidget):
                 self.set_shares_total(value)
             elif key == 'rootcap':
                 self.rootcap = value
+
+    def on_decryption_failed(self, msg):
+        self.crypter_thread.quit()
+        error(self, "Decryption failed", msg)
+        self.crypter_thread.wait()
+
+    def on_decryption_succeeded(self, plaintext):
+        self.crypter_thread.quit()
+        self.load_settings(json.loads(plaintext.decode('utf-8')))
+        self.crypter_thread.wait()
+
+    def decrypt_content(self, data, password):
+        self.crypter = Crypter(data, password.encode())
+        self.crypter_thread = QThread()
+        self.crypter.moveToThread(self.crypter_thread)
+        self.crypter.succeeded.connect(self.on_decryption_succeeded)
+        self.crypter.failed.connect(self.on_decryption_failed)
+        self.crypter_thread.started.connect(self.crypter.decrypt)
+        self.crypter_thread.start()
+        # TODO: Show progress/busy indicator
+
+    def parse_content(self, content):
+        try:
+            settings = json.loads(content.decode('utf-8'))
+        except (UnicodeDecodeError, json.decoder.JSONDecodeError):
+            password, ok = PasswordDialog.get_password(
+                self, "Decryption password (required):", show_stats=False)
+            if ok:
+                self.decrypt_content(content, password)
+            return
+        self.load_settings(settings)
+
+    def load_from_file(self, path):
+        try:
+            with open(path, 'rb') as f:
+                content = f.read()
+        except Exception as e:
+            error(self, type(e).__name__, str(e))
+            return
+        self.parse_content(content)
 
 
 class PreferencesWidget(QWidget):
