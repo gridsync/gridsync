@@ -6,6 +6,8 @@ from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
 from nacl.utils import random
 
+from gridsync.util import b58encode, b58decode
+
 
 class VersionError(CryptoError):
     pass
@@ -23,12 +25,12 @@ def encrypt(message, password):
     )
     box = SecretBox(key)
     encrypted = box.encrypt(message)
-    return version + salt + encrypted
+    return version + b58encode(salt + encrypted).encode()
 
 
 def decrypt(ciphertext, password):
     version = ciphertext[:1]
-    ciphertext = ciphertext[1:]
+    ciphertext = b58decode(ciphertext[1:].decode())
     if version == b'1':
         salt = ciphertext[:argon2id.SALTBYTES]  # 16
         encrypted = ciphertext[argon2id.SALTBYTES:]
