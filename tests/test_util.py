@@ -35,6 +35,11 @@ def test_b58decode(decoded, s):
     assert hexlify(b58decode(s)).decode() == decoded
 
 
+def test_b58decode_value_error():
+    with pytest.raises(ValueError):
+        b58decode('abcl23')
+
+
 def test_humanized_list_Alice():
     result = humanized_list(['Alice'])
     assert result == 'Alice'
