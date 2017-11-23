@@ -33,6 +33,15 @@ class ComboBox(QComboBox):
     def __init__(self):
         super(ComboBox, self).__init__()
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.current_index = 0
+
+        self.activated.connect(self.on_activated)
+
+    def on_activated(self, index):
+        if index == self.count() - 1:  # If "Add new..." is selected
+            self.setCurrentIndex(self.current_index)
+        else:
+            self.current_index = index
 
     def populate(self, gateways):
         self.clear()
