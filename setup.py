@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import re
 import struct
@@ -6,6 +6,13 @@ import sys
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
+
+
+if (sys.version_info.major, sys.version_info.minor) < (3, 5):
+    sys.exit(
+        "This version of Python ({}.{}) is no longer supported by Gridsync; "
+        "please upgrade to Python 3.5 or higher and try again".format(
+            sys.version_info.major, sys.version_info.minor))
 
 
 class Tox(TestCommand):
@@ -34,6 +41,7 @@ requirements = [
     'humanize',
     'magic-wormhole',
     'PyNaCl',
+    'PyQt5',
     'pyyaml',
     'qt5reactor',
     'treq',
@@ -43,27 +51,14 @@ requirements = [
 
 if sys.platform.startswith('linux'):
     requirements.append('txdbus')
-
-# Other versions/platforms will need to install PyQt5 separately,
-# as PyPI wheels are only made available for 3.5+ on Linux/Mac/Win
-python_version = (sys.version_info.major, sys.version_info.minor)
-if python_version >= (3, 5) and sys.platform in ('linux', 'darwin', 'win32'):
-    requirements.append('pyqt5')
-
-    # PyQt5 wheels are not available for 32-bit Linux;
-    # see https://github.com/gridsync/gridsync/issues/45
-    if sys.platform == 'linux' and (struct.calcsize('P') * 8) == 32:
+    if (struct.calcsize('P') * 8) == 32:
         try:
             import PyQt5  # noqa; F401 (imported but unused)
         except ImportError:
             sys.exit(
-                "PyQt5 wheels are not available on this platform. Please "
+                "PyQt5 wheels are not available for 32-bit GNU/Linux. Please "
                 "manually install PyQt5 into this environment and try again.")
-        requirements.remove('pyqt5')
-
-
-if python_version < (3, 2):
-    requirements.append('configparser')
+        requirements.remove('PyQt5')
 
 
 module_file = open("gridsync/__init__.py").read()
@@ -108,11 +103,9 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Operating System :: Unix",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Communications :: File Sharing",
         "Topic :: Desktop Environment",
         "Topic :: Internet",
