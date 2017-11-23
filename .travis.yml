@@ -5,8 +5,8 @@ matrix:
       sudo: required
     - os: osx
       osx_image: xcode6.4
-      language: python
-      cache: pip
+      #language: python
+      #cache: pip
 install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
