@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import pytest
+
 from gridsync.desktop import (
     get_clipboard_modes, get_clipboard_text, set_clipboard_text)
 
