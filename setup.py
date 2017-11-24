@@ -5,7 +5,6 @@ import struct
 import sys
 
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 
 if (sys.version_info.major, sys.version_info.minor) < (3, 5):
@@ -13,28 +12,6 @@ if (sys.version_info.major, sys.version_info.minor) < (3, 5):
         "This version of Python ({}.{}) is no longer supported by Gridsync; "
         "please upgrade to Python 3.5 or higher and try again".format(
             sys.version_info.major, sys.version_info.minor))
-
-
-class Tox(TestCommand):
-    user_options = [('tox-args=', 'a', "Arguments to pass to tox")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.tox_args = None
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import tox
-        import shlex
-        args = self.tox_args
-        if args:
-            args = shlex.split(self.tox_args)
-        errno = tox.cmdline(args=args)
-        sys.exit(errno)
 
 
 requirements = [
@@ -127,7 +104,4 @@ setup(
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
     install_requires=requirements,
-    test_suite="tests",
-    tests_require=['tox'],
-    cmdclass={'test': Tox},
 )
