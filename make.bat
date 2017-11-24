@@ -49,7 +49,7 @@ call del .\.coverage
 goto :eof
 
 :test
-call py setup.py test || exit /b 1
+call py -3 -m tox || exit /b 1
 goto :eof
 
 :pytest

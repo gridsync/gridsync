@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: tahoe
 
 test:
-	python setup.py test
+	python3 -m tox
 
 pytest:
 	@case `uname` in \
