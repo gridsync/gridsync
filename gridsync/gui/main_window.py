@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import logging
 import os
+import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import (
@@ -305,11 +306,12 @@ class Model(QStandardItemModel):
             'lock-closed-green.svg')
 
     @pyqtSlot(str, int)
-    def set_mtime(self, name, time):
+    def set_mtime(self, name, mtime):
         item = self.item(self.findItems(name)[0].row(), 2)
-        item.setData(time, Qt.UserRole)
+        item.setData(mtime, Qt.UserRole)
         item.setText(
-            naturaltime(datetime.now() - datetime.fromtimestamp(time)))
+            naturaltime(datetime.now() - datetime.fromtimestamp(mtime)))
+        item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
     @pyqtSlot(str, int)
     def set_size(self, name, size):
