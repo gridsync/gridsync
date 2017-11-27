@@ -15,7 +15,7 @@ idna==2.6
 incremental==17.5.0
 ipaddress==1.0.18
 magic-wormhole==0.10.3
-pyasn1==0.4.1
+pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycparser==2.18
 PyNaCl==1.2.0
