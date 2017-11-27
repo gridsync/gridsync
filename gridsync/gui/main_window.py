@@ -199,6 +199,7 @@ class Model(QStandardItemModel):
         composite_pixmap = CompositePixmap(self.icon_folder.pixmap(256, 256))
         name = QStandardItem(QIcon(composite_pixmap), basename)
         name.setData(name_data, Qt.UserRole)
+        name.setToolTip(path)
         status = QStandardItem()
         mtime = QStandardItem()
         size = QStandardItem()
