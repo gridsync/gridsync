@@ -218,8 +218,8 @@ class Model(QStandardItemModel):
             items[0].appendRow([QStandardItem(self.icon_user, member)])
 
     def populate(self):
-        for magic_folder in list(self.gateway.load_magic_folders().keys()):
-            self.add_folder(magic_folder)
+        for magic_folder in list(self.gateway.load_magic_folders().values()):
+            self.add_folder(magic_folder['directory'])
         self.monitor.start()
 
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
