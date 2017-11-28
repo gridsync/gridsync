@@ -257,21 +257,27 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             tasks.append(Tahoe(nodedir, executable=self.executable).stop())
         yield gatherResults(tasks)
 
+    def kill(self):
+        try:
+            with open(self.pidfile, 'r') as f:
+                pid = int(f.read())
+        except (EnvironmentError, ValueError) as err:
+            log.warning("Error loading pid from pidfile: %s", str(err))
+            return
+        log.debug("Trying to kill PID %d...", pid)
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError as err:
+            if err.errno not in (errno.ESRCH, errno.EINVAL):
+                log.error(err)
+
     @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
         elif sys.platform == 'win32':
-            with open(self.pidfile, 'r') as f:
-                pid = f.read()
-            pid = int(pid)
-            log.debug("Trying to kill PID %d...", pid)
-            try:
-                os.kill(pid, signal.SIGTERM)
-            except OSError as err:
-                if err.errno not in (errno.ESRCH, errno.EINVAL):
-                    log.error(err)
+            self.kill()
         else:
             try:
                 yield self.command(['stop'])
