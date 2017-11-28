@@ -272,12 +272,15 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             except OSError as err:
                 if err.errno not in (errno.ESRCH, errno.EINVAL):
                     log.error(err)
-            os.remove(self.pidfile)
         else:
             try:
                 yield self.command(['stop'])
             except TahoeCommandError:  # Process already dead/not running
                 pass
+        try:
+            os.remove(self.pidfile)
+        except EnvironmentError:
+            pass
         yield self._stop_magic_folder_subclients()
 
     @inlineCallbacks
