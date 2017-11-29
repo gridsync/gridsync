@@ -144,7 +144,7 @@ class Model(QStandardItemModel):
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
-        self.monitor.member_added.connect(self.add_member)
+        #self.monitor.member_added.connect(self.add_member)  # XXX
         self.monitor.first_sync_started.connect(self.on_first_sync)
         self.monitor.sync_started.connect(self.on_sync_started)
         self.monitor.sync_finished.connect(self.on_sync_finished)
