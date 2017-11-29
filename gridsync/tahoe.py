@@ -559,6 +559,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def magic_folder_invite(self, name, nickname):
+        yield self.await_ready()
         client = self.get_magic_folder_client(name)
         if client:
             code = yield client.command(
