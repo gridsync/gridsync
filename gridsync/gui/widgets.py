@@ -25,6 +25,7 @@ from gridsync.invite import Wormhole, InviteCodeLineEdit
 from gridsync.msg import error
 from gridsync.preferences import set_preference, get_preference
 from gridsync.tahoe import TahoeCommandError
+from gridsync.util import b58encode
 
 
 class CompositePixmap(QPixmap):
@@ -359,7 +360,9 @@ class ShareWidget(QWidget):
         self.wormhole = None
         self.recipient = ''
 
-        self.icon_label = QLabel(self)
+        self.setMinimumSize(500, 300)
+
+        header_icon = QLabel(self)
         if self.folder_name:
             icon = QFileIconProvider().icon(QFileInfo(
                 self.gateway.get_magic_folder_directory(folder_name)))
@@ -367,87 +370,25 @@ class ShareWidget(QWidget):
             icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
             if not icon.availableSizes():
                 icon = QIcon(resource('tahoe-lafs.png'))
-        self.icon_label.setPixmap(icon.pixmap(50, 50))
+        header_icon.setPixmap(icon.pixmap(50, 50))
 
-        self.name_label = QLabel(self)
+        header_text = QLabel(self)
         if self.folder_name:
-            self.name_label.setText(self.folder_name)
+            header_text.setText(self.folder_name)
         else:
-            self.name_label.setText(self.gateway.name)
-
+            header_text.setText(self.gateway.name)
         font = QFont()
         font.setPointSize(18)
-        self.name_label.setFont(font)
-        self.name_label.setAlignment(Qt.AlignCenter)
+        header_text.setFont(font)
+        header_text.setAlignment(Qt.AlignCenter)
 
-        label_layout = QGridLayout()
-        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        label_layout.addWidget(self.icon_label, 1, 2)
-        label_layout.addWidget(self.name_label, 1, 3)
-        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
-
-        self.recipient_label = QLabel("Recipient name:")
-        font = QFont()
-        font.setPointSize(12)
-        self.recipient_label.setFont(font)
-
-        self.lineedit = QLineEdit(self)
-        font = QFont()
-        font.setPointSize(12)
-        self.lineedit.setFont(font)
-        #self.lineedit.setPlaceholderText('e.g., "Bob"')
-
-        self.lineedit_layout = QGridLayout()
-        self.lineedit_layout.addItem(
+        header_layout = QGridLayout()
+        header_layout.addItem(
             QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        self.lineedit_layout.addWidget(self.recipient_label, 1, 2)
-        self.lineedit_layout.addWidget(self.lineedit, 1, 3)
-        self.lineedit_layout.addItem(
+        header_layout.addWidget(header_icon, 1, 2)
+        header_layout.addWidget(header_text, 1, 3)
+        header_layout.addItem(
             QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
-
-        pair_instructions = (
-            'To connect another device to {}, click the "Generate invite '
-            'code" button below and enter the code that appears on the new '
-            'device. Connecting a new device to {} will allow it to upload '
-            'new folders and consume storage resources.\n\n'
-            'This operation will not disclose any of your existing folders '
-            'to the new device; use the "Share" button to give other devices '
-            'or users access to your folders.'.format(
-                self.gateway.name, self.gateway.name))
-
-        pair_subtext = (
-            'Only enter invite codes on devices you trust; '
-            'access to storage grids cannot be revoked once granted.')
-
-        share_folder_instructions = (
-            # "To invite another user to {}"?
-            'To share the folder "{}" with another user or device, enter a '
-            'name below and click the "Generate invite code" button. Entering '
-            'the code that appears into {} will allow that person or device '
-            'to download a copy of "{}" and make changes to yours.\n'.format(
-                self.folder_name, APP_NAME, self.folder_name))
-        #"Any future changes made to this folder will be synchronized between other members"?
-
-        share_folder_subtext = (
-            'Only extend invites to persons that you trust; '
-            'granting access to "{}" is irrevocable and will allow the '
-            'recipient to upload additional folders to {}'.format(
-                self.folder_name, self.gateway.name))
-
-        self.instructions = QLabel(self)
-        self.instructions.setWordWrap(True)
-        if self.folder_name:
-            self.instructions.setText(share_folder_instructions)
-        else:
-            self.instructions.setText(pair_instructions)
-
-        self.instructions_box = QGroupBox()
-        instructions_box_layout = QGridLayout(self.instructions_box)
-        instructions_box_layout.addWidget(self.instructions)
-        if self.folder_name:
-            instructions_box_layout.addLayout(self.lineedit_layout, 2, 0)
-        else:
-            self.lineedit.hide()
 
         self.subtext_label = QLabel(self)
         font = QFont()
@@ -456,12 +397,7 @@ class ShareWidget(QWidget):
         self.subtext_label.setStyleSheet("color: grey")
         self.subtext_label.setWordWrap(True)
         self.subtext_label.setAlignment(Qt.AlignCenter)
-        if self.folder_name:
-            self.subtext_label.setText(share_folder_subtext)
-        else:
-            self.subtext_label.setText(pair_subtext)
-
-        self.waiting_label = QLabel("Generating invite code...")
+        self.subtext_label.setText("This could take a few seconds...")
 
         self.code_label = QLabel()
         font = QFont()
@@ -469,41 +405,42 @@ class ShareWidget(QWidget):
         self.code_label.setFont(font)
         self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
+        self.box_title = QLabel(self)
+        self.box_title.setAlignment(Qt.AlignCenter)
+        font = QFont()
+        font.setPointSize(16)
+        self.box_title.setFont(font)
+
+        self.box = QGroupBox()
+        self.box.setAlignment(Qt.AlignCenter)
+        self.box.setStyleSheet('QGroupBox {font-size: 16px}')
+        
+        # TODO: Insert "waiting" animation?
+        
         self.copy_button = QToolButton()
         self.copy_button.setIcon(QIcon(resource('paste.png')))
         self.copy_button.setToolTip("Copy to clipboard")
         self.copy_button.setStyleSheet('border: 0px; padding: 0px;')
+        self.copy_button.hide()
+
+        box_layout = QGridLayout(self.box)
+        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        box_layout.addWidget(self.code_label, 1, 3)
+        box_layout.addWidget(self.copy_button, 1, 4)
+        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+
+        self.close_button = QPushButton("Close and cancel invite")
 
         self.checkmark = QLabel()
         self.checkmark.setPixmap(
             QPixmap(resource('green_checkmark.png')).scaled(32, 32))
-        self.checkmark.hide()
         self.checkmark.setAlignment(Qt.AlignCenter)
+        self.checkmark.hide()
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximum(2)
         self.progress_bar.setTextVisible(False)
         self.progress_bar.hide()
-
-        self.code_box_title = QLabel(self)
-        self.code_box_title.setAlignment(Qt.AlignCenter)
-        font = QFont()
-        font.setPointSize(16)
-        self.code_box_title.setFont(font)
-
-        self.code_box = QGroupBox()
-        self.code_box.setAlignment(Qt.AlignCenter)
-        self.code_box.setStyleSheet('QGroupBox {font-size: 16px}')
-        box_layout = QGridLayout(self.code_box)
-        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        box_layout.addWidget(self.waiting_label, 1, 2)
-        box_layout.addWidget(self.code_label, 1, 3)
-        box_layout.addWidget(self.copy_button, 1, 4)
-        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-
-        self.generate_button = QPushButton("Generate invite code")
-
-        self.close_button = QPushButton("Close and cancel")
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
@@ -512,91 +449,74 @@ class ShareWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-        layout.addLayout(label_layout, 1, 3)
+        layout.addLayout(header_layout, 1, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
-        layout.addWidget(self.instructions_box, 3, 2, 1, 3)
-        layout.addWidget(self.code_box_title, 3, 2, 1, 3)
+        layout.addWidget(self.box_title, 3, 2, 1, 3)
         layout.addWidget(self.checkmark, 3, 3)
-        layout.addWidget(self.code_box, 4, 2, 1, 3)
+        layout.addWidget(self.box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addWidget(self.subtext_label, 5, 2, 1, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
-        layout.addWidget(self.generate_button, 10, 3)
-        layout.addWidget(self.close_button, 11, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 20, 1)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addWidget(self.close_button, 7, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 8, 1)
 
-        self.generate_button.pressed.connect(self.go)
-        self.lineedit.returnPressed.connect(self.go)
         self.copy_button.clicked.connect(self.on_copy_button_clicked)
         self.close_button.clicked.connect(self.close)
 
-        self.reset()
+        self.set_box_title("Generating invite code...")
 
-    def on_got_code(self, code):
-        self.code_label.setText(code)
-        self.instructions_box.hide()
-        if self.recipient:
-            title = "{}'s invite code is:".format(self.recipient)
-        else:
-            title = "Your invite code is:"
+        self.go()  # XXX
+
+    def set_box_title(self, text):
         if sys.platform == 'darwin':
-            self.code_box_title.setText(title)
-            self.code_box_title.show()
+            self.box_title.setText(text)
+            self.box_title.show()
         else:
-            self.code_box.setTitle(title)
-        self.code_box.show()
-        self.waiting_label.hide()
-        self.code_label.show()
-        self.copy_button.show()
-        self.subtext_label.show()
-        self.subtext_label.setText(
-            "This code will remain active only while this window is open and "
-            "will expire immediately when used.")
-
-    def on_got_introduction(self):
-        if sys.platform == 'darwin':
-            self.code_box_title.hide()
-        self.code_box.hide()
-        self.progress_bar.show()
-        self.progress_bar.setValue(1)
-        self.subtext_label.setText(
-            "Connection established; sending invite...")
-
-    def on_send_completed(self):
-        self.code_box.hide()
-        self.progress_bar.show()
-        self.progress_bar.setValue(2)
-        self.checkmark.show()
-        self.close_button.setText("Finish")
-        if self.recipient:
-            text = "{}'s invitation to {} was accepted".format(
-                self.recipient, self.folder_name)
-        else:
-            text = "Your invitation to {} was accepted".format(
-                self.gateway.name)
-        self.subtext_label.setText("Invite successful!\n {} at {}".format(
-            text, datetime.now().strftime('%H:%M')))
-        if get_preference('notifications', 'invite') != 'false':
-            self.gui.show_message("Invite successful", text)
+            self.box.setTitle(text)
 
     def on_copy_button_clicked(self):
         code = self.code_label.text()
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
-        self.subtext_label.setText("Copied '{}' to clipboard!".format(code))
+        self.subtext_label.setText("Copied '{}' to clipboard!\n".format(code))
 
-    def reset(self):
-        self.code_label.setText('')
-        self.code_label.hide()
-        self.copy_button.hide()
-        self.checkmark.hide()
-        self.code_box_title.hide()
-        self.code_box.hide()
-        self.close_button.hide()
-        self.instructions_box.show()
-        self.recipient = ''
-        self.waiting_label.show()
-        self.generate_button.show()
+    def on_got_code(self, code):
+        self.set_box_title("Your invite code is:")
+        self.code_label.setText(code)
+        self.copy_button.show()
+        if self.folder_name:
+            abilities = 'download "{}" and modify its contents'.format(
+                self.folder_name)
+        else:
+            abilities = 'connect to "{}" and upload new folders'.format(
+                self.gateway.name)
+        self.subtext_label.setText(
+            "Entering this code on another device will allow it to {}.\n"
+            "This code can only be used once.".format(abilities))
+
+    def on_got_introduction(self):
+        if sys.platform == 'darwin':
+            self.box_title.hide()
+        self.box.hide()
+        self.progress_bar.show()
+        self.progress_bar.setValue(1)
+        self.subtext_label.setText("Connection established; sending invite...")
+
+    def on_send_completed(self):
+        self.box.hide()
+        self.progress_bar.show()
+        self.progress_bar.setValue(2)
+        self.checkmark.show()
+        self.close_button.setText("Finish")
+        if self.folder_name:
+            target = self.folder_name
+        else:
+            target = self.gateway
+        text = "Your invitation to {} was accepted".format(target)
+        self.subtext_label.setText("Invite successful!\n {} at {}".format(
+            text, datetime.now().strftime('%H:%M')))
+        if get_preference('notifications', 'invite') != 'false':
+            self.gui.show_message("Invite successful", text)
 
     def handle_failure(self, failure):
         msg = QMessageBox(self)
@@ -628,42 +548,25 @@ class ShareWidget(QWidget):
                 "attacker(s) another chance.")
             msg.setWindowTitle("Invite confirmation failed")
         elif failure.type == wormhole.errors.LonelyError:
-            self.reset()
             return
         else:
             msg.setWindowTitle(str(failure.type.__name__))
             msg.setText(str(failure.value))
         logging.error(str(failure))
         msg.exec_()
-        self.reset()
 
     @inlineCallbacks
     def go(self):
-        if self.folder_name:
-            recipient = self.lineedit.text()
-            if recipient:
-                self.recipient = recipient
-            else:
-                msg = QMessageBox(self)
-                msg.setIcon(QMessageBox.Warning)
-                msg.setWindowTitle("Recipient required")
-                msg.setText("Please enter a recipient name.")
-                msg.exec_()
-                return
         self.wormhole = Wormhole()
         self.wormhole.got_code.connect(self.on_got_code)
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
-        self.instructions_box.hide()
-        self.code_box.show()
-        self.subtext_label.setText("This could take a few seconds...")
-        self.generate_button.hide()
-        self.close_button.show()
         self.settings = self.gateway.get_settings()
         if self.folder_name:
+            self.recipient = b58encode(os.urandom(8))
             try:
                 code = yield self.gateway.magic_folder_invite(
-                    self.folder_name, recipient)
+                    self.folder_name, self.recipient)
             except TahoeCommandError as err:
                 self.wormhole.close()
                 if str(err).startswith('magic-folder: failed to create link'):
