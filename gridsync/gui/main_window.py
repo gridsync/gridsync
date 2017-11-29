@@ -542,19 +542,14 @@ class View(QTreeView):
                 QIcon(resource('close.png')), "Remove {}".format(folder), menu)
             remove_action.triggered.connect(
                 lambda: self.confirm_remove(folder))
-            share_menu = QMenu()
-            share_menu.setTitle("Share")
-            share_menu.setIcon(QIcon(resource('share.png')))
-            invite_action = QAction("Using Invite Code...")
-            invite_action.triggered.connect(
+            share_action = QAction(QIcon(resource('share.png')), "Share...")
+            share_action.triggered.connect(
                 lambda: self.open_share_widget(folder))
-            share_menu.addAction(invite_action)
             if folder_info:
                 open_action = QAction("Open")
                 open_action.triggered.connect(
                     lambda: open_folder(folder_info['directory']))
                 menu.addAction(open_action)
-                menu.addMenu(share_menu)
             else:
                 download_action = QAction(
                     QIcon(resource('download.png')), 'Download...', self)
@@ -562,8 +557,8 @@ class View(QTreeView):
                 download_action.triggered.connect(
                     lambda: self.select_download_location(folder))
                 menu.addAction(download_action)
-                menu.addMenu(share_menu)
-                share_menu.setEnabled(False)
+                share_action.setEnabled(False)
+            menu.addAction(share_action)
             menu.addSeparator()
             menu.addAction(remove_action)
             menu.exec_(self.viewport().mapToGlobal(position))
