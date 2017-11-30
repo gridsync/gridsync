@@ -456,6 +456,7 @@ def test_tahoe_get_magic_folder_client_none(tahoe):
 
 @pytest.inlineCallbacks
 def test_tahoe_magic_folder_invite(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.is_ready', lambda _: True)
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: 'code123')
     output = yield tahoe.magic_folder_invite('Test Folder', 'Bob')
     assert output == 'code123'
@@ -463,6 +464,7 @@ def test_tahoe_magic_folder_invite(tahoe, monkeypatch):
 
 @pytest.inlineCallbacks
 def test_tahoe_magic_folder_invite_from_subclient(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.is_ready', lambda _: True)
     subclient = MagicMock()
     subclient.command = lambda _: 'code123'
     tahoe.magic_folders['TestInviteFolder'] = {'client': subclient}
