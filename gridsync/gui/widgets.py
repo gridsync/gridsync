@@ -397,7 +397,7 @@ class ShareWidget(QDialog):
         self.subtext_label.setStyleSheet("color: grey")
         self.subtext_label.setWordWrap(True)
         self.subtext_label.setAlignment(Qt.AlignCenter)
-        self.subtext_label.setText("This could take a few seconds...")
+        self.subtext_label.setText("This could take a few seconds...\n\n")
 
         self.noise_label = QLabel()
         font = QFont()
@@ -492,7 +492,8 @@ class ShareWidget(QDialog):
         code = self.code_label.text()
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
-        self.subtext_label.setText("Copied '{}' to clipboard!\n".format(code))
+        self.subtext_label.setText(
+            "Copied '{}' to clipboard!\n\n".format(code))
 
     def on_got_code(self, code):
         self.noise_timer.stop()
