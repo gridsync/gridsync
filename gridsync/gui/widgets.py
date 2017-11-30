@@ -414,9 +414,9 @@ class ShareWidget(QWidget):
         self.box = QGroupBox()
         self.box.setAlignment(Qt.AlignCenter)
         self.box.setStyleSheet('QGroupBox {font-size: 16px}')
-        
+
         # TODO: Insert "waiting" animation?
-        
+
         self.copy_button = QToolButton()
         self.copy_button.setIcon(QIcon(resource('paste.png')))
         self.copy_button.setToolTip("Copy to clipboard")
@@ -576,7 +576,7 @@ class ShareWidget(QWidget):
                     msg.setText(
                         "Error inviting '{}'. It looks like {} is already a "
                         "member of the folder {}.".format(
-                            recipient, recipient, self.folder_name))
+                            self.recipient, self.recipient, self.folder_name))
                     msg.exec_()
                     self.close()
                     return
