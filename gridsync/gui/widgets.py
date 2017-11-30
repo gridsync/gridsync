@@ -9,7 +9,7 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QTimer, QThread
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
-    QCheckBox, QComboBox, QDialogButtonBox, QFileDialog, QFormLayout,
+    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
     QFileIconProvider, QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox,
     QPlainTextEdit, QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
     QSpinBox, QToolButton, QWidget)
@@ -347,7 +347,7 @@ class PreferencesWidget(QWidget):
             set_preference('notifications', 'invite', 'false')
 
 
-class ShareWidget(QWidget):
+class ShareWidget(QDialog):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
@@ -443,6 +443,7 @@ class ShareWidget(QWidget):
         box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
 
         self.close_button = QPushButton("Close and cancel invite")
+        self.close_button.setAutoDefault(False)
 
         self.checkmark = QLabel()
         self.checkmark.setPixmap(
