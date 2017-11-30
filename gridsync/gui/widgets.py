@@ -6,7 +6,7 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QThread
+from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QTimer, QThread
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialogButtonBox, QFileDialog, QFormLayout,
@@ -399,11 +399,25 @@ class ShareWidget(QWidget):
         self.subtext_label.setAlignment(Qt.AlignCenter)
         self.subtext_label.setText("This could take a few seconds...")
 
+        self.noise_label = QLabel()
+        font = QFont()
+        font.setPointSize(16)
+        font.setFamily("Courier")
+        font.setStyleHint(QFont.Monospace)
+        self.noise_label.setFont(font)
+        self.noise_label.setStyleSheet("color: grey")
+
+        self.noise_timer = QTimer()
+        self.noise_timer.timeout.connect(
+            lambda: self.noise_label.setText(b58encode(os.urandom(16))))
+        self.noise_timer.start(75)
+
         self.code_label = QLabel()
         font = QFont()
         font.setPointSize(18)
         self.code_label.setFont(font)
         self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.code_label.hide()
 
         self.box_title = QLabel(self)
         self.box_title.setAlignment(Qt.AlignCenter)
@@ -415,8 +429,6 @@ class ShareWidget(QWidget):
         self.box.setAlignment(Qt.AlignCenter)
         self.box.setStyleSheet('QGroupBox {font-size: 16px}')
 
-        # TODO: Insert "waiting" animation?
-
         self.copy_button = QToolButton()
         self.copy_button.setIcon(QIcon(resource('paste.png')))
         self.copy_button.setToolTip("Copy to clipboard")
@@ -425,6 +437,7 @@ class ShareWidget(QWidget):
 
         box_layout = QGridLayout(self.box)
         box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        box_layout.addWidget(self.noise_label, 1, 2)
         box_layout.addWidget(self.code_label, 1, 3)
         box_layout.addWidget(self.copy_button, 1, 4)
         box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
@@ -481,8 +494,11 @@ class ShareWidget(QWidget):
         self.subtext_label.setText("Copied '{}' to clipboard!\n".format(code))
 
     def on_got_code(self, code):
+        self.noise_timer.stop()
+        self.noise_label.hide()
         self.set_box_title("Your invite code is:")
         self.code_label.setText(code)
+        self.code_label.show()
         self.copy_button.show()
         if self.folder_name:
             abilities = 'download "{}" and modify its contents'.format(
@@ -603,6 +619,8 @@ class ShareWidget(QWidget):
                 event.ignore()
         else:
             event.accept()
+            if self.noise_timer.isActive():
+                self.noise_timer.stop()
             self.closed.emit(self)
 
     def keyPressEvent(self, event):
