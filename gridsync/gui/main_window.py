@@ -769,7 +769,7 @@ class MainWindow(QMainWindow):
         self.crypter_thread.wait()
 
     def export_encrypted_recovery(self, gateway, password):
-        settings = gateway.get_settings()
+        settings = gateway.get_settings(include_rootcap=True)
         data = json.dumps(settings)
         self.crypter = Crypter(data.encode(), password.encode())
         self.crypter_thread = QThread()
@@ -799,7 +799,7 @@ class MainWindow(QMainWindow):
         if not dest:
             return
         try:
-            gateway.export(dest)
+            gateway.export(dest, include_rootcap=True)
         except Exception as e:  # pylint: disable=broad-except
             self.show_error_msg("Error exporting Recovery Key", str(e))
             return
