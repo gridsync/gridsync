@@ -41,6 +41,7 @@ def test_b58decode_value_error():
 
 
 @pytest.mark.parametrize("items,kind,humanized", [
+    [None, None, None],
     [['Alice'], None, 'Alice'],
     [['Alice', 'Bob'], None, 'Alice and Bob'],
     [['Alice', 'Bob', 'Eve'], None, 'Alice, Bob, and Eve'],
