@@ -461,7 +461,7 @@ class View(QTreeView):
                 lambda: self.confirm_remove(folder))
             share_action = QAction(QIcon(resource('share.png')), "Share...")
             share_action.triggered.connect(
-                lambda: self.open_share_widget(folder))
+                lambda: self.open_share_widget([folder]))
             if folder_info:
                 open_action = QAction("Open")
                 open_action.triggered.connect(

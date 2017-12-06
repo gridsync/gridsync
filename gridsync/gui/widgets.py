@@ -25,7 +25,7 @@ from gridsync.invite import Wormhole, InviteCodeLineEdit
 from gridsync.msg import error
 from gridsync.preferences import set_preference, get_preference
 from gridsync.tahoe import TahoeCommandError
-from gridsync.util import b58encode
+from gridsync.util import b58encode, humanized_list
 
 
 class CompositePixmap(QPixmap):
@@ -351,21 +351,22 @@ class ShareWidget(QDialog):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
-    def __init__(self, gateway, gui, folder_name=None):  # pylint:disable=too-many-statements
+    def __init__(self, gateway, gui, folder_names=None):  # pylint:disable=too-many-statements
         super(ShareWidget, self).__init__()
         self.gateway = gateway
         self.gui = gui
-        self.folder_name = folder_name
+        self.folder_names = folder_names
+        self.folder_names_humanized = humanized_list(folder_names, 'folders')
         self.settings = {}
         self.wormhole = None
-        self.recipient = ''
+        self.member_id = ''
 
         self.setMinimumSize(500, 300)
 
         header_icon = QLabel(self)
-        if self.folder_name:
+        if self.folder_names:
             icon = QFileIconProvider().icon(QFileInfo(
-                self.gateway.get_magic_folder_directory(folder_name)))
+                self.gateway.get_magic_folder_directory(self.folder_names[0])))
         else:
             icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
             if not icon.availableSizes():
@@ -373,8 +374,8 @@ class ShareWidget(QDialog):
         header_icon.setPixmap(icon.pixmap(50, 50))
 
         header_text = QLabel(self)
-        if self.folder_name:
-            header_text.setText(self.folder_name)
+        if self.folder_names:
+            header_text.setText(self.folder_names_humanized)
         else:
             header_text.setText(self.gateway.name)
         font = QFont()
@@ -502,9 +503,13 @@ class ShareWidget(QDialog):
         self.code_label.setText(code)
         self.code_label.show()
         self.copy_button.show()
-        if self.folder_name:
-            abilities = 'download "{}" and modify its contents'.format(
-                self.folder_name)
+        if self.folder_names:
+            if len(self.folder_names) == 1:
+                abilities = 'download "{}" and modify its contents'.format(
+                    self.folder_names[0])
+            else:
+                abilities = 'download {} and modify their contents'.format(
+                    self.folder_names_humanized)
         else:
             abilities = 'connect to "{}" and upload new folders'.format(
                 self.gateway.name)
@@ -526,8 +531,8 @@ class ShareWidget(QDialog):
         self.progress_bar.setValue(2)
         self.checkmark.show()
         self.close_button.setText("Finish")
-        if self.folder_name:
-            target = self.folder_name
+        if self.folder_names:
+            target = self.folder_names_humanized
         else:
             target = self.gateway
         text = "Your invitation to {} was accepted".format(target)
@@ -580,26 +585,20 @@ class ShareWidget(QDialog):
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
         self.settings = self.gateway.get_settings()
-        if self.folder_name:
-            self.recipient = b58encode(os.urandom(8))
-            try:
-                code = yield self.gateway.magic_folder_invite(
-                    self.folder_name, self.recipient)
-            except TahoeCommandError as err:
-                self.wormhole.close()
-                if str(err).startswith('magic-folder: failed to create link'):
-                    msg = QMessageBox(self)
-                    msg.setIcon(QMessageBox.Critical)
-                    msg.setWindowTitle("Invite Error")
-                    msg.setText(
-                        "Error inviting '{}'. It looks like {} is already a "
-                        "member of the folder {}.".format(
-                            self.recipient, self.recipient, self.folder_name))
-                    msg.exec_()
+        if self.folder_names:
+            folders_data = {}
+            for folder in self.folder_names:
+                self.member_id = b58encode(os.urandom(8))
+                try:
+                    code = yield self.gateway.magic_folder_invite(
+                        folder, self.member_id)
+                except TahoeCommandError as err:
+                    self.wormhole.close()
+                    error(self, "Invite Error", str(err))
                     self.close()
                     return
-            self.settings['magic-folder-code'] = code
-            self.settings['magic-folder-name'] = self.folder_name
+                folders_data[folder] = {'code': code}
+            self.settings['magic-folders'] = folders_data
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
     def closeEvent(self, event):
@@ -613,8 +612,10 @@ class ShareWidget(QDialog):
                 QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.wormhole.close()
-                self.gateway.magic_folder_uninvite(
-                    self.folder_name, self.recipient)
+                if self.folder_names:
+                    for folder in self.folder_names:
+                        self.gateway.magic_folder_uninvite(
+                            folder, self.member_id)
                 event.accept()
                 self.closed.emit(self)
             else:
@@ -737,29 +738,44 @@ class InviteReceiver(QWidget):
 
     @inlineCallbacks
     def parse_message(self, message):
-        if 'magic-folder-name' in message and 'magic-folder-code' in message:
+        folders_data = message.get('magic-folders')
+        if folders_data:
+            folders = []
             for gateway in self.parent.main_window.gateways:
                 introducer = gateway.config_get('client', 'introducer.furl')
                 if introducer == message['introducer']:
                     tahoe = gateway
             if not tahoe:
                 return  # TODO: Create tahoe client to new grid, then link
-            collective, personal = message['magic-folder-code'].split('+')
-            basename = message['magic-folder-name']
-            self.update_progress(4, 'Joining folder "{}"...'.format(basename))
-            yield tahoe.link(
-                tahoe.get_rootcap(),
-                basename + ' (collective)',
-                collective
-            )
-            yield tahoe.link(
-                tahoe.get_rootcap(),
-                basename + ' (personal)',
-                personal
-            )
-            self.update_progress(
-                5, 'Successfully joined folder "{}"!\n"{}" is now available '
-                'for download'.format(basename, basename))
+            for folder, data in folders_data.items():
+                self.update_progress(
+                    4, 'Joining folder "{}"...'.format(folder))
+                collective, personal = data['code'].split('+')
+                # TODO: Ensure not already joined, handle name-conflicts
+                yield tahoe.link(
+                    tahoe.get_rootcap(),
+                    folder + ' (collective)',
+                    collective
+                )
+                yield tahoe.link(
+                    tahoe.get_rootcap(),
+                    folder + ' (personal)',
+                    personal
+                )
+                folders.append(folder)
+            if len(folders) == 1:
+                target = folders[0]
+                text = (
+                    'Successfully joined folder "{}"!\n"{}" is now available '
+                    'for download'.format(target, target)
+                )
+            else:
+                target = humanized_list(folders, 'folders')
+                text = (
+                    'Successfully joined {}!\n{} are now available for '
+                    'download'.format(target, target)
+                )
+            self.update_progress(5, text)
         else:
             return  # TODO: Create tahoe client to new grid, then link
 
