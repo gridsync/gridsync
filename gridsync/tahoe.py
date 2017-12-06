@@ -112,7 +112,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def config_get(self, section, option):
         return self.config.get(section, option)
 
-    def get_settings(self):
+    def get_settings(self, include_rootcap=False):
         settings = {
             'nickname': self.name,
             'introducer': self.config_get('client', 'introducer.furl'),
@@ -125,14 +125,14 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if os.path.exists(icon_url_path):
             with open(icon_url_path) as f:
                 settings['icon_url'] = f.read().strip()
-        if os.path.exists(self.rootcap_path):
+        if include_rootcap and os.path.exists(self.rootcap_path):
             settings['rootcap'] = self.read_cap_from_file(self.rootcap_path)
         # TODO: Verify integrity? Support 'icon_base64'?
         return settings
 
-    def export(self, dest):
+    def export(self, dest, include_rootcap=False):
         log.debug("Exporting settings to '%s'...", dest)
-        settings = self.get_settings()
+        settings = self.get_settings(include_rootcap)
         with open(dest, 'w') as f:
             f.write(json.dumps(settings))
         log.debug("Exported settings to '%s'", dest)
