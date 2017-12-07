@@ -910,8 +910,15 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         key = event.key()
-        if key == Qt.Key_Escape and self.gui.systray.isSystemTrayAvailable():
-            self.hide()
+        if key == Qt.Key_Escape:
+            view = self.current_view()
+            selected = view.selectedIndexes()
+            if selected:
+                for index in selected:
+                    view.selectionModel().select(
+                        index, QItemSelectionModel.Deselect)
+            elif self.gui.systray.isSystemTrayAvailable():
+                self.hide()
 
     def closeEvent(self, event):
         if self.gui.systray.isSystemTrayAvailable():
