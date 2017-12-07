@@ -26,10 +26,9 @@ class PasswordDialog(QDialog):
         font.setPointSize(14)
         self.lineedit.setFont(font)
         self.lineedit.setEchoMode(QLineEdit.Password)
-        action = QAction(
-            QIcon(resource('eye.png')), "Toggle visibility")
-        action.triggered.connect(self.toggle_visibility)
-        self.lineedit.addAction(action, QLineEdit.TrailingPosition)
+        self.action = QAction(QIcon(resource('eye.png')), "Toggle visibility")
+        self.action.triggered.connect(self.toggle_visibility)
+        self.lineedit.addAction(self.action, QLineEdit.TrailingPosition)
         self.lineedit.returnPressed.connect(self.accept)
 
         layout = QGridLayout(self)
