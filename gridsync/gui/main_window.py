@@ -456,7 +456,7 @@ class View(QTreeView):
             folder_info = self.gateway.magic_folders.get(folder)
             menu = QMenu()
             remove_action = QAction(
-                QIcon(resource('close.png')), "Remove {}".format(folder), menu)
+                QIcon(resource('close.png')), "Remove...")
             remove_action.triggered.connect(
                 lambda: self.confirm_remove(folder))
             share_action = QAction(QIcon(resource('share.png')), "Share...")
