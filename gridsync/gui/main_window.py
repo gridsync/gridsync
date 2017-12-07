@@ -8,7 +8,8 @@ import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import (
-    pyqtSlot, QEvent, QFileInfo, QPoint, QSize, Qt, QThread)
+    pyqtSlot, QEvent, QItemSelectionModel, QFileInfo, QPoint, QSize, Qt,
+    QThread)
 from PyQt5.QtGui import (
     QColor, QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
     QStandardItemModel)
@@ -330,7 +331,7 @@ class View(QTreeView):
         #self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.setSelectionMode(QAbstractItemView.NoSelection)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setFocusPolicy(Qt.NoFocus)
         #font = QFont()
         #font.setPointSize(12)
@@ -435,6 +436,10 @@ class View(QTreeView):
         path = os.path.join(dest, folder_name)
         self.gateway.create_magic_folder(path, join_code)  # XXX
 
+    def select_download_locations(self, folders):
+        for folder in folders:
+            self.select_download_location(folder)
+
     def confirm_remove(self, folder):
         reply = QMessageBox.question(
             self, "Remove '{}'?".format(folder),
@@ -449,36 +454,86 @@ class View(QTreeView):
             d = self.model().monitor.scan_rootcap()
             d.addCallback(self.show_drop_label)
 
-    def on_right_click(self, position):
-        item = self.model().itemFromIndex(self.indexAt(position))
-        if item:
-            folder = self.model().item(item.row(), 0).text()
+    def confirm_removes(self, folders):
+        for folder in folders:
+            self.confirm_remove(folder)
+
+    def open_folders(self, folders):
+        for folder in folders:
             folder_info = self.gateway.magic_folders.get(folder)
-            menu = QMenu()
-            remove_action = QAction(
-                QIcon(resource('close.png')), "Remove...")
-            remove_action.triggered.connect(
-                lambda: self.confirm_remove(folder))
-            share_action = QAction(QIcon(resource('share.png')), "Share...")
-            share_action.triggered.connect(
-                lambda: self.open_share_widget([folder]))
             if folder_info:
-                open_action = QAction("Open")
-                open_action.triggered.connect(
-                    lambda: open_folder(folder_info['directory']))
-                menu.addAction(open_action)
-            else:
-                download_action = QAction(
-                    QIcon(resource('download.png')), 'Download...', self)
-                download_action.setStatusTip('Download...')
-                download_action.triggered.connect(
-                    lambda: self.select_download_location(folder))
-                menu.addAction(download_action)
-                share_action.setEnabled(False)
-            menu.addAction(share_action)
+                open_folder(folder_info['directory'])
+
+    def deselect_local_folders(self):
+        selected = self.selectedIndexes()
+        if selected:
+            for index in selected:
+                item = self.model().itemFromIndex(index)
+                folder = self.model().item(item.row(), 0).text()
+                if self.gateway.magic_folders.get(folder):
+                    self.selectionModel().select(
+                        index, QItemSelectionModel.Deselect)
+
+    def deselect_remote_folders(self):
+        selected = self.selectedIndexes()
+        if selected:
+            for index in selected:
+                item = self.model().itemFromIndex(index)
+                folder = self.model().item(item.row(), 0).text()
+                if not self.gateway.magic_folders.get(folder):
+                    self.selectionModel().select(
+                        index, QItemSelectionModel.Deselect)
+
+    def get_selected_folders(self):
+        folders = []
+        selected = self.selectedIndexes()
+        if selected:
+            for index in selected:
+                item = self.model().itemFromIndex(index)
+                if item.column() == 0:
+                    folders.append(item.text())
+        return folders
+
+    def on_right_click(self, position):
+        cur_item = self.model().itemFromIndex(self.indexAt(position))
+        if not cur_item:
+            return
+        cur_folder = self.model().item(cur_item.row(), 0).text()
+
+        if self.gateway.magic_folders.get(cur_folder):  # is local folder
+            selection_is_remote = False
+            self.deselect_remote_folders()
+        else:
+            selection_is_remote = True
+            self.deselect_local_folders()
+
+        selected = self.get_selected_folders()
+
+        menu = QMenu()
+        if selection_is_remote:
+            download_action = QAction(
+                QIcon(resource('download.png')), "Download...")
+            download_action.triggered.connect(
+                lambda: self.select_download_locations(selected))
+            menu.addAction(download_action)
             menu.addSeparator()
-            menu.addAction(remove_action)
-            menu.exec_(self.viewport().mapToGlobal(position))
+        open_action = QAction("Open")
+        open_action.triggered.connect(
+            lambda: self.open_folders(selected))
+        share_action = QAction(QIcon(resource('share.png')), "Share...")
+        share_action.triggered.connect(
+            lambda: self.open_share_widget(selected))
+        remove_action = QAction(QIcon(resource('close.png')), "Remove...")
+        remove_action.triggered.connect(
+            lambda: self.confirm_removes(selected))
+        menu.addAction(open_action)
+        menu.addAction(share_action)
+        menu.addSeparator()
+        menu.addAction(remove_action)
+        if selection_is_remote:
+            open_action.setEnabled(False)
+            share_action.setEnabled(False)
+        menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_new_folder(self, path):
         self.hide_drop_label()
