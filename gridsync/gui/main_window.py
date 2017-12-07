@@ -425,20 +425,16 @@ class View(QTreeView):
         self.share_widgets.append(share_widget)  # TODO: Remove on close
         share_widget.show()
 
-    def select_download_location(self, folder_name):
-        data = self.model().findItems(folder_name)[0].data(Qt.UserRole)
-        join_code = "{}+{}".format(data['collective'], data['personal'])
+    def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
-            self, "Select a destination for '{}'".format(folder_name),
-            os.path.expanduser('~'))
+            self, "Select a download destination", os.path.expanduser('~'))
         if not dest:
             return
-        path = os.path.join(dest, folder_name)
-        self.gateway.create_magic_folder(path, join_code)  # XXX
-
-    def select_download_locations(self, folders):
         for folder in folders:
-            self.select_download_location(folder)
+            data = self.model().findItems(folder)[0].data(Qt.UserRole)
+            join_code = "{}+{}".format(data['collective'], data['personal'])
+            path = os.path.join(dest, folder)
+            self.gateway.create_magic_folder(path, join_code)  # XXX
 
     def confirm_remove(self, folder):
         reply = QMessageBox.question(
@@ -514,7 +510,7 @@ class View(QTreeView):
             download_action = QAction(
                 QIcon(resource('download.png')), "Download...")
             download_action.triggered.connect(
-                lambda: self.select_download_locations(selected))
+                lambda: self.select_download_location(selected))
             menu.addAction(download_action)
             menu.addSeparator()
         open_action = QAction("Open")
