@@ -130,6 +130,7 @@ class RestoreSelector(QWidget):
 
     def select_file(self):
         dialog = QFileDialog(self, "Select a Recovery Key")
+        dialog.setDirectory(os.path.expanduser('~'))
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_():
             selected_file = dialog.selectedFiles()[0]
