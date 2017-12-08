@@ -736,6 +736,7 @@ class MainWindow(QMainWindow):
         self.combo_box.populate(self.gateways)
         self.central_widget.populate(self.gateways)
         self.central_widget.addWidget(self.preferences_widget)
+        self.gui.systray.menu.populate()
 
     def current_view(self):
         return self.central_widget.currentWidget().layout().itemAt(0).widget()
