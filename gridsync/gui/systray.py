@@ -31,6 +31,23 @@ class Menu(QMenu):
 
         open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
         open_action.triggered.connect(self.gui.show_main_window)
+        self.addAction(open_action)
+
+        gateways = self.gui.main_window.gateways
+        if gateways and len(gateways) > 1:
+            export_menu = QMenu(self)
+            export_menu.setTitle("Export Recovery Key")
+            for gateway in gateways:
+                action = QAction(QIcon(''), gateway.name, self)
+                action.triggered.connect(
+                    lambda: self.gui.main_window.export_recovery_key(gateway))
+                export_menu.addAction(action)
+            self.addMenu(export_menu)
+        elif gateways:
+            export_action = QAction(QIcon(''), "Export Recovery Key...", self)
+            export_action.triggered.connect(
+                self.gui.main_window.export_recovery_key)
+            self.addAction(export_action)
 
         documentation_action = QAction(
             QIcon(''), "Browse Documentation...", self)
@@ -53,7 +70,6 @@ class Menu(QMenu):
             QIcon(''), "&Quit {}".format(APP_NAME), self)
         quit_action.triggered.connect(self.gui.main_window.confirm_quit)
 
-        self.addAction(open_action)
         self.addMenu(help_menu)
         self.addSeparator()
         self.addAction(quit_action)
