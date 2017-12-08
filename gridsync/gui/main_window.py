@@ -856,9 +856,10 @@ class MainWindow(QMainWindow):
             return
         self.confirm_export(dest)
 
-    def export_recovery_key(self):
+    def export_recovery_key(self, gateway=None):
         self.show_selected_grid_view()
-        gateway = self.current_view().gateway
+        if not gateway:
+            gateway = self.current_view().gateway
         password, ok = PasswordDialog.get_password(
             self, "Encryption passphrase (optional):")
         if ok and password:
