@@ -360,7 +360,7 @@ class ShareWidget(QDialog):
         self.folder_names_humanized = humanized_list(folder_names, 'folders')
         self.settings = {}
         self.wormhole = None
-        self.member_id = ''
+        self.pending_invites = []
 
         self.setMinimumSize(500, 300)
 
@@ -589,16 +589,17 @@ class ShareWidget(QDialog):
         if self.folder_names:
             folders_data = {}
             for folder in self.folder_names:
-                self.member_id = b58encode(os.urandom(8))
+                member_id = b58encode(os.urandom(8))
                 try:
                     code = yield self.gateway.magic_folder_invite(
-                        folder, self.member_id)
+                        folder, member_id)
                 except TahoeCommandError as err:
                     self.wormhole.close()
                     error(self, "Invite Error", str(err))
                     self.close()
                     return
                 folders_data[folder] = {'code': code}
+                self.pending_invites.append((folder, member_id))
             self.settings['magic-folders'] = folders_data
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
@@ -614,9 +615,8 @@ class ShareWidget(QDialog):
             if reply == QMessageBox.Yes:
                 self.wormhole.close()
                 if self.folder_names:
-                    for folder in self.folder_names:
-                        self.gateway.magic_folder_uninvite(
-                            folder, self.member_id)
+                    for folder, member_id in self.pending_invites:
+                        self.gateway.magic_folder_uninvite(folder, member_id)
                 event.accept()
                 self.closed.emit(self)
             else:
