@@ -432,7 +432,7 @@ class ShareWidget(QDialog):
         self.box.setStyleSheet('QGroupBox {font-size: 16px}')
 
         self.copy_button = QToolButton()
-        self.copy_button.setIcon(QIcon(resource('paste.png')))
+        self.copy_button.setIcon(QIcon(resource('copy.png')))
         self.copy_button.setToolTip("Copy to clipboard")
         self.copy_button.setStyleSheet('border: 0px; padding: 0px;')
         self.copy_button.hide()
