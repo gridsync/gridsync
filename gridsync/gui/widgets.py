@@ -399,7 +399,6 @@ class ShareWidget(QDialog):
         self.subtext_label.setStyleSheet("color: grey")
         self.subtext_label.setWordWrap(True)
         self.subtext_label.setAlignment(Qt.AlignCenter)
-        self.subtext_label.setText("This could take a few seconds...\n\n")
 
         self.noise_label = QLabel()
         font = QFont()
@@ -589,6 +588,8 @@ class ShareWidget(QDialog):
         if self.folder_names:
             folders_data = {}
             for folder in self.folder_names:
+                self.subtext_label.setText(
+                    'Creating invite for "{}"...\n\n'.format(folder))
                 member_id = b58encode(os.urandom(8))
                 try:
                     code = yield self.gateway.magic_folder_invite(
@@ -601,6 +602,7 @@ class ShareWidget(QDialog):
                 folders_data[folder] = {'code': code}
                 self.pending_invites.append((folder, member_id))
             self.settings['magic-folders'] = folders_data
+        self.subtext_label.setText("Opening wormhole...\n\n")
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
 
     def closeEvent(self, event):
