@@ -24,6 +24,7 @@ from gridsync import resource, APP_NAME, config_dir
 from gridsync.crypto import Crypter
 from gridsync.desktop import open_folder
 from gridsync.gui.password import PasswordDialog
+from gridsync.gui.setup import SetupForm
 from gridsync.gui.widgets import (
     CompositePixmap, InviteReceiver, PreferencesWidget, ShareWidget)
 from gridsync.monitor import Monitor
@@ -623,12 +624,13 @@ class MainWindow(QMainWindow):
         self.crypter_thread = None
         self.export_data = None
         self.export_dest = None
+        self.setup_form = None
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
-        self.shortcut_new.activated.connect(self.gui.show_setup_form)
+        self.shortcut_new.activated.connect(self.show_setup_form)
 
         self.shortcut_open = QShortcut(QKeySequence.Open, self)
         self.shortcut_open.activated.connect(self.select_folder)
@@ -755,9 +757,14 @@ class MainWindow(QMainWindow):
             self.current_view().model().grid_status)
         self.gui.systray.update()
 
+    def show_setup_form(self):
+        self.setup_form = SetupForm(self.gui, self.gateways)
+        self.setup_form.show()
+        self.setup_form.raise_()
+
     def on_grid_selected(self, index):
         if index == self.combo_box.count() - 1:
-            self.gui.show_setup_form()
+            self.show_setup_form()
         else:
             self.central_widget.setCurrentIndex(index)
             self.status_bar.show()
