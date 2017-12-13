@@ -184,9 +184,10 @@ class ProgressBarWidget(QWidget):
 
 
 class SetupForm(QStackedWidget):
-    def __init__(self, gui):
+    def __init__(self, gui, known_gateways=None):
         super(SetupForm, self).__init__()
         self.gui = gui
+        self.known_gateways = known_gateways
         self.gateway = None
         self.setup_runner = None
         self.resize(400, 500)
@@ -316,7 +317,7 @@ class SetupForm(QStackedWidget):
                     APP_NAME, nickname, label)
             nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
         settings['nickname'] = nickname
-        self.setup_runner = Setup()
+        self.setup_runner = Setup(self.known_gateways)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.got_icon.connect(self.load_service_icon)
         self.setup_runner.done.connect(self.on_done)
