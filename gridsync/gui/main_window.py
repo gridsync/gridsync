@@ -758,6 +758,8 @@ class MainWindow(QMainWindow):
         self.gui.systray.update()
 
     def show_setup_form(self):
+        if self.setup_form:
+            self.setup_form.close()
         self.setup_form = SetupForm(self.gui, self.gateways)
         self.setup_form.show()
         self.setup_form.raise_()
