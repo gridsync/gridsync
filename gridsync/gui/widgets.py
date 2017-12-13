@@ -577,6 +577,8 @@ class ShareWidget(QDialog):
             msg.setText(str(failure.value))
         logging.error(str(failure))
         msg.exec_()
+        self.wormhole.close()
+        self.close()
 
     @inlineCallbacks
     def go(self):
