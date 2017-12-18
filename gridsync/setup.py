@@ -18,13 +18,31 @@ from gridsync.tahoe import Tahoe, select_executable
 
 class Setup(QObject):
 
-    update_progress = pyqtSignal(int, str)
+    update_progress = pyqtSignal(str)
+    joined_folders = pyqtSignal(list)
     got_icon = pyqtSignal(str)
     done = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, known_gateways):
         super(Setup, self).__init__()
-        self.parent = parent
+        self.known_gateways = known_gateways
+        self.gateway = None
+
+    def get_gateway(self, introducer):
+        if not introducer or not self.known_gateways:
+            return
+        for gateway in self.known_gateways:
+            if gateway.config_get('client', 'introducer.furl') == introducer:
+                return gateway
+
+    def calculate_total_steps(self, settings):
+        steps = 1  # done
+        if not self.get_gateway(settings.get('introducer')):
+            steps += 4  # create, start, await_ready, rootcap
+        folders = settings.get('magic-folders')
+        if folders:
+            steps += len(folders)  # join
+        return steps
 
     def decode_icon(self, s, dest):
         with open(dest, 'wb') as f:
@@ -47,16 +65,13 @@ class Setup(QObject):
             log.warning("Error fetching service icon: %i", resp.code)
 
     @inlineCallbacks  # noqa: max-complexity=13 XXX
-    def run(self, settings):
-        if 'version' in settings and int(settings['version']) > 1:
-            raise UpgradeRequiredError
-
+    def join_grid(self, settings):
         if 'nickname' in settings:
             nickname = settings['nickname']
         else:
             nickname = settings['introducer'].split('@')[1].split(':')[0]
 
-        self.update_progress.emit(2, 'Connecting to {}...'.format(nickname))
+        self.update_progress.emit('Connecting to {}...'.format(nickname))
         icon_path = None
         if nickname == 'Least Authority S4':
             icon_path = resource('leastauthority.com.icon')
@@ -79,41 +94,83 @@ class Setup(QObject):
                 yield self.fetch_service_icon(settings['icon_url'], icon_path)
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
+
         exe = yield select_executable()
-        tahoe = Tahoe(os.path.join(config_dir, nickname), executable=exe)
-        yield tahoe.create_client(**settings)
+        nodedir = os.path.join(config_dir, nickname)
+        self.gateway = Tahoe(nodedir, executable=exe)
+        yield self.gateway.create_client(**settings)
+
         if icon_path:
             try:
-                shutil.copy(icon_path, os.path.join(tahoe.nodedir, 'icon'))
+                shutil.copy(icon_path, os.path.join(nodedir, 'icon'))
             except OSError as err:
                 log.warning("Error copying icon file: %s", str(err))
         if 'icon_url' in settings:
             try:
-                with open(os.path.join(tahoe.nodedir, 'icon.url'), 'w') as f:
+                with open(os.path.join(nodedir, 'icon.url'), 'w') as f:
                     f.write(settings['icon_url'])
             except OSError as err:
                 log.warning("Error writing icon url to file: %s", str(err))
 
-        self.update_progress.emit(3, 'Connecting to {}...'.format(nickname))
-        yield tahoe.start()
+        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        yield self.gateway.start()
 
-        self.update_progress.emit(4, 'Connecting to {}...'.format(nickname))
-        yield tahoe.await_ready()
+        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        yield self.gateway.await_ready()
 
-        settings_path = os.path.join(tahoe.nodedir, 'private', 'settings.json')
+    @inlineCallbacks
+    def ensure_recovery(self, settings):
+        settings_path = os.path.join(
+            self.gateway.nodedir, 'private', 'settings.json')
         if settings.get('rootcap'):
-            self.update_progress.emit(5, 'Loading Recovery Key...')
-            with open(tahoe.rootcap_path, 'w') as f:  # XXX
+            self.update_progress.emit('Loading Recovery Key...')
+            with open(self.gateway.rootcap_path, 'w') as f:  # XXX
                 f.write(settings['rootcap'])
             with open(settings_path, 'w') as f:
                 f.write(json.dumps(settings))
         else:
-            self.update_progress.emit(5, 'Generating Recovery Key...')
-            settings['rootcap'] = yield tahoe.create_rootcap()
+            self.update_progress.emit('Generating Recovery Key...')
+            settings['rootcap'] = yield self.gateway.create_rootcap()
             with open(settings_path, 'w') as f:
                 f.write(json.dumps(settings))
-            settings_cap = yield tahoe.upload(settings_path)
-            yield tahoe.link(tahoe.rootcap, 'settings.json', settings_cap)
+            settings_cap = yield self.gateway.upload(settings_path)
+            yield self.gateway.link(
+                self.gateway.rootcap, 'settings.json', settings_cap)
 
-        self.update_progress.emit(6, 'Done!')
-        self.done.emit(tahoe)
+    @inlineCallbacks
+    def join_folders(self, folders_data):
+        folders = []
+        for folder, data in folders_data.items():
+            self.update_progress.emit('Joining folder "{}"...'.format(folder))
+            collective, personal = data['code'].split('+')
+            yield self.gateway.link(
+                self.gateway.get_rootcap(),
+                folder + ' (collective)',
+                collective
+            )
+            yield self.gateway.link(
+                self.gateway.get_rootcap(),
+                folder + ' (personal)',
+                personal
+            )
+            folders.append(folder)
+        if folders:
+            self.joined_folders.emit(folders)
+
+    @inlineCallbacks
+    def run(self, settings):
+        if 'version' in settings and int(settings['version']) > 1:
+            raise UpgradeRequiredError
+
+        self.gateway = self.get_gateway(settings.get('introducer'))
+        if not self.gateway:
+            yield self.join_grid(settings)
+
+        yield self.ensure_recovery(settings)
+
+        folders_data = settings.get('magic-folders')
+        if folders_data:
+            yield self.join_folders(folders_data)
+
+        self.update_progress.emit('Done!')
+        self.done.emit(self.gateway)
