@@ -18,7 +18,7 @@ from wormhole.errors import (
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import wormhole_receive, InviteCodeLineEdit
-from gridsync.setup import Setup
+from gridsync.setup import SetupRunner
 from gridsync.tahoe import is_valid_furl
 from gridsync.gui.widgets import TahoeConfigForm
 
@@ -319,7 +319,7 @@ class SetupForm(QStackedWidget):
                     APP_NAME, nickname, label)
             nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
         settings['nickname'] = nickname
-        self.setup_runner = Setup(self.known_gateways)
+        self.setup_runner = SetupRunner(self.known_gateways)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.page_2.progressbar.setMaximum(steps)
         self.setup_runner.update_progress.connect(self.update_progress)

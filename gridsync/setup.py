@@ -16,7 +16,7 @@ from gridsync.errors import UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
 
 
-class Setup(QObject):
+class SetupRunner(QObject):
 
     update_progress = pyqtSignal(str)
     joined_folders = pyqtSignal(list)
@@ -24,7 +24,7 @@ class Setup(QObject):
     done = pyqtSignal(object)
 
     def __init__(self, known_gateways):
-        super(Setup, self).__init__()
+        super(SetupRunner, self).__init__()
         self.known_gateways = known_gateways
         self.gateway = None
 
