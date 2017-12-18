@@ -891,7 +891,7 @@ class MainWindow(QMainWindow):
             view.model().monitor.scan_rootcap('star.png')
 
     def open_invite_receiver(self):
-        invite_receiver = InviteReceiver(self.gui)
+        invite_receiver = InviteReceiver(self.gateways)
         invite_receiver.done.connect(self.on_invite_received)
         invite_receiver.closed.connect(self.active_invite_receivers.remove)
         invite_receiver.show()
