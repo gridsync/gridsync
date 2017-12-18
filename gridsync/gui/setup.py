@@ -99,7 +99,6 @@ class CodeEntryWidget(QWidget):
 class ProgressBarWidget(QWidget):
     def __init__(self):
         super(ProgressBarWidget, self).__init__()
-        self.step = 0
 
         self.icon_server = QLabel()
         pixmap = QPixmap(resource('cloud.png')).scaled(220, 220)
@@ -127,8 +126,9 @@ class ProgressBarWidget(QWidget):
         self.checkmark.setAlignment(Qt.AlignCenter)
 
         self.progressbar = QProgressBar()
-        self.progressbar.setMaximum(6)
+        self.progressbar.setMaximum(10)
         self.progressbar.setTextVisible(False)
+        self.progressbar.setValue(0)
 
         self.message = QLabel()
         self.message.setStyleSheet("color: grey")
@@ -157,8 +157,8 @@ class ProgressBarWidget(QWidget):
         layout.addWidget(self.finish_button, 6, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 7, 1)
 
-    def update_progress(self, step, message):
-        self.step = step
+    def update_progress(self, message):
+        step = self.progressbar.value() + 1
         self.progressbar.setValue(step)
         self.message.setText(message)
         if step == 2:  # "Connecting to <nickname>..."
@@ -166,9 +166,10 @@ class ProgressBarWidget(QWidget):
             self.icon_connection.setPixmap(pixmap)
             pixmap = QPixmap(resource('cloud_storage.png')).scaled(220, 220)
             self.icon_server.setPixmap(pixmap)
-        elif step == 5:  # "Done!"
+        elif step == 5:  # After await_ready()
             pixmap = QPixmap(resource('lines_solid.png')).scaled(128, 128)
             self.icon_connection.setPixmap(pixmap)
+        elif step == self.progressbar.maximum():  # "Done!"
             pixmap = QPixmap(resource('green_checkmark.png')).scaled(32, 32)
             self.checkmark.setPixmap(pixmap)
 
@@ -177,7 +178,8 @@ class ProgressBarWidget(QWidget):
             return True
 
     def reset(self):
-        self.update_progress(0, '')
+        self.progressbar.setValue(0)
+        self.message.setText('')
         self.finish_button.hide()
         pixmap = QPixmap(resource('pixel.png')).scaled(32, 32)
         self.checkmark.setPixmap(pixmap)
@@ -223,8 +225,8 @@ class SetupForm(QStackedWidget):
     def on_link_activated(self):
         self.setCurrentIndex(2)
 
-    def update_progress(self, step, message):
-        self.page_2.update_progress(step, message)
+    def update_progress(self, message):
+        self.page_2.update_progress(message)
 
     def show_error(self, message):
         self.page_1.show_error(message)
@@ -318,6 +320,8 @@ class SetupForm(QStackedWidget):
             nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
         settings['nickname'] = nickname
         self.setup_runner = Setup(self.known_gateways)
+        steps = self.setup_runner.calculate_total_steps(settings) + 2
+        self.page_2.progressbar.setMaximum(steps)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.got_icon.connect(self.load_service_icon)
         self.setup_runner.done.connect(self.on_done)
@@ -326,7 +330,8 @@ class SetupForm(QStackedWidget):
 
     def go(self, code):
         self.setCurrentIndex(1)
-        self.update_progress(1, 'Verifying invitation code...')
+        self.page_2.progressbar.setValue(1)
+        self.update_progress('Verifying invitation code...')
         d = wormhole_receive(code)
         d.addCallback(self.verify_settings)
         d.addErrback(self.show_failure)
