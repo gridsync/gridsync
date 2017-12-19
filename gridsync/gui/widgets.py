@@ -24,6 +24,7 @@ from gridsync.gui.password import PasswordDialog
 from gridsync.invite import Wormhole, InviteCodeLineEdit
 from gridsync.msg import error
 from gridsync.preferences import set_preference, get_preference
+from gridsync.setup import SetupRunner
 from gridsync.tahoe import TahoeCommandError
 from gridsync.util import b58encode, humanized_list
 
@@ -640,10 +641,11 @@ class InviteReceiver(QWidget):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
-    def __init__(self, parent=None):
+    def __init__(self, gateways):
         super(InviteReceiver, self).__init__()
-        self.parent = parent
+        self.gateways = gateways
         self.wormhole = None
+        self.setup_runner = None
 
         self.mail_closed_icon = QLabel()
         self.mail_closed_icon.setPixmap(
@@ -726,7 +728,8 @@ class InviteReceiver(QWidget):
         reactor.callLater(3, self.error_label.hide)
         reactor.callLater(3, self.message_label.show)
 
-    def update_progress(self, step, message):
+    def update_progress(self, message):
+        step = self.progressbar.value() + 1
         self.progressbar.setValue(step)
         self.message_label.setText(message)
         if step == 3:
@@ -741,62 +744,37 @@ class InviteReceiver(QWidget):
             self.label.setPixmap(
                 QPixmap(resource('green_checkmark.png')).scaled(32, 32))
 
-    @inlineCallbacks
-    def parse_message(self, message):
-        folders_data = message.get('magic-folders')
-        if folders_data:
-            folders = []
-            for gateway in self.parent.main_window.gateways:
-                introducer = gateway.config_get('client', 'introducer.furl')
-                if introducer == message['introducer']:
-                    tahoe = gateway
-            if not tahoe:
-                return  # TODO: Create tahoe client to new grid, then link
-            for folder, data in folders_data.items():
-                self.update_progress(
-                    4, 'Joining folder "{}"...'.format(folder))
-                collective, personal = data['code'].split('+')
-                # TODO: Ensure not already joined, handle name-conflicts
-                yield tahoe.link(
-                    tahoe.get_rootcap(),
-                    folder + ' (collective)',
-                    collective
-                )
-                yield tahoe.link(
-                    tahoe.get_rootcap(),
-                    folder + ' (personal)',
-                    personal
-                )
-                folders.append(folder)
-            if len(folders) == 1:
-                target = folders[0]
-                text = (
-                    'Successfully joined folder "{}"!\n"{}" is now available '
-                    'for download'.format(target, target)
-                )
-            else:
-                target = humanized_list(folders, 'folders')
-                text = (
-                    'Successfully joined {}!\n{} are now available for '
-                    'download'.format(target, target)
-                )
-            self.update_progress(5, text)
+    def notify_joined_folders(self, folders):
+        if len(folders) == 1:
+            target = folders[0]
+            text = (
+                'Successfully joined folder "{}"!\n"{}" is now available '
+                'for download'.format(target, target)
+            )
         else:
-            return  # TODO: Create tahoe client to new grid, then link
+            target = humanized_list(folders, 'folders')
+            text = (
+                'Successfully joined {}!\n{} are now available for '
+                'download'.format(target, target)
+            )
+        self.update_progress(text)  # XXX
 
     def got_message(self, message):
-        self.update_progress(3, "Reading invitation...")
-        self.parse_message(message)
+        self.update_progress("Reading invitation...")  # 3
+        self.setup_runner = SetupRunner(self.gateways)
+        self.setup_runner.update_progress.connect(self.update_progress)
+        self.setup_runner.joined_folders.connect(self.notify_joined_folders)
+        self.setup_runner.run(message)
 
     def got_introduction(self):
-        self.update_progress(2, "Connected; opening invitation..")
+        self.update_progress("Connected; opening invitation..")  # 2
 
     def go(self, code):
         self.reset()
         self.label.setText(' ')
         self.lineedit.hide()
         self.progressbar.show()
-        self.update_progress(1, "Verifying invitation...")
+        self.update_progress("Verifying invitation...")  # 1
         self.wormhole = Wormhole()
         self.wormhole.got_introduction.connect(self.got_introduction)
         self.wormhole.got_message.connect(self.got_message)
