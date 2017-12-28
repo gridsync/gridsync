@@ -14,7 +14,8 @@ from io import BytesIO
 import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
-    Deferred, DeferredLock, gatherResults, inlineCallbacks, returnValue)
+    Deferred, DeferredList, DeferredLock, gatherResults, inlineCallbacks,
+    returnValue)
 from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
@@ -233,6 +234,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def version(self):
         output = yield self.command(['--version'])
         returnValue((self.executable, output.split()[1]))
+
+    @inlineCallbacks
+    def get_features(self):
+        try:
+            output = yield self.command(['magic-folder', 'list'])
+        except TahoeCommandError as err:
+            if str(err).strip().endswith('Unknown command: list'):
+                # Has magic-folder support but no multi-magic-folder support
+                returnValue((self.executable, True, False))
+            else:
+                # Has no magic-folder support ('Unknown command: magic-folder')
+                # or something else went wrong; consider executable unsupported
+                returnValue((self.executable, False, False))
+        if output:
+            # Has magic-folder support and multi-magic-folder support
+            returnValue((self.executable, True, True))
 
     @inlineCallbacks
     def create_client(self, **kwargs):
@@ -787,18 +804,18 @@ def select_executable():
     if executables:
         tasks = []
         for executable in executables:
-            log.debug("Found %s; getting version...", executable)
-            tasks.append(Tahoe(executable=executable).version())
-        results = yield gatherResults(tasks)
-        for executable, version in results:
-            log.debug("%s has version '%s'", executable, version)
-            try:
-                major = int(version.split('.')[0])
-                minor = int(version.split('.')[1])
-                if (major, minor) >= (1, 12):
-                    returnValue(executable)
-            except (IndexError, ValueError):
-                log.warning("Could not parse/compare version of '%s'", version)
-                if version == 'unknown':
-                    # TODO: Check for multi-magic-folder support
-                    returnValue(executable)
+            log.debug("Found %s; checking magic-folder support...", executable)
+            tasks.append(Tahoe(executable=executable).get_mfeatures())
+        results = yield DeferredList(tasks)
+        acceptable_executables = []
+        for success, result in results:
+            if success:
+                path, has_folder_support, has_multi_folder_support = result
+                if has_folder_support and has_multi_folder_support:
+                    log.debug("Found preferred executable: %s", path)
+                    returnValue(path)
+                elif has_folder_support:
+                    log.debug("Found acceptable executable: %s", path)
+                    acceptable_executables.append(path)
+        if acceptable_executables:
+            returnValue(acceptable_executables[0])
