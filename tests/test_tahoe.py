@@ -184,13 +184,6 @@ def test_tahoe_command_win32_monkeypatch(tahoe, monkeypatch):
 
 
 @pytest.inlineCallbacks
-def test_tahoe_version(tahoe, monkeypatch):
-    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: 'test 1')
-    version = yield tahoe.version()
-    assert version == ('tahoe_exe', '1')
-
-
-@pytest.inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(NodedirExistsError):
         yield tahoe.create_client()
