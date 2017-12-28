@@ -231,11 +231,6 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         returnValue(output)
 
     @inlineCallbacks
-    def version(self):
-        output = yield self.command(['--version'])
-        returnValue((self.executable, output.split()[1]))
-
-    @inlineCallbacks
     def get_features(self):
         try:
             output = yield self.command(['magic-folder', 'list'])
