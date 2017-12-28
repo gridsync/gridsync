@@ -800,7 +800,7 @@ def select_executable():
         tasks = []
         for executable in executables:
             log.debug("Found %s; checking magic-folder support...", executable)
-            tasks.append(Tahoe(executable=executable).get_mfeatures())
+            tasks.append(Tahoe(executable=executable).get_features())
         results = yield DeferredList(tasks)
         acceptable_executables = []
         for success, result in results:
