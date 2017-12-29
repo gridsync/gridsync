@@ -13,7 +13,7 @@ humanize==0.5.1
 hyperlink==17.3.1
 idna==2.6
 incremental==17.5.0
-ipaddress==1.0.18
+ipaddress==1.0.19
 magic-wormhole==0.10.3
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
