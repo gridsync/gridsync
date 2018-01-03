@@ -162,7 +162,7 @@ class TahoeConfigForm(QWidget):
         encoding_parameters_gbox_layout.addWidget(self.encoding_parameters)
 
         restore_selector_gbox = QGroupBox(self)
-        restore_selector_gbox.setTitle("Restore from Recovery Key:")
+        restore_selector_gbox.setTitle("Import from Recovery Key:")
         restore_selector_gbox_layout = QGridLayout(restore_selector_gbox)
         restore_selector_gbox_layout.addWidget(self.restore_selector)
 
