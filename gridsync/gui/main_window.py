@@ -437,23 +437,28 @@ class View(QTreeView):
             path = os.path.join(dest, folder)
             self.gateway.create_magic_folder(path, join_code)  # XXX
 
-    def confirm_remove(self, folder):
+    def confirm_remove(self, folders):
+        humanized_folders = humanized_list(folders, "folders")
+        title = "Remove {}?".format(humanized_folders)
+        if len(folders) == 1:
+            text = ("Are you sure you wish to remove the '{}' folder? If "
+                    "you do, it will remain on your computer, however, {} "
+                    "will no longer synchronize its contents with {}".format(
+                        folders[0], APP_NAME, self.gateway.name))
+        else:
+            text = ("Are you sure you wish to remove {}? If you do, they "
+                    "will remain on your computer, however, {} will no "
+                    "longer synchronize their contents with {}.".format(
+                        humanized_folders, APP_NAME, self.gateway.name))
         reply = QMessageBox.question(
-            self, "Remove '{}'?".format(folder),
-            "Are you sure you wish to remove the '{}' folder? If you do, it "
-            "will remain on your computer, however, {} will no longer "
-            "synchronize its contents with {}.".format(
-                folder, APP_NAME, self.gateway.name),
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            self, title, text, QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No)
         if reply == QMessageBox.Yes:
-            self.gateway.remove_magic_folder(folder)
-            self.model().removeRow(self.model().findItems(folder)[0].row())
+            for folder in folders:
+                self.gateway.remove_magic_folder(folder)
+                self.model().removeRow(self.model().findItems(folder)[0].row())
             d = self.model().monitor.scan_rootcap()
             d.addCallback(self.show_drop_label)
-
-    def confirm_removes(self, folders):
-        for folder in folders:
-            self.confirm_remove(folder)
 
     def open_folders(self, folders):
         for folder in folders:
@@ -522,7 +527,7 @@ class View(QTreeView):
             lambda: self.open_share_widget(selected))
         remove_action = QAction(QIcon(resource('close.png')), "Remove...")
         remove_action.triggered.connect(
-            lambda: self.confirm_removes(selected))
+            lambda: self.confirm_remove(selected))
         menu.addAction(open_action)
         menu.addAction(share_action)
         menu.addSeparator()
