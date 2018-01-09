@@ -130,7 +130,10 @@ class SetupRunner(QObject):
                 f.write(json.dumps(settings))
         else:
             self.update_progress.emit('Generating Recovery Key...')
-            settings['rootcap'] = yield self.gateway.create_rootcap()
+            try:
+                settings['rootcap'] = yield self.gateway.create_rootcap()
+            except OSError:  # XXX Rootcap file already exists
+                pass
             with open(settings_path, 'w') as f:
                 f.write(json.dumps(settings))
             settings_cap = yield self.gateway.upload(settings_path)
