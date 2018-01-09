@@ -61,6 +61,7 @@ def main():
             "{} already running".format(APP_NAME),
             "{} is already running.".format(APP_NAME))
         return 1
+    return 0
 
 
 if __name__ == "__main__":

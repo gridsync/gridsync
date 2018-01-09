@@ -30,10 +30,11 @@ class SetupRunner(QObject):
 
     def get_gateway(self, introducer):
         if not introducer or not self.known_gateways:
-            return
+            return None
         for gateway in self.known_gateways:
             if gateway.config_get('client', 'introducer.furl') == introducer:
                 return gateway
+        return None
 
     def calculate_total_steps(self, settings):
         steps = 1  # done

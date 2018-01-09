@@ -48,7 +48,7 @@ def b58decode(s):  # Adapted from python-bitcoinlib
 
 def humanized_list(list_, kind='files'):
     if not list_:
-        return
+        return None
     elif len(list_) == 1:
         return list_[0]
     elif len(list_) == 2:

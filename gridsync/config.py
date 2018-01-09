@@ -22,7 +22,7 @@ class Config(object):
         try:
             return self.config.get(section, option)
         except (NoOptionError, NoSectionError):
-            return
+            return None
 
     def save(self, settings_dict):
         self.config.read(self.filename)

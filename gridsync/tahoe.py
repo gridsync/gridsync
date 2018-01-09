@@ -152,7 +152,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                             pass
             return aliases
         except IOError:
-            return
+            return None
 
     def get_alias(self, alias):
         if not alias.endswith(':'):
@@ -161,8 +161,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             for name, cap in self.get_aliases().items():
                 if name == alias:
                     return cap
+            return None
         except AttributeError:
-            return
+            return None
 
     def load_magic_folders(self):
         data = None
@@ -568,6 +569,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         for folder, settings in self.magic_folders.items():
             if folder == name:
                 return settings.get('client')
+        return None
 
     @inlineCallbacks
     def magic_folder_invite(self, name, nickname):
@@ -644,7 +646,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             with open(filepath) as f:
                 cap = f.read().strip()
         except OSError:
-            return
+            return None
         return cap
 
     def get_rootcap(self):

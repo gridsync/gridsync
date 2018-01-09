@@ -117,6 +117,7 @@ class InviteCodeLineEdit(QLineEdit):
             self.setText('')
         else:
             return QLineEdit.keyPressEvent(self, event)
+        return None
 
     def return_pressed(self):
         code = self.text().lower()

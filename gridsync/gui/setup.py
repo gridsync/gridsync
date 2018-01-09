@@ -174,8 +174,7 @@ class ProgressBarWidget(QWidget):
             self.checkmark.setPixmap(pixmap)
 
     def is_complete(self):
-        if self.progressbar.value() == self.progressbar.maximum():
-            return True
+        return self.progressbar.value() == self.progressbar.maximum()
 
     def reset(self):
         self.progressbar.setValue(0)
