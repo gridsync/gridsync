@@ -166,15 +166,16 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             return None
 
     def load_magic_folders(self):
-        data = None
+        data = {}
         yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
         try:
             with open(yaml_path) as f:
                 data = yaml.safe_load(f)
         except OSError:
             pass
-        if data:
-            for key, value in data.items():  # to preserve defaultdict
+        folders_data = data.get('magic-folders')
+        if folders_data:
+            for key, value in folders_data.items():  # to preserve defaultdict
                 self.magic_folders[key] = value
         for nodedir in get_nodedirs(self.magic_folders_dir):
             folder_name = os.path.basename(nodedir)
