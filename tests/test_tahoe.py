@@ -63,7 +63,7 @@ def tahoe(tmpdir_factory):
     with open(os.path.join(private_dir, 'aliases'), 'w') as f:
         f.write('test_alias: test_cap')
     with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
-        f.write("test_folder: {directory: test_dir}")
+        f.write("magic-folders:\n  test_folder: {directory: test_dir}")
     magic_folder_subdir = os.path.join(
         os.path.join(client.nodedir, 'magic-folders', 'Test'))
     os.makedirs(magic_folder_subdir)
