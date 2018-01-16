@@ -8,6 +8,7 @@ matrix:
       #language: python
       #cache: pip
 install:
+  - python --version
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install 3.6.2; fi
