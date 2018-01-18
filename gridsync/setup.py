@@ -96,9 +96,13 @@ class SetupRunner(QObject):
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
 
-        exe = yield select_executable()
+        executable, multi_folder_support = yield select_executable()
         nodedir = os.path.join(config_dir, nickname)
-        self.gateway = Tahoe(nodedir, executable=exe)
+        self.gateway = Tahoe(
+            nodedir,
+            executable=executable,
+            multi_folder_support=multi_folder_support
+        )
         yield self.gateway.create_client(**settings)
 
         if icon_path:

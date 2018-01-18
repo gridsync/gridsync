@@ -36,12 +36,14 @@ class Core(object):
         self.gui = None
         self.gateways = []
         self.executable = None
+        self.multi_folder_support = None
         self.operations = []
 
     @inlineCallbacks
     def select_executable(self):
-        self.executable = yield select_executable()
-        logging.debug("Selected executable: %s", self.executable)
+        self.executable, self.multi_folder_support = yield select_executable()
+        logging.debug("Selected executable: %s (multi_folder_support=%s)",
+                      self.executable, self.multi_folder_support)
         if not self.executable:
             msg.critical(
                 "Tahoe-LAFS not found",
@@ -70,7 +72,11 @@ class Core(object):
             yield self.select_executable()
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
             for nodedir in nodedirs:
-                gateway = Tahoe(nodedir, executable=self.executable)
+                gateway = Tahoe(
+                    nodedir,
+                    executable=self.executable,
+                    multi_folder_support=self.multi_folder_support
+                )
                 self.gateways.append(gateway)
                 gateway.start()
             self.gui.populate(self.gateways)
@@ -79,7 +85,11 @@ class Core(object):
             if defaults['provider_name']:
                 nodedir = os.path.join(config_dir, defaults['provider_name'])
                 yield self.select_executable()
-                gateway = Tahoe(nodedir, executable=self.executable)
+                gateway = Tahoe(
+                    nodedir,
+                    executable=self.executable,
+                    multi_folder_support=self.multi_folder_support
+                )
                 self.gateways.append(gateway)
                 # TODO: Show setup progress dialog
                 yield gateway.create_client(**defaults)

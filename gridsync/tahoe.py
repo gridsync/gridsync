@@ -89,8 +89,10 @@ class CommandProtocol(ProcessProtocol):
 
 
 class Tahoe(object):  # pylint: disable=too-many-public-methods
-    def __init__(self, nodedir=None, executable=None):
+    def __init__(self, nodedir=None, executable=None,
+                 multi_folder_support=False):
         self.executable = executable
+        self.multi_folder_support = multi_folder_support
         if nodedir:
             self.nodedir = os.path.expanduser(nodedir)
         else:
@@ -797,23 +799,25 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 def select_executable():
     if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
         # Because magic-folder on macOS has not yet landed upstream
-        returnValue(os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'))
+        returnValue((os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'), False))
     executables = which('tahoe')
-    if executables:
-        tasks = []
-        for executable in executables:
-            log.debug("Found %s; checking magic-folder support...", executable)
-            tasks.append(Tahoe(executable=executable).get_features())
-        results = yield DeferredList(tasks)
-        acceptable_executables = []
-        for success, result in results:
-            if success:
-                path, has_folder_support, has_multi_folder_support = result
-                if has_folder_support and has_multi_folder_support:
-                    log.debug("Found preferred executable: %s", path)
-                    returnValue(path)
-                elif has_folder_support:
-                    log.debug("Found acceptable executable: %s", path)
-                    acceptable_executables.append(path)
-        if acceptable_executables:
-            returnValue(acceptable_executables[0])
+    if not executables:
+        returnValue((None, None))
+    tasks = []
+    for executable in executables:
+        log.debug("Found %s; checking magic-folder support...", executable)
+        tasks.append(Tahoe(executable=executable).get_features())
+    results = yield DeferredList(tasks)
+    acceptable_executables = []
+    for success, result in results:
+        if success:
+            path, has_folder_support, has_multi_folder_support = result
+            if has_folder_support and has_multi_folder_support:
+                log.debug("Found preferred executable: %s", path)
+                returnValue((path, True))
+            elif has_folder_support:
+                log.debug("Found acceptable executable: %s", path)
+                acceptable_executables.append(path)
+    if acceptable_executables:
+        returnValue((acceptable_executables[0], False))
+    returnValue((None, None))
