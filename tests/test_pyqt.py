@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-#import os
+import os
 
 import pytest
 from PyQt5.QtCore import PYQT_VERSION_STR
 from PyQt5.QtWidgets import QMessageBox
 
 
-#@pytest.mark.skipif('CI' in os.environ, reason="Fails on Travis-CI/AppVeyor")
+@pytest.mark.skipif('CI' in os.environ, reason="Fails on Travis-CI/AppVeyor")
 @pytest.mark.xfail(PYQT_VERSION_STR == '5.9', reason="Fails on PyQt 5.9")
 # https://bugreports.qt.io/browse/QTBUG-61197
 # https://bugreports.qt.io/browse/QTBUG-54119
