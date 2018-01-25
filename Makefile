@@ -225,7 +225,7 @@ frozen-tahoe:
 	pushd build/tahoe-lafs && \
 	python setup.py update_version && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ . && \
-	pip install pyinstaller==3.3 && \
+	pip install pyinstaller==3.3.1 && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller tahoe.spec && \
@@ -247,7 +247,7 @@ frozen:
 	pip install --upgrade pip && \
 	pip install -r requirements/requirements-hashes.txt && \
 	pip install . && \
-	pip install pyinstaller==3.3 && \
+	pip install pyinstaller==3.3.1 && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
