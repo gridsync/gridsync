@@ -246,6 +246,11 @@ frozen:
 	source build/venv-gridsync/bin/activate && \
 	pip install --upgrade pip && \
 	pip install -r requirements/requirements-hashes.txt && \
+	case `uname` in \
+		Darwin) \
+			pip install -I --no-deps --no-binary PyNaCl PyNaCl==1.2.1 \
+		;; \
+	esac &&	\
 	pip install . && \
 	pip install pyinstaller==3.3.1 && \
 	pip list && \
