@@ -12,31 +12,6 @@ __license__ = 'GPLv3'
 __version__ = _version.__version__
 
 
-default_settings = {
-    'application': {
-        'name': 'Gridsync',
-        'tray_icon': 'gridsync.png',
-        'tray_icon_sync': 'sync.gif'
-    },
-    'default': {
-        'introducer': None,
-        'shares-needed': None,
-        'shares-happy': None,
-        'shares-total': None,
-        'provider_name': None,
-        'provider_icon': None
-    },
-    'help': {
-        'docs_url': 'docs.gridsync.io',
-        'issues_url': 'https://github.com/gridsync/gridsync/issues'
-    },
-    'wormhole': {
-        'appid': 'lothar.com/wormhole/text-or-file-xfer',
-        'relay': 'ws://relay.magic-wormhole.io:4000/v1'
-    }
-}
-
-
 if getattr(sys, 'frozen', False):
     pkgdir = os.path.dirname(os.path.realpath(sys.executable))
     os.environ["PATH"] += os.pathsep + os.path.join(pkgdir, 'Tahoe-LAFS')
@@ -50,10 +25,10 @@ else:
 
 settings = Config(os.path.join(pkgdir, 'resources', 'config.txt')).load()
 
-if not settings:
-    settings = default_settings
-
-APP_NAME = settings['application']['name']
+try:
+    APP_NAME = settings['application']['name']
+except KeyError:
+    APP_NAME = 'Gridsync'
 
 if sys.platform == 'win32':
     config_dir = os.path.join(
