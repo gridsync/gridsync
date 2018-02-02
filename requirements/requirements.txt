@@ -14,7 +14,7 @@ hyperlink==17.3.1
 idna==2.6
 incremental==17.5.0
 ipaddress==1.0.19
-magic-wormhole==0.10.3
+magic-wormhole==0.10.4
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycparser==2.18
