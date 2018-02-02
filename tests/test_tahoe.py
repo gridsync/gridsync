@@ -8,6 +8,7 @@ except ImportError:
 
 import pytest
 from twisted.internet.defer import returnValue
+import yaml
 
 from gridsync.errors import NodedirExistsError
 from gridsync.tahoe import (
@@ -58,14 +59,13 @@ def tahoe(tmpdir_factory):
         f.write('[node]\nnickname = default')
     with open(os.path.join(client.nodedir, 'icon.url'), 'w') as f:
         f.write('test_url')
-    private_dir = os.path.join(os.path.join(client.nodedir, 'private'))
+    private_dir = os.path.join(client.nodedir, 'private')
     os.mkdir(private_dir)
     with open(os.path.join(private_dir, 'aliases'), 'w') as f:
         f.write('test_alias: test_cap')
     with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
         f.write("magic-folders:\n  test_folder: {directory: test_dir}")
-    magic_folder_subdir = os.path.join(
-        os.path.join(client.nodedir, 'magic-folders', 'Test'))
+    magic_folder_subdir = os.path.join(client.nodedir, 'magic-folders', 'Test')
     os.makedirs(magic_folder_subdir)
     with open(os.path.join(magic_folder_subdir, 'tahoe.cfg'), 'w') as f:
         f.write('[magic_folder]\nlocal.directory = /Test')
@@ -503,3 +503,37 @@ def test_tahoe_magic_folder_uninvite_from_subclient(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.get_alias', lambda x, y: 'test')
     yield tahoe.magic_folder_uninvite('TestUninviteFolder', 'Bob')
     assert True
+
+
+@pytest.inlineCallbacks
+def test_upgrade_legacy_config(tmpdir_factory):
+    client = Tahoe(str(tmpdir_factory.mktemp('tahoe-legacy')))
+    os.makedirs(os.path.join(client.nodedir, 'private'))
+    subclient_nodedir = os.path.join(client.magic_folders_dir, 'LegacyFolder')
+    privatedir = os.path.join(subclient_nodedir, 'private')
+    os.makedirs(privatedir)
+    with open(os.path.join(privatedir, 'collective_dircap'), 'w') as f:
+        f.write('URI:COLLECTIVE_DIRCAP')
+    with open(os.path.join(privatedir, 'magic_folder_dircap'), 'w') as f:
+        f.write('URI:MAGIC_FOLDER_DIRCAP')
+    db_path = os.path.join(privatedir, 'magicfolderdb.sqlite')
+    with open(db_path, 'a'):
+        os.utime(db_path, None)
+    subclient = Tahoe(subclient_nodedir)
+    subclient.config_set('magic_folder', 'local.directory', '/LegacyFolder')
+    subclient.config_set('magic_folder', 'poll_interval', '10')
+
+    yield client.upgrade_legacy_config()
+
+    yaml_path = os.path.join(client.nodedir, 'private', 'magic_folders.yaml')
+    with open(yaml_path) as f:
+        data = yaml.safe_load(f)
+    folder_data = data['magic-folders']['LegacyFolder']
+    assert folder_data['collective_dircap'] == 'URI:COLLECTIVE_DIRCAP'
+    assert folder_data['upload_dircap'] == 'URI:MAGIC_FOLDER_DIRCAP'
+    assert folder_data['directory'] == '/LegacyFolder'
+    assert folder_data['poll_interval'] == '10'
+    assert os.path.exists(os.path.join(
+        client.nodedir, 'private', 'magicfolder_LegacyFolder.sqlite'))
+    assert os.path.exists(client.magic_folders_dir + '.backup')
+    assert not os.path.exists(client.magic_folders_dir)
