@@ -8,16 +8,16 @@ import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import (
-    pyqtSlot, QEvent, QItemSelectionModel, QFileInfo, QPoint, QSize, Qt,
-    QThread)
+    pyqtSlot, QEvent, QItemSelectionModel, QFileInfo, QPoint,
+    QPropertyAnimation, QSize, Qt, QThread)
 from PyQt5.QtGui import (
     QColor, QFont, QIcon, QKeySequence, QMovie, QPixmap, QStandardItem,
     QStandardItemModel)
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QComboBox, QFileDialog, QFileIconProvider,
     QGridLayout, QHeaderView, QLabel, QMainWindow, QMenu, QMessageBox,
-    QPushButton, QShortcut, QSizePolicy, QSpacerItem, QStackedWidget,
-    QStyledItemDelegate, QToolButton, QTreeView, QWidget)
+    QProgressDialog, QPushButton, QShortcut, QSizePolicy, QSpacerItem,
+    QStackedWidget, QStyledItemDelegate, QToolButton, QTreeView, QWidget)
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir
@@ -625,6 +625,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.gui = gui
         self.gateways = []
+        self.progress = None
+        self.animation = None
         self.crypter = None
         self.crypter_thread = None
         self.export_data = None
@@ -837,10 +839,21 @@ class MainWindow(QMainWindow):
     def export_encrypted_recovery(self, gateway, password):
         settings = gateway.get_settings(include_rootcap=True)
         data = json.dumps(settings)
+        self.progress = QProgressDialog("Encrypting...", None, 0, 100)
+        self.progress.show()
+        self.animation = QPropertyAnimation(self.progress, b'value')
+        self.animation.setDuration(4500)  # XXX
+        self.animation.setStartValue(0)
+        self.animation.setEndValue(99)
+        self.animation.start()
         self.crypter = Crypter(data.encode(), password.encode())
         self.crypter_thread = QThread()
         self.crypter.moveToThread(self.crypter_thread)
+        self.crypter.succeeded.connect(self.animation.stop)
+        self.crypter.succeeded.connect(self.progress.close)
         self.crypter.succeeded.connect(self.on_encryption_succeeded)
+        self.crypter.failed.connect(self.animation.stop)
+        self.crypter.failed.connect(self.progress.close)
         self.crypter.failed.connect(self.on_encryption_failed)
         self.crypter_thread.started.connect(self.crypter.encrypt)
         self.crypter_thread.start()
