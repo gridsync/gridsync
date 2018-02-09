@@ -6,13 +6,14 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QTimer, QThread
+from PyQt5.QtCore import (pyqtSignal, QFileInfo, QPropertyAnimation, Qt,
+    QTimer, QThread)
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
     QFileIconProvider, QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox,
-    QPlainTextEdit, QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
-    QSpinBox, QToolButton, QWidget)
+    QPlainTextEdit, QProgressBar, QProgressDialog, QPushButton, QSizePolicy,
+    QSpacerItem, QSpinBox, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 import wormhole.errors
@@ -144,6 +145,8 @@ class TahoeConfigForm(QWidget):
         super(TahoeConfigForm, self).__init__()
         self.rootcap = None
         self.settings = {}
+        self.progress = None
+        self.animation = None
         self.crypter = None
         self.crypter_thread = None
 
@@ -251,14 +254,24 @@ class TahoeConfigForm(QWidget):
         self.crypter_thread.wait()
 
     def decrypt_content(self, data, password):
+        self.progress = QProgressDialog("Trying to decrypt...", None, 0, 100)
+        self.progress.show()
+        self.animation = QPropertyAnimation(self.progress, b'value')
+        self.animation.setDuration(4500)  # XXX
+        self.animation.setStartValue(0)
+        self.animation.setEndValue(99)
+        self.animation.start()
         self.crypter = Crypter(data, password.encode())
         self.crypter_thread = QThread()
         self.crypter.moveToThread(self.crypter_thread)
         self.crypter.succeeded.connect(self.on_decryption_succeeded)
+        self.crypter.succeeded.connect(self.animation.stop)
+        self.crypter.succeeded.connect(self.progress.close)
         self.crypter.failed.connect(self.on_decryption_failed)
+        self.crypter.failed.connect(self.animation.stop)
+        self.crypter.failed.connect(self.progress.close)
         self.crypter_thread.started.connect(self.crypter.decrypt)
         self.crypter_thread.start()
-        # TODO: Show progress/busy indicator
 
     def parse_content(self, content):
         try:
