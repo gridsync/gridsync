@@ -22,4 +22,4 @@ issues_url = https://github.com/gridsync/gridsync/issues
 
 [wormhole]
 appid = tahoe-lafs.org/invite
-relay = ws://wormhole.leastauthority.com:4000/v1
+relay = ws://wormhole.tahoe-lafs.org:4000/v1
