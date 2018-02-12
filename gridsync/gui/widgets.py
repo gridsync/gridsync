@@ -6,8 +6,8 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import (pyqtSignal, QFileInfo, QPropertyAnimation, Qt,
-    QTimer, QThread)
+from PyQt5.QtCore import (
+    pyqtSignal, QFileInfo, QPropertyAnimation, Qt, QTimer, QThread)
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
