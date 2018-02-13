@@ -69,6 +69,7 @@ call git --git-dir=build\tahoe-lafs\.git --work-tree=build\tahoe-lafs checkout t
 call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call python setup.py update_version
+:: https://github.com/mhammond/pywin32/issues/1151
 call pip install pypiwin32==219
 call pip install .
 call pip install pyinstaller==3.3.1
