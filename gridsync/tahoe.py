@@ -553,6 +553,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         # magic-folders per tahoe client, create the magic-folder inside
         # a new nodedir using the current nodedir's connection settings.
         # See https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2792
+        try:
+            os.makedirs(self.magic_folders_dir)
+        except OSError:
+            pass
         basename = os.path.basename(path)
         subclient = Tahoe(
             os.path.join(self.magic_folders_dir, basename),
@@ -596,10 +600,6 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def create_magic_folder(self, path, join_code=None):
-        try:
-            os.makedirs(self.magic_folders_dir)
-        except OSError:
-            pass
         path = os.path.realpath(os.path.expanduser(path))
         try:
             os.makedirs(path)
