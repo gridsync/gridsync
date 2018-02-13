@@ -37,7 +37,7 @@ If Alice (the operator of a storage test grid) wishes to invite Bob (an end user
         "shares-total": "1"
     }'
 
-    echo $JSON | wormhole --relay-url ws://wormhole.leastauthority.com:4000/v1 --appid tahoe-lafs.org/tahoe-lafs/v1 send --text -
+    echo $JSON | wormhole --relay-url ws://wormhole.tahoe-lafs.org:4000/v1 --appid tahoe-lafs.org/invite send --text -
 
 
 This might produce the following output on Alice's computer:
@@ -64,4 +64,4 @@ In the future, invite codes may be extended to provide additional information to
 Deployment
 ----------
 
-Storage providers should take note that, by default, Gridsync is configured to use `Least Authority's <https://leastauthority.com>`_ wormhole server (at ``ws://wormhole.leastauthority.com:4000/v1``) using an ``appid`` of ``tahoe-lafs.org/tahoe-lafs/v1``; operators wishing to ensure interoperability between their service and Gridsync clients should either use the same relay and appid in their own deployment (recommended) or distribute a separate build of the Gridsync client with their own settings baked in (see `config.txt <https://github.com/gridsync/gridsync/blob/master/config.txt>`_).
+Storage providers should take note that, by default, Gridsync is configured to use `Tahoe-LAFS's <https://tahoe-lafs.org>`_ wormhole server (at ``ws://wormhole.tahoe-lafs.org:4000/v1``) using an ``appid`` of ``tahoe-lafs.org/invite``; operators wishing to ensure interoperability between their service and Gridsync clients should either use the same relay and appid in their own deployment (recommended) or distribute a separate build of the Gridsync client with their own settings baked in (see `config.txt <https://github.com/gridsync/gridsync/blob/master/config.txt>`_).
