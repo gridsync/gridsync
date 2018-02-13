@@ -615,7 +615,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return
         yield self.stop()
         yield self.start()
-
+        yield self.await_ready()
         rootcap = self.read_cap_from_file(self.rootcap_path)
         yield self.link(rootcap, name + ' (collective)',
                         self.get_alias(name))
