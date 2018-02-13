@@ -606,6 +606,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         except OSError:
             pass
         name = os.path.basename(path)
+        # TODO: Check if alias exists, prompt for rename?
         try:
             yield self.command(['magic-folder', 'create', '-n', name,
                                 name + ':', 'admin', path])
@@ -617,10 +618,14 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.start()
         yield self.await_ready()
         rootcap = self.read_cap_from_file(self.rootcap_path)
-        yield self.link(rootcap, name + ' (collective)',
-                        self.get_alias(name))
-        yield self.link(rootcap, name + ' (personal)',
-                        self.get_magic_folder_dircap(name))
+        if join_code:
+            collective_dircap, personal_dircap = join_code.split('+')
+        if not collective_dircap:
+            collective_dircap = self.get_alias(name)
+        if not personal_dircap:
+            personal_dircap = self.get_magic_folder_dircap(name)
+        yield self.link(rootcap, name + ' (collective)', collective_dircap)
+        yield self.link(rootcap, name + ' (personal)', personal_dircap)
 
     def get_magic_folder_client(self, name):
         for folder, settings in self.magic_folders.items():
@@ -659,6 +664,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 shutil.rmtree(client.nodedir, ignore_errors=True)
             else:
                 yield self.command(['magic-folder', 'leave', '-n', name])
+        # TODO: Remove alias?
 
     @inlineCallbacks
     def get_magic_folder_status(self, name=None):
