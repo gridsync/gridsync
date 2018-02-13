@@ -620,9 +620,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         rootcap = self.read_cap_from_file(self.rootcap_path)
         if join_code:
             collective_dircap, personal_dircap = join_code.split('+')
-        if not collective_dircap:
+        else:
             collective_dircap = self.get_alias(name)
-        if not personal_dircap:
             personal_dircap = self.get_magic_folder_dircap(name)
         yield self.link(rootcap, name + ' (collective)', collective_dircap)
         yield self.link(rootcap, name + ' (personal)', personal_dircap)
