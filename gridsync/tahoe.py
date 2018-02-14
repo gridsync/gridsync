@@ -681,7 +681,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             client = self.magic_folders[name].get('client')
             del self.magic_folders[name]
             if client:
-                yield self.command(['magic-folder', 'leave'])
+                yield client.command(['magic-folder', 'leave'])
                 yield client.stop()
                 shutil.rmtree(client.nodedir, ignore_errors=True)
             else:
