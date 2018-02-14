@@ -574,6 +574,19 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             raise TahoeWebError(content.decode('utf-8'))
 
     @inlineCallbacks
+    def link_magic_folder_to_rootcap(self, name):
+        log.debug("Linking folder '%s' to rootcap..." % name)
+        rootcap = self.get_rootcap()
+        admin_dircap = self.get_admin_dircap(name)
+        if admin_dircap:
+            yield self.link(rootcap, name + ' (admin)', admin_dircap)
+        collective_dircap = self.get_collective_dircap(name)
+        yield self.link(rootcap, name + ' (collective)', collective_dircap)
+        personal_dircap = self.get_magic_folder_dircap(name)
+        yield self.link(rootcap, name + ' (personal)', personal_dircap)
+        log.debug("Successfully linked folder '%s' to rootcap" % name)
+
+    @inlineCallbacks
     def _create_magic_folder_subclient(self, path, join_code=None):
         # Because Tahoe-LAFS doesn't (yet) support having multiple
         # magic-folders per tahoe client, create the magic-folder inside
@@ -617,12 +630,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             ['magic-folder', 'create', 'magic:', 'admin', path])
         yield subclient.stop()
         yield subclient.start()
-
-        rootcap = self.read_cap_from_file(self.rootcap_path)
-        yield self.link(rootcap, basename + ' (collective)',
-                        subclient.get_alias('magic'))
-        yield self.link(rootcap, basename + ' (personal)',
-                        subclient.get_magic_folder_dircap())
+        yield self.link_magic_folder_to_rootcap(basename)
 
     @inlineCallbacks
     def create_magic_folder(self, path, join_code=None):
@@ -643,14 +651,15 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.stop()
         yield self.start()
         yield self.await_ready()
-        rootcap = self.read_cap_from_file(self.rootcap_path)
-        if join_code:
-            collective_dircap, personal_dircap = join_code.split('+')
-        else:
-            collective_dircap = self.get_alias(name)
-            personal_dircap = self.get_magic_folder_dircap(name)
-        yield self.link(rootcap, name + ' (collective)', collective_dircap)
-        yield self.link(rootcap, name + ' (personal)', personal_dircap)
+        yield self.link_magic_folder_to_rootcap(name)
+        #rootcap = self.read_cap_from_file(self.rootcap_path)
+        #if join_code:
+        #    collective_dircap, personal_dircap = join_code.split('+')
+        #else:
+        #    collective_dircap = self.get_alias(name)
+        #    personal_dircap = self.get_magic_folder_dircap(name)
+        #yield self.link(rootcap, name + ' (collective)', collective_dircap)
+        #yield self.link(rootcap, name + ' (personal)', personal_dircap)
 
     def get_magic_folder_client(self, name):
         for folder, settings in self.magic_folders.items():
