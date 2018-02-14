@@ -742,6 +742,21 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             self.rootcap = self.read_cap_from_file(self.rootcap_path)
         return self.rootcap
 
+    def get_admin_dircap(self, name):
+        if name in self.magic_folders:
+            try:
+                return self.magic_folders[name]['admin_dircap']
+            except KeyError:
+                pass
+        if multi_folder_support:
+            cap = self.get_alias(name)
+        else:
+            client = get_magic_folder_client(name)
+            if client:
+                cap = client.get_alias('magic')
+        self.magic_folders[name]['admin_dircap'] = cap
+        return cap
+
     def get_collective_dircap(self, name=None):
         if name in self.magic_folders:
             try:
