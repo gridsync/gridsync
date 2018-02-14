@@ -167,6 +167,29 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         except AttributeError:
             return None
 
+    def _set_alias(self, alias, cap=None):
+        if not alias.endswith(':'):
+            alias = alias + ':'
+        aliases = self.get_aliases()
+        if cap:
+            aliases[alias] = cap
+        else:
+            del aliases[alias]
+        tmp_aliases_file = os.path.join(self.nodedir, 'private', 'aliases.tmp')
+        with open(tmp_aliases_file, 'w') as f:
+            data = ''
+            for name, cap in aliases.items():
+                data += '{} {}\n'.format(name, cap)
+            f.write(data)
+        aliases_file = os.path.join(self.nodedir, 'private', 'aliases')
+        shutil.move(tmp_aliases_file, aliases_file)
+
+    def add_alias(self, alias, cap):
+        self._set_alias(alias, cap)
+
+    def remove_alias(self, alias):
+        self._set_alias(alias)
+
     def load_magic_folders(self):
         data = {}
         yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
