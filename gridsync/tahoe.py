@@ -757,7 +757,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['admin_dircap']
             except KeyError:
                 pass
-        if multi_folder_support:
+        if self.multi_folder_support:
             cap = self.get_alias(name)
         else:
             client = get_magic_folder_client(name)
