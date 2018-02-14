@@ -173,6 +173,11 @@ def test_remove_alias(tahoe):
     assert not tahoe.get_alias('added_alias')
 
 
+def test_remove_alias_idempotent(tahoe):
+    tahoe.remove_alias('added_alias')
+    assert not tahoe.get_alias('added_alias')
+
+
 def test_load_magic_folders(tahoe):
     tahoe.load_magic_folders()
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'

@@ -174,7 +174,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if cap:
             aliases[alias] = cap
         else:
-            del aliases[alias]
+            try:
+                del aliases[alias]
+            except KeyError:
+                return
         tmp_aliases_file = os.path.join(self.nodedir, 'private', 'aliases.tmp')
         with open(tmp_aliases_file, 'w') as f:
             data = ''
