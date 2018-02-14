@@ -686,7 +686,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 shutil.rmtree(client.nodedir, ignore_errors=True)
             else:
                 yield self.command(['magic-folder', 'leave', '-n', name])
-        # TODO: Remove alias?
+                self.remove_alias(name)
 
     @inlineCallbacks
     def get_magic_folder_status(self, name=None):
