@@ -163,6 +163,16 @@ def test_get_alias_not_found(tahoe):
     assert not tahoe.get_alias('missing_alias')
 
 
+def test_add_alias(tahoe):
+    tahoe.add_alias('added_alias', 'added_cap')
+    assert tahoe.get_alias('added_alias') == 'added_cap'
+
+
+def test_remove_alias(tahoe):
+    tahoe.remove_alias('added_alias')
+    assert not tahoe.get_alias('added_alias')
+
+
 def test_load_magic_folders(tahoe):
     tahoe.load_magic_folders()
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'
