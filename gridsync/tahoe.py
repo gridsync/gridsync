@@ -587,7 +587,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         log.debug("Successfully linked folder '%s' to rootcap", name)
 
     @inlineCallbacks
-    def _create_magic_folder_subclient(self, path, join_code=None):
+    def _create_magic_folder_subclient(self, path, join_code=None,
+                                       admin_dircap=None):
         # Because Tahoe-LAFS doesn't (yet) support having multiple
         # magic-folders per tahoe client, create the magic-folder inside
         # a new nodedir using the current nodedir's connection settings.
@@ -612,28 +613,23 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             'shares-total': self.config_get('client', 'shares.total')
         }
         yield subclient.create_client(**settings)
+        if join_code:
+            yield subclient.command(['magic-folder', 'join', join_code, path])
+            if admin_dircap:
+                subclient.add_alias('magic', admin_dircap)
+        else:
+            yield subclient.start()
+            yield subclient.await_ready()
+            yield subclient.command(
+                ['magic-folder', 'create', 'magic:', 'admin', path])
+            yield subclient.stop()
         yield subclient.start()
         yield subclient.await_ready()
-        if join_code:  # XXX
-            collective_cap, personal_cap = join_code.split('+')
-            if collective_cap.startswith('URI:DIR2:'):  # is admin
-                subclient.command(['add-alias', 'magic:', collective_cap])
-                data = yield self.get_json(collective_cap)
-                collective_cap_ro = data[1]['ro_uri']  # diminish to readcap
-                join_code = "{}+{}".format(collective_cap_ro, personal_cap)
-            yield subclient.command(
-                ['magic-folder', 'join', join_code, path])
-            yield subclient.stop()
-            yield subclient.start()
-            returnValue(subclient)
-        yield subclient.command(
-            ['magic-folder', 'create', 'magic:', 'admin', path])
-        yield subclient.stop()
-        yield subclient.start()
         yield self.link_magic_folder_to_rootcap(basename)
+        returnValue(subclient)
 
     @inlineCallbacks
-    def create_magic_folder(self, path, join_code=None):
+    def create_magic_folder(self, path, join_code=None, admin_dircap=None):
         path = os.path.realpath(os.path.expanduser(path))
         try:
             os.makedirs(path)
@@ -641,25 +637,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             pass
         name = os.path.basename(path)
         # TODO: Check if alias exists, prompt for rename?
-        try:
+        if not self.multi_folder_support:
+            yield self._create_magic_folder_subclient(
+                path, join_code, admin_dircap)
+            return
+        if join_code:
+            yield self.command(['magic-folder', 'join', '-n', name, join_code,
+                                path])
+            if admin_dircap:
+                self.add_alias(name, admin_dircap)
+        else:
             yield self.command(['magic-folder', 'create', '-n', name,
                                 name + ':', 'admin', path])
-        except TahoeCommandError as err:
-            if str(err).endswith('not recognized'):
-                yield self._create_magic_folder_subclient(path, join_code)
-                return
         yield self.stop()
         yield self.start()
         yield self.await_ready()
         yield self.link_magic_folder_to_rootcap(name)
-        #rootcap = self.read_cap_from_file(self.rootcap_path)
-        #if join_code:
-        #    collective_dircap, personal_dircap = join_code.split('+')
-        #else:
-        #    collective_dircap = self.get_alias(name)
-        #    personal_dircap = self.get_magic_folder_dircap(name)
-        #yield self.link(rootcap, name + ' (collective)', collective_dircap)
-        #yield self.link(rootcap, name + ' (personal)', personal_dircap)
 
     def get_magic_folder_client(self, name):
         for folder, settings in self.magic_folders.items():
