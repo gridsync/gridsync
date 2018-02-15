@@ -15,9 +15,9 @@ matrix:
       #language: python
       #cache: pip
 install:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then echo "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe" | sudo tee -a /etc/apt/sources.list; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo echo "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe" >> /etc/apt/sources.list; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install gdb xvfb; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install xvfb; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 2.7.14; fi
@@ -55,8 +55,6 @@ script:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/Gridsync --version; fi
 after_success:
   - coveralls
-  - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1)
-  - if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
 notifications:
   email: false
   irc:
