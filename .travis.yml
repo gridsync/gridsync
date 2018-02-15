@@ -4,12 +4,12 @@ matrix:
       dist: trusty
       sudo: required
       # https://bugreports.qt.io/browse/QTBUG-64928
-      addons:
-        apt:
-          sources:
-          - sourceline: "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
-          packages:
-          - xvfb
+      #addons:
+      #  apt:
+      #    sources:
+      #    - sourceline: "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
+      #    packages:
+      #    - xvfb
     - os: osx
       osx_image: xcode6.4
       #language: python
