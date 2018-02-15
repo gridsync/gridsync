@@ -181,8 +181,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         tmp_aliases_file = os.path.join(self.nodedir, 'private', 'aliases.tmp')
         with open(tmp_aliases_file, 'w') as f:
             data = ''
-            for name, cap in aliases.items():
-                data += '{} {}\n'.format(name, cap)
+            for name, dircap in aliases.items():
+                data += '{} {}\n'.format(name, dircap)
             f.write(data)
         aliases_file = os.path.join(self.nodedir, 'private', 'aliases')
         shutil.move(tmp_aliases_file, aliases_file)
@@ -575,7 +575,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def link_magic_folder_to_rootcap(self, name):
-        log.debug("Linking folder '%s' to rootcap..." % name)
+        log.debug("Linking folder '%s' to rootcap...", name)
         rootcap = self.get_rootcap()
         admin_dircap = self.get_admin_dircap(name)
         if admin_dircap:
@@ -584,7 +584,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.link(rootcap, name + ' (collective)', collective_dircap)
         personal_dircap = self.get_magic_folder_dircap(name)
         yield self.link(rootcap, name + ' (personal)', personal_dircap)
-        log.debug("Successfully linked folder '%s' to rootcap" % name)
+        log.debug("Successfully linked folder '%s' to rootcap", name)
 
     @inlineCallbacks
     def _create_magic_folder_subclient(self, path, join_code=None):
@@ -760,7 +760,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if self.multi_folder_support:
             cap = self.get_alias(name)
         else:
-            client = get_magic_folder_client(name)
+            client = self.get_magic_folder_client(name)
             if client:
                 cap = client.get_alias('magic')
         self.magic_folders[name]['admin_dircap'] = cap
