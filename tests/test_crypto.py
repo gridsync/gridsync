@@ -72,6 +72,7 @@ def test_decrypt_fail_incorrect_version_byte():
 
 
 def test_crypter_encrypt_succeeded_signal(crypter, monkeypatch, qtbot):
+    # XXX: Segfaults on Travis-CI
     monkeypatch.setattr('gridsync.crypto.encrypt', lambda x, y: b'1ciphertext')
     with qtbot.wait_signal(crypter.succeeded):
         crypter.encrypt()
