@@ -147,7 +147,7 @@ PyNaCl==1.2.1 \
 pyOpenSSL==17.5.0 \
     --hash=sha256:07a2de1a54de07448732a81e38a55df7da109b2f47f599f8bb35b0cbec69d4bd \
     --hash=sha256:2c10cfba46a52c0b0950118981d61e72c1e5b1aac451ca1bc77de1a679456773
-pypiwin32==219 ; sys_platform == "win32" \
+pypiwin32==219 ; sys_platform == "win32" and python_version <= "3.5" \
     --hash=sha256:5618522ad9c2b229d8a9a1c5175d135a397bf70d6db1d352adf0131aa5321258 \
     --hash=sha256:fbe640e946e2fcd983048e2c40bee28eba884a9e0178fb1cf03e1d365abd8e3f \
     --hash=sha256:ec4b285e1a58dc6eeaa331d5d278dbc6e9da3fa2675cbb803a9c88d2b9c43f79 \
@@ -163,6 +163,9 @@ pypiwin32==219 ; sys_platform == "win32" \
     --hash=sha256:69f63942403f5a6262f05602106ef4921db582df83c59b1a3571995652a6c762 \
     --hash=sha256:5e0101cb712a3b90ee1ccdf8b90ae48958c78e8f1584e958db85bb1a403a91d2 \
     --hash=sha256:06d478295c89dbdd4187e1ac099bb8eab93c29e298bded4e2fbc77009287fa44
+pypiwin32==220 ; sys_platform == "win32" and python_version == "3.6" \
+    --hash=sha256:ceacd1b853fd9f521808d52554a1dcf1231d63c0e7409898ca6502e73e447b6b \
+    --hash=sha256:0cece5cf12ae7f4b32764db8a12cdb1a8b27184be681e0cfbd2996f0cc07376f
 PyQt5==5.10 \
     --hash=sha256:128285176240e990fce9c50293105ffd0d2884d8910bb338118f867b171ec6e8 \
     --hash=sha256:dbd1777d8e7540a6e7350482f1d7c981a073ce1b7195ac2cd21c204b3a28df57 \
