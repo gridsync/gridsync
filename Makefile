@@ -248,7 +248,8 @@ frozen:
 	pip install -r requirements/requirements-hashes.txt && \
 	case `uname` in \
 		Darwin) \
-			pip install -I --no-deps --no-binary PyNaCl PyNaCl==1.2.1 \
+			pip install -I --no-deps --no-binary PyNaCl PyNaCl==1.2.1 && \
+			pip install SIP==4.19.2 PyQt5==5.8.2 \
 		;; \
 	esac &&	\
 	pip install . && \
