@@ -11,6 +11,7 @@ matrix:
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "pip install --upgrade setuptools pip tox"
+  - "pip install git+https://github.com/pypa/virtualenv"
 build: off
 before_test:
   - "python --version"
