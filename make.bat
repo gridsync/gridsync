@@ -49,7 +49,7 @@ call del .\.coverage
 goto :eof
 
 :test
-call py -3 -m tox || exit /b 1
+call %PYTHON3% -m tox || exit /b 1
 goto :eof
 
 :pytest
@@ -85,7 +85,7 @@ goto :eof
 
 :all
 if exist .\dist\Tahoe-LAFS.zip (
-    call py -2.7 -m zipfile -e .\dist\Tahoe-LAFS.zip dist
+    call %PYTHON2% -m zipfile -e .\dist\Tahoe-LAFS.zip dist
     call .\dist\Tahoe-LAFS\tahoe.exe --version-and-path
 ) else (
     call :frozen-tahoe
