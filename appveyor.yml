@@ -11,6 +11,9 @@ matrix:
 install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "pip install --upgrade setuptools pip tox"
+  # Importing PyQt5 under virtualenv 15.1.0 on py36 fails with "Fatal Python 
+  # error: PyThreadState_Get: no current thread". Upgrading to 15.2.0.dev0 
+  # fixes this. See https://github.com/pypa/virtualenv/issues/1122
   - "pip install git+https://github.com/pypa/virtualenv"
 build: off
 before_test:
