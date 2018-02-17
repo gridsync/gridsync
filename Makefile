@@ -242,7 +242,7 @@ frozen:
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	virtualenv --clear --python=python3.5 build/venv-gridsync
+	virtualenv --clear --python=python3.6 build/venv-gridsync
 	source build/venv-gridsync/bin/activate && \
 	pip install --upgrade pip && \
 	pip install -r requirements/requirements-hashes.txt && \
