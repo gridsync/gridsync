@@ -213,6 +213,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                     'nodedir': nodedir,
                     'directory': config.get('magic_folder', 'local.directory')
                 }
+        for folder in self.magic_folders:
+            admin_dircap = self.get_admin_dircap(folder)
+            if admin_dircap:
+                self.magic_folders[folder]['admin_dircap'] = admin_dircap
         return self.magic_folders
 
     def line_received(self, line):
