@@ -832,6 +832,12 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                         folders[prefix]['personal'] = data_dict['rw_uri']
                     else:
                         folders[prefix]['personal'] = data_dict['ro_uri']
+                elif name.endswith(' (admin)'):
+                    prefix = name.split(' (admin)')[0]
+                    if 'rw_uri' in data_dict:
+                        folders[prefix]['admin'] = data_dict['rw_uri']
+                    else:
+                        folders[prefix]['admin'] = data_dict['ro_uri']
             returnValue(folders)
 
     @inlineCallbacks
