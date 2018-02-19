@@ -519,7 +519,7 @@ class View(QTreeView):
                 lambda: self.select_download_location(selected))
             menu.addAction(download_action)
             menu.addSeparator()
-        open_action = QAction("Open")
+        open_action = QAction(self.model().icon_folder_gray, "Open")
         open_action.triggered.connect(
             lambda: self.open_folders(selected))
         share_action = QAction(QIcon(resource('share.png')), "Share...")
