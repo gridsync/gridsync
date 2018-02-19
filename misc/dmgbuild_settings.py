@@ -24,7 +24,7 @@ except ImportError:
     from ConfigParser import RawConfigParser
 
 config = RawConfigParser(allow_no_value=True)
-config.read('config.txt')
+config.read(os.path.join('gridsync', 'resources', 'config.txt'))
 settings = {}
 for section in config.sections():
     if section not in settings:

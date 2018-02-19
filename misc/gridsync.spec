@@ -14,7 +14,7 @@ import sys
 
 
 config = RawConfigParser(allow_no_value=True)
-config.read('config.txt')
+config.read(os.path.join('gridsync', 'resources', 'config.txt'))
 settings = {}
 print('----------------------- config.txt settings: -----------------------')
 for section in config.sections():
@@ -25,9 +25,6 @@ for section in config.sections():
         settings[section][option] = value
 print('--------------------------------------------------------------------')
 app_name = settings['application']['name']
-
-
-shutil.copy2('config.txt', os.path.join('gridsync', 'resources'))
 
 
 paths = []
