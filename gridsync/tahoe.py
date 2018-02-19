@@ -760,6 +760,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             client = self.get_magic_folder_client(name)
             if client:
                 cap = client.get_alias('magic')
+            else:
+                cap = None
         self.magic_folders[name]['admin_dircap'] = cap
         return cap
 
