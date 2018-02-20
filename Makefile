@@ -248,7 +248,7 @@ frozen:
 	pip install -r requirements/requirements-hashes.txt && \
 	case `uname` in \
 		Darwin) \
-			python scripts/install_mac_deps.py && \
+			python scripts/install_mac_deps.py \
 		;; \
 	esac &&	\
 	pip install . && \
