@@ -215,6 +215,9 @@ class Model(QStandardItemModel):
             font.setItalic(True)
             item.setFont(font)
             item.setForeground(QColor('gray'))
+        status_item = self.item(folder_item.row(), 1)
+        status_item.setIcon(QIcon(resource('cloud-icon.png')))
+        status_item.setText("Stored remotely")
 
     def unfade_row(self, folder_name):
         default_foreground = QStandardItem().foreground()
