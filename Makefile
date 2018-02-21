@@ -248,7 +248,8 @@ frozen:
 	pip install -r requirements/requirements-hashes.txt && \
 	case `uname` in \
 		Darwin) \
-			python scripts/install_mac_deps.py \
+			python scripts/maybe_rebuild_libsodium.py && \
+			python scripts/maybe_downgrade_pyqt.py \
 		;; \
 	esac &&	\
 	pip install . && \
