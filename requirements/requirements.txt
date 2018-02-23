@@ -35,7 +35,7 @@ treq==17.8.0
 Twisted==17.9.0
 txaio==2.8.2
 txdbus==1.1.0 ; "linux" in sys_platform
-txtorcon==0.19.3
+txtorcon==0.20.0
 urllib3==1.22
 zope.interface==4.4.3
 zxcvbn-python==4.4.19
