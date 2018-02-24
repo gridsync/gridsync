@@ -56,6 +56,8 @@ script:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/Gridsync --version; fi
 after_success:
   - coveralls
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python scripts/upload_artifacts.py dist/Gridsync.tar.gz; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python scripts/upload_artifacts.py dist/Gridsync.dmg; fi
 notifications:
   email: false
   irc:
@@ -79,3 +81,6 @@ deploy:
   prerelease: true
   on:
     tags: true
+env:
+  global:
+    secure: lUiQR+y0h5mMOgVV2r5vGAMvuG5oMSdJnIeEGJX6HrgQDq7tRqoSGgX4hrAc68MJR4wRSxRm7mdEWeroURlNaLt7cMER8RvL1T4EDnSXSXkCzAtfslU8L2pfzeokrQ+Gpj5mn27yZHFHNk89dsdhFijgQk33p6DScyuT+WAHx2n7+756I6FjD9kz+AnUtwZF1tg9DJs1f+q2vCui+RmuP1pJqDTn9AG7hk0JejO4limPYrQMjL6IsQrL/iB8S7JBfp6LVUGEIfxXV7oBHAScJYrjqT6Lc9EyvCqsL/10p4a4LnYgVSoG0c2urJw310MdzCRUiZSknv7pCxyi6qdUxo+p8yWT+HtT6p0cL15/oc8Lgs81HOFMtpZE2AtEPu/04o5rgYy8X9XvwJkfuDmf+gpIli8/tnU/qQxtnDl5MwNjS6zr82sC09b9d2OSrZm9KcVDecLS9rjsdHluK4MVnSe2/FWuHv2h8U0mHbnxbD5qMeLttHza3Gp9NqRgC/q/EoMH7MBUvJmXRkTx7Ap1ZxZMqTiLQY95E2u3g7Z9rZhBF03+TmoR3OWDyIgN8IsQtrX/6iE7QwWHWkmu9hixzAPWe73BZoksueofnuQoFGdnvuxcpW9i1yYcrJ8ULuMQcZXM4xpNSyttJtHs2O3wYRrw3cnzHygxDGb0Prqtf18=
