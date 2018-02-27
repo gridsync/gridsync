@@ -601,7 +601,6 @@ class ShareWidget(QDialog):
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
         self.settings = self.gateway.get_settings()
-        print(self.settings)
         if self.folder_names:
             folders_data = {}
             for folder in self.folder_names:
