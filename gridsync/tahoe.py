@@ -670,10 +670,11 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         client = self.get_magic_folder_client(name)
         if client:
             code = yield client.command(
-                ['magic-folder', 'invite', 'magic:', nickname])
+                ['magic-folder', '--debug', 'invite', 'magic:', nickname])
         else:
             code = yield self.command(
-                ['magic-folder', 'invite', '-n', name, name + ':', nickname])
+                ['magic-folder', '--debug', 'invite', '-n', name, name + ':',
+                 nickname])
         returnValue(code.strip())
 
     @inlineCallbacks
