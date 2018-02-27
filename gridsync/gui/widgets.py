@@ -601,6 +601,7 @@ class ShareWidget(QDialog):
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
         self.settings = self.gateway.get_settings()
+        print(self.settings)
         if self.folder_names:
             folders_data = {}
             for folder in self.folder_names:
@@ -776,6 +777,8 @@ class InviteReceiver(QWidget):
         self.setup_runner = SetupRunner(self.gateways)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.joined_folders.connect(self.set_joined_folders)
+        if 'rootcap' in message:
+            del message['rootcap']
         self.setup_runner.run(message)
 
     def got_introduction(self):
