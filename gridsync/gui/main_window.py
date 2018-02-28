@@ -81,6 +81,7 @@ class Model(QStandardItemModel):
         composite_pixmap = CompositePixmap(
             self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
         self.icon_folder_gray = QIcon(composite_pixmap)
+        self.icon_cloud = QIcon(resource('cloud-icon.png'))
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
@@ -193,9 +194,23 @@ class Model(QStandardItemModel):
         elif status == 1:
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
+            item.setToolTip(
+                "This folder is syncing. New files are being uploaded or "
+                "downloaded.")
         elif status == 2:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
+            item.setToolTip(
+                'This folder is up to date. The contents of this folder on\n'
+                'your computer matches the contents of the folder on the\n'
+                '"{}" grid.'.format(self.gateway.name))
+        elif status == 3:
+            item.setIcon(self.icon_cloud)
+            item.setText("Stored remotely")
+            item.setToolTip(
+                'This folder is stored remotely on the "{}" grid.\n'
+                'Right-click and select "Download" to sync it with your '
+                'local computer.'.format(self.gateway.name))
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
@@ -214,9 +229,6 @@ class Model(QStandardItemModel):
             font.setItalic(True)
             item.setFont(font)
             item.setForeground(QColor('gray'))
-        status_item = self.item(folder_item.row(), 1)
-        status_item.setIcon(QIcon(resource('cloud-icon.png')))
-        status_item.setText("Stored remotely")
 
     def unfade_row(self, folder_name):
         default_foreground = QStandardItem().foreground()
