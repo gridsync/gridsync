@@ -540,6 +540,10 @@ class View(QTreeView):
         if selection_is_remote:
             open_action.setEnabled(False)
             share_action.setEnabled(False)
+        else:
+            for folder in selected:
+                if not self.gateway.magic_folders[folder]['admin_dircap']:
+                    share_action.setEnabled(False)
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_new_folder(self, path):
