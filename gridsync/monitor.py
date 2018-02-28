@@ -24,7 +24,7 @@ class Monitor(QObject):
     sync_finished = pyqtSignal(str)
     files_updated = pyqtSignal(str, list)
     check_finished = pyqtSignal()
-    remote_folder_added = pyqtSignal(str, dict, str)
+    remote_folder_added = pyqtSignal(str, str)
 
     def __init__(self, gateway):
         super(Monitor, self).__init__()
@@ -132,7 +132,7 @@ class Monitor(QObject):
                 logging.debug(
                     "Found new folder '%s' in rootcap; adding...", name)
                 self.known_folders.append(name)
-                self.remote_folder_added.emit(name, caps, overlay_file)
+                self.remote_folder_added.emit(name, overlay_file)
                 c = yield self.gateway.get_json(caps['collective_dircap'])
                 members = yield self.gateway.get_magic_folder_members(name, c)
                 yield self.do_remote_scan(name, members)

@@ -137,7 +137,7 @@ class Model(QStandardItemModel):
             return QSize(0, 30)
         return value
 
-    def add_folder(self, path, name_data=None, status_data=0):
+    def add_folder(self, path, status_data=0):
         basename = os.path.basename(os.path.normpath(path))
         if self.findItems(basename):
             logging.warning(
@@ -145,7 +145,6 @@ class Model(QStandardItemModel):
             return
         composite_pixmap = CompositePixmap(self.icon_folder.pixmap(256, 256))
         name = QStandardItem(QIcon(composite_pixmap), basename)
-        name.setData(name_data, Qt.UserRole)
         name.setToolTip(path)
         status = QStandardItem()
         mtime = QStandardItem()
@@ -272,9 +271,9 @@ class Model(QStandardItemModel):
                 item.setText(
                     naturaltime(datetime.now() - datetime.fromtimestamp(data)))
 
-    @pyqtSlot(str, dict, str)
-    def add_remote_folder(self, folder_name, caps, overlay_file=None):
-        self.add_folder(folder_name, caps, 3)
+    @pyqtSlot(str, str)
+    def add_remote_folder(self, folder_name, overlay_file=None):
+        self.add_folder(folder_name, 3)
         self.fade_row(folder_name, overlay_file)
 
 
