@@ -435,11 +435,12 @@ class View(QTreeView):
             return
         for folder in folders:
             data = self.gateway.remote_magic_folders[folder]
+            admin_dircap = data['admin_dircap']
             collective_dircap = data['collective_dircap']
             upload_dircap = data['upload_dircap']
             join_code = "{}+{}".format(collective_dircap, upload_dircap)
             path = os.path.join(dest, folder)
-            self.gateway.create_magic_folder(path, join_code)  # XXX
+            self.gateway.create_magic_folder(path, join_code, admin_dircap)
 
     def confirm_remove(self, folders):
         humanized_folders = humanized_list(folders, "folders")
