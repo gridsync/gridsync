@@ -108,6 +108,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.lock = DeferredLock()
         self.rootcap = None
         self.magic_folders = defaultdict(dict)
+        self.remote_magic_folders = defaultdict(dict)
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -832,6 +833,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 elif name.endswith(' (admin)'):
                     prefix = name.split(' (admin)')[0]
                     folders[prefix]['admin_dircap'] = data_dict['rw_uri']
+            self.remote_magic_folders = folders
             returnValue(folders)
 
     @inlineCallbacks
