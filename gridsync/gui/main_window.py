@@ -435,7 +435,7 @@ class View(QTreeView):
         if not dest:
             return
         for folder in folders:
-            data = self.model().findItems(folder)[0].data(Qt.UserRole)
+            data = self.gateway.remote_magic_folders[folder]
             collective_dircap = data['collective_dircap']
             upload_dircap = data['upload_dircap']
             join_code = "{}+{}".format(collective_dircap, upload_dircap)
