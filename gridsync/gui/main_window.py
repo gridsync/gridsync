@@ -436,7 +436,9 @@ class View(QTreeView):
             return
         for folder in folders:
             data = self.model().findItems(folder)[0].data(Qt.UserRole)
-            join_code = "{}+{}".format(data['collective'], data['personal'])
+            collective_dircap = data['collective_dircap']
+            upload_dircap = data['upload_dircap']
+            join_code = "{}+{}".format(collective_dircap, upload_dircap)
             path = os.path.join(dest, folder)
             self.gateway.create_magic_folder(path, join_code)  # XXX
 

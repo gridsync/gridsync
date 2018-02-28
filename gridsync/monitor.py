@@ -133,7 +133,7 @@ class Monitor(QObject):
                     "Found new folder '%s' in rootcap; adding...", name)
                 self.known_folders.append(name)
                 self.remote_folder_added.emit(name, caps, overlay_file)
-                c = yield self.gateway.get_json(caps['collective'])
+                c = yield self.gateway.get_json(caps['collective_dircap'])
                 members = yield self.gateway.get_magic_folder_members(name, c)
                 yield self.do_remote_scan(name, members)
 
