@@ -155,7 +155,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                             pass
             return aliases
         except IOError:
-            return None
+            return aliases
 
     def get_alias(self, alias):
         if not alias.endswith(':'):
