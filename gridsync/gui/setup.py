@@ -306,6 +306,7 @@ class SetupForm(QStackedWidget):
     def on_done(self, gateway):
         self.gateway = gateway
         self.gui.populate([gateway])
+        self.page_2.progressbar.setValue(self.page_2.progressbar.maximum())
         self.finish_button.show()
 
     def verify_settings(self, settings):
