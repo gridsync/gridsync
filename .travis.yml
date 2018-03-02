@@ -52,7 +52,7 @@ install:
   - which virtualenv && virtualenv --version
 script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then python3 -m tox; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python3 -m tox -e py36-pyqt510,flake8,pylint; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then python3 -m tox -e py36-pyqt510-mac,flake8,pylint; fi
   - make all
   - dist/Tahoe-LAFS/tahoe --version-and-path
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/gridsync --version; fi
