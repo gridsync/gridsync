@@ -454,6 +454,38 @@ class View(QTreeView):
             path = os.path.join(dest, folder)
             self.gateway.create_magic_folder(path, join_code, admin_dircap)
 
+    def show_failure(self, failure):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setWindowTitle(str(failure.type.__name__))
+        msg.setText(str(failure.value))
+        logging.error(str(failure))
+        msg.exec_()
+
+    def confirm_unlink(self, folders):
+        humanized_folders = humanized_list(folders, "folders")
+        title = "Permanently remove {}?".format(humanized_folders)
+        if len(folders) == 1:
+            text = ("Are you sure you wish to <b>permanently</b> remove the "
+                    "'{}' folder? If you do, it will be unlinked from your "
+                    "rootcap and cannot be restored with your Recovery Key."
+                    .format(folders[0]))
+        else:
+            text = ("Are you sure you wish to <b>permanently</b> remove {}? "
+                    "If you do, they will be unlinked from your rootcap and "
+                    "cannot be restored with your Recovery Key.".format(
+                        humanized_folders))
+        reply = QMessageBox.question(
+            self, title, text, QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            for folder in folders:
+                d = self.gateway.unlink_magic_folder_from_rootcap(folder)
+                d.addErrback(self.show_failure)
+                self.model().removeRow(self.model().findItems(folder)[0].row())
+            d = self.model().monitor.scan_rootcap()
+            d.addCallback(self.show_drop_label)
+
     def confirm_remove(self, folders):
         humanized_folders = humanized_list(folders, "folders")
         title = "Remove {}?".format(humanized_folders)
@@ -472,7 +504,8 @@ class View(QTreeView):
             QMessageBox.No)
         if reply == QMessageBox.Yes:
             for folder in folders:
-                self.gateway.remove_magic_folder(folder)
+                d = self.gateway.remove_magic_folder(folder)
+                d.addErrback(self.show_failure)
                 self.model().removeRow(self.model().findItems(folder)[0].row())
             d = self.model().monitor.scan_rootcap()
             d.addCallback(self.show_drop_label)
@@ -543,8 +576,6 @@ class View(QTreeView):
         share_action.triggered.connect(
             lambda: self.open_share_widget(selected))
         remove_action = QAction(QIcon(resource('close.png')), "Remove...")
-        remove_action.triggered.connect(
-            lambda: self.confirm_remove(selected))
         menu.addAction(open_action)
         menu.addAction(share_action)
         menu.addSeparator()
@@ -552,10 +583,14 @@ class View(QTreeView):
         if selection_is_remote:
             open_action.setEnabled(False)
             share_action.setEnabled(False)
+            remove_action.triggered.connect(
+                lambda: self.confirm_unlink(selected))
         else:
             for folder in selected:
                 if not self.gateway.magic_folders[folder]['admin_dircap']:
                     share_action.setEnabled(False)
+            remove_action.triggered.connect(
+                lambda: self.confirm_remove(selected))
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_new_folder(self, path):
