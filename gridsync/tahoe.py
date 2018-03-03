@@ -592,6 +592,16 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         log.debug("Successfully linked folder '%s' to rootcap", name)
 
     @inlineCallbacks
+    def unlink_magic_folder_from_rootcap(self, name):
+        log.debug("Unlinking folder '%s' from rootcap...", name)
+        rootcap = self.get_rootcap()
+        yield self.unlink(rootcap, name + ' (collective)')
+        yield self.unlink(rootcap, name + ' (personal)')
+        if 'admin_dircap' in self.remote_magic_folders[name]:
+            yield self.unlink(rootcap, name + ' (admin)')
+        log.debug("Successfully unlinked folder '%s' from rootcap", name)
+
+    @inlineCallbacks
     def _create_magic_folder_subclient(self, path, join_code=None,
                                        admin_dircap=None):
         # Because Tahoe-LAFS doesn't (yet) support having multiple
