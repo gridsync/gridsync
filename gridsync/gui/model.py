@@ -149,7 +149,7 @@ class Model(QStandardItemModel):
         item = self.item(items[0].row(), 1)
         if not status:
             item.setIcon(self.icon_blank)
-            item.setText("Initializing...")
+            item.setText("Loading...")
         elif status == 1:
             item.setIcon(self.icon_blank)
             item.setText("Syncing")

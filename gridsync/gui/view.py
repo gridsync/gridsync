@@ -41,7 +41,7 @@ class Delegate(QStyledItemDelegate):
         if column == 1:
             pixmap = None
             status = index.data(Qt.UserRole)
-            if not status:  # "Initializing..."
+            if not status:  # "Loading..."
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(20, 20)
             elif status == 1:  # "Syncing"
