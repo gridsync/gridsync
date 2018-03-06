@@ -675,6 +675,26 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 return settings.get('client')
         return None
 
+    def local_magic_folder_exists(self, folder_name):
+        if folder_name in self.magic_folders:
+            return True
+        else:
+            return False
+
+    def remote_magic_folder_exists(self, folder_name):
+        if folder_name in self.remote_magic_folders:
+            return True
+        else:
+            return False
+
+    def magic_folder_exists(self, folder_name):
+        if self.local_magic_folder_exists(folder_name):
+            return True
+        elif self.remote_magic_folder_exists(folder_name):
+            return True
+        else:
+            return False
+
     @inlineCallbacks
     def magic_folder_invite(self, name, nickname):
         yield self.await_ready()
