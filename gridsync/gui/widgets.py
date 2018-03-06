@@ -11,9 +11,9 @@ from PyQt5.QtCore import (
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
-    QFileIconProvider, QGridLayout, QGroupBox, QLabel, QLineEdit, QMessageBox,
-    QPlainTextEdit, QProgressBar, QProgressDialog, QPushButton, QSizePolicy,
-    QSpacerItem, QSpinBox, QToolButton, QWidget)
+    QFileIconProvider, QGridLayout, QGroupBox, QInputDialog, QLabel, QLineEdit,
+    QMessageBox, QPlainTextEdit, QProgressBar, QProgressDialog, QPushButton,
+    QSizePolicy, QSpacerItem, QSpinBox, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 import wormhole.errors
@@ -773,11 +773,34 @@ class InviteReceiver(QWidget):
 
     def got_message(self, message):
         self.update_progress("Reading invitation...")  # 3
+        if 'rootcap' in message:
+            del message['rootcap']
+        if 'magic-folders' in message:
+            for folder, data in message['magic-folders'].copy().items():
+                for gateway in self.gateways:
+                    target = folder
+                    while gateway.magic_folder_exists(target):
+                        target, ok = QInputDialog.getText(
+                            self,
+                            "Folder already exists",
+                            'You already belong to a folder named "{}" on\n'
+                            '{}; Please choose a different name.'.format(
+                                    target, gateway.name),
+                            0,
+                            target
+                        )
+                        if not ok:  # User clicked "Cancel"; skip this folder
+                            del message['magic-folders'][folder]
+                            continue
+                        if not target:
+                            target = folder
+                        elif not gateway.magic_folder_exists(target):
+                            if target not in message['magic-folders']:
+                                message['magic-folders'][target] = data
+                                del message['magic-folders'][folder]
         self.setup_runner = SetupRunner(self.gateways)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.joined_folders.connect(self.set_joined_folders)
-        if 'rootcap' in message:
-            del message['rootcap']
         self.setup_runner.run(message)
 
     def got_introduction(self):
