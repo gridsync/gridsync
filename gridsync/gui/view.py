@@ -177,7 +177,7 @@ class View(QTreeView):
             return
         for folder in folders:
             data = self.gateway.remote_magic_folders[folder]
-            admin_dircap = data['admin_dircap']
+            admin_dircap = data.get('admin_dircap')
             collective_dircap = data['collective_dircap']
             upload_dircap = data['upload_dircap']
             join_code = "{}+{}".format(collective_dircap, upload_dircap)
