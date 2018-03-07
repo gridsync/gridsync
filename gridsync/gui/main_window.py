@@ -143,7 +143,15 @@ class MainWindow(QMainWindow):
             'QToolButton::menu-indicator { image: none }')
 
         pair_action = QAction(
-            QIcon(resource('laptop.png')), 'Connect another device...', self)
+            QIcon(
+                CompositePixmap(
+                    QIcon(resource('laptop.png')).pixmap(256, 256),
+                    resource('green-plus.png')
+                )
+            ),
+            "Connect another device...",
+            self
+        )
         pair_action.setStatusTip('Connect another device...')
         pair_action.triggered.connect(self.open_pair_widget)
 
