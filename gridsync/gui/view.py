@@ -322,6 +322,15 @@ class View(QTreeView):
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_new_folder(self, path):
+        basename = os.path.basename(os.path.normpath(path))
+        if self.gateway.magic_folder_exists(basename):
+            QMessageBox.critical(
+                self,
+                "Folder already exists",
+                'You already belong to a folder named "{}" on {}. Please '
+                'rename it and try again.'.format(basename, self.gateway.name)
+            )
+            return
         self.hide_drop_label()
         self.model().add_folder(path)
         self.gateway.create_magic_folder(path)
