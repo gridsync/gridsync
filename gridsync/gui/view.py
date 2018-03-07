@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
 from gridsync.gui.model import Model
-from gridsync.gui.widgets import ShareWidget
+from gridsync.gui.share import ShareWidget
 from gridsync.util import humanized_list
 
 
