@@ -785,7 +785,7 @@ class InviteReceiver(QWidget):
                             "Folder already exists",
                             'You already belong to a folder named "{}" on\n'
                             '{}; Please choose a different name.'.format(
-                                    target, gateway.name),
+                                target, gateway.name),
                             0,
                             target
                         )
@@ -794,10 +794,10 @@ class InviteReceiver(QWidget):
                             continue
                         if not target:
                             target = folder
-                        elif not gateway.magic_folder_exists(target):
-                            if target not in message['magic-folders']:
-                                message['magic-folders'][target] = data
-                                del message['magic-folders'][folder]
+                        elif not gateway.magic_folder_exists(target) and \
+                                target not in message['magic-folders']:
+                            message['magic-folders'][target] = data
+                            del message['magic-folders'][folder]
         self.setup_runner = SetupRunner(self.gateways)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.joined_folders.connect(self.set_joined_folders)

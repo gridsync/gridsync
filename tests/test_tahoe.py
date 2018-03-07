@@ -487,32 +487,32 @@ def test_tahoe_get_magic_folder_client_none(tahoe):
 
 def test_local_magic_folder_exists_true(tahoe):
     tahoe.magic_folders['LocalTestFolder'] = {}
-    assert tahoe.local_magic_folder_exists('LocalTestFolder') == True
+    assert tahoe.local_magic_folder_exists('LocalTestFolder')
 
 
 def test_local_magic_folder_exists_false(tahoe):
     del tahoe.magic_folders['LocalTestFolder']
-    assert tahoe.local_magic_folder_exists('LocalTestFolder') == False
+    assert not tahoe.local_magic_folder_exists('LocalTestFolder')
 
 
 def test_remote_magic_folder_exists_true(tahoe):
     tahoe.remote_magic_folders['RemoteTestFolder'] = {}
-    assert tahoe.remote_magic_folder_exists('RemoteTestFolder') == True
+    assert tahoe.remote_magic_folder_exists('RemoteTestFolder')
 
 
 def test_remote_magic_folder_exists_false(tahoe):
     del tahoe.remote_magic_folders['RemoteTestFolder']
-    assert tahoe.local_magic_folder_exists('RemoteTestFolder') == False
+    assert not tahoe.local_magic_folder_exists('RemoteTestFolder')
 
 
 def test_magic_folder_exists_true(tahoe):
     tahoe.magic_folders['ExistingTestFolder'] = {}
-    assert tahoe.magic_folder_exists('ExistingTestFolder') == True
+    assert tahoe.magic_folder_exists('ExistingTestFolder')
 
 
 def test_magic_folder_exists_false(tahoe):
     del tahoe.magic_folders['ExistingTestFolder']
-    assert tahoe.magic_folder_exists('ExistingTestFolder') == False
+    assert not tahoe.magic_folder_exists('ExistingTestFolder')
 
 
 @pytest.inlineCallbacks
