@@ -676,11 +676,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             if admin_dircap:
                 self.add_alias(name, admin_dircap)
         else:
+            yield self.await_ready()
             yield self.command(['magic-folder', 'create', '-n', name,
                                 name + ':', 'admin', path])
-        yield self.stop()
-        yield self.start()
-        yield self.await_ready()
+        self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
 
     def get_magic_folder_client(self, name):
