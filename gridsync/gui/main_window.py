@@ -207,7 +207,9 @@ class MainWindow(QMainWindow):
         self.gui.systray.menu.populate()
 
     def current_view(self):
-        return self.central_widget.currentWidget().layout().itemAt(0).widget()
+        view = self.central_widget.currentWidget().layout().itemAt(0).widget()
+        if type(view) == View:
+            return view
 
     def select_folder(self):
         try:
@@ -400,7 +402,7 @@ class MainWindow(QMainWindow):
         key = event.key()
         if key == Qt.Key_Escape:
             view = self.current_view()
-            selected = view.selectedIndexes()
+            selected = (view.selectedIndexes() if view else None)
             if selected:
                 for index in selected:
                     view.selectionModel().select(
