@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
-    QAction, QDialog, QGridLayout, QLabel, QLineEdit, QProgressBar,
+    QAction, QDialog, QGridLayout, QGroupBox, QLabel, QLineEdit, QProgressBar,
     QSizePolicy, QSpacerItem)
 from zxcvbn import zxcvbn
 
@@ -11,7 +11,7 @@ from gridsync import resource
 
 
 class PasswordDialog(QDialog):
-    def __init__(self, parent=None, show_stats=True):
+    def __init__(self, parent=None, help_text='', show_stats=True):
         super(PasswordDialog, self).__init__(parent)
         self.setMinimumWidth(400)
 
@@ -34,7 +34,6 @@ class PasswordDialog(QDialog):
         layout = QGridLayout(self)
         layout.addWidget(self.label, 1, 1)
         layout.addWidget(self.lineedit, 2, 1)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
         if show_stats:
             self.progressbar = QProgressBar()
@@ -59,6 +58,19 @@ class PasswordDialog(QDialog):
             self.lineedit.textChanged.connect(self.update_stats)
 
             self.update_color('transparent')
+
+        if help_text:
+            gbox = QGroupBox()
+            gbox_layout = QGridLayout()
+            gbox_label = QLabel(help_text)
+            gbox_label.setWordWrap(True)
+            gbox_label.setAlignment(Qt.AlignCenter)
+            gbox_label.setStyleSheet('color: gray')
+            gbox_layout.addWidget(gbox_label)
+            gbox.setLayout(gbox_layout)
+            layout.addWidget(gbox, 5, 1)
+
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
 
     def update_color(self, color):
         self.rating_label.setStyleSheet(
@@ -124,8 +136,8 @@ class PasswordDialog(QDialog):
             self.reject()
 
     @staticmethod
-    def get_password(parent=None, label=None, show_stats=True):
-        dialog = PasswordDialog(parent, show_stats)
+    def get_password(parent=None, label=None, help_text='', show_stats=True):
+        dialog = PasswordDialog(parent, help_text, show_stats)
         if label:
             dialog.label.setText(label)
         result = dialog.exec_()
