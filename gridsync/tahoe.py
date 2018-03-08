@@ -864,6 +864,20 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             returnValue(folders)
 
     @inlineCallbacks
+    def ensure_folder_links(self, _):
+        yield self.await_ready()
+        if not self.get_rootcap():
+            yield self.create_rootcap()
+        if self.magic_folders:
+            remote_folders = yield self.get_magic_folders_from_rootcap()
+            for folder in self.magic_folders:
+                if folder not in remote_folders:
+                    self.link_magic_folder_to_rootcap(folder)
+                else:
+                    log.debug('Folder "%s" already linked to rootcap; '
+                              'skipping.' % folder)
+
+    @inlineCallbacks
     def get_magic_folder_members(self, name=None, content=None):
         if not content:
             content = yield self.get_json(self.get_collective_dircap(name))

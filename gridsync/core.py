@@ -78,7 +78,8 @@ class Core(object):
                     multi_folder_support=self.multi_folder_support
                 )
                 self.gateways.append(gateway)
-                gateway.start()
+                d = gateway.start()
+                d.addCallback(gateway.ensure_folder_links)
             self.gui.populate(self.gateways)
         else:
             defaults = settings['default']
