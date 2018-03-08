@@ -263,7 +263,12 @@ class TahoeConfigForm(QWidget):
             settings = json.loads(content.decode('utf-8'))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError):
             password, ok = PasswordDialog.get_password(
-                self, "Decryption password (required):", show_stats=False)
+                self,
+                "Decryption passphrase (required):",
+                "This Recovery Key is protected by a passphrase. Enter the "
+                "correct passphrase to decrypt it.",
+                show_stats=False
+            )
             if ok:
                 self.decrypt_content(content, password)
             return

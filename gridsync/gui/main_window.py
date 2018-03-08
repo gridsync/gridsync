@@ -348,7 +348,11 @@ class MainWindow(QMainWindow):
         if not gateway:
             gateway = self.current_view().gateway
         password, ok = PasswordDialog.get_password(
-            self, "Encryption passphrase (optional):")
+            self,
+            "Encryption passphrase (optional):",
+            "A long passphrase will help keep your files safe in the event "
+            "that your Recovery Key is ever compromised."
+	)
         if ok and password:
             self.export_encrypted_recovery(gateway, password)
         elif ok:
