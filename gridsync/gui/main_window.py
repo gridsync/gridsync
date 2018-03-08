@@ -208,8 +208,9 @@ class MainWindow(QMainWindow):
 
     def current_view(self):
         view = self.central_widget.currentWidget().layout().itemAt(0).widget()
-        if type(view) == View:
+        if isinstance(view, View):
             return view
+        return None
 
     def select_folder(self):
         try:
@@ -354,7 +355,7 @@ class MainWindow(QMainWindow):
             "Encryption passphrase (optional):",
             "A long passphrase will help keep your files safe in the event "
             "that your Recovery Key is ever compromised."
-	)
+        )
         if ok and password:
             self.export_encrypted_recovery(gateway, password)
         elif ok:

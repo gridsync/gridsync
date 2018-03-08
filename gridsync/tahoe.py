@@ -424,7 +424,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def restart(self):
-        log.debug("Restarting %s client..." % self.name)
+        log.debug("Restarting %s client...", self.name)
         # Temporarily disable desktop notifications for (dis)connect events
         pref = get_preference('notifications', 'connection')
         set_preference('notifications', 'connection', 'false')
@@ -433,7 +433,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.await_ready()
         yield deferLater(reactor, 1, lambda: None)
         set_preference('notifications', 'connection', pref)
-        log.debug("Finished restarting %s client." % self.name)
+        log.debug("Finished restarting %s client.", self.name)
 
     @staticmethod
     def _parse_welcome_page(html):
@@ -888,7 +888,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                     self.link_magic_folder_to_rootcap(folder)
                 else:
                     log.debug('Folder "%s" already linked to rootcap; '
-                              'skipping.' % folder)
+                              'skipping.', folder)
 
     @inlineCallbacks
     def get_magic_folder_members(self, name=None, content=None):
