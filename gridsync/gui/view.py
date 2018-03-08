@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QFileDialog, QGridLayout, QHeaderView, QLabel,
     QMenu, QMessageBox, QPushButton, QSizePolicy, QSpacerItem,
     QStyledItemDelegate, QTreeView)
+from twisted.internet.defer import DeferredList
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_folder
@@ -337,14 +338,48 @@ class View(QTreeView):
         self.model().add_folder(path)
         self.gateway.create_magic_folder(path)
 
+    def maybe_restart_gateway(self, _):
+        if self.gateway.multi_folder_support:
+            self.gateway.restart()
+
+    def add_folders(self, paths):
+        paths_to_add = []
+        for path in paths:
+            basename = os.path.basename(os.path.normpath(path))
+            if not os.path.isdir(path):
+                QMessageBox.critical(
+                    self,
+                    "Cannot add {}.".format(basename),
+                    "Cannot add '{}'.\n\n{} currently only supports uploading "
+                    "and syncing folders, and not individual files. Please "
+                    "try again.".format(basename, APP_NAME)
+                )
+            elif self.gateway.magic_folder_exists(basename):
+                QMessageBox.critical(
+                    self,
+                    "Folder already exists",
+                    'You already belong to a folder named "{}" on {}. Please '
+                    'rename it and try again.'.format(basename,
+                                                      self.gateway.name)
+                )
+            else:
+                paths_to_add.append(path)
+        if paths_to_add:
+            self.hide_drop_label()
+            tasks = []
+            for path in paths_to_add:
+                self.model().add_folder(path)
+                tasks.append(self.gateway.create_magic_folder(path))
+            d = DeferredList(tasks)
+            d.addCallback(self.maybe_restart_gateway)
+
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")
         dialog.setDirectory(os.path.expanduser('~'))
         dialog.setFileMode(QFileDialog.Directory)
         dialog.setOption(QFileDialog.ShowDirsOnly)
         if dialog.exec_():
-            for folder in dialog.selectedFiles():
-                self.add_new_folder(folder)
+            self.add_folders(dialog.selectedFiles())
 
     def dragEnterEvent(self, event):  # pylint: disable=no-self-use
         logging.debug(event)
@@ -364,16 +399,10 @@ class View(QTreeView):
         logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
+            paths = []
             for url in event.mimeData().urls():
-                path = url.toLocalFile()
-                if os.path.isdir(path):
-                    self.add_new_folder(path)
-                else:
-                    QMessageBox.critical(
-                        self, "Cannot add {}.".format(path),
-                        "Cannot add '{}'.\n\n{} currently only supports "
-                        "uploading and syncing folders, and not individual "
-                        "files. Please try again.".format(path, APP_NAME))
+                paths.append(url.toLocalFile())
+            self.add_folders(paths)
 
     def eventFilter(self, obj, event):  # pylint: disable=unused-argument
         if event.type() == QEvent.DragEnter:
