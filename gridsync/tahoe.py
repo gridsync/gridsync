@@ -25,6 +25,7 @@ import yaml
 from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import NodedirExistsError
+from gridsync.preferences import set_preference, get_preference
 from gridsync.util import dehumanized_size
 
 
@@ -420,6 +421,19 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
         yield self._start_magic_folder_subclients()
+
+    @inlineCallbacks
+    def restart(self):
+        log.debug("Restarting %s client..." % self.name)
+        # Temporarily disable desktop notifications for (dis)connect events
+        pref = get_preference('notifications', 'connection')
+        set_preference('notifications', 'connection', 'false')
+        yield self.stop()
+        yield self.start()
+        yield self.await_ready()
+        yield deferLater(reactor, 1, lambda: None)
+        set_preference('notifications', 'connection', pref)
+        log.debug("Finished restarting %s client." % self.name)
 
     @staticmethod
     def _parse_welcome_page(html):
