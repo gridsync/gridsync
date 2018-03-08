@@ -242,7 +242,7 @@ class TahoeConfigForm(QWidget):
         self.progress = QProgressDialog("Trying to decrypt...", None, 0, 100)
         self.progress.show()
         self.animation = QPropertyAnimation(self.progress, b'value')
-        self.animation.setDuration(4500)  # XXX
+        self.animation.setDuration(5000)  # XXX
         self.animation.setStartValue(0)
         self.animation.setEndValue(99)
         self.animation.start()
