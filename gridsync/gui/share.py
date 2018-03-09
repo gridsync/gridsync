@@ -486,3 +486,7 @@ class InviteReceiver(QWidget):
     def closeEvent(self, event):
         event.accept()
         self.closed.emit(self)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close()
