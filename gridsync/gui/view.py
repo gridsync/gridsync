@@ -171,11 +171,16 @@ class View(QTreeView):
         self.share_widgets.append(share_widget)  # TODO: Remove on close
         share_widget.show()
 
+    def maybe_restart_gateway(self, _):
+        if self.gateway.multi_folder_support:
+            self.gateway.restart()
+
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
             self, "Select a download destination", os.path.expanduser('~'))
         if not dest:
             return
+        tasks = []
         for folder in folders:
             data = self.gateway.remote_magic_folders[folder]
             admin_dircap = data.get('admin_dircap')
@@ -183,7 +188,11 @@ class View(QTreeView):
             upload_dircap = data['upload_dircap']
             join_code = "{}+{}".format(collective_dircap, upload_dircap)
             path = os.path.join(dest, folder)
-            self.gateway.create_magic_folder(path, join_code, admin_dircap)
+            tasks.append(
+                self.gateway.create_magic_folder(path, join_code, admin_dircap)
+            )
+        d = DeferredList(tasks)
+        d.addCallback(self.maybe_restart_gateway)
 
     def show_failure(self, failure):
         msg = QMessageBox(self)
@@ -337,10 +346,6 @@ class View(QTreeView):
         self.hide_drop_label()
         self.model().add_folder(path)
         self.gateway.create_magic_folder(path)
-
-    def maybe_restart_gateway(self, _):
-        if self.gateway.multi_folder_support:
-            self.gateway.restart()
 
     def add_folders(self, paths):
         paths_to_add = []
