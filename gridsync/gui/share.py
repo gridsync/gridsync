@@ -319,7 +319,8 @@ class InviteReceiver(QWidget):
         self.lineedit.go.connect(self.go)
 
         self.progressbar = QProgressBar(self)
-        self.progressbar.setMaximum(5)  # XXX
+        self.progressbar.setValue(0)
+        self.progressbar.setMaximum(6)  # XXX
         self.progressbar.setTextVisible(False)
 
         self.message_label = QLabel()
