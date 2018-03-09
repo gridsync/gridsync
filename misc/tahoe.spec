@@ -30,6 +30,8 @@ added_files = [
 
 hidden_imports = [
     'allmydata.client',
+    'allmydata.introducer',
+    'allmydata.stats',
     'cffi',
     'characteristic',
     'Crypto',
