@@ -18,8 +18,11 @@ files = sys.argv[1:]
 if not files:
     sys.exit("No files to upload; exiting")
 
+#tahoe = 'dist/Tahoe-LAFS/tahoe'
+tahoe = 'build/venv-tahoe/bin/tahoe'
+
 subprocess.check_output([
-    'dist/Tahoe-LAFS/tahoe',
+    tahoe,
     'create-client',
     '-i', introducer,
     '--shares-happy=1',
@@ -28,19 +31,19 @@ subprocess.check_output([
     '--webport=tcp:0',
     '.tahoe'
 ])
-subprocess.check_output(['dist/Tahoe-LAFS/tahoe', '-d', '.tahoe', 'start'])
+subprocess.check_output([tahoe, '-d', '.tahoe', 'start'])
 time.sleep(3)
 
 for path in files:
     if os.path.isfile(path):
         output = subprocess.check_output(
-            ['dist/Tahoe-LAFS/tahoe', '-d', '.tahoe', 'put', path],
+            [tahoe, '-d', '.tahoe', 'put', path],
             stderr=subprocess.STDOUT
         )
         resp, cap = output.decode().strip().split('\n')
         if resp == '200 OK':
             print(cap, path)
 
-subprocess.check_output(['dist/Tahoe-LAFS/tahoe', '-d', '.tahoe', 'stop'])
+subprocess.check_output([tahoe, '-d', '.tahoe', 'stop'])
 shutil.rmtree('.tahoe')
 print("Done!")
