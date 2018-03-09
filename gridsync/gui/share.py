@@ -324,6 +324,8 @@ class InviteReceiver(QWidget):
         self.setup_runner = None
         self.joined_folders = []
 
+        self.setMinimumSize(500, 300)
+
         self.mail_closed_icon = QLabel()
         self.mail_closed_icon.setPixmap(
             QPixmap(resource('mail-envelope-closed.png')).scaled(128, 128))
