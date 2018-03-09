@@ -210,7 +210,7 @@ class ShareWidget(QDialog):
         if self.folder_names:
             target = self.folder_names_humanized
         else:
-            target = self.gateway
+            target = self.gateway.name
         text = "Your invitation to {} was accepted".format(target)
         self.subtext_label.setText("Invite successful!\n {} at {}".format(
             text, datetime.now().strftime('%H:%M')))
