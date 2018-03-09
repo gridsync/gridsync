@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
     QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, CancelledError
+import wormhole.errors
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
@@ -218,6 +219,8 @@ class ShareWidget(QDialog):
             self.gui.show_message("Invite successful", text)
 
     def handle_failure(self, failure):
+        if failure.type == wormhole.errors.LonelyError:
+            return
         logging.error(str(failure))
         show_failure(failure, self)
         self.wormhole.close()
