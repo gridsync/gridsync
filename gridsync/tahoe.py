@@ -722,11 +722,13 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def magic_folder_uninvite(self, name, nickname):
+        log.debug('Uninviting "%s" from "%s"...', nickname, name)
         client = self.get_magic_folder_client(name)
         if client:
             yield client.unlink(client.get_alias('magic'), nickname)
         else:
             yield self.unlink(self.get_alias(name), nickname)
+        log.debug('Uninvited "%s" from "%s"...', nickname, name)
 
     @inlineCallbacks
     def remove_magic_folder(self, name):
