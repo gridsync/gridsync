@@ -5,17 +5,19 @@ import logging
 
 from PyQt5.QtCore import pyqtSignal, QObject, QStringListModel, Qt
 from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import QAction, QCompleter, QLineEdit
+from PyQt5.QtWidgets import QAction, QCompleter, QLineEdit, QMessageBox
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks, returnValue, CancelledError
 from wormhole import wormhole
-from wormhole.errors import WormholeError
+from wormhole.errors import (
+    LonelyError, ServerConnectionError, WelcomeError, WormholeError,
+    WrongPasswordError)
 try:
     from wormhole.wordlist import raw_words
 except ImportError:  # TODO: Switch to new magic-wormhole completion API
     from wormhole._wordlist import raw_words
 
-from gridsync import settings, resource
+from gridsync import settings, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 
@@ -137,6 +139,56 @@ class InviteCodeLineEdit(QLineEdit):
             self.go.emit(code)
         else:
             self.setText('')
+
+
+def show_failure(failure, parent=None):
+    msg = QMessageBox(parent)
+    msg.setIcon(QMessageBox.Warning)
+    msg.setStandardButtons(QMessageBox.Retry)
+    msg.setEscapeButton(QMessageBox.Retry)
+    msg.setDetailedText(str(failure))
+    if failure.type == ServerConnectionError:
+        msg.setWindowTitle("Server Connection Error")
+        msg.setText(
+            "An error occured while connecting to the invite server. This "
+            "could mean that it is currently offline or that there is some "
+            "other problem with your connection. Please try again later.")
+    elif failure.type == WelcomeError:
+        msg.setWindowTitle("Invite refused")
+        msg.setText(
+            "The server negotiating your invitation is online but is "
+            "currently refusing to process any invitations. This may indicate "
+            "that your version of {} is out-of-date, in which case you should "
+            "upgrade to the latest version and try again.".format(APP_NAME))
+        msg.setIcon(QMessageBox.Critical)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setEscapeButton(QMessageBox.Ok)
+    elif failure.type == WrongPasswordError:
+        msg.setWindowTitle("Invite confirmation failed")
+        msg.setText(
+            "Either your recipient mistyped the invite code or a potential "
+            "attacker tried to guess the code and failed.\n\nTo try again, "
+            "you will need a new invite code.")
+    elif failure.type == LonelyError:  # Raises only when closing(?)
+        return
+    elif failure.type == UpgradeRequiredError:
+        msg.setWindowTitle("Upgrade required")
+        msg.setText(
+            "Your version of {} is out-of-date. Please upgrade to the latest "
+            "version and try again with a new invite code.".format(APP_NAME))
+        msg.setIcon(QMessageBox.Critical)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setEscapeButton(QMessageBox.Ok)
+    elif failure.type == CancelledError:
+        msg.setWindowTitle("Invite timed out")
+        msg.setText(
+            "The invitation process has timed out. Your invite code may have "
+            "have expired. Please request a new invite code from the other "
+            "party and try again.")
+    else:
+        msg.setWindowTitle(str(failure.type.__name__))
+        msg.setText(str(failure.value))
+    msg.exec_()
 
 
 class Wormhole(QObject):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import logging as log
 import os
 
@@ -17,7 +16,7 @@ from wormhole.errors import (
 
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
-from gridsync.invite import wormhole_receive, InviteCodeLineEdit
+from gridsync.invite import wormhole_receive, InviteCodeLineEdit, show_failure
 from gridsync.setup import SetupRunner
 from gridsync.tahoe import is_valid_furl
 from gridsync.gui.widgets import TahoeConfigForm
@@ -240,67 +239,25 @@ class SetupForm(QStackedWidget):
         pixmap = QPixmap(filepath).scaled(100, 100)
         self.page_2.icon_overlay.setPixmap(pixmap)
 
-    def show_failure(self, failure):
+    def handle_failure(self, failure):
         log.error(str(failure))
-        msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Warning)
-        msg.setStandardButtons(QMessageBox.Retry)
-        msg.setEscapeButton(QMessageBox.Retry)
-        msg.setDetailedText(str(failure))
+        if failure.type == CancelledError:
+            if self.page_2.progressbar.value() <= 2:
+                show_failure(failure, self)
+                self.show_error("Invite timed out")
+                self.reset()
+            return
+        show_failure(failure, self)
+        if failure.type == ServerConnectionError:
+            self.show_error("Server connection error")
         if failure.type == WelcomeError:
             self.show_error("Invite refused")
-            msg.setWindowTitle("Invite refused")
-            msg.setText(
-                "The server negotiating your invitation is online but is "
-                "currently refusing to process any invitations. This may "
-                "indicate that your version of {} is out-of-date, in which "
-                "case you should upgrade to the latest version and try again."
-                .format(APP_NAME))
         elif failure.type == WrongPasswordError:
             self.show_error("Invite confirmation failed")
-            msg.setWindowTitle("Invite confirmation failed")
-            msg.setText(
-                "Either you mistyped your invite code or a potential "
-                "attacker tried to guess your code and failed. To try "
-                "again, you will need to obtain a new invite code from "
-                "your inviter.")  # or "service provider"?
-        elif failure.type == json.decoder.JSONDecodeError:
-            self.show_error("Invalid response")
-            msg.setIcon(QMessageBox.Critical)
-            msg.setWindowTitle("Invalid response")
-            msg.setText(
-                "Your invite code worked but your inviter did not provide "
-                "the information needed to complete the invitation process. "
-                "Please let them know about the error, and try again later "
-                "with a new invite code.")
-        elif failure.type == CancelledError and self.page_2.step == 1:
-            self.show_error("Invite timed out")
-            msg.setWindowTitle("Invite timed out")
-            msg.setText(
-                "The invitation process has timed out. Your invite code may "
-                "have expired. Please request a new invite code from your "
-                "inviter and try again.")
         elif failure.type == UpgradeRequiredError:
             self.show_error("Upgrade required")
-            msg.setWindowTitle("Upgrade required")
-            msg.setText(
-                "Your version of {} is out-of-date. Please upgrade to the "
-                "latest version and try again with a new invite code.".format(
-                    APP_NAME))
-            msg.setIcon(QMessageBox.Critical)
-            msg.setStandardButtons(QMessageBox.Ok)
-        elif failure.type == ServerConnectionError:
-            self.show_error("Server Connection Error")
-            msg.setWindowTitle("Server Connection Error")
-            msg.setText(
-                "An error occured while connecting to the server. This could "
-                "mean that the server is currently down or that there is some "
-                "other problem with your connection. Please try again later.")
         else:
             self.show_error(str(failure.type.__name__))
-            msg.setWindowTitle(str(failure.type.__name__))
-            msg.setText(str(failure.value))
-        msg.exec_()
         self.reset()
 
     def on_done(self, gateway):
@@ -326,7 +283,7 @@ class SetupForm(QStackedWidget):
         self.setup_runner.got_icon.connect(self.load_service_icon)
         self.setup_runner.done.connect(self.on_done)
         d = self.setup_runner.run(settings)
-        d.addErrback(self.show_failure)
+        d.addErrback(self.handle_failure)
 
     def go(self, code):
         self.setCurrentIndex(1)
@@ -334,8 +291,8 @@ class SetupForm(QStackedWidget):
         self.update_progress('Verifying invitation code...')
         d = wormhole_receive(code)
         d.addCallback(self.verify_settings)
-        d.addErrback(self.show_failure)
-        reactor.callLater(60, d.cancel)
+        d.addErrback(self.handle_failure)
+        reactor.callLater(30, d.cancel)
 
     def cancel_button_clicked(self):
         if self.page_2.is_complete():
