@@ -716,6 +716,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             code = yield self.command(
                 ['magic-folder', '--debug', 'invite', '-n', name, name + ':',
                  nickname])
+        if sys.platform == 'win32':
+            code = code.lstrip("b'").rstrip("\\n'")  # XXX !!
         returnValue(code.strip())
 
     @inlineCallbacks
