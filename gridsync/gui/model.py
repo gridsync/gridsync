@@ -135,6 +135,12 @@ class Model(QStandardItemModel):
                 pixmap = CompositePixmap(folder_pixmap)
             items[0].setIcon(QIcon(pixmap))
 
+    def add_lock_overlay(self, folder_name):
+        self.update_folder_icon(
+            folder_name,
+            self.gateway.get_magic_folder_directory(folder_name),
+            'lock-closed-green.svg')
+
     @pyqtSlot(str, object)
     def set_data(self, folder_name, data):
         items = self.findItems(folder_name)
@@ -163,6 +169,8 @@ class Model(QStandardItemModel):
                 'This folder is up to date. The contents of this folder on\n'
                 'your computer matches the contents of the folder on the\n'
                 '"{}" grid.'.format(self.gateway.name))
+            self.add_lock_overlay(name)
+            self.unfade_row(name)
         elif status == 3:
             item.setIcon(self.icon_cloud)
             item.setText("Stored remotely")
@@ -214,10 +222,6 @@ class Model(QStandardItemModel):
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
         self.gui.core.operations.remove((self.gateway, folder_name))
-        self.update_folder_icon(
-            folder_name,
-            self.gateway.get_magic_folder_directory(folder_name),
-            'lock-closed-green.svg')
 
     @pyqtSlot(str, int)
     def set_mtime(self, name, mtime):
