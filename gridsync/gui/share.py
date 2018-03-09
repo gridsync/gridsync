@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QMessageBox, QProgressBar, QPushButton, QSizePolicy,
     QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, CancelledError
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
@@ -439,6 +439,9 @@ class InviteReceiver(QWidget):
         self.update_progress("Connected; waiting for message...")  # 2
 
     def handle_failure(self, failure):
+        logging.error(str(failure))
+        if failure.type == CancelledError and self.progressbar.value() > 2:
+            return
         show_failure(failure, self)
         self.wormhole.close()
         self.close()
