@@ -79,7 +79,7 @@ class Monitor(QObject):
                 state = 2  # "Up to date"
         return state, kind, path, failures
 
-    def process_magic_folder_status(self, name, status):
+    def process_magic_folder_status(self, name, status):  # noqa: max-complexit=11
         remote_scan_needed = False
         prev = self.status[name]
         state, kind, filepath, _ = self.parse_status(status)
@@ -102,9 +102,12 @@ class Monitor(QObject):
                 self.notify_updated_files(name)
             if state in (1, 2) and prev['state'] != 2:
                 remote_scan_needed = True
+            if state != prev['state']:
+                self.status_updated.emit(name, state)
+        else:
+            self.status_updated.emit(name, state)
         self.status[name]['status'] = status
         self.status[name]['state'] = state
-        self.status_updated.emit(name, state)
         # TODO: Notify failures/conflicts
         return remote_scan_needed
 
