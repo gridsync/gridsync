@@ -434,8 +434,8 @@ class InviteReceiver(QWidget):
         self.setup_runner.joined_folders.connect(self.set_joined_folders)
         self.setup_runner.run(message)
 
-    def got_introduction(self):
-        self.update_progress("Connected; opening invitation..")  # 2
+    def got_welcome(self):
+        self.update_progress("Connected; waiting for message...")  # 2
 
     def handle_failure(self, failure):
         show_failure(failure, self)
@@ -449,7 +449,7 @@ class InviteReceiver(QWidget):
         self.progressbar.show()
         self.update_progress("Verifying invitation...")  # 1
         self.wormhole = Wormhole()
-        self.wormhole.got_introduction.connect(self.got_introduction)
+        self.wormhole.got_welcome.connect(self.got_welcome)
         self.wormhole.got_message.connect(self.got_message)
         d = self.wormhole.receive(code)
         d.addErrback(self.handle_failure)
