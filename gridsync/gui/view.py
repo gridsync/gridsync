@@ -219,11 +219,14 @@ class View(QTreeView):
             self, title, text, QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No)
         if reply == QMessageBox.Yes:
+            tasks = []
             for folder in folders:
                 d = self.gateway.unlink_magic_folder_from_rootcap(folder)
                 d.addErrback(self.show_failure)
+                tasks.append(d)
                 self.model().removeRow(self.model().findItems(folder)[0].row())
-            d = self.model().monitor.scan_rootcap()
+            d = DeferredList(tasks)
+            d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
 
     def confirm_remove(self, folders):
@@ -243,11 +246,14 @@ class View(QTreeView):
             self, title, text, QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No)
         if reply == QMessageBox.Yes:
+            tasks = []
             for folder in folders:
                 d = self.gateway.remove_magic_folder(folder)
                 d.addErrback(self.show_failure)
+                tasks.append(d)
                 self.model().removeRow(self.model().findItems(folder)[0].row())
-            d = self.model().monitor.scan_rootcap()
+            d = DeferredList(tasks)
+            d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
 
     def open_folders(self, folders):
