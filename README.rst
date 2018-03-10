@@ -25,7 +25,7 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 * "Native" look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
 * Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' "Magic Folder" feature [*]_ ).
 * Status indicators and desktop notifications -- the user will know, at a glance, when folders are being synchronized (via system tray icon animations) and will receive notifications when such operations have completed.
-* Easy sharing -- Gridsync will use the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
+* Easy sharing -- Gridsync uses the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
 
 .. _magic-wormhole: http://magic-wormhole.io
 .. _invite codes: https://github.com/gridsync/gridsync/blob/master/docs/invite-codes.md
@@ -36,13 +36,15 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 Screenshots:
 ------------
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/invite.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/welcome.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/branding.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/dropzone.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/syncing.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/animations.gif
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/notification.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/menu.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/share.png
 
 
 Installation and running:
@@ -124,7 +126,7 @@ Known issues and limitations:
 
 While Gridsync ultimately aims to provide an easy-to-use frontend for users of Tahoe-LAFS, at present, its interface only supports a very limited subset of Tahoe-LAFS's underlying features and potential use-cases (namely, it provides simplified means for joining storage grids, creating and removing personal "magic-folders," and receiving status updates and notifications pertaining to those processes as they occur). Accordingly, users should not (yet) expect Gridsync to provide a complete backup solution or to serve as a stand-in replacement for other tools with robust sharing and collaboration capabilities.
 
-In addition, it should be noted that Tahoe-LAFS's "magic-folder" functionality itself is currently considered "experimental" and has a number of known issues and bugs that users should be aware of. For example, magic-folders currently `do not preserve metadata`_ (such as file modification times), will often `overwrite local file permissions`_, and have been known to `create duplicate copies of local files`_. A more complete listing of upstream issues relating to Tahoe-LAFS's magic-folders can be found on the official `Tahoe-LAFS project website`_.
+In addition, it should be noted that Tahoe-LAFS's "magic-folder" functionality itself is currently considered "experimental" and has a number of known issues and bugs that users should be aware of. For example, on macOS, magic-folders currently `do not preserve metadata`_ (such as file modification times), will often `overwrite local file permissions`_, and have been known to `create duplicate copies of local files`_. A more complete listing of upstream issues relating to Tahoe-LAFS's magic-folders can be found on the official `Tahoe-LAFS project website`_.
 
 .. _do not preserve metadata: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2882
 .. _overwrite local file permissions: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2881
@@ -144,7 +146,7 @@ Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requ
 License:
 --------
 
-Copyright (C) 2015-2017  Christopher R. Wood
+Copyright (C) 2015-2018  Christopher R. Wood
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
