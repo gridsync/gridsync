@@ -12,6 +12,8 @@ How do I create a Recovery Key?
 
 Starting in Gridsync version 0.3, you can export a Recovery Key at any time either from the main window toolbar (next to the "Preferences" icon) or from the system tray menu. It is strongly recommended that you choose to _encrypt_ your Recovery Key with a strong password when prompted and store the resulting file in a safe and secure location (such as an encrypted USB drive), as any persons who can access your decrypted Recovery Key can also potentially access any of the folders you've uploaded or joined previously.
 
+![passphrase.gif](https://github.com/gridsync/gridsync/blob/master/images/screenshots/passphrase.gif)
+
 
 Do I need to export a new Recovery Key every time I add or join a new folder?
 -----------------------------------------------------------------------------
