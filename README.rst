@@ -40,6 +40,8 @@ Screenshots:
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/dropzone.png
 
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/passphrase.gif
+
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/animations.gif
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/menu.png
