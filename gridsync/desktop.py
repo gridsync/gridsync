@@ -41,7 +41,7 @@ def open_folder(path):
     if sys.platform == 'darwin':
         subprocess.Popen(['open', path])
     elif sys.platform == 'win32':
-        subprocess.Popen(['start', path])
+        os.startfile(path)
     else:
         subprocess.Popen(['xdg-open', path])
 
