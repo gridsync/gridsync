@@ -125,6 +125,7 @@ class Monitor(QObject):
     @inlineCallbacks
     def scan_rootcap(self, overlay_file=None):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
+        yield self.gateway.await_ready()
         folders = yield self.gateway.get_magic_folders_from_rootcap()
         if not folders:
             return
