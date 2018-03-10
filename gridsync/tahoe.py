@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import errno
+import hashlib
 import json
 import logging as log
 import os
@@ -665,7 +666,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         except OSError:
             pass
         name = os.path.basename(path)
-        # TODO: Check if alias exists, prompt for rename?
+        alias = hashlib.sha256(name.encode()).hexdigest() + ':'
         if not self.multi_folder_support:
             yield self._create_magic_folder_subclient(
                 path, join_code, admin_dircap)
@@ -674,11 +675,11 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             yield self.command(['magic-folder', 'join', '-n', name, join_code,
                                 path])
             if admin_dircap:
-                self.add_alias(name, admin_dircap)
+                self.add_alias(alias, admin_dircap)
         else:
             yield self.await_ready()
-            yield self.command(['magic-folder', 'create', '-n', name,
-                                name + ':', 'admin', path])
+            yield self.command(['magic-folder', 'create', '-n', name, alias,
+                                'admin', path])
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
 
@@ -713,8 +714,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             code = yield client.command(
                 ['magic-folder', '--debug', 'invite', 'magic:', nickname])
         else:
+            alias = hashlib.sha256(name.encode()).hexdigest() + ':'
             code = yield self.command(
-                ['magic-folder', '--debug', 'invite', '-n', name, name + ':',
+                ['magic-folder', '--debug', 'invite', '-n', name, alias,
                  nickname])
         if sys.platform == 'win32':
             code = code.lstrip("b'").rstrip("\\n'")  # XXX !!
@@ -727,7 +729,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if client:
             yield client.unlink(client.get_alias('magic'), nickname)
         else:
-            yield self.unlink(self.get_alias(name), nickname)
+            alias = hashlib.sha256(name.encode()).hexdigest()
+            yield self.unlink(self.get_alias(alias), nickname)
         log.debug('Uninvited "%s" from "%s"...', nickname, name)
 
     @inlineCallbacks
@@ -741,7 +744,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 shutil.rmtree(client.nodedir, ignore_errors=True)
             else:
                 yield self.command(['magic-folder', 'leave', '-n', name])
-                self.remove_alias(name)
+                self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
 
     @inlineCallbacks
     def get_magic_folder_status(self, name=None):
@@ -801,7 +804,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             except KeyError:
                 pass
         if self.multi_folder_support:
-            cap = self.get_alias(name)
+            cap = self.get_alias(hashlib.sha256(name.encode()).hexdigest())
         else:
             client = self.get_magic_folder_client(name)
             if client:
