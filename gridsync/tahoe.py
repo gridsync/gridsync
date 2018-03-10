@@ -614,6 +614,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         yield self.unlink(rootcap, name + ' (personal)')
         if 'admin_dircap' in self.remote_magic_folders[name]:
             yield self.unlink(rootcap, name + ' (admin)')
+        del self.remote_magic_folders[name]
         log.debug("Successfully unlinked folder '%s' from rootcap", name)
 
     @inlineCallbacks
