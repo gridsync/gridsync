@@ -20,15 +20,17 @@ Tahoe-LAFS already provides a number of highly desirable properties for secure f
 
 The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers by means of following features:
 
-* Native, "batteries included" packaging -- Gridsync bundles will include Tahoe-LAFS and all required dependencies for a frictionless installation experience; no python installation or manual compilation is required.
+* "Batteries included" packaging -- Gridsync bundles will include Tahoe-LAFS and all required dependencies for a frictionless installation experience; no python installation or manual compilation is required.
 * A graphical user interface for managing primary Tahoe-LAFS functionality (e.g., starting, stopping, configuring gateways) -- the user will never have to edit a text file by hand or touch the command line.
 * "Native" look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
 * Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' "Magic Folder" feature [*]_ ).
 * Status indicators and desktop notifications -- the user will know, at a glance, when folders are being synchronized (via system tray icon animations) and will receive notifications when such operations have completed.
 * Easy sharing -- Gridsync uses the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
+* Simple recovery -- Gridsync's "`Recovery Key`_" subsystem allows connections and folders to be easily restored from a single file in the event of a disaster.
 
 .. _magic-wormhole: http://magic-wormhole.io
 .. _invite codes: https://github.com/gridsync/gridsync/blob/master/docs/invite-codes.md
+.. _Recovery Key: https://github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md
 
 .. [*] Tahoe-LAFS' "Magic Folder" functionality is not (yet) fully supported on macOS or other BSD-based operating systems and is presently marked as experimental.
 
