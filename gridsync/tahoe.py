@@ -387,8 +387,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
             collective_dircap_rw = tahoe.get_alias('magic')
             if collective_dircap_rw:
+                alias = hashlib.sha256(basename.encode()).hexdigest() + ':'
                 yield self.command(
-                    ['add-alias', basename, collective_dircap_rw])
+                    ['add-alias', alias, collective_dircap_rw])
 
         yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
         log.debug("Writing magic-folder configs to %s...", yaml_path)
