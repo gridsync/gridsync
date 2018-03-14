@@ -227,6 +227,8 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str, int)
     def set_mtime(self, name, mtime):
+        if not mtime:
+            return
         item = self.item(self.findItems(name)[0].row(), 2)
         item.setData(mtime, Qt.UserRole)
         item.setText(
