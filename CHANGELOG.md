@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+### Added
+- "Start minimized" option to Preferences pane
+
+### Changed
+- The application will no longer start in a "minimized" state by default (Issue #69)
+
+### Fixed
+- "Last modified" time will no longer update until after the first remote scan has completed (thereby preventing misleading mtimes, e.g., "48 years ago", from being displayed briefly on start).
+
 ## 0.3.0 - 2018-03-10
 ### Added
 - New "Recovery Key" system
