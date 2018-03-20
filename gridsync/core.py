@@ -20,6 +20,7 @@ from twisted.internet.protocol import Protocol, Factory
 from gridsync import config_dir, resource, settings
 from gridsync import msg
 from gridsync.gui import Gui
+from gridsync.preferences import get_preference
 from gridsync.tahoe import get_nodedirs, Tahoe, select_executable
 
 
@@ -114,6 +115,9 @@ class Core(object):
 
         self.gui = Gui(self)
         self.gui.show_systray()
+        minimize_preference = get_preference('startup', 'minimize')
+        if not minimize_preference or minimize_preference == 'false':
+            self.gui.show_main_window()
 
         reactor.callLater(0, self.start_gateways)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
