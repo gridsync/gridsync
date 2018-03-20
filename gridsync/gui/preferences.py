@@ -25,10 +25,18 @@ class PreferencesWidget(QWidget):
         notifications_layout.addWidget(self.checkbox_folder)
         notifications_layout.addWidget(self.checkbox_invite)
         notifications_groupbox.setLayout(notifications_layout)
+
+        startup_groupbox = QGroupBox("Startup:", self)
+        self.checkbox_minimize = QCheckBox("Start minimized")
+        startup_layout = QGridLayout()
+        startup_layout.addWidget(self.checkbox_minimize)
+        startup_groupbox.setLayout(startup_layout)
+
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok)
 
         layout = QGridLayout(self)
         layout.addWidget(notifications_groupbox)
+        layout.addWidget(startup_groupbox)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
         layout.addWidget(self.buttonbox)
 
@@ -40,6 +48,8 @@ class PreferencesWidget(QWidget):
             self.on_checkbox_folder_changed)
         self.checkbox_invite.stateChanged.connect(
             self.on_checkbox_invite_changed)
+        self.checkbox_minimize.stateChanged.connect(
+            self.on_checkbox_minimize_changed)
         self.buttonbox.accepted.connect(self.accepted.emit)
 
     def load_preferences(self):
@@ -55,6 +65,10 @@ class PreferencesWidget(QWidget):
             self.checkbox_invite.setCheckState(Qt.Unchecked)
         else:
             self.checkbox_invite.setCheckState(Qt.Checked)
+        if get_preference('startup', 'minimize') == 'true':
+            self.checkbox_minimize.setCheckState(Qt.Checked)
+        else:
+            self.checkbox_minimize.setCheckState(Qt.Unchecked)
 
     def on_checkbox_connection_changed(self, state):  # pylint:disable=no-self-use
         if state:
@@ -73,3 +87,9 @@ class PreferencesWidget(QWidget):
             set_preference('notifications', 'invite', 'true')
         else:
             set_preference('notifications', 'invite', 'false')
+
+    def on_checkbox_minimize_changed(self, state):  # pylint:disable=no-self-use
+        if state:
+            set_preference('startup', 'minimize', 'true')
+        else:
+            set_preference('startup', 'minimize', 'false')
