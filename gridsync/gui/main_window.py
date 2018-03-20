@@ -15,8 +15,9 @@ from twisted.internet import reactor
 from gridsync import resource, APP_NAME, config_dir
 from gridsync.crypto import Crypter
 from gridsync.gui.password import PasswordDialog
+from gridsync.gui.preferences import PreferencesWidget
 from gridsync.gui.setup import SetupForm
-from gridsync.gui.widgets import CompositePixmap, PreferencesWidget
+from gridsync.gui.widgets import CompositePixmap
 from gridsync.gui.share import InviteReceiver, ShareWidget
 from gridsync.gui.view import View
 
