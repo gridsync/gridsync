@@ -387,24 +387,26 @@ class InviteReceiver(QWidget):
         if step == 4:
             self.mail_open_icon.hide()
             self.folder_icon.show()
-        if step == self.progressbar.maximum():
-            self.close_button.show()
-            self.done.emit(self)
-            self.label.setPixmap(
-                QPixmap(resource('green_checkmark.png')).scaled(32, 32))
-            if self.joined_folders and len(self.joined_folders) == 1:
-                target = self.joined_folders[0]
-                self.message_label.setText(
-                    'Successfully joined folder "{}"!\n"{}" is now available '
-                    'for download'.format(target, target))
-            elif self.joined_folders:
-                target = humanized_list(self.joined_folders, 'folders')
-                self.message_label.setText(
-                    'Successfully joined {}!\n{} are now available for '
-                    'download'.format(target, target))
 
     def set_joined_folders(self, folders):
         self.joined_folders = folders
+
+    def on_done(self, _):
+        self.progressbar.setValue(self.progressbar.maximum())
+        self.close_button.show()
+        self.done.emit(self)
+        self.label.setPixmap(
+            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+        if self.joined_folders and len(self.joined_folders) == 1:
+            target = self.joined_folders[0]
+            self.message_label.setText(
+                'Successfully joined folder "{}"!\n"{}" is now available for '
+                'download'.format(target, target))
+        elif self.joined_folders:
+            target = humanized_list(self.joined_folders, 'folders')
+            self.message_label.setText(
+                'Successfully joined {}!\n{} are now available for '
+                'download'.format(target, target))
 
     def got_message(self, message):
         self.update_progress("Reading invitation...")  # 3
@@ -436,6 +438,7 @@ class InviteReceiver(QWidget):
         self.setup_runner = SetupRunner(self.gateways)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.joined_folders.connect(self.set_joined_folders)
+        self.setup_runner.done.connect(self.on_done)
         self.setup_runner.run(message)
 
     def got_welcome(self):
