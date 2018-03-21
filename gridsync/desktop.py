@@ -10,7 +10,7 @@ from PyQt5.QtGui import QClipboard
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import resource, settings
+from gridsync import resource, settings, APP_NAME
 
 
 @inlineCallbacks
@@ -63,3 +63,74 @@ def get_clipboard_text(mode=QClipboard.Clipboard):
 def set_clipboard_text(text, mode=QClipboard.Clipboard):
     QCoreApplication.instance().clipboard().setText(text, mode)
     logging.debug("Copied text '%s' to clipboard %i", text, mode)
+
+
+def _autostart_enable_linux():
+    desktop_file_path = os.path.join(
+        os.environ.get(
+            'XDG_CONFIG_HOME',
+            os.path.join(os.path.expanduser('~'), '.config')
+        ),
+        'autostart',
+        APP_NAME + '.desktop'
+    )
+    logging.debug("Writing autostart file to '%s'...", desktop_file_path)
+    if getattr(sys, 'frozen', False):
+        executable = sys.executable
+    else:
+        executable = sys.argv[0]
+    desktop_file_contents = '''[Desktop Entry]
+Name={}
+Comment={}
+Type=Application
+Exec=env PATH={} {}
+'''.format(APP_NAME, APP_NAME, os.environ['PATH'], executable)
+    try:
+        os.makedirs(os.path.dirname(desktop_file_path))
+    except OSError:
+        pass
+    with open(desktop_file_path, 'w') as f:
+        f.write(desktop_file_contents)
+    logging.debug("Wrote autostart file to %s", desktop_file_path)
+    logging.debug(desktop_file_contents)
+
+def _autostart_enabled_linux():
+    desktop_file_path = os.path.join(
+        os.environ.get(
+            'XDG_CONFIG_HOME',
+            os.path.join(os.path.expanduser('~'), '.config')
+        ),
+        'autostart',
+        APP_NAME + '.desktop'
+    )
+    if os.path.exists(desktop_file_path):
+        return True
+    return False
+
+def _autostart_disable_linux():
+    desktop_file_path = os.path.join(
+        os.environ.get(
+            'XDG_CONFIG_HOME',
+            os.path.join(os.path.expanduser('~'), '.config')
+        ),
+        'autostart',
+        APP_NAME + '.desktop'
+    )
+    logging.debug("Deleting autostart file '%s'...", desktop_file_path)
+    os.remove(desktop_file_path)
+    logging.debug("Deleted autostart file '%s'", desktop_file_path)
+
+
+def autostart_enable():
+    if sys.platform.startswith('linux'):
+        _autostart_enable_linux()
+
+
+def autostart_enabled():
+    if sys.platform.startswith('linux'):
+        return _autostart_enabled_linux()
+
+
+def autostart_disable():
+    if sys.platform.startswith('linux'):
+        _autostart_disable_linux()
