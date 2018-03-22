@@ -94,6 +94,7 @@ Exec=env PATH={} {}
     logging.debug("Wrote autostart file to %s", desktop_file_path)
     logging.debug(desktop_file_contents)
 
+
 def _autostart_enabled_linux():
     desktop_file_path = os.path.join(
         os.environ.get(
@@ -106,6 +107,7 @@ def _autostart_enabled_linux():
     if os.path.exists(desktop_file_path):
         return True
     return False
+
 
 def _autostart_disable_linux():
     desktop_file_path = os.path.join(
@@ -121,16 +123,76 @@ def _autostart_disable_linux():
     logging.debug("Deleted autostart file '%s'", desktop_file_path)
 
 
+def _autostart_enable_mac():
+    plist_file_path = os.path.join(
+        os.path.expanduser('~'), 'Library', 'LaunchAgents', APP_NAME + '.plist'
+    )
+    if getattr(sys, 'frozen', False):
+        executable = sys.executable
+    else:
+        executable = sys.argv[0]
+    plist_file_contents = '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>PATH</key>
+      <string>{}</string>
+    </dict>
+    <key>Label</key>
+    <string>{}</string>
+    <key>Program</key>
+    <string>{}</string>
+    <key>RunAtLoad</key>
+    <true/>
+  </dict>
+</plist>
+'''.format(os.environ['PATH'], settings['build']['mac_bundle_identifier'],
+           executable)
+    try:
+        os.makedirs(os.path.dirname(plist_file_path))
+    except OSError:
+        pass
+    with open(plist_file_path, 'w') as f:
+        f.write(plist_file_contents)
+
+
+def _autostart_enabled_mac():
+    plist_file_path = os.path.join(
+        os.path.expanduser('~'), 'Library', 'LaunchAgents', APP_NAME + '.plist'
+    )
+    if os.path.exists(plist_file_path):
+        return True
+    return False
+
+
+def _autostart_disable_mac():
+    plist_file_path = os.path.join(
+        os.path.expanduser('~'), 'Library', 'LaunchAgents', APP_NAME + '.plist'
+    )
+    logging.debug("Deleting autostart file '%s'...", plist_file_path)
+    os.remove(plist_file_path)
+    logging.debug("Deleted autostart file '%s'", plist_file_path)
+
+
 def autostart_enable():
     if sys.platform.startswith('linux'):
         _autostart_enable_linux()
+    elif sys.platform == 'darwin':
+        _autostart_enable_mac()
 
 
 def autostart_enabled():
     if sys.platform.startswith('linux'):
         return _autostart_enabled_linux()
+    elif sys.platform == 'darwin':
+        return _autostart_enabled_mac()
 
 
 def autostart_disable():
     if sys.platform.startswith('linux'):
         _autostart_disable_linux()
+    elif sys.platform == 'darwin':
+        _autostart_disable_mac()
