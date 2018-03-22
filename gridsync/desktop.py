@@ -101,7 +101,7 @@ def _autostart_enable_mac(executable):
 
 
 def _autostart_enable_windows(executable):
-    from win32com.client import Dispatch
+    from win32com.client import Dispatch  # pylint: disable=import-error
     shell = Dispatch('WScript.Shell')
     shortcut = shell.CreateShortCut(autostart_file_path)
     shortcut.Targetpath = executable
