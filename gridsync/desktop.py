@@ -110,16 +110,31 @@ def _autostart_enable_mac():
         f.write(plist_file_contents)
 
 
+def _autostart_enable_windows():
+    if getattr(sys, 'frozen', False):
+        executable = sys.executable
+    else:
+        executable = sys.argv[0]
+    from win32com.client import Dispatch
+    shell = Dispatch('WScript.Shell')
+    shortcut = shell.CreateShortCut(autostart_file_path)
+    shortcut.Targetpath = executable
+    shortcut.WorkingDirectory = os.path.dirname(executable)
+    shortcut.save()
+
+
 def autostart_enable():
     try:
         os.makedirs(os.path.dirname(autostart_file_path))
     except OSError:
         pass
     logging.debug("Writing autostart file to '%s'...", autostart_file_path)
-    if sys.platform.startswith('linux'):
-        _autostart_enable_linux()
+    if sys.platform == 'win32':
+        _autostart_enable_windows()
     elif sys.platform == 'darwin':
         _autostart_enable_mac()
+    else:
+        _autostart_enable_linux()
     logging.debug("Wrote autostart file to '%s'", autostart_file_path)
 
 
