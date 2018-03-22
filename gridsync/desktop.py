@@ -10,7 +10,7 @@ from PyQt5.QtGui import QClipboard
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import resource, settings, APP_NAME
+from gridsync import resource, settings, APP_NAME, autostart_file_path
 
 
 @inlineCallbacks
@@ -66,67 +66,22 @@ def set_clipboard_text(text, mode=QClipboard.Clipboard):
 
 
 def _autostart_enable_linux():
-    desktop_file_path = os.path.join(
-        os.environ.get(
-            'XDG_CONFIG_HOME',
-            os.path.join(os.path.expanduser('~'), '.config')
-        ),
-        'autostart',
-        APP_NAME + '.desktop'
-    )
-    logging.debug("Writing autostart file to '%s'...", desktop_file_path)
     if getattr(sys, 'frozen', False):
         executable = sys.executable
     else:
         executable = sys.argv[0]
-    desktop_file_contents = '''[Desktop Entry]
+    desktop_file_contents = '''\
+[Desktop Entry]
 Name={}
 Comment={}
 Type=Application
 Exec=env PATH={} {}
 '''.format(APP_NAME, APP_NAME, os.environ['PATH'], executable)
-    try:
-        os.makedirs(os.path.dirname(desktop_file_path))
-    except OSError:
-        pass
-    with open(desktop_file_path, 'w') as f:
+    with open(autostart_file_path, 'w') as f:
         f.write(desktop_file_contents)
-    logging.debug("Wrote autostart file to %s", desktop_file_path)
-    logging.debug(desktop_file_contents)
-
-
-def _autostart_enabled_linux():
-    desktop_file_path = os.path.join(
-        os.environ.get(
-            'XDG_CONFIG_HOME',
-            os.path.join(os.path.expanduser('~'), '.config')
-        ),
-        'autostart',
-        APP_NAME + '.desktop'
-    )
-    if os.path.exists(desktop_file_path):
-        return True
-    return False
-
-
-def _autostart_disable_linux():
-    desktop_file_path = os.path.join(
-        os.environ.get(
-            'XDG_CONFIG_HOME',
-            os.path.join(os.path.expanduser('~'), '.config')
-        ),
-        'autostart',
-        APP_NAME + '.desktop'
-    )
-    logging.debug("Deleting autostart file '%s'...", desktop_file_path)
-    os.remove(desktop_file_path)
-    logging.debug("Deleted autostart file '%s'", desktop_file_path)
 
 
 def _autostart_enable_mac():
-    plist_file_path = os.path.join(
-        os.path.expanduser('~'), 'Library', 'LaunchAgents', APP_NAME + '.plist'
-    )
     if getattr(sys, 'frozen', False):
         executable = sys.executable
     else:
@@ -151,48 +106,28 @@ def _autostart_enable_mac():
 </plist>
 '''.format(os.environ['PATH'], settings['build']['mac_bundle_identifier'],
            executable)
-    try:
-        os.makedirs(os.path.dirname(plist_file_path))
-    except OSError:
-        pass
-    with open(plist_file_path, 'w') as f:
+    with open(autostart_file_path, 'w') as f:
         f.write(plist_file_contents)
 
 
-def _autostart_enabled_mac():
-    plist_file_path = os.path.join(
-        os.path.expanduser('~'), 'Library', 'LaunchAgents', APP_NAME + '.plist'
-    )
-    if os.path.exists(plist_file_path):
-        return True
-    return False
-
-
-def _autostart_disable_mac():
-    plist_file_path = os.path.join(
-        os.path.expanduser('~'), 'Library', 'LaunchAgents', APP_NAME + '.plist'
-    )
-    logging.debug("Deleting autostart file '%s'...", plist_file_path)
-    os.remove(plist_file_path)
-    logging.debug("Deleted autostart file '%s'", plist_file_path)
-
-
 def autostart_enable():
+    try:
+        os.makedirs(os.path.dirname(autostart_file_path))
+    except OSError:
+        pass
+    logging.debug("Writing autostart file to '%s'...", autostart_file_path)
     if sys.platform.startswith('linux'):
         _autostart_enable_linux()
     elif sys.platform == 'darwin':
         _autostart_enable_mac()
+    logging.debug("Wrote autostart file to '%s'", autostart_file_path)
 
 
 def autostart_enabled():
-    if sys.platform.startswith('linux'):
-        return _autostart_enabled_linux()
-    elif sys.platform == 'darwin':
-        return _autostart_enabled_mac()
+    return os.path.exists(autostart_file_path)
 
 
 def autostart_disable():
-    if sys.platform.startswith('linux'):
-        _autostart_disable_linux()
-    elif sys.platform == 'darwin':
-        _autostart_disable_mac()
+    logging.debug("Deleting autostart file '%s'...", autostart_file_path)
+    os.remove(autostart_file_path)
+    logging.debug("Deleted autostart file '%s'", autostart_file_path)
