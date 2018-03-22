@@ -66,19 +66,19 @@ def set_clipboard_text(text, mode=QClipboard.Clipboard):
 
 
 def _autostart_enable_linux(executable):
-    desktop_file_contents = '''\
+    with open(autostart_file_path, 'w') as f:
+        f.write('''\
 [Desktop Entry]
 Name={}
 Comment={}
 Type=Application
 Exec=env PATH={} {}
-'''.format(APP_NAME, APP_NAME, os.environ['PATH'], executable)
-    with open(autostart_file_path, 'w') as f:
-        f.write(desktop_file_contents)
+'''.format(APP_NAME, APP_NAME, os.environ['PATH'], executable))
 
 
 def _autostart_enable_mac(executable):
-    plist_file_contents = '''\
+    with open(autostart_file_path, 'w') as f:
+        f.write('''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -97,9 +97,7 @@ def _autostart_enable_mac(executable):
   </dict>
 </plist>
 '''.format(os.environ['PATH'], settings['build']['mac_bundle_identifier'],
-           executable)
-    with open(autostart_file_path, 'w') as f:
-        f.write(plist_file_contents)
+           executable))
 
 
 def _autostart_enable_windows(executable):
