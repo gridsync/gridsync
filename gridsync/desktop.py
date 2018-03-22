@@ -73,6 +73,7 @@ Name={}
 Comment={}
 Type=Application
 Exec=env PATH={} {}
+Terminal=false
 '''.format(APP_NAME, APP_NAME, os.environ['PATH'], executable))
 
 
