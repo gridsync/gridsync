@@ -65,11 +65,7 @@ def set_clipboard_text(text, mode=QClipboard.Clipboard):
     logging.debug("Copied text '%s' to clipboard %i", text, mode)
 
 
-def _autostart_enable_linux():
-    if getattr(sys, 'frozen', False):
-        executable = sys.executable
-    else:
-        executable = sys.argv[0]
+def _autostart_enable_linux(executable):
     desktop_file_contents = '''\
 [Desktop Entry]
 Name={}
@@ -81,11 +77,7 @@ Exec=env PATH={} {}
         f.write(desktop_file_contents)
 
 
-def _autostart_enable_mac():
-    if getattr(sys, 'frozen', False):
-        executable = sys.executable
-    else:
-        executable = sys.argv[0]
+def _autostart_enable_mac(executable):
     plist_file_contents = '''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -110,11 +102,7 @@ def _autostart_enable_mac():
         f.write(plist_file_contents)
 
 
-def _autostart_enable_windows():
-    if getattr(sys, 'frozen', False):
-        executable = sys.executable
-    else:
-        executable = sys.argv[0]
+def _autostart_enable_windows(executable):
     from win32com.client import Dispatch
     shell = Dispatch('WScript.Shell')
     shortcut = shell.CreateShortCut(autostart_file_path)
@@ -124,17 +112,21 @@ def _autostart_enable_windows():
 
 
 def autostart_enable():
+    logging.debug("Writing autostart file to '%s'...", autostart_file_path)
     try:
         os.makedirs(os.path.dirname(autostart_file_path))
     except OSError:
         pass
-    logging.debug("Writing autostart file to '%s'...", autostart_file_path)
-    if sys.platform == 'win32':
-        _autostart_enable_windows()
-    elif sys.platform == 'darwin':
-        _autostart_enable_mac()
+    if getattr(sys, 'frozen', False):
+        executable = os.path.realpath(sys.executable)
     else:
-        _autostart_enable_linux()
+        executable = os.path.realpath(sys.argv[0])
+    if sys.platform == 'win32':
+        _autostart_enable_windows(executable)
+    elif sys.platform == 'darwin':
+        _autostart_enable_mac(executable)
+    else:
+        _autostart_enable_linux(executable)
     logging.debug("Wrote autostart file to '%s'", autostart_file_path)
 
 
