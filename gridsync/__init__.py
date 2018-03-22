@@ -33,14 +33,20 @@ except KeyError:
 if sys.platform == 'win32':
     config_dir = os.path.join(
         os.getenv('APPDATA'), APP_NAME)
+    autostart_file_path = ''  # XXX
 elif sys.platform == 'darwin':
     config_dir = os.path.join(
         os.path.expanduser('~'), 'Library', 'Application Support', APP_NAME)
+    autostart_file_path = os.path.join(
+        os.path.expanduser('~'), 'Library', 'LaunchAgents', APP_NAME + '.plist'
+    )
 else:
     config_home = os.environ.get(
         'XDG_CONFIG_HOME', os.path.join(os.path.expanduser('~'), '.config'))
     config_dir = os.path.join(
         config_home, APP_NAME.lower())
+    autostart_file_path = os.path.join(
+        config_home, 'autostart', APP_NAME + '.desktop')
 
 
 def resource(filename):
