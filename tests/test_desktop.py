@@ -12,7 +12,7 @@ from gridsync.desktop import (
 
 @pytest.fixture()
 def tmpfile(tmpdir):
-    return str(tmpdir.join('tmpfile'))
+    return str(tmpdir.join('tmpfile.lnk'))  # .lnk extension required on win32
 
 
 def test_get_clipboard_modes():
