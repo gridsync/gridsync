@@ -4,6 +4,8 @@ from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import (
     QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QSizePolicy,
     QSpacerItem, QWidget)
+from gridsync.desktop import (
+    autostart_enable, autostart_is_enabled, autostart_disable)
 from gridsync.preferences import set_preference, get_preference
 
 
@@ -27,8 +29,10 @@ class PreferencesWidget(QWidget):
         notifications_groupbox.setLayout(notifications_layout)
 
         startup_groupbox = QGroupBox("Startup:", self)
+        self.checkbox_autostart = QCheckBox("Start automatically on login")
         self.checkbox_minimize = QCheckBox("Start minimized")
         startup_layout = QGridLayout()
+        startup_layout.addWidget(self.checkbox_autostart)
         startup_layout.addWidget(self.checkbox_minimize)
         startup_groupbox.setLayout(startup_layout)
 
@@ -50,6 +54,8 @@ class PreferencesWidget(QWidget):
             self.on_checkbox_invite_changed)
         self.checkbox_minimize.stateChanged.connect(
             self.on_checkbox_minimize_changed)
+        self.checkbox_autostart.stateChanged.connect(
+            self.on_checkbox_autostart_changed)
         self.buttonbox.accepted.connect(self.accepted.emit)
 
     def load_preferences(self):
@@ -69,6 +75,10 @@ class PreferencesWidget(QWidget):
             self.checkbox_minimize.setCheckState(Qt.Checked)
         else:
             self.checkbox_minimize.setCheckState(Qt.Unchecked)
+        if autostart_is_enabled():
+            self.checkbox_autostart.setCheckState(Qt.Checked)
+        else:
+            self.checkbox_autostart.setCheckState(Qt.Unchecked)
 
     def on_checkbox_connection_changed(self, state):  # pylint:disable=no-self-use
         if state:
@@ -93,3 +103,9 @@ class PreferencesWidget(QWidget):
             set_preference('startup', 'minimize', 'true')
         else:
             set_preference('startup', 'minimize', 'false')
+
+    def on_checkbox_autostart_changed(self, state):  # pylint:disable=no-self-use
+        if state:
+            autostart_enable()
+        else:
+            autostart_disable()
