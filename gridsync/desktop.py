@@ -131,7 +131,7 @@ def autostart_enable():
     logging.debug("Wrote autostart file to '%s'", autostart_file_path)
 
 
-def autostart_enabled():
+def autostart_is_enabled():
     return os.path.exists(autostart_file_path)
 
 

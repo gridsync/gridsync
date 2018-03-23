@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QSizePolicy,
     QSpacerItem, QWidget)
 from gridsync.desktop import (
-    autostart_enable, autostart_enabled, autostart_disable)
+    autostart_enable, autostart_is_enabled, autostart_disable)
 from gridsync.preferences import set_preference, get_preference
 
 
@@ -75,7 +75,7 @@ class PreferencesWidget(QWidget):
             self.checkbox_minimize.setCheckState(Qt.Checked)
         else:
             self.checkbox_minimize.setCheckState(Qt.Unchecked)
-        if autostart_enabled():
+        if autostart_is_enabled():
             self.checkbox_autostart.setCheckState(Qt.Checked)
         else:
             self.checkbox_autostart.setCheckState(Qt.Unchecked)

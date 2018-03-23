@@ -7,7 +7,7 @@ import pytest
 
 from gridsync.desktop import (
     get_clipboard_modes, get_clipboard_text, set_clipboard_text,
-    autostart_enable, autostart_enabled, autostart_disable)
+    autostart_enable, autostart_is_enabled, autostart_disable)
 
 
 @pytest.fixture()
@@ -26,43 +26,43 @@ def test_clipboard_text():
     assert get_clipboard_text() == 'test'
 
 
-def test_autostart_enabled_true(tmpfile, monkeypatch):
+def test_autostart_is_enabled_true(tmpfile, monkeypatch):
     with open(tmpfile, 'a'):
         os.utime(tmpfile, None)
     monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
-    assert autostart_enabled()
+    assert autostart_is_enabled()
 
 
-def test_autostart_enabled_false(tmpfile, monkeypatch):
+def test_autostart_is_enabled_false(tmpfile, monkeypatch):
     monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
-    assert not autostart_enabled()
+    assert not autostart_is_enabled()
 
 
 def test_autostart_enable(tmpfile, monkeypatch):
     monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
     autostart_enable()
-    assert autostart_enabled()
+    assert autostart_is_enabled()
 
 
 def test_autostart_enable_frozen(tmpfile, monkeypatch):
     monkeypatch.setattr("sys.frozen", True, raising=False)
     monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
     autostart_enable()
-    assert autostart_enabled()
+    assert autostart_is_enabled()
 
 
 def test_autostart_enable_linux(tmpfile, monkeypatch):
     monkeypatch.setattr('sys.platform', 'linux')
     monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
     autostart_enable()
-    assert autostart_enabled()
+    assert autostart_is_enabled()
 
 
 def test_autostart_enable_mac(tmpfile, monkeypatch):
     monkeypatch.setattr('sys.platform', 'darwin')
     monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
     autostart_enable()
-    assert autostart_enabled()
+    assert autostart_is_enabled()
 
 
 def test_autostart_enable_windows(tmpfile, monkeypatch):
@@ -72,7 +72,7 @@ def test_autostart_enable_windows(tmpfile, monkeypatch):
     autostart_enable()
     with open(tmpfile, 'a'):
         os.utime(tmpfile, None)
-    assert autostart_enabled()
+    assert autostart_is_enabled()
 
 
 def test_autostart_disable(tmpfile, monkeypatch):
@@ -80,4 +80,4 @@ def test_autostart_disable(tmpfile, monkeypatch):
     with open(tmpfile, 'a'):
         os.utime(tmpfile, None)
     autostart_disable()
-    assert not autostart_enabled()
+    assert not autostart_is_enabled()
