@@ -10,6 +10,9 @@ from PyQt5.QtGui import QClipboard
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
+if sys.platform == 'win32':
+    from win32com.client import Dispatch  # pylint: disable=import-error
+
 from gridsync import resource, settings, APP_NAME, autostart_file_path
 
 
@@ -102,7 +105,6 @@ def _autostart_enable_mac(executable):
 
 
 def _autostart_enable_windows(executable):
-    from win32com.client import Dispatch  # pylint: disable=import-error
     shell = Dispatch('WScript.Shell')
     shortcut = shell.CreateShortCut(autostart_file_path)
     shortcut.Targetpath = executable
