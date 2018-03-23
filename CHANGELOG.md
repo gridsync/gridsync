@@ -3,12 +3,15 @@
 ## Unreleased
 ### Added
 - "Start minimized" option to Preferences pane
+- "Start automatically on login" option to Preferences pane (Issue #66)
 
 ### Changed
 - The application will no longer start in a "minimized" state by default (Issue #69)
+- Updated qt5reactor to wake up less often, reducing idle CPU consumption -- thanks @exarkun!
 
 ### Fixed
-- "Last modified" time will no longer update until after the first remote scan has completed (thereby preventing misleading mtimes, e.g., "48 years ago", from being displayed briefly on start).
+- "Last modified" time will no longer update until after the first remote scan has completed, thereby preventing misleading mtimes (e.g., "48 years ago") from being displayed briefly on start (Issue #63).
+- Invites received through the "Add Folder" button will no longer appear to "hang" when receiving an invite that does not contain a magic-folder join-code (Issue #67)
 
 ## 0.3.0 - 2018-03-10
 ### Added
