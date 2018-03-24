@@ -70,6 +70,9 @@ class Core(object):
     def start_gateways(self):
         nodedirs = get_nodedirs(config_dir)
         if nodedirs:
+            minimize_preference = get_preference('startup', 'minimize')
+            if not minimize_preference or minimize_preference == 'false':
+                self.gui.show_main_window()
             yield self.select_executable()
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
             for nodedir in nodedirs:
@@ -115,9 +118,6 @@ class Core(object):
 
         self.gui = Gui(self)
         self.gui.show_systray()
-        minimize_preference = get_preference('startup', 'minimize')
-        if not minimize_preference or minimize_preference == 'false':
-            self.gui.show_main_window()
 
         reactor.callLater(0, self.start_gateways)
         reactor.addSystemEventTrigger("before", "shutdown", self.stop)
