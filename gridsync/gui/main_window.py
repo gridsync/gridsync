@@ -208,9 +208,11 @@ class MainWindow(QMainWindow):
         self.gui.systray.menu.populate()
 
     def current_view(self):
-        view = self.central_widget.currentWidget().layout().itemAt(0).widget()
-        if isinstance(view, View):
-            return view
+        current_widget = self.central_widget.currentWidget()
+        if current_widget:
+            view = current_widget.layout().itemAt(0).widget()
+            if isinstance(view, View):
+                return view
         return None
 
     def select_folder(self):
