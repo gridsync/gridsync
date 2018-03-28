@@ -18,7 +18,7 @@ from gridsync import config_dir, resource, APP_NAME
 from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import wormhole_receive, InviteCodeLineEdit, show_failure
-from gridsync.setup import SetupRunner
+from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
 from gridsync.gui.widgets import TahoeConfigForm
 
@@ -275,27 +275,29 @@ class SetupForm(QStackedWidget):
         )
         self.close()
 
-    def verify_settings(self, settings):
-        nickname = settings['nickname']
-        if os.path.isdir(os.path.join(config_dir, nickname)):
-            # Only prompt for a rename if the received introducer fURL
-            # differs from that used by the existing target nodedir.
-            # XXX: This assumes that a grid "connection" is defined by
-            # its introducer (which will need to be changed/improved in
-            # the future, e.g., to support introducerless operations).
-            config = Config(os.path.join(config_dir, nickname, 'tahoe.cfg'))
-            existing_introducer = config.get('client', 'introducer.furl')
-            if settings['introducer'] != existing_introducer:
-                while os.path.isdir(os.path.join(config_dir, nickname)):
-                    title = "{} - Choose a name".format(APP_NAME)
-                    label = ("Please choose a different name for this "
-                             "connection:")
-                    if nickname:
-                        label = ('{} is already connected to "{}".'
-                                 '\n\n{}'.format(APP_NAME, nickname, label))
-                    nickname, _ = QInputDialog.getText(self, title, label, 0,
-                                                       nickname)
-        settings['nickname'] = nickname
+    def verify_settings(self, settings, from_wormhole=True):
+        #nickname = settings['nickname']
+        #if os.path.isdir(os.path.join(config_dir, nickname)):
+        #    # Only prompt for a rename if the received introducer fURL
+        #    # differs from that used by the existing target nodedir.
+        #    # XXX: This assumes that a grid "connection" is defined by
+        #    # its introducer (which will need to be changed/improved in
+        #    # the future, e.g., to support introducerless operations).
+        #    config = Config(os.path.join(config_dir, nickname, 'tahoe.cfg'))
+        #    existing_introducer = config.get('client', 'introducer.furl')
+        #    if settings['introducer'] != existing_introducer:
+        #        while os.path.isdir(os.path.join(config_dir, nickname)):
+        #            title = "{} - Choose a name".format(APP_NAME)
+        #            label = ("Please choose a different name for this "
+        #                     "connection:")
+        #            if nickname:
+        #                label = ('{} is already connected to "{}".'
+        #                         '\n\n{}'.format(APP_NAME, nickname, label))
+        #            nickname, _ = QInputDialog.getText(self, title, label, 0,
+        #                                               nickname)
+        #settings['nickname'] = nickname
+        settings = validate_settings(
+            settings, self.known_gateways, self, from_wormhole)
         self.setup_runner = SetupRunner(self.known_gateways)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.page_2.progressbar.setMaximum(steps)
@@ -345,7 +347,7 @@ class SetupForm(QStackedWidget):
             msg.exec_()
         else:
             self.setCurrentIndex(1)
-            self.verify_settings(settings)
+            self.verify_settings(settings, from_wormhole=False)
 
     def prompt_for_export(self, gateway):
         msg = QMessageBox(self)

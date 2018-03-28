@@ -8,12 +8,80 @@ import shutil
 from binascii import Error
 
 from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtWidgets import QInputDialog
 import treq
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import config_dir, resource
+from gridsync import config_dir, resource, APP_NAME
+from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
+
+
+def validate_grid(settings, parent):
+    nickname = settings.get('nickname')
+    if not nickname:
+        nickname = settings['introducer'].split('@')[1].split(':')[0]
+    if os.path.isdir(os.path.join(config_dir, nickname)):
+        # Only prompt for a rename if the received introducer fURL
+        # differs from that used by the existing target nodedir.
+        # XXX: This assumes that a grid "connection" is defined by
+        # its introducer (which will need to be changed/improved in
+        # the future, e.g., to support introducerless operations).
+        config = Config(os.path.join(config_dir, nickname, 'tahoe.cfg'))
+        existing_introducer = config.get('client', 'introducer.furl')
+        if settings['introducer'] != existing_introducer:
+            while os.path.isdir(os.path.join(config_dir, nickname)):
+                title = "{} - Choose a name".format(APP_NAME)
+                label = ("Please choose a different name for this "
+                         "connection:")
+                if nickname:
+                    label = ('{} is already connected to "{}".'
+                             '\n\n{}'.format(APP_NAME, nickname, label))
+                nickname, _ = QInputDialog.getText(parent, title, label, 0,
+                                                   nickname)
+    settings['nickname'] = nickname
+    return settings
+
+
+def validate_folders(settings, known_gateways, parent):
+    gateway = None
+    for gw in known_gateways:
+        if gw.name == settings['nickname']:
+            gateway = gw
+    if not gateway:
+        return settings
+    for folder, data in settings['magic-folders'].copy().items():
+        target = folder
+        while gateway.magic_folder_exists(target):
+            target, ok = QInputDialog.getText(
+                parent,
+                "Folder already exists",
+                'You already belong to a folder named "{}" on\n'
+                '{}; Please choose a different name.'.format(
+                    target, gateway.name),
+                0,
+                target
+            )
+            if not ok:  # User clicked "Cancel"; skip this folder
+                del settings['magic-folders'][folder]
+                continue
+            if not target:
+                target = folder
+            elif not gateway.magic_folder_exists(target) and \
+                    target not in settings['magic-folders']:
+                settings['magic-folders'][target] = data
+                del settings['magic-folders'][folder]
+    return settings
+
+
+def validate_settings(settings, known_gateways, parent, from_wormhole=True):
+    if from_wormhole and 'rootcap' in settings:
+        del settings['rootcap']
+    settings = validate_grid(settings, parent)
+    if 'magic-folders' in settings:
+        settings = validate_folders(settings, known_gateways, parent)
+    return settings
 
 
 class SetupRunner(QObject):
