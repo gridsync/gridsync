@@ -13,8 +13,8 @@
 ### Fixed
 - "Last modified" time will no longer update until after the first remote scan has completed, thereby preventing misleading mtimes (e.g., "48 years ago") from being displayed briefly on start (Issue #63).
 - Invites received through the "Add Folder" button will no longer appear to "hang" when receiving an invite that does not contain a magic-folder join-code (Issue #67)
-- When joining a grid through the initial welcome dialog, Gridsync will now only prompt for a grid-rename if the introducer fURL received through the invite actually differs from that of the conflicting target nodedir (Issue #68)
-- Gridsync will now actually try feching icon URLs provided inside invite messages
+- Setup will now only prompt for a grid-rename if the introducer fURL received through the invite actually differs from that of the conflicting target nodedir (Issue #68)
+- Setup will now actually try to fetch icon URLs provided inside invite messages
 
 ## 0.3.0 - 2018-03-10
 ### Added
