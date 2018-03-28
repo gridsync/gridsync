@@ -93,7 +93,7 @@ class SetupRunner(QObject):
                 # process if fetching/writing the icon fails (particularly
                 # if doing so would require the user to get a new invite code)
                 # so just log a warning for now if something goes wrong...
-                yield self.fetch_service_icon(settings['icon_url'], icon_path)
+                yield self.fetch_icon(settings['icon_url'], icon_path)
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
 
