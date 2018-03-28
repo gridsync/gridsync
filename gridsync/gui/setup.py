@@ -270,7 +270,7 @@ class SetupForm(QStackedWidget):
     def on_already_joined(self, grid_name):
         QMessageBox.information(
             self,
-            "Already connected", 
+            "Already connected",
             'You are already connected to "{}"'.format(grid_name)
         )
         self.close()
