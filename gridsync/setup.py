@@ -18,6 +18,7 @@ from gridsync.tahoe import Tahoe, select_executable
 
 class SetupRunner(QObject):
 
+    grid_already_joined = pyqtSignal(str)
     update_progress = pyqtSignal(str)
     joined_folders = pyqtSignal(list)
     got_icon = pyqtSignal(str)
@@ -173,6 +174,8 @@ class SetupRunner(QObject):
         self.gateway = self.get_gateway(settings.get('introducer'))
         if not self.gateway:
             yield self.join_grid(settings)
+        else:
+            self.grid_already_joined.emit(settings.get('nickname'))
 
         yield self.ensure_recovery(settings)
 
