@@ -8,9 +8,8 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QTimer
 from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
-    QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel,
-    QMessageBox, QProgressBar, QPushButton, QSizePolicy,
-    QSpacerItem, QToolButton, QWidget)
+    QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel, QMessageBox,
+    QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, CancelledError
 import wormhole.errors
@@ -419,31 +418,6 @@ class InviteReceiver(QWidget):
 
     def got_message(self, message):
         self.update_progress("Reading invitation...")  # 3
-        #if 'rootcap' in message:
-        #    del message['rootcap']
-        #if 'magic-folders' in message:
-        #    for folder, data in message['magic-folders'].copy().items():
-        #        for gateway in self.gateways:
-        #            target = folder
-        #            while gateway.magic_folder_exists(target):
-        #                target, ok = QInputDialog.getText(
-        #                    self,
-        #                    "Folder already exists",
-        #                    'You already belong to a folder named "{}" on\n'
-        #                    '{}; Please choose a different name.'.format(
-        #                        target, gateway.name),
-        #                    0,
-        #                    target
-        #                )
-        #                if not ok:  # User clicked "Cancel"; skip this folder
-        #                    del message['magic-folders'][folder]
-        #                    continue
-        #                if not target:
-        #                    target = folder
-        #                elif not gateway.magic_folder_exists(target) and \
-        #                        target not in message['magic-folders']:
-        #                    message['magic-folders'][target] = data
-        #                    del message['magic-folders'][folder]
         message = validate_settings(message, self.gateways, self)
         self.setup_runner = SetupRunner(self.gateways)
         if not message.get('magic-folders'):
