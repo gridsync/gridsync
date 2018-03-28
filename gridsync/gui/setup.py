@@ -267,6 +267,14 @@ class SetupForm(QStackedWidget):
         self.page_2.progressbar.setValue(self.page_2.progressbar.maximum())
         self.finish_button.show()
 
+    def on_already_joined(self, grid_name):
+        QMessageBox.information(
+            self,
+            "Already connected", 
+            'You are already connected to "{}"'.format(grid_name)
+        )
+        self.close()
+
     def verify_settings(self, settings):
         nickname = settings['nickname']
         if os.path.isdir(os.path.join(config_dir, nickname)):
@@ -291,6 +299,7 @@ class SetupForm(QStackedWidget):
         self.setup_runner = SetupRunner(self.known_gateways)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.page_2.progressbar.setMaximum(steps)
+        self.setup_runner.grid_already_joined.connect(self.on_already_joined)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.got_icon.connect(self.load_service_icon)
         self.setup_runner.done.connect(self.on_done)
