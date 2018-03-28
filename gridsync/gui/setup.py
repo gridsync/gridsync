@@ -15,6 +15,7 @@ from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
 from gridsync import config_dir, resource, APP_NAME
+from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import wormhole_receive, InviteCodeLineEdit, show_failure
 from gridsync.setup import SetupRunner
@@ -268,13 +269,24 @@ class SetupForm(QStackedWidget):
 
     def verify_settings(self, settings):
         nickname = settings['nickname']
-        while os.path.isdir(os.path.join(config_dir, nickname)):
-            title = "{} - Choose a name".format(APP_NAME)
-            label = "Please choose a different name for this connection:"
-            if nickname:
-                label = '{} is already connected to "{}".\n\n{}'.format(
-                    APP_NAME, nickname, label)
-            nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
+        if os.path.isdir(os.path.join(config_dir, nickname)):
+            # Only prompt for a rename if the received introducer fURL
+            # differs from that used by the existing target nodedir.
+            # XXX: This assumes that a grid "connection" is defined by
+            # its introducer (which will need to be changed/improved in
+            # the future, e.g., to support introducerless operations).
+            config = Config(os.path.join(config_dir, nickname, 'tahoe.cfg'))
+            existing_introducer = config.get('client', 'introducer.furl')
+            if settings['introducer'] != existing_introducer:
+                while os.path.isdir(os.path.join(config_dir, nickname)):
+                    title = "{} - Choose a name".format(APP_NAME)
+                    label = ("Please choose a different name for this "
+                             "connection:")
+                    if nickname:
+                        label = ('{} is already connected to "{}".'
+                                 '\n\n{}'.format(APP_NAME, nickname, label))
+                    nickname, _ = QInputDialog.getText(self, title, label, 0,
+                                                       nickname)
         settings['nickname'] = nickname
         self.setup_runner = SetupRunner(self.known_gateways)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
