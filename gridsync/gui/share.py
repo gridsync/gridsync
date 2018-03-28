@@ -408,6 +408,15 @@ class InviteReceiver(QWidget):
                 'Successfully joined {}!\n{} are now available for '
                 'download'.format(target, target))
 
+    def on_grid_already_joined(self, grid_name):
+        QMessageBox.information(
+            self,
+            "Already connected",
+            'You are already connected to "{}"'.format(grid_name)
+        )
+        self.wormhole.close()
+        self.close()
+
     def got_message(self, message):
         self.update_progress("Reading invitation...")  # 3
         if 'rootcap' in message:
@@ -436,6 +445,9 @@ class InviteReceiver(QWidget):
                             message['magic-folders'][target] = data
                             del message['magic-folders'][folder]
         self.setup_runner = SetupRunner(self.gateways)
+        if not message.get('magic-folders'):
+            self.setup_runner.grid_already_joined.connect(
+                self.on_grid_already_joined)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.joined_folders.connect(self.set_joined_folders)
         self.setup_runner.done.connect(self.on_done)

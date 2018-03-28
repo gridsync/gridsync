@@ -15,6 +15,7 @@ from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
 from gridsync import config_dir, resource, APP_NAME
+from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import wormhole_receive, InviteCodeLineEdit, show_failure
 from gridsync.setup import SetupRunner
@@ -266,19 +267,39 @@ class SetupForm(QStackedWidget):
         self.page_2.progressbar.setValue(self.page_2.progressbar.maximum())
         self.finish_button.show()
 
+    def on_already_joined(self, grid_name):
+        QMessageBox.information(
+            self,
+            "Already connected",
+            'You are already connected to "{}"'.format(grid_name)
+        )
+        self.close()
+
     def verify_settings(self, settings):
         nickname = settings['nickname']
-        while os.path.isdir(os.path.join(config_dir, nickname)):
-            title = "{} - Choose a name".format(APP_NAME)
-            label = "Please choose a different name for this connection:"
-            if nickname:
-                label = '{} is already connected to "{}".\n\n{}'.format(
-                    APP_NAME, nickname, label)
-            nickname, _ = QInputDialog.getText(self, title, label, 0, nickname)
+        if os.path.isdir(os.path.join(config_dir, nickname)):
+            # Only prompt for a rename if the received introducer fURL
+            # differs from that used by the existing target nodedir.
+            # XXX: This assumes that a grid "connection" is defined by
+            # its introducer (which will need to be changed/improved in
+            # the future, e.g., to support introducerless operations).
+            config = Config(os.path.join(config_dir, nickname, 'tahoe.cfg'))
+            existing_introducer = config.get('client', 'introducer.furl')
+            if settings['introducer'] != existing_introducer:
+                while os.path.isdir(os.path.join(config_dir, nickname)):
+                    title = "{} - Choose a name".format(APP_NAME)
+                    label = ("Please choose a different name for this "
+                             "connection:")
+                    if nickname:
+                        label = ('{} is already connected to "{}".'
+                                 '\n\n{}'.format(APP_NAME, nickname, label))
+                    nickname, _ = QInputDialog.getText(self, title, label, 0,
+                                                       nickname)
         settings['nickname'] = nickname
         self.setup_runner = SetupRunner(self.known_gateways)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.page_2.progressbar.setMaximum(steps)
+        self.setup_runner.grid_already_joined.connect(self.on_already_joined)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.got_icon.connect(self.load_service_icon)
         self.setup_runner.done.connect(self.on_done)
