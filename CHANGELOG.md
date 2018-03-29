@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.1 - 2018-03-29
 ### Added
 - "Start minimized" option to Preferences pane
 - "Start automatically on login" option to Preferences pane (Issue #66)
