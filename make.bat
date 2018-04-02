@@ -66,14 +66,15 @@ call .\build\venv-tahoe\Scripts\activate
 call pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call git --git-dir=build\tahoe-lafs\.git --work-tree=build\tahoe-lafs checkout 05edde9a64986375d4c8d97ae8caa16cba3f2cb8
-call copy .\misc\tahoe.spec .\build\tahoe-lafs
+::call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call python setup.py update_version
 call pip install .
+call pip install packaging
 call pip install pyinstaller==3.3.1
 call pip list
 call set PYTHONHASHSEED=1
-call pyinstaller tahoe.spec
+call pyinstaller pyinstaller.spec
 call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
 call set PYTHONHASHSEED=
 call move dist ..\..

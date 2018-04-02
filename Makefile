@@ -212,7 +212,8 @@ frozen-tahoe:
 	#	https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
 	case `uname` in \
 		Darwin) \
-			git clone -b 1432.osx-watchdog-stable.10 https://github.com/david415/tahoe-lafs.git build/tahoe-lafs \
+			git clone -b 1432.osx-watchdog-stable.10 https://github.com/david415/tahoe-lafs.git build/tahoe-lafs && \
+			cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec \
 		;; \
 		*) \
 			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
@@ -221,17 +222,17 @@ frozen-tahoe:
 	esac
 	virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
-	cp misc/tahoe.spec build/tahoe-lafs && \
 	pushd build/tahoe-lafs && \
 	python setup.py update_version && \
 	pip install --find-links=https://tahoe-lafs.org/deps/ . && \
+	pip install packaging && \
 	pip install pyinstaller==3.3.1 && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
-	pyinstaller tahoe.spec && \
+	pyinstaller pyinstaller.spec && \
+	esac && \
 	popd && \
-	mv build/tahoe-lafs/dist/Tahoe-LAFS dist && \
-	mv build/tahoe-lafs/dist/Tahoe-LAFS.zip dist
+	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
 install:
 	pip3 install --upgrade .
