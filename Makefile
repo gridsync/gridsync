@@ -230,7 +230,6 @@ frozen-tahoe:
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
-	esac && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
