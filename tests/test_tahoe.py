@@ -178,6 +178,21 @@ def test_remove_alias_idempotent(tahoe):
     assert not tahoe.get_alias('added_alias')
 
 
+def test_add_storage_server(tahoe):
+    tahoe.add_storage_server('v0-test', 'pb://test@test/test', 'Test')
+    with open(os.path.join(tahoe.nodedir, 'private', 'servers.yaml')) as f:
+        data = yaml.safe_load(f)
+    assert data == {
+        'storage': {
+            'v0-test': {
+                'ann': {
+                    'anonymous-storage-FURL': 'pb://test@test/test',
+                    'nickname': 'Test'}
+            }
+        }
+    }
+
+
 def test_load_magic_folders(tahoe):
     tahoe.load_magic_folders()
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'
