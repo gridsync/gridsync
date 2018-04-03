@@ -196,6 +196,22 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def remove_alias(self, alias):
         self._set_alias(alias)
 
+    def add_storage_server(self, server_id, furl, nickname=''):
+        yaml_path = os.path.join(self.nodedir, 'private', 'servers.yaml')
+        try:
+            with open(yaml_path) as f:
+                data = yaml.safe_load(f)
+        except OSError:
+            data = {}
+        if not 'storage' in data:
+            data['storage'] = {}
+        data['storage'][server_id] = {
+            'ann': {'anonymous-storage-FURL': furl, 'nickname': nickname}
+        }
+        with open(yaml_path + '.tmp', 'w') as f:
+            f.write(yaml.safe_dump(data, default_flow_style=False))
+        shutil.move(yaml_path + '.tmp', yaml_path)
+
     def load_magic_folders(self):
         data = {}
         yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
