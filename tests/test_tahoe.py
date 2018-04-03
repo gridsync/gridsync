@@ -187,7 +187,8 @@ def test_add_storage_server(tahoe):
             'v0-test': {
                 'ann': {
                     'anonymous-storage-FURL': 'pb://test@test/test',
-                    'nickname': 'Test'}
+                    'nickname': 'Test'
+                }
             }
         }
     }
