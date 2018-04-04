@@ -203,7 +203,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 data = yaml.safe_load(f)
         except OSError:
             data = {}
-        if not 'storage' in data:
+        if 'storage' not in data:
             data['storage'] = {}
         data['storage'][server_id] = {
             'ann': {'anonymous-storage-FURL': furl, 'nickname': nickname}
