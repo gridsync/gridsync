@@ -100,6 +100,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         else:
             self.nodedir = os.path.join(os.path.expanduser('~'), '.tahoe')
         self.rootcap_path = os.path.join(self.nodedir, 'private', 'rootcap')
+        self.servers_yaml_path = os.path.join(
+            self.nodedir, 'private', 'servers.yaml')
         self.config = Config(os.path.join(self.nodedir, 'tahoe.cfg'))
         self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
         self.nodeurl = None
@@ -196,21 +198,41 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def remove_alias(self, alias):
         self._set_alias(alias)
 
-    def add_storage_server(self, server_id, furl, nickname=''):
-        yaml_path = os.path.join(self.nodedir, 'private', 'servers.yaml')
+    def _read_servers_yaml(self):
         try:
-            with open(yaml_path) as f:
-                data = yaml.safe_load(f)
+            with open(self.servers_yaml_path) as f:
+                return yaml.safe_load(f)
         except OSError:
-            data = {}
-        if 'storage' not in data:
-            data['storage'] = {}
-        data['storage'][server_id] = {
+            return {}
+
+    def get_storage_servers(self):
+        yaml_data = self._read_servers_yaml()
+        if not yaml_data:
+            return {}
+        storage = yaml_data.get('storage')
+        if not storage or not isinstance(storage, dict):
+            return {}
+        results = {}
+        for server, server_data in storage.items():
+            ann = server_data.get('ann')
+            if not ann:
+                continue
+            results[server] = {
+                'anonymous-storage-FURL': ann.get('anonymous-storage-FURL'),
+                'nickname': ann.get('nickname')
+            }
+        return results
+
+    def add_storage_server(self, server_id, furl, nickname=''):
+        yaml_data = self._read_servers_yaml()
+        if not yaml_data or not yaml_data.get('storage'):
+            yaml_data['storage'] = {}
+        yaml_data['storage'][server_id] = {
             'ann': {'anonymous-storage-FURL': furl, 'nickname': nickname}
         }
-        with open(yaml_path + '.tmp', 'w') as f:
-            f.write(yaml.safe_dump(data, default_flow_style=False))
-        shutil.move(yaml_path + '.tmp', yaml_path)
+        with open(self.servers_yaml_path + '.tmp', 'w') as f:
+            f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
+        shutil.move(self.servers_yaml_path + '.tmp', self.servers_yaml_path)
 
     def load_magic_folders(self):
         data = {}
