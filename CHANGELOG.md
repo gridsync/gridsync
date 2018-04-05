@@ -4,6 +4,9 @@
 ### Added
 - Support for introducerless connections; Gridsync can now write storage fURLs received through invite messages directly to `$nodedir/private/servers.yaml`, bypassing the need to connect to an introducer node (Issue #65)
 
+### Fixed
+- Rare crashes caused by the successive emitting of certain `pyqtSignal`s
+
 ## 0.3.1 - 2018-03-29
 ### Added
 - "Start minimized" option to Preferences pane
