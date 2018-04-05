@@ -224,6 +224,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         return results
 
     def add_storage_server(self, server_id, furl, nickname=''):
+        log.debug("Adding storage server: %s...", server_id)
         yaml_data = self._read_servers_yaml()
         if not yaml_data or not yaml_data.get('storage'):
             yaml_data['storage'] = {}
@@ -233,6 +234,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         with open(self.servers_yaml_path + '.tmp', 'w') as f:
             f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
         shutil.move(self.servers_yaml_path + '.tmp', self.servers_yaml_path)
+        log.debug("Added storage server: %s", server_id)
 
     def load_magic_folders(self):
         data = {}
