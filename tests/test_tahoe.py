@@ -178,6 +178,35 @@ def test_remove_alias_idempotent(tahoe):
     assert not tahoe.get_alias('added_alias')
 
 
+def test_get_storage_servers_empty(tahoe):
+    assert tahoe.get_storage_servers() == {}
+
+
+def test_get_storage_servers_non_empty(tahoe):
+    data = {
+        'storage': {
+            'v0-aaa': {
+                'ann': {
+                    'anonymous-storage-FURL': 'pb://a.a',
+                    'nickname': 'alice'
+                }
+            }
+        }
+    }
+    with open(tahoe.servers_yaml_path, 'w') as f:
+        f.write(yaml.safe_dump(data, default_flow_style=False))
+    assert tahoe.get_storage_servers() == {
+        'v0-aaa': {'anonymous-storage-FURL': 'pb://a.a', 'nickname': 'alice'}
+    }
+
+
+def test_add_storage_server(tahoe):
+    tahoe.add_storage_server('v0-bbb', 'pb://b.b', 'bob')
+    assert tahoe.get_storage_servers().get('v0-bbb') == {
+        'anonymous-storage-FURL': 'pb://b.b', 'nickname': 'bob'
+    }
+
+
 def test_load_magic_folders(tahoe):
     tahoe.load_magic_folders()
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'

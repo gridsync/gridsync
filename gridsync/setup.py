@@ -22,15 +22,24 @@ def validate_grid(settings, parent):
     nickname = settings.get('nickname')
     if not nickname:
         nickname = settings['introducer'].split('@')[1].split(':')[0]
-    if os.path.isdir(os.path.join(config_dir, nickname)):
-        # Only prompt for a rename if the received introducer fURL
-        # differs from that used by the existing target nodedir.
-        # XXX: This assumes that a grid "connection" is defined by
-        # its introducer (which will need to be changed/improved in
-        # the future, e.g., to support introducerless operations).
-        config = Config(os.path.join(config_dir, nickname, 'tahoe.cfg'))
-        existing_introducer = config.get('client', 'introducer.furl')
-        if settings['introducer'] != existing_introducer:
+    nodedir = os.path.join(config_dir, nickname)
+    if os.path.isdir(nodedir):
+        conflicting_introducer = False
+        introducer = settings.get('introducer')
+        if introducer:
+            config = Config(os.path.join(nodedir, 'tahoe.cfg'))
+            existing_introducer = config.get('client', 'introducer.furl')
+            if introducer != existing_introducer:
+                conflicting_introducer = True
+
+        conflicting_servers = False
+        servers = settings.get('storage')
+        if servers:
+            existing_servers = Tahoe(nodedir).get_storage_servers()
+            if servers != existing_servers:
+                conflicting_servers = True
+
+        if conflicting_introducer or conflicting_servers:
             while os.path.isdir(os.path.join(config_dir, nickname)):
                 title = "{} - Choose a name".format(APP_NAME)
                 label = ("Please choose a different name for this "
@@ -134,6 +143,15 @@ class SetupRunner(QObject):
         else:
             log.warning("Error fetching service icon: %i", resp.code)
 
+    def add_storage_servers(self, storage_servers):
+        for server_id, data in storage_servers.items():
+            nickname = data.get('nickname')
+            furl = data.get('anonymous-storage-FURL')
+            if furl:
+                self.gateway.add_storage_server(server_id, furl, nickname)
+            else:
+                log.warning("No storage fURL provided for %s!", server_id)
+
     @inlineCallbacks  # noqa: max-complexity=13 XXX
     def join_grid(self, settings):
         if 'nickname' in settings:
@@ -173,6 +191,10 @@ class SetupRunner(QObject):
             multi_folder_support=multi_folder_support
         )
         yield self.gateway.create_client(**settings)
+
+        storage_servers = settings.get('storage')
+        if storage_servers and isinstance(storage_servers, dict):
+            self.add_storage_servers(storage_servers)
 
         if icon_path:
             try:

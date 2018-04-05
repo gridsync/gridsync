@@ -8,6 +8,7 @@ disable=
     too-few-public-methods,
     too-many-instance-attributes,
     too-many-branches,
+    too-many-lines,
     too-many-locals,
     too-many-public-methods,
     too-many-statements,
