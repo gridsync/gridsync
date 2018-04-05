@@ -123,11 +123,13 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def get_settings(self, include_rootcap=False):
         settings = {
             'nickname': self.name,
-            'introducer': self.config_get('client', 'introducer.furl'),
             'shares-needed': self.config_get('client', 'shares.needed'),
             'shares-happy': self.config_get('client', 'shares.happy'),
             'shares-total': self.config_get('client', 'shares.total')
         }
+        introducer = self.config_get('client', 'introducer.furl')
+        if introducer:
+            settings['introducer'] = introducer
         storage_servers = self.get_storage_servers()
         if storage_servers:
             settings['storage'] = storage_servers
