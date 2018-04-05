@@ -143,6 +143,15 @@ class SetupRunner(QObject):
         else:
             log.warning("Error fetching service icon: %i", resp.code)
 
+    def add_storage_servers(self, storage_servers):
+        for server_id, data in storage_servers.items():
+            nickname = data.get('nickname')
+            furl = data.get('anonymous-storage-FURL')
+            if furl:
+                self.gateway.add_storage_server(server_id, furl, nickname)
+            else:
+                log.warning("No storage fURL provided for %s!", server_id)
+
     @inlineCallbacks  # noqa: max-complexity=13 XXX
     def join_grid(self, settings):
         if 'nickname' in settings:
@@ -182,6 +191,10 @@ class SetupRunner(QObject):
             multi_folder_support=multi_folder_support
         )
         yield self.gateway.create_client(**settings)
+
+        storage_servers = settings.get('storage')
+        if storage_servers and isinstance(storage_servers, dict):
+            self.add_storage_servers(storage_servers)
 
         if icon_path:
             try:
