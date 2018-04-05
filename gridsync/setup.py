@@ -106,17 +106,22 @@ class SetupRunner(QObject):
         self.known_gateways = known_gateways
         self.gateway = None
 
-    def get_gateway(self, introducer):
-        if not introducer or not self.known_gateways:
+    def get_gateway(self, introducer, servers):
+        if not self.known_gateways:
             return None
         for gateway in self.known_gateways:
-            if gateway.config_get('client', 'introducer.furl') == introducer:
+            target_introducer = gateway.config_get('client', 'introducer.furl')
+            if introducer and introducer == target_introducer:
+                return gateway
+            target_servers = gateway.get_storage_servers()
+            if servers and servers == target_servers:
                 return gateway
         return None
 
     def calculate_total_steps(self, settings):
         steps = 1  # done
-        if not self.get_gateway(settings.get('introducer')):
+        if not self.get_gateway(
+                settings.get('introducer'), settings.get('storage')):
             steps += 4  # create, start, await_ready, rootcap
         folders = settings.get('magic-folders')
         if folders:
@@ -261,7 +266,9 @@ class SetupRunner(QObject):
         if 'version' in settings and int(settings['version']) > 1:
             raise UpgradeRequiredError
 
-        self.gateway = self.get_gateway(settings.get('introducer'))
+        self.gateway = self.get_gateway(
+            settings.get('introducer'), settings.get('storage')
+        )
         if not self.gateway:
             yield self.join_grid(settings)
         else:
