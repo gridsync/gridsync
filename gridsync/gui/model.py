@@ -223,7 +223,10 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
-        self.gui.core.operations.remove((self.gateway, folder_name))
+        try:
+            self.gui.core.operations.remove((self.gateway, folder_name))
+        except ValueError:
+            pass
 
     @pyqtSlot(str, int)
     def set_mtime(self, name, mtime):
