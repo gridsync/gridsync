@@ -377,10 +377,16 @@ class MainWindow(QMainWindow):
         for view in self.central_widget.views:
             view.model().monitor.scan_rootcap('star.png')
 
+    def on_invite_closed(self, obj):
+        try:
+            self.active_invite_receivers.remove(obj)
+        except ValueError:
+            pass
+
     def open_invite_receiver(self):
         invite_receiver = InviteReceiver(self.gateways)
         invite_receiver.done.connect(self.on_invite_received)
-        invite_receiver.closed.connect(self.active_invite_receivers.remove)
+        invite_receiver.closed.connect(self.on_invite_closed)
         invite_receiver.show()
         self.active_invite_receivers.append(invite_receiver)
 
