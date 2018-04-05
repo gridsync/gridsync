@@ -128,6 +128,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             'shares-happy': self.config_get('client', 'shares.happy'),
             'shares-total': self.config_get('client', 'shares.total')
         }
+        storage_servers = self.get_storage_servers()
+        if storage_servers:
+            settings['storage'] = storage_servers
         icon_path = os.path.join(self.nodedir, 'icon')
         icon_url_path = icon_path + '.url'
         if os.path.exists(icon_url_path):
