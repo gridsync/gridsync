@@ -14,7 +14,9 @@ from wormhole.errors import (
 
 from gridsync import resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
-from gridsync.invite import wormhole_receive, InviteCodeLineEdit, show_failure
+from gridsync.invite import (
+    get_settings_from_cheatcode, wormhole_receive, InviteCodeLineEdit,
+    show_failure)
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
 from gridsync.gui.widgets import TahoeConfigForm
@@ -289,6 +291,11 @@ class SetupForm(QStackedWidget):
         self.setCurrentIndex(1)
         self.page_2.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
+        if code.split('-')[0] == "0":
+            settings = get_settings_from_cheatcode(code[2:])
+            if settings:
+                self.verify_settings(settings)
+                return
         d = wormhole_receive(code)
         d.addCallback(self.verify_settings)
         d.addErrback(self.handle_failure)

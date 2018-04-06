@@ -16,7 +16,8 @@ import wormhole.errors
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.invite import Wormhole, InviteCodeLineEdit, show_failure
+from gridsync.invite import (
+    get_settings_from_cheatcode, Wormhole, InviteCodeLineEdit, show_failure)
 from gridsync.msg import error
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
@@ -445,6 +446,11 @@ class InviteReceiver(QWidget):
         self.lineedit.hide()
         self.progressbar.show()
         self.update_progress("Verifying invitation...")  # 1
+        if code.split('-')[0] == "0":
+            settings = get_settings_from_cheatcode(code[2:])
+            if settings:
+                self.got_message(settings)
+                return
         self.wormhole = Wormhole()
         self.wormhole.got_welcome.connect(self.got_welcome)
         self.wormhole.got_message.connect(self.got_message)
