@@ -414,7 +414,6 @@ class InviteReceiver(QWidget):
             "Already connected",
             'You are already connected to "{}"'.format(grid_name)
         )
-        self.wormhole.close()
         self.close()
 
     def got_message(self, message):
@@ -437,7 +436,6 @@ class InviteReceiver(QWidget):
         if failure.type == CancelledError and self.progressbar.value() > 2:
             return
         show_failure(failure, self)
-        self.wormhole.close()
         self.close()
 
     def go(self, code):
@@ -460,6 +458,10 @@ class InviteReceiver(QWidget):
 
     def closeEvent(self, event):
         event.accept()
+        try:
+            self.wormhole.close()
+        except AttributeError:
+            pass
         self.closed.emit(self)
 
     def keyPressEvent(self, event):
