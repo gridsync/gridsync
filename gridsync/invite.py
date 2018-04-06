@@ -38,8 +38,8 @@ except OSError:
 wordlist = []
 for word in raw_words.items():
     wordlist.extend(word[1])
-for code in cheatcodes:
-    wordlist.extend(code.split('-'))
+for c in cheatcodes:
+    wordlist.extend(c.split('-'))
 wordlist = sorted([word.lower() for word in wordlist])
 
 
