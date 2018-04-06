@@ -981,7 +981,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if content:
             returnValue(self.size_from_content(content))
 
-    @inlineCallbacks
+    @inlineCallbacks  # noqa: max-complexity=12 XXX
     def get_magic_folder_info(self, name=None, members=None):
         total_size = 0
         sizes_dict = {}
@@ -992,7 +992,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             for member, dircap in reversed(members):
                 sizes_dict[member] = {}
                 json_data = yield self.get_json(dircap)
-                children = json_data[1]['children']
+                try:
+                    children = json_data[1]['children']
+                except TypeError:
+                    continue
                 for filenode, data in children.items():
                     filepath = filenode.replace('@_', os.path.sep)
                     metadata = data[1]
