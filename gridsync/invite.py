@@ -43,6 +43,15 @@ for code in cheatcodes:
 wordlist = sorted([word.lower() for word in wordlist])
 
 
+def get_settings_from_cheatcode(cheatcode):
+    path = os.path.join(pkgdir, 'resources', 'providers', cheatcode + '.json')
+    try:
+        with open(path) as f:
+            return json.loads(f.read())
+    except (OSError, json.decoder.JSONDecodeError):
+        return None
+
+
 def is_valid(code):
     words = code.split('-')
     if len(words) != 3:
