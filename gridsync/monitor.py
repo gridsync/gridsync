@@ -17,7 +17,7 @@ class Monitor(QObject):
     data_updated = pyqtSignal(str, object)
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
-    size_updated = pyqtSignal(str, int)
+    size_updated = pyqtSignal(str, object)
     member_added = pyqtSignal(str, str)
     first_sync_started = pyqtSignal(str)
     sync_started = pyqtSignal(str)

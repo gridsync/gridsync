@@ -238,7 +238,7 @@ class Model(QStandardItemModel):
             naturaltime(datetime.now() - datetime.fromtimestamp(mtime)))
         item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
-    @pyqtSlot(str, int)
+    @pyqtSlot(str, object)
     def set_size(self, name, size):
         item = self.item(self.findItems(name)[0].row(), 3)
         item.setText(naturalsize(size))
