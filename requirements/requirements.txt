@@ -1,6 +1,6 @@
 asn1crypto==0.24.0
 attrs==17.4.0
-autobahn==18.3.1
+autobahn==18.4.1
 Automat==0.6.0
 certifi==2018.1.18
 cffi==1.11.5
@@ -30,12 +30,12 @@ service_identity==17.0.0
 SIP==4.19.8
 six==1.11.0
 spake2==0.8
-tqdm==4.20.0
+tqdm==4.21.0
 treq==17.8.0
 Twisted==17.9.0
-txaio==2.9.0
+txaio==2.10.0
 txdbus==1.1.0 ; "linux" in sys_platform
 txtorcon==0.20.0
 urllib3==1.22
 zope.interface==4.4.3
-zxcvbn-python==4.4.22
+zxcvbn-python==4.4.23
