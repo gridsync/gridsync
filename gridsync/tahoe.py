@@ -761,18 +761,14 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def magic_folder_invite(self, name, nickname):
         yield self.await_ready()
-        client = self.get_magic_folder_client(name)
-        if client:
-            code = yield client.command(
-                ['magic-folder', '--debug', 'invite', 'magic:', nickname])
-        else:
-            alias = hashlib.sha256(name.encode()).hexdigest() + ':'
-            code = yield self.command(
-                ['magic-folder', '--debug', 'invite', '-n', name, alias,
-                 nickname])
-        if sys.platform == 'win32':
-            code = code.lstrip("b'").rstrip("\\n'")  # XXX !!
-        returnValue(code.strip())
+        admin_dircap = self.get_admin_dircap(name)
+        if not admin_dircap:
+            raise TahoeError(
+                'No admin dircap found for folder "{}"'.format(name)
+            )
+        created = yield self.mkdir(admin_dircap, nickname)
+        code = '{}+{}'.format(self.get_collective_dircap(name), created)
+        returnValue(code)
 
     @inlineCallbacks
     def magic_folder_uninvite(self, name, nickname):
