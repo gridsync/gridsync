@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 
 from PyQt5.QtCore import pyqtSignal, QObject, QStringListModel, Qt
 from PyQt5.QtGui import QFont, QIcon
@@ -17,7 +18,7 @@ try:
 except ImportError:  # TODO: Switch to new magic-wormhole completion API
     from wormhole._wordlist import raw_words
 
-from gridsync import settings, resource, APP_NAME
+from gridsync import pkgdir, settings, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 
@@ -26,10 +27,29 @@ APPID = settings['wormhole']['appid']
 RELAY = settings['wormhole']['relay']
 
 
+cheatcodes = []
+try:
+    for file in os.listdir(os.path.join(pkgdir, 'resources', 'providers')):
+        cheatcodes.append(file.split('.')[0].lower())
+except OSError:
+    pass
+
+
 wordlist = []
 for word in raw_words.items():
     wordlist.extend(word[1])
+for c in cheatcodes:
+    wordlist.extend(c.split('-'))
 wordlist = sorted([word.lower() for word in wordlist])
+
+
+def get_settings_from_cheatcode(cheatcode):
+    path = os.path.join(pkgdir, 'resources', 'providers', cheatcode + '.json')
+    try:
+        with open(path) as f:
+            return json.loads(f.read())
+    except (OSError, json.decoder.JSONDecodeError):
+        return None
 
 
 def is_valid(code):
