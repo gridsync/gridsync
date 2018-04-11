@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import (
     QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel, QMessageBox,
     QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks, CancelledError, returnValue
+from twisted.internet.defer import (
+    CancelledError, gatherResults, inlineCallbacks, returnValue)
 import wormhole.errors
 
 from gridsync import resource, config_dir
@@ -227,20 +228,26 @@ class ShareWidget(QDialog):
         self.close()
 
     @inlineCallbacks
+    def get_folder_invite(self, folder):
+        member_id = b58encode(os.urandom(8))
+        try:
+            code = yield self.gateway.magic_folder_invite(folder, member_id)
+        except TahoeError as err:
+            code = None
+            self.wormhole.close()
+            error(self, "Invite Error", str(err))
+            self.close()
+        returnValue((folder, member_id, code))
+
+    @inlineCallbacks
     def get_folder_invites(self):
+        self.subtext_label.setText("Creating folder invite(s)...\n\n")
         folders_data = {}
+        tasks = []
         for folder in self.folder_names:
-            self.subtext_label.setText(
-                'Creating invite for "{}"...\n\n'.format(folder))
-            member_id = b58encode(os.urandom(8))
-            try:
-                code = yield self.gateway.magic_folder_invite(
-                    folder, member_id)
-            except TahoeError as err:
-                self.wormhole.close()
-                error(self, "Invite Error", str(err))
-                self.close()
-                return
+            tasks.append(self.get_folder_invite(folder))
+        results = yield gatherResults(tasks)
+        for folder, member_id, code in results:
             folders_data[folder] = {'code': code}
             self.pending_invites.append((folder, member_id))
         returnValue(folders_data)
