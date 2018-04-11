@@ -21,7 +21,7 @@ from gridsync.invite import (
 from gridsync.msg import error
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
-from gridsync.tahoe import TahoeCommandError
+from gridsync.tahoe import TahoeError
 from gridsync.util import b58encode, humanized_list
 
 
@@ -242,7 +242,7 @@ class ShareWidget(QDialog):
                 try:
                     code = yield self.gateway.magic_folder_invite(
                         folder, member_id)
-                except TahoeCommandError as err:
+                except TahoeError as err:
                     self.wormhole.close()
                     error(self, "Invite Error", str(err))
                     self.close()
