@@ -567,8 +567,13 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             ready = yield self.is_ready()
 
     @inlineCallbacks
-    def mkdir(self):
-        resp = yield treq.post(self.nodeurl + 'uri', params={'t': 'mkdir'})
+    def mkdir(self, parentcap=None, childname=None):
+        url = self.nodeurl + 'uri'
+        params = {'t': 'mkdir'}
+        if parentcap and childname:
+            url += '/' + parentcap
+            params['name'] = childname
+        resp = yield treq.post(url, params=params)
         if resp.code == 200:
             content = yield treq.content(resp)
             returnValue(content.decode('utf-8').strip())
