@@ -3,9 +3,14 @@
 ## Unreleased
 ### Added
 - Support for introducerless connections; Gridsync can now write storage fURLs received through invite messages directly to `$nodedir/private/servers.yaml`, bypassing the need to connect to an introducer node (Issue #65)
+- Preliminary support for "cheat codes", allowing future users to enter a pre-given invite code to join a grid without the need to complete a full magic-wormhole exchange (Issue #54); see `docs/cheat-codes.md`
+
+### Changed
+- Magic-folder invites now use the Tahoe web API directly to create member subdirectories (as opposed to shelling out to `tahoe magic-folde invite`) and will do so concurrently in the event of "batched" invites, resulting in significantly faster overall invite code creation when sharing folders (Issue #57)
 
 ### Fixed
 - Rare crashes caused by the successive emitting of certain `pyqtSignal`s
+- Overflow in "size" column caused by PyQt's C++ types (Issue #78) -- thanks @yegortimoshenko!
 
 ## 0.3.1 - 2018-03-29
 ### Added
