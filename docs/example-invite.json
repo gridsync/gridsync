@@ -1,0 +1,18 @@
+{
+    "nickname": "Demo Grid",
+    "introducer": "pb://rxbtmrhbm7mozopcuxphaqrfqcvtwhyp@demo.gridsync.io:54321/aesxkqhkrj3d7b264zarqapnqsj7hiho",
+    "shares-needed": "1",
+    "shares-happy": "1",
+    "shares-total": "1",
+    "icon_url": "https://raw.githubusercontent.com/gridsync/gridsync/master/gridsync/resources/gridsync.png",
+    "storage": {
+        "v0-ybnudcp5oxojbvukf4rxdnyba2ijhrg623npzkl5rhlqhn4roqsv": {
+            "nickname": "node-1",
+            "anonymous-storage-FURL": "pb://nzwv5fj233fsemnkaeobhhwqkwcao6yy@tcp:node-1.gridsync.io:11111/eb3xmhglqgadced5rxo47a4uh3qsz2wu"
+        },
+        "v0-axyd6jckmbiha4hel7ea362l5bwbpr2klayqz2lmikr3duikofeq": {
+            "nickname": "node-2",
+            "anonymous-storage-FURL": "pb://pxolqen5b7xkdbrdju2wlmrawlyn456b@tcp:node-2.gridsync.io:22222/u64tubqk27wmxih5i372lgqf4szsdwuu"
+        }
+    }
+}
