@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import (
     QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel, QMessageBox,
     QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks, CancelledError
+from twisted.internet.defer import (
+    CancelledError, gatherResults, inlineCallbacks, returnValue)
 import wormhole.errors
 
 from gridsync import resource, config_dir
@@ -21,7 +22,7 @@ from gridsync.invite import (
 from gridsync.msg import error
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
-from gridsync.tahoe import TahoeCommandError
+from gridsync.tahoe import TahoeError
 from gridsync.util import b58encode, humanized_list
 
 
@@ -227,6 +228,31 @@ class ShareWidget(QDialog):
         self.close()
 
     @inlineCallbacks
+    def get_folder_invite(self, folder):
+        member_id = b58encode(os.urandom(8))
+        try:
+            code = yield self.gateway.magic_folder_invite(folder, member_id)
+        except TahoeError as err:
+            code = None
+            self.wormhole.close()
+            error(self, "Invite Error", str(err))
+            self.close()
+        returnValue((folder, member_id, code))
+
+    @inlineCallbacks
+    def get_folder_invites(self):
+        self.subtext_label.setText("Creating folder invite(s)...\n\n")
+        folders_data = {}
+        tasks = []
+        for folder in self.folder_names:
+            tasks.append(self.get_folder_invite(folder))
+        results = yield gatherResults(tasks)
+        for folder, member_id, code in results:
+            folders_data[folder] = {'code': code}
+            self.pending_invites.append((folder, member_id))
+        returnValue(folders_data)
+
+    @inlineCallbacks
     def go(self):
         self.wormhole = Wormhole()
         self.wormhole.got_code.connect(self.on_got_code)
@@ -234,21 +260,7 @@ class ShareWidget(QDialog):
         self.wormhole.send_completed.connect(self.on_send_completed)
         self.settings = self.gateway.get_settings()
         if self.folder_names:
-            folders_data = {}
-            for folder in self.folder_names:
-                self.subtext_label.setText(
-                    'Creating invite for "{}"...\n\n'.format(folder))
-                member_id = b58encode(os.urandom(8))
-                try:
-                    code = yield self.gateway.magic_folder_invite(
-                        folder, member_id)
-                except TahoeCommandError as err:
-                    self.wormhole.close()
-                    error(self, "Invite Error", str(err))
-                    self.close()
-                    return
-                folders_data[folder] = {'code': code}
-                self.pending_invites.append((folder, member_id))
+            folders_data = yield self.get_folder_invites()
             self.settings['magic-folders'] = folders_data
         self.subtext_label.setText("Opening wormhole...\n\n")
         self.wormhole.send(self.settings).addErrback(self.handle_failure)
