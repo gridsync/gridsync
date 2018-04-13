@@ -6,7 +6,7 @@ import yaml
 
 from gridsync.setup import (
     prompt_for_grid_name, validate_grid, prompt_for_folder_name,
-    validate_folders)
+    validate_folders, validate_settings)
 from gridsync.tahoe import Tahoe
 
 
@@ -138,3 +138,27 @@ def test_validate_folders_rename_folder(monkeypatch, tmpdir_factory):
             }
         }
     }
+
+
+def fake_validate(settings, *args):
+    return settings
+
+
+def test_validate_settings_strip_rootcap(monkeypatch):
+    monkeypatch.setattr('gridsync.setup.validate_grid', fake_validate)
+    settings = {'nickname': 'SomeGrid', 'rootcap': 'URI:ROOTCAP'}
+    assert validate_settings(settings, [], None) == {'nickname': 'SomeGrid'}
+
+
+def test_validate_settings_validate_folders(monkeypatch):
+    monkeypatch.setattr('gridsync.setup.validate_grid', fake_validate)
+    monkeypatch.setattr('gridsync.setup.validate_folders', fake_validate)
+    settings = {
+        'nickname': 'SomeGrid',
+        'magic-folders': {
+            'NewFolderName': {
+                'code': 'aaaaaaaa+bbbbbbbb'
+            }
+        }
+    }
+    assert validate_settings(settings, [], None) == settings
