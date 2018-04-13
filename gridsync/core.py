@@ -101,7 +101,7 @@ class Core(object):
                 gateway.start()
                 self.gui.populate(self.gateways)
             else:
-                self.gui.show_setup_form()
+                self.gui.show_welcome_dialog()
                 yield self.select_executable()
 
     def start(self):

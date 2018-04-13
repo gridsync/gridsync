@@ -16,7 +16,7 @@ from gridsync import resource, APP_NAME, config_dir
 from gridsync.crypto import Crypter
 from gridsync.gui.password import PasswordDialog
 from gridsync.gui.preferences import PreferencesWidget
-from gridsync.gui.setup import SetupForm
+from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
 from gridsync.gui.share import InviteReceiver, ShareWidget
 from gridsync.gui.view import View
@@ -83,13 +83,13 @@ class MainWindow(QMainWindow):
         self.crypter_thread = None
         self.export_data = None
         self.export_dest = None
-        self.setup_form = None
+        self.welcome_dialog = None
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
-        self.shortcut_new.activated.connect(self.show_setup_form)
+        self.shortcut_new.activated.connect(self.show_welcome_dialog)
 
         self.shortcut_open = QShortcut(QKeySequence.Open, self)
         self.shortcut_open.activated.connect(self.select_folder)
@@ -229,16 +229,16 @@ class MainWindow(QMainWindow):
             self.current_view().model().grid_status)
         self.gui.systray.update()
 
-    def show_setup_form(self):
-        if self.setup_form:
-            self.setup_form.close()
-        self.setup_form = SetupForm(self.gui, self.gateways)
-        self.setup_form.show()
-        self.setup_form.raise_()
+    def show_welcome_dialog(self):
+        if self.welcome_dialog:
+            self.welcome_dialog.close()
+        self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
+        self.welcome_dialog.show()
+        self.welcome_dialog.raise_()
 
     def on_grid_selected(self, index):
         if index == self.combo_box.count() - 1:
-            self.show_setup_form()
+            self.show_welcome_dialog()
         else:
             self.central_widget.setCurrentIndex(index)
             self.status_bar.show()

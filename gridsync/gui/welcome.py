@@ -183,9 +183,9 @@ class ProgressBarWidget(QWidget):
         self.checkmark.setPixmap(pixmap)
 
 
-class SetupForm(QStackedWidget):
+class WelcomeDialog(QStackedWidget):
     def __init__(self, gui, known_gateways=None):
-        super(SetupForm, self).__init__()
+        super(WelcomeDialog, self).__init__()
         self.gui = gui
         self.known_gateways = known_gateways
         self.gateway = None
