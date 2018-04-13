@@ -30,8 +30,8 @@ def prompt_for_grid_name(grid_name, parent):
 
 def validate_grid(settings, parent):
     nickname = settings.get('nickname')
-    if not nickname:
-        nickname = settings['introducer'].split('@')[1].split(':')[0]
+    while not nickname:
+        nickname, _ = prompt_for_grid_name(nickname, parent)
     nodedir = os.path.join(config_dir, nickname)
     if os.path.isdir(nodedir):
         conflicting_introducer = False
