@@ -24,7 +24,7 @@ def prompt_for_grid_name(grid_name, parent):
     if grid_name:
         label = ('{} is already connected to "{}".\n\n'
                  'Please choose a different name for this connection'.format(
-                     APP_NAME, grid_name, label))
+                     APP_NAME, grid_name))
     return QInputDialog.getText(parent, title, label, 0, grid_name)
 
 
