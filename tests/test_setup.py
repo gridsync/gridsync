@@ -5,7 +5,9 @@ import os
 import yaml
 
 from gridsync.setup import (
-    prompt_for_grid_name, validate_grid, prompt_for_folder_name)
+    prompt_for_grid_name, validate_grid, prompt_for_folder_name,
+    validate_folders)
+from gridsync.tahoe import Tahoe
 
 
 def test_prompt_for_grid_name(monkeypatch):
@@ -84,3 +86,55 @@ def test_prompt_for_folder_name(monkeypatch):
         lambda a, b, c, d, e: ('NewFolderName', 1)
     )
     assert prompt_for_folder_name('FolderName', 'Grid') == ('NewFolderName', 1)
+
+
+def test_validate_folders_no_known_gateways():
+    assert validate_folders({}, []) == {}
+
+
+def test_validate_folders_skip_folder(monkeypatch, tmpdir_factory):
+    gateway = Tahoe(
+        os.path.join(str(tmpdir_factory.mktemp('config_dir')), 'SomeGrid'))
+    gateway.magic_folders = {'FolderName': {}}
+    monkeypatch.setattr(
+        'gridsync.setup.prompt_for_folder_name',
+        lambda x, y, z: (None, 0)
+    )
+    settings = {
+        'nickname': 'SomeGrid',
+        'magic-folders': {
+            'FolderName': {
+                'code': 'aaaaaaaa+bbbbbbbb'
+            }
+        }
+    }
+    assert validate_folders(settings, [gateway]) == {
+        'nickname': 'SomeGrid',
+        'magic-folders': {}
+    }
+
+
+def test_validate_folders_rename_folder(monkeypatch, tmpdir_factory):
+    gateway = Tahoe(
+        os.path.join(str(tmpdir_factory.mktemp('config_dir')), 'SomeGrid'))
+    gateway.magic_folders = {'FolderName': {}}
+    monkeypatch.setattr(
+        'gridsync.setup.prompt_for_folder_name',
+        lambda x, y, z: ('NewFolderName', 1)
+    )
+    settings = {
+        'nickname': 'SomeGrid',
+        'magic-folders': {
+            'FolderName': {
+                'code': 'aaaaaaaa+bbbbbbbb'
+            }
+        }
+    }
+    assert validate_folders(settings, [gateway]) == {
+        'nickname': 'SomeGrid',
+        'magic-folders': {
+            'NewFolderName': {
+                'code': 'aaaaaaaa+bbbbbbbb'
+            }
+        }
+    }
