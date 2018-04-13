@@ -18,7 +18,7 @@ from gridsync.errors import UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
 
 
-def prompt_for_grid_name(grid_name, parent):
+def prompt_for_grid_name(grid_name, parent=None):
     title = "{} - Choose a name".format(APP_NAME)
     label = "Please choose a name for this connection:"
     if grid_name:
@@ -28,7 +28,7 @@ def prompt_for_grid_name(grid_name, parent):
     return QInputDialog.getText(parent, title, label, 0, grid_name)
 
 
-def validate_grid(settings, parent):
+def validate_grid(settings, parent=None):
     nickname = settings.get('nickname')
     while not nickname:
         nickname, _ = prompt_for_grid_name(nickname, parent)
@@ -56,7 +56,7 @@ def validate_grid(settings, parent):
     return settings
 
 
-def prompt_for_folder_name(folder_name, grid_name, parent):
+def prompt_for_folder_name(folder_name, grid_name, parent=None):
     return QInputDialog.getText(
         parent,
         "Folder already exists",
@@ -68,7 +68,7 @@ def prompt_for_folder_name(folder_name, grid_name, parent):
     )
 
 
-def validate_folders(settings, known_gateways, parent):
+def validate_folders(settings, known_gateways, parent=None):
     gateway = None
     for gw in known_gateways:
         if gw.name == settings['nickname']:
