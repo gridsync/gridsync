@@ -18,6 +18,16 @@ from gridsync.errors import UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
 
 
+def prompt_for_grid_name(grid_name, parent):
+    title = "{} - Choose a name".format(APP_NAME)
+    label = "Please choose a name for this connection:"
+    if grid_name:
+        label = ('{} is already connected to "{}".\n\n'
+                 'Please choose a different name for this connection'.format(
+                     APP_NAME, grid_name, label))
+    return QInputDialog.getText(parent, title, label, 0, grid_name)
+
+
 def validate_grid(settings, parent):
     nickname = settings.get('nickname')
     if not nickname:
@@ -41,16 +51,21 @@ def validate_grid(settings, parent):
 
         if conflicting_introducer or conflicting_servers:
             while os.path.isdir(os.path.join(config_dir, nickname)):
-                title = "{} - Choose a name".format(APP_NAME)
-                label = ("Please choose a different name for this "
-                         "connection:")
-                if nickname:
-                    label = ('{} is already connected to "{}".'
-                             '\n\n{}'.format(APP_NAME, nickname, label))
-                nickname, _ = QInputDialog.getText(parent, title, label, 0,
-                                                   nickname)
+                nickname, _ = prompt_for_grid_name(nickname, parent)
     settings['nickname'] = nickname
     return settings
+
+
+def prompt_for_folder_name(folder_name, grid_name, parent):
+    return QInputDialog.getText(
+        parent,
+        "Folder already exists",
+        'You already belong to a folder named "{}" on\n'
+        '{}; Please choose a different name.'.format(
+            folder_name, grid_name),
+        0,
+        folder_name
+    )
 
 
 def validate_folders(settings, known_gateways, parent):
@@ -63,15 +78,7 @@ def validate_folders(settings, known_gateways, parent):
     for folder, data in settings['magic-folders'].copy().items():
         target = folder
         while gateway.magic_folder_exists(target):
-            target, ok = QInputDialog.getText(
-                parent,
-                "Folder already exists",
-                'You already belong to a folder named "{}" on\n'
-                '{}; Please choose a different name.'.format(
-                    target, gateway.name),
-                0,
-                target
-            )
+            target, ok = prompt_for_folder_name(target, gateway.name, parent)
             if not ok:  # User clicked "Cancel"; skip this folder
                 del settings['magic-folders'][folder]
                 continue
