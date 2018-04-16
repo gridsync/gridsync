@@ -1,0 +1,13 @@
+{
+    "nickname": "Demo Grid",
+    "icon_url": "https://raw.githubusercontent.com/gridsync/gridsync/master/gridsync/resources/gridsync.png",
+    "shares-needed": "1",
+    "shares-happy": "1",
+    "shares-total": "1",
+    "storage": {
+        "v0-ybnudcp7oxojbvkkf7xrdnyba2ijhrg623npzkl2rhlqhn7roqsq": {
+            "nickname": "demo-grid-storage-node-1",
+            "anonymous-storage-FURL": "pb://nzwv5fj263fsemnkaeobhhwqkwcao6yy@demo.gridsync.io:57705/eb4mxhglqgcdced5rxo27a4uh2qsz2wu"
+        }
+    }
+}
