@@ -7,6 +7,7 @@
 
 ### Changed
 - Magic-folder invites now use the Tahoe web API directly to create member subdirectories (as opposed to shelling out to `tahoe magic-folde invite`) and will do so concurrently in the event of "batched" invites, resulting in significantly faster overall invite code creation when sharing folders (Issue #57)
+- Gridsync will now prompt users for a grid name in the event that one is not provided inside an invite message
 
 ### Fixed
 - Rare crashes caused by the successive emitting of certain `pyqtSignal`s
