@@ -33,4 +33,8 @@ Any end user wishing to join the "Storage Club" grid, then, can do so by simply 
 What "cheat codes" are available in Gridsync?
 ---------------------------------------------
 
-Currently, no "cheat codes" are available in Gridsync -- but this may change in the future.. If you are a public storage provider and would like your grid's connection settings to be available for all users of Gridsync, please open a pull request with your grid's connection settings as described above (i.e., by adding the appropriate JSON file to the `gridsync/resources/providers` directory). For an example of keys/values that are acceptable for a grid connection, see [`docs/example-invite.json`](https://github.com/gridsync/gridsync/blob/master/docs/example-invite.json).
+Currently, the following "cheat codes" are available in Gridsync:
+
+- `0-demo-grid`: A low-capacity, single-node storage grid intended for live demonstration and testing purposes only. Shares stored on this grid will be deleted periodically; do not use it for anything important!
+
+If you are a public storage provider and would like your grid's connection settings to be available for all users of Gridsync, please open a pull request with your grid's connection settings as described above (i.e., by adding the appropriate JSON file to the `gridsync/resources/providers` directory). For an example of keys/values that are acceptable for a grid connection, see [`docs/example-invite.json`](https://github.com/gridsync/gridsync/blob/master/docs/example-invite.json).
