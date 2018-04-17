@@ -70,9 +70,10 @@ def prompt_for_folder_name(folder_name, grid_name, parent=None):
 
 def validate_folders(settings, known_gateways, parent=None):
     gateway = None
-    for gw in known_gateways:
-        if gw.name == settings['nickname']:
-            gateway = gw
+    if known_gateways:
+        for gw in known_gateways:
+            if gw.name == settings['nickname']:
+                gateway = gw
     if not gateway:
         return settings
     for folder, data in settings['magic-folders'].copy().items():
