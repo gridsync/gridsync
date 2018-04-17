@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.2 - 2018-04-17
 ### Added
 - Support for introducerless connections; Gridsync can now write storage fURLs received through invite messages directly to `$nodedir/private/servers.yaml`, bypassing the need to connect to an introducer node (Issue #65)
 - Preliminary support for "cheat codes", allowing future users to enter a pre-given invite code to join a grid without the need to complete a full magic-wormhole exchange (Issue #54); see `docs/cheat-codes.md`
