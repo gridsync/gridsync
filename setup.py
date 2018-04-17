@@ -98,7 +98,7 @@ setup(
     ],
     packages=['gridsync', 'gridsync.gui'],
     package_data={
-        'gridsync': ['resources/*']
+        'gridsync': ['resources/*', 'resources/providers/*']
     },
     entry_points={
         'console_scripts': ['gridsync=gridsync.cli:main'],
