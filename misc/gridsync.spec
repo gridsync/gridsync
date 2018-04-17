@@ -38,7 +38,10 @@ if sys.platform == "win32":
 a = Analysis(['../gridsync/cli.py'],
              pathex=paths,
              binaries=None,
-             datas=[('../gridsync/resources/*', 'resources')],
+             datas=[
+                ('../gridsync/resources/*', 'resources'),
+                ('../gridsync/resources/providers/*', 'resources/providers')
+             ],
              hiddenimports=['cffi'],
              hookspath=[],
              runtime_hooks=[],
