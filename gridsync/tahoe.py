@@ -9,6 +9,7 @@ import re
 import shutil
 import signal
 import sys
+import tempfile
 from collections import defaultdict
 from io import BytesIO
 
@@ -1023,10 +1024,11 @@ def select_executable():
     executables = which('tahoe')
     if not executables:
         returnValue((None, None))
+    tmpdir = tempfile.TemporaryDirectory()
     tasks = []
     for executable in executables:
         log.debug("Found %s; checking magic-folder support...", executable)
-        tasks.append(Tahoe(executable=executable).get_features())
+        tasks.append(Tahoe(tmpdir.name, executable=executable).get_features())
     results = yield DeferredList(tasks)
     acceptable_executables = []
     for success, result in results:
