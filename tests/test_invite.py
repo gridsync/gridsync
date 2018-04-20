@@ -4,12 +4,16 @@ import os
 from unittest.mock import MagicMock
 
 import pytest
-from wormhole.errors import WormholeError
+from twisted.internet.defer import CancelledError
+from wormhole.errors import (
+    LonelyError, ServerConnectionError, WelcomeError, WormholeError,
+    WrongPasswordError)
 
 import gridsync
+from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import (
-    get_settings_from_cheatcode, is_valid, Wormhole, wormhole_receive,
-    wormhole_send)
+    get_settings_from_cheatcode, is_valid, show_failure, Wormhole,
+    wormhole_receive, wormhole_send)
 
 
 def test_invalid_code_not_three_words():
@@ -47,6 +51,19 @@ def test_get_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
     pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), 'pkgdir-empty')
     monkeypatch.setattr('gridsync.invite.pkgdir', pkgdir)
     assert get_settings_from_cheatcode('test-test') is None
+
+
+@pytest.mark.parametrize("failure", [
+    ServerConnectionError, WelcomeError, WrongPasswordError, LonelyError,
+    UpgradeRequiredError, CancelledError, WormholeError])
+def test_show_failure(failure, monkeypatch):
+    monkeypatch.setattr('gridsync.invite.QMessageBox', MagicMock())
+
+    def fake_failure(failure):
+        f = MagicMock()
+        f.type = failure
+        return f
+    show_failure(fake_failure(failure))
 
 
 @pytest.fixture(scope='module')
