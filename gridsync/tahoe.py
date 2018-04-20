@@ -224,19 +224,23 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             if not ann:
                 continue
             results[server] = {
-                'anonymous-storage-FURL': ann.get('anonymous-storage-FURL'),
-                'nickname': ann.get('nickname')
+                'anonymous-storage-FURL': ann.get('anonymous-storage-FURL')
             }
+            nickname = ann.get('nickname')
+            if nickname:
+                results[server]['nickname'] = nickname
         return results
 
-    def add_storage_server(self, server_id, furl, nickname=''):
+    def add_storage_server(self, server_id, furl, nickname=None):
         log.debug("Adding storage server: %s...", server_id)
         yaml_data = self._read_servers_yaml()
         if not yaml_data or not yaml_data.get('storage'):
             yaml_data['storage'] = {}
         yaml_data['storage'][server_id] = {
-            'ann': {'anonymous-storage-FURL': furl, 'nickname': nickname}
+            'ann': {'anonymous-storage-FURL': furl}
         }
+        if nickname:
+            yaml_data['storage'][server_id]['ann']['nickname'] = nickname
         with open(self.servers_yaml_path + '.tmp', 'w') as f:
             f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
         shutil.move(self.servers_yaml_path + '.tmp', self.servers_yaml_path)
