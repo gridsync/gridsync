@@ -9,7 +9,6 @@ from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WormholeError,
     WrongPasswordError)
 
-import gridsync
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import (
     get_settings_from_cheatcode, is_valid, show_failure, Wormhole,
@@ -125,7 +124,7 @@ def test_wormhole_receive_emit_got_introduction_signal(qtbot, wormhole):
 @pytest.inlineCallbacks
 def test_wormhole_receive_raise_upgrade_required_no_abilities(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = b'{"blah": "blah"}'
-    with pytest.raises(gridsync.errors.UpgradeRequiredError):
+    with pytest.raises(UpgradeRequiredError):
         yield wormhole.receive('123-test-test')
 
 
@@ -133,7 +132,7 @@ def test_wormhole_receive_raise_upgrade_required_no_abilities(qtbot, wormhole):
 def test_wormhole_receive_raise_upgrade_required_bad_version(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"server-v9999": {}}}'
-    with pytest.raises(gridsync.errors.UpgradeRequiredError):
+    with pytest.raises(UpgradeRequiredError):
         yield wormhole.receive('123-test-test')
 
 
@@ -165,7 +164,7 @@ def test_wormhole_send_emit_got_introduction_signal(qtbot, wormhole):
 @pytest.inlineCallbacks
 def test_wormhole_send_raise_upgrade_required_no_abilities(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = b'{"blah": "blah"}'
-    with pytest.raises(gridsync.errors.UpgradeRequiredError):
+    with pytest.raises(UpgradeRequiredError):
         yield wormhole.send('Testing', '123-test-test')
 
 
@@ -173,7 +172,7 @@ def test_wormhole_send_raise_upgrade_required_no_abilities(qtbot, wormhole):
 def test_wormhole_send_raise_upgrade_required_bad_version(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"server-v9999": {}}}'
-    with pytest.raises(gridsync.errors.UpgradeRequiredError):
+    with pytest.raises(UpgradeRequiredError):
         yield wormhole.send('Testing', '123-test-test')
 
 
