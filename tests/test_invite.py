@@ -15,24 +15,15 @@ from gridsync.invite import (
     wormhole_receive, wormhole_send)
 
 
-def test_invalid_code_not_three_words():
-    assert not is_valid('topmost-vagabond')
-
-
-def test_invalid_code_first_word_not_digit():
-    assert not is_valid('corporate-cowbell-commando')
-
-
-def test_invalid_code_second_word_not_in_wordlist():
-    assert not is_valid('2-tanooki-travesty')
-
-
-def test_invalid_code_third_word_not_in_wordlist():
-    assert not is_valid('3-eating-wasabi')
-
-
-def test_valid_code_is_valid():
-    assert is_valid('1-cranky-tapeworm')
+@pytest.mark.parametrize("code,result", [
+    ['topmost-vagabond', False],  # Not three words
+    ['corporate-cowbell-commando', False],  # First word not digit
+    ['2-tanooki-travesty', False],  # Second word not in wordlist
+    ['3-eating-wasabi', False],  # Third word not in wordlist
+    ['1-cranky-tapeworm', True]
+])
+def test_is_valid_code(code, result):
+    assert is_valid(code) == result
 
 
 def test_get_settings_from_cheatcode(tmpdir_factory, monkeypatch):
