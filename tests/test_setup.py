@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+from unittest.mock import MagicMock
 
+import pytest
 import yaml
 
 from gridsync.setup import (
     prompt_for_grid_name, validate_grid, prompt_for_folder_name,
-    validate_folders, validate_settings)
+    validate_folders, validate_settings, SetupRunner)
 from gridsync.tahoe import Tahoe
 
 
@@ -162,3 +164,72 @@ def test_validate_settings_validate_folders(monkeypatch):
         }
     }
     assert validate_settings(settings, [], None) == settings
+
+
+def test_get_gateway_no_gateways():
+    sr = SetupRunner([])
+    assert not sr.get_gateway('pb://test', {})
+
+
+@pytest.fixture(scope='module')
+def fake_gateway():
+    gateway = MagicMock()
+    gateway.config_get.return_value = 'pb://introducer'
+    gateway.get_storage_servers.return_value = {'Test': {}}
+    return gateway
+
+
+def test_get_gateway_match_from_introducer(fake_gateway):
+    sr = SetupRunner([fake_gateway])
+    assert sr.get_gateway('pb://introducer', {}) == fake_gateway
+
+
+def test_get_gateway_match_from_servers(fake_gateway):
+    sr = SetupRunner([fake_gateway])
+    assert sr.get_gateway(None, {'Test': {}}) == fake_gateway
+
+
+def test_get_gateway_no_match(fake_gateway):
+    sr = SetupRunner([fake_gateway])
+    assert not sr.get_gateway('pb://test', {})
+
+
+def test_calculate_total_steps_1_already_joined_grid(fake_gateway):
+    sr = SetupRunner([fake_gateway])
+    settings = {'introducer': 'pb://introducer'}
+    assert sr.calculate_total_steps(settings) == 1
+
+
+def test_calculate_total_steps_5_need_to_join_grid(fake_gateway):
+    sr = SetupRunner([fake_gateway])
+    settings = {'introducer': 'pb://introducer.other'}
+    assert sr.calculate_total_steps(settings) == 5
+
+
+def test_calculate_total_steps_6_need_to_join_grid_and_1_folder(fake_gateway):
+    sr = SetupRunner([fake_gateway])
+    settings = {
+        'introducer': 'pb://introducer.other',
+        'magic-folders': {
+            'FolderOne': {
+                'code': 'URI+URI'
+            }
+        }
+    }
+    assert sr.calculate_total_steps(settings) == 6
+
+
+def test_calculate_total_steps_7_need_to_join_grid_and_2_folders(fake_gateway):
+    sr = SetupRunner([fake_gateway])
+    settings = {
+        'introducer': 'pb://introducer.other',
+        'magic-folders': {
+            'FolderOne': {
+                'code': 'URI+URI'
+            },
+            'FolderTwo': {
+                'code': 'URI+URI'
+            }
+        }
+    }
+    assert sr.calculate_total_steps(settings) == 7
