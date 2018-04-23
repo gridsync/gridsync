@@ -11,6 +11,9 @@ if not version:
 major = int(version.split('.')[0])
 minor = int(version.split('.')[1])
 
+# Newer (5.9+?) versions of (Py)Qt5 are incompatible with older Macs and will
+# fail with "Symbol not found: _LSCopyDefaultApplicationURLForURL" on Mac OS X
+# 10.9. Downgrading SIP to 4.19.2 and PyQt5 to 5.8.2 avoids this error..
 if (major, minor) < (10, 10):
     print("Older Mac detected ({}); "
           "Downgrading SIP, PyQt5...".format(version))
