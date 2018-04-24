@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+### Changed
+- Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
 
 ### Fixed
 - `tahoe.select_executable()` will now use an empty nodedir when checking tahoe instances for multi-magic-folder support (preventing potential inaccuracies caused, e.g., by a pre-existing/misconfigured `$HOME/.tahoe` nodedir)
