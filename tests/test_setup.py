@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import os
 from unittest.mock import MagicMock
 
@@ -7,6 +8,7 @@ import pytest
 import yaml
 
 from gridsync import resource
+from gridsync.errors import UpgradeRequiredError
 from gridsync.setup import (
     prompt_for_grid_name, validate_grid, prompt_for_folder_name,
     validate_folders, validate_settings, SetupRunner)
@@ -416,3 +418,122 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
     sr = SetupRunner([])
     settings = {'nickname': 'TestGrid', 'storage': {'test': 'test'}}
     yield sr.join_grid(settings)
+
+
+@pytest.inlineCallbacks
+def test_ensure_recovery_write_settings(tmpdir):
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    sr = SetupRunner([])
+    sr.gateway = Tahoe(nodedir)
+    settings = {'nickname': 'TestGrid', 'rootcap': 'URI:test'}
+    yield sr.ensure_recovery(settings)
+    with open(os.path.join(nodedir, 'private', 'settings.json')) as f:
+        assert json.loads(f.read()) == settings
+
+
+@pytest.inlineCallbacks
+def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.create_rootcap', lambda _: 'URI')
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.upload', lambda x, y: 'URI:2')
+
+    def fake_link(_, dircap, name, childcap):
+        assert (dircap, name, childcap) == ('URI', 'settings.json', 'URI:2')
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.link', fake_link)
+    sr = SetupRunner([])
+    sr.gateway = Tahoe(nodedir)
+    sr.gateway.rootcap = 'URI'
+    settings = {'nickname': 'TestGrid'}
+    yield sr.ensure_recovery(settings)
+
+
+@pytest.inlineCallbacks
+def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.create_rootcap',
+        MagicMock(side_effect=OSError()))
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.upload', lambda x, y: 'URI:2')
+
+    def fake_link(_, dircap, name, childcap):
+        assert (dircap, name, childcap) == ('URI', 'settings.json', 'URI:2')
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.link', fake_link)
+    sr = SetupRunner([])
+    sr.gateway = Tahoe(nodedir)
+    sr.gateway.rootcap = 'URI'
+    settings = {'nickname': 'TestGrid'}
+    yield sr.ensure_recovery(settings)
+
+
+@pytest.inlineCallbacks
+def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.link', lambda a, b, c, d: None)
+    sr = SetupRunner([])
+    sr.gateway = Tahoe(str(tmpdir.mkdir('TestGrid')))
+    sr.gateway.rootcap = 'URI:rootcap'
+    folders_data = {'TestFolder': {'code': 'URI:1+URI:2'}}
+    with qtbot.wait_signal(sr.joined_folders) as blocker:
+        yield sr.join_folders(folders_data)
+    assert blocker.args == [['TestFolder']]
+
+
+@pytest.inlineCallbacks
+def test_run_raise_upgrade_required_error():
+    sr = SetupRunner([])
+    with pytest.raises(UpgradeRequiredError):
+        yield sr.run({'version': 9999})
+
+
+@pytest.inlineCallbacks
+def test_run_join_grid(monkeypatch):
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: None)
+
+    def fake_join_grid(*_):
+        assert True
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_grid', fake_join_grid)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.ensure_recovery', lambda x, y: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_folders', lambda x, y: None)
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
+    yield sr.run(settings)
+
+
+@pytest.inlineCallbacks
+def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_grid', lambda x, y: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.ensure_recovery', lambda x, y: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_folders', lambda x, y: None)
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
+    with qtbot.wait_signal(sr.grid_already_joined) as blocker:
+        yield sr.run(settings)
+    assert blocker.args == ['TestGrid']
+
+
+@pytest.inlineCallbacks
+def test_run_emit_done_signal(monkeypatch, qtbot):
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_grid', lambda x, y: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.ensure_recovery', lambda x, y: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_folders', lambda x, y: None)
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
+    with qtbot.wait_signal(sr.done) as blocker:
+        yield sr.run(settings)
+    assert blocker.args == ['GatewayObj']
