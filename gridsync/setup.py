@@ -167,11 +167,7 @@ class SetupRunner(QObject):
 
     @inlineCallbacks  # noqa: max-complexity=13 XXX
     def join_grid(self, settings):
-        if 'nickname' in settings:
-            nickname = settings['nickname']
-        else:
-            nickname = settings['introducer'].split('@')[1].split(':')[0]
-
+        nickname = settings['nickname']
         self.update_progress.emit('Connecting to {}...'.format(nickname))
         icon_path = None
         if nickname == 'Least Authority S4':
