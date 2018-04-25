@@ -233,3 +233,102 @@ def test_calculate_total_steps_7_need_to_join_grid_and_2_folders(fake_gateway):
         }
     }
     assert sr.calculate_total_steps(settings) == 7
+
+
+def test_decode_icon_b64decode(tmpdir):
+    sr = SetupRunner([])
+    data = b'dGVzdDEyMzQ1'  # b64encode(b'test12345')
+    dest = str(tmpdir.join('icon.png'))
+    sr.decode_icon(data, dest)
+    with open(dest) as f:
+        assert f.read() == 'test12345'
+
+
+def test_decode_icon_emit_got_icon_signal(qtbot, tmpdir):
+    sr = SetupRunner([])
+    data = b'dGVzdDEyMzQ1'  # b64encode(b'test12345')
+    dest = str(tmpdir.join('icon.png'))
+    with qtbot.wait_signal(sr.got_icon) as blocker:
+        sr.decode_icon(data, dest)
+    assert blocker.args == [dest]
+
+
+def test_decode_icon_no_emit_got_icon_signal(qtbot, tmpdir):
+    sr = SetupRunner([])
+    data = b'0'  # raises binascii.Error
+    dest = str(tmpdir.join('icon.png'))
+    with qtbot.assert_not_emitted(sr.got_icon):
+        sr.decode_icon(data, dest)
+
+
+def fake_get(*args, **kwargs):
+    response = MagicMock()
+    response.code = 200
+    return response
+
+
+def fake_get_code_500(*args, **kwargs):
+    response = MagicMock()
+    response.code = 500
+    return response
+
+
+@pytest.inlineCallbacks
+def test_fetch_icon(monkeypatch, tmpdir):
+    sr = SetupRunner([])
+    dest = str(tmpdir.join('icon.png'))
+    monkeypatch.setattr('treq.get', fake_get)
+    monkeypatch.setattr('treq.content', lambda _: b'0')
+    yield sr.fetch_icon('http://example.org/icon.png', dest)
+    with open(dest) as f:
+        assert f.read() == '0'
+
+
+@pytest.inlineCallbacks
+def test_fetch_icon_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
+    sr = SetupRunner([])
+    dest = str(tmpdir.join('icon.png'))
+    monkeypatch.setattr('treq.get', fake_get)
+    monkeypatch.setattr('treq.content', lambda _: b'0')
+    with qtbot.wait_signal(sr.got_icon) as blocker:
+        yield sr.fetch_icon('http://example.org/icon.png', dest)
+    assert blocker.args == [dest]
+
+
+
+@pytest.inlineCallbacks
+def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
+    sr = SetupRunner([])
+    dest = str(tmpdir.join('icon.png'))
+    monkeypatch.setattr('treq.get', fake_get_code_500)
+    with qtbot.assert_not_emitted(sr.got_icon):
+        yield sr.fetch_icon('http://example.org/icon.png', dest)
+
+
+def test_add_storage_servers(tmpdir):
+    sr = SetupRunner([])
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    sr.gateway = Tahoe(nodedir)
+    storage_servers = {
+        'node-1': {
+            'anonymous-storage-FURL': 'pb://test',
+            'nickname': 'One'
+        }
+    }
+    sr.add_storage_servers(storage_servers)
+    assert sr.gateway.get_storage_servers() == storage_servers
+
+
+def test_add_storage_servers_no_add_missing_furl(tmpdir):
+    sr = SetupRunner([])
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    sr.gateway = Tahoe(nodedir)
+    storage_servers = {
+        'node-1': {
+            'nickname': 'One'
+        }
+    }
+    sr.add_storage_servers(storage_servers)
+    assert sr.gateway.get_storage_servers() == {}
