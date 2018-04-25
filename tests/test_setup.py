@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 import yaml
 
+from gridsync import resource
 from gridsync.setup import (
     prompt_for_grid_name, validate_grid, prompt_for_folder_name,
     validate_folders, validate_settings, SetupRunner)
@@ -295,7 +296,6 @@ def test_fetch_icon_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     assert blocker.args == [dest]
 
 
-
 @pytest.inlineCallbacks
 def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     sr = SetupRunner([])
@@ -332,3 +332,87 @@ def test_add_storage_servers_no_add_missing_furl(tmpdir):
     }
     sr.add_storage_servers(storage_servers)
     assert sr.gateway.get_storage_servers() == {}
+
+
+@pytest.inlineCallbacks
+def test_join_grid_emit_got_icon_signal_nickname_least_authority_s4(
+        monkeypatch, qtbot, tmpdir):
+    monkeypatch.setattr(
+        'gridsync.setup.select_executable', lambda: (None, None))
+    monkeypatch.setattr(
+        'gridsync.setup.config_dir', str(tmpdir.mkdir('config_dir')))
+    monkeypatch.setattr('gridsync.setup.Tahoe', MagicMock())
+    sr = SetupRunner([])
+    settings = {'nickname': 'Least Authority S4'}
+    with qtbot.wait_signal(sr.got_icon) as blocker:
+        yield sr.join_grid(settings)
+    assert blocker.args == [resource('leastauthority.com.icon')]
+
+
+@pytest.inlineCallbacks
+def test_join_grid_emit_got_icon_signal_icon_base64(monkeypatch, qtbot,
+                                                    tmpdir):
+    tmp_config_dir = str(tmpdir.mkdir('config_dir'))
+    monkeypatch.setattr(
+        'gridsync.setup.select_executable', lambda: (None, None))
+    monkeypatch.setattr('gridsync.setup.config_dir', tmp_config_dir)
+    monkeypatch.setattr('gridsync.setup.Tahoe', MagicMock())
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid', 'icon_base64': 'dGVzdDEyMzQ1'}
+    with qtbot.wait_signal(sr.got_icon) as blocker:
+        yield sr.join_grid(settings)
+    assert blocker.args == [os.path.join(tmp_config_dir, '.icon.tmp')]
+
+
+@pytest.inlineCallbacks
+def test_join_grid_emit_got_icon_signal_icon_url(monkeypatch, qtbot, tmpdir):
+    tmp_config_dir = str(tmpdir.mkdir('config_dir'))
+    os.makedirs(os.path.join(tmp_config_dir, 'TestGrid'))
+    monkeypatch.setattr(
+        'gridsync.setup.select_executable', lambda: (None, None))
+    monkeypatch.setattr('gridsync.setup.config_dir', tmp_config_dir)
+    monkeypatch.setattr('gridsync.setup.Tahoe', MagicMock())
+    monkeypatch.setattr('treq.get', fake_get)
+    monkeypatch.setattr('treq.content', lambda _: b'0')
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid', 'icon_url': 'https://gridsync.io/icon'}
+    with qtbot.wait_signal(sr.got_icon) as blocker:
+        yield sr.join_grid(settings)
+    assert blocker.args == [os.path.join(tmp_config_dir, '.icon.tmp')]
+
+
+@pytest.inlineCallbacks
+def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
+    monkeypatch.setattr(
+        'gridsync.setup.select_executable', lambda: (None, None))
+    monkeypatch.setattr(
+        'gridsync.setup.config_dir', str(tmpdir.mkdir('config_dir')))
+    monkeypatch.setattr('gridsync.setup.Tahoe', MagicMock())
+    monkeypatch.setattr('treq.get', fake_get)
+    monkeypatch.setattr('treq.content', lambda _: b'0')
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.fetch_icon',
+        MagicMock(side_effect=Exception()))
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid', 'icon_url': 'https://gridsync.io/icon'}
+    with qtbot.assert_not_emitted(sr.got_icon):
+        yield sr.join_grid(settings)
+
+
+@pytest.inlineCallbacks
+def test_join_grid_storage_servers(monkeypatch, tmpdir):
+    monkeypatch.setattr(
+        'gridsync.setup.select_executable', lambda: (None, None))
+    monkeypatch.setattr(
+        'gridsync.setup.config_dir', str(tmpdir.mkdir('config_dir')))
+    monkeypatch.setattr('gridsync.setup.Tahoe', MagicMock())
+
+    def fake_add_storage_servers(*_):
+        assert True
+
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.add_storage_servers',
+        fake_add_storage_servers)
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid', 'storage': {'test': 'test'}}
+    yield sr.join_grid(settings)
