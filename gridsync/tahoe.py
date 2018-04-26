@@ -246,6 +246,15 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         shutil.move(self.servers_yaml_path + '.tmp', self.servers_yaml_path)
         log.debug("Added storage server: %s", server_id)
 
+    def add_storage_servers(self, storage_servers):
+        for server_id, data in storage_servers.items():
+            nickname = data.get('nickname')
+            furl = data.get('anonymous-storage-FURL')
+            if furl:
+                self.add_storage_server(server_id, furl, nickname)
+            else:
+                log.warning("No storage fURL provided for %s!", server_id)
+
     def load_magic_folders(self):
         data = {}
         yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
