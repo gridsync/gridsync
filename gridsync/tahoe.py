@@ -703,21 +703,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             'directory': path,
             'client': subclient
         }
-        settings = {
-            'nickname': self.config_get('node', 'nickname'),
-            'introducer': self.config_get('client', 'introducer.furl'),
-            'shares-needed': self.config_get('client', 'shares.needed'),
-            'shares-happy': self.config_get('client', 'shares.happy'),
-            'shares-total': self.config_get('client', 'shares.total')
-        }
+        settings = self.get_settings()
         yield subclient.create_client(**settings)
-        storage_servers = self.get_storage_servers()
-        if storage_servers:
-            for server_id, data in storage_servers.items():
-                nickname = data.get('nickname')
-                furl = data.get('anonymous-storage-FURL')
-                if furl:
-                    subclient.add_storage_server(server_id, furl, nickname)
         if join_code:
             yield subclient.command(['magic-folder', 'join', join_code, path])
             if admin_dircap:
