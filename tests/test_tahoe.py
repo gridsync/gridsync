@@ -207,6 +207,33 @@ def test_add_storage_server(tahoe):
     }
 
 
+def test_add_storage_servers(tmpdir):
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    client = Tahoe(nodedir)
+    storage_servers = {
+        'node-1': {
+            'anonymous-storage-FURL': 'pb://test',
+            'nickname': 'One'
+        }
+    }
+    client.add_storage_servers(storage_servers)
+    assert client.get_storage_servers() == storage_servers
+
+
+def test_add_storage_servers_no_add_missing_furl(tmpdir):
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    client = Tahoe(nodedir)
+    storage_servers = {
+        'node-1': {
+            'nickname': 'One'
+        }
+    }
+    client.add_storage_servers(storage_servers)
+    assert client.get_storage_servers() == {}
+
+
 def test_load_magic_folders(tahoe):
     tahoe.load_magic_folders()
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'

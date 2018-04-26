@@ -307,35 +307,6 @@ def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
         yield sr.fetch_icon('http://example.org/icon.png', dest)
 
 
-def test_add_storage_servers(tmpdir):
-    sr = SetupRunner([])
-    nodedir = str(tmpdir.mkdir('TestGrid'))
-    os.makedirs(os.path.join(nodedir, 'private'))
-    sr.gateway = Tahoe(nodedir)
-    storage_servers = {
-        'node-1': {
-            'anonymous-storage-FURL': 'pb://test',
-            'nickname': 'One'
-        }
-    }
-    sr.add_storage_servers(storage_servers)
-    assert sr.gateway.get_storage_servers() == storage_servers
-
-
-def test_add_storage_servers_no_add_missing_furl(tmpdir):
-    sr = SetupRunner([])
-    nodedir = str(tmpdir.mkdir('TestGrid'))
-    os.makedirs(os.path.join(nodedir, 'private'))
-    sr.gateway = Tahoe(nodedir)
-    storage_servers = {
-        'node-1': {
-            'nickname': 'One'
-        }
-    }
-    sr.add_storage_servers(storage_servers)
-    assert sr.gateway.get_storage_servers() == {}
-
-
 @pytest.inlineCallbacks
 def test_join_grid_emit_got_icon_signal_nickname_least_authority_s4(
         monkeypatch, qtbot, tmpdir):
@@ -413,7 +384,7 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
         assert True
 
     monkeypatch.setattr(
-        'gridsync.setup.SetupRunner.add_storage_servers',
+        'gridsync.tahoe.Tahoe.add_storage_servers',
         fake_add_storage_servers)
     sr = SetupRunner([])
     settings = {'nickname': 'TestGrid', 'storage': {'test': 'test'}}
