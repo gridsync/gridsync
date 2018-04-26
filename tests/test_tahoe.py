@@ -305,6 +305,25 @@ def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     assert set(['--shares-happy', '7']).issubset(set(args))
 
 
+@pytest.inlineCallbacks
+def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
+    nodedir = str(tmpdir.mkdir('TestGrid'))
+    os.makedirs(os.path.join(nodedir, 'private'))
+    monkeypatch.setattr(
+        'os.path.exists', lambda _: False)  # suppress NodedirExistsError
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: None)
+    client = Tahoe(nodedir)
+    storage_servers = {
+        'node-1': {
+            'anonymous-storage-FURL': 'pb://test',
+            'nickname': 'One'
+        }
+    }
+    settings = {'nickname': 'TestGrid', 'storage': storage_servers}
+    yield client.create_client(**settings)
+    assert client.get_storage_servers() == storage_servers
+
+
 def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
     pidfile = os.path.join(tahoe.nodedir, 'twistd.pid')
     with open(pidfile, 'w') as f:
