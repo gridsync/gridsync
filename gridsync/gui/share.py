@@ -17,13 +17,14 @@ import wormhole.errors
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.invite import (
-    get_settings_from_cheatcode, Wormhole, InviteCodeLineEdit, show_failure)
+from gridsync.gui.invite import (
+    get_settings_from_cheatcode, InviteCodeLineEdit, show_failure)
 from gridsync.msg import error
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import TahoeError
 from gridsync.util import b58encode, humanized_list
+from gridsync.wormhole import Wormhole
 
 
 class ShareWidget(QDialog):

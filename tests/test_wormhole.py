@@ -1,59 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os
 from unittest.mock import MagicMock
 
 import pytest
-from twisted.internet.defer import CancelledError
-from wormhole.errors import (
-    LonelyError, ServerConnectionError, WelcomeError, WormholeError,
-    WrongPasswordError)
+from wormhole.errors import WormholeError
 
 from gridsync.errors import UpgradeRequiredError
-from gridsync.invite import (
-    get_settings_from_cheatcode, is_valid, show_failure, Wormhole,
-    wormhole_receive, wormhole_send)
-
-
-@pytest.mark.parametrize("code,result", [
-    ['topmost-vagabond', False],  # Not three words
-    ['corporate-cowbell-commando', False],  # First word not digit
-    ['2-tanooki-travesty', False],  # Second word not in wordlist
-    ['3-eating-wasabi', False],  # Third word not in wordlist
-    ['1-cranky-tapeworm', True]
-])
-def test_is_valid_code(code, result):
-    assert is_valid(code) == result
-
-
-def test_get_settings_from_cheatcode(tmpdir_factory, monkeypatch):
-    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), 'pkgdir')
-    providers_path = os.path.join(pkgdir, 'resources', 'providers')
-    os.makedirs(providers_path)
-    with open(os.path.join(providers_path, 'test-test.json'), 'w') as f:
-        f.write('{"introducer": "pb://"}')
-    monkeypatch.setattr('gridsync.invite.pkgdir', pkgdir)
-    settings = get_settings_from_cheatcode('test-test')
-    assert settings['introducer'] == 'pb://'
-
-
-def test_get_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
-    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), 'pkgdir-empty')
-    monkeypatch.setattr('gridsync.invite.pkgdir', pkgdir)
-    assert get_settings_from_cheatcode('test-test') is None
-
-
-@pytest.mark.parametrize("failure", [
-    ServerConnectionError, WelcomeError, WrongPasswordError, LonelyError,
-    UpgradeRequiredError, CancelledError, WormholeError])
-def test_show_failure(failure, monkeypatch):
-    monkeypatch.setattr('gridsync.invite.QMessageBox', MagicMock())
-
-    def fake_failure(failure):
-        f = MagicMock()
-        f.type = failure
-        return f
-    show_failure(fake_failure(failure))
+from gridsync.wormhole import Wormhole, wormhole_receive, wormhole_send
 
 
 @pytest.fixture(scope='module')
@@ -187,12 +140,14 @@ def test_wormhole_send_succeed_emit_send_completed_signal(qtbot, wormhole):
 
 @pytest.inlineCallbacks
 def test_wormhole_receive_function(monkeypatch):
-    monkeypatch.setattr('gridsync.invite.Wormhole.receive', lambda x, y: 'msg')
+    monkeypatch.setattr(
+        'gridsync.wormhole.Wormhole.receive', lambda x, y: 'msg')
     output = yield wormhole_receive('123-test-test')
     assert output == 'msg'
 
 
 @pytest.inlineCallbacks
 def test_wormhole_send_function(monkeypatch):
-    monkeypatch.setattr('gridsync.invite.Wormhole.send', lambda x, y, z: None)
+    monkeypatch.setattr(
+        'gridsync.wormhole.Wormhole.send', lambda x, y, z: None)
     yield wormhole_send('123-test-test')

@@ -14,12 +14,12 @@ from wormhole.errors import (
 
 from gridsync import resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
-from gridsync.invite import (
-    get_settings_from_cheatcode, wormhole_receive, InviteCodeLineEdit,
-    show_failure)
+from gridsync.gui.invite import (
+    get_settings_from_cheatcode, InviteCodeLineEdit, show_failure)
+from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
-from gridsync.gui.widgets import TahoeConfigForm
+from gridsync.wormhole import wormhole_receive
 
 
 class CodeEntryWidget(QWidget):
