@@ -346,15 +346,17 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def create_client(self, **kwargs):
         if os.path.exists(self.nodedir):
             raise NodedirExistsError
-        valid_kwargs = ('nickname', 'introducer', 'shares-needed',
-                        'shares-happy', 'shares-total')
         args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
         for key, value in kwargs.items():
-            if key in valid_kwargs:
+            if key in ('nickname', 'introducer', 'shares-needed',
+                       'shares-happy', 'shares-total'):
                 args.extend(['--{}'.format(key), str(value)])
             elif key in ['needed', 'happy', 'total']:
                 args.extend(['--shares-{}'.format(key), str(value)])
         yield self.command(args)
+        storage_servers = kwargs.get('storage')
+        if storage_servers and isinstance(storage_servers, dict):
+            self.add_storage_servers(storage_servers)
 
     @inlineCallbacks
     def _stop_magic_folder_subclients(self):
