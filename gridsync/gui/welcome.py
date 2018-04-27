@@ -16,6 +16,7 @@ from gridsync import resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
     get_settings_from_cheatcode, InviteCodeWidget, show_failure)
+from gridsync.gui.preferences import PreferencesWidget
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
@@ -188,10 +189,12 @@ class WelcomeDialog(QStackedWidget):
         self.page_1 = WelcomeWidget(self)
         self.page_2 = ProgressBarWidget()
         self.page_3 = TahoeConfigForm()
+        self.page_4 = PreferencesWidget()
 
         self.addWidget(self.page_1)
         self.addWidget(self.page_2)
         self.addWidget(self.page_3)
+        self.addWidget(self.page_4)
 
         self.lineedit = self.page_1.lineedit
         self.cancel_button = self.page_2.cancel_button
@@ -213,10 +216,17 @@ class WelcomeDialog(QStackedWidget):
         self.buttonbox.accepted.connect(self.on_accepted)
         self.buttonbox.rejected.connect(self.reset)
         self.help.linkActivated.connect(self.on_link_activated)
-        self.config_button.clicked.connect(self.on_link_activated)
+        self.config_button.clicked.connect(self.on_config_button_clicked)
+        self.page_4.accepted.connect(self.on_preferences_accepted)
 
     def on_link_activated(self):
         self.setCurrentIndex(2)
+
+    def on_config_button_clicked(self):
+        self.setCurrentIndex(3)
+
+    def on_preferences_accepted(self):
+        self.setCurrentIndex(0)
 
     def update_progress(self, message):
         self.page_2.update_progress(message)
