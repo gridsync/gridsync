@@ -55,6 +55,11 @@ class CodeEntryWidget(QWidget):
         self.help.setAlignment(Qt.AlignCenter)
         #self.help.linkActivated.connect(self.on_click)
 
+        self.config_button = QPushButton()
+        self.config_button.setIcon(QIcon(resource('preferences.png')))
+        self.config_button.setStyleSheet('border: 0px; padding: 0px;')
+        self.config_button.setToolTip("Manual configuration...")
+
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
@@ -70,6 +75,7 @@ class CodeEntryWidget(QWidget):
         layout.addWidget(self.help, 7, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 8, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
+        layout.addWidget(self.config_button, 10, 5, Qt.AlignRight)
 
     def show_error(self, message):
         self.message.setText(message)
@@ -192,6 +198,7 @@ class WelcomeDialog(QStackedWidget):
         self.finish_button = self.page_2.finish_button
         self.buttonbox = self.page_3.buttonbox
         self.help = self.page_1.help
+        self.config_button = self.page_1.config_button
 
         self.shortcut_close = QShortcut(QKeySequence.Close, self)
         self.shortcut_close.activated.connect(self.close)
@@ -206,6 +213,7 @@ class WelcomeDialog(QStackedWidget):
         self.buttonbox.accepted.connect(self.on_accepted)
         self.buttonbox.rejected.connect(self.reset)
         self.help.linkActivated.connect(self.on_link_activated)
+        self.config_button.clicked.connect(self.on_link_activated)
 
     def on_link_activated(self):
         self.setCurrentIndex(2)
