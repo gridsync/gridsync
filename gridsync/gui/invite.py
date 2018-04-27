@@ -5,7 +5,9 @@ import os
 
 from PyQt5.QtCore import pyqtSignal, QStringListModel, Qt
 from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import QAction, QCompleter, QLineEdit, QMessageBox
+from PyQt5.QtWidgets import (
+    QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
+    QMessageBox, QSizePolicy, QSpacerItem, QWidget)
 from twisted.internet.defer import CancelledError
 from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WrongPasswordError)
@@ -151,6 +153,34 @@ class InviteCodeLineEdit(QLineEdit):
             self.go.emit(code)
         else:
             self.setText('')
+
+
+class InviteCodeWidget(QWidget):
+    def __init__(self, parent=None):
+        super(InviteCodeWidget, self).__init__()
+        self.parent = parent
+
+        self.label = QLabel("Enter invite code:")
+        font = QFont()
+        font.setPointSize(14)
+        self.label.setFont(font)
+        self.label.setStyleSheet("color: grey")
+        self.label.setAlignment(Qt.AlignCenter)
+
+        self.lineedit = InviteCodeLineEdit(self)
+
+        self.checkbox = QCheckBox("Connect over the Tor network")
+        self.checkbox.setEnabled(True)
+        self.checkbox.setCheckable(False)
+        self.checkbox.setStyleSheet("color: grey")
+        self.checkbox.setFocusPolicy(Qt.NoFocus)
+
+        layout = QGridLayout(self)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
+        layout.addWidget(self.label, 2, 1)
+        layout.addWidget(self.lineedit, 3, 1)
+        #layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
 
 def show_failure(failure, parent=None):

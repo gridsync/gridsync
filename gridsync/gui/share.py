@@ -18,7 +18,8 @@ import wormhole.errors
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.gui.invite import (
-    get_settings_from_cheatcode, InviteCodeLineEdit, show_failure)
+    get_settings_from_cheatcode, InviteCodeLineEdit, InviteCodeWidget,
+    show_failure)
 from gridsync.msg import error
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
@@ -323,14 +324,9 @@ class InviteReceiver(QWidget):
         self.folder_icon.setPixmap(icon.pixmap(128, 128))
         self.folder_icon.setAlignment(Qt.AlignCenter)
 
-        self.label = QLabel("Enter invite code:")
-        font = QFont()
-        font.setPointSize(14)
-        self.label.setFont(font)
-        self.label.setStyleSheet("color: grey")
-        self.label.setAlignment(Qt.AlignCenter)
-
-        self.lineedit = InviteCodeLineEdit(self)
+        self.invite_code_widget = InviteCodeWidget(self)
+        self.label = self.invite_code_widget.label
+        self.lineedit = self.invite_code_widget.lineedit
         self.lineedit.error.connect(self.show_error)
         self.lineedit.go.connect(self.go)
 

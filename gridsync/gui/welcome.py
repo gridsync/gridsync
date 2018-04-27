@@ -15,7 +15,8 @@ from wormhole.errors import (
 from gridsync import resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
-    get_settings_from_cheatcode, InviteCodeLineEdit, show_failure)
+    get_settings_from_cheatcode, InviteCodeLineEdit, InviteCodeWidget,
+    show_failure)
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
@@ -39,20 +40,8 @@ class CodeEntryWidget(QWidget):
         self.slogan.setStyleSheet("color: grey")
         self.slogan.setAlignment(Qt.AlignCenter)
 
-        self.label = QLabel("Enter invite code:")
-        font = QFont()
-        font.setPointSize(14)
-        self.label.setFont(font)
-        self.label.setStyleSheet("color: grey")
-        self.label.setAlignment(Qt.AlignCenter)
-
-        self.lineedit = InviteCodeLineEdit(self)
-
-        self.checkbox = QCheckBox("Connect over the Tor network")
-        self.checkbox.setEnabled(True)
-        self.checkbox.setCheckable(False)
-        self.checkbox.setStyleSheet("color: grey")
-        self.checkbox.setFocusPolicy(Qt.NoFocus)
+        self.invite_code_widget = InviteCodeWidget(self)
+        self.lineedit = self.invite_code_widget.lineedit
 
         self.message = QLabel()
         self.message.setStyleSheet("color: red")
@@ -76,12 +65,11 @@ class CodeEntryWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
         layout.addWidget(self.slogan, 2, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 3, 1)
-        layout.addWidget(self.label, 4, 3, 1, 1)
-        layout.addWidget(self.lineedit, 5, 2, 1, 3)
-        #layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
-        #layout.addWidget(self.checkbox, 6, 3, 1, 1, Qt.AlignCenter)
-        layout.addWidget(self.message, 7, 3)
-        layout.addWidget(self.help, 8, 3)
+        layout.addWidget(self.invite_code_widget, 4, 2, 1, 3)
+        layout.addWidget(self.message, 5, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 6, 1)
+        layout.addWidget(self.help, 7, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 8, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
 
     def show_error(self, message):
