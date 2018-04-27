@@ -24,7 +24,7 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 * A graphical user interface for managing primary Tahoe-LAFS functionality (e.g., starting, stopping, configuring gateways) -- the user will never have to edit a text file by hand or touch the command line.
 * "Native" look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
 * Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' "Magic Folder" feature [*]_ ).
-* Status indicators -- the user will know, at a glance, the number of connected storage nodes and available space, folder sizes and modification times, when folders are synchronizing, etc. 
+* Status indicators -- the user will know, at a glance, the number of connected storage nodes and available space, folder sizes and modification times, when folders are synchronizing, etc.
 * Desktop integration -- Gridsync can (optionally) start automatically on login and provide notifications when certain operations have completed.
 * Easy sharing -- Gridsync uses the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
 * Simple recovery -- Gridsync's "`Recovery Key`_" subsystem allows connections and folders to be easily restored from a single file in the event of a disaster.
