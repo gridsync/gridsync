@@ -59,7 +59,7 @@ class WelcomeWidget(QWidget):
         self.preferences_button = QPushButton()
         self.preferences_button.setIcon(QIcon(resource('preferences.png')))
         self.preferences_button.setStyleSheet('border: 0px; padding: 0px;')
-        self.preferences_button.setToolTip("Manual configuration...")
+        self.preferences_button.setToolTip("Preferences...")
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
