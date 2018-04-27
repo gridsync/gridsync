@@ -206,6 +206,7 @@ class MainWindow(QMainWindow):
         self.central_widget.populate(self.gateways)
         self.central_widget.addWidget(self.preferences_widget)
         self.gui.systray.menu.populate()
+        self.preferences_widget.load_preferences()
 
     def current_view(self):
         current_widget = self.central_widget.currentWidget()
