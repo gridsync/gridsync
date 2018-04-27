@@ -18,8 +18,7 @@ import wormhole.errors
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.gui.invite import (
-    get_settings_from_cheatcode, InviteCodeLineEdit, InviteCodeWidget,
-    show_failure)
+    get_settings_from_cheatcode, InviteCodeWidget, show_failure)
 from gridsync.msg import error
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings

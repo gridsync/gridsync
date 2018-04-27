@@ -5,8 +5,8 @@ import logging as log
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
 from PyQt5.QtWidgets import (
-    QCheckBox, QGridLayout, QLabel, QPushButton, QMessageBox, QProgressBar,
-    QShortcut, QSizePolicy, QSpacerItem, QStackedWidget, QToolButton, QWidget)
+    QGridLayout, QLabel, QPushButton, QMessageBox, QProgressBar, QShortcut,
+    QSizePolicy, QSpacerItem, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError
 from wormhole.errors import (
@@ -15,8 +15,7 @@ from wormhole.errors import (
 from gridsync import resource, APP_NAME
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
-    get_settings_from_cheatcode, InviteCodeLineEdit, InviteCodeWidget,
-    show_failure)
+    get_settings_from_cheatcode, InviteCodeWidget, show_failure)
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
