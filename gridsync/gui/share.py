@@ -296,7 +296,7 @@ class ShareWidget(QDialog):
             self.close()
 
 
-class InviteReceiver(QWidget):
+class InviteReceiver(QDialog):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
