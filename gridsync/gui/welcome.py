@@ -22,9 +22,9 @@ from gridsync.tahoe import is_valid_furl
 from gridsync.wormhole import wormhole_receive
 
 
-class CodeEntryWidget(QWidget):
+class WelcomeWidget(QWidget):
     def __init__(self, parent=None):
-        super(CodeEntryWidget, self).__init__()
+        super(WelcomeWidget, self).__init__()
         self.parent = parent
 
         self.icon = QLabel()
@@ -185,7 +185,7 @@ class WelcomeDialog(QStackedWidget):
         self.setup_runner = None
         self.resize(400, 500)
         self.setWindowTitle(APP_NAME)
-        self.page_1 = CodeEntryWidget(self)
+        self.page_1 = WelcomeWidget(self)
         self.page_2 = ProgressBarWidget()
         self.page_3 = TahoeConfigForm()
 
