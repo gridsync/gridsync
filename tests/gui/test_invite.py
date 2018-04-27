@@ -11,7 +11,7 @@ from wormhole.errors import (
 
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
-    get_settings_from_cheatcode, is_valid, show_failure)
+    get_settings_from_cheatcode, is_valid, InviteCodeWidget, show_failure)
 
 
 @pytest.mark.parametrize("code,result", [
@@ -40,6 +40,16 @@ def test_get_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
     pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), 'pkgdir-empty')
     monkeypatch.setattr('gridsync.gui.invite.pkgdir', pkgdir)
     assert get_settings_from_cheatcode('test-test') is None
+
+
+def test_invite_code_widget_lineedit():
+    w = InviteCodeWidget()
+    assert w.lineedit
+
+
+def test_invite_code_widget_checkbox():
+    w = InviteCodeWidget()
+    assert w.checkbox
 
 
 @pytest.mark.parametrize("failure", [
