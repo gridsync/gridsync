@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Application preferences are now also accessible from the initial welcome screen
+
 ### Changed
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
 
