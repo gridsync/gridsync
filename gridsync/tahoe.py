@@ -353,6 +353,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 args.extend(['--{}'.format(key), str(value)])
             elif key in ['needed', 'happy', 'total']:
                 args.extend(['--shares-{}'.format(key), str(value)])
+            elif key == 'hide-ip':
+                args.append('--hide-ip')
         yield self.command(args)
         storage_servers = kwargs.get('storage')
         if storage_servers and isinstance(storage_servers, dict):
