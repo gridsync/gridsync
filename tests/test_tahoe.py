@@ -306,6 +306,18 @@ def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
 
 
 @pytest.inlineCallbacks
+def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
+    monkeypatch.setattr('os.path.exists', lambda x: False)
+
+    def return_args(_, args):
+        returnValue(args)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
+    settings = {'hide-ip': True}
+    args = yield tahoe.create_client(**settings)
+    assert '--hide-ip' in args
+
+
+@pytest.inlineCallbacks
 def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     nodedir = str(tmpdir.mkdir('TestGrid'))
     os.makedirs(os.path.join(nodedir, 'private'))
