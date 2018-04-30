@@ -32,7 +32,7 @@ six==1.11.0
 spake2==0.8
 tqdm==4.23.1
 treq==17.8.0
-Twisted==17.9.0
+Twisted==18.4.0
 txaio==2.10.0
 txdbus==1.1.0 ; "linux" in sys_platform
 txtorcon==0.20.0
