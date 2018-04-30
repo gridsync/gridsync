@@ -171,15 +171,16 @@ class InviteCodeWidget(QWidget):
 
         self.checkbox = QCheckBox("Connect over the Tor network")
         self.checkbox.setEnabled(True)
-        self.checkbox.setCheckable(False)
+        #self.checkbox.setCheckable(False)
         self.checkbox.setStyleSheet("color: grey")
         self.checkbox.setFocusPolicy(Qt.NoFocus)
+        self.checkbox.hide()
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
         layout.addWidget(self.label, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
-        #layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
+        layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
 
