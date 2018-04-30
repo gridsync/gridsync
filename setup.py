@@ -23,6 +23,7 @@ requirements = [
     'qt5reactor',
     'treq',
     'twisted[tls]',
+    'txtorcon',
     'zxcvbn-python',
 ]
 
