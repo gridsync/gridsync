@@ -114,6 +114,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.rootcap = None
         self.magic_folders = defaultdict(dict)
         self.remote_magic_folders = defaultdict(dict)
+        self.use_tor = False
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -478,6 +479,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if sys.platform == 'win32' and pid.isdigit():
             with open(self.pidfile, 'w') as f:
                 f.write(pid)
+        tcp = self.config_get('connections', 'tcp')
+        if tcp and tcp.lower() == 'tor':
+            self.use_tor = True
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
         token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
