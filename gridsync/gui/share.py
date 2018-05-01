@@ -325,6 +325,7 @@ class InviteReceiver(QDialog):
 
         self.invite_code_widget = InviteCodeWidget(self)
         self.label = self.invite_code_widget.label
+        self.tor_checkbox = self.invite_code_widget.checkbox
         self.lineedit = self.invite_code_widget.lineedit
         self.lineedit.error.connect(self.show_error)
         self.lineedit.go.connect(self.go)
@@ -357,10 +358,11 @@ class InviteReceiver(QDialog):
         layout.addWidget(self.label, 2, 3, 1, 1)
         layout.addWidget(self.lineedit, 3, 2, 1, 3)
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
-        layout.addWidget(self.message_label, 4, 1, 1, 5)
-        layout.addWidget(self.error_label, 4, 2, 1, 3)
-        layout.addWidget(self.close_button, 5, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addWidget(self.tor_checkbox, 4, 2, 1, 3, Qt.AlignCenter)
+        layout.addWidget(self.message_label, 5, 1, 1, 5)
+        layout.addWidget(self.error_label, 5, 2, 1, 3)
+        layout.addWidget(self.close_button, 6, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 7, 1)
 
         self.reset()
 
