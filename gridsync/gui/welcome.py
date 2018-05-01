@@ -2,7 +2,7 @@
 
 import logging as log
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
 from PyQt5.QtWidgets import (
     QGridLayout, QLabel, QPushButton, QMessageBox, QProgressBar, QShortcut,
@@ -389,4 +389,4 @@ class WelcomeDialog(QStackedWidget):
                 "Are you sure you wish to exit?".format(APP_NAME),
                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
-                reactor.stop()
+                QCoreApplication.instance().quit()
