@@ -8,6 +8,7 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
 from wormhole import wormhole
 from wormhole.errors import WormholeError
+from wormhole.tor_manager import get_tor
 
 from gridsync import settings
 from gridsync.errors import UpgradeRequiredError
@@ -26,13 +27,18 @@ class Wormhole(QObject):
     closed = pyqtSignal()
     send_completed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, use_tor=False):
         super(Wormhole, self).__init__()
-        self._wormhole = wormhole.create(APPID, RELAY, reactor)
+        self.use_tor = use_tor
+        self._wormhole = None
 
     @inlineCallbacks
     def connect(self):
-        logging.debug("Connecting to %s...", RELAY)
+        tor = None
+        if self.use_tor:
+            tor = yield get_tor(reactor)
+        logging.debug("Connecting to %s (tor=%s)...", RELAY, tor)
+        self._wormhole = wormhole.create(APPID, RELAY, reactor, tor=tor)
         welcome = yield self._wormhole.get_welcome()
         logging.debug("Connected to wormhole server; got welcome: %s", welcome)
         self.got_welcome.emit(welcome)
@@ -117,13 +123,13 @@ class Wormhole(QObject):
 
 
 @inlineCallbacks
-def wormhole_receive(code):
-    w = Wormhole()
+def wormhole_receive(code, use_tor=False):
+    w = Wormhole(use_tor)
     msg = yield w.receive(code)
     returnValue(msg)
 
 
 @inlineCallbacks
-def wormhole_send(msg, code=None):
-    w = Wormhole()
+def wormhole_send(msg, code=None, use_tor=False):
+    w = Wormhole(use_tor)
     yield w.send(msg, code)
