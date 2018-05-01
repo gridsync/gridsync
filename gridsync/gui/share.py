@@ -255,7 +255,7 @@ class ShareWidget(QDialog):
 
     @inlineCallbacks
     def go(self):
-        self.wormhole = Wormhole()
+        self.wormhole = Wormhole(self.gateway.use_tor)
         self.wormhole.got_code.connect(self.on_got_code)
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
