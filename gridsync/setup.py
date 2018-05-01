@@ -10,12 +10,14 @@ from binascii import Error
 from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import QInputDialog
 import treq
+from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
+from gridsync.tor import get_tor, TorError
 
 
 def prompt_for_grid_name(grid_name, parent=None):
@@ -109,9 +111,10 @@ class SetupRunner(QObject):
     got_icon = pyqtSignal(str)
     done = pyqtSignal(object)
 
-    def __init__(self, known_gateways):
+    def __init__(self, known_gateways, use_tor=True):
         super(SetupRunner, self).__init__()
         self.known_gateways = known_gateways
+        self.use_tor = use_tor
         self.gateway = None
 
     def get_gateway(self, introducer, servers):
@@ -146,7 +149,13 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def fetch_icon(self, url, dest):
-        resp = yield treq.get(url)
+        agent = None
+        if self.use_tor:
+            tor = yield get_tor(reactor)
+            if not tor:
+                raise TorError("Could not connect to a running Tor daemon")
+            agent = tor.web_agent()
+        resp = yield treq.get(url, agent=agent)
         if resp.code == 200:
             content = yield treq.content(resp)
             log.debug("Received %i bytes", len(content))
