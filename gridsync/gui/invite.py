@@ -96,9 +96,10 @@ class InviteCodeLineEdit(QLineEdit):
         self.setCompleter(completer)
         self.setAlignment(Qt.AlignCenter)
         #self.setPlaceholderText("Enter invite code")
+        self.status_action = QAction(QIcon(), '', self)
+        self.addAction(self.status_action, 0)
         self.action_button = QAction(QIcon(), '', self)
         self.addAction(self.action_button, 1)
-        self.addAction(QAction(QIcon(), '', self), 0)  # for symmetry
 
         completer.highlighted.connect(self.update_action_button)
         self.textChanged.connect(self.update_action_button)
@@ -184,6 +185,8 @@ class InviteCodeWidget(QWidget):
         layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
+        self.checkbox.stateChanged.connect(self.toggle_tor_status_icon)
+
         self.maybe_enable_tor_checkbox()
 
     @inlineCallbacks
@@ -191,6 +194,13 @@ class InviteCodeWidget(QWidget):
         tor = yield get_tor(reactor)
         if tor:
             self.checkbox.setEnabled(True)
+
+    def toggle_tor_status_icon(self, state):
+        if state:
+            self.lineedit.status_action.setIcon(
+                QIcon(resource('tor-onion.png')))
+        else:
+            self.lineedit.status_action.setIcon(QIcon())
 
 
 def show_failure(failure, parent=None):
