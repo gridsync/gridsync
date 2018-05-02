@@ -305,6 +305,7 @@ class InviteReceiver(QDialog):
         self.wormhole = None
         self.setup_runner = None
         self.joined_folders = []
+        self.use_tor = False
 
         self.setMinimumSize(500, 300)
 
@@ -326,6 +327,7 @@ class InviteReceiver(QDialog):
         self.invite_code_widget = InviteCodeWidget(self)
         self.label = self.invite_code_widget.label
         self.tor_checkbox = self.invite_code_widget.checkbox
+        self.tor_checkbox.stateChanged.connect(self.on_checkbox_state_changed)
         self.lineedit = self.invite_code_widget.lineedit
         self.lineedit.error.connect(self.show_error)
         self.lineedit.go.connect(self.go)
@@ -380,6 +382,13 @@ class InviteReceiver(QDialog):
         self.error_label.hide()
         self.close_button.hide()
 
+    def on_checkbox_state_changed(self, state):
+        if state:
+            self.use_tor = True
+        else:
+            self.use_tor = False
+        logging.debug("use_tor=%s", self.use_tor)
+
     def show_error(self, text):
         self.error_label.setText(text)
         self.message_label.hide()
@@ -429,7 +438,7 @@ class InviteReceiver(QDialog):
     def got_message(self, message):
         self.update_progress("Reading invitation...")  # 3
         message = validate_settings(message, self.gateways, self)
-        self.setup_runner = SetupRunner(self.gateways)
+        self.setup_runner = SetupRunner(self.gateways, self.use_tor)
         if not message.get('magic-folders'):
             self.setup_runner.grid_already_joined.connect(
                 self.on_grid_already_joined)
@@ -459,7 +468,7 @@ class InviteReceiver(QDialog):
             if settings:
                 self.got_message(settings)
                 return
-        self.wormhole = Wormhole()
+        self.wormhole = Wormhole(self.use_tor)
         self.wormhole.got_welcome.connect(self.got_welcome)
         self.wormhole.got_message.connect(self.got_message)
         d = self.wormhole.receive(code)

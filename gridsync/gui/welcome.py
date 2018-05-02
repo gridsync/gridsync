@@ -185,6 +185,7 @@ class WelcomeDialog(QStackedWidget):
         self.known_gateways = known_gateways
         self.gateway = None
         self.setup_runner = None
+        self.use_tor = False
         self.resize(400, 500)
         self.setWindowTitle(APP_NAME)
         self.page_1 = WelcomeWidget(self)
@@ -198,6 +199,7 @@ class WelcomeDialog(QStackedWidget):
         self.addWidget(self.page_4)
 
         self.lineedit = self.page_1.lineedit
+        self.checkbox = self.page_1.invite_code_widget.checkbox
         self.cancel_button = self.page_2.cancel_button
         self.finish_button = self.page_2.finish_button
         self.buttonbox = self.page_3.buttonbox
@@ -212,6 +214,7 @@ class WelcomeDialog(QStackedWidget):
 
         self.lineedit.go.connect(self.go)
         self.lineedit.error.connect(self.show_error)
+        self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
         self.cancel_button.clicked.connect(self.cancel_button_clicked)
         self.finish_button.clicked.connect(self.finish_button_clicked)
         self.buttonbox.accepted.connect(self.on_accepted)
@@ -219,6 +222,13 @@ class WelcomeDialog(QStackedWidget):
         self.help.linkActivated.connect(self.on_link_activated)
         self.preferences_button.clicked.connect(self.on_preferences_button_clicked)
         self.page_4.accepted.connect(self.on_preferences_accepted)
+
+    def on_checkbox_state_changed(self, state):
+        if state:
+            self.use_tor = True
+        else:
+            self.use_tor = False
+        log.debug("use_tor=%s", self.use_tor)
 
     def on_link_activated(self):
         self.setCurrentIndex(2)
@@ -283,7 +293,7 @@ class WelcomeDialog(QStackedWidget):
     def verify_settings(self, settings, from_wormhole=True):
         settings = validate_settings(
             settings, self.known_gateways, self, from_wormhole)
-        self.setup_runner = SetupRunner(self.known_gateways)
+        self.setup_runner = SetupRunner(self.known_gateways, self.use_tor)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.page_2.progressbar.setMaximum(steps)
         self.setup_runner.grid_already_joined.connect(self.on_already_joined)
@@ -302,7 +312,7 @@ class WelcomeDialog(QStackedWidget):
             if settings:
                 self.verify_settings(settings)
                 return
-        d = wormhole_receive(code)
+        d = wormhole_receive(code, self.use_tor)
         d.addCallback(self.verify_settings)
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)
