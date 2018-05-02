@@ -8,7 +8,7 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
 from wormhole import wormhole
 from wormhole.errors import WormholeError
-from wormhole.tor_manager import get_tor
+from wormhole.tor_manager import get_tor, TorError
 
 from gridsync import settings
 from gridsync.errors import UpgradeRequiredError
@@ -37,6 +37,8 @@ class Wormhole(QObject):
         tor = None
         if self.use_tor:
             tor = yield get_tor(reactor)
+            if not tor:
+                raise TorError("Could not connect to a running Tor daemon")
         logging.debug("Connecting to %s (tor=%s)...", RELAY, tor)
         self._wormhole = wormhole.create(APPID, RELAY, reactor, tor=tor)
         welcome = yield self._wormhole.get_welcome()
