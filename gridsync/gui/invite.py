@@ -96,9 +96,16 @@ class InviteCodeLineEdit(QLineEdit):
         self.setCompleter(completer)
         self.setAlignment(Qt.AlignCenter)
         #self.setPlaceholderText("Enter invite code")
-        self.status_action = QAction(QIcon(), '', self)
+
+        self.blank_icon = QIcon()
+        self.paste_icon = QIcon(resource('paste.png'))
+        self.clear_icon = QIcon(resource('close.png'))
+        self.go_icon = QIcon(resource('arrow-right.png'))
+        self.tor_icon = QIcon(resource('tor-onion.png'))
+
+        self.status_action = QAction(self.blank_icon, '', self)
         self.addAction(self.status_action, 0)
-        self.action_button = QAction(QIcon(), '', self)
+        self.action_button = QAction(self.blank_icon, '', self)
         self.addAction(self.action_button, 1)
 
         completer.highlighted.connect(self.update_action_button)
@@ -115,13 +122,13 @@ class InviteCodeLineEdit(QLineEdit):
             self.action_button.setToolTip('')
             for mode in get_clipboard_modes():
                 if is_valid(get_clipboard_text(mode)):
-                    self.action_button.setIcon(QIcon(resource('paste.png')))
+                    self.action_button.setIcon(self.paste_icon)
                     self.action_button.setToolTip("Paste")
         elif is_valid(text):
-            self.action_button.setIcon(QIcon(resource('arrow-right.png')))
+            self.action_button.setIcon(self.go_icon)
             self.action_button.setToolTip("Go")
         else:
-            self.action_button.setIcon(QIcon(resource('close.png')))
+            self.action_button.setIcon(self.clear_icon)
             self.action_button.setToolTip("Clear")
 
     def keyPressEvent(self, event):
@@ -197,10 +204,9 @@ class InviteCodeWidget(QWidget):
 
     def toggle_tor_status_icon(self, state):
         if state:
-            self.lineedit.status_action.setIcon(
-                QIcon(resource('tor-onion.png')))
+            self.lineedit.status_action.setIcon(self.lineedit.tor_icon)
         else:
-            self.lineedit.status_action.setIcon(QIcon())
+            self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
 
 
 def show_failure(failure, parent=None):
