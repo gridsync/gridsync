@@ -383,10 +383,7 @@ class InviteReceiver(QDialog):
         self.close_button.hide()
 
     def on_checkbox_state_changed(self, state):
-        if state:
-            self.use_tor = True
-        else:
-            self.use_tor = False
+        self.use_tor = bool(state)
         logging.debug("use_tor=%s", self.use_tor)
 
     def show_error(self, text):

@@ -224,10 +224,7 @@ class WelcomeDialog(QStackedWidget):
         self.page_4.accepted.connect(self.on_preferences_accepted)
 
     def on_checkbox_state_changed(self, state):
-        if state:
-            self.use_tor = True
-        else:
-            self.use_tor = False
+        self.use_tor = bool(state)
         log.debug("use_tor=%s", self.use_tor)
 
     def on_link_activated(self):
