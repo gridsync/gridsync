@@ -266,6 +266,9 @@ class SetupRunner(QObject):
         if 'version' in settings and int(settings['version']) > 1:
             raise UpgradeRequiredError
 
+        if self.use_tor:
+            settings['hide-ip'] = True
+
         self.gateway = self.get_gateway(
             settings.get('introducer'), settings.get('storage')
         )
