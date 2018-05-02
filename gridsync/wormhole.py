@@ -8,10 +8,11 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
 from wormhole import wormhole
 from wormhole.errors import WormholeError
-from wormhole.tor_manager import get_tor, TorError
+from wormhole.tor_manager import get_tor
 
 from gridsync import settings
 from gridsync.errors import UpgradeRequiredError
+from gridsync.tor import TorError
 
 
 APPID = settings['wormhole']['appid']
