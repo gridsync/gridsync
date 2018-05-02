@@ -31,7 +31,7 @@ class Wormhole(QObject):
     def __init__(self, use_tor=False):
         super(Wormhole, self).__init__()
         self.use_tor = use_tor
-        self._wormhole = None
+        self._wormhole = wormhole.create(APPID, RELAY, reactor)
 
     @inlineCallbacks
     def connect(self):
@@ -40,8 +40,8 @@ class Wormhole(QObject):
             tor = yield get_tor(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
+            self._wormhole = wormhole.create(APPID, RELAY, reactor, tor=tor)
         logging.debug("Connecting to %s (tor=%s)...", RELAY, tor)
-        self._wormhole = wormhole.create(APPID, RELAY, reactor, tor=tor)
         welcome = yield self._wormhole.get_welcome()
         logging.debug("Connected to wormhole server; got welcome: %s", welcome)
         self.got_welcome.emit(welcome)
