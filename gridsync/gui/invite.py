@@ -192,7 +192,7 @@ class InviteCodeWidget(QWidget):
         layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
-        self.checkbox.stateChanged.connect(self.toggle_tor_status_icon)
+        self.checkbox.stateChanged.connect(self.toggle_tor_status)
 
         self.maybe_enable_tor_checkbox()
 
@@ -202,16 +202,29 @@ class InviteCodeWidget(QWidget):
         if tor:
             self.checkbox.setEnabled(True)
 
-    def toggle_tor_status_icon(self, state):
+    def toggle_tor_status(self, state):
         if state:
             self.lineedit.status_action.setIcon(self.lineedit.tor_icon)
             self.lineedit.status_action.setToolTip(
                 "Tor: Enabled\n\n"
                 "This connection will be routed through the Tor network.")
+            # https://styleguide.torproject.org/visuals/
+            self.lineedit.setStyleSheet(
+                "border-width: 1px;"
+                "border-style: solid;"
+                "border-color: #59316B;"
+                "border-radius: 2px;"
+                "padding: 2px;"
+                "color: #59316B;")
+            self.label.setStyleSheet("color: #7D4698;")
+            self.checkbox.setStyleSheet("color: #7D4698;")
+
         else:
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")
-
+            self.lineedit.setStyleSheet("")
+            self.label.setStyleSheet("color: grey")
+            self.checkbox.setStyleSheet("color: grey")
 
 def show_failure(failure, parent=None):
     msg = QMessageBox(parent)
