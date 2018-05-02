@@ -205,8 +205,12 @@ class InviteCodeWidget(QWidget):
     def toggle_tor_status_icon(self, state):
         if state:
             self.lineedit.status_action.setIcon(self.lineedit.tor_icon)
+            self.lineedit.status_action.setToolTip(
+                "Tor: Enabled\n\n"
+                "This connection will be routed through the Tor network.")
         else:
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
+            self.lineedit.status_action.setToolTip("")
 
 
 def show_failure(failure, parent=None):
