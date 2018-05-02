@@ -13,7 +13,7 @@ class TorError(Exception):
 @inlineCallbacks
 def get_tor(reactor):  # TODO: Add launch option?
     tor = None
-    logging.debug("Looking for a running Tor daemon...") 
+    logging.debug("Looking for a running Tor daemon...")
     try:
         tor = yield txtorcon.connect(reactor)
     except RuntimeError:
