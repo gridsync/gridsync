@@ -8,7 +8,8 @@ from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
     QMessageBox, QSizePolicy, QSpacerItem, QWidget)
-from twisted.internet.defer import CancelledError
+from twisted.internet import reactor
+from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WrongPasswordError)
 try:
@@ -19,6 +20,7 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API
 from gridsync import pkgdir, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
+from gridsync.tor import get_tor
 
 
 cheatcodes = []
@@ -181,6 +183,14 @@ class InviteCodeWidget(QWidget):
         layout.addWidget(self.lineedit, 3, 1)
         layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
+
+        self.maybe_enable_tor_checkbox()
+
+    @inlineCallbacks
+    def maybe_enable_tor_checkbox(self):
+        tor = yield get_tor(reactor)
+        if tor:
+            self.checkbox.setEnabled(True)
 
 
 def show_failure(failure, parent=None):
