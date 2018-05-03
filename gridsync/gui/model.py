@@ -25,6 +25,7 @@ class Model(QStandardItemModel):
         self.gateway = self.view.gateway
         self.monitor = Monitor(self.gateway)
         self.status_dict = {}
+        self.members_dict = {}
         self.grid_status = ''
         self.available_space = 0
         self.setHeaderData(0, Qt.Horizontal, "Name")
@@ -50,7 +51,7 @@ class Model(QStandardItemModel):
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
-        #self.monitor.member_added.connect(self.add_member)  # XXX
+        self.monitor.member_added.connect(self.add_member)  # XXX
         self.monitor.first_sync_started.connect(self.on_first_sync)
         self.monitor.sync_started.connect(self.on_sync_started)
         self.monitor.sync_finished.connect(self.on_sync_finished)
@@ -117,9 +118,7 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str, str)
     def add_member(self, folder, member):
-        items = self.findItems(folder)
-        if items:
-            items[0].appendRow([QStandardItem(self.icon_user, member)])
+        self.members_dict[folder] = self.members_dict.get(folder, 0) + 1
 
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
@@ -137,11 +136,16 @@ class Model(QStandardItemModel):
                 pixmap = CompositePixmap(folder_pixmap)
             items[0].setIcon(QIcon(pixmap))
 
-    def add_lock_overlay(self, folder_name):
+    def update_overlay(self, folder_name):
+        members = self.members_dict.get(folder_name)
+        if members and members > 1:
+            overlay = 'user.png'
+        else:
+            overlay = 'lock-closed-green.svg'
         self.update_folder_icon(
             folder_name,
             self.gateway.get_magic_folder_directory(folder_name),
-            'lock-closed-green.svg')
+            overlay)
 
     @pyqtSlot(str, object)
     def set_data(self, folder_name, data):
@@ -171,7 +175,7 @@ class Model(QStandardItemModel):
                 'This folder is up to date. The contents of this folder on\n'
                 'your computer matches the contents of the folder on the\n'
                 '"{}" grid.'.format(self.gateway.name))
-            self.add_lock_overlay(name)
+            self.update_overlay(name)
             self.unfade_row(name)
         elif status == 3:
             item.setIcon(self.icon_cloud)
