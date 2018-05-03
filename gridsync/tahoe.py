@@ -710,6 +710,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             'client': subclient
         }
         settings = self.get_settings()
+        if self.use_tor:
+            settings['hide-ip'] = True
         yield subclient.create_client(**settings)
         if join_code:
             yield subclient.command(['magic-folder', 'join', join_code, path])
