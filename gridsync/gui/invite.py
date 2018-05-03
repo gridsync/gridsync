@@ -226,6 +226,7 @@ class InviteCodeWidget(QWidget):
             self.label.setStyleSheet("color: grey")
             self.checkbox.setStyleSheet("color: grey")
 
+
 def show_failure(failure, parent=None):
     msg = QMessageBox(parent)
     msg.setIcon(QMessageBox.Warning)
