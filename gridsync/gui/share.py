@@ -344,6 +344,12 @@ class InviteReceiver(QDialog):
         self.lineedit.error.connect(self.show_error)
         self.lineedit.go.connect(self.go)
 
+        self.tor_label = QLabel()
+        self.tor_label.setToolTip(
+            "This connection is being routed through the Tor network.")
+        self.tor_label.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(32, 32))
+
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
         self.progressbar.setMaximum(6)  # XXX
@@ -370,6 +376,8 @@ class InviteReceiver(QDialog):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
         layout.addWidget(self.label, 2, 3, 1, 1)
+        layout.addWidget(
+            self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(self.lineedit, 3, 2, 1, 3)
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
         layout.addWidget(self.tor_checkbox, 4, 2, 1, 3, Qt.AlignCenter)
@@ -393,6 +401,7 @@ class InviteReceiver(QDialog):
         self.error_label.setText('')
         self.error_label.hide()
         self.close_button.hide()
+        self.tor_label.hide()
 
     def on_checkbox_state_changed(self, state):
         self.use_tor = bool(state)
@@ -471,6 +480,8 @@ class InviteReceiver(QDialog):
         self.label.setText(' ')
         self.lineedit.hide()
         self.progressbar.show()
+        if self.use_tor:
+            self.tor_label.show()
         self.update_progress("Verifying invitation...")  # 1
         if code.split('-')[0] == "0":
             settings = get_settings_from_cheatcode(code[2:])
