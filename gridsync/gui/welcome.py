@@ -236,8 +236,11 @@ class WelcomeDialog(QStackedWidget):
         log.debug("use_tor=%s", self.use_tor)
         if state:
             self.page_2.tor_label.show()
+            self.page_2.progressbar.setStyleSheet(
+                'QProgressBar::chunk { background-color: #7D4698; }')
         else:
             self.page_2.tor_label.hide()
+            self.page_2.progressbar.setStyleSheet('')
 
     def on_link_activated(self):
         self.setCurrentIndex(2)
