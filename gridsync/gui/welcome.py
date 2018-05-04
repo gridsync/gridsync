@@ -119,6 +119,13 @@ class ProgressBarWidget(QWidget):
         self.checkmark.setPixmap(pixmap)
         self.checkmark.setAlignment(Qt.AlignCenter)
 
+        self.tor_label = QLabel()
+        self.tor_label.setToolTip(
+            "This connection is being routed through the Tor network.")
+        self.tor_label.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(24, 24))
+        self.tor_label.hide()
+
         self.progressbar = QProgressBar()
         self.progressbar.setMaximum(10)
         self.progressbar.setTextVisible(False)
@@ -146,6 +153,7 @@ class ProgressBarWidget(QWidget):
         layout.addWidget(self.icon_connection, 2, 3)
         layout.addWidget(self.icon_client, 3, 3)
         layout.addWidget(self.checkmark, 4, 3, 1, 1)
+        layout.addWidget(self.tor_label, 5, 1, 1, 1, Qt.AlignRight)
         layout.addWidget(self.progressbar, 5, 2, 1, 3)
         layout.addWidget(self.message, 6, 3)
         layout.addWidget(self.finish_button, 6, 3)
@@ -226,6 +234,10 @@ class WelcomeDialog(QStackedWidget):
     def on_checkbox_state_changed(self, state):
         self.use_tor = bool(state)
         log.debug("use_tor=%s", self.use_tor)
+        if state:
+            self.page_2.tor_label.show()
+        else:
+            self.page_2.tor_label.hide()
 
     def on_link_activated(self):
         self.setCurrentIndex(2)
