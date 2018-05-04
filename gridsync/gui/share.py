@@ -40,6 +40,7 @@ class ShareWidget(QDialog):
         self.settings = {}
         self.wormhole = None
         self.pending_invites = []
+        self.use_tor = self.gateway.use_tor
 
         self.setMinimumSize(500, 300)
 
@@ -131,6 +132,15 @@ class ShareWidget(QDialog):
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.hide()
 
+        self.tor_label = QLabel()
+        self.tor_label.setToolTip(
+            "This connection is being routed through the Tor network.")
+        self.tor_label.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(32, 32))
+        self.tor_label.hide()
+        if self.use_tor:
+            self.tor_label.show()
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximum(2)
         self.progress_bar.setTextVisible(False)
@@ -147,6 +157,8 @@ class ShareWidget(QDialog):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
         layout.addWidget(self.box_title, 3, 2, 1, 3)
         layout.addWidget(self.checkmark, 3, 3)
+        layout.addWidget(
+            self.tor_label, 4, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(self.box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addWidget(self.subtext_label, 5, 2, 1, 3)
@@ -255,7 +267,7 @@ class ShareWidget(QDialog):
 
     @inlineCallbacks
     def go(self):
-        self.wormhole = Wormhole(self.gateway.use_tor)
+        self.wormhole = Wormhole(self.use_tor)
         self.wormhole.got_code.connect(self.on_got_code)
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
