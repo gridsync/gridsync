@@ -470,6 +470,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def start(self):
+        tcp = self.config_get('connections', 'tcp')
+        if tcp and tcp.lower() == 'tor':
+            self.use_tor = True
         if os.path.isfile(self.pidfile):
             yield self.stop()
         if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
@@ -479,9 +482,6 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if sys.platform == 'win32' and pid.isdigit():
             with open(self.pidfile, 'w') as f:
                 f.write(pid)
-        tcp = self.config_get('connections', 'tcp')
-        if tcp and tcp.lower() == 'tor':
-            self.use_tor = True
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.nodeurl = f.read().strip()
         token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
