@@ -1,5 +1,5 @@
 asn1crypto==0.24.0
-attrs==17.4.0
+attrs==18.1.0
 autobahn==18.4.1
 Automat==0.6.0
 certifi==2018.4.16
@@ -30,7 +30,7 @@ service_identity==17.0.0
 SIP==4.19.8
 six==1.11.0
 spake2==0.8
-tqdm==4.23.1
+tqdm==4.23.2
 treq==17.8.0
 Twisted==18.4.0
 txaio==2.10.0
