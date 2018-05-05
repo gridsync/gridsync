@@ -138,8 +138,6 @@ class ShareWidget(QDialog):
         self.tor_label.setPixmap(
             QPixmap(resource('tor-onion.png')).scaled(32, 32))
         self.tor_label.hide()
-        if self.use_tor:
-            self.tor_label.show()
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximum(2)
@@ -170,6 +168,11 @@ class ShareWidget(QDialog):
         self.close_button.clicked.connect(self.close)
 
         self.set_box_title("Generating invite code...")
+
+        if self.use_tor:
+            self.tor_label.show()
+            self.progress_bar.setStyleSheet(
+                'QProgressBar::chunk { background-color: #7D4698; }')
 
         self.go()  # XXX
 
