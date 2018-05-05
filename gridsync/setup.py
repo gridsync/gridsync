@@ -168,7 +168,12 @@ class SetupRunner(QObject):
     @inlineCallbacks  # noqa: max-complexity=13 XXX
     def join_grid(self, settings):
         nickname = settings['nickname']
-        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        if self.use_tor:
+            msg = "Connecting to {} via Tor...".format(nickname)
+        else:
+            msg = "Connecting to {}...".format(nickname)
+        self.update_progress.emit(msg)
+
         icon_path = None
         if nickname == 'Least Authority S4':
             icon_path = resource('leastauthority.com.icon')
@@ -213,10 +218,10 @@ class SetupRunner(QObject):
             except OSError as err:
                 log.warning("Error writing icon url to file: %s", str(err))
 
-        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        self.update_progress.emit(msg)
         yield self.gateway.start()
 
-        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        self.update_progress.emit(msg)
         yield self.gateway.await_ready()
 
     @inlineCallbacks
