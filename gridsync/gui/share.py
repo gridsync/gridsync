@@ -409,6 +409,11 @@ class InviteReceiver(QDialog):
     def on_checkbox_state_changed(self, state):
         self.use_tor = bool(state)
         logging.debug("use_tor=%s", self.use_tor)
+        if state:
+            self.progressbar.setStyleSheet(
+                'QProgressBar::chunk { background-color: #7D4698; }')
+        else:
+            self.progressbar.setStyleSheet('')
 
     def show_error(self, text):
         self.error_label.setText(text)
