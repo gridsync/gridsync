@@ -398,6 +398,7 @@ class InviteReceiver(QDialog):
         self.label.setText("Enter invite code:")
         self.lineedit.show()
         self.lineedit.setText('')
+        self.tor_checkbox.show()
         self.progressbar.hide()
         self.message_label.setText(
             "Invite codes can be used to join a grid or a folder")
@@ -487,6 +488,7 @@ class InviteReceiver(QDialog):
         self.reset()
         self.label.setText(' ')
         self.lineedit.hide()
+        self.tor_checkbox.hide()
         self.progressbar.show()
         if self.use_tor:
             self.tor_label.show()
