@@ -6,6 +6,7 @@ import pytest
 from wormhole.errors import WormholeError
 
 from gridsync.errors import UpgradeRequiredError
+from gridsync.tor import TorError
 from gridsync.wormhole import Wormhole, wormhole_receive, wormhole_send
 
 
@@ -22,6 +23,30 @@ def test_wormhole_connect_emit_got_welcome_signal(qtbot, wormhole):
     with qtbot.wait_signal(wormhole.got_welcome) as blocker:
         yield wormhole.connect()
     assert blocker.args == [{'current_cli_version': '0'}]
+
+
+@pytest.inlineCallbacks
+def test_wormhole_connect_use_tor(qtbot, monkeypatch, wormhole):
+    kwargs_received = []
+    def fake_create(*args, **kwargs):
+        kwargs_received.append(kwargs)
+        return wormhole._wormhole
+    monkeypatch.setattr('gridsync.wormhole.wormhole.create', fake_create)
+    monkeypatch.setattr('gridsync.wormhole.get_tor', lambda _: 'TorObject')
+    wormhole._wormhole.get_welcome.return_value = {'current_cli_version': '0'}
+    wormhole.use_tor = True
+    yield wormhole.connect()
+    assert kwargs_received == [{'tor': 'TorObject'}]
+    wormhole.use_tor = False
+
+
+@pytest.inlineCallbacks
+def test_wormhole_use_tor_raise_tor_error(qtbot, monkeypatch, wormhole):
+    monkeypatch.setattr('gridsync.wormhole.get_tor', lambda _: None)
+    wormhole.use_tor = True
+    with pytest.raises(TorError):
+        yield wormhole.connect()
+    wormhole.use_tor = False
 
 
 @pytest.inlineCallbacks
