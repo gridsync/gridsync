@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from gridsync.tor import get_tor, TorError
+from gridsync.tor import get_tor
 
 
 @pytest.inlineCallbacks
@@ -20,4 +20,4 @@ def test_get_tor_return_none(monkeypatch):
     fake_connect = MagicMock(side_effect=RuntimeError())
     monkeypatch.setattr('txtorcon.connect', fake_connect)
     tor = yield get_tor(None)
-    assert tor == None
+    assert tor is None

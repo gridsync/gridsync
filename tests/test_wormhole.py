@@ -28,6 +28,7 @@ def test_wormhole_connect_emit_got_welcome_signal(qtbot, wormhole):
 @pytest.inlineCallbacks
 def test_wormhole_connect_use_tor(qtbot, monkeypatch, wormhole):
     kwargs_received = []
+
     def fake_create(*args, **kwargs):
         kwargs_received.append(kwargs)
         return wormhole._wormhole
