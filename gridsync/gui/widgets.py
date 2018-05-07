@@ -73,6 +73,7 @@ class ConnectionSettings(QWidget):
         if tor:
             self.mode_combobox.model().item(1).setEnabled(True)
 
+
 class EncodingParameters(QWidget):
     def __init__(self):
         super(EncodingParameters, self).__init__()
