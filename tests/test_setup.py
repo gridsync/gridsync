@@ -542,6 +542,22 @@ def test_run_join_grid(monkeypatch):
 
 
 @pytest.inlineCallbacks
+def test_run_join_grid_use_tor(monkeypatch):
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_grid', lambda x, y: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.ensure_recovery', lambda x, y: None)
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.join_folders', lambda x, y: None)
+    sr = SetupRunner([], use_tor=True)
+    settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
+    yield sr.run(settings)
+    assert settings['hide-ip']
+
+
+@pytest.inlineCallbacks
 def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')
