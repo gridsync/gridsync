@@ -13,6 +13,7 @@ from gridsync.setup import (
     prompt_for_grid_name, validate_grid, prompt_for_folder_name,
     validate_folders, validate_settings, SetupRunner)
 from gridsync.tahoe import Tahoe
+from gridsync.tor import TorError
 
 
 def test_prompt_for_grid_name(monkeypatch):
@@ -288,6 +289,41 @@ def test_fetch_icon(monkeypatch, tmpdir):
 
 
 @pytest.inlineCallbacks
+def test_fetch_icon_use_tor(monkeypatch, tmpdir):
+    sr = SetupRunner([], use_tor=True)
+    dest = str(tmpdir.join('icon.png'))
+    fake_tor_web_agent = MagicMock()
+
+    def fake_tor(*args):
+        tor = MagicMock()
+        tor.web_agent.return_value = fake_tor_web_agent
+        return tor
+
+    kwargs_received = []
+
+    def fake_treq_get(*args, **kwargs):
+        response = MagicMock()
+        response.code = 200
+        kwargs_received.append(kwargs)
+        return response
+
+    monkeypatch.setattr('treq.get', fake_treq_get)
+    monkeypatch.setattr('treq.content', lambda _: b'0')
+    monkeypatch.setattr('gridsync.setup.get_tor', fake_tor)
+    yield sr.fetch_icon('http://example.org/icon.png', dest)
+    assert kwargs_received == [{'agent': fake_tor_web_agent}]
+
+
+@pytest.inlineCallbacks
+def test_fetch_icon_use_tor_raise_tor_error(monkeypatch, tmpdir):
+    sr = SetupRunner([], use_tor=True)
+    dest = str(tmpdir.join('icon.png'))
+    monkeypatch.setattr('gridsync.setup.get_tor', lambda _: None)
+    with pytest.raises(TorError):
+        yield sr.fetch_icon('http://example.org/icon.png', dest)
+
+
+@pytest.inlineCallbacks
 def test_fetch_icon_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     sr = SetupRunner([])
     dest = str(tmpdir.join('icon.png'))
@@ -305,6 +341,35 @@ def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr('treq.get', fake_get_code_500)
     with qtbot.assert_not_emitted(sr.got_icon):
         yield sr.fetch_icon('http://example.org/icon.png', dest)
+
+
+@pytest.inlineCallbacks
+def test_join_grid_emit_update_progress_signal(monkeypatch, qtbot, tmpdir):
+    monkeypatch.setattr(
+        'gridsync.setup.select_executable', lambda: (None, None))
+    monkeypatch.setattr(
+        'gridsync.setup.config_dir', str(tmpdir.mkdir('config_dir')))
+    monkeypatch.setattr('gridsync.setup.Tahoe', MagicMock())
+    sr = SetupRunner([])
+    settings = {'nickname': 'TestGrid'}
+    with qtbot.wait_signal(sr.update_progress) as blocker:
+        yield sr.join_grid(settings)
+    assert blocker.args == ["Connecting to TestGrid..."]
+
+
+@pytest.inlineCallbacks
+def test_join_grid_emit_update_progress_signal_via_tor(
+        monkeypatch, qtbot, tmpdir):
+    monkeypatch.setattr(
+        'gridsync.setup.select_executable', lambda: (None, None))
+    monkeypatch.setattr(
+        'gridsync.setup.config_dir', str(tmpdir.mkdir('config_dir')))
+    monkeypatch.setattr('gridsync.setup.Tahoe', MagicMock())
+    sr = SetupRunner([], use_tor=True)
+    settings = {'nickname': 'TestGrid'}
+    with qtbot.wait_signal(sr.update_progress) as blocker:
+        yield sr.join_grid(settings)
+    assert blocker.args == ["Connecting to TestGrid via Tor..."]
 
 
 @pytest.inlineCallbacks
