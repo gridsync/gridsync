@@ -670,3 +670,36 @@ def test_upgrade_legacy_config(tmpdir_factory):
         client.nodedir, 'private', 'magicfolder_LegacyFolder.sqlite'))
     assert os.path.exists(client.magic_folders_dir + '.backup')
     assert not os.path.exists(client.magic_folders_dir)
+
+
+@pytest.inlineCallbacks
+def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
+    nodedir = str(tmpdir_factory.mktemp('tahoe-start'))
+    client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
+    privatedir = os.path.join(client.nodedir, 'private')
+    os.makedirs(privatedir)
+    with open(os.path.join(client.nodedir, 'node.url'), 'w') as f:
+        f.write('http://127.0.0.1:65536')
+    with open(os.path.join(privatedir, 'api_auth_token'), 'w') as f:
+        f.write('1234567890')
+    client.config_set('client', 'shares.happy', '99999')
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y, z: 9999)
+    yield client.start()
+    assert not client.use_tor
+     
+
+@pytest.inlineCallbacks
+def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
+    nodedir = str(tmpdir_factory.mktemp('tahoe-start'))
+    client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
+    privatedir = os.path.join(client.nodedir, 'private')
+    os.makedirs(privatedir)
+    with open(os.path.join(client.nodedir, 'node.url'), 'w') as f:
+        f.write('http://127.0.0.1:65536')
+    with open(os.path.join(privatedir, 'api_auth_token'), 'w') as f:
+        f.write('1234567890')
+    client.config_set('client', 'shares.happy', '99999')
+    client.config_set('connections', 'tcp', 'tor')
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y, z: 9999)
+    yield client.start()
+    assert client.use_tor == True
