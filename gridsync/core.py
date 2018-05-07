@@ -22,6 +22,7 @@ from gridsync import msg
 from gridsync.gui import Gui
 from gridsync.preferences import get_preference
 from gridsync.tahoe import get_nodedirs, Tahoe, select_executable
+from gridsync.tor import get_tor
 
 
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
@@ -74,6 +75,7 @@ class Core(object):
             if not minimize_preference or minimize_preference == 'false':
                 self.gui.show_main_window()
             yield self.select_executable()
+            tor_available = yield get_tor(reactor)
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
             for nodedir in nodedirs:
                 gateway = Tahoe(
@@ -81,6 +83,16 @@ class Core(object):
                     executable=self.executable,
                     multi_folder_support=self.multi_folder_support
                 )
+                tcp = gateway.config_get('connections', 'tcp')
+                if tcp == 'tor' and not tor_available:
+                    msg.error(
+                        self.gui.main_window,
+                        "Error Connecting To Tor Daemon",
+                        'The "{}" connection is configured to use Tor, '
+                        'however, no running tor daemon was found.\n\n'
+                        'This connection will be disabled until you launch '
+                        'Tor again.'.format(gateway.name)
+                    )
                 self.gateways.append(gateway)
                 d = gateway.start()
                 d.addCallback(gateway.ensure_folder_links)
