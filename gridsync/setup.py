@@ -111,7 +111,7 @@ class SetupRunner(QObject):
     got_icon = pyqtSignal(str)
     done = pyqtSignal(object)
 
-    def __init__(self, known_gateways, use_tor=True):
+    def __init__(self, known_gateways, use_tor=False):
         super(SetupRunner, self).__init__()
         self.known_gateways = known_gateways
         self.use_tor = use_tor
