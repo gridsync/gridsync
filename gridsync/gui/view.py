@@ -336,6 +336,7 @@ class View(QTreeView):
             for folder in selected:
                 if not self.gateway.magic_folders[folder]['admin_dircap']:
                     share_action.setEnabled(False)
+                    share_action.setText("Share (disabled; no admin access)")
             remove_action.triggered.connect(
                 lambda: self.confirm_remove(selected))
         menu.exec_(self.viewport().mapToGlobal(position))
