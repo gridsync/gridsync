@@ -98,23 +98,8 @@ class Core(object):
                 d.addCallback(gateway.ensure_folder_links)
             self.gui.populate(self.gateways)
         else:
-            defaults = settings['default']
-            if defaults['provider_name']:
-                nodedir = os.path.join(config_dir, defaults['provider_name'])
-                yield self.select_executable()
-                gateway = Tahoe(
-                    nodedir,
-                    executable=self.executable,
-                    multi_folder_support=self.multi_folder_support
-                )
-                self.gateways.append(gateway)
-                # TODO: Show setup progress dialog
-                yield gateway.create_client(**defaults)
-                gateway.start()
-                self.gui.populate(self.gateways)
-            else:
-                self.gui.show_welcome_dialog()
-                yield self.select_executable()
+            self.gui.show_welcome_dialog()
+            yield self.select_executable()
 
     def start(self):
         # Listen on a port to prevent multiple instances from running
