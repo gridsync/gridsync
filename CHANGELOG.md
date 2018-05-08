@@ -2,11 +2,16 @@
 
 ## Unreleased
 ### Added
+- Tor integration (EXPERIMENTAL)
+    - Gridsync can now optionally tunnel outgoing connections through the Tor anonymity network; see [`docs/tor-integration.md`](https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md)
 - Application preferences are now also accessible from the initial welcome screen
 
 ### Changed
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
 - Icons for folders that have been shared will now be displayed with a "person" overlay instead of a green lock.
+
+### Removed
+- The "default" provider section of `config.txt` has been removed; organizations wishing to deploy a modified Gridsync client with pre-configured settings are encouraged to use a ["cheat code"](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md) instead
 
 ### Fixed
 - `tahoe.select_executable()` will now use an empty nodedir when checking tahoe instances for multi-magic-folder support (preventing potential inaccuracies caused, e.g., by a pre-existing/misconfigured `$HOME/.tahoe` nodedir)
