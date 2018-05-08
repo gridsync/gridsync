@@ -18,6 +18,7 @@ from gridsync.gui.invite import (
     get_settings_from_cheatcode, InviteCodeWidget, show_failure)
 from gridsync.gui.preferences import PreferencesWidget
 from gridsync.gui.widgets import TahoeConfigForm
+from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
 from gridsync.wormhole import wormhole_receive
@@ -48,19 +49,32 @@ class WelcomeWidget(QWidget):
         self.message.setAlignment(Qt.AlignCenter)
         self.message.hide()
 
-        self.help = QLabel()
-        self.help.setText("<a href>I don't have an invite code</a>")
+        self.restore_link = QLabel()
+        self.restore_link.setText("<a href>Restore from Recovery Key...</a>")
         font = QFont()
         font.setPointSize(9)
-        self.help.setFont(font)
-        self.help.setAlignment(Qt.AlignCenter)
-        #self.help.linkActivated.connect(self.on_click)
+        self.restore_link.setFont(font)
+        self.restore_link.setAlignment(Qt.AlignCenter)
+
+        self.configure_link = QLabel()
+        self.configure_link.setText("<a href>Manual configuration...</a>")
+        font = QFont()
+        font.setPointSize(9)
+        self.configure_link.setFont(font)
+        self.configure_link.setAlignment(Qt.AlignCenter)
 
         self.preferences_button = QPushButton()
         self.preferences_button.setIcon(QIcon(resource('preferences.png')))
         self.preferences_button.setStyleSheet('border: 0px; padding: 0px;')
         self.preferences_button.setToolTip("Preferences...")
         self.preferences_button.setFocusPolicy(Qt.NoFocus)
+
+        links_grid = QGridLayout()
+        links_grid.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
+        links_grid.addWidget(self.restore_link, 2, 1)
+        links_grid.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 3, 1)
+        links_grid.addWidget(self.configure_link, 4, 1)
+        links_grid.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
@@ -74,7 +88,7 @@ class WelcomeWidget(QWidget):
         layout.addWidget(self.invite_code_widget, 4, 2, 1, 3)
         layout.addWidget(self.message, 5, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 6, 1)
-        layout.addWidget(self.help, 7, 3)
+        layout.addLayout(links_grid, 7, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 8, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
         layout.addWidget(self.preferences_button, 10, 5, Qt.AlignRight)
@@ -193,6 +207,7 @@ class WelcomeDialog(QStackedWidget):
         self.known_gateways = known_gateways
         self.gateway = None
         self.setup_runner = None
+        self.recovery_key_importer = None
         self.use_tor = False
         self.resize(400, 500)
         self.setWindowTitle(APP_NAME)
@@ -211,7 +226,8 @@ class WelcomeDialog(QStackedWidget):
         self.cancel_button = self.page_2.cancel_button
         self.finish_button = self.page_2.finish_button
         self.buttonbox = self.page_3.buttonbox
-        self.help = self.page_1.help
+        self.restore_link = self.page_1.restore_link
+        self.configure_link = self.page_1.configure_link
         self.preferences_button = self.page_1.preferences_button
 
         self.shortcut_close = QShortcut(QKeySequence.Close, self)
@@ -227,8 +243,12 @@ class WelcomeDialog(QStackedWidget):
         self.finish_button.clicked.connect(self.finish_button_clicked)
         self.buttonbox.accepted.connect(self.on_accepted)
         self.buttonbox.rejected.connect(self.reset)
-        self.help.linkActivated.connect(self.on_link_activated)
-        self.preferences_button.clicked.connect(self.on_preferences_button_clicked)
+        self.restore_link.linkActivated.connect(
+            self.on_restore_link_activated)
+        self.configure_link.linkActivated.connect(
+            self.on_configure_link_activated)
+        self.preferences_button.clicked.connect(
+            self.on_preferences_button_clicked)
         self.page_4.accepted.connect(self.on_preferences_accepted)
 
     def on_checkbox_state_changed(self, state):
@@ -242,7 +262,7 @@ class WelcomeDialog(QStackedWidget):
             self.page_2.tor_label.hide()
             self.page_2.progressbar.setStyleSheet('')
 
-    def on_link_activated(self):
+    def on_configure_link_activated(self):
         self.setCurrentIndex(2)
 
     def on_preferences_button_clicked(self):
@@ -314,6 +334,17 @@ class WelcomeDialog(QStackedWidget):
         self.setup_runner.done.connect(self.on_done)
         d = self.setup_runner.run(settings)
         d.addErrback(self.handle_failure)
+
+    def on_import_done(self, settings):
+        self.setCurrentIndex(1)
+        self.page_2.progressbar.setValue(1)
+        self.update_progress('Verifying invitation code...')
+        self.verify_settings(settings)
+
+    def on_restore_link_activated(self):
+        self.recovery_key_importer = RecoveryKeyImporter(self.page_1)
+        self.recovery_key_importer.done.connect(self.on_import_done)
+        self.recovery_key_importer.do_import()
 
     def go(self, code):
         self.setCurrentIndex(1)
