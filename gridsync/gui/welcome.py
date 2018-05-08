@@ -382,12 +382,11 @@ class WelcomeDialog(QStackedWidget):
             "data-loss).".format(gateway.name, gateway.name))
         msg.setDetailedText(
             "A 'Recovery Key' is a small file that contains enough information"
-            " (a Tahoe-LAFS 'Introducer fURL' and 'rootcap') to re-establish "
-            "a connection with your storage provider and restore your "
-            "previously-uploaded folders. Because access to this file is "
-            "sufficient to access to any of the the data you've stored, it is "
-            "important that you keep this file safe and secure; do not share "
-            "your Recovery Key with anybody!")
+            " to re-establish a connection with your storage provider and "
+            "restore your previously-uploaded folders. Because access to this "
+            "file is sufficient to access to any of the the data you've "
+            "stored, it is important that you keep this file safe and secure; "
+            "do not share your Recovery Key with anybody!")
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
             self.gui.main_window.export_recovery_key()  # XXX
