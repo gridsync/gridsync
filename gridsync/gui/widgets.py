@@ -9,9 +9,13 @@ from PyQt5.QtWidgets import (
     QComboBox, QDialogButtonBox, QFileDialog, QFormLayout, QGridLayout,
     QGroupBox, QLabel, QLineEdit, QPlainTextEdit, QProgressDialog, QPushButton,
     QSizePolicy, QSpacerItem, QSpinBox, QWidget)
+from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
+
 from gridsync.crypto import Crypter
 from gridsync.gui.password import PasswordDialog
 from gridsync.msg import error
+from gridsync.tor import get_tor
 
 
 class CompositePixmap(QPixmap):
@@ -60,6 +64,14 @@ class ConnectionSettings(QWidget):
         form.setWidget(1, QFormLayout.FieldRole, self.introducer_text_edit)
         form.setWidget(2, QFormLayout.LabelRole, self.mode_label)
         form.setWidget(2, QFormLayout.FieldRole, self.mode_combobox)
+
+        self.maybe_enable_tor()
+
+    @inlineCallbacks
+    def maybe_enable_tor(self):
+        tor = yield get_tor(reactor)
+        if tor:
+            self.mode_combobox.model().item(1).setEnabled(True)
 
 
 class EncodingParameters(QWidget):
@@ -203,7 +215,7 @@ class TahoeConfigForm(QWidget):
         self.rootcap = None
 
     def get_settings(self):
-        return {
+        settings = {
             'nickname': self.get_name(),
             'introducer': self.get_introducer(),
             'shares-total': self.get_shares_total(),
@@ -211,6 +223,9 @@ class TahoeConfigForm(QWidget):
             'shares-happy': self.get_shares_happy(),
             'rootcap': self.rootcap  # Maybe this should be user-settable?
         }
+        if self.connection_settings.mode_combobox.currentIndex() == 1:
+            settings['hide-ip'] = True
+        return settings
 
     def load_settings(self, settings_dict):
         for key, value in settings_dict.items():

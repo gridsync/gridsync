@@ -114,6 +114,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         self.rootcap = None
         self.magic_folders = defaultdict(dict)
         self.remote_magic_folders = defaultdict(dict)
+        self.use_tor = False
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -353,6 +354,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
                 args.extend(['--{}'.format(key), str(value)])
             elif key in ['needed', 'happy', 'total']:
                 args.extend(['--shares-{}'.format(key), str(value)])
+            elif key == 'hide-ip':
+                args.append('--hide-ip')
         yield self.command(args)
         storage_servers = kwargs.get('storage')
         if storage_servers and isinstance(storage_servers, dict):
@@ -467,6 +470,9 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def start(self):
+        tcp = self.config_get('connections', 'tcp')
+        if tcp and tcp.lower() == 'tor':
+            self.use_tor = True
         if os.path.isfile(self.pidfile):
             yield self.stop()
         if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
@@ -704,6 +710,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             'client': subclient
         }
         settings = self.get_settings()
+        if self.use_tor:
+            settings['hide-ip'] = True
         yield subclient.create_client(**settings)
         if join_code:
             yield subclient.command(['magic-folder', 'join', join_code, path])

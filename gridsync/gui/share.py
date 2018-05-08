@@ -40,6 +40,7 @@ class ShareWidget(QDialog):
         self.settings = {}
         self.wormhole = None
         self.pending_invites = []
+        self.use_tor = self.gateway.use_tor
 
         self.setMinimumSize(500, 300)
 
@@ -131,6 +132,13 @@ class ShareWidget(QDialog):
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.hide()
 
+        self.tor_label = QLabel()
+        self.tor_label.setToolTip(
+            "This connection is being routed through the Tor network.")
+        self.tor_label.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(32, 32))
+        self.tor_label.hide()
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximum(2)
         self.progress_bar.setTextVisible(False)
@@ -147,6 +155,8 @@ class ShareWidget(QDialog):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
         layout.addWidget(self.box_title, 3, 2, 1, 3)
         layout.addWidget(self.checkmark, 3, 3)
+        layout.addWidget(
+            self.tor_label, 4, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(self.box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addWidget(self.subtext_label, 5, 2, 1, 3)
@@ -158,6 +168,11 @@ class ShareWidget(QDialog):
         self.close_button.clicked.connect(self.close)
 
         self.set_box_title("Generating invite code...")
+
+        if self.use_tor:
+            self.tor_label.show()
+            self.progress_bar.setStyleSheet(
+                'QProgressBar::chunk { background-color: #7D4698; }')
 
         self.go()  # XXX
 
@@ -255,7 +270,7 @@ class ShareWidget(QDialog):
 
     @inlineCallbacks
     def go(self):
-        self.wormhole = Wormhole()
+        self.wormhole = Wormhole(self.use_tor)
         self.wormhole.got_code.connect(self.on_got_code)
         self.wormhole.got_introduction.connect(self.on_got_introduction)
         self.wormhole.send_completed.connect(self.on_send_completed)
@@ -305,6 +320,7 @@ class InviteReceiver(QDialog):
         self.wormhole = None
         self.setup_runner = None
         self.joined_folders = []
+        self.use_tor = False
 
         self.setMinimumSize(500, 300)
 
@@ -325,9 +341,17 @@ class InviteReceiver(QDialog):
 
         self.invite_code_widget = InviteCodeWidget(self)
         self.label = self.invite_code_widget.label
+        self.tor_checkbox = self.invite_code_widget.checkbox
+        self.tor_checkbox.stateChanged.connect(self.on_checkbox_state_changed)
         self.lineedit = self.invite_code_widget.lineedit
         self.lineedit.error.connect(self.show_error)
         self.lineedit.go.connect(self.go)
+
+        self.tor_label = QLabel()
+        self.tor_label.setToolTip(
+            "This connection is being routed through the Tor network.")
+        self.tor_label.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(32, 32))
 
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
@@ -355,12 +379,15 @@ class InviteReceiver(QDialog):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
         layout.addWidget(self.label, 2, 3, 1, 1)
+        layout.addWidget(
+            self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(self.lineedit, 3, 2, 1, 3)
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
-        layout.addWidget(self.message_label, 4, 1, 1, 5)
-        layout.addWidget(self.error_label, 4, 2, 1, 3)
-        layout.addWidget(self.close_button, 5, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addWidget(self.tor_checkbox, 4, 2, 1, 3, Qt.AlignCenter)
+        layout.addWidget(self.message_label, 5, 1, 1, 5)
+        layout.addWidget(self.error_label, 5, 2, 1, 3)
+        layout.addWidget(self.close_button, 6, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 7, 1)
 
         self.reset()
 
@@ -371,12 +398,23 @@ class InviteReceiver(QDialog):
         self.label.setText("Enter invite code:")
         self.lineedit.show()
         self.lineedit.setText('')
+        self.tor_checkbox.show()
         self.progressbar.hide()
         self.message_label.setText(
             "Invite codes can be used to join a grid or a folder")
         self.error_label.setText('')
         self.error_label.hide()
         self.close_button.hide()
+        self.tor_label.hide()
+
+    def on_checkbox_state_changed(self, state):
+        self.use_tor = bool(state)
+        logging.debug("use_tor=%s", self.use_tor)
+        if state:
+            self.progressbar.setStyleSheet(
+                'QProgressBar::chunk { background-color: #7D4698; }')
+        else:
+            self.progressbar.setStyleSheet('')
 
     def show_error(self, text):
         self.error_label.setText(text)
@@ -427,7 +465,7 @@ class InviteReceiver(QDialog):
     def got_message(self, message):
         self.update_progress("Reading invitation...")  # 3
         message = validate_settings(message, self.gateways, self)
-        self.setup_runner = SetupRunner(self.gateways)
+        self.setup_runner = SetupRunner(self.gateways, self.use_tor)
         if not message.get('magic-folders'):
             self.setup_runner.grid_already_joined.connect(
                 self.on_grid_already_joined)
@@ -450,14 +488,17 @@ class InviteReceiver(QDialog):
         self.reset()
         self.label.setText(' ')
         self.lineedit.hide()
+        self.tor_checkbox.hide()
         self.progressbar.show()
+        if self.use_tor:
+            self.tor_label.show()
         self.update_progress("Verifying invitation...")  # 1
         if code.split('-')[0] == "0":
             settings = get_settings_from_cheatcode(code[2:])
             if settings:
                 self.got_message(settings)
                 return
-        self.wormhole = Wormhole()
+        self.wormhole = Wormhole(self.use_tor)
         self.wormhole.got_welcome.connect(self.got_welcome)
         self.wormhole.got_message.connect(self.got_message)
         d = self.wormhole.receive(code)

@@ -10,12 +10,14 @@ from binascii import Error
 from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import QInputDialog
 import treq
+from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
+from gridsync.tor import get_tor, TorError
 
 
 def prompt_for_grid_name(grid_name, parent=None):
@@ -109,9 +111,10 @@ class SetupRunner(QObject):
     got_icon = pyqtSignal(str)
     done = pyqtSignal(object)
 
-    def __init__(self, known_gateways):
+    def __init__(self, known_gateways, use_tor=False):
         super(SetupRunner, self).__init__()
         self.known_gateways = known_gateways
+        self.use_tor = use_tor
         self.gateway = None
 
     def get_gateway(self, introducer, servers):
@@ -146,7 +149,13 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def fetch_icon(self, url, dest):
-        resp = yield treq.get(url)
+        agent = None
+        if self.use_tor:
+            tor = yield get_tor(reactor)
+            if not tor:
+                raise TorError("Could not connect to a running Tor daemon")
+            agent = tor.web_agent()
+        resp = yield treq.get(url, agent=agent)
         if resp.code == 200:
             content = yield treq.content(resp)
             log.debug("Received %i bytes", len(content))
@@ -159,7 +168,12 @@ class SetupRunner(QObject):
     @inlineCallbacks  # noqa: max-complexity=13 XXX
     def join_grid(self, settings):
         nickname = settings['nickname']
-        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        if self.use_tor:
+            msg = "Connecting to {} via Tor...".format(nickname)
+        else:
+            msg = "Connecting to {}...".format(nickname)
+        self.update_progress.emit(msg)
+
         icon_path = None
         if nickname == 'Least Authority S4':
             icon_path = resource('leastauthority.com.icon')
@@ -204,10 +218,10 @@ class SetupRunner(QObject):
             except OSError as err:
                 log.warning("Error writing icon url to file: %s", str(err))
 
-        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        self.update_progress.emit(msg)
         yield self.gateway.start()
 
-        self.update_progress.emit('Connecting to {}...'.format(nickname))
+        self.update_progress.emit(msg)
         yield self.gateway.await_ready()
 
     @inlineCallbacks
@@ -256,6 +270,9 @@ class SetupRunner(QObject):
     def run(self, settings):
         if 'version' in settings and int(settings['version']) > 1:
             raise UpgradeRequiredError
+
+        if self.use_tor:
+            settings['hide-ip'] = True
 
         self.gateway = self.get_gateway(
             settings.get('introducer'), settings.get('storage')

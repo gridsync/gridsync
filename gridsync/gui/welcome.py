@@ -119,6 +119,13 @@ class ProgressBarWidget(QWidget):
         self.checkmark.setPixmap(pixmap)
         self.checkmark.setAlignment(Qt.AlignCenter)
 
+        self.tor_label = QLabel()
+        self.tor_label.setToolTip(
+            "This connection is being routed through the Tor network.")
+        self.tor_label.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(24, 24))
+        self.tor_label.hide()
+
         self.progressbar = QProgressBar()
         self.progressbar.setMaximum(10)
         self.progressbar.setTextVisible(False)
@@ -146,6 +153,7 @@ class ProgressBarWidget(QWidget):
         layout.addWidget(self.icon_connection, 2, 3)
         layout.addWidget(self.icon_client, 3, 3)
         layout.addWidget(self.checkmark, 4, 3, 1, 1)
+        layout.addWidget(self.tor_label, 5, 1, 1, 1, Qt.AlignRight)
         layout.addWidget(self.progressbar, 5, 2, 1, 3)
         layout.addWidget(self.message, 6, 3)
         layout.addWidget(self.finish_button, 6, 3)
@@ -185,6 +193,7 @@ class WelcomeDialog(QStackedWidget):
         self.known_gateways = known_gateways
         self.gateway = None
         self.setup_runner = None
+        self.use_tor = False
         self.resize(400, 500)
         self.setWindowTitle(APP_NAME)
         self.page_1 = WelcomeWidget(self)
@@ -198,6 +207,7 @@ class WelcomeDialog(QStackedWidget):
         self.addWidget(self.page_4)
 
         self.lineedit = self.page_1.lineedit
+        self.checkbox = self.page_1.invite_code_widget.checkbox
         self.cancel_button = self.page_2.cancel_button
         self.finish_button = self.page_2.finish_button
         self.buttonbox = self.page_3.buttonbox
@@ -212,6 +222,7 @@ class WelcomeDialog(QStackedWidget):
 
         self.lineedit.go.connect(self.go)
         self.lineedit.error.connect(self.show_error)
+        self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
         self.cancel_button.clicked.connect(self.cancel_button_clicked)
         self.finish_button.clicked.connect(self.finish_button_clicked)
         self.buttonbox.accepted.connect(self.on_accepted)
@@ -219,6 +230,17 @@ class WelcomeDialog(QStackedWidget):
         self.help.linkActivated.connect(self.on_link_activated)
         self.preferences_button.clicked.connect(self.on_preferences_button_clicked)
         self.page_4.accepted.connect(self.on_preferences_accepted)
+
+    def on_checkbox_state_changed(self, state):
+        self.use_tor = bool(state)
+        log.debug("use_tor=%s", self.use_tor)
+        if state:
+            self.page_2.tor_label.show()
+            self.page_2.progressbar.setStyleSheet(
+                'QProgressBar::chunk { background-color: #7D4698; }')
+        else:
+            self.page_2.tor_label.hide()
+            self.page_2.progressbar.setStyleSheet('')
 
     def on_link_activated(self):
         self.setCurrentIndex(2)
@@ -283,7 +305,7 @@ class WelcomeDialog(QStackedWidget):
     def verify_settings(self, settings, from_wormhole=True):
         settings = validate_settings(
             settings, self.known_gateways, self, from_wormhole)
-        self.setup_runner = SetupRunner(self.known_gateways)
+        self.setup_runner = SetupRunner(self.known_gateways, self.use_tor)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.page_2.progressbar.setMaximum(steps)
         self.setup_runner.grid_already_joined.connect(self.on_already_joined)
@@ -302,7 +324,7 @@ class WelcomeDialog(QStackedWidget):
             if settings:
                 self.verify_settings(settings)
                 return
-        d = wormhole_receive(code)
+        d = wormhole_receive(code, self.use_tor)
         d.addCallback(self.verify_settings)
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)

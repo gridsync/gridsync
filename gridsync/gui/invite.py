@@ -8,7 +8,8 @@ from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
     QMessageBox, QSizePolicy, QSpacerItem, QWidget)
-from twisted.internet.defer import CancelledError
+from twisted.internet import reactor
+from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WrongPasswordError)
 try:
@@ -19,6 +20,7 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API
 from gridsync import pkgdir, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
+from gridsync.tor import get_tor
 
 
 cheatcodes = []
@@ -94,9 +96,17 @@ class InviteCodeLineEdit(QLineEdit):
         self.setCompleter(completer)
         self.setAlignment(Qt.AlignCenter)
         #self.setPlaceholderText("Enter invite code")
-        self.action_button = QAction(QIcon(), '', self)
+
+        self.blank_icon = QIcon()
+        self.paste_icon = QIcon(resource('paste.png'))
+        self.clear_icon = QIcon(resource('close.png'))
+        self.go_icon = QIcon(resource('arrow-right.png'))
+        self.tor_icon = QIcon(resource('tor-onion.png'))
+
+        self.status_action = QAction(self.blank_icon, '', self)
+        self.addAction(self.status_action, 0)
+        self.action_button = QAction(self.blank_icon, '', self)
         self.addAction(self.action_button, 1)
-        self.addAction(QAction(QIcon(), '', self), 0)  # for symmetry
 
         completer.highlighted.connect(self.update_action_button)
         self.textChanged.connect(self.update_action_button)
@@ -112,13 +122,13 @@ class InviteCodeLineEdit(QLineEdit):
             self.action_button.setToolTip('')
             for mode in get_clipboard_modes():
                 if is_valid(get_clipboard_text(mode)):
-                    self.action_button.setIcon(QIcon(resource('paste.png')))
+                    self.action_button.setIcon(self.paste_icon)
                     self.action_button.setToolTip("Paste")
         elif is_valid(text):
-            self.action_button.setIcon(QIcon(resource('arrow-right.png')))
+            self.action_button.setIcon(self.go_icon)
             self.action_button.setToolTip("Go")
         else:
-            self.action_button.setIcon(QIcon(resource('close.png')))
+            self.action_button.setIcon(self.clear_icon)
             self.action_button.setToolTip("Clear")
 
     def keyPressEvent(self, event):
@@ -170,8 +180,8 @@ class InviteCodeWidget(QWidget):
         self.lineedit = InviteCodeLineEdit(self)
 
         self.checkbox = QCheckBox("Connect over the Tor network")
-        self.checkbox.setEnabled(True)
-        self.checkbox.setCheckable(False)
+        self.checkbox.setEnabled(False)
+        #self.checkbox.setCheckable(False)
         self.checkbox.setStyleSheet("color: grey")
         self.checkbox.setFocusPolicy(Qt.NoFocus)
 
@@ -179,8 +189,42 @@ class InviteCodeWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
         layout.addWidget(self.label, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
-        #layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
+        layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
+
+        self.checkbox.stateChanged.connect(self.toggle_tor_status)
+
+        self.maybe_enable_tor_checkbox()
+
+    @inlineCallbacks
+    def maybe_enable_tor_checkbox(self):
+        tor = yield get_tor(reactor)
+        if tor:
+            self.checkbox.setEnabled(True)
+
+    def toggle_tor_status(self, state):
+        if state:
+            self.lineedit.status_action.setIcon(self.lineedit.tor_icon)
+            self.lineedit.status_action.setToolTip(
+                "Tor: Enabled\n\n"
+                "This connection will be routed through the Tor network.")
+            # https://styleguide.torproject.org/visuals/
+            self.lineedit.setStyleSheet(
+                "border-width: 1px;"
+                "border-style: solid;"
+                "border-color: #59316B;"
+                "border-radius: 2px;"
+                "padding: 2px;"
+                "color: #59316B;")
+            self.label.setStyleSheet("color: #7D4698;")
+            self.checkbox.setStyleSheet("color: #7D4698;")
+
+        else:
+            self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
+            self.lineedit.status_action.setToolTip("")
+            self.lineedit.setStyleSheet("")
+            self.label.setStyleSheet("color: grey")
+            self.checkbox.setStyleSheet("color: grey")
 
 
 def show_failure(failure, parent=None):

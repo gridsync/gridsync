@@ -65,12 +65,16 @@ class Model(QStandardItemModel):
     @pyqtSlot(int, int)
     def on_nodes_updated(self, num_connected, num_happy):
         if num_connected < num_happy:
-            self.grid_status = "Connecting ({}/{} nodes)...".format(
-                num_connected, num_happy)
+            self.grid_status = "Connecting ({}/{} nodes){}".format(
+                num_connected,
+                num_happy,
+                (" via Tor..." if self.gateway.use_tor else "...")
+            )
         elif num_connected >= num_happy:
-            self.grid_status = "Connected to {} {}; {} available".format(
+            self.grid_status = "Connected to {} {}{} {} available".format(
                 num_connected,
                 'storage ' + ('node' if num_connected == 1 else 'nodes'),
+                (" via Tor;" if self.gateway.use_tor else ";"),
                 naturalsize(self.available_space)
             )
         self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
