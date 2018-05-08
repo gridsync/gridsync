@@ -101,7 +101,7 @@ class View(QTreeView):
         self.drop_icon.installEventFilter(self)
 
         self.drop_text = QLabel(self)
-        self.drop_text.setText("Drop folders here")
+        self.drop_text.setText("Drag and drop folders here")
         drop_text_font = QFont()
         drop_text_font.setPointSize(14)
         self.drop_text.setFont(drop_text_font)
@@ -112,7 +112,8 @@ class View(QTreeView):
         self.drop_text.setSizePolicy(QSizePolicy.Expanding, 0)
 
         self.drop_subtext = QLabel(self)
-        self.drop_subtext.setText("Added folders will sync automatically")
+        self.drop_subtext.setText(
+            "Added folders will sync with {}".format(self.gateway.name))
         self.drop_subtext.setStyleSheet('color: grey')
         self.drop_subtext.setAlignment(Qt.AlignCenter)
         self.drop_subtext.setAcceptDrops(True)
