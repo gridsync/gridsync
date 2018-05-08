@@ -95,7 +95,7 @@ class Model(QStandardItemModel):
     def on_updated_files(self, folder_name, files_list):
         if get_preference('notifications', 'folder') != 'false':
             self.gui.show_message(
-                folder_name + " updated and encrypted",
+                folder_name + " folder updated",
                 "Updated " + humanized_list(files_list))
 
     def data(self, index, role):
