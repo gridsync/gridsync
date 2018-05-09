@@ -26,8 +26,7 @@ import yaml
 
 from gridsync import pkgdir
 from gridsync.config import Config
-from gridsync.errors import (
-    NodedirExistsError, TahoeError, TahoeCommandError, TahoeWebError)
+from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.preferences import set_preference, get_preference
 from gridsync.util import dehumanized_size
 
@@ -337,7 +336,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def create_client(self, **kwargs):
         if os.path.exists(self.nodedir):
-            raise NodedirExistsError
+            raise FileExistsError(
+                "Nodedir already exists: {}".format(self.nodedir))
         args = ['create-client', '--webport=tcp:0:interface=127.0.0.1']
         for key, value in kwargs.items():
             if key in ('nickname', 'introducer', 'shares-needed',

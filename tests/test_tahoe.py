@@ -10,8 +10,7 @@ import pytest
 from twisted.internet.defer import returnValue
 import yaml
 
-from gridsync.errors import (
-    NodedirExistsError, TahoeError, TahoeCommandError, TahoeWebError)
+from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.tahoe import is_valid_furl, get_nodedirs, Tahoe
 
 
@@ -278,7 +277,7 @@ def test_tahoe_get_features_no_magic_folder_support(tahoe, monkeypatch):
 
 @pytest.inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
-    with pytest.raises(NodedirExistsError):
+    with pytest.raises(FileExistsError):
         yield tahoe.create_client()
 
 
@@ -321,7 +320,7 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     nodedir = str(tmpdir.mkdir('TestGrid'))
     os.makedirs(os.path.join(nodedir, 'private'))
     monkeypatch.setattr(
-        'os.path.exists', lambda _: False)  # suppress NodedirExistsError
+        'os.path.exists', lambda _: False)  # suppress FileExistsError
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: None)
     client = Tahoe(nodedir)
     storage_servers = {
