@@ -683,7 +683,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def _create_magic_folder_subclient(self, path, join_code=None,
-                                       admin_dircap=None):
+                                       admin_dircap=None, poll_interval=60):
+        poll_interval = str(poll_interval)
         # Because Tahoe-LAFS doesn't (yet) support having multiple
         # magic-folders per tahoe client, create the magic-folder inside
         # a new nodedir using the current nodedir's connection settings.
@@ -705,14 +706,16 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
             settings['hide-ip'] = True
         yield subclient.create_client(**settings)
         if join_code:
-            yield subclient.command(['magic-folder', 'join', join_code, path])
+            yield subclient.command(['magic-folder', 'join', '-p',
+                                     poll_interval, join_code, path])
             if admin_dircap:
                 subclient.add_alias('magic', admin_dircap)
         else:
             yield subclient.start()
             yield subclient.await_ready()
             yield subclient.command(
-                ['magic-folder', 'create', 'magic:', 'admin', path])
+                ['magic-folder', 'create', '-p', poll_interval, 'magic:',
+                 'admin', path])
             yield subclient.stop()
         yield subclient.start()
         yield subclient.await_ready()
@@ -720,8 +723,10 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         returnValue(subclient)
 
     @inlineCallbacks
-    def create_magic_folder(self, path, join_code=None, admin_dircap=None):
+    def create_magic_folder(self, path, join_code=None, admin_dircap=None,
+                            poll_interval=60):
         path = os.path.realpath(os.path.expanduser(path))
+        poll_interval = str(poll_interval)
         try:
             os.makedirs(path)
         except OSError:
@@ -730,17 +735,17 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         alias = hashlib.sha256(name.encode()).hexdigest() + ':'
         if not self.multi_folder_support:
             yield self._create_magic_folder_subclient(
-                path, join_code, admin_dircap)
+                path, join_code, admin_dircap, poll_interval)
             return
         if join_code:
-            yield self.command(['magic-folder', 'join', '-n', name, join_code,
-                                path])
+            yield self.command(['magic-folder', 'join', '-p', poll_interval,
+                                '-n', name, join_code, path])
             if admin_dircap:
                 self.add_alias(alias, admin_dircap)
         else:
             yield self.await_ready()
-            yield self.command(['magic-folder', 'create', '-n', name, alias,
-                                'admin', path])
+            yield self.command(['magic-folder', 'create', '-p', poll_interval,
+                                '-n', name, alias, 'admin', path])
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
 
