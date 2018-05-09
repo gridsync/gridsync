@@ -10,10 +10,9 @@ import pytest
 from twisted.internet.defer import returnValue
 import yaml
 
-from gridsync.errors import NodedirExistsError
-from gridsync.tahoe import (
-    is_valid_furl, get_nodedirs, TahoeError, TahoeCommandError, TahoeWebError,
-    Tahoe)
+from gridsync.errors import (
+    NodedirExistsError, TahoeError, TahoeCommandError, TahoeWebError)
+from gridsync.tahoe import is_valid_furl, get_nodedirs, Tahoe
 
 
 def fake_get(*args, **kwargs):

@@ -11,3 +11,19 @@ class NodedirExistsError(GridsyncError):
 
 class UpgradeRequiredError(GridsyncError):
     pass
+
+
+class TahoeError(GridsyncError):
+    pass
+
+
+class TahoeCommandError(TahoeError):
+    pass
+
+
+class TahoeWebError(TahoeError):
+    pass
+
+
+class TorError(GridsyncError):
+    pass

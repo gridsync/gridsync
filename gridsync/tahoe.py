@@ -26,7 +26,8 @@ import yaml
 
 from gridsync import pkgdir
 from gridsync.config import Config
-from gridsync.errors import NodedirExistsError
+from gridsync.errors import (
+    NodedirExistsError, TahoeError, TahoeCommandError, TahoeWebError)
 from gridsync.preferences import set_preference, get_preference
 from gridsync.util import dehumanized_size
 
@@ -47,18 +48,6 @@ def get_nodedirs(basedir):
     except OSError:
         pass
     return sorted(nodedirs)
-
-
-class TahoeError(Exception):
-    pass
-
-
-class TahoeCommandError(TahoeError):
-    pass
-
-
-class TahoeWebError(TahoeError):
-    pass
 
 
 class CommandProtocol(ProcessProtocol):

@@ -5,8 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 from wormhole.errors import WormholeError
 
-from gridsync.errors import UpgradeRequiredError
-from gridsync.tor import TorError
+from gridsync.errors import UpgradeRequiredError, TorError
 from gridsync.wormhole import Wormhole, wormhole_receive, wormhole_send
 
 

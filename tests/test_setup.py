@@ -8,12 +8,11 @@ import pytest
 import yaml
 
 from gridsync import resource
-from gridsync.errors import UpgradeRequiredError
+from gridsync.errors import UpgradeRequiredError, TorError
 from gridsync.setup import (
     prompt_for_grid_name, validate_grid, prompt_for_folder_name,
     validate_folders, validate_settings, SetupRunner)
 from gridsync.tahoe import Tahoe
-from gridsync.tor import TorError
 
 
 def test_prompt_for_grid_name(monkeypatch):

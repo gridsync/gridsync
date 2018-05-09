@@ -15,9 +15,9 @@ from twisted.internet.defer import inlineCallbacks
 
 from gridsync import config_dir, resource, APP_NAME
 from gridsync.config import Config
-from gridsync.errors import UpgradeRequiredError
+from gridsync.errors import UpgradeRequiredError, TorError
 from gridsync.tahoe import Tahoe, select_executable
-from gridsync.tor import get_tor, TorError
+from gridsync.tor import get_tor
 
 
 def prompt_for_grid_name(grid_name, parent=None):

@@ -11,8 +11,7 @@ from wormhole.errors import WormholeError
 from wormhole.tor_manager import get_tor
 
 from gridsync import settings
-from gridsync.errors import UpgradeRequiredError
-from gridsync.tor import TorError
+from gridsync.errors import UpgradeRequiredError, TorError
 
 
 APPID = settings['wormhole']['appid']

@@ -16,10 +16,6 @@ TOR_DARK_GREY = '#484848'
 TOR_WHITE = '#FFFFFF'
 
 
-class TorError(Exception):
-    pass
-
-
 @inlineCallbacks
 def get_tor(reactor):  # TODO: Add launch option?
     tor = None
