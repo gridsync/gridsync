@@ -201,6 +201,10 @@ class InviteCodeWidget(QWidget):
         tor = yield get_tor(reactor)
         if tor:
             self.checkbox.setEnabled(True)
+            # From https://styleguide.torproject.org/visuals/
+            # "The main Tor Project color is Purple [#7D4698].
+            # Use Dark Purple [#59316B] as a secondary option."
+            self.checkbox.setStyleSheet("color: #7D4698;")
 
     def toggle_tor_status(self, state):
         if state:
@@ -208,7 +212,6 @@ class InviteCodeWidget(QWidget):
             self.lineedit.status_action.setToolTip(
                 "Tor: Enabled\n\n"
                 "This connection will be routed through the Tor network.")
-            # https://styleguide.torproject.org/visuals/
             self.lineedit.setStyleSheet(
                 "border-width: 1px;"
                 "border-style: solid;"
@@ -216,15 +219,10 @@ class InviteCodeWidget(QWidget):
                 "border-radius: 2px;"
                 "padding: 2px;"
                 "color: #59316B;")
-            self.label.setStyleSheet("color: #7D4698;")
-            self.checkbox.setStyleSheet("color: #7D4698;")
-
         else:
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")
             self.lineedit.setStyleSheet("")
-            self.label.setStyleSheet("color: grey")
-            self.checkbox.setStyleSheet("color: grey")
 
 
 def show_failure(failure, parent=None):
