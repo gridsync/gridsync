@@ -20,7 +20,7 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API
 from gridsync import pkgdir, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
-from gridsync.tor import get_tor
+from gridsync.tor import TOR_PURPLE, TOR_DARK_PURPLE, get_tor
 
 
 cheatcodes = []
@@ -201,10 +201,7 @@ class InviteCodeWidget(QWidget):
         tor = yield get_tor(reactor)
         if tor:
             self.checkbox.setEnabled(True)
-            # From https://styleguide.torproject.org/visuals/
-            # "The main Tor Project color is Purple [#7D4698].
-            # Use Dark Purple [#59316B] as a secondary option."
-            self.checkbox.setStyleSheet("color: #7D4698;")
+            self.checkbox.setStyleSheet("color: {};".format(TOR_PURPLE))
 
     def toggle_tor_status(self, state):
         if state:
@@ -215,10 +212,10 @@ class InviteCodeWidget(QWidget):
             self.lineedit.setStyleSheet(
                 "border-width: 1px;"
                 "border-style: solid;"
-                "border-color: #59316B;"
+                "border-color: {};"
                 "border-radius: 2px;"
                 "padding: 2px;"
-                "color: #59316B;")
+                "color: {};".format(TOR_DARK_PURPLE, TOR_DARK_PURPLE))
         else:
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")

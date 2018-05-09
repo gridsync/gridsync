@@ -23,6 +23,7 @@ from gridsync.msg import error
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import TahoeError
+from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
 from gridsync.wormhole import Wormhole
 
@@ -172,7 +173,8 @@ class ShareWidget(QDialog):
         if self.use_tor:
             self.tor_label.show()
             self.progress_bar.setStyleSheet(
-                'QProgressBar::chunk { background-color: #7D4698; }')
+                'QProgressBar::chunk {{ background-color: {}; }}'.format(
+                    TOR_PURPLE))
 
         self.go()  # XXX
 
@@ -412,7 +414,8 @@ class InviteReceiver(QDialog):
         logging.debug("use_tor=%s", self.use_tor)
         if state:
             self.progressbar.setStyleSheet(
-                'QProgressBar::chunk { background-color: #7D4698; }')
+                'QProgressBar::chunk {{ background-color: {}; }}'.format(
+                    TOR_PURPLE))
         else:
             self.progressbar.setStyleSheet('')
 
