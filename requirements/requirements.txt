@@ -30,7 +30,7 @@ service_identity==17.0.0
 SIP==4.19.8
 six==1.11.0
 spake2==0.8
-tqdm==4.23.2
+tqdm==4.23.3
 treq==17.8.0
 Twisted==18.4.0
 txaio==2.10.0
