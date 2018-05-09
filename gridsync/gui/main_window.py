@@ -304,6 +304,8 @@ class MainWindow(QMainWindow):
 
     def export_encrypted_recovery(self, gateway, password):
         settings = gateway.get_settings(include_rootcap=True)
+        if gateway.use_tor:
+            settings['hide-ip'] = True
         data = json.dumps(settings)
         self.progress = QProgressDialog("Encrypting...", None, 0, 100)
         self.progress.show()

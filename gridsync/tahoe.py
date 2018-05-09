@@ -148,6 +148,8 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def export(self, dest, include_rootcap=False):
         log.debug("Exporting settings to '%s'...", dest)
         settings = self.get_settings(include_rootcap)
+        if self.use_tor:
+            settings['hide-ip'] = True
         with open(dest, 'w') as f:
             f.write(json.dumps(settings))
         log.debug("Exported settings to '%s'", dest)
