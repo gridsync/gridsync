@@ -336,6 +336,8 @@ class WelcomeDialog(QStackedWidget):
         d.addErrback(self.handle_failure)
 
     def on_import_done(self, settings):
+        if settings.get('hide-ip'):
+            self.on_checkbox_state_changed(1)  # Toggle Tor checkbox "on"
         self.setCurrentIndex(1)
         self.page_2.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
