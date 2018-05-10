@@ -218,7 +218,7 @@ frozen-tahoe:
 		;; \
 		*) \
 			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
-			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout 05edde9a64986375d4c8d97ae8caa16cba3f2cb8 \
+			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout c219102afc69c46da10c6f24b1aa8fff0a2e9205 \
 		;; \
 	esac
 	virtualenv --clear --python=python2 build/venv-tahoe
