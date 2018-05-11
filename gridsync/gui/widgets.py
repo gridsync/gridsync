@@ -160,7 +160,7 @@ class TahoeConfigForm(QWidget):
         encoding_parameters_gbox_layout = QGridLayout(encoding_parameters_gbox)
         encoding_parameters_gbox_layout.addWidget(self.encoding_parameters)
 
-        restore_selector_gbox = QGroupBox(self)
+        restore_selector_gbox = QGroupBox()
         restore_selector_gbox.setTitle("Import from Recovery Key:")
         restore_selector_gbox_layout = QGridLayout(restore_selector_gbox)
         restore_selector_gbox_layout.addWidget(self.restore_selector)
@@ -172,7 +172,7 @@ class TahoeConfigForm(QWidget):
         layout.addWidget(connection_settings_gbox)
         layout.addWidget(encoding_parameters_gbox)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
-        layout.addWidget(restore_selector_gbox)
+        #layout.addWidget(restore_selector_gbox)  # TODO: Remove related code
         layout.addWidget(self.buttonbox)
 
     def set_name(self, name):
