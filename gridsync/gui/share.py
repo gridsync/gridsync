@@ -79,7 +79,7 @@ class ShareWidget(QDialog):
         self.subtext_label = QLabel(self)
         font = QFont()
         if sys.platform == 'darwin':
-            font.setPointSize(14)
+            font.setPointSize(13)
         else:
             font.setPointSize(10)
         self.subtext_label.setFont(font)
