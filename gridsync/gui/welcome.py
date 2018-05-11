@@ -351,7 +351,7 @@ class WelcomeDialog(QStackedWidget):
         self.setCurrentIndex(1)
         self.page_2.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
-        self.verify_settings(settings)
+        self.verify_settings(settings, from_wormhole=False)
 
     def on_restore_link_activated(self):
         self.recovery_key_importer = RecoveryKeyImporter(self.page_1)
