@@ -21,6 +21,7 @@
 - `tahoe.select_executable()` will now use an empty nodedir when checking tahoe instances for multi-magic-folder support (preventing potential inaccuracies caused, e.g., by a pre-existing/misconfigured `$HOME/.tahoe` nodedir)
 - Tahoe subclients created from older versions of Tahoe-LAFS that only support "legacy" magic-folders will now correctly inherit the parent client's `servers.yaml` settings upon creation.
 - The "Open Gridsync" systray menu action will correctly remain disabled until at least one grid has been succesfully joined
+- Users will no longer be prompted to export a Recovery Key after restoring a connection from one
 
 ## 0.3.2 - 2018-04-17
 ### Added
