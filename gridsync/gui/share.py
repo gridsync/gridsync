@@ -257,7 +257,7 @@ class ShareWidget(QDialog):
             for view in self.gui.main_window.central_widget.views:
                 if view.gateway.name == self.gateway.name:
                     for folder in self.folder_names:
-                        view.model()._set_status_shared(folder)
+                        view.model().set_status_shared(folder)
 
     def handle_failure(self, failure):
         if failure.type == wormhole.errors.LonelyError:

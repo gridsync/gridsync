@@ -140,7 +140,7 @@ class Model(QStandardItemModel):
                 pixmap = CompositePixmap(folder_pixmap)
             items[0].setIcon(QIcon(pixmap))
 
-    def _set_status_private(self, folder_name):
+    def set_status_private(self, folder_name):
         folder_path = self.gateway.get_magic_folder_directory(folder_name)
         self.update_folder_icon(
             folder_name,
@@ -152,7 +152,7 @@ class Model(QStandardItemModel):
                 "{}\n\nThis folder is private; only you can view and\nmodify "
                 "its contents.".format(folder_path))
 
-    def _set_status_shared(self, folder_name):
+    def set_status_shared(self, folder_name):
         folder_path = self.gateway.get_magic_folder_directory(folder_name)
         self.update_folder_icon(
             folder_name,
@@ -167,9 +167,9 @@ class Model(QStandardItemModel):
     def update_overlay(self, folder_name):
         members = self.members_dict.get(folder_name)
         if members and members > 1:
-            self._set_status_shared(folder_name)
+            self.set_status_shared(folder_name)
         else:
-            self._set_status_private(folder_name)
+            self.set_status_private(folder_name)
 
     @pyqtSlot(str, object)
     def set_data(self, folder_name, data):
