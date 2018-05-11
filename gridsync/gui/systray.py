@@ -51,6 +51,8 @@ class Menu(QMenu):
             export_action.triggered.connect(
                 self.gui.main_window.export_recovery_key)
             self.addAction(export_action)
+        else:
+            open_action.setEnabled(False)
 
         documentation_action = QAction(
             QIcon(''), "Browse Documentation...", self)
