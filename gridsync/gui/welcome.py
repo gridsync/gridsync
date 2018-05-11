@@ -219,6 +219,7 @@ class WelcomeDialog(QStackedWidget):
         self.setup_runner = None
         self.recovery_key_importer = None
         self.use_tor = False
+        self.prompt_to_export = True
         self.resize(400, 500)
         self.setWindowTitle(APP_NAME)
         self.page_1 = WelcomeWidget(self)
@@ -351,6 +352,7 @@ class WelcomeDialog(QStackedWidget):
         self.setCurrentIndex(1)
         self.page_2.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
+        self.prompt_to_export = False
         self.verify_settings(settings, from_wormhole=False)
 
     def on_restore_link_activated(self):
@@ -440,7 +442,8 @@ class WelcomeDialog(QStackedWidget):
     def finish_button_clicked(self):
         self.gui.show()
         self.close()
-        self.prompt_for_export(self.gateway)
+        if self.prompt_to_export:
+            self.prompt_for_export(self.gateway)
         self.reset()
 
     def closeEvent(self, event):
