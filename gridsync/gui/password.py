@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import sys
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
@@ -17,13 +19,19 @@ class PasswordDialog(QDialog):
 
         self.label = QLabel("Password:")
         font = QFont()
-        font.setPointSize(14)
+        if sys.platform == 'darwin':
+            font.setPointSize(18)
+        else:
+            font.setPointSize(14)
         self.label.setFont(font)
         self.label.setStyleSheet('color: gray')
 
         self.lineedit = QLineEdit(self)
         font = QFont()
-        font.setPointSize(14)
+        if sys.platform == 'darwin':
+            font.setPointSize(18)
+        else:
+            font.setPointSize(14)
         self.lineedit.setFont(font)
         self.lineedit.setEchoMode(QLineEdit.Password)
         self.action = QAction(QIcon(resource('eye.png')), "Toggle visibility")

@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 
 from PyQt5.QtCore import pyqtSignal, QStringListModel, Qt
 from PyQt5.QtGui import QFont, QIcon
@@ -91,7 +92,10 @@ class InviteCodeLineEdit(QLineEdit):
         completer = InviteCodeCompleter()
         completer.setModel(model)
         font = QFont()
-        font.setPointSize(16)
+        if sys.platform == 'darwin':
+            font.setPointSize(20)
+        else:
+            font.setPointSize(16)
         self.setFont(font)
         self.setCompleter(completer)
         self.setAlignment(Qt.AlignCenter)
@@ -172,7 +176,10 @@ class InviteCodeWidget(QWidget):
 
         self.label = QLabel("Enter invite code:")
         font = QFont()
-        font.setPointSize(14)
+        if sys.platform == 'darwin':
+            font.setPointSize(18)
+        else:
+            font.setPointSize(14)
         self.label.setFont(font)
         self.label.setStyleSheet("color: grey")
         self.label.setAlignment(Qt.AlignCenter)

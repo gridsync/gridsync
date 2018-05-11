@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging as log
+import sys
 
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
@@ -36,7 +37,10 @@ class WelcomeWidget(QWidget):
 
         self.slogan = QLabel("<i>Secure, distributed storage</i>")
         font = QFont()
-        font.setPointSize(12)
+        if sys.platform == 'darwin':
+            font.setPointSize(16)
+        else:
+            font.setPointSize(12)
         self.slogan.setFont(font)
         self.slogan.setStyleSheet("color: grey")
         self.slogan.setAlignment(Qt.AlignCenter)
@@ -52,14 +56,20 @@ class WelcomeWidget(QWidget):
         self.restore_link = QLabel()
         self.restore_link.setText("<a href>Restore from Recovery Key...</a>")
         font = QFont()
-        font.setPointSize(9)
+        if sys.platform == 'darwin':
+            font.setPointSize(12)
+        else:
+            font.setPointSize(9)
         self.restore_link.setFont(font)
         self.restore_link.setAlignment(Qt.AlignCenter)
 
         self.configure_link = QLabel()
         self.configure_link.setText("<a href>Manual configuration...</a>")
         font = QFont()
-        font.setPointSize(9)
+        if sys.platform == 'darwin':
+            font.setPointSize(12)
+        else:
+            font.setPointSize(9)
         self.configure_link.setFont(font)
         self.configure_link.setAlignment(Qt.AlignCenter)
 

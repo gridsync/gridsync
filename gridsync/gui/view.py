@@ -2,6 +2,7 @@
 
 import logging
 import os
+import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QMovie, QPixmap
@@ -102,9 +103,12 @@ class View(QTreeView):
 
         self.drop_text = QLabel(self)
         self.drop_text.setText("Drag and drop folders here")
-        drop_text_font = QFont()
-        drop_text_font.setPointSize(14)
-        self.drop_text.setFont(drop_text_font)
+        font = QFont()
+        if sys.platform == 'darwin':
+            font.setPointSize(18)
+        else:
+            font.setPointSize(14)
+        self.drop_text.setFont(font)
         self.drop_text.setStyleSheet('color: grey')
         self.drop_text.setAlignment(Qt.AlignCenter)
         self.drop_text.setAcceptDrops(True)

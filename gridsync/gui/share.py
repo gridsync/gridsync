@@ -61,7 +61,10 @@ class ShareWidget(QDialog):
         else:
             header_text.setText(self.gateway.name)
         font = QFont()
-        font.setPointSize(18)
+        if sys.platform == 'darwin':
+            font.setPointSize(22)
+        else:
+            font.setPointSize(18)
         header_text.setFont(font)
         header_text.setAlignment(Qt.AlignCenter)
 
@@ -75,7 +78,10 @@ class ShareWidget(QDialog):
 
         self.subtext_label = QLabel(self)
         font = QFont()
-        font.setPointSize(10)
+        if sys.platform == 'darwin':
+            font.setPointSize(14)
+        else:
+            font.setPointSize(10)
         self.subtext_label.setFont(font)
         self.subtext_label.setStyleSheet("color: grey")
         self.subtext_label.setWordWrap(True)
@@ -83,7 +89,10 @@ class ShareWidget(QDialog):
 
         self.noise_label = QLabel()
         font = QFont()
-        font.setPointSize(16)
+        if sys.platform == 'darwin':
+            font.setPointSize(20)
+        else:
+            font.setPointSize(16)
         font.setFamily("Courier")
         font.setStyleHint(QFont.Monospace)
         self.noise_label.setFont(font)
@@ -96,7 +105,10 @@ class ShareWidget(QDialog):
 
         self.code_label = QLabel()
         font = QFont()
-        font.setPointSize(18)
+        if sys.platform == 'darwin':
+            font.setPointSize(22)
+        else:
+            font.setPointSize(18)
         self.code_label.setFont(font)
         self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.code_label.hide()
@@ -104,7 +116,10 @@ class ShareWidget(QDialog):
         self.box_title = QLabel(self)
         self.box_title.setAlignment(Qt.AlignCenter)
         font = QFont()
-        font.setPointSize(16)
+        if sys.platform == 'darwin':
+            font.setPointSize(20)
+        else:
+            font.setPointSize(16)
         self.box_title.setFont(font)
 
         self.box = QGroupBox()
