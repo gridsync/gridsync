@@ -156,11 +156,30 @@ class MainWindow(QMainWindow):
         pair_action.setStatusTip('Connect another device...')
         pair_action.triggered.connect(self.open_pair_widget)
 
-        export_action = QAction(
-            QIcon(resource('export.png')), 'Export Recovery Key', self)
+        recovery_action = QAction(
+            QIcon(resource('key.png')), "Import/Export Recovery Key...", self)
+        recovery_action.setStatusTip("Import/Export Recovery Key...")
+
+        import_action = QAction(QIcon(), 'Import...', self)
+        import_action.setStatusTip('Import Recovery Key...')
+        import_action.setShortcut(QKeySequence.Save)
+        import_action.triggered.connect(self.import_recovery_key)
+
+        export_action = QAction(QIcon(), 'Export...', self)
         export_action.setStatusTip('Export Recovery Key...')
         export_action.setShortcut(QKeySequence.Save)
         export_action.triggered.connect(self.export_recovery_key)
+
+        recovery_menu = QMenu(self)
+        recovery_menu.addAction(export_action)
+        recovery_menu.addAction(import_action)
+
+        recovery_button = QToolButton(self)
+        recovery_button.setDefaultAction(recovery_action)
+        recovery_button.setMenu(recovery_menu)
+        recovery_button.setPopupMode(2)
+        recovery_button.setStyleSheet(
+            'QToolButton::menu-indicator { image: none }')
 
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
@@ -185,7 +204,8 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
-        self.toolbar.addAction(export_action)
+        self.toolbar.addWidget(recovery_button)
+        #self.toolbar.addAction(export_action)
         self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
@@ -366,6 +386,10 @@ class MainWindow(QMainWindow):
             self.export_encrypted_recovery(gateway, password)
         elif ok:
             self.export_plaintext_recovery(gateway)
+
+    def import_recovery_key(self):
+        # TODO ...
+        pass
 
     def toggle_preferences_widget(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
