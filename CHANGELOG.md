@@ -11,13 +11,16 @@
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
 - Icons for folders that have been shared will now be displayed with a "person" overlay instead of a green lock.
 - Failure to decrypt a recovery key no longer requires re-importing the file to try again (Issue #60)
+- Font sizes have been increased on macOS
 
 ### Removed
 - The "default" provider section of `config.txt` has been removed; organizations wishing to deploy a modified Gridsync client with pre-configured settings are encouraged to use a ["cheat code"](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md) instead
+- The "Import from Recovery Key" option has been removed from the manual configuration screen (since this functionality is now available from the welcome screen)
 
 ### Fixed
 - `tahoe.select_executable()` will now use an empty nodedir when checking tahoe instances for multi-magic-folder support (preventing potential inaccuracies caused, e.g., by a pre-existing/misconfigured `$HOME/.tahoe` nodedir)
 - Tahoe subclients created from older versions of Tahoe-LAFS that only support "legacy" magic-folders will now correctly inherit the parent client's `servers.yaml` settings upon creation.
+- The "Open Gridsync" systray menu action will correctly remain disabled until at least one grid has been succesfully joined
 
 ## 0.3.2 - 2018-04-17
 ### Added
