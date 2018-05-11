@@ -13,7 +13,7 @@ class PreferencesWidget(QWidget):
 
     accepted = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, vertical_layout=False):
         super(PreferencesWidget, self).__init__()
         notifications_groupbox = QGroupBox("Notifications:", self)
         notifications_label = QLabel("Show a desktop notification when...")
@@ -36,13 +36,33 @@ class PreferencesWidget(QWidget):
         startup_layout.addWidget(self.checkbox_minimize)
         startup_groupbox.setLayout(startup_layout)
 
+        # XXX Placeholder, for user-testing
+        updates_groupbox = QGroupBox("Updates:", self)
+        self.checkbox_updates_check = QCheckBox(
+            "Check for updates automatically")
+        self.checkbox_updates_install = QCheckBox(
+            "Install updates automatically")
+        updates_layout = QGridLayout()
+        updates_layout.addWidget(self.checkbox_updates_check)
+        updates_layout.addWidget(self.checkbox_updates_install)
+        updates_groupbox.setLayout(updates_layout)
+
         self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok)
 
-        layout = QGridLayout(self)
-        layout.addWidget(notifications_groupbox)
-        layout.addWidget(startup_groupbox)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
-        layout.addWidget(self.buttonbox)
+        if vertical_layout:
+            layout = QGridLayout(self)
+            layout.addWidget(notifications_groupbox)
+            layout.addWidget(startup_groupbox)
+            layout.addWidget(updates_groupbox)
+            layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
+            layout.addWidget(self.buttonbox)
+        else:
+            layout = QGridLayout(self)
+            layout.addWidget(notifications_groupbox, 1, 1, 1, 2)
+            layout.addWidget(startup_groupbox, 2, 1)
+            layout.addWidget(updates_groupbox, 2, 2)
+            layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 3, 1)
+            layout.addWidget(self.buttonbox, 4, 2)
 
         self.load_preferences()
 
@@ -56,6 +76,10 @@ class PreferencesWidget(QWidget):
             self.on_checkbox_minimize_changed)
         self.checkbox_autostart.stateChanged.connect(
             self.on_checkbox_autostart_changed)
+        self.checkbox_updates_check.stateChanged.connect(
+            self.on_checkbox_updates_check_changed)
+        self.checkbox_updates_install.stateChanged.connect(
+            self.on_checkbox_updates_install_changed)
         self.buttonbox.accepted.connect(self.accepted.emit)
 
     def load_preferences(self):
@@ -79,6 +103,14 @@ class PreferencesWidget(QWidget):
             self.checkbox_autostart.setCheckState(Qt.Checked)
         else:
             self.checkbox_autostart.setCheckState(Qt.Unchecked)
+        if get_preference('updates', 'check') == 'true':
+            self.checkbox_updates_check.setCheckState(Qt.Checked)
+        else:
+            self.checkbox_updates_check.setCheckState(Qt.Unchecked)
+        if get_preference('updates', 'install') == 'true':
+            self.checkbox_updates_install.setCheckState(Qt.Checked)
+        else:
+            self.checkbox_updates_install.setCheckState(Qt.Unchecked)
 
     def on_checkbox_connection_changed(self, state):  # pylint:disable=no-self-use
         if state:
@@ -109,3 +141,15 @@ class PreferencesWidget(QWidget):
             autostart_enable()
         else:
             autostart_disable()
+
+    def on_checkbox_updates_check_changed(self, state):  # pylint:disable=no-self-use
+        if state:
+            set_preference('updates', 'check', 'true')
+        else:
+            set_preference('updates', 'check', 'false')
+
+    def on_checkbox_updates_install_changed(self, state):  # pylint:disable=no-self-use
+        if state:
+            set_preference('updates', 'install', 'true')
+        else:
+            set_preference('updates', 'install', 'false')
