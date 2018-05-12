@@ -162,7 +162,6 @@ class MainWindow(QMainWindow):
 
         import_action = QAction(QIcon(), 'Import...', self)
         import_action.setStatusTip('Import Recovery Key...')
-        import_action.setShortcut(QKeySequence.Save)
         import_action.triggered.connect(self.import_recovery_key)
 
         export_action = QAction(QIcon(), 'Export...', self)
