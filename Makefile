@@ -210,11 +210,11 @@ frozen-tahoe:
 	#tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
 	#git clone -b 1432.osx-watchdog-stable.10 \
 	#	https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
+	#cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
+	#echo "package_imports.append(('setuptools', 'setuptools'))" >> build/tahoe-lafs/src/allmydata/_auto_deps.py
 	case `uname` in \
 		Darwin) \
-			git clone -b 1432.osx-watchdog-stable.10 https://github.com/david415/tahoe-lafs.git build/tahoe-lafs && \
-			cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec && \
-			echo "package_imports.append(('setuptools', 'setuptools'))" >> build/tahoe-lafs/src/allmydata/_auto_deps.py \
+			git clone -b david-1432.osx-watchdog-stable.10 https://github.com/gridsync/tahoe-lafs.git build/tahoe-lafs \
 		;; \
 		*) \
 			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
