@@ -446,6 +446,10 @@ class WelcomeDialog(QStackedWidget):
             self.prompt_for_export(self.gateway)
         self.reset()
 
+    def enterEvent(self, event):
+        event.accept()
+        self.lineedit.update_action_button()
+
     def closeEvent(self, event):
         if self.gui.main_window.gateways:
             event.accept()

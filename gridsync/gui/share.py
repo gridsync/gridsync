@@ -530,6 +530,10 @@ class InviteReceiver(QDialog):
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)
 
+    def enterEvent(self, event):
+        event.accept()
+        self.lineedit.update_action_button()
+
     def closeEvent(self, event):
         event.accept()
         try:
