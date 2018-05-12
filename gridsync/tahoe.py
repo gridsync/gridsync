@@ -1033,7 +1033,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 def select_executable():
     if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
         # Because magic-folder on macOS has not yet landed upstream
-        returnValue((os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'), False))
+        returnValue((os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'), True))
     executables = which('tahoe')
     if not executables:
         returnValue((None, None))
