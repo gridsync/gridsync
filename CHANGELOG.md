@@ -11,7 +11,8 @@
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
 - Icons for folders that have been shared will now be displayed with a "person" overlay instead of a green lock.
 - Failure to decrypt a recovery key no longer requires re-importing the file to try again (Issue #60)
-- Font sizes have been increased on macOS
+- Font sizes have been increased on macOS to match the equivalent weights on most Linux and Windows environments
+- The dynamic action button inside invite code fields will now also update on window-enter cursor events (allowing, e.g., the "paste" button to become conveniently activated after copying an invite code to the clipboard from another window)
 
 ### Removed
 - The "default" provider section of `config.txt` has been removed; organizations wishing to deploy a modified Gridsync client with pre-configured settings are encouraged to use a ["cheat code"](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md) instead
