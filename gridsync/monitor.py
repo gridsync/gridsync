@@ -63,7 +63,7 @@ class Monitor(QObject):
         kind = ''
         path = ''
         failures = []
-        if status:
+        if status is not None:
             for task in status:
                 if 'success_at' in task and task['success_at'] > t:
                     t = task['success_at']
