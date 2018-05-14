@@ -2,6 +2,7 @@
 
 import logging as log
 import sys
+import webbrowser
 
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
@@ -13,7 +14,7 @@ from twisted.internet.defer import CancelledError
 from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
-from gridsync import resource, APP_NAME
+from gridsync import resource, settings, APP_NAME
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
     get_settings_from_cheatcode, InviteCodeWidget, show_failure)
@@ -409,12 +410,15 @@ class WelcomeDialog(QStackedWidget):
     def prompt_for_export(self, gateway):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
-        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setStandardButtons(
+            QMessageBox.Yes | QMessageBox.No | QMessageBox.Help)
         msg.setDefaultButton(QMessageBox.Yes)
         button_export = msg.button(QMessageBox.Yes)
         button_export.setText("&Export...")
         button_skip = msg.button(QMessageBox.No)
         button_skip.setText("&Skip")
+        button_help = msg.button(QMessageBox.Help)
+        button_help.setText("More &Information...")
         msg.setWindowTitle("Export Recovery Key?")
         # "Now that {} is configured..."
         msg.setText(
@@ -444,6 +448,10 @@ class WelcomeDialog(QStackedWidget):
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
             self.gui.main_window.export_recovery_key()  # XXX
+        elif reply == QMessageBox.Help:
+            # XXX This points to 'develop' branch version of 'recovery-keys.md'
+            # TODO Update to master after user-testing
+            webbrowser.open(settings['help']['recovery_url'])
         else:
             # TODO: Nag user; "Are you sure?"
             pass

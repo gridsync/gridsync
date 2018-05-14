@@ -11,6 +11,7 @@ win_icon = images/gridsync.ico
 [help]
 docs_url = docs.gridsync.io
 issues_url = https://github.com/gridsync/gridsync/issues
+recovery_url = https://github.com/gridsync/gridsync/blob/develop/docs/recovery-keys.md
 
 [wormhole]
 appid = tahoe-lafs.org/invite
