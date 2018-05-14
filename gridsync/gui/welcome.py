@@ -2,7 +2,6 @@
 
 import logging as log
 import sys
-import webbrowser
 
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
@@ -413,25 +412,25 @@ class WelcomeDialog(QStackedWidget):
     def prompt_for_export(self, gateway):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
-        msg.setStandardButtons(
-            QMessageBox.Yes | QMessageBox.No | QMessageBox.Help)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setDefaultButton(QMessageBox.Yes)
         button_export = msg.button(QMessageBox.Yes)
         button_export.setText("&Export...")
         button_skip = msg.button(QMessageBox.No)
         button_skip.setText("&Skip")
-        button_help = msg.button(QMessageBox.Help)
-        button_help.setText("More &Information...")
         msg.setWindowTitle("Export Recovery Key?")
         # "Now that {} is configured..."
+        # XXX The link points to 'develop' branch version of 'recovery-keys.md'
+        # TODO Update to master after user-testing
         msg.setText(
             "Before uploading any folders to {}, it is recommended that you "
-            "export a Recovery Key and store it in a safe location.\n\n"
+            "export a Recovery Key and store it in a safe location.<p><p>"
             "{} does not have access to your folders, and cannot restore "
             "access to them. But with a Recovery Key, you can restore access "
             "to uploaded folders in case something goes wrong (e.g., hardware "
-            "failure, accidental data-loss).".format(
-                gateway.name, gateway.name)
+            "failure, accidental data-loss).<p><p><a href={}>More information."
+            "..</a>".format(gateway.name, gateway.name,
+                global_settings['help']['recovery_url'])
         )
         #msg.setText(
         #    "Before uploading any folders to {}, it is <b>strongly "
@@ -451,10 +450,6 @@ class WelcomeDialog(QStackedWidget):
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
             self.gui.main_window.export_recovery_key()  # XXX
-        elif reply == QMessageBox.Help:
-            # XXX This points to 'develop' branch version of 'recovery-keys.md'
-            # TODO Update to master after user-testing
-            webbrowser.open(global_settings['help']['recovery_url'])
         else:
             # TODO: Nag user; "Are you sure?"
             pass
