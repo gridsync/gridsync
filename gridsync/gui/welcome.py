@@ -429,8 +429,10 @@ class WelcomeDialog(QStackedWidget):
             "access to them. But with a Recovery Key, you can restore access "
             "to uploaded folders in case something goes wrong (e.g., hardware "
             "failure, accidental data-loss).<p><p><a href={}>More information."
-            "..</a>".format(gateway.name, gateway.name,
-                global_settings['help']['recovery_url'])
+            "..</a>".format(
+                gateway.name, gateway.name,
+                global_settings['help']['recovery_url']
+            )
         )
         #msg.setText(
         #    "Before uploading any folders to {}, it is <b>strongly "
