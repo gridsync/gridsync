@@ -14,7 +14,8 @@ from twisted.internet.defer import CancelledError
 from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
-from gridsync import resource, settings, APP_NAME
+from gridsync import resource, APP_NAME
+from gridsync import settings as global_settings
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
     get_settings_from_cheatcode, InviteCodeWidget, show_failure)
@@ -451,7 +452,7 @@ class WelcomeDialog(QStackedWidget):
         elif reply == QMessageBox.Help:
             # XXX This points to 'develop' branch version of 'recovery-keys.md'
             # TODO Update to master after user-testing
-            webbrowser.open(settings['help']['recovery_url'])
+            webbrowser.open(global_settings['help']['recovery_url'])
         else:
             # TODO: Nag user; "Are you sure?"
             pass
