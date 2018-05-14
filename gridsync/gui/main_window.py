@@ -387,8 +387,9 @@ class MainWindow(QMainWindow):
             self.export_plaintext_recovery(gateway)
 
     def import_recovery_key(self):
-        # TODO ...
-        pass
+        # XXX Quick hack for user-testing; change later
+        self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
+        self.welcome_dialog.on_restore_link_activated()
 
     def toggle_preferences_widget(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
