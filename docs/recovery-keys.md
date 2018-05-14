@@ -24,9 +24,9 @@ No. Every time that you add or join a new folder, Gridsync will automatically "l
 My computer exploded and I need to restore my folders! How do I do it?
 ----------------------------------------------------------------------
 
-From the initial Gridsync welcome screen, click on "I don't have an invite code" and then, under the "Import from Recovery Section" on the next screen, choose "Select file". If your Recovery Key was encrypted, you will be prompted for a passphrase and, assuming you enter it correctly, it your old settings will load after Gridsync finishes decrypting the file. Simply click "OK" after this to restore access to your previous connection and folders.
+From the initial Gridsync welcome screen, click the "Restore from Recovery Key" link and load the desired Recovery Key file from your computer. If your Recovery Key was encrypted, you will be prompted for a passphrase and, after entering it correctly, your connection to the associated storage grid will be restored.
 
-Note: when you first restore from a Recovery Key, your folders will appear in a "grayed out" state in main status window, indicating that they are only stored remotely, i.e., that they do not exist on your local computer). To re-download a folder, simply right- or double-click it from this list and select the desired download/sync location on your computer.
+Note: when you first restore from a Recovery Key, your folders will appear in a "grayed out" state in main status window, indicating that they are only stored remotely (i.e., that they are safely stored in the grid but not synchronized with your local computer). To re-download and synchronize a folder again, simply right- or double-click it from this list and select the desired location on your computer.
 
 
 My Recovery Key is taking a long time to decrypt -- what gives?
