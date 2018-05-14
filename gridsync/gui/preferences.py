@@ -37,7 +37,7 @@ class PreferencesWidget(QWidget):
         startup_groupbox.setLayout(startup_layout)
 
         # XXX Placeholder, for user-testing
-        updates_groupbox = QGroupBox("Updates:", self)
+        updates_groupbox = QGroupBox("Software Updates:", self)
         self.checkbox_updates_check = QCheckBox(
             "Check for updates automatically")
         self.checkbox_updates_install = QCheckBox(
