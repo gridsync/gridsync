@@ -209,6 +209,9 @@ class InviteCodeWidget(QWidget):
         if tor:
             self.checkbox.setEnabled(True)
             self.checkbox.setStyleSheet("color: {};".format(TOR_PURPLE))
+        else:
+            self.checkbox.setEnabled(False)
+            self.checkbox.setStyleSheet("color: grey")
 
     def toggle_tor_status(self, state):
         if state:
