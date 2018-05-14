@@ -418,20 +418,29 @@ class WelcomeDialog(QStackedWidget):
         msg.setWindowTitle("Export Recovery Key?")
         # "Now that {} is configured..."
         msg.setText(
-            "Before uploading any folders to {}, it is <b>strongly "
-            "recommended</b> that you <i>export a Recovery Key</i> and store "
-            "it in a safe and secure location (such as an encrypted USB drive)"
-            ".<p><p>Possessing a Recovery Key will allow you to restore "
-            "access to any of the folders you've uploaded to {} in the event "
-            "that something goes wrong (e.g., hardware failure, accidental "
-            "data-loss).".format(gateway.name, gateway.name))
-        msg.setDetailedText(
-            "A 'Recovery Key' is a small file that contains enough information"
-            " to re-establish a connection with your storage provider and "
-            "restore your previously-uploaded folders. Because access to this "
-            "file is sufficient to access to any of the the data you've "
-            "stored, it is important that you keep this file safe and secure; "
-            "do not share your Recovery Key with anybody!")
+            "Before uploading any folders to {}, it is recommended that you "
+            "export a Recovery Key and store it in a safe location.\n\n"
+            "{} does not have access to your folders, nor can they restore "
+            "access to them. But with a Recovery Key, you can restore access "
+            "to uploaded folders in case something goes wrong (e.g., hardware "
+            "failure, accidental data-loss).".format(
+                gateway.name, gateway.name)
+        )
+        #msg.setText(
+        #    "Before uploading any folders to {}, it is <b>strongly "
+        #    "recommended</b> that you <i>export a Recovery Key</i> and store "
+        #    "it in a safe and secure location (such as an encrypted USB drive)"
+        #    ".<p><p>Possessing a Recovery Key will allow you to restore "
+        #    "access to any of the folders you've uploaded to {} in the event "
+        #    "that something goes wrong (e.g., hardware failure, accidental "
+        #    "data-loss).".format(gateway.name, gateway.name))
+        #msg.setDetailedText(
+        #    "A 'Recovery Key' is a small file that contains enough information"
+        #    " to re-establish a connection with your storage provider and "
+        #    "restore your previously-uploaded folders. Because access to this "
+        #    "file is sufficient to access to any of the the data you've "
+        #    "stored, it is important that you keep this file safe and secure; "
+        #    "do not share your Recovery Key with anybody!")
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
             self.gui.main_window.export_recovery_key()  # XXX
