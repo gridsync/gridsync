@@ -170,8 +170,8 @@ class MainWindow(QMainWindow):
         export_action.triggered.connect(self.export_recovery_key)
 
         recovery_menu = QMenu(self)
-        recovery_menu.addAction(export_action)
         recovery_menu.addAction(import_action)
+        recovery_menu.addAction(export_action)
 
         recovery_button = QToolButton(self)
         recovery_button.setDefaultAction(recovery_action)
