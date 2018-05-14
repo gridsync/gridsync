@@ -336,6 +336,8 @@ class WelcomeDialog(QStackedWidget):
         self.close()
 
     def verify_settings(self, settings, from_wormhole=True):
+        self.show()
+        self.raise_()
         settings = validate_settings(
             settings, self.known_gateways, self, from_wormhole)
         self.setup_runner = SetupRunner(self.known_gateways, self.use_tor)
