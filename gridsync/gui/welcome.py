@@ -412,9 +412,9 @@ class WelcomeDialog(QStackedWidget):
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setDefaultButton(QMessageBox.Yes)
         button_export = msg.button(QMessageBox.Yes)
-        button_export.setText("Export...")
+        button_export.setText("&Export...")
         button_skip = msg.button(QMessageBox.No)
-        button_skip.setText("Skip")
+        button_skip.setText("&Skip")
         msg.setWindowTitle("Export Recovery Key?")
         # "Now that {} is configured..."
         msg.setText(
