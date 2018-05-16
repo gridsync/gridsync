@@ -20,7 +20,7 @@ before_test:
   - "python -c \"import sys; print(sys.executable)\""
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 test_script:
-  - "tox"
+  - "tox -e py36-windows,flake8,pylint"
 after_test:
   - "make"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
