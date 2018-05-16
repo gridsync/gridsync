@@ -164,12 +164,11 @@ class View(QTreeView):
 
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
-        if item.column() == 0:
-            name = item.text()
-            if name in self.gateway.magic_folders:
-                open_folder(self.gateway.magic_folders[name]['directory'])
-            elif self.gateway.remote_magic_folder_exists(name):
-                self.select_download_location([name])
+        name = self.model().item(item.row(), 0).text()
+        if name in self.gateway.magic_folders:
+            open_folder(self.gateway.magic_folders[name]['directory'])
+        elif self.gateway.remote_magic_folder_exists(name):
+            self.select_download_location([name])
 
     def open_share_widget(self, folder_name):
         share_widget = ShareWidget(self.gateway, self.gui, folder_name)
