@@ -258,8 +258,8 @@ class ShareWidget(QDialog):
                 if view.gateway.name == self.gateway.name:
                     for folder in self.folder_names:
                         # Add two members for now, in case the original folder
-                        # was empty (in which case the original "syncing" 
-                        # operation would not have occured and thus "admin"'s 
+                        # was empty (in which case the original "syncing"
+                        # operation would not have occured and thus "admin"'s
                         # membership would not have been detected).
                         # FIXME Force call a Monitor.do_remote_scan() instead?
                         view.model().add_member(folder, None)
