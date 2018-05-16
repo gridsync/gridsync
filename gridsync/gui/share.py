@@ -257,6 +257,13 @@ class ShareWidget(QDialog):
             for view in self.gui.main_window.central_widget.views:
                 if view.gateway.name == self.gateway.name:
                     for folder in self.folder_names:
+                        # Add two members for now, in case the original folder
+                        # was empty (in which case the original "syncing" 
+                        # operation would not have occured and thus "admin"'s 
+                        # membership would not have been detected).
+                        # FIXME Force call a Monitor.do_remote_scan() instead?
+                        view.model().add_member(folder, None)
+                        view.model().add_member(folder, None)
                         view.model().set_status_shared(folder)
 
     def handle_failure(self, failure):
