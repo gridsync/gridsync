@@ -114,7 +114,7 @@ class Monitor(QObject):
     def do_remote_scan(self, name, members=None):
         mems, size, t, _ = yield self.gateway.get_magic_folder_info(
             name, members)
-        if mems and len(mems) > 1:
+        if mems:
             for member in mems:
                 if member not in self.members:
                     self.member_added.emit(name, member[0])
