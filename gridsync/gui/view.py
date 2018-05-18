@@ -7,9 +7,9 @@ import sys
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
-    QAbstractItemView, QAction, QFileDialog, QGridLayout, QHeaderView, QLabel,
-    QMenu, QMessageBox, QPushButton, QSizePolicy, QSpacerItem,
-    QStyledItemDelegate, QTreeView)
+    QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
+    QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
+    QSpacerItem, QStyledItemDelegate, QTreeView)
 from twisted.internet.defer import DeferredList
 
 from gridsync import resource, APP_NAME
@@ -239,22 +239,40 @@ class View(QTreeView):
         if len(folders) == 1:
             text = ("Are you sure you wish to remove the '{}' folder? If "
                     "you do, it will remain on your computer, however, {} "
-                    "will no longer synchronize its contents with {}".format(
+                    "will no longer synchronize its contents with {}.".format(
                         folders[0], APP_NAME, self.gateway.name))
+            cb_text = ("Allow this folder to be restored later with my "
+                       "Recovery Key")
         else:
             text = ("Are you sure you wish to remove {}? If you do, they "
                     "will remain on your computer, however, {} will no "
                     "longer synchronize their contents with {}.".format(
                         humanized_folders, APP_NAME, self.gateway.name))
-        reply = QMessageBox.question(
-            self, title, text, QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No)
+            cb_text = ("Allow these folders to be restored later with my "
+                       "Recovery Key")
+        checkbox = QCheckBox(cb_text)
+        checkbox.setCheckState(Qt.Checked)
+        msgbox = QMessageBox(self)
+        msgbox.setIcon(QMessageBox.Question)
+        msgbox.setWindowTitle(title)
+        msgbox.setText(text)
+        msgbox.setCheckBox(checkbox)
+        msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msgbox.setDefaultButton(QMessageBox.Yes)
+        reply = msgbox.exec_()
+        #reply = QMessageBox.question(
+        #    self, title, text, QMessageBox.Yes | QMessageBox.No,
+        #    QMessageBox.No)
         if reply == QMessageBox.Yes:
             tasks = []
             for folder in folders:
                 d = self.gateway.remove_magic_folder(folder)
                 d.addErrback(self.show_failure)
                 tasks.append(d)
+                if checkbox.checkState() == Qt.Unchecked:
+                    d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
+                    d2.addErrback(self.show_failure)
+                    tasks.append(d2)
                 self.model().removeRow(self.model().findItems(folder)[0].row())
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
