@@ -32,7 +32,7 @@ class ShareWidget(QDialog):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
-    def __init__(self, gateway, gui, folder_names=None):  # pylint:disable=too-many-statements
+    def __init__(self, gateway, gui, folder_names=None):  # noqa: max-complexity=11 XXX
         super(ShareWidget, self).__init__()
         self.gateway = gateway
         self.gui = gui
