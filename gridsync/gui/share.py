@@ -43,7 +43,13 @@ class ShareWidget(QDialog):
         self.pending_invites = []
         self.use_tor = self.gateway.use_tor
 
-        self.setMinimumSize(500, 300)
+        # XXX Temporary(?) workaround for font-scaling inconsistencies observed
+        # during user-testing (wherein fonts on Windows on one laptop were
+        # rendering especially large for some reason but were fine elsewhere)
+        if sys.platform == 'win32':
+            self.setMinimumSize(600, 400)
+        else:
+            self.setMinimumSize(500, 300)
 
         header_icon = QLabel(self)
         if self.folder_names:
