@@ -23,7 +23,7 @@ from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
-from gridsync.wormhole import wormhole_receive
+from gridsync.wormhole_ import wormhole_receive
 
 
 class WelcomeWidget(QWidget):

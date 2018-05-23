@@ -6,7 +6,7 @@ import pytest
 from wormhole.errors import WormholeError
 
 from gridsync.errors import UpgradeRequiredError, TorError
-from gridsync.wormhole import Wormhole, wormhole_receive, wormhole_send
+from gridsync.wormhole_ import Wormhole, wormhole_receive, wormhole_send
 
 
 @pytest.fixture(scope='module')
@@ -31,8 +31,8 @@ def test_wormhole_connect_use_tor(qtbot, monkeypatch, wormhole):
     def fake_create(*args, **kwargs):
         kwargs_received.append(kwargs)
         return wormhole._wormhole
-    monkeypatch.setattr('gridsync.wormhole.wormhole.create', fake_create)
-    monkeypatch.setattr('gridsync.wormhole.get_tor', lambda _: 'TorObject')
+    monkeypatch.setattr('gridsync.wormhole_.wormhole.create', fake_create)
+    monkeypatch.setattr('gridsync.wormhole_.get_tor', lambda _: 'TorObject')
     wormhole._wormhole.get_welcome.return_value = {'current_cli_version': '0'}
     wormhole.use_tor = True
     yield wormhole.connect()
@@ -42,7 +42,7 @@ def test_wormhole_connect_use_tor(qtbot, monkeypatch, wormhole):
 
 @pytest.inlineCallbacks
 def test_wormhole_use_tor_raise_tor_error(qtbot, monkeypatch, wormhole):
-    monkeypatch.setattr('gridsync.wormhole.get_tor', lambda _: None)
+    monkeypatch.setattr('gridsync.wormhole_.get_tor', lambda _: None)
     wormhole.use_tor = True
     with pytest.raises(TorError):
         yield wormhole.connect()
@@ -166,7 +166,7 @@ def test_wormhole_send_succeed_emit_send_completed_signal(qtbot, wormhole):
 @pytest.inlineCallbacks
 def test_wormhole_receive_function(monkeypatch):
     monkeypatch.setattr(
-        'gridsync.wormhole.Wormhole.receive', lambda x, y: 'msg')
+        'gridsync.wormhole_.Wormhole.receive', lambda x, y: 'msg')
     output = yield wormhole_receive('123-test-test')
     assert output == 'msg'
 
@@ -174,5 +174,5 @@ def test_wormhole_receive_function(monkeypatch):
 @pytest.inlineCallbacks
 def test_wormhole_send_function(monkeypatch):
     monkeypatch.setattr(
-        'gridsync.wormhole.Wormhole.send', lambda x, y, z: None)
+        'gridsync.wormhole_.Wormhole.send', lambda x, y, z: None)
     yield wormhole_send('123-test-test')
