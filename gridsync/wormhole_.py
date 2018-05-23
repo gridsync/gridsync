@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# This is "wormhole_" and not "wormhole" because "wormhole" will throw/raise
+# import errors when using py2app-generated executables (presumably due to
+# namespace-related conflicts with the "magic-wormhole" package/dependency)
 
 import json
 import logging
