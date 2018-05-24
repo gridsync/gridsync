@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from configparser import RawConfigParser
 import re
 import struct
 import sys
@@ -44,6 +45,30 @@ metadata = dict(re.findall("__([a-z]+)__\s*=\s*'([^']+)'", module_file))
 
 version_file = open("gridsync/_version.py").read()
 version = re.findall("__version__\s*=\s*'([^']+)'", version_file)[0]
+
+
+if sys.platform == 'darwin':
+    config = RawConfigParser()
+    config.read('gridsync/resources/config.txt')
+    build_settings = {}
+    for option, value in config.items('build'):
+        build_settings[option] = value
+    extra_options = {
+        'setup_requires': ['py2app'],
+        'app': ['gridsync/cli.py'],
+        'options': {'py2app': {
+            'argv_emulation': True,
+            'iconfile': build_settings['mac_icon'],
+            'includes': ['cffi'],
+            'plist': {
+                'CFBundleIdentifier': build_settings['mac_bundle_identifier'],
+                'LSBackgroundOnly': True,
+                'LSUIElement': True
+            }
+        }}
+    }
+else:
+    extra_options = {}
 
 
 setup(
@@ -103,4 +128,5 @@ setup(
         'console_scripts': ['gridsync=gridsync.cli:main'],
     },
     install_requires=requirements,
+    **extra_options
 )

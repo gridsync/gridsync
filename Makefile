@@ -265,7 +265,32 @@ frozen:
 app: frozen
 	#cp misc/Info.plist dist/Gridsync.app/Contents  # TODO: write out on build
 
-dmg: app
+py2app:
+	if [ -f dist/Tahoe-LAFS.zip ] ; then \
+		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
+	else  \
+		make frozen-tahoe ; \
+	fi;
+	virtualenv --clear --python=python3.6 build/venv-py2app
+	source build/venv-py2app/bin/activate && \
+	pip install --upgrade pip && \
+	pip install -r requirements/requirements-hashes.txt && \
+	case `uname` in \
+		Darwin) \
+			python scripts/maybe_rebuild_libsodium.py && \
+			python scripts/maybe_downgrade_pyqt.py \
+		;; \
+	esac &&	\
+	pip install . && \
+	pip install py2app && \
+	pip list && \
+	python setup.py py2app && \
+	python scripts/strip_py2app_bundle.py
+	cp -r gridsync/resources dist/gridsync.app/Contents/MacOS
+	cp -r dist/Tahoe-LAFS dist/gridsync.app/Contents/MacOS
+	mv dist/gridsync.app dist/Gridsync.app
+
+dmg: py2app
 	virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \

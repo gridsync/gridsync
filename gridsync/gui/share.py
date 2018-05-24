@@ -25,7 +25,7 @@ from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
-from gridsync.wormhole import Wormhole
+from gridsync.wormhole_ import Wormhole
 
 
 class ShareWidget(QDialog):
