@@ -50,6 +50,7 @@ version = re.findall("__version__\s*=\s*'([^']+)'", version_file)[0]
 if sys.platform == 'darwin':
     config = RawConfigParser()
     config.read('gridsync/resources/config.txt')
+    app_name = config.get('application', 'name')
     build_settings = {}
     for option, value in config.items('build'):
         build_settings[option] = value
@@ -61,7 +62,10 @@ if sys.platform == 'darwin':
             'iconfile': build_settings['mac_icon'],
             'includes': ['cffi'],
             'plist': {
+                'CFBundleDisplayName': app_name,
+                'CFBundleExecutable': app_name,
                 'CFBundleIdentifier': build_settings['mac_bundle_identifier'],
+                'CFBundleName': app_name,
                 'LSBackgroundOnly': True,
                 'LSUIElement': True
             }
