@@ -10,6 +10,7 @@
 ### Changed
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
 - macOS binary distributions will now include a more recent (but still unreleased) version of Tahoe-LAFS with numerous magic-folder-related bug-fixes and improvements -- thanks @vu3rdd!
+- Gridsync will now run as an "agent" application on macOS, accessible from the menu bar but no longer appearing in the Dock (Issue #86)
 - Icons for folders that have been shared will now be displayed with a "person" overlay instead of a green lock.
 - Failure to decrypt a recovery key no longer requires re-importing the file to try again (Issue #60)
 - Font sizes have been increased on macOS to match the equivalent weights on most Linux and Windows environments
