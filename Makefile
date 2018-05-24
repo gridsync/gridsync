@@ -284,7 +284,8 @@ py2app:
 	pip install . && \
 	pip install py2app && \
 	pip list && \
-	python setup.py py2app
+	python setup.py py2app && \
+	python scripts/strip_py2app_bundle.py
 	cp -r gridsync/resources dist/gridsync.app/Contents/MacOS
 	cp -r dist/Tahoe-LAFS dist/gridsync.app/Contents/MacOS
 	mv dist/gridsync.app dist/Gridsync.app
