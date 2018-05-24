@@ -1,5 +1,6 @@
 # A quick-and-dirty script to remove unused Qt components from py2app bundles,
 # drastically reducing the filesize of the resultant application
+from configparser import RawConfigParser
 import os
 import shutil
 import sys
@@ -38,8 +39,12 @@ unused = [
     'QtXmlPatterns',
 ]
 
-pyqtdir = 'dist/gridsync.app/Contents/Resources/lib/python{}.{}/PyQt5/'.format(
-    sys.version_info[0], sys.version_info[1])
+config = RawConfigParser()
+config.read('gridsync/resources/config.txt')
+
+pyqtdir = 'dist/{}.app/Contents/Resources/lib/python{}.{}/PyQt5/'.format(
+    config.get('application', 'name'), sys.version_info[0], sys.version_info[1]
+)
 
 for name in unused:
     path = '{}{}.so'.format(pyqtdir, name)
