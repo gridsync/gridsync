@@ -290,7 +290,7 @@ py2app:
 	cp -r dist/Tahoe-LAFS dist/gridsync.app/Contents/MacOS
 	mv dist/gridsync.app dist/Gridsync.app
 
-dmg: app
+dmg: py2app
 	virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \
