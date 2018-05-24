@@ -286,9 +286,9 @@ py2app:
 	pip list && \
 	python setup.py py2app && \
 	python scripts/strip_py2app_bundle.py
-	cp -r gridsync/resources dist/gridsync.app/Contents/MacOS
-	cp -r dist/Tahoe-LAFS dist/gridsync.app/Contents/MacOS
-	mv dist/gridsync.app dist/Gridsync.app
+	cp -r gridsync/resources dist/Gridsync.app/Contents/MacOS
+	cp -r dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
+	touch dist/Gridsync.app
 
 dmg: py2app
 	virtualenv --clear --python=python2 build/venv-dmg
