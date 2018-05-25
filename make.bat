@@ -34,6 +34,7 @@ if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="pytest" call :pytest
 if "%1"=="frozen-tahoe" call :frozen-tahoe
+if "%1"=="installer" call :installer
 if "%1"=="all" call :all
 if "%1"=="" call :all
 goto :eof
@@ -81,6 +82,10 @@ call move dist ..\..
 call popd
 call deactivate
 goto :eof
+
+:installer
+call copy misc\Gridsync.iss .
+call "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\Gridsync.iss
 
 :all
 if exist .\dist\Tahoe-LAFS.zip (
