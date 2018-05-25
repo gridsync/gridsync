@@ -43,7 +43,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: 7MqXbCzCSmPXcKfaSz1OxAcxgso41W0x6SWQeQiMnRjTbGPn4LqHC6oIuFIsM6g7
-  artifact: dist\Gridsync-Windows.zip
+  artifact: dist\Gridsync-Windows.zip, dist\Gridsync-setup.exe
   description: $(appveyor_repo_commit_message)
   draft: false
   prerelease: true
