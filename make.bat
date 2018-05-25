@@ -86,6 +86,7 @@ goto :eof
 :installer
 call copy misc\Gridsync.iss .
 call "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\Gridsync.iss
+goto :eof
 
 :all
 if exist .\dist\Tahoe-LAFS.zip (
