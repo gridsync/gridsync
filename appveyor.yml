@@ -26,9 +26,12 @@ after_test:
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
   - ".\\dist\\Gridsync\\Tahoe-LAFS\\tahoe.exe --version-and-path"
   - "move .\\dist\\Gridsync.zip .\\dist\\Gridsync-Windows.zip"
+  - "make installer"
 artifacts:
   - path: dist\Gridsync-Windows.zip
     name: Gridsync-Windows.zip
+  - path: dist\Gridsync-setup.exe
+    name: Gridsync-setup.exe
 on_success:
   - "python misc/irc-notify.py [{project_name}:{branch}] {short_commit}: \"{message}\" ({author}) {color_code}3Succeeded,Details: {build_url},Commit: {commit_url}"
 on_failure:
@@ -40,7 +43,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: 7MqXbCzCSmPXcKfaSz1OxAcxgso41W0x6SWQeQiMnRjTbGPn4LqHC6oIuFIsM6g7
-  artifact: dist\Gridsync-Windows.zip
+  artifact: dist\Gridsync-Windows.zip, dist\Gridsync-setup.exe
   description: $(appveyor_repo_commit_message)
   draft: false
   prerelease: true
