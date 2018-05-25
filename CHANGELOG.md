@@ -6,6 +6,7 @@
     - Gridsync can now optionally tunnel outgoing connections through the Tor anonymity network; see [`docs/tor-integration.md`](https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md) (Issue #64)
 - Application preferences are now also accessible from the initial welcome screen
 - A "Restore from Recovery Key" link/option is now available directly from the initial welcome screen (Issue #60)
+- An Inno Setup Windows executable installer ("Gridsync-setup.exe") is now provided (Issue #35)
 
 ### Changed
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
