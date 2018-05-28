@@ -5,9 +5,8 @@ import sys
 import webbrowser
 
 from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import QAction, QMenu, QMessageBox, QSystemTrayIcon
+from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon
 
-from gridsync import __version__ as version
 from gridsync import resource, settings, APP_NAME
 
 
@@ -32,13 +31,6 @@ class Menu(QMenu):
             lambda: self.gui.main_window.export_recovery_key(gateway))
         self.export_menu.addAction(action)
 
-    def _fake_update_check(self):  # XXX Placeholder, for user-testing
-        QMessageBox.information(
-            self,
-            "Software Update",
-            "Your version of {} ({}) is already up-to-date.".format(
-                APP_NAME, version))
-
     def populate(self):
         self.clear()
         logging.debug("(Re-)populating systray menu...")
@@ -46,11 +38,6 @@ class Menu(QMenu):
         open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
         open_action.triggered.connect(self.gui.show_main_window)
         self.addAction(open_action)
-
-        # XXX Placeholder, for user-testing
-        updates_action = QAction(QIcon(''), "Check for updates...", self)
-        updates_action.triggered.connect(self._fake_update_check)
-        self.addAction(updates_action)
 
         gateways = self.gui.main_window.gateways
         if gateways and len(gateways) > 1:
