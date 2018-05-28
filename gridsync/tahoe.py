@@ -724,7 +724,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
 
     @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
-                            poll_interval=10):  # XXX For user-testing; see #55
+                            poll_interval=60):  # XXX See Issue #55
         path = os.path.realpath(os.path.expanduser(path))
         poll_interval = str(poll_interval)
         try:
