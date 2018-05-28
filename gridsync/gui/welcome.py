@@ -226,7 +226,7 @@ class WelcomeDialog(QStackedWidget):
         self.page_1 = WelcomeWidget(self)
         self.page_2 = ProgressBarWidget()
         self.page_3 = TahoeConfigForm()
-        self.page_4 = PreferencesWidget(vertical_layout=True)
+        self.page_4 = PreferencesWidget()
 
         self.addWidget(self.page_1)
         self.addWidget(self.page_2)
