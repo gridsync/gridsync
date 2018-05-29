@@ -16,6 +16,7 @@
 - Failure to decrypt a recovery key no longer requires re-importing the file to try again (Issue #60)
 - Font sizes have been increased on macOS to match the equivalent weights on most Linux and Windows environments
 - The dynamic action button inside invite code fields will now also update on window-enter cursor events (allowing, e.g., the "paste" button to become conveniently activated after copying an invite code to the clipboard from another window)
+- The main/status window's title will now include the name of the currently-active grid
 
 ### Removed
 - The "default" provider section of `config.txt` has been removed; organizations wishing to deploy a modified Gridsync client with pre-configured settings are encouraged to use a ["cheat code"](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md) instead
@@ -27,6 +28,7 @@
 - The "Open Gridsync" systray menu action will correctly remain disabled until at least one grid has been succesfully joined
 - Users will no longer be prompted to export a Recovery Key after restoring a connection from one
 - Empty folders will no longer appear stuck in a "Loading" state (Issue #73)
+- Gridsync will now shutdown more gracefully, avoiding qt5reactor-related hangs when exiting
 
 ## 0.3.2 - 2018-04-17
 ### Added
