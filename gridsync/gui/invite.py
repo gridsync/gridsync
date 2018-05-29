@@ -208,10 +208,8 @@ class InviteCodeWidget(QWidget):
         tor = yield get_tor(reactor)
         if tor:
             self.checkbox.setEnabled(True)
-            self.checkbox.setStyleSheet("color: {};".format(TOR_PURPLE))
         else:
             self.checkbox.setEnabled(False)
-            self.checkbox.setStyleSheet("color: grey")
 
     def toggle_tor_status(self, state):
         if state:
@@ -226,10 +224,12 @@ class InviteCodeWidget(QWidget):
                 "border-radius: 2px;"
                 "padding: 2px;"
                 "color: {};".format(TOR_DARK_PURPLE, TOR_DARK_PURPLE))
+            self.checkbox.setStyleSheet("color: {};".format(TOR_PURPLE))
         else:
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")
             self.lineedit.setStyleSheet("")
+            self.checkbox.setStyleSheet("color: grey")
 
 
 def show_failure(failure, parent=None):
