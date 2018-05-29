@@ -14,7 +14,7 @@ import qt5reactor
 qt5reactor.install()
 
 from twisted.internet import reactor
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
 
 from gridsync import config_dir, resource, settings
