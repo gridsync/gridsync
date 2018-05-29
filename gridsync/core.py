@@ -54,20 +54,6 @@ class Core(object):
             reactor.stop()
 
     @inlineCallbacks
-    def stop_gateways(self):
-        logging.debug("Stopping Tahoe-LAFS gateway(s)...")
-        tasks = []
-        for nodedir in get_nodedirs(config_dir):
-            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
-        yield DeferredList(tasks)
-
-    @inlineCallbacks
-    def stop(self):
-        self.gui.hide()
-        yield self.stop_gateways()
-        logging.debug("Stopping reactor...")
-
-    @inlineCallbacks
     def start_gateways(self):
         nodedirs = get_nodedirs(config_dir)
         if nodedirs:
@@ -117,5 +103,6 @@ class Core(object):
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)
-        reactor.addSystemEventTrigger("before", "shutdown", self.stop)
         reactor.run()
+        for nodedir in get_nodedirs(config_dir):
+            Tahoe(nodedir, executable=self.executable).kill()
