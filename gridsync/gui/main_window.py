@@ -236,6 +236,7 @@ class MainWindow(QMainWindow):
         return None
 
     def select_folder(self):
+        self.show_selected_grid_view()
         try:
             view = self.current_view()
         except AttributeError:
