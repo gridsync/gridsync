@@ -246,8 +246,10 @@ class MainWindow(QMainWindow):
     def set_current_grid_status(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
             return
-        self.status_bar_label.setText(
-            self.current_view().model().grid_status)
+        current_view = self.current_view()
+        self.status_bar_label.setText(current_view.model().grid_status)
+        self.setWindowTitle("{} - {}".format(
+            APP_NAME, current_view.gateway.name))
         self.gui.systray.update()
 
     def show_welcome_dialog(self):
