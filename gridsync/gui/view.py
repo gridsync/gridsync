@@ -385,8 +385,8 @@ class View(QTreeView):
                     self,
                     "Cannot add {}.".format(basename),
                     "Cannot add '{}'.\n\n{} currently only supports uploading "
-                    "and syncing folders, and not individual files. Please "
-                    "try again.".format(basename, APP_NAME)
+                    "and syncing folders, and not individual files.".format(
+                        basename, APP_NAME)
                 )
             elif self.gateway.magic_folder_exists(basename):
                 QMessageBox.critical(
