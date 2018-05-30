@@ -424,7 +424,8 @@ class WelcomeDialog(QStackedWidget):
         # TODO Update to master after user-testing
         msg.setText(
             "Before uploading any folders to {}, it is recommended that you "
-            "export a Recovery Key and store it in a safe location.<p><p>"
+            "export a Recovery Key and store it in a safe location (such as "
+            "an encrypted USB drive or password manager).<p><p>"
             "{} does not have access to your folders, and cannot restore "
             "access to them. But with a Recovery Key, you can restore access "
             "to uploaded folders in case something goes wrong (e.g., hardware "
