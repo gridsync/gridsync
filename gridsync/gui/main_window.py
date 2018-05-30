@@ -440,6 +440,11 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         key = event.key()
+        if key == Qt.Key_Backspace or key == Qt.Key_Delete:
+            view = self.current_view()
+            selected = (view.selectedIndexes() if view else None)
+            if selected:
+                view.confirm_remove(view.get_selected_folders())
         if key == Qt.Key_Escape:
             view = self.current_view()
             selected = (view.selectedIndexes() if view else None)
