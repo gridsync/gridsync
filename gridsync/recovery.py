@@ -28,6 +28,8 @@ class RecoveryKeyImporter(QObject):
     def _on_decryption_failed(self, msg):
         logging.error("%s", msg)
         self.crypter_thread.quit()
+        if msg == "Decryption failed. Ciphertext failed verification":
+            msg = "The provided passphrase was incorrect. Please try again."
         reply = QMessageBox.critical(
             self.parent,
             "Decryption Error",
