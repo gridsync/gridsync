@@ -220,9 +220,9 @@ txdbus==1.1.0 ; "linux" in sys_platform \
 txtorcon==0.20.0 \
     --hash=sha256:a957b3dc10f0b2b882ef6ad46d2932fa7731d5eeee6d52ba9d736d2bc4f1385f \
     --hash=sha256:dc80cb76b3ddacef6d671c0a088cb1a45274c0858554c32ce55d0f41421c740e
-urllib3==1.22 \
-    --hash=sha256:06330f386d6e4b195fbfc736b297f58c5a892e4440e54d294d7004e3a9bbea1b \
-    --hash=sha256:cc44da8e1145637334317feebd728bd869a35285b93cbb4cca2577da7e62db4f
+urllib3==1.23 \
+    --hash=sha256:b5725a0bd4ba422ab0e66e89e030c806576753ea3ee08554382c14e685d117b5 \
+    --hash=sha256:a68ac5e15e76e7e5dd2b8f94007233e01effe3e50e8daddf69acfd81cb686baf
 zope.interface==4.5.0 \
     --hash=sha256:467d364b24cb398f76ad5e90398d71b9325eb4232be9e8a50d6a3b3c7a1c8789 \
     --hash=sha256:3d184aff0756c44fff7de69eb4cd5b5311b6f452d4de28cb08343b3f21993763 \
