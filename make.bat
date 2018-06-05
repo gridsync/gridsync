@@ -15,6 +15,8 @@
 ::  6) Microsoft Visual C++ Build Tools 2015 <http://landinghub.visualstudio.com/visual-cpp-build-tools>
 ::      -Select "Windows 8.1 SDK" and "Windows 10 SDK" options during install
 ::
+::  7) Inno Setup <http://www.jrsoftware.org/isinfo.php>
+::
 
 @echo off
 
