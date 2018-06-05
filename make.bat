@@ -34,6 +34,7 @@ if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="pytest" call :pytest
 if "%1"=="frozen-tahoe" call :frozen-tahoe
+if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="installer" call :installer
 if "%1"=="all" call :all
 if "%1"=="" call :all
@@ -83,12 +84,7 @@ call popd
 call deactivate
 goto :eof
 
-:installer
-call copy misc\Gridsync.iss .
-call "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\Gridsync.iss
-goto :eof
-
-:all
+:pyinstaller
 if exist .\dist\Tahoe-LAFS.zip (
     call %PYTHON2% -m zipfile -e .\dist\Tahoe-LAFS.zip dist
     call .\dist\Tahoe-LAFS\tahoe.exe --version-and-path
@@ -106,4 +102,14 @@ call set PYTHONHASHSEED=1
 call pyinstaller -y --clean misc\gridsync.spec
 call set PYTHONHASHSEED=
 call deactivate
+goto :eof
+
+:installer
+call copy misc\Gridsync.iss .
+call "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\Gridsync.iss
+goto :eof
+
+:all
+call :pyinstaller
+call :installer
 goto :eof
