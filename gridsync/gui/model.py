@@ -128,6 +128,7 @@ class Model(QStandardItemModel):
                 'background-color: white; border: 0px white')
         action_bar_action = QAction(self.icon_action, "Action...", self)
         action_bar_action.setStatusTip("Action...")
+        action_bar_action.triggered.connect(self.view.on_right_click)
         action_bar.addAction(action_bar_action)
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
