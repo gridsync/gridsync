@@ -330,6 +330,8 @@ class View(QTreeView):
             self.deselect_local_folders()
 
         selected = self.get_selected_folders()
+        if not selected:
+            selected = [cur_folder]
 
         menu = QMenu()
         if selection_is_remote:
