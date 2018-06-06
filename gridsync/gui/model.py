@@ -3,12 +3,13 @@
 from datetime import datetime
 import logging
 import os
+import sys
 import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import pyqtSlot, QFileInfo, QSize, Qt
 from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import QFileIconProvider
+from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import resource, config_dir
 from gridsync.gui.widgets import CompositePixmap
@@ -19,7 +20,7 @@ from gridsync.util import humanized_list
 
 class Model(QStandardItemModel):
     def __init__(self, view):
-        super(Model, self).__init__(0, 4)
+        super(Model, self).__init__(0, 5)
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
@@ -32,7 +33,7 @@ class Model(QStandardItemModel):
         self.setHeaderData(1, Qt.Horizontal, "Status")
         self.setHeaderData(2, Qt.Horizontal, "Last modified")
         self.setHeaderData(3, Qt.Horizontal, "Size")
-        #self.setHeaderData(4, Qt.Horizontal, "Action")
+        self.setHeaderData(4, Qt.Horizontal, "")
 
         self.icon_blank = QIcon()
         self.icon_up_to_date = QIcon(resource('checkmark.png'))
@@ -42,6 +43,7 @@ class Model(QStandardItemModel):
             self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
         self.icon_folder_gray = QIcon(composite_pixmap)
         self.icon_cloud = QIcon(resource('cloud-icon.png'))
+        self.icon_action = QIcon(resource('dots-horizontal-triple.png'))
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
@@ -116,7 +118,19 @@ class Model(QStandardItemModel):
         status = QStandardItem()
         mtime = QStandardItem()
         size = QStandardItem()
-        self.appendRow([name, status, mtime, size])
+        action = QStandardItem()
+        self.appendRow([name, status, mtime, size, action])
+        action_bar = QToolBar()
+        action_bar.setIconSize(QSize(16, 16))
+        if sys.platform == 'darwin':
+            # See: https://bugreports.qt.io/browse/QTBUG-12717
+            action_bar.setStyleSheet(
+                'background-color: white; border: 0px white')
+        action_bar_action = QAction(self.icon_action, "Action...", self)
+        action_bar_action.setStatusTip("Action...")
+        action_bar_action.triggered.connect(self.view.on_right_click)
+        action_bar.addAction(action_bar_action)
+        self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
         self.set_status(basename, status_data)
 

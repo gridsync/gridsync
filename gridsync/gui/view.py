@@ -5,7 +5,7 @@ import os
 import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
-from PyQt5.QtGui import QFont, QIcon, QMovie, QPixmap
+from PyQt5.QtGui import QCursor, QFont, QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
     QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
@@ -68,9 +68,9 @@ class View(QTreeView):
         self.setAcceptDrops(True)
         #self.setColumnWidth(0, 150)
         #self.setColumnWidth(1, 100)
-        self.setColumnWidth(2, 120)
-        self.setColumnWidth(3, 75)
-        #self.setColumnWidth(4, 50)
+        self.setColumnWidth(2, 115)
+        self.setColumnWidth(3, 70)
+        self.setColumnWidth(4, 10)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
@@ -315,6 +315,8 @@ class View(QTreeView):
         return folders
 
     def on_right_click(self, position):
+        if not position:
+            position = self.viewport().mapFromGlobal(QCursor().pos())
         cur_item = self.model().itemFromIndex(self.indexAt(position))
         if not cur_item:
             return
@@ -328,6 +330,8 @@ class View(QTreeView):
             self.deselect_local_folders()
 
         selected = self.get_selected_folders()
+        if not selected:
+            selected = [cur_folder]
 
         menu = QMenu()
         if selection_is_remote:
