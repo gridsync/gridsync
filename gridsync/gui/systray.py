@@ -4,10 +4,12 @@ import logging
 import sys
 import webbrowser
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon
+from PyQt5.QtWidgets import QAction, QMenu, QMessageBox, QSystemTrayIcon
 
 from gridsync import resource, settings, APP_NAME
+from gridsync._version import __version__
 
 
 def open_documentation():
@@ -23,6 +25,14 @@ class Menu(QMenu):
         super(Menu, self).__init__()
         self.parent = parent
         self.gui = self.parent.parent
+
+        self.about_msg = QMessageBox()
+        self.about_msg.setWindowTitle("{} - About".format(APP_NAME))
+        app_icon = QIcon(resource(settings['application']['tray_icon']))
+        self.about_msg.setIconPixmap(app_icon.pixmap(64, 64))
+        self.about_msg.setText("{} {}".format(APP_NAME, __version__))
+        self.about_msg.setWindowModality(Qt.WindowModal)
+
         self.populate()
 
     def _add_export_action(self, gateway):
@@ -61,15 +71,15 @@ class Menu(QMenu):
         issue_action = QAction(QIcon(''), "Report Issue...", self)
         issue_action.triggered.connect(open_issue)
 
-        #about_action = QAction(QIcon(''), "About {}...".format(APP_NAME), self)
-        #about_action.setEnabled(False)
+        about_action = QAction(QIcon(''), "About {}...".format(APP_NAME), self)
+        about_action.triggered.connect(self.about_msg.exec_)
 
         help_menu = QMenu(self)
         help_menu.setTitle("Help")
         help_menu.addAction(documentation_action)
         help_menu.addAction(issue_action)
-        #help_menu.addSeparator()
-        #help_menu.addAction(about_action)
+        help_menu.addSeparator()
+        help_menu.addAction(about_action)
 
         quit_action = QAction(
             QIcon(''), "&Quit {}".format(APP_NAME), self)
