@@ -5,7 +5,7 @@ import os
 import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
-from PyQt5.QtGui import QFont, QIcon, QMovie, QPixmap
+from PyQt5.QtGui import QCursor, QFont, QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
     QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
@@ -315,6 +315,8 @@ class View(QTreeView):
         return folders
 
     def on_right_click(self, position):
+        if not position:
+            position = self.viewport().mapFromGlobal(QCursor().pos())
         cur_item = self.model().itemFromIndex(self.indexAt(position))
         if not cur_item:
             return
