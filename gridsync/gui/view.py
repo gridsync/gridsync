@@ -70,7 +70,7 @@ class View(QTreeView):
         #self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 120)
         self.setColumnWidth(3, 75)
-        #self.setColumnWidth(4, 50)
+        self.setColumnWidth(4, 10)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setHeaderHidden(True)
         #self.setRootIsDecorated(False)
