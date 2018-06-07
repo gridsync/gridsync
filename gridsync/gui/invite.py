@@ -189,7 +189,8 @@ class InviteCodeWidget(QWidget):
         self.checkbox = QCheckBox("Connect over the Tor network")
         self.checkbox.setEnabled(False)
         #self.checkbox.setCheckable(False)
-        self.checkbox.setStyleSheet("color: grey")
+        self.checkbox.setStyleSheet(
+            "background-color: rgba(0,0,0,0%); color: rgba(0,0,0,0%)")
         self.checkbox.setFocusPolicy(Qt.NoFocus)
 
         layout = QGridLayout(self)
@@ -208,8 +209,11 @@ class InviteCodeWidget(QWidget):
         tor = yield get_tor(reactor)
         if tor:
             self.checkbox.setEnabled(True)
+            self.checkbox.setStyleSheet("color: grey")
         else:
             self.checkbox.setEnabled(False)
+            self.checkbox.setStyleSheet(
+                "background-color: rgba(0,0,0,0%); color: rgba(0,0,0,0%)")
 
     def toggle_tor_status(self, state):
         if state:
