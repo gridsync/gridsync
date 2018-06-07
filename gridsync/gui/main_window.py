@@ -211,6 +211,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
+        self.status_bar.setStyleSheet('QStatusBar::item { border: 0px; }')
         self.status_bar_label = QLabel('Loading...')
         self.status_bar.addPermanentWidget(self.status_bar_label)
 
