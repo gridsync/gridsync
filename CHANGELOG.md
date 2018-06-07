@@ -9,6 +9,7 @@
 - An Inno Setup Windows executable installer ("Gridsync-setup.exe") is now provided (Issue #35)
 - Backspace/Delete key-presses can now be used to remove folders
 - An "action" button/column has been added for each folder/row, making folder-specific actions accessible via left-click (Issue #89)
+- A (very) basic "About"/version dialog has been added, accessible via the systray menu
 
 ### Changed
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
