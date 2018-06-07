@@ -62,7 +62,8 @@ class CentralWidget(QStackedWidget):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
-        layout.setContentsMargins(10, 0, 10, 0)  # Default: 11
+        margin_left, _, margin_right, _ = layout.getContentsMargins()
+        layout.setContentsMargins(margin_left, 0, margin_right, 0)
         layout.addWidget(view)
         self.addWidget(widget)
         self.views.append(view)
