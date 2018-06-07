@@ -62,6 +62,7 @@ class CentralWidget(QStackedWidget):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
+        layout.setContentsMargins(10, 0, 10, 0)  # Default: 11
         layout.addWidget(view)
         self.addWidget(widget)
         self.views.append(view)
@@ -193,6 +194,7 @@ class MainWindow(QMainWindow):
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         self.toolbar = self.addToolBar('')
+        self.toolbar.setStyleSheet("QToolBar { border: 0px }")
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toolbar.setIconSize(QSize(24, 24))
