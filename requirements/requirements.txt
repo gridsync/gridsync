@@ -11,7 +11,7 @@ cryptography==2.2.2
 hkdf==0.0.3
 humanize==0.5.1
 hyperlink==18.0.0
-idna==2.6
+idna==2.7
 incremental==17.5.0
 ipaddress==1.0.22
 magic-wormhole==0.10.5
@@ -25,7 +25,7 @@ PyQt5==5.10.1
 pywin32==223 ; sys_platform == "win32"
 PyYAML==3.12
 qt5reactor==0.5
-requests==2.18.4
+requests==2.19.0
 service_identity==17.0.0
 SIP==4.19.8
 six==1.11.0
