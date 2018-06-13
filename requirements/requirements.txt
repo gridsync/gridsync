@@ -34,7 +34,6 @@ tqdm==4.23.4
 treq==17.8.0
 Twisted==18.4.0
 txaio==2.10.0
-txdbus==1.1.0 ; "linux" in sys_platform
 txtorcon==0.20.0
 urllib3==1.23
 zope.interface==4.5.0

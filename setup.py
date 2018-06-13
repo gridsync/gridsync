@@ -28,16 +28,14 @@ requirements = [
     'zxcvbn-python',
 ]
 
-if sys.platform.startswith('linux'):
-    requirements.append('txdbus')
-    if (struct.calcsize('P') * 8) == 32:
-        try:
-            import PyQt5  # noqa; F401 (imported but unused)
-        except ImportError:
-            sys.exit(
-                "PyQt5 wheels are not available for 32-bit GNU/Linux. Please "
-                "manually install PyQt5 into this environment and try again.")
-        requirements.remove('PyQt5')
+if sys.platform.startswith('linux') and (struct.calcsize('P') * 8) == 32:
+    try:
+        import PyQt5  # noqa; F401 (imported but unused)
+    except ImportError:
+        sys.exit(
+            "PyQt5 wheels are not available for 32-bit GNU/Linux. Please "
+            "manually install PyQt5 into this environment and try again.")
+    requirements.remove('PyQt5')
 
 
 module_file = open("gridsync/__init__.py").read()
