@@ -21,7 +21,7 @@ def test__dbus_notify_bus_not_connected(monkeypatch):
 def test__dbus_notify_interface_error(monkeypatch):
     monkeypatch.setattr(
         'PyQt5.QtDBus.QDBusConnection.isConnected', lambda _: True)
-    monkeypatch.setattr('PyQt5.QtDBus.QDBusInterface.lastError', MagicMock())
+    monkeypatch.setattr('PyQt5.QtDBus.QDBusError.type', lambda _: 9999)
     with pytest.raises(RuntimeError):
         _dbus_notify('', '')
 
@@ -33,7 +33,7 @@ def test__dbus_notify_interface_called(monkeypatch):
         was_called[0] = True
     monkeypatch.setattr(
         'PyQt5.QtDBus.QDBusConnection.isConnected', lambda _: True)
-    monkeypatch.setattr('PyQt5.QtDBus.QDBusInterface.isValid', lambda _: True)
+    monkeypatch.setattr('PyQt5.QtDBus.QDBusError.type', lambda _: 0)
     monkeypatch.setattr('PyQt5.QtDBus.QDBusInterface.call', fake_call)
     _dbus_notify('', '')
     assert was_called[0] is True
