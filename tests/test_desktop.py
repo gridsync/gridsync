@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 
 import pytest
 
 from gridsync.desktop import (
-    _dbus_notify, get_clipboard_modes, get_clipboard_text, set_clipboard_text,
-    autostart_enable, autostart_is_enabled, autostart_disable)
+    _dbus_notify, notify, get_clipboard_modes, get_clipboard_text,
+    set_clipboard_text, autostart_enable, autostart_is_enabled,
+    autostart_disable)
 
 
 def test__dbus_notify_bus_not_connected(monkeypatch):
@@ -36,6 +37,50 @@ def test__dbus_notify_interface_called(monkeypatch):
     monkeypatch.setattr('PyQt5.QtDBus.QDBusInterface.call', fake_call)
     _dbus_notify('', '')
     assert was_called[0] is True
+
+
+def test_notify_call__dbus_notify(monkeypatch):
+    dbus_notify_args = [None, None, None]
+
+    def fake_dbus_notify(title, message, duration):
+        dbus_notify_args[0] = title
+        dbus_notify_args[1] = message
+        dbus_notify_args[2] = duration
+    monkeypatch.setattr('sys.platform', 'linux')
+    monkeypatch.setattr('gridsync.desktop._dbus_notify', fake_dbus_notify)
+    notify(None, 'test_title', 'test_message', 9001)
+    assert dbus_notify_args == ['test_title', 'test_message', 9001]
+
+
+@pytest.mark.parametrize('error', [OSError, ValueError])
+def test_notify_call__dbus_notify_fallback_on_error(error, monkeypatch):
+    show_message_args = [None, None, None]
+
+    def fake_show_message(title, message, msecs):
+        show_message_args[0] = title
+        show_message_args[1] = message
+        show_message_args[2] = msecs
+    fake_systray = MagicMock()
+    fake_systray.showMessage = fake_show_message
+    monkeypatch.setattr('sys.platform', 'linux')
+    monkeypatch.setattr(
+        'gridsync.desktop._dbus_notify', MagicMock(side_effect=error))
+    notify(fake_systray, 'test_title', 'test_message', 9001)
+    assert show_message_args == ['test_title', 'test_message', 9001]
+
+
+def test_notify_call_systray_show_message(monkeypatch):
+    show_message_args = [None, None, None]
+
+    def fake_show_message(title, message, msecs):
+        show_message_args[0] = title
+        show_message_args[1] = message
+        show_message_args[2] = msecs
+    fake_systray = MagicMock()
+    fake_systray.showMessage = fake_show_message
+    monkeypatch.setattr('sys.platform', 'NOT_linux')
+    notify(fake_systray, 'test_title', 'test_message', 9001)
+    assert show_message_args == ['test_title', 'test_message', 9001]
 
 
 @pytest.fixture()
