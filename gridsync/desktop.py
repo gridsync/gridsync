@@ -14,47 +14,47 @@ if sys.platform == 'win32':
 from gridsync import resource, settings, APP_NAME, autostart_file_path
 
 
+def _dbus_notify(title, message, duration=5000):
+    from PyQt5.QtDBus import (
+        QDBus, QDBusArgument, QDBusConnection, QDBusInterface)
+    bus = QDBusConnection.sessionBus()
+    if not bus.isConnected():
+        raise OSError("Could not connect to DBus")
+    interface = QDBusInterface(
+        'org.freedesktop.Notifications',
+        '/org/freedesktop/Notifications',
+        'org.freedesktop.Notifications',
+        bus)
+    if not interface.isValid():
+        raise ValueError("Invalid DBus interface")
+    # See https://developer.gnome.org/notification-spec/
+    # "This allows clients to effectively modify the notification while
+    # it's active. A value of value of 0 means that this notification
+    # won't replace any existing notifications."
+    replaces_id = QVariant(0)
+    replaces_id.convert(QVariant.UInt)
+    interface.call(
+        QDBus.NoBlock,
+        'Notify',
+        settings['application']['name'],
+        replaces_id,
+        resource(settings['application']['tray_icon']),
+        title,
+        message,
+        QDBusArgument([], QMetaType.QStringList),
+        {},
+        duration)
+
+
 def notify(systray, title, message, duration=5000):
     logging.debug(
         "Sending notification: title=%s message=%s", title, message)
     if sys.platform.startswith('linux'):
-        from PyQt5.QtDBus import (
-            QDBus, QDBusArgument, QDBusConnection, QDBusInterface)
-        bus = QDBusConnection.sessionBus()
-        if not bus.isConnected():
-            logging.waring(
-                "Could not connect to DBus; falling back to showMessage()...")
+        try:
+            _dbus_notify(title, message, duration)
+        except (OSError, ValueError) as err:
+            logging.warning("%s; falling back to showMessage()..." % str(err))
             systray.showMessage(title, message, msecs=duration)
-            return
-        interface = QDBusInterface(
-            'org.freedesktop.Notifications',
-            '/org/freedesktop/Notifications',
-            'org.freedesktop.Notifications',
-            bus
-        )
-        if not interface.isValid():
-            logging.warning(
-                "Invalid DBus interface; falling back to showMessage()...")
-            systray.showMessage(title, message, msecs=duration)
-            return
-        # See https://developer.gnome.org/notification-spec/
-        # "This allows clients to effectively modify the notification while
-        # it's active. A value of value of 0 means that this notification
-        # won't replace any existing notifications."
-        replaces_id = QVariant(0)
-        replaces_id.convert(QVariant.UInt)
-        interface.call(
-            QDBus.NoBlock,
-            'Notify',
-            settings['application']['name'],
-            replaces_id,
-            resource(settings['application']['tray_icon']),
-            title,
-            message,
-            QDBusArgument([], QMetaType.QStringList),
-            {},
-            duration
-        )
     else:
         systray.showMessage(title, message, msecs=duration)
 
