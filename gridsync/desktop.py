@@ -53,7 +53,7 @@ def notify(systray, title, message, duration=5000):
         try:
             _dbus_notify(title, message, duration)
         except (OSError, ValueError) as err:
-            logging.warning("%s; falling back to showMessage()..." % str(err))
+            logging.warning("%s; falling back to showMessage()...", str(err))
             systray.showMessage(title, message, msecs=duration)
     else:
         systray.showMessage(title, message, msecs=duration)
