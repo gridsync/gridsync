@@ -36,7 +36,7 @@ def _dbus_notify(title, message, duration=5000):
     interface.call(
         QDBus.NoBlock,
         'Notify',
-        settings['application']['name'],
+        APP_NAME,
         replaces_id,
         resource(settings['application']['tray_icon']),
         title,
