@@ -25,8 +25,9 @@ def _dbus_notify(title, message, duration=5000):
         '/org/freedesktop/Notifications',
         'org.freedesktop.Notifications',
         bus)
-    if not interface.isValid():
-        raise ValueError("Invalid DBus interface")
+    error = interface.lastError()
+    if error.type():
+        raise RuntimeError("{}; {}".format(error.name(), error.message()))
     # See https://developer.gnome.org/notification-spec/
     # "This allows clients to effectively modify the notification while
     # it's active. A value of value of 0 means that this notification
@@ -52,7 +53,7 @@ def notify(systray, title, message, duration=5000):
     if sys.platform.startswith('linux'):
         try:
             _dbus_notify(title, message, duration)
-        except (OSError, ValueError) as err:
+        except (OSError, RuntimeError) as err:
             logging.warning("%s; falling back to showMessage()...", str(err))
             systray.showMessage(title, message, msecs=duration)
     else:
