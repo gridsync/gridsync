@@ -18,11 +18,11 @@ def test__dbus_notify_bus_not_connected(monkeypatch):
         _dbus_notify('', '')
 
 
-def test__dbus_notify_interface_not_valid(monkeypatch):
+def test__dbus_notify_interface_error(monkeypatch):
     monkeypatch.setattr(
         'PyQt5.QtDBus.QDBusConnection.isConnected', lambda _: True)
-    monkeypatch.setattr('PyQt5.QtDBus.QDBusInterface.isValid', lambda _: False)
-    with pytest.raises(ValueError):
+    monkeypatch.setattr('PyQt5.QtDBus.QDBusInterface.lastError', MagicMock())
+    with pytest.raises(RuntimeError):
         _dbus_notify('', '')
 
 
@@ -52,7 +52,7 @@ def test_notify_call__dbus_notify(monkeypatch):
     assert dbus_notify_args == ['test_title', 'test_message', 9001]
 
 
-@pytest.mark.parametrize('error', [OSError, ValueError])
+@pytest.mark.parametrize('error', [OSError, RuntimeError])
 def test_notify_call__dbus_notify_fallback_on_error(error, monkeypatch):
     show_message_args = [None, None, None]
 
