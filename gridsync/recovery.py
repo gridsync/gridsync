@@ -24,8 +24,7 @@ class RecoveryKeyExporter(QObject):
         self.animation = None
         self.crypter = None
         self.crypter_thread = None
-        self.export_data = None
-        self.export_dest = None
+        self.ciphertext = None
 
     def _on_encryption_failed(self, message):
         self.crypter_thread.quit()
@@ -34,13 +33,13 @@ class RecoveryKeyExporter(QObject):
 
     def _on_encryption_succeeded(self, ciphertext):
         self.crypter_thread.quit()
-        if self.export_dest:
-            with open(self.export_dest, 'wb') as f:
+        if self.filepath:
+            with open(self.filepath, 'wb') as f:
                 f.write(ciphertext)
-            self.done.emit(self.export_dest)
-            self.export_dest = None
+            self.done.emit(self.filepath)
+            self.filepath = None
         else:
-            self.export_data = ciphertext
+            self.ciphertext = ciphertext
         self.crypter_thread.wait()
 
     def _export_encrypted_recovery(self, gateway, password):
@@ -72,13 +71,13 @@ class RecoveryKeyExporter(QObject):
                 gateway.name + ' Recovery Key.json.encrypted'))
         if not dest:
             return
-        if self.export_data:
+        if self.ciphertext:
             with open(dest, 'wb') as f:
-                f.write(self.export_data)
+                f.write(self.ciphertext)
             self.done.emit(dest)
-            self.export_data = None
+            self.ciphertext = None
         else:
-            self.export_dest = dest
+            self.filepath = dest
 
     def _export_plaintext_recovery(self, gateway):
         dest, _ = QFileDialog.getSaveFileName(
