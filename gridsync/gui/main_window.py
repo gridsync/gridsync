@@ -77,12 +77,6 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.gui = gui
         self.gateways = []
-        self.progress = None
-        self.animation = None
-        #self.crypter = None
-        #self.crypter_thread = None
-        #self.export_data = None
-        #self.export_dest = None
         self.welcome_dialog = None
         self.recovery_key_exporter = None
 
