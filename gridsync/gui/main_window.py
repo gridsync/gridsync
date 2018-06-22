@@ -187,6 +187,10 @@ class MainWindow(QMainWindow):
         preferences_action.setShortcut(QKeySequence.Preferences)
         preferences_action.triggered.connect(self.toggle_preferences_widget)
 
+        self.preferences_button = QToolButton(self)
+        self.preferences_button.setDefaultAction(preferences_action)
+        self.preferences_button.setCheckable(True)
+
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
 
@@ -207,7 +211,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_right)
         self.toolbar.addWidget(recovery_button)
         #self.toolbar.addAction(export_action)
-        self.toolbar.addAction(preferences_action)
+        self.toolbar.addWidget(self.preferences_button)
 
         self.status_bar = self.statusBar()
         self.status_bar.setStyleSheet('QStatusBar::item { border: 0px; }')
@@ -281,6 +285,7 @@ class MainWindow(QMainWindow):
                 self.central_widget.setCurrentIndex(i)
                 self.status_bar.show()
                 self.set_current_grid_status()
+                self.preferences_button.setChecked(False)
                 return
         self.combo_box.setCurrentIndex(0)  # Fallback to 0 if none selected
         self.on_grid_selected(0)
@@ -314,10 +319,11 @@ class MainWindow(QMainWindow):
         if self.central_widget.currentWidget() == self.preferences_widget:
             self.show_selected_grid_view()
         else:
-            self.status_bar.hide()
             for i in range(self.central_widget.count()):
                 if self.central_widget.widget(i) == self.preferences_widget:
                     self.central_widget.setCurrentIndex(i)
+                    self.status_bar.hide()
+                    self.preferences_button.setChecked(True)
 
     def on_invite_received(self, _):
         for view in self.central_widget.views:
