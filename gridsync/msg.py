@@ -22,3 +22,12 @@ def error(parent, title, text, detailed_text=None):
     msg.setDetailedText(detailed_text)
     logging.error(text)
     return msg.exec_()
+
+
+def info(parent, title, text):
+    msg = QMessageBox(parent)
+    msg.setIcon(QMessageBox.Information)
+    msg.setWindowTitle(title)
+    msg.setText(text)
+    logging.info(text)
+    return msg.exec_()
