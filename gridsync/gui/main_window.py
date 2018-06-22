@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir
+from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.preferences import PreferencesWidget
 from gridsync.gui.welcome import WelcomeDialog
@@ -284,27 +285,15 @@ class MainWindow(QMainWindow):
         self.combo_box.setCurrentIndex(0)  # Fallback to 0 if none selected
         self.on_grid_selected(0)
 
-    def show_error_msg(self, title, text):
-        msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Critical)
-        msg.setWindowTitle(str(title))
-        msg.setText(str(text))
-        msg.exec_()
-
-    def show_info_msg(self, title, text):
-        msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Information)
-        msg.setWindowTitle(str(title))
-        msg.setText(str(text))
-        msg.exec_()
-
     def confirm_export(self, path):
-        if os.path.isfile(path):  # TODO: Confirm contents?
-            self.show_info_msg(
+        if os.path.isfile(path):
+            info(
+                self,
                 "Export successful",
                 "Recovery Key successfully exported to {}".format(path))
         else:
-            self.show_error_msg(
+            error(
+                self,
                 "Error exporting Recovery Key",
                 "Destination file not found after export: {}".format(path))
 
