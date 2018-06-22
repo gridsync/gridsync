@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import json
 import os
 
-from PyQt5.QtCore import (
-    QItemSelectionModel, QFileInfo, QPropertyAnimation, QSize, Qt, QThread)
+from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
-    QAction, QComboBox, QFileDialog, QFileIconProvider, QGridLayout, QLabel,
-    QMainWindow, QMenu, QMessageBox, QProgressDialog, QShortcut, QSizePolicy,
-    QStackedWidget, QToolButton, QWidget)
+    QAction, QComboBox, QFileIconProvider, QGridLayout, QLabel, QMainWindow,
+    QMenu, QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton,
+    QWidget)
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir
-from gridsync.crypto import Crypter
-from gridsync.gui.password import PasswordDialog
+from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.preferences import PreferencesWidget
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
@@ -81,11 +78,12 @@ class MainWindow(QMainWindow):
         self.gateways = []
         self.progress = None
         self.animation = None
-        self.crypter = None
-        self.crypter_thread = None
-        self.export_data = None
-        self.export_dest = None
+        #self.crypter = None
+        #self.crypter_thread = None
+        #self.export_data = None
+        #self.export_dest = None
         self.welcome_dialog = None
+        self.recovery_key_exporter = None
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
@@ -310,88 +308,13 @@ class MainWindow(QMainWindow):
                 "Error exporting Recovery Key",
                 "Destination file not found after export: {}".format(path))
 
-    def on_encryption_succeeded(self, ciphertext):
-        self.crypter_thread.quit()
-        if self.export_dest:
-            with open(self.export_dest, 'wb') as f:
-                f.write(ciphertext)
-            self.confirm_export(self.export_dest)
-            self.export_dest = None
-        else:
-            self.export_data = ciphertext
-        self.crypter_thread.wait()
-
-    def on_encryption_failed(self, message):
-        self.crypter_thread.quit()
-        self.show_error_msg(
-            "Error encrypting data",
-            "Encryption failed: " + message)
-        self.crypter_thread.wait()
-
-    def export_encrypted_recovery(self, gateway, password):
-        settings = gateway.get_settings(include_rootcap=True)
-        if gateway.use_tor:
-            settings['hide-ip'] = True
-        data = json.dumps(settings)
-        self.progress = QProgressDialog("Encrypting...", None, 0, 100)
-        self.progress.show()
-        self.animation = QPropertyAnimation(self.progress, b'value')
-        self.animation.setDuration(5000)  # XXX
-        self.animation.setStartValue(0)
-        self.animation.setEndValue(99)
-        self.animation.start()
-        self.crypter = Crypter(data.encode(), password.encode())
-        self.crypter_thread = QThread()
-        self.crypter.moveToThread(self.crypter_thread)
-        self.crypter.succeeded.connect(self.animation.stop)
-        self.crypter.succeeded.connect(self.progress.close)
-        self.crypter.succeeded.connect(self.on_encryption_succeeded)
-        self.crypter.failed.connect(self.animation.stop)
-        self.crypter.failed.connect(self.progress.close)
-        self.crypter.failed.connect(self.on_encryption_failed)
-        self.crypter_thread.started.connect(self.crypter.encrypt)
-        self.crypter_thread.start()
-        dest, _ = QFileDialog.getSaveFileName(
-            self, "Select a destination", os.path.join(
-                os.path.expanduser('~'),
-                gateway.name + ' Recovery Key.json.encrypted'))
-        if not dest:
-            return
-        if self.export_data:
-            with open(dest, 'wb') as f:
-                f.write(self.export_data)
-            self.confirm_export(dest)
-            self.export_data = None
-        else:
-            self.export_dest = dest
-
-    def export_plaintext_recovery(self, gateway):
-        dest, _ = QFileDialog.getSaveFileName(
-            self, "Select a destination", os.path.join(
-                os.path.expanduser('~'), gateway.name + ' Recovery Key.json'))
-        if not dest:
-            return
-        try:
-            gateway.export(dest, include_rootcap=True)
-        except Exception as e:  # pylint: disable=broad-except
-            self.show_error_msg("Error exporting Recovery Key", str(e))
-            return
-        self.confirm_export(dest)
-
     def export_recovery_key(self, gateway=None):
         self.show_selected_grid_view()
         if not gateway:
             gateway = self.current_view().gateway
-        password, ok = PasswordDialog.get_password(
-            self,
-            "Encryption passphrase (optional):",
-            "A long passphrase will help keep your files safe in the event "
-            "that your Recovery Key is ever compromised."
-        )
-        if ok and password:
-            self.export_encrypted_recovery(gateway, password)
-        elif ok:
-            self.export_plaintext_recovery(gateway)
+        self.recovery_key_exporter = RecoveryKeyExporter(self)
+        self.recovery_key_exporter.done.connect(self.confirm_export)
+        self.recovery_key_exporter.do_export(gateway)
 
     def import_recovery_key(self):
         # XXX Quick hack for user-testing; change later
