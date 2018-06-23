@@ -21,13 +21,13 @@ pycparser==2.18
 PyNaCl==1.2.1
 pyOpenSSL==18.0.0
 pypiwin32==223 ; sys_platform == "win32"
-PyQt5==5.10.1
+PyQt5==5.11
+PyQt5-sip==4.19.9
 pywin32==223 ; sys_platform == "win32"
 PyYAML==3.12
 qt5reactor==0.5
 requests==2.19.1
 service_identity==17.0.0
-SIP==4.19.8
 six==1.11.0
 spake2==0.8
 tqdm==4.23.4
