@@ -49,7 +49,8 @@ install:
   - which python3.6 && python3.6 --version
   - python2 -m pip install --upgrade setuptools pip
   - python3 -m pip install --upgrade setuptools pip
-  - python3 -m pip install --upgrade tox coveralls
+  - python3.6 -m pip install --upgrade setuptools pip
+  - python3.6 -m pip install --upgrade tox coveralls
   - which virtualenv && virtualenv --version
 script:
   - python3.6 -m tox
