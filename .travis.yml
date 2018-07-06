@@ -52,7 +52,7 @@ install:
   - python3 -m pip install --upgrade tox coveralls
   - which virtualenv && virtualenv --version
 script:
-  - python3 -m tox
+  - python3.6 -m tox
   - make all
   - dist/Tahoe-LAFS/tahoe --version-and-path
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/gridsync --version; fi
