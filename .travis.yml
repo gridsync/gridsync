@@ -33,6 +33,7 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew upgrade python3; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python@2; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew upgrade pyenv; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew list; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv install --list; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv versions; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.5; fi
