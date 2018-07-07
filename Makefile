@@ -221,7 +221,7 @@ frozen-tahoe:
 			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout c219102afc69c46da10c6f24b1aa8fff0a2e9205 \
 		;; \
 	esac
-	virtualenv --clear --python=python2 build/venv-tahoe
+	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
 	python setup.py update_version && \
@@ -246,7 +246,7 @@ frozen:
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	virtualenv --clear --python=python3.6 build/venv-gridsync
+	python3 -m virtualenv --clear --python=python3.6 build/venv-gridsync
 	source build/venv-gridsync/bin/activate && \
 	pip install --upgrade pip && \
 	pip install -r requirements/requirements-hashes.txt && \
@@ -271,7 +271,7 @@ py2app:
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	virtualenv --clear --python=python3.6 build/venv-py2app
+	python3 -m virtualenv --clear --python=python3.6 build/venv-py2app
 	source build/venv-py2app/bin/activate && \
 	pip install --upgrade pip && \
 	pip install -r requirements/requirements-hashes.txt && \
@@ -291,7 +291,7 @@ py2app:
 	touch dist/Gridsync.app
 
 dmg: py2app
-	virtualenv --clear --python=python2 build/venv-dmg
+	python3 -m virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \
 	python misc/call_dmgbuild.py
