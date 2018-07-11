@@ -16,6 +16,18 @@ TOR_DARK_GREY = '#484848'
 TOR_WHITE = '#FFFFFF'
 
 
+def tor_required(furl):
+    try:
+        hints = furl.split('/')[2].split(',')
+    except (AttributeError, IndexError):
+        return False
+    num_matches = 0
+    for hint in hints:
+        if '.onion:' in hint:
+            num_matches += 1
+    return bool(num_matches and num_matches == len(hints))
+
+
 @inlineCallbacks
 def get_tor(reactor):  # TODO: Add launch option?
     tor = None
