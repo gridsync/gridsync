@@ -4,7 +4,19 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from gridsync.tor import get_tor
+from gridsync.tor import tor_required, get_tor
+
+
+@pytest.mark.parametrize("furl,result", [
+    [None, False],  # Empty fURL; AttributeError
+    ['test', False],  # Invalid fURL; IndexError
+    ['pb://a@example.org:9999/b', False],  # No .onion addrs
+    ['pb://a@test.onion:9999/b', True],  # Only .onion addr
+    ['pb://a@example.org:9999,test.onion:9999/b', False],  # Clearnet available
+    ['pb://a@example.onion:9999,test.onion:9999/b', True],  # Only .onion addrs
+])
+def test_tor_required(furl, result):
+    assert tor_required(furl) == result
 
 
 @pytest.inlineCallbacks
