@@ -59,6 +59,7 @@ if sys.platform == 'darwin':
             'argv_emulation': True,
             'iconfile': build_settings['mac_icon'],
             'includes': ['cffi', 'PyQt5.sip', 'PyQt5-sip', 'PyQt5', 'sip'],
+            'packages': ['cffi', 'PyQt5.sip', 'PyQt5-sip', 'PyQt5', 'sip'],
             'plist': {
                 'CFBundleDisplayName': app_name,
                 'CFBundleExecutable': app_name,
