@@ -22,5 +22,5 @@ if (major, minor) < (10, 10):
 # the standalone "SIP" library. Unfortunately, py2app seems unable to detect
 # the vendored version, so install the standalone SIP 4.19.8 library for now.
 # See https://www.riverbankcomputing.com/pipermail/pyqt/2018-June/040421.html
-#else:
+else:
     subprocess.call(['pip', 'install', 'SIP==4.19.8'])
