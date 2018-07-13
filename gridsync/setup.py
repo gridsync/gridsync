@@ -289,6 +289,8 @@ class SetupRunner(QObject):
 
         if self.use_tor:
             settings['hide-ip'] = True
+        elif 'hide-ip' in settings:
+            self.use_tor = True
 
         self.gateway = self.get_gateway(
             settings.get('introducer'), settings.get('storage')
