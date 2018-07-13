@@ -25,7 +25,7 @@ requirements = [
     'treq',
     'twisted[tls]',
     'txtorcon',
-    'zxcvbn-python',
+    'zxcvbn',
 ]
 
 if sys.platform.startswith('linux') and (struct.calcsize('P') * 8) == 32:

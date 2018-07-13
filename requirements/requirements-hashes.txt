@@ -228,5 +228,5 @@ zope.interface==4.5.0 \
     --hash=sha256:e6b77ae84f2b8502d99a7855fa33334a1eb6159de45626905cb3e454c023f339 \
     --hash=sha256:a1daf9c5120f3cc6f2b5fef8e1d2a3fb7bbbb20ed4bfdc25bc8364bc62dcf54b \
     --hash=sha256:57c38470d9f57e37afb460c399eb254e7193ac7fb8042bd09bdc001981a9c74c
-zxcvbn-python==4.4.24 \
-    --hash=sha256:900b28cc5e96be4091d8778f19f222832890264e338765a1c1c09fca2db64b2d
+zxcvbn==4.4.27 \
+    --hash=sha256:6b09db5a411f927a7effac40b50ab0f9b1eae7b1659134b4a931e78950dd8387

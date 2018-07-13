@@ -37,4 +37,4 @@ txaio==2.10.0
 txtorcon==18.0.2
 urllib3==1.23
 zope.interface==4.5.0
-zxcvbn-python==4.4.24
+zxcvbn==4.4.27
