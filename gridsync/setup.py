@@ -17,7 +17,23 @@ from gridsync import config_dir, resource, APP_NAME
 from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError, TorError
 from gridsync.tahoe import Tahoe, select_executable
-from gridsync.tor import get_tor
+from gridsync.tor import tor_required, get_tor
+
+
+def is_onion_grid(settings):
+    furls = []
+    introducer = settings.get('introducer')
+    if introducer:
+        furls.append(introducer)
+    servers = settings.get('storage')
+    if servers:
+        for data in servers.values():
+            if 'anonymous-storage-FURL' in data:
+                furls.append(data.get('anonymous-storage-FURL'))
+    for furl in furls:
+        if tor_required(furl):
+            return True
+    return False
 
 
 def prompt_for_grid_name(grid_name, parent=None):
