@@ -446,13 +446,13 @@ class View(QTreeView):
         if event.type() == QEvent.DragEnter:
             self.dragEnterEvent(event)
             return True
-        elif event.type() == QEvent.DragLeave:
+        if event.type() == QEvent.DragLeave:
             self.dragLeaveEvent(event)
             return True
-        elif event.type() == QEvent.DragMove:
+        if event.type() == QEvent.DragMove:
             self.dragMoveEvent(event)
             return True
-        elif event.type() == QEvent.Drop:
+        if event.type() == QEvent.Drop:
             self.dropEvent(event)
             return True
         return False

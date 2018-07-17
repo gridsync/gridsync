@@ -356,7 +356,7 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         key = event.key()
-        if key == Qt.Key_Backspace or key == Qt.Key_Delete:
+        if key in (Qt.Key_Backspace, Qt.Key_Delete):
             view = self.current_view()
             selected = (view.selectedIndexes() if view else None)
             if selected:

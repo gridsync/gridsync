@@ -4,7 +4,7 @@ from collections import defaultdict
 from configparser import RawConfigParser, NoOptionError, NoSectionError
 
 
-class Config(object):
+class Config():
     def __init__(self, filename):
         self.filename = filename
         self.config = RawConfigParser(allow_no_value=True)

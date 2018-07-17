@@ -79,7 +79,7 @@ class CommandProtocol(ProcessProtocol):
                     self.output.getvalue().decode('utf-8').strip()))
 
 
-class Tahoe(object):  # pylint: disable=too-many-public-methods
+class Tahoe():  # pylint: disable=too-many-public-methods
     def __init__(self, nodedir=None, executable=None,
                  multi_folder_support=False):
         self.executable = executable
@@ -380,7 +380,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
-        elif sys.platform == 'win32':
+        if sys.platform == 'win32':
             self.kill()
         else:
             try:
@@ -768,7 +768,7 @@ class Tahoe(object):  # pylint: disable=too-many-public-methods
     def magic_folder_exists(self, folder_name):
         if self.local_magic_folder_exists(folder_name):
             return True
-        elif self.remote_magic_folder_exists(folder_name):
+        if self.remote_magic_folder_exists(folder_name):
             return True
         return False
 

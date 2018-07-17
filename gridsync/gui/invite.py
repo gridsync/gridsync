@@ -53,11 +53,11 @@ def is_valid(code):
     words = code.split('-')
     if len(words) != 3:
         return False
-    elif not words[0].isdigit():
+    if not words[0].isdigit():
         return False
-    elif not words[1] in wordlist:
+    if not words[1] in wordlist:
         return False
-    elif not words[2] in wordlist:
+    if not words[2] in wordlist:
         return False
     return True
 

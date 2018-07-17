@@ -49,11 +49,11 @@ def b58decode(s):  # Adapted from python-bitcoinlib
 def humanized_list(list_, kind='files'):
     if not list_:
         return None
-    elif len(list_) == 1:
+    if len(list_) == 1:
         return list_[0]
-    elif len(list_) == 2:
+    if len(list_) == 2:
         return " and ".join(list_)
-    elif len(list_) == 3:
+    if len(list_) == 3:
         return "{}, {}, and {}".format(*list_)
     return "{}, {}, and {} other {}".format(list_[0], list_[1],
                                             len(list_) - 2, kind)
@@ -62,7 +62,7 @@ def humanized_list(list_, kind='files'):
 def dehumanized_size(s):
     if not s:
         return 0
-    elif not s[0].isdigit():
+    if not s[0].isdigit():
         raise ValueError("Prefix must be a digit (received '{}')".format(s))
     string = s.upper()
     if string.endswith('BYTES'):

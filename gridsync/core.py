@@ -32,7 +32,7 @@ class CoreFactory(Factory):  # pylint: disable=no-init
     protocol = Protocol
 
 
-class Core(object):
+class Core():
     def __init__(self, args):
         self.args = args
         self.gui = None

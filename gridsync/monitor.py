@@ -42,11 +42,10 @@ class Monitor(QObject):
             self.status[folder_name]['updated_files'] = []
         if path in self.status[folder_name]['updated_files']:
             return
-        elif path.endswith('/') or path.endswith('~') or path.isdigit():
+        if path.endswith('/') or path.endswith('~') or path.isdigit():
             return
-        else:
-            self.status[folder_name]['updated_files'].append(path)
-            logging.debug("Added %s to updated_files list", path)
+        self.status[folder_name]['updated_files'].append(path)
+        logging.debug("Added %s to updated_files list", path)
 
     def notify_updated_files(self, folder_name):
         if 'updated_files' in self.status[folder_name]:

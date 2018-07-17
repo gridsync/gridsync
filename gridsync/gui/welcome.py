@@ -372,7 +372,7 @@ class WelcomeDialog(QStackedWidget):
             if settings:
                 self.verify_settings(settings)
                 return
-        d = wormhole_receive(code, self.use_tor)
+        d = wormhole_receive(code, self.use_tor)  # pylint: disable=assignment-from-no-return
         d.addCallback(self.verify_settings)
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)
