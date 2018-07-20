@@ -2,6 +2,7 @@
 
 import logging
 
+from PyQt5.QtWidgets import QMessageBox
 from twisted.internet.defer import inlineCallbacks
 import txtorcon
 
@@ -16,6 +17,18 @@ TOR_DARK_GREY = '#484848'
 TOR_WHITE = '#FFFFFF'
 
 
+def tor_required(furl):
+    try:
+        hints = furl.split('/')[2].split(',')
+    except (AttributeError, IndexError):
+        return False
+    num_matches = 0
+    for hint in hints:
+        if '.onion:' in hint:
+            num_matches += 1
+    return bool(num_matches and num_matches == len(hints))
+
+
 @inlineCallbacks
 def get_tor(reactor):  # TODO: Add launch option?
     tor = None
@@ -26,4 +39,24 @@ def get_tor(reactor):  # TODO: Add launch option?
         logging.debug("Could not connect to a running Tor daemon.")
     if tor:
         logging.debug("Connected to Tor daemon (%s)", tor.version)
+    return tor
+
+
+@inlineCallbacks
+def get_tor_with_prompt(reactor, parent=None):
+    tor = yield get_tor(reactor)
+    while not tor:
+        reply = QMessageBox.critical(
+            parent,
+            "Tor Required",
+            "This connection can only be made over the Tor network, however, "
+            "no running Tor daemon was found.<p>Please ensure that Tor is "
+            "running and try again.<p>For help installing Tor, visit "
+            "<a href=https://torproject.org>https://torproject.org</a>",
+            QMessageBox.Abort | QMessageBox.Retry
+        )
+        if reply == QMessageBox.Retry:
+            tor = yield get_tor(reactor)
+        else:
+            break
     return tor

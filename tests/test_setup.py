@@ -10,9 +10,51 @@ import yaml
 from gridsync import resource
 from gridsync.errors import UpgradeRequiredError, TorError
 from gridsync.setup import (
-    prompt_for_grid_name, validate_grid, prompt_for_folder_name,
+    is_onion_grid, prompt_for_grid_name, validate_grid, prompt_for_folder_name,
     validate_folders, validate_settings, SetupRunner)
 from gridsync.tahoe import Tahoe
+
+
+@pytest.mark.parametrize("settings,result", [
+    [
+        {
+            'introducer': 'pb://a@example.org:9999/b',
+            'storage': {
+                'v0-aaaaaaaa': {
+                    'anonymous-storage-FURL': 'pb://a@1.example.org:9999/b',
+                    'nickname': 'node-1'
+                }
+            },
+        },
+        False
+    ],
+    [
+        {
+            'introducer': 'pb://a@example.onion:9999/b',
+            'storage': {
+                'v0-aaaaaaaa': {
+                    'anonymous-storage-FURL': 'pb://a@1.example.org:9999/b',
+                    'nickname': 'node-1'
+                }
+            },
+        },
+        True
+    ],
+    [
+        {
+            'introducer': 'pb://a@example.org:9999/b',
+            'storage': {
+                'v0-aaaaaaaa': {
+                    'anonymous-storage-FURL': 'pb://a@1.example.onion:9999/b',
+                    'nickname': 'node-1'
+                }
+            },
+        },
+        True
+    ],
+])
+def test_is_onion_grid(settings, result):
+    assert is_onion_grid(settings) == result
 
 
 def test_prompt_for_grid_name(monkeypatch):
@@ -542,6 +584,7 @@ def test_run_join_grid(monkeypatch):
 
 @pytest.inlineCallbacks
 def test_run_join_grid_use_tor(monkeypatch):
+    monkeypatch.setattr('gridsync.tor.get_tor', lambda _: 'FakeTorObject')
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: None)
     monkeypatch.setattr(
@@ -554,6 +597,15 @@ def test_run_join_grid_use_tor(monkeypatch):
     settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
     yield sr.run(settings)
     assert settings['hide-ip']
+
+
+@pytest.inlineCallbacks
+def test_run_join_grid_use_tor_raise_tor_error(monkeypatch):
+    monkeypatch.setattr('gridsync.setup.get_tor_with_prompt', lambda _: None)
+    sr = SetupRunner([], use_tor=True)
+    settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
+    with pytest.raises(TorError):
+        yield sr.run(settings)
 
 
 @pytest.inlineCallbacks

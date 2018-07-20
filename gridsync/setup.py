@@ -17,7 +17,23 @@ from gridsync import config_dir, resource, APP_NAME
 from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError, TorError
 from gridsync.tahoe import Tahoe, select_executable
-from gridsync.tor import get_tor
+from gridsync.tor import tor_required, get_tor, get_tor_with_prompt
+
+
+def is_onion_grid(settings):
+    furls = []
+    introducer = settings.get('introducer')
+    if introducer:
+        furls.append(introducer)
+    servers = settings.get('storage')
+    if servers:
+        for data in servers.values():
+            if 'anonymous-storage-FURL' in data:
+                furls.append(data.get('anonymous-storage-FURL'))
+    for furl in furls:
+        if tor_required(furl):
+            return True
+    return False
 
 
 def prompt_for_grid_name(grid_name, parent=None):
@@ -271,8 +287,12 @@ class SetupRunner(QObject):
         if 'version' in settings and int(settings['version']) > 1:
             raise UpgradeRequiredError
 
-        if self.use_tor:
+        if self.use_tor or 'hide-ip' in settings or is_onion_grid(settings):
             settings['hide-ip'] = True
+            self.use_tor = True
+            tor = yield get_tor_with_prompt(reactor)
+            if not tor:
+                raise TorError("Could not connect to a running Tor daemon")
 
         self.gateway = self.get_gateway(
             settings.get('introducer'), settings.get('storage')
