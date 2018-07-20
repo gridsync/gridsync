@@ -287,12 +287,9 @@ class SetupRunner(QObject):
         if 'version' in settings and int(settings['version']) > 1:
             raise UpgradeRequiredError
 
-        if self.use_tor:
+        if self.use_tor or 'hide-ip' in settings or is_onion_grid(settings):
             settings['hide-ip'] = True
-        elif 'hide-ip' in settings:
             self.use_tor = True
-
-        if self.use_tor or is_onion_grid(settings):
             tor = yield get_tor_with_prompt(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
