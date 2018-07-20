@@ -600,6 +600,15 @@ def test_run_join_grid_use_tor(monkeypatch):
 
 
 @pytest.inlineCallbacks
+def test_run_join_grid_use_tor_raise_tor_error(monkeypatch):
+    monkeypatch.setattr('gridsync.setup.get_tor_with_prompt', lambda _: None)
+    sr = SetupRunner([], use_tor=True)
+    settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
+    with pytest.raises(TorError):
+        yield sr.run(settings)
+
+
+@pytest.inlineCallbacks
 def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')
