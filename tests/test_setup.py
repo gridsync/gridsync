@@ -584,6 +584,7 @@ def test_run_join_grid(monkeypatch):
 
 @pytest.inlineCallbacks
 def test_run_join_grid_use_tor(monkeypatch):
+    monkeypatch.setattr('gridsync.tor.get_tor', lambda _: 'FakeTorObject')
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: None)
     monkeypatch.setattr(
