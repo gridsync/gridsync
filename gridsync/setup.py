@@ -17,7 +17,7 @@ from gridsync import config_dir, resource, APP_NAME
 from gridsync.config import Config
 from gridsync.errors import UpgradeRequiredError, TorError
 from gridsync.tahoe import Tahoe, select_executable
-from gridsync.tor import tor_required, get_tor
+from gridsync.tor import tor_required, get_tor, get_tor_with_prompt
 
 
 def is_onion_grid(settings):
@@ -291,6 +291,11 @@ class SetupRunner(QObject):
             settings['hide-ip'] = True
         elif 'hide-ip' in settings:
             self.use_tor = True
+
+        if self.use_tor or is_onion_grid(settings):
+            tor = yield get_tor_with_prompt(reactor)
+            if not tor:
+                raise TorError("Could not connect to a running Tor daemon")
 
         self.gateway = self.get_gateway(
             settings.get('introducer'), settings.get('storage')
