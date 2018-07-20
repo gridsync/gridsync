@@ -27,9 +27,9 @@ def is_onion_grid(settings):
         furls.append(introducer)
     servers = settings.get('storage')
     if servers:
-        furl = servers.get('anonymous-storage-FURL')
-        if furl:
-            furls.append(furl)
+        for data in servers.values():
+            if 'anonymous-storage-FURL' in data:
+                furls.append(data.get('anonymous-storage-FURL'))
     for furl in furls:
         if tor_required(furl):
             return True
