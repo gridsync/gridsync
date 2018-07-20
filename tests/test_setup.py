@@ -20,8 +20,10 @@ from gridsync.tahoe import Tahoe
         {
             'introducer': 'pb://a@example.org:9999/b',
             'storage': {
-                'anonymous-storage-FURL': 'pb://a@node1.example.org:9999/b',
-                'nickname': 'node-1'
+                'v0-aaaaaaaa': {
+                    'anonymous-storage-FURL': 'pb://a@1.example.org:9999/b',
+                    'nickname': 'node-1'
+                }
             },
         },
         False
@@ -30,8 +32,10 @@ from gridsync.tahoe import Tahoe
         {
             'introducer': 'pb://a@example.onion:9999/b',
             'storage': {
-                'anonymous-storage-FURL': 'pb://a@node1.example.org:9999/b',
-                'nickname': 'node-1'
+                'v0-aaaaaaaa': {
+                    'anonymous-storage-FURL': 'pb://a@1.example.org:9999/b',
+                    'nickname': 'node-1'
+                }
             },
         },
         True
@@ -40,8 +44,10 @@ from gridsync.tahoe import Tahoe
         {
             'introducer': 'pb://a@example.org:9999/b',
             'storage': {
-                'anonymous-storage-FURL': 'pb://a@node1.example.onion:9999/b',
-                'nickname': 'node-1'
+                'v0-aaaaaaaa': {
+                    'anonymous-storage-FURL': 'pb://a@1.example.onion:9999/b',
+                    'nickname': 'node-1'
+                }
             },
         },
         True
