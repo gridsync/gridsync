@@ -20,7 +20,7 @@ if (major, minor) < (10, 10):
     subprocess.call(['pip', 'install', 'SIP==4.19.2', 'PyQt5==5.8.2'])
 # As of version 5.11, a "private" SIP module is provided by PyQt5, replacing
 # the standalone "SIP" library. Unfortunately, py2app seems unable to detect
-# the vendored version, so downgrade to PyQt5 5.10.1 and SIP 4.19.8 for now.
+# the vendored version, so install the standalone SIP 4.19.8 library for now.
 # See https://www.riverbankcomputing.com/pipermail/pyqt/2018-June/040421.html
-#else:
-#    subprocess.call(['pip', 'install', 'SIP==4.19.8', 'PyQt5==5.10.1'])
+else:
+    subprocess.call(['pip', 'install', 'SIP==4.19.8'])
