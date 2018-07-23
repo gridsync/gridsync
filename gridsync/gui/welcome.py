@@ -420,8 +420,6 @@ class WelcomeDialog(QStackedWidget):
         button_skip.setText("&Skip")
         msg.setWindowTitle("Export Recovery Key?")
         # "Now that {} is configured..."
-        # XXX The link points to 'develop' branch version of 'recovery-keys.md'
-        # TODO Update to master after user-testing
         msg.setText(
             "Before uploading any folders to {}, it is recommended that you "
             "export a Recovery Key and store it in a safe location (such as "
