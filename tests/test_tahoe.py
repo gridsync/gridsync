@@ -364,17 +364,6 @@ def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     assert output == ['stop']
 
 
-def test_parse_welcome_page(tahoe):  # tahoe-lafs=<1.12.1
-    html = '''
-        Connected to <span>3</span>of <span>10</span> known storage servers
-        <td class="service-available-space">N/A</td>
-        <td class="service-available-space">1kB</td>
-        <td class="service-available-space">1kB</td>
-    '''
-    connected, known, space = tahoe._parse_welcome_page(html)
-    assert (connected, known, space) == (3, 10, 2048)
-
-
 @pytest.inlineCallbacks
 def test_get_grid_status(tahoe, monkeypatch):
     json_content = b'''{
