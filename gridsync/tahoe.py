@@ -80,10 +80,9 @@ class CommandProtocol(ProcessProtocol):
 
 
 class Tahoe():  # pylint: disable=too-many-public-methods
-    def __init__(self, nodedir=None, executable=None,
-                 multi_folder_support=False):
+    def __init__(self, nodedir=None, executable=None):
         self.executable = executable
-        self.multi_folder_support = multi_folder_support
+        self.multi_folder_support = True
         if nodedir:
             self.nodedir = os.path.expanduser(nodedir)
         else:
@@ -1036,23 +1035,18 @@ def select_executable():
         returnValue((os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'), True))
     executables = which('tahoe')
     if not executables:
-        returnValue((None, None))
+        returnValue(None)
     tmpdir = tempfile.TemporaryDirectory()
     tasks = []
     for executable in executables:
-        log.debug("Found %s; checking magic-folder support...", executable)
+        log.debug(
+            "Found %s; checking for multi-magic-folder support...", executable)
         tasks.append(Tahoe(tmpdir.name, executable=executable).get_features())
     results = yield DeferredList(tasks)
-    acceptable_executables = []
     for success, result in results:
         if success:
             path, has_folder_support, has_multi_folder_support = result
             if has_folder_support and has_multi_folder_support:
-                log.debug("Found preferred executable: %s", path)
-                returnValue((path, True))
-            elif has_folder_support:
-                log.debug("Found acceptable executable: %s", path)
-                acceptable_executables.append(path)
-    if acceptable_executables:
-        returnValue((acceptable_executables[0], False))
-    returnValue((None, None))
+                log.debug("Found suitable executable: %s", path)
+                returnValue(path)
+    returnValue(None)
