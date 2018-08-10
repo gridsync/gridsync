@@ -4,8 +4,7 @@ from binascii import hexlify, unhexlify
 
 import pytest
 
-from gridsync.util import (
-    b58encode, b58decode, humanized_list, dehumanized_size)
+from gridsync.util import b58encode, b58decode, humanized_list
 
 
 # From https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
@@ -49,23 +48,3 @@ def test_b58decode_value_error():
 ])
 def test_humanized_list(items, kind, humanized):
     assert humanized_list(items, kind) == humanized
-
-
-@pytest.mark.parametrize("s,dehumanized", [
-    [None, 0],
-    ['32 Bytes', 32],
-    ['1KB', 1024],
-    ['256GB', 274877906944],
-])
-def test_dehumanized_size(s, dehumanized):
-    assert dehumanized_size(s) == dehumanized
-
-
-def test_dehumanized_size_value_error_prefix_not_digit():
-    with pytest.raises(ValueError):
-        assert dehumanized_size('two bytes') == 2
-
-
-def test_dehumanized_size_value_error_unknown_suffix():
-    with pytest.raises(ValueError):
-        assert dehumanized_size('3 ninjas') == 3

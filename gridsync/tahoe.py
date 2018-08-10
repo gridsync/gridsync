@@ -28,7 +28,6 @@ from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.preferences import set_preference, get_preference
-from gridsync.util import dehumanized_size
 
 
 def is_valid_furl(furl):
