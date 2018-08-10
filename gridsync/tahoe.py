@@ -499,7 +499,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         if not self.nodeurl:
             return
         try:
-            resp = yield treq.get(self.nodeurl + '?t=json')  # not yet released
+            resp = yield treq.get(self.nodeurl + '?t=json')
         except ConnectError:
             return
         if resp.code == 200:
