@@ -494,25 +494,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         set_preference('notifications', 'connection', pref)
         log.debug("Finished restarting %s client.", self.name)
 
-    @staticmethod
-    def _parse_welcome_page(html):
-        # XXX: This can be removed once a new, stable version of
-        # Tahoe-LAFS is released with Trac ticket #2476 resolved.
-        # See: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-        match = re.search('Connected to <span>(.+?)</span>', html)
-        servers_connected = (int(match.group(1)) if match else 0)
-        match = re.search("of <span>(.+?)</span> known storage servers", html)
-        servers_known = (int(match.group(1)) if match else 0)
-        available_space = 0
-        for s in re.findall('"service-available-space">(.+?)</td>', html):
-            try:
-                size = dehumanized_size(s)
-            except ValueError:  # "N/A"
-                continue
-            available_space += size
-        return servers_connected, servers_known, available_space
-
-    @inlineCallbacks  # noqa: max-complexity=11 XXX
+    @inlineCallbacks
     def get_grid_status(self):
         if not self.nodeurl:
             return
@@ -522,13 +504,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             return
         if resp.code == 200:
             content = yield treq.content(resp)
-            content = content.decode('utf-8')
-            try:
-                content = json.loads(content)
-            except json.decoder.JSONDecodeError:
-                # See: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-                connected, known, space = self._parse_welcome_page(content)
-                returnValue((connected, known, space))
+            content = json.loads(content.decode('utf-8'))
             servers_connected = 0
             servers_known = 0
             available_space = 0
