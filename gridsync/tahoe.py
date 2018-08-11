@@ -350,6 +350,20 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
 
+    def kill(self):
+        try:
+            with open(self.pidfile, 'r') as f:
+                pid = int(f.read())
+        except (EnvironmentError, ValueError) as err:
+            log.warning("Error loading pid from pidfile: %s", str(err))
+            return
+        log.debug("Trying to kill PID %d...", pid)
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError as err:
+            if err.errno not in (errno.ESRCH, errno.EINVAL):
+                log.error(err)
+
     @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
