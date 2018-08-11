@@ -351,29 +351,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             self.add_storage_servers(storage_servers)
 
     @inlineCallbacks
-    def _stop_magic_folder_subclients(self):
-        # For magic-folders created by '_create_magic_folder_subclient' below;
-        # provides support for multiple magic-folders on older tahoe clients
-        tasks = []
-        for nodedir in get_nodedirs(self.magic_folders_dir):
-            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
-        yield gatherResults(tasks)
-
-    def kill(self):
-        try:
-            with open(self.pidfile, 'r') as f:
-                pid = int(f.read())
-        except (EnvironmentError, ValueError) as err:
-            log.warning("Error loading pid from pidfile: %s", str(err))
-            return
-        log.debug("Trying to kill PID %d...", pid)
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except OSError as err:
-            if err.errno not in (errno.ESRCH, errno.EINVAL):
-                log.error(err)
-
-    @inlineCallbacks
     def stop(self):
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
@@ -389,20 +366,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             os.remove(self.pidfile)
         except EnvironmentError:
             pass
-        yield self._stop_magic_folder_subclients()
-
-    @inlineCallbacks
-    def _start_magic_folder_subclients(self):
-        # For magic-folders created by '_create_magic_folder_subclient' below;
-        # provides support for multiple magic-folders on older tahoe clients
-        tasks = []
-        for folder, settings in self.magic_folders.items():
-            nodedir = settings.get('nodedir')
-            if nodedir:
-                client = Tahoe(nodedir, executable=self.executable)
-                self.magic_folders[folder]['client'] = client
-                tasks.append(client.start())
-        yield gatherResults(tasks)
 
     @inlineCallbacks
     def upgrade_legacy_config(self):
@@ -478,7 +441,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
-        yield self._start_magic_folder_subclients()
 
     @inlineCallbacks
     def restart(self):
@@ -656,47 +618,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         log.debug("Successfully unlinked folder '%s' from rootcap", name)
 
     @inlineCallbacks
-    def _create_magic_folder_subclient(self, path, join_code=None,
-                                       admin_dircap=None, poll_interval=60):
-        poll_interval = str(poll_interval)
-        # Because Tahoe-LAFS doesn't (yet) support having multiple
-        # magic-folders per tahoe client, create the magic-folder inside
-        # a new nodedir using the current nodedir's connection settings.
-        # See https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2792
-        try:
-            os.makedirs(self.magic_folders_dir)
-        except OSError:
-            pass
-        basename = os.path.basename(path)
-        subclient = Tahoe(
-            os.path.join(self.magic_folders_dir, basename),
-            executable=self.executable)
-        self.magic_folders[basename] = {
-            'directory': path,
-            'client': subclient
-        }
-        settings = self.get_settings()
-        if self.use_tor:
-            settings['hide-ip'] = True
-        yield subclient.create_client(**settings)
-        if join_code:
-            yield subclient.command(['magic-folder', 'join', '-p',
-                                     poll_interval, join_code, path])
-            if admin_dircap:
-                subclient.add_alias('magic', admin_dircap)
-        else:
-            yield subclient.start()
-            yield subclient.await_ready()
-            yield subclient.command(
-                ['magic-folder', 'create', '-p', poll_interval, 'magic:',
-                 'admin', path])
-            yield subclient.stop()
-        yield subclient.start()
-        yield subclient.await_ready()
-        yield self.link_magic_folder_to_rootcap(basename)
-        returnValue(subclient)
-
-    @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
                             poll_interval=60):  # XXX See Issue #55
         path = os.path.realpath(os.path.expanduser(path))
@@ -707,10 +628,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             pass
         name = os.path.basename(path)
         alias = hashlib.sha256(name.encode()).hexdigest() + ':'
-        if not self.multi_folder_support:
-            yield self._create_magic_folder_subclient(
-                path, join_code, admin_dircap, poll_interval)
-            return
         if join_code:
             yield self.command(['magic-folder', 'join', '-p', poll_interval,
                                 '-n', name, join_code, path])
