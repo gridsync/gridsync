@@ -654,12 +654,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
 
-    def get_magic_folder_client(self, name):
-        for folder, settings in self.magic_folders.items():
-            if folder == name:
-                return settings.get('client')
-        return None
-
     def local_magic_folder_exists(self, folder_name):
         if folder_name in self.magic_folders:
             return True
@@ -692,12 +686,8 @@ class Tahoe():  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def magic_folder_uninvite(self, name, nickname):
         log.debug('Uninviting "%s" from "%s"...', nickname, name)
-        client = self.get_magic_folder_client(name)
-        if client:
-            yield client.unlink(client.get_alias('magic'), nickname)
-        else:
-            alias = hashlib.sha256(name.encode()).hexdigest()
-            yield self.unlink(self.get_alias(alias), nickname)
+        alias = hashlib.sha256(name.encode()).hexdigest()
+        yield self.unlink(self.get_alias(alias), nickname)
         log.debug('Uninvited "%s" from "%s"...', nickname, name)
 
     @inlineCallbacks
@@ -718,13 +708,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         nodeurl = self.nodeurl
         token = self.api_token
         if name:
-            gateway = self.get_magic_folder_client(name)
-            if gateway:
-                nodeurl = gateway.nodeurl
-                token = gateway.api_token
-                data = {'token': token, 't': 'json'}
-            else:
-                data = {'token': token, 'name': name, 't': 'json'}
+            data = {'token': token, 'name': name, 't': 'json'}
         else:
             data = {'token': token, 't': 'json'}
         if not nodeurl or not token:
@@ -770,14 +754,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['admin_dircap']
             except KeyError:
                 pass
-        if self.multi_folder_support:
-            cap = self.get_alias(hashlib.sha256(name.encode()).hexdigest())
-        else:
-            client = self.get_magic_folder_client(name)
-            if client:
-                cap = client.get_alias('magic')
-            else:
-                cap = None
+        cap = self.get_alias(hashlib.sha256(name.encode()).hexdigest())
         self.magic_folders[name]['admin_dircap'] = cap
         return cap
 
@@ -787,13 +764,8 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['collective_dircap']
             except KeyError:
                 pass
-        gateway = self.get_magic_folder_client(name)
-        if gateway:
-            path = os.path.join(self.magic_folders_dir, name, 'private',
-                                'collective_dircap')
-        else:
-            path = os.path.join(self.nodedir, 'private', 'collective_dircap')
-            name = 'default'
+        path = os.path.join(self.nodedir, 'private', 'collective_dircap')
+        name = 'default'
         cap = self.read_cap_from_file(path)
         self.magic_folders[name]['collective_dircap'] = cap
         return cap
@@ -804,13 +776,8 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['upload_dircap']
             except KeyError:
                 pass
-        gateway = self.get_magic_folder_client(name)
-        if gateway:
-            path = os.path.join(self.magic_folders_dir, name, 'private',
-                                'magic_folder_dircap')
-        else:
-            path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
-            name = 'default'
+        path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
+        name = 'default'
         cap = self.read_cap_from_file(path)
         if cap:
             self.magic_folders[name]['upload_dircap'] = cap
@@ -822,11 +789,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['directory']
             except KeyError:
                 pass
-        gateway = self.get_magic_folder_client(name)
-        if gateway:
-            directory = gateway.config_get('magic_folder', 'local.directory')
-        else:
-            directory = self.config_get('magic_folder', 'local.directory')
+        directory = self.config_get('magic_folder', 'local.directory')
         self.magic_folders[name]['directory'] = directory
         return directory
 
