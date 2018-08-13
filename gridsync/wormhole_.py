@@ -8,7 +8,7 @@ import logging
 
 from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 from wormhole import wormhole
 from wormhole.errors import WormholeError
 from wormhole.tor_manager import get_tor
@@ -95,7 +95,7 @@ class Wormhole(QObject):
         logging.debug("Received message: %s", msg)
         self.got_message.emit(msg)
         yield self.close()
-        returnValue(msg)
+        return msg
 
     @inlineCallbacks
     def send(self, msg, code=None):
@@ -131,7 +131,7 @@ class Wormhole(QObject):
 def wormhole_receive(code, use_tor=False):
     w = Wormhole(use_tor)
     msg = yield w.receive(code)
-    returnValue(msg)
+    return msg
 
 
 @inlineCallbacks
