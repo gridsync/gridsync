@@ -16,8 +16,7 @@ from io import BytesIO
 import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
-    Deferred, DeferredList, DeferredLock, gatherResults, inlineCallbacks,
-    returnValue)
+    Deferred, DeferredList, DeferredLock, inlineCallbacks, returnValue)
 from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
