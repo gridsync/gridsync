@@ -550,15 +550,6 @@ def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
         yield tahoe.unlink('test_dircap', 'test_childname')
 
 
-def test_tahoe_get_magic_folder_client(tahoe):
-    tahoe.magic_folders['Test Documents']['client'] = 'test_object'
-    assert tahoe.get_magic_folder_client('Test Documents') == 'test_object'
-
-
-def test_tahoe_get_magic_folder_client_none(tahoe):
-    assert tahoe.get_magic_folder_client('Non-existent Folder') is None
-
-
 def test_local_magic_folder_exists_true(tahoe):
     tahoe.magic_folders['LocalTestFolder'] = {}
     assert tahoe.local_magic_folder_exists('LocalTestFolder')
