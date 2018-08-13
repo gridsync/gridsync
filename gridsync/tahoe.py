@@ -16,7 +16,7 @@ from io import BytesIO
 import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
-    Deferred, DeferredList, DeferredLock, inlineCallbacks, returnValue)
+    Deferred, DeferredList, DeferredLock, inlineCallbacks)
 from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
@@ -317,18 +317,17 @@ class Tahoe():  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def get_features(self):
         try:
-            output = yield self.command(['magic-folder', 'list'])
+            yield self.command(['magic-folder', 'list'])
         except TahoeCommandError as err:
             if str(err).strip().endswith('Unknown command: list'):
                 # Has magic-folder support but no multi-magic-folder support
                 return self.executable, True, False
-            else:
-                # Has no magic-folder support ('Unknown command: magic-folder')
-                # or something else went wrong; consider executable unsupported
-                return self.executable, False, False
-        if output:
-            # Has magic-folder support and multi-magic-folder support
-            return self.executable, True, True
+            # Has no magic-folder support ('Unknown command: magic-folder')
+            # or something else went wrong; consider executable unsupported
+            return self.executable, False, False
+        #if output:
+        # Has magic-folder support and multi-magic-folder support
+        return self.executable, True, True
 
     @inlineCallbacks
     def create_client(self, **kwargs):
@@ -471,11 +470,11 @@ class Tahoe():  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def get_grid_status(self):
         if not self.nodeurl:
-            return
+            return None
         try:
             resp = yield treq.get(self.nodeurl + '?t=json')
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             content = yield treq.content(resp)
             content = json.loads(content.decode('utf-8'))
@@ -491,33 +490,31 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                         if server['available_space']:
                             available_space += server['available_space']
             return servers_connected, servers_known, available_space
+        return None
 
     @inlineCallbacks
     def get_connected_servers(self):
         if not self.nodeurl:
-            return
+            return None
         try:
             resp = yield treq.get(self.nodeurl)
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             html = yield treq.content(resp)
             match = re.search(
                 'Connected to <span>(.+?)</span>', html.decode('utf-8'))
             if match:
                 return int(match.group(1))
+        return None
 
     @inlineCallbacks
     def is_ready(self):
         if not self.shares_happy:
             return False
         connected_servers = yield self.get_connected_servers()
-        if not connected_servers:
-            return False
-        elif connected_servers >= self.shares_happy:
-            return True
-        else:
-            return False
+        return bool(
+            connected_servers and connected_servers >= self.shares_happy)
 
     @inlineCallbacks
     def await_ready(self):
@@ -539,9 +536,8 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         if resp.code == 200:
             content = yield treq.content(resp)
             return content.decode('utf-8').strip()
-        else:
-            raise TahoeWebError(
-                "Error creating Tahoe-LAFS directory: {}".format(resp.code))
+        raise TahoeWebError(
+            "Error creating Tahoe-LAFS directory: {}".format(resp.code))
 
     @inlineCallbacks
     def create_rootcap(self):
@@ -564,9 +560,8 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             content = yield treq.content(resp)
             log.debug("Successfully uploaded %s", local_path)
             return content.decode('utf-8')
-        else:
-            content = yield treq.content(resp)
-            raise TahoeWebError(content.decode('utf-8'))
+        content = yield treq.content(resp)
+        raise TahoeWebError(content.decode('utf-8'))
 
     @inlineCallbacks
     def download(self, cap, local_path):
@@ -711,27 +706,29 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         else:
             data = {'token': token, 't': 'json'}
         if not nodeurl or not token:
-            return
+            return None
         try:
             resp = yield treq.post(nodeurl + 'magic_folder', data)
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             content = yield treq.content(resp)
             return json.loads(content.decode('utf-8'))
+        return None
 
     @inlineCallbacks
     def get_json(self, cap):
         if not cap or not self.nodeurl:
-            return
+            return None
         uri = '{}uri/{}/?t=json'.format(self.nodeurl, cap)
         try:
             resp = yield treq.get(uri)
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             content = yield treq.content(resp)
             return json.loads(content.decode('utf-8'))
+        return None
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -811,6 +808,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                     folders[prefix]['admin_dircap'] = data_dict['rw_uri']
             self.remote_magic_folders = folders
             return folders
+        return None
 
     @inlineCallbacks
     def ensure_folder_links(self, _):
@@ -847,6 +845,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 else:
                     members.append((member, readcap))
             return members
+        return None
 
     @staticmethod
     def size_from_content(content):
@@ -862,6 +861,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             content = yield self.get_json(self.get_magic_folder_dircap(name))
         if content:
             return self.size_from_content(content)
+        return None
 
     @inlineCallbacks  # noqa: max-complexity=12 XXX
     def get_magic_folder_info(self, name=None, members=None):
