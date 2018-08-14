@@ -63,10 +63,6 @@ def tahoe(tmpdir_factory):
         f.write('test_alias: test_cap')
     with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
         f.write("magic-folders:\n  test_folder: {directory: test_dir}")
-    magic_folder_subdir = os.path.join(client.nodedir, 'magic-folders', 'Test')
-    os.makedirs(magic_folder_subdir)
-    with open(os.path.join(magic_folder_subdir, 'tahoe.cfg'), 'w') as f:
-        f.write('[magic_folder]\nlocal.directory = /Test')
     client.nodeurl = 'http://127.0.0.1:65536/'
     return client
 
@@ -235,11 +231,6 @@ def test_add_storage_servers_no_add_missing_furl(tmpdir):
 def test_load_magic_folders(tahoe):
     tahoe.load_magic_folders()
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'
-
-
-def test_load_magic_folders_from_subdir(tahoe):
-    tahoe.load_magic_folders()
-    assert tahoe.magic_folders['Test']['directory'] == '/Test'
 
 
 @pytest.inlineCallbacks
