@@ -255,14 +255,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         if folders_data:
             for key, value in folders_data.items():  # to preserve defaultdict
                 self.magic_folders[key] = value
-        for nodedir in get_nodedirs(self.magic_folders_dir):
-            folder_name = os.path.basename(nodedir)
-            if folder_name not in self.magic_folders:
-                config = Config(os.path.join(nodedir, 'tahoe.cfg'))
-                self.magic_folders[folder_name] = {
-                    'nodedir': nodedir,
-                    'directory': config.get('magic_folder', 'local.directory')
-                }
         for folder in self.magic_folders:
             admin_dircap = self.get_admin_dircap(folder)
             if admin_dircap:
