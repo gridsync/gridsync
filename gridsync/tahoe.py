@@ -690,17 +690,14 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
 
     @inlineCallbacks
-    def get_magic_folder_status(self, name=None):
-        nodeurl = self.nodeurl
-        token = self.api_token
-        if name:
-            data = {'token': token, 'name': name, 't': 'json'}
-        else:
-            data = {'token': token, 't': 'json'}
-        if not nodeurl or not token:
+    def get_magic_folder_status(self, name):
+        if not self.nodeurl or not self.api_token:
             return None
         try:
-            resp = yield treq.post(nodeurl + 'magic_folder', data)
+            resp = yield treq.post(
+                self.nodeurl + 'magic_folder',
+                {'token': self.api_token, 'name': name, 't': 'json'}
+            )
         except ConnectError:
             return None
         if resp.code == 200:
@@ -746,40 +743,29 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         self.magic_folders[name]['admin_dircap'] = cap
         return cap
 
-    def get_collective_dircap(self, name=None):
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]['collective_dircap']
-            except KeyError:
-                pass
-        path = os.path.join(self.nodedir, 'private', 'collective_dircap')
-        name = 'default'
-        cap = self.read_cap_from_file(path)
-        self.magic_folders[name]['collective_dircap'] = cap
-        return cap
+    def get_collective_dircap(self, name):
+        if name not in self.magic_folders:
+            self.load_magic_folders()
+        try:
+            return self.magic_folders[name]['collective_dircap']
+        except KeyError:
+            return None
 
-    def get_magic_folder_dircap(self, name=None):
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]['upload_dircap']
-            except KeyError:
-                pass
-        path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
-        name = 'default'
-        cap = self.read_cap_from_file(path)
-        if cap:
-            self.magic_folders[name]['upload_dircap'] = cap
-        return cap
+    def get_magic_folder_dircap(self, name):
+        if name not in self.magic_folders:
+            self.load_magic_folders()
+        try:
+            return self.magic_folders[name]['upload_dircap']
+        except KeyError:
+            return None
 
-    def get_magic_folder_directory(self, name=None):
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]['directory']
-            except KeyError:
-                pass
-        directory = self.config_get('magic_folder', 'local.directory')
-        self.magic_folders[name]['directory'] = directory
-        return directory
+    def get_magic_folder_directory(self, name):
+        if name not in self.magic_folders:
+            self.load_magic_folders()
+        try:
+            return self.magic_folders[name]['directory']
+        except KeyError:
+            return None
 
     @inlineCallbacks
     def get_magic_folders_from_rootcap(self, content=None):
@@ -817,7 +803,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                               'skipping.', folder)
 
     @inlineCallbacks
-    def get_magic_folder_members(self, name=None, content=None):
+    def get_magic_folder_members(self, name, content=None):
         if not content:
             content = yield self.get_json(self.get_collective_dircap(name))
         if content:
@@ -848,7 +834,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         return size
 
     @inlineCallbacks
-    def get_magic_folder_size(self, name=None, content=None):
+    def get_magic_folder_size(self, name, content=None):
         if not content:
             content = yield self.get_json(self.get_magic_folder_dircap(name))
         if content:
@@ -856,7 +842,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         return None
 
     @inlineCallbacks  # noqa: max-complexity=12 XXX
-    def get_magic_folder_info(self, name=None, members=None):
+    def get_magic_folder_info(self, name, members=None):
         total_size = 0
         sizes_dict = {}
         latest_mtime = 0
