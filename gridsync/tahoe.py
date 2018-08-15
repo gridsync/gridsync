@@ -745,6 +745,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 return self.magic_folders[folder_name][setting_name]
             except KeyError:
                 return None
+        return None
 
     def get_collective_dircap(self, name):
         return self._get_magic_folder_setting(name, 'collective_dircap')
