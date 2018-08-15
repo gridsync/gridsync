@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
 from twisted.internet.defer import (
-    CancelledError, gatherResults, inlineCallbacks, returnValue)
+    CancelledError, gatherResults, inlineCallbacks)
 import wormhole.errors
 
 from gridsync import resource, config_dir
@@ -290,7 +290,7 @@ class ShareWidget(QDialog):
             self.wormhole.close()
             error(self, "Invite Error", str(err))
             self.close()
-        returnValue((folder, member_id, code))
+        return folder, member_id, code
 
     @inlineCallbacks
     def get_folder_invites(self):
@@ -303,7 +303,7 @@ class ShareWidget(QDialog):
         for folder, member_id, code in results:
             folders_data[folder] = {'code': code}
             self.pending_invites.append((folder, member_id))
-        returnValue(folders_data)
+        return folders_data
 
     @inlineCallbacks
     def go(self):

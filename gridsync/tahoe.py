@@ -16,8 +16,7 @@ from io import BytesIO
 import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
-    Deferred, DeferredList, DeferredLock, gatherResults, inlineCallbacks,
-    returnValue)
+    Deferred, DeferredList, DeferredLock, inlineCallbacks)
 from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
@@ -28,7 +27,6 @@ from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.preferences import set_preference, get_preference
-from gridsync.util import dehumanized_size
 
 
 def is_valid_furl(furl):
@@ -80,10 +78,9 @@ class CommandProtocol(ProcessProtocol):
 
 
 class Tahoe():  # pylint: disable=too-many-public-methods
-    def __init__(self, nodedir=None, executable=None,
-                 multi_folder_support=False):
+    def __init__(self, nodedir=None, executable=None):
         self.executable = executable
-        self.multi_folder_support = multi_folder_support
+        self.multi_folder_support = True
         if nodedir:
             self.nodedir = os.path.expanduser(nodedir)
         else:
@@ -258,14 +255,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         if folders_data:
             for key, value in folders_data.items():  # to preserve defaultdict
                 self.magic_folders[key] = value
-        for nodedir in get_nodedirs(self.magic_folders_dir):
-            folder_name = os.path.basename(nodedir)
-            if folder_name not in self.magic_folders:
-                config = Config(os.path.join(nodedir, 'tahoe.cfg'))
-                self.magic_folders[folder_name] = {
-                    'nodedir': nodedir,
-                    'directory': config.get('magic_folder', 'local.directory')
-                }
         for folder in self.magic_folders:
             admin_dircap = self.get_admin_dircap(folder)
             if admin_dircap:
@@ -315,23 +304,22 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             protocol = CommandProtocol(self, callback_trigger)
             reactor.spawnProcess(protocol, exe, args=args, env=env)
             output = yield protocol.done
-        returnValue(output)
+        return output
 
     @inlineCallbacks
     def get_features(self):
         try:
-            output = yield self.command(['magic-folder', 'list'])
+            yield self.command(['magic-folder', 'list'])
         except TahoeCommandError as err:
             if str(err).strip().endswith('Unknown command: list'):
                 # Has magic-folder support but no multi-magic-folder support
-                returnValue((self.executable, True, False))
-            else:
-                # Has no magic-folder support ('Unknown command: magic-folder')
-                # or something else went wrong; consider executable unsupported
-                returnValue((self.executable, False, False))
-        if output:
-            # Has magic-folder support and multi-magic-folder support
-            returnValue((self.executable, True, True))
+                return self.executable, True, False
+            # Has no magic-folder support ('Unknown command: magic-folder')
+            # or something else went wrong; consider executable unsupported
+            return self.executable, False, False
+        #if output:
+        # Has magic-folder support and multi-magic-folder support
+        return self.executable, True, True
 
     @inlineCallbacks
     def create_client(self, **kwargs):
@@ -351,15 +339,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         storage_servers = kwargs.get('storage')
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
-
-    @inlineCallbacks
-    def _stop_magic_folder_subclients(self):
-        # For magic-folders created by '_create_magic_folder_subclient' below;
-        # provides support for multiple magic-folders on older tahoe clients
-        tasks = []
-        for nodedir in get_nodedirs(self.magic_folders_dir):
-            tasks.append(Tahoe(nodedir, executable=self.executable).stop())
-        yield gatherResults(tasks)
 
     def kill(self):
         try:
@@ -391,20 +370,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             os.remove(self.pidfile)
         except EnvironmentError:
             pass
-        yield self._stop_magic_folder_subclients()
-
-    @inlineCallbacks
-    def _start_magic_folder_subclients(self):
-        # For magic-folders created by '_create_magic_folder_subclient' below;
-        # provides support for multiple magic-folders on older tahoe clients
-        tasks = []
-        for folder, settings in self.magic_folders.items():
-            nodedir = settings.get('nodedir')
-            if nodedir:
-                client = Tahoe(nodedir, executable=self.executable)
-                self.magic_folders[folder]['client'] = client
-                tasks.append(client.start())
-        yield gatherResults(tasks)
 
     @inlineCallbacks
     def upgrade_legacy_config(self):
@@ -480,7 +445,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
-        yield self._start_magic_folder_subclients()
 
     @inlineCallbacks
     def restart(self):
@@ -495,41 +459,17 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         set_preference('notifications', 'connection', pref)
         log.debug("Finished restarting %s client.", self.name)
 
-    @staticmethod
-    def _parse_welcome_page(html):
-        # XXX: This can be removed once a new, stable version of
-        # Tahoe-LAFS is released with Trac ticket #2476 resolved.
-        # See: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-        match = re.search('Connected to <span>(.+?)</span>', html)
-        servers_connected = (int(match.group(1)) if match else 0)
-        match = re.search("of <span>(.+?)</span> known storage servers", html)
-        servers_known = (int(match.group(1)) if match else 0)
-        available_space = 0
-        for s in re.findall('"service-available-space">(.+?)</td>', html):
-            try:
-                size = dehumanized_size(s)
-            except ValueError:  # "N/A"
-                continue
-            available_space += size
-        return servers_connected, servers_known, available_space
-
-    @inlineCallbacks  # noqa: max-complexity=11 XXX
+    @inlineCallbacks
     def get_grid_status(self):
         if not self.nodeurl:
-            return
+            return None
         try:
-            resp = yield treq.get(self.nodeurl + '?t=json')  # not yet released
+            resp = yield treq.get(self.nodeurl + '?t=json')
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             content = yield treq.content(resp)
-            content = content.decode('utf-8')
-            try:
-                content = json.loads(content)
-            except json.decoder.JSONDecodeError:
-                # See: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2476
-                connected, known, space = self._parse_welcome_page(content)
-                returnValue((connected, known, space))
+            content = json.loads(content.decode('utf-8'))
             servers_connected = 0
             servers_known = 0
             available_space = 0
@@ -541,34 +481,32 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                         servers_connected += 1
                         if server['available_space']:
                             available_space += server['available_space']
-            returnValue((servers_connected, servers_known, available_space))
+            return servers_connected, servers_known, available_space
+        return None
 
     @inlineCallbacks
     def get_connected_servers(self):
         if not self.nodeurl:
-            return
+            return None
         try:
             resp = yield treq.get(self.nodeurl)
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             html = yield treq.content(resp)
             match = re.search(
                 'Connected to <span>(.+?)</span>', html.decode('utf-8'))
             if match:
-                returnValue(int(match.group(1)))
+                return int(match.group(1))
+        return None
 
     @inlineCallbacks
     def is_ready(self):
         if not self.shares_happy:
-            returnValue(False)
+            return False
         connected_servers = yield self.get_connected_servers()
-        if not connected_servers:
-            returnValue(False)
-        elif connected_servers >= self.shares_happy:
-            returnValue(True)
-        else:
-            returnValue(False)
+        return bool(
+            connected_servers and connected_servers >= self.shares_happy)
 
     @inlineCallbacks
     def await_ready(self):
@@ -589,10 +527,9 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         resp = yield treq.post(url, params=params)
         if resp.code == 200:
             content = yield treq.content(resp)
-            returnValue(content.decode('utf-8').strip())
-        else:
-            raise TahoeWebError(
-                "Error creating Tahoe-LAFS directory: {}".format(resp.code))
+            return content.decode('utf-8').strip()
+        raise TahoeWebError(
+            "Error creating Tahoe-LAFS directory: {}".format(resp.code))
 
     @inlineCallbacks
     def create_rootcap(self):
@@ -604,7 +541,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         with open(self.rootcap_path, 'w') as f:
             f.write(self.rootcap)
         log.debug("Rootcap saved to file: %s", self.rootcap_path)
-        returnValue(self.rootcap)
+        return self.rootcap
 
     @inlineCallbacks
     def upload(self, local_path):
@@ -614,10 +551,9 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         if resp.code == 200:
             content = yield treq.content(resp)
             log.debug("Successfully uploaded %s", local_path)
-            returnValue(content.decode('utf-8'))
-        else:
-            content = yield treq.content(resp)
-            raise TahoeWebError(content.decode('utf-8'))
+            return content.decode('utf-8')
+        content = yield treq.content(resp)
+        raise TahoeWebError(content.decode('utf-8'))
 
     @inlineCallbacks
     def download(self, cap, local_path):
@@ -682,47 +618,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         log.debug("Successfully unlinked folder '%s' from rootcap", name)
 
     @inlineCallbacks
-    def _create_magic_folder_subclient(self, path, join_code=None,
-                                       admin_dircap=None, poll_interval=60):
-        poll_interval = str(poll_interval)
-        # Because Tahoe-LAFS doesn't (yet) support having multiple
-        # magic-folders per tahoe client, create the magic-folder inside
-        # a new nodedir using the current nodedir's connection settings.
-        # See https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2792
-        try:
-            os.makedirs(self.magic_folders_dir)
-        except OSError:
-            pass
-        basename = os.path.basename(path)
-        subclient = Tahoe(
-            os.path.join(self.magic_folders_dir, basename),
-            executable=self.executable)
-        self.magic_folders[basename] = {
-            'directory': path,
-            'client': subclient
-        }
-        settings = self.get_settings()
-        if self.use_tor:
-            settings['hide-ip'] = True
-        yield subclient.create_client(**settings)
-        if join_code:
-            yield subclient.command(['magic-folder', 'join', '-p',
-                                     poll_interval, join_code, path])
-            if admin_dircap:
-                subclient.add_alias('magic', admin_dircap)
-        else:
-            yield subclient.start()
-            yield subclient.await_ready()
-            yield subclient.command(
-                ['magic-folder', 'create', '-p', poll_interval, 'magic:',
-                 'admin', path])
-            yield subclient.stop()
-        yield subclient.start()
-        yield subclient.await_ready()
-        yield self.link_magic_folder_to_rootcap(basename)
-        returnValue(subclient)
-
-    @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
                             poll_interval=60):  # XXX See Issue #55
         path = os.path.realpath(os.path.expanduser(path))
@@ -733,10 +628,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             pass
         name = os.path.basename(path)
         alias = hashlib.sha256(name.encode()).hexdigest() + ':'
-        if not self.multi_folder_support:
-            yield self._create_magic_folder_subclient(
-                path, join_code, admin_dircap, poll_interval)
-            return
         if join_code:
             yield self.command(['magic-folder', 'join', '-p', poll_interval,
                                 '-n', name, join_code, path])
@@ -748,12 +639,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                                 '-n', name, alias, 'admin', path])
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
-
-    def get_magic_folder_client(self, name):
-        for folder, settings in self.magic_folders.items():
-            if folder == name:
-                return settings.get('client')
-        return None
 
     def local_magic_folder_exists(self, folder_name):
         if folder_name in self.magic_folders:
@@ -782,68 +667,51 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             )
         created = yield self.mkdir(admin_dircap, nickname)
         code = '{}+{}'.format(self.get_collective_dircap(name), created)
-        returnValue(code)
+        return code
 
     @inlineCallbacks
     def magic_folder_uninvite(self, name, nickname):
         log.debug('Uninviting "%s" from "%s"...', nickname, name)
-        client = self.get_magic_folder_client(name)
-        if client:
-            yield client.unlink(client.get_alias('magic'), nickname)
-        else:
-            alias = hashlib.sha256(name.encode()).hexdigest()
-            yield self.unlink(self.get_alias(alias), nickname)
+        alias = hashlib.sha256(name.encode()).hexdigest()
+        yield self.unlink(self.get_alias(alias), nickname)
         log.debug('Uninvited "%s" from "%s"...', nickname, name)
 
     @inlineCallbacks
     def remove_magic_folder(self, name):
         if name in self.magic_folders:
-            client = self.magic_folders[name].get('client')
             del self.magic_folders[name]
-            if client:
-                yield client.command(['magic-folder', 'leave'])
-                yield client.stop()
-                shutil.rmtree(client.nodedir, ignore_errors=True)
-            else:
-                yield self.command(['magic-folder', 'leave', '-n', name])
-                self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
+            yield self.command(['magic-folder', 'leave', '-n', name])
+            self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
 
     @inlineCallbacks
-    def get_magic_folder_status(self, name=None):
-        nodeurl = self.nodeurl
-        token = self.api_token
-        if name:
-            gateway = self.get_magic_folder_client(name)
-            if gateway:
-                nodeurl = gateway.nodeurl
-                token = gateway.api_token
-                data = {'token': token, 't': 'json'}
-            else:
-                data = {'token': token, 'name': name, 't': 'json'}
-        else:
-            data = {'token': token, 't': 'json'}
-        if not nodeurl or not token:
-            return
+    def get_magic_folder_status(self, name):
+        if not self.nodeurl or not self.api_token:
+            return None
         try:
-            resp = yield treq.post(nodeurl + 'magic_folder', data)
+            resp = yield treq.post(
+                self.nodeurl + 'magic_folder',
+                {'token': self.api_token, 'name': name, 't': 'json'}
+            )
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             content = yield treq.content(resp)
-            returnValue(json.loads(content.decode('utf-8')))
+            return json.loads(content.decode('utf-8'))
+        return None
 
     @inlineCallbacks
     def get_json(self, cap):
         if not cap or not self.nodeurl:
-            return
+            return None
         uri = '{}uri/{}/?t=json'.format(self.nodeurl, cap)
         try:
             resp = yield treq.get(uri)
         except ConnectError:
-            return
+            return None
         if resp.code == 200:
             content = yield treq.content(resp)
-            returnValue(json.loads(content.decode('utf-8')))
+            return json.loads(content.decode('utf-8'))
+        return None
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -865,65 +733,28 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 return self.magic_folders[name]['admin_dircap']
             except KeyError:
                 pass
-        if self.multi_folder_support:
-            cap = self.get_alias(hashlib.sha256(name.encode()).hexdigest())
-        else:
-            client = self.get_magic_folder_client(name)
-            if client:
-                cap = client.get_alias('magic')
-            else:
-                cap = None
+        cap = self.get_alias(hashlib.sha256(name.encode()).hexdigest())
         self.magic_folders[name]['admin_dircap'] = cap
         return cap
 
-    def get_collective_dircap(self, name=None):
-        if name in self.magic_folders:
+    def _get_magic_folder_setting(self, folder_name, setting_name):
+        if folder_name not in self.magic_folders:
+            self.load_magic_folders()
+        if folder_name in self.magic_folders:
             try:
-                return self.magic_folders[name]['collective_dircap']
+                return self.magic_folders[folder_name][setting_name]
             except KeyError:
-                pass
-        gateway = self.get_magic_folder_client(name)
-        if gateway:
-            path = os.path.join(self.magic_folders_dir, name, 'private',
-                                'collective_dircap')
-        else:
-            path = os.path.join(self.nodedir, 'private', 'collective_dircap')
-            name = 'default'
-        cap = self.read_cap_from_file(path)
-        self.magic_folders[name]['collective_dircap'] = cap
-        return cap
+                return None
+        return None
 
-    def get_magic_folder_dircap(self, name=None):
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]['upload_dircap']
-            except KeyError:
-                pass
-        gateway = self.get_magic_folder_client(name)
-        if gateway:
-            path = os.path.join(self.magic_folders_dir, name, 'private',
-                                'magic_folder_dircap')
-        else:
-            path = os.path.join(self.nodedir, 'private', 'magic_folder_dircap')
-            name = 'default'
-        cap = self.read_cap_from_file(path)
-        if cap:
-            self.magic_folders[name]['upload_dircap'] = cap
-        return cap
+    def get_collective_dircap(self, name):
+        return self._get_magic_folder_setting(name, 'collective_dircap')
 
-    def get_magic_folder_directory(self, name=None):
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]['directory']
-            except KeyError:
-                pass
-        gateway = self.get_magic_folder_client(name)
-        if gateway:
-            directory = gateway.config_get('magic_folder', 'local.directory')
-        else:
-            directory = self.config_get('magic_folder', 'local.directory')
-        self.magic_folders[name]['directory'] = directory
-        return directory
+    def get_magic_folder_dircap(self, name):
+        return self._get_magic_folder_setting(name, 'upload_dircap')
+
+    def get_magic_folder_directory(self, name):
+        return self._get_magic_folder_setting(name, 'directory')
 
     @inlineCallbacks
     def get_magic_folders_from_rootcap(self, content=None):
@@ -943,7 +774,8 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                     prefix = name.split(' (admin)')[0]
                     folders[prefix]['admin_dircap'] = data_dict['rw_uri']
             self.remote_magic_folders = folders
-            returnValue(folders)
+            return folders
+        return None
 
     @inlineCallbacks
     def ensure_folder_links(self, _):
@@ -960,7 +792,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                               'skipping.', folder)
 
     @inlineCallbacks
-    def get_magic_folder_members(self, name=None, content=None):
+    def get_magic_folder_members(self, name, content=None):
         if not content:
             content = yield self.get_json(self.get_collective_dircap(name))
         if content:
@@ -979,7 +811,8 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                         members.append((member, readcap))
                 else:
                     members.append((member, readcap))
-            returnValue(members)
+            return members
+        return None
 
     @staticmethod
     def size_from_content(content):
@@ -990,14 +823,15 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         return size
 
     @inlineCallbacks
-    def get_magic_folder_size(self, name=None, content=None):
+    def get_magic_folder_size(self, name, content=None):
         if not content:
             content = yield self.get_json(self.get_magic_folder_dircap(name))
         if content:
-            returnValue(self.size_from_content(content))
+            return self.size_from_content(content)
+        return None
 
     @inlineCallbacks  # noqa: max-complexity=12 XXX
-    def get_magic_folder_info(self, name=None, members=None):
+    def get_magic_folder_info(self, name, members=None):
         total_size = 0
         sizes_dict = {}
         latest_mtime = 0
@@ -1026,33 +860,28 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                         continue
                     if mt > latest_mtime:
                         latest_mtime = mt
-        returnValue((members, total_size, latest_mtime, sizes_dict))
+        return members, total_size, latest_mtime, sizes_dict
 
 
 @inlineCallbacks
 def select_executable():
     if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
         # Because magic-folder on macOS has not yet landed upstream
-        returnValue((os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'), True))
+        return os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe'), True
     executables = which('tahoe')
     if not executables:
-        returnValue((None, None))
+        return None
     tmpdir = tempfile.TemporaryDirectory()
     tasks = []
     for executable in executables:
-        log.debug("Found %s; checking magic-folder support...", executable)
+        log.debug(
+            "Found %s; checking for multi-magic-folder support...", executable)
         tasks.append(Tahoe(tmpdir.name, executable=executable).get_features())
     results = yield DeferredList(tasks)
-    acceptable_executables = []
     for success, result in results:
         if success:
             path, has_folder_support, has_multi_folder_support = result
             if has_folder_support and has_multi_folder_support:
-                log.debug("Found preferred executable: %s", path)
-                returnValue((path, True))
-            elif has_folder_support:
-                log.debug("Found acceptable executable: %s", path)
-                acceptable_executables.append(path)
-    if acceptable_executables:
-        returnValue((acceptable_executables[0], False))
-    returnValue((None, None))
+                log.debug("Found suitable executable: %s", path)
+                return path
+    return None

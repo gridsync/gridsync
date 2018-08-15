@@ -63,10 +63,6 @@ def tahoe(tmpdir_factory):
         f.write('test_alias: test_cap')
     with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
         f.write("magic-folders:\n  test_folder: {directory: test_dir}")
-    magic_folder_subdir = os.path.join(client.nodedir, 'magic-folders', 'Test')
-    os.makedirs(magic_folder_subdir)
-    with open(os.path.join(magic_folder_subdir, 'tahoe.cfg'), 'w') as f:
-        f.write('[magic_folder]\nlocal.directory = /Test')
     client.nodeurl = 'http://127.0.0.1:65536/'
     return client
 
@@ -237,11 +233,6 @@ def test_load_magic_folders(tahoe):
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'
 
 
-def test_load_magic_folders_from_subdir(tahoe):
-    tahoe.load_magic_folders()
-    assert tahoe.magic_folders['Test']['directory'] == '/Test'
-
-
 @pytest.inlineCallbacks
 def test_tahoe_command_win32_monkeypatch(tahoe, monkeypatch):
     monkeypatch.setattr('sys.platform', 'win32')
@@ -362,17 +353,6 @@ def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     monkeypatch.setattr('sys.platform', 'linux')
     output = yield tahoe.stop()
     assert output == ['stop']
-
-
-def test_parse_welcome_page(tahoe):  # tahoe-lafs=<1.12.1
-    html = '''
-        Connected to <span>3</span>of <span>10</span> known storage servers
-        <td class="service-available-space">N/A</td>
-        <td class="service-available-space">1kB</td>
-        <td class="service-available-space">1kB</td>
-    '''
-    connected, known, space = tahoe._parse_welcome_page(html)
-    assert (connected, known, space) == (3, 10, 2048)
 
 
 @pytest.inlineCallbacks
@@ -559,15 +539,6 @@ def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr('treq.content', lambda _: b'test content')
     with pytest.raises(TahoeWebError):
         yield tahoe.unlink('test_dircap', 'test_childname')
-
-
-def test_tahoe_get_magic_folder_client(tahoe):
-    tahoe.magic_folders['Test Documents']['client'] = 'test_object'
-    assert tahoe.get_magic_folder_client('Test Documents') == 'test_object'
-
-
-def test_tahoe_get_magic_folder_client_none(tahoe):
-    assert tahoe.get_magic_folder_client('Non-existent Folder') is None
 
 
 def test_local_magic_folder_exists_true(tahoe):

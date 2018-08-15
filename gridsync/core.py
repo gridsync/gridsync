@@ -38,19 +38,18 @@ class Core():
         self.gui = None
         self.gateways = []
         self.executable = None
-        self.multi_folder_support = None
         self.operations = []
 
     @inlineCallbacks
     def select_executable(self):
-        self.executable, self.multi_folder_support = yield select_executable()
-        logging.debug("Selected executable: %s (multi_folder_support=%s)",
-                      self.executable, self.multi_folder_support)
+        self.executable = yield select_executable()
+        logging.debug("Selected executable: %s", self.executable)
         if not self.executable:
             msg.critical(
                 "Tahoe-LAFS not found",
                 "Could not find a suitable 'tahoe' executable in your PATH. "
-                "Please install Tahoe-LAFS (version >= 1.12) and try again.")
+                "Please install Tahoe-LAFS version 1.13.0 or greater and try "
+                "again.")
             reactor.stop()
 
     @inlineCallbacks
@@ -64,11 +63,7 @@ class Core():
             tor_available = yield get_tor(reactor)
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
             for nodedir in nodedirs:
-                gateway = Tahoe(
-                    nodedir,
-                    executable=self.executable,
-                    multi_folder_support=self.multi_folder_support
-                )
+                gateway = Tahoe(nodedir, executable=self.executable)
                 tcp = gateway.config_get('connections', 'tcp')
                 if tcp == 'tor' and not tor_available:
                     msg.error(

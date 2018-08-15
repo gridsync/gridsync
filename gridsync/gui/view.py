@@ -175,9 +175,8 @@ class View(QTreeView):
         self.share_widgets.append(share_widget)  # TODO: Remove on close
         share_widget.show()
 
-    def maybe_restart_gateway(self, _):
-        if self.gateway.multi_folder_support:
-            self.gateway.restart()
+    def restart_gateway(self, _):
+        self.gateway.restart()
 
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
@@ -196,7 +195,7 @@ class View(QTreeView):
                 self.gateway.create_magic_folder(path, join_code, admin_dircap)
             )
         d = DeferredList(tasks)
-        d.addCallback(self.maybe_restart_gateway)
+        d.addCallback(self.restart_gateway)
 
     def show_failure(self, failure):
         msg = QMessageBox(self)
@@ -409,7 +408,7 @@ class View(QTreeView):
                 self.model().add_folder(path)
                 tasks.append(self.gateway.create_magic_folder(path))
             d = DeferredList(tasks)
-            d.addCallback(self.maybe_restart_gateway)
+            d.addCallback(self.restart_gateway)
 
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")
