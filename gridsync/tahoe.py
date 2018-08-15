@@ -679,15 +679,9 @@ class Tahoe():  # pylint: disable=too-many-public-methods
     @inlineCallbacks
     def remove_magic_folder(self, name):
         if name in self.magic_folders:
-            client = self.magic_folders[name].get('client')
             del self.magic_folders[name]
-            if client:
-                yield client.command(['magic-folder', 'leave'])
-                yield client.stop()
-                shutil.rmtree(client.nodedir, ignore_errors=True)
-            else:
-                yield self.command(['magic-folder', 'leave', '-n', name])
-                self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
+            yield self.command(['magic-folder', 'leave', '-n', name])
+            self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
 
     @inlineCallbacks
     def get_magic_folder_status(self, name):
