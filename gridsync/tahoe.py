@@ -743,32 +743,23 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         self.magic_folders[name]['admin_dircap'] = cap
         return cap
 
-    def get_collective_dircap(self, name):
-        if name not in self.magic_folders:
+    def _get_magic_folder_setting(self, folder_name, setting_name):
+        if folder_name not in self.magic_folders:
             self.load_magic_folders()
-        if name in self.magic_folders:
+        if folder_name in self.magic_folders:
             try:
-                return self.magic_folders[name]['collective_dircap']
+                return self.magic_folders[folder_name][setting_name]
             except KeyError:
                 return None
+
+    def get_collective_dircap(self, name):
+        return self._get_magic_folder_setting(name, 'collective_dircap')
 
     def get_magic_folder_dircap(self, name):
-        if name not in self.magic_folders:
-            self.load_magic_folders()
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]['upload_dircap']
-            except KeyError:
-                return None
+        return self._get_magic_folder_setting(name, 'upload_dircap')
 
     def get_magic_folder_directory(self, name):
-        if name not in self.magic_folders:
-            self.load_magic_folders()
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]['directory']
-            except KeyError:
-                return None
+        return self._get_magic_folder_setting(name, 'directory')
 
     @inlineCallbacks
     def get_magic_folders_from_rootcap(self, content=None):
