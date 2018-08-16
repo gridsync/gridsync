@@ -9,8 +9,13 @@ except ImportError:
 from distutils.sysconfig import get_python_lib
 import hashlib
 import os
+import re
 import shutil
 import sys
+
+
+version_file = open("gridsync/_version.py").read()
+version = re.findall("__version__\s*=\s*'([^']+)'", version_file)[0]
 
 
 config = RawConfigParser(allow_no_value=True)
@@ -79,6 +84,7 @@ app = BUNDLE(
     icon=settings['build']['mac_icon'],
     bundle_identifier=settings['build']['mac_bundle_identifier'],
     info_plist={
+        'CFBundleShortVersionString': version,
         'LSBackgroundOnly': True,
         'LSUIElement': True,
     }
