@@ -250,14 +250,24 @@ frozen:
 	source build/venv-gridsync/bin/activate && \
 	pip install --upgrade pip && \
 	pip install -r requirements/requirements-hashes.txt && \
+	pip install . && \
 	case `uname` in \
 		Darwin) \
 			python scripts/maybe_rebuild_libsodium.py && \
-			python scripts/maybe_downgrade_pyqt.py \
+			python scripts/maybe_downgrade_pyqt.py && \
+			git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
+			pushd build/pyinstaller && \
+			git checkout 355f0c76b2ee5af0cb2f7cb5512a060d2ed02b2b && \
+			pushd bootloader && \
+			python ./waf all && \
+			popd && \
+			pip install . && \
+			popd \
+		;; \
+		*) \
+			pip install pyinstaller==3.3.1 \
 		;; \
 	esac &&	\
-	pip install . && \
-	pip install pyinstaller==3.3.1 && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
