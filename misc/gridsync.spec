@@ -69,7 +69,12 @@ coll = COLLECT(exe,
 app = BUNDLE(coll,
              name=(app_name + '.app'),
              icon=settings['build']['mac_icon'],
-             bundle_identifier=settings['build']['mac_bundle_identifier'])
+             bundle_identifier=settings['build']['mac_bundle_identifier'],
+             info_plist={
+                'LSBackgroundOnly': True,
+                'LSUIElement': True,
+                }
+             )
 
 
 tahoe_bundle_path = os.path.join('dist', 'Tahoe-LAFS')
