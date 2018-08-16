@@ -240,7 +240,7 @@ frozen-tahoe:
 install:
 	pip3 install --upgrade .
 
-frozen:
+pyinstaller:
 	if [ -f dist/Tahoe-LAFS.zip ] ; then \
 		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
 	else  \
@@ -272,9 +272,6 @@ frozen:
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
 
-app: frozen
-	#cp misc/Info.plist dist/Gridsync.app/Contents  # TODO: write out on build
-
 py2app:
 	if [ -f dist/Tahoe-LAFS.zip ] ; then \
 		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
@@ -300,7 +297,7 @@ py2app:
 	cp -r dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 	touch dist/Gridsync.app
 
-dmg: py2app
+dmg: pyinstaller
 	python3 -m virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \
@@ -319,7 +316,7 @@ dmg: py2app
 all:
 	@case `uname` in \
 		Darwin)	$(MAKE) dmg ;; \
-		*) $(MAKE) frozen ;; \
+		*) $(MAKE) pyinstaller ;; \
 	esac
 
 uninstall:
