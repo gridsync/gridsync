@@ -9,8 +9,13 @@ except ImportError:
 from distutils.sysconfig import get_python_lib
 import hashlib
 import os
+import re
 import shutil
 import sys
+
+
+version_file = open("gridsync/_version.py").read()
+version = re.findall("__version__\s*=\s*'([^']+)'", version_file)[0]
 
 
 config = RawConfigParser(allow_no_value=True)
@@ -35,41 +40,55 @@ if sys.platform == "win32":
     paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files', 'Windows Kits', '10', 'bin', 'x86'))
     paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files', 'Windows Kits', '10', 'Redist', 'ucrt', 'DLLs', 'x86'))
 
-a = Analysis(['../gridsync/cli.py'],
-             pathex=paths,
-             binaries=None,
-             datas=[
-                ('../gridsync/resources/*', 'resources'),
-                ('../gridsync/resources/providers/*', 'resources/providers')
-             ],
-             hiddenimports=['cffi', 'PyQt5.sip'],
-             hookspath=[],
-             runtime_hooks=[],
-             excludes=[],
-             win_no_prefer_redirects=False,
-             win_private_assemblies=False,
-             cipher=None)
+
+a = Analysis(
+    ['../gridsync/cli.py'],
+    pathex=paths,
+    binaries=None,
+    datas=[
+        ('../gridsync/resources/*', 'resources'),
+        ('../gridsync/resources/providers/*', 'resources/providers')
+    ],
+    hiddenimports=['cffi', 'PyQt5.sip'],
+    hookspath=[],
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=None
+)
 pyz = PYZ(a.pure, a.zipped_data, cipher=None)
-exe = EXE(pyz,
-          a.scripts,
-          exclude_binaries=True,
-          name=app_name,
-          debug=False,
-          strip=False,
-          upx=False,
-          console=False,
-          icon=settings['build']['win_icon'])
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=False,
-               name=app_name)
-app = BUNDLE(coll,
-             name=(app_name + '.app'),
-             icon=settings['build']['mac_icon'],
-             bundle_identifier=settings['build']['mac_bundle_identifier'])
+exe = EXE(
+    pyz,
+    a.scripts,
+    exclude_binaries=True,
+    name=app_name,
+    debug=False,
+    strip=False,
+    upx=False,
+    console=False,
+    icon=settings['build']['win_icon']
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=False,
+    name=app_name
+)
+app = BUNDLE(
+    coll,
+    name=(app_name + '.app'),
+    icon=settings['build']['mac_icon'],
+    bundle_identifier=settings['build']['mac_bundle_identifier'],
+    info_plist={
+        'CFBundleShortVersionString': version,
+        'LSBackgroundOnly': True,
+        'LSUIElement': True,
+    }
+)
 
 
 tahoe_bundle_path = os.path.join('dist', 'Tahoe-LAFS')
