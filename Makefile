@@ -270,7 +270,7 @@ pyinstaller:
 	esac &&	\
 	pip list && \
 	export PYTHONHASHSEED=1 && \
-	pyinstaller -y misc/gridsync.spec
+	python -m PyInstaller -y misc/gridsync.spec
 
 py2app:
 	if [ -f dist/Tahoe-LAFS.zip ] ; then \
