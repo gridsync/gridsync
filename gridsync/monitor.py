@@ -14,7 +14,6 @@ class Monitor(QObject):
     disconnected = pyqtSignal(str)
     nodes_updated = pyqtSignal(int, int)
     space_updated = pyqtSignal(object)
-    data_updated = pyqtSignal(str, object)
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, object)

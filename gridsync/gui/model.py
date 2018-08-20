@@ -49,7 +49,6 @@ class Model(QStandardItemModel):
         self.monitor.disconnected.connect(self.on_disconnected)
         self.monitor.nodes_updated.connect(self.on_nodes_updated)
         self.monitor.space_updated.connect(self.on_space_updated)
-        self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
