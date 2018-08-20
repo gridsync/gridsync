@@ -184,12 +184,6 @@ class Model(QStandardItemModel):
         else:
             self.set_status_private(folder_name)
 
-    @pyqtSlot(str, object)
-    def set_data(self, folder_name, data):
-        items = self.findItems(folder_name)
-        if items:
-            items[0].setData(data, Qt.UserRole)
-
     @pyqtSlot(str, int)
     def set_status(self, name, status):
         items = self.findItems(name)
