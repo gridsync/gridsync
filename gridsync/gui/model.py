@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import resource, config_dir
 from gridsync.gui.widgets import CompositePixmap
-from gridsync.monitor import Monitor
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
@@ -24,7 +23,7 @@ class Model(QStandardItemModel):
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
-        self.monitor = Monitor(self.gateway)
+        self.monitor = self.gateway.monitor
         self.status_dict = {}
         self.members_dict = {}
         self.grid_status = ''

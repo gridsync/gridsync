@@ -13,6 +13,7 @@ import tempfile
 from collections import defaultdict
 from io import BytesIO
 
+
 import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
@@ -26,6 +27,7 @@ import yaml
 from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
+from gridsync.monitor import Monitor
 from gridsync.preferences import set_preference, get_preference
 
 
@@ -100,6 +102,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         self.magic_folders = defaultdict(dict)
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
+        self.monitor = Monitor(self)
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
