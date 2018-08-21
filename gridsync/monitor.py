@@ -10,8 +10,8 @@ from twisted.internet.task import LoopingCall
 
 class Monitor(QObject):
 
-    connected = pyqtSignal(str)
-    disconnected = pyqtSignal(str)
+    connected = pyqtSignal()
+    disconnected = pyqtSignal()
     nodes_updated = pyqtSignal(int, int)
     space_updated = pyqtSignal(object)
     status_updated = pyqtSignal(str, int)
@@ -155,12 +155,12 @@ class Monitor(QObject):
             if num_happy and num_connected >= num_happy:
                 if not self.is_connected:
                     self.is_connected = True
-                    self.connected.emit(self.gateway.name)
+                    self.connected.emit()
                     yield self.scan_rootcap()  # TODO: Move to Monitor?
             elif num_happy and num_connected < num_happy:
                 if self.is_connected:
                     self.is_connected = False
-                    self.disconnected.emit(self.gateway.name)
+                    self.disconnected.emit()
             self.num_connected = num_connected
             self.num_happy = num_happy
 

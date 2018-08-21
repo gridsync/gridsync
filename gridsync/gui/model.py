@@ -79,17 +79,19 @@ class Model(QStandardItemModel):
             )
         self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
 
-    @pyqtSlot(str)
-    def on_connected(self, grid_name):
+    @pyqtSlot()
+    def on_connected(self):
         if get_preference('notifications', 'connection') != 'false':
             self.gui.show_message(
-                grid_name, "Connected to {}".format(grid_name))
+                self.gateway.name, "Connected to {}".format(self.gateway.name))
 
-    @pyqtSlot(str)
-    def on_disconnected(self, grid_name):
+    @pyqtSlot()
+    def on_disconnected(self):
         if get_preference('notifications', 'connection') != 'false':
             self.gui.show_message(
-                grid_name, "Disconnected from {}".format(grid_name))
+                self.gateway.name,
+                "Disconnected from {}".format(self.gateway.name)
+            )
 
     @pyqtSlot(str, list)
     def on_updated_files(self, folder_name, files_list):
