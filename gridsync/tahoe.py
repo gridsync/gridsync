@@ -833,38 +833,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             return self.size_from_content(content)
         return None
 
-    @inlineCallbacks  # noqa: max-complexity=12 XXX
-    def get_magic_folder_info(self, name, members=None):
-        total_size = 0
-        sizes_dict = {}
-        latest_mtime = 0
-        if not members:
-            members = yield self.get_magic_folder_members(name)
-        if members:
-            for member, dircap in reversed(members):
-                sizes_dict[member] = {}
-                json_data = yield self.get_json(dircap)
-                try:
-                    children = json_data[1]['children']
-                except TypeError:
-                    continue
-                for filenode, data in children.items():
-                    filepath = filenode.replace('@_', os.path.sep)
-                    metadata = data[1]
-                    try:
-                        size = int(metadata['size'])
-                    except KeyError:  # if linked manually
-                        continue
-                    sizes_dict[member][filepath] = size
-                    total_size += size
-                    try:
-                        mt = int(metadata['metadata']['tahoe']['linkmotime'])
-                    except KeyError:
-                        continue
-                    if mt > latest_mtime:
-                        latest_mtime = mt
-        return members, total_size, latest_mtime, sizes_dict
-
     @staticmethod
     def _extract_metadata(metadata):
         size = int(metadata['size'])
