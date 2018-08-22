@@ -10,7 +10,7 @@ import shutil
 import signal
 import sys
 import tempfile
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from io import BytesIO
 
 
@@ -864,6 +864,49 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                     if mt > latest_mtime:
                         latest_mtime = mt
         return members, total_size, latest_mtime, sizes_dict
+
+    @staticmethod
+    def _extract_metadata(metadata):
+        size = int(metadata['size'])
+        mtime = float(metadata['metadata']['tahoe']['linkmotime'])
+        try:
+            deleted = metadata['metadata']['deleted']
+        except KeyError:
+            deleted = False
+        if deleted:
+            cap = metadata['metadata']['last_downloaded_uri']
+        else:
+            cap = metadata['ro_uri']
+        return size, mtime, deleted, cap
+
+    @inlineCallbacks
+    def get_magic_folder_state(self, name, members=None):
+        total_size = 0
+        history_dict = {}
+        if not members:
+            members = yield self.get_magic_folder_members(name)
+        if members:
+            for member, dircap in members:
+                json_data = yield self.get_json(dircap)
+                try:
+                    children = json_data[1]['children']
+                except (TypeError, KeyError):
+                    continue
+                for filenode, data in children.items():
+                    path = filenode.replace('@_', os.path.sep)
+                    try:
+                        size, mtime, deleted, cap = self._extract_metadata(
+                            data[1])
+                    except KeyError:
+                        continue
+                    total_size += size
+                    history_dict[mtime] = [path, size, member, deleted, cap]
+        history_od = OrderedDict(sorted(history_dict.items(), reverse=True))
+        if history_od:
+            latest_mtime = next(iter(history_od))  # pylint: disable=stop-iteration-return
+        else:
+            latest_mtime = 0
+        return members, total_size, latest_mtime, history_od
 
 
 @inlineCallbacks

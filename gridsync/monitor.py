@@ -110,7 +110,7 @@ class Monitor(QObject):
 
     @inlineCallbacks
     def do_remote_scan(self, name, members=None):
-        mems, size, t, _ = yield self.gateway.get_magic_folder_info(
+        mems, size, t, _ = yield self.gateway.get_magic_folder_state(
             name, members)
         if mems:
             for member in mems:
