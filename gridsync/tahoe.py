@@ -869,6 +869,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                     except KeyError:
                         continue
                     metadata['path'] = filenode.replace('@_', os.path.sep)
+                    metadata['member'] = member
                     history_dict[metadata['mtime']] = metadata
                     total_size += metadata['size']
         history_od = OrderedDict(sorted(history_dict.items()))
