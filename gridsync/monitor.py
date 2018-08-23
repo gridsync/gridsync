@@ -30,6 +30,7 @@ class Monitor(QObject):
         self.gateway = gateway
         self.status = defaultdict(dict)
         self.members = []
+        self.history = {}
         self.timer = LoopingCall(self.check_status)
         self.num_connected = 0
         self.num_happy = 0
@@ -108,10 +109,42 @@ class Monitor(QObject):
         # TODO: Notify failures/conflicts
         return remote_scan_needed
 
+    def compare_states(self, name, current, previous):
+        added = []
+        updated = []
+        deleted = []
+        restored = []
+        for mtime, data in current.items():
+            if mtime not in previous:
+                if data['deleted']:
+                    print('DELETED: ', data)
+                    deleted.append(data)
+                else:
+                    path = data['path']
+                    prev_entry = None
+                    for prev_mtime, prev_data in previous.items():
+                        if prev_data['path'] == path:
+                            prev_entry = prev_data
+                    if prev_entry:
+                        if prev_entry['deleted']:
+                            print('RESTORED: ', data)
+                            restored.append(data)
+                        else:
+                            print('UPDATED: ', data)
+                            updated.append(data)
+                    else:
+                        print('ADDED: ', data)
+                        added.append(data)
+        # XXX
+
     @inlineCallbacks
     def do_remote_scan(self, name, members=None):
-        mems, size, t, _ = yield self.gateway.get_magic_folder_state(
+        mems, size, t, history = yield self.gateway.get_magic_folder_state(
             name, members)
+        if name not in self.history:
+            self.history[name] = {}
+        self.compare_states(name, history, self.history[name])
+        self.history[name] = history
         if mems:
             for member in mems:
                 if member not in self.members:
