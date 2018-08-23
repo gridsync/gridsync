@@ -871,7 +871,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                     metadata['path'] = filenode.replace('@_', os.path.sep)
                     history_dict[metadata['mtime']] = metadata
                     total_size += metadata['size']
-        history_od = OrderedDict(sorted(history_dict.items(), reverse=True))
+        history_od = OrderedDict(sorted(history_dict.items()))
         if history_od:
             latest_mtime = next(iter(history_od))  # pylint: disable=stop-iteration-return
         else:
