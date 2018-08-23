@@ -835,8 +835,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def _extract_metadata(metadata):
-        size = int(metadata['size'])
-        mtime = float(metadata['metadata']['tahoe']['linkmotime'])
         try:
             deleted = metadata['metadata']['deleted']
         except KeyError:
@@ -845,7 +843,12 @@ class Tahoe():  # pylint: disable=too-many-public-methods
             cap = metadata['metadata']['last_downloaded_uri']
         else:
             cap = metadata['ro_uri']
-        return size, mtime, deleted, cap
+        return {
+            'size': int(metadata['size']),
+            'mtime': float(metadata['metadata']['tahoe']['linkmotime']),
+            'deleted': deleted,
+            'cap': cap
+        }
 
     @inlineCallbacks
     def get_magic_folder_state(self, name, members=None):
@@ -861,14 +864,13 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 except (TypeError, KeyError):
                     continue
                 for filenode, data in children.items():
-                    path = filenode.replace('@_', os.path.sep)
                     try:
-                        size, mtime, deleted, cap = self._extract_metadata(
-                            data[1])
+                        metadata = self._extract_metadata(data[1])
                     except KeyError:
                         continue
-                    total_size += size
-                    history_dict[mtime] = [path, size, member, deleted, cap]
+                    metadata['path'] = filenode.replace('@_', os.path.sep)
+                    history_dict[metadata['mtime']] = metadata
+                    total_size += metadata['size']
         history_od = OrderedDict(sorted(history_dict.items(), reverse=True))
         if history_od:
             latest_mtime = next(iter(history_od))  # pylint: disable=stop-iteration-return
