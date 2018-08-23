@@ -110,6 +110,7 @@ class Monitor(QObject):
         return remote_scan_needed
 
     def compare_states(self, name, current, previous):
+        created = []
         added = []
         updated = []
         deleted = []
@@ -132,6 +133,9 @@ class Monitor(QObject):
                         else:
                             print('UPDATED: ', data)
                             updated.append(data)
+                    elif path.endswith('/'):
+                        print('CREATED: ', data)
+                        created.append(data)
                     else:
                         print('ADDED: ', data)
                         added.append(data)
