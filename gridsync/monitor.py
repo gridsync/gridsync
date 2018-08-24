@@ -24,6 +24,11 @@ class Monitor(QObject):
     files_updated = pyqtSignal(str, list)
     check_finished = pyqtSignal()
     remote_folder_added = pyqtSignal(str, str)
+    directory_created = pyqtSignal(str, object)
+    file_added = pyqtSignal(str, object)
+    file_updated = pyqtSignal(str, object)
+    file_deleted = pyqtSignal(str, object)
+    file_restored = pyqtSignal(str, object)
 
     def __init__(self, gateway):
         super(Monitor, self).__init__()
@@ -109,6 +114,8 @@ class Monitor(QObject):
         # TODO: Notify failures/conflicts
         return remote_scan_needed
 
+    #def handle_deleted(self, name, data):
+
     def compare_states(self, name, current, previous):
         created = []
         added = []
@@ -118,6 +125,7 @@ class Monitor(QObject):
         for mtime, data in current.items():
             if mtime not in previous:
                 if data['deleted']:
+                    self.file_deleted.emit(name, data)
                     print('DELETED: ', data)
                     deleted.append(data)
                 else:
@@ -128,15 +136,19 @@ class Monitor(QObject):
                             prev_entry = prev_data
                     if prev_entry:
                         if prev_entry['deleted']:
+                            self.file_restored.emit(name, data)
                             print('RESTORED: ', data)
                             restored.append(data)
                         else:
+                            self.file_updated.emit(name, data)
                             print('UPDATED: ', data)
                             updated.append(data)
                     elif path.endswith('/'):
+                        self.directory_created.emit(name, data)
                         print('CREATED: ', data)
                         created.append(data)
                     else:
+                        self.file_added.emit(name, data)
                         print('ADDED: ', data)
                         added.append(data)
         # XXX
