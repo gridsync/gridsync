@@ -123,7 +123,7 @@ class Monitor(QObject):
                 else:
                     path = data['path']
                     prev_entry = None
-                    for prev_mtime, prev_data in previous.items():
+                    for prev_data in previous.values():
                         if prev_data['path'] == path:
                             prev_entry = prev_data
                     if prev_entry:
