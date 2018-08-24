@@ -114,20 +114,11 @@ class Monitor(QObject):
         # TODO: Notify failures/conflicts
         return remote_scan_needed
 
-    #def handle_deleted(self, name, data):
-
     def compare_states(self, name, current, previous):
-        created = []
-        added = []
-        updated = []
-        deleted = []
-        restored = []
         for mtime, data in current.items():
             if mtime not in previous:
                 if data['deleted']:
                     self.file_deleted.emit(name, data)
-                    print('DELETED: ', data)
-                    deleted.append(data)
                 else:
                     path = data['path']
                     prev_entry = None
@@ -137,21 +128,12 @@ class Monitor(QObject):
                     if prev_entry:
                         if prev_entry['deleted']:
                             self.file_restored.emit(name, data)
-                            print('RESTORED: ', data)
-                            restored.append(data)
                         else:
                             self.file_updated.emit(name, data)
-                            print('UPDATED: ', data)
-                            updated.append(data)
                     elif path.endswith('/'):
                         self.directory_created.emit(name, data)
-                        print('CREATED: ', data)
-                        created.append(data)
                     else:
                         self.file_added.emit(name, data)
-                        print('ADDED: ', data)
-                        added.append(data)
-        # XXX
 
     @inlineCallbacks
     def do_remote_scan(self, name, members=None):
