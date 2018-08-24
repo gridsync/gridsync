@@ -873,10 +873,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                     history_dict[metadata['mtime']] = metadata
                     total_size += metadata['size']
         history_od = OrderedDict(sorted(history_dict.items()))
-        if history_od:
-            latest_mtime = next(reversed(history_od))
-        else:
-            latest_mtime = 0
+        latest_mtime = next(reversed(history_od), 0)
         return members, total_size, latest_mtime, history_od
 
 
