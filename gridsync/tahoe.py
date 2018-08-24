@@ -79,7 +79,7 @@ class CommandProtocol(ProcessProtocol):
                     self.output.getvalue().decode('utf-8').strip()))
 
 
-class Tahoe():  # pylint: disable=too-many-public-methods
+class Tahoe():
     def __init__(self, nodedir=None, executable=None):
         self.executable = executable
         self.multi_folder_support = True
@@ -815,22 +815,6 @@ class Tahoe():  # pylint: disable=too-many-public-methods
                 else:
                     members.append((member, readcap))
             return members
-        return None
-
-    @staticmethod
-    def size_from_content(content):
-        size = 0
-        filenodes = content[1]['children']
-        for filenode in filenodes:
-            size += int(filenodes[filenode][1]['size'])
-        return size
-
-    @inlineCallbacks
-    def get_magic_folder_size(self, name, content=None):
-        if not content:
-            content = yield self.get_json(self.get_magic_folder_dircap(name))
-        if content:
-            return self.size_from_content(content)
         return None
 
     @staticmethod
