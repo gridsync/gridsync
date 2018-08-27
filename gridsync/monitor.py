@@ -20,17 +20,8 @@ class MagicFolderChecker(QObject):
     member_added = pyqtSignal(str)
     member_removed = pyqtSignal(str)
 
-    directory_created = pyqtSignal(object)
-    file_added = pyqtSignal(object)
     file_updated = pyqtSignal(object)
-    file_deleted = pyqtSignal(object)
-    file_restored = pyqtSignal(object)
-
-    directories_created = pyqtSignal(list)
-    files_added = pyqtSignal(list)
     files_updated = pyqtSignal(list)
-    files_deleted = pyqtSignal(list)
-    files_restored = pyqtSignal(list)
 
     def __init__(self, gateway, name, remote=False):
         super(MagicFolderChecker, self).__init__()
@@ -46,16 +37,7 @@ class MagicFolderChecker(QObject):
         self.members = []
         self.history = {}
 
-        self.created_directories = []
-        self.added_files = []
         self.updated_files = []
-        self.deleted_files = []
-        self.restored_files = []
-
-        #self.file_added.connect(print)
-        #self.file_updated.connect(print)
-        #self.file_deleted.connect(print)
-        #self.file_restored.connect(print)
 
     def add_updated_file(self, path):
         if path in self.updated_files or path.endswith('/') \
@@ -65,7 +47,11 @@ class MagicFolderChecker(QObject):
         logging.debug("Added %s to updated_files list", path)
 
     def notify_updated_files(self):
-        updated_files = self.updated_files
+        updated_files = []
+        for update in self.updated_files:
+            path = update['path']
+            if path not in updated_files:
+                updated_files.append(path)
         if updated_files:
             self.updated_files = []
             logging.debug("Cleared updated_files list")
@@ -96,7 +82,7 @@ class MagicFolderChecker(QObject):
                 state = 2  # "Up to date"
         return state, kind, path, failures
 
-    def process_status(self, status):  # noqa: max-complexit=11
+    def process_status(self, status):
         remote_scan_needed = False
         state, kind, filepath, _ = self.parse_status(status)
         if status and self.state:
@@ -109,9 +95,9 @@ class MagicFolderChecker(QObject):
                 elif self.state == 1:  # Sync started earlier; still going
                     logging.debug("Sync in progress (%s)", self.name)
                     logging.debug("%sing %s...", kind, filepath)
-                    for item in status:
-                        if item not in self.status:
-                            self.add_updated_file(item['path'])
+                    #for item in status:
+                    #    if item not in self.status:
+                    #        self.add_updated_file(item['path'])
             elif state == 2 and self.state == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", self.name)
                 self.sync_finished.emit()
@@ -131,7 +117,7 @@ class MagicFolderChecker(QObject):
         for mtime, data in current.items():
             if mtime not in previous:
                 if data['deleted']:
-                    self.file_deleted.emit(data)
+                    data['action'] = 'deleted'
                 else:
                     path = data['path']
                     prev_entry = None
@@ -140,13 +126,16 @@ class MagicFolderChecker(QObject):
                             prev_entry = prev_data
                     if prev_entry:
                         if prev_entry['deleted']:
-                            self.file_restored.emit(data)
+                            data['action'] = 'restored'
                         else:
-                            self.file_updated.emit(data)
+                            data['action'] = 'updated'
                     elif path.endswith('/'):
-                        self.directory_created.emit(data)
+                        data['action'] = 'created'
                     else:
-                        self.file_added.emit(data)
+                        data['action'] = 'added'
+                self.file_updated.emit(data)
+                self.updated_files.append(data)
+                print(data)
 
     @inlineCallbacks
     def do_remote_scan(self, members=None):
@@ -233,12 +222,7 @@ class Monitor(QObject):
     member_added = pyqtSignal(str, str)
     member_removed = pyqtSignal(str, str)
 
-    directory_created = pyqtSignal(str, object)
-    file_added = pyqtSignal(str, object)
     file_updated = pyqtSignal(str, object)
-    file_deleted = pyqtSignal(str, object)
-    file_restored = pyqtSignal(str, object)
-
     files_updated = pyqtSignal(str, list)
 
     check_finished = pyqtSignal()
@@ -271,15 +255,8 @@ class Monitor(QObject):
         mfc.member_added.connect(lambda x: self.member_added.emit(name, x))
         mfc.member_removed.connect(lambda x: self.member_removed.emit(name, x))
 
-        mfc.directory_created.connect(
-            lambda x: self.directory_created.emit(name, x))
-        mfc.file_added.connect(lambda x: self.file_added.emit(name, x))
         mfc.file_updated.connect(lambda x: self.file_updated.emit(name, x))
-        mfc.file_deleted.connect(lambda x: self.file_deleted.emit(name, x))
-        mfc.file_restored.connect(lambda x: self.file_restored.emit(name, x))
-
         mfc.files_updated.connect(lambda x: self.files_updated.emit(name, x))
-        # XXX
 
         self.magic_folder_checkers[name] = mfc
 
