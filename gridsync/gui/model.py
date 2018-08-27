@@ -93,12 +93,16 @@ class Model(QStandardItemModel):
                 "Disconnected from {}".format(self.gateway.name)
             )
 
-    @pyqtSlot(str, list)
-    def on_updated_files(self, folder_name, files_list):
+    @pyqtSlot(str, list, str, str)
+    def on_updated_files(self, folder_name, files_list, action, author):
         if get_preference('notifications', 'folder') != 'false':
             self.gui.show_message(
                 folder_name + " folder updated",
-                "Updated " + humanized_list(files_list))
+                "{} {}".format(
+                    author + " " + action if author else action.capitalize(),
+                    humanized_list(files_list)
+                )
+            )
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)

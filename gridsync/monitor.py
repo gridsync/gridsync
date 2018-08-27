@@ -22,7 +22,7 @@ class MagicFolderChecker(QObject):
     member_removed = pyqtSignal(str)
 
     file_updated = pyqtSignal(object)
-    files_updated = pyqtSignal(list)
+    files_updated = pyqtSignal(list, str, str)
 
     def __init__(self, gateway, name, remote=False):
         super(MagicFolderChecker, self).__init__()
@@ -53,7 +53,7 @@ class MagicFolderChecker(QObject):
                 notifications[action].append(path)
             for action, files, in notifications.items():
                 logging.debug("%s %s %s", author, action, files)
-                self.files_updated.emit(files)
+                self.files_updated.emit(files, action, author)
 
     @staticmethod
     def parse_status(status):
@@ -216,7 +216,7 @@ class Monitor(QObject):
     member_removed = pyqtSignal(str, str)
 
     file_updated = pyqtSignal(str, object)
-    files_updated = pyqtSignal(str, list)
+    files_updated = pyqtSignal(str, list, str, str)
 
     check_finished = pyqtSignal()
 
@@ -249,7 +249,8 @@ class Monitor(QObject):
         mfc.member_removed.connect(lambda x: self.member_removed.emit(name, x))
 
         mfc.file_updated.connect(lambda x: self.file_updated.emit(name, x))
-        mfc.files_updated.connect(lambda x: self.files_updated.emit(name, x))
+        mfc.files_updated.connect(
+            lambda x, y, z: self.files_updated.emit(name, x, y, z))
 
         self.magic_folder_checkers[name] = mfc
 
