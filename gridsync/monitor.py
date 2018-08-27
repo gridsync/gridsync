@@ -50,7 +50,8 @@ class MagicFolderChecker(QObject):
         for author, change in changes.items():
             notifications = defaultdict(list)
             for action, path in change:
-                notifications[action].append(path)
+                if path not in notifications[action]:
+                    notifications[action].append(path)
             for action, files, in notifications.items():
                 logging.debug("%s %s %s", author, action, files)
                 self.files_updated.emit(files, action, author)
