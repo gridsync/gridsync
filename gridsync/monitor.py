@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
 import logging
 
 from PyQt5.QtCore import pyqtSignal, QObject
@@ -40,18 +41,14 @@ class MagicFolderChecker(QObject):
         self.updated_files = []
 
     def notify_updated_files(self):
-        updated_files = []
-        for update in self.updated_files:
-            path = update['path']
-            if path not in updated_files:
-                updated_files.append(path)
-        if updated_files:
-            self.updated_files = []
-            logging.debug("Cleared updated_files list")
-            self.files_updated.emit(updated_files)
+        changes = defaultdict(list)
+        for item in self.updated_files:
+            changes[item['member']].insert(int(item['mtime']), item['path'])
+        self.updated_files = []
+        for _, files in changes.items():
+            self.files_updated.emit(files)
 
     # TODO: Handle added/deleted/restored
-    # TODO: Batch by author?
 
     @staticmethod
     def parse_status(status):
