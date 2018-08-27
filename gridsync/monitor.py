@@ -39,13 +39,6 @@ class MagicFolderChecker(QObject):
 
         self.updated_files = []
 
-    def add_updated_file(self, path):
-        if path in self.updated_files or path.endswith('/') \
-                or path.endswith('~') or path.isdigit():
-            return
-        self.updated_files.append(path)
-        logging.debug("Added %s to updated_files list", path)
-
     def notify_updated_files(self):
         updated_files = []
         for update in self.updated_files:
@@ -95,9 +88,7 @@ class MagicFolderChecker(QObject):
                 elif self.state == 1:  # Sync started earlier; still going
                     logging.debug("Sync in progress (%s)", self.name)
                     logging.debug("%sing %s...", kind, filepath)
-                    #for item in status:
-                    #    if item not in self.status:
-                    #        self.add_updated_file(item['path'])
+                    # TODO: Emit uploading/downloading signal?
             elif state == 2 and self.state == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", self.name)
                 self.sync_finished.emit()
