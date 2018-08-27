@@ -43,12 +43,17 @@ class MagicFolderChecker(QObject):
     def notify_updated_files(self):
         changes = defaultdict(list)
         for item in self.updated_files:
-            changes[item['member']].insert(int(item['mtime']), item['path'])
+            changes[item['member']].insert(
+                int(item['mtime']), (item['action'], item['path'])
+            )
         self.updated_files = []
-        for _, files in changes.items():
-            self.files_updated.emit(files)
-
-    # TODO: Handle added/deleted/restored
+        for author, change in changes.items():
+            notifications = defaultdict(list)
+            for action, path in change:
+                notifications[action].append(path)
+            for action, files, in notifications.items():
+                logging.debug("%s %s %s", author, action, files)
+                self.files_updated.emit(files)
 
     @staticmethod
     def parse_status(status):
