@@ -54,6 +54,9 @@ class MagicFolderChecker(QObject):
                     notifications[action].append(path)
             for action, files, in notifications.items():
                 logging.debug("%s %s %s", author, action, files)
+                # Currently, for non-'admin' members, member/author names are 
+                # random non-human-meaningful strings, so omit them for now.
+                author = ""  # XXX
                 self.files_updated.emit(files, action, author)
 
     @staticmethod
