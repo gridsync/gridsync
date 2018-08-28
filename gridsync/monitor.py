@@ -39,6 +39,7 @@ class MagicFolderChecker(QObject):
         self.history = {}
 
         self.updated_files = []
+        self.initial_scan_completed = False
 
     def notify_updated_files(self):
         changes = defaultdict(list)
@@ -143,16 +144,19 @@ class MagicFolderChecker(QObject):
                 if member not in self.members:
                     self.member_added.emit(member[0])
                     self.members.append(member)
-        self.size_updated.emit(size)
-        self.mtime_updated.emit(t)
-        self.compare_states(history, self.history)
-        self.history = history
+            self.size_updated.emit(size)
+            self.mtime_updated.emit(t)
+            self.compare_states(history, self.history)
+            self.history = history
+            if not self.initial_scan_completed:
+                self.updated_files = []  # Skip notifications
+                self.initial_scan_completed = True
 
     @inlineCallbacks
     def do_check(self):
         status = yield self.gateway.get_magic_folder_status(self.name)
         scan_needed = self.process_status(status)
-        if scan_needed:
+        if scan_needed or not self.initial_scan_completed:
             yield self.do_remote_scan()
 
 
