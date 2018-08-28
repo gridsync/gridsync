@@ -133,7 +133,6 @@ class MagicFolderChecker(QObject):
                         data['action'] = 'added'
                 self.file_updated.emit(data)
                 self.updated_files.append(data)
-                print(data)
 
     @inlineCallbacks
     def do_remote_scan(self, members=None):
