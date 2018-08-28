@@ -41,6 +41,8 @@ class MagicFolderChecker(QObject):
         self.updated_files = []
         self.initial_scan_completed = False
 
+        self.sync_time_started = 0
+
     def notify_updated_files(self):
         changes = defaultdict(list)
         for item in self.updated_files:
@@ -60,31 +62,43 @@ class MagicFolderChecker(QObject):
                 author = ""  # XXX
                 self.files_updated.emit(files, action, author)
 
-    @staticmethod
-    def parse_status(status):
+    def parse_status(self, status):
         state = 0
-        t = 0
         kind = ''
         path = ''
         failures = []
+        bytes_transferred = 0
+        bytes_total = 0
         if status is not None:
             for task in status:
-                if 'success_at' in task and task['success_at'] > t:
-                    t = task['success_at']
-                if task['status'] == 'queued' or task['status'] == 'started':
+                if task['status'] in ('queued', 'started'):
+                    if not self.sync_time_started:
+                        self.sync_time_started = task['queued_at']
+                    elif task['queued_at'] < self.sync_time_started:
+                        self.sync_time_started = task['queued_at']
                     if not task['path'].endswith('/'):
                         state = 1  # "Syncing"
                         kind = task['kind']
                         path = task['path']
                 elif task['status'] == 'failure':
-                    failures.append(task['path'])
+                    failures.append(task)
+            if state == 1:
+                for task in status:
+                    if task['queued_at'] >= self.sync_time_started:
+                        if task['status'] in ('queued', 'started', 'success'):
+                            bytes_total += task['size']
+                        if task['status'] in ('started', 'success'):
+                            bytes_transferred += \
+                                task['size'] * task['percent_done'] / 100
             if not state:
                 state = 2  # "Up to date"
-        return state, kind, path, failures
+                self.sync_time_started = 0
+        return state, kind, path, failures, bytes_transferred, bytes_total
 
     def process_status(self, status):
         remote_scan_needed = False
-        state, kind, filepath, _ = self.parse_status(status)
+        res = self.parse_status(status)
+        state, kind, filepath, _, bytes_transferred, bytes_total = res
         if status and self.state:
             if state == 1:  # "Syncing"
                 if self.state == 0:  # First sync after restoring
