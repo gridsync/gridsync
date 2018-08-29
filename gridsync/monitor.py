@@ -90,11 +90,14 @@ class MagicFolderChecker(QObject):
             if state == 1:
                 for task in status:
                     if task['queued_at'] >= self.sync_time_started:
+                        size = task['size']
+                        if not size:
+                            continue
                         if task['status'] in ('queued', 'started', 'success'):
-                            bytes_total += task['size']
+                            bytes_total += size
                         if task['status'] in ('started', 'success'):
                             bytes_transferred += \
-                                task['size'] * task['percent_done'] / 100
+                                size * task['percent_done'] / 100
             if not state:
                 state = 2  # "Up to date"
                 self.sync_time_started = 0
