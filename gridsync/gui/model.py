@@ -220,6 +220,11 @@ class Model(QStandardItemModel):
                 'This folder is stored remotely on the "{}" grid.\n'
                 'Right-click and select "Download" to sync it with your '
                 'local computer.'.format(self.gateway.name))
+        elif status == 99:
+            item.setIcon(self.icon_blank)
+            item.setText("Scanning")
+            item.setToolTip(
+                "This folder is being scanned for changes.")
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 

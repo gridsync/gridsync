@@ -32,7 +32,7 @@ class Delegate(QStyledItemDelegate):
 
     def on_frame_changed(self):
         values = self.parent.model().status_dict.values()
-        if 0 in values or 1 in values:
+        if 0 in values or 1 in values or 99 in values:
             self.parent.viewport().update()
         else:
             self.waiting_movie.setPaused(True)
@@ -46,7 +46,7 @@ class Delegate(QStyledItemDelegate):
             if not status:  # "Loading..."
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(20, 20)
-            elif status == 1:  # "Syncing"
+            elif status == 1 or status == 99:  # "Syncing"; "Scanning"
                 self.sync_movie.setPaused(False)
                 pixmap = self.sync_movie.currentPixmap().scaled(20, 20)
             if pixmap:
