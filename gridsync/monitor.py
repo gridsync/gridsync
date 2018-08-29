@@ -130,6 +130,7 @@ class MagicFolderChecker(QObject):
             elif state == 2 and self.state == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", self.name)
                 self.sync_finished.emit()
+            elif state == 2 and self.updated_files:
                 self.notify_updated_files()
             if state in (1, 2) and self.state != 2:
                 remote_scan_needed = True
