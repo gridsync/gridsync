@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 import logging
+import time
 
 from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet.defer import inlineCallbacks
@@ -13,6 +14,10 @@ class MagicFolderChecker(QObject):
     first_sync_started = pyqtSignal()
     sync_started = pyqtSignal()
     sync_finished = pyqtSignal()
+
+    transfer_progress_updated = pyqtSignal(object, object)
+    transfer_speed_updated = pyqtSignal(object)
+    transfer_seconds_remaining_updated = pyqtSignal(object)
 
     status_updated = pyqtSignal(int)
     mtime_updated = pyqtSignal(int)
@@ -95,6 +100,16 @@ class MagicFolderChecker(QObject):
                 self.sync_time_started = 0
         return state, kind, path, failures, bytes_transferred, bytes_total
 
+    def emit_transfer_signals(self, bytes_transferred, bytes_total):
+        self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
+        if bytes_transferred:
+            duration = time.time() - self.sync_time_started
+            speed = bytes_transferred / duration
+            self.transfer_speed_updated.emit(speed)
+            bytes_remaining = bytes_total - bytes_transferred
+            seconds_remaining = bytes_remaining / speed
+            self.transfer_seconds_remaining_updated.emit(seconds_remaining)
+
     def process_status(self, status):
         remote_scan_needed = False
         res = self.parse_status(status)
@@ -110,6 +125,7 @@ class MagicFolderChecker(QObject):
                     logging.debug("Sync in progress (%s)", self.name)
                     logging.debug("%sing %s...", kind, filepath)
                     # TODO: Emit uploading/downloading signal?
+                self.emit_transfer_signals(bytes_transferred, bytes_total)
             elif state == 2 and self.state == 1:  # Sync just finished
                 logging.debug("Sync complete (%s)", self.name)
                 self.sync_finished.emit()
@@ -229,6 +245,10 @@ class Monitor(QObject):
     sync_started = pyqtSignal(str)
     sync_finished = pyqtSignal(str)
 
+    transfer_progress_updated = pyqtSignal(str, object, object)
+    transfer_speed_updated = pyqtSignal(str, object)
+    transfer_seconds_remaining_updated = pyqtSignal(str, object)
+
     status_updated = pyqtSignal(str, int)
     mtime_updated = pyqtSignal(str, int)
     size_updated = pyqtSignal(str, object)
@@ -261,6 +281,13 @@ class Monitor(QObject):
             lambda: self.first_sync_started.emit(name))
         mfc.sync_started.connect(lambda: self.sync_started.emit(name))
         mfc.sync_finished.connect(lambda: self.sync_finished.emit(name))
+
+        mfc.transfer_progress_updated.connect(
+            lambda x, y: self.transfer_progress_updated.emit(name, x, y))
+        mfc.transfer_speed_updated.connect(
+            lambda x: self.transfer_speed_updated.emit(name, x))
+        mfc.transfer_seconds_remaining_updated.connect(
+            lambda x: self.transfer_seconds_remaining_updated.emit(name, x))
 
         mfc.status_updated.connect(lambda x: self.status_updated.emit(name, x))
         mfc.mtime_updated.connect(lambda x: self.mtime_updated.emit(name, x))
