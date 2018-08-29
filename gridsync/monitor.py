@@ -101,6 +101,7 @@ class MagicFolderChecker(QObject):
         return state, kind, path, failures, bytes_transferred, bytes_total
 
     def emit_transfer_signals(self, bytes_transferred, bytes_total):
+        # XXX This does not take into account erasure coding overhead
         self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
         if bytes_transferred:
             duration = time.time() - self.sync_time_started
