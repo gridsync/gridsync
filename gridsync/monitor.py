@@ -331,8 +331,9 @@ class Monitor(QObject):
         for folder in list(self.gateway.magic_folders.keys()):
             if folder not in self.magic_folder_checkers:
                 self.add_magic_folder_checker(folder)
-            # TODO: Handle newly-restored folders; set remote=False
-        for magic_folder_checker in self.magic_folder_checkers.values():
+            elif self.magic_folder_checkers[folder].remote:
+                self.magic_folder_checkers[folder].remote = False
+        for magic_folder_checker in list(self.magic_folder_checkers.values()):
             if not magic_folder_checker.remote:
                 yield magic_folder_checker.do_check()
         self.check_finished.emit()
