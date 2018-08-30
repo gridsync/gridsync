@@ -36,7 +36,6 @@ class MagicFolderChecker(QObject):
         self.remote = remote
 
         self.state = None
-        self.status = {}
         self.mtime = 0
         self.size = 0
 
@@ -142,7 +141,6 @@ class MagicFolderChecker(QObject):
                 self.status_updated.emit(state)
         else:
             self.status_updated.emit(state)
-        self.status = status
         self.state = state
         # TODO: Notify failures/conflicts
         return remote_scan_needed
