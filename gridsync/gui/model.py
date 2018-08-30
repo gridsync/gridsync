@@ -58,6 +58,8 @@ class Model(QStandardItemModel):
         self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
         self.monitor.remote_folder_added.connect(self.add_remote_folder)
+        self.monitor.transfer_progress_updated.connect(
+            self.set_transfer_progress)
 
     def on_space_updated(self, size):
         self.available_space = size
@@ -227,6 +229,14 @@ class Model(QStandardItemModel):
                 "This folder is being scanned for changes.")
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
+
+    @pyqtSlot(str, object, object)
+    def set_transfer_progress(self, folder_name, transferred, total):
+        items = self.findItems(folder_name)
+        if not items:
+            return
+        item = self.item(items[0].row(), 1)
+        item.setText("Syncing ({}%)".format(int(transferred / total * 100)))
 
     def fade_row(self, folder_name, overlay_file=None):
         folder_item = self.findItems(folder_name)[0]
