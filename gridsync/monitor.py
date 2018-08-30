@@ -81,7 +81,7 @@ class MagicFolderChecker(QObject):
                 if task['status'] in ('started', 'success'):
                     bytes_transferred += size * task['percent_done'] / 100
         self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
-        if bytes_transferred:
+        if bytes_transferred and bytes_total:
             duration = time.time() - self.sync_time_started
             speed = bytes_transferred / duration
             self.transfer_speed_updated.emit(speed)
