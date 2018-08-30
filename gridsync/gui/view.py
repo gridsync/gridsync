@@ -46,7 +46,7 @@ class Delegate(QStyledItemDelegate):
             if not status:  # "Loading..."
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(20, 20)
-            elif status == 1 or status == 99:  # "Syncing"; "Scanning"
+            elif status in (1, 99):  # "Syncing", "Scanning"
                 self.sync_movie.setPaused(False)
                 pixmap = self.sync_movie.currentPixmap().scaled(20, 20)
             if pixmap:
