@@ -67,13 +67,33 @@ class MagicFolderChecker(QObject):
                 author = ""  # XXX
                 self.files_updated.emit(files, action, author)
 
+    def emit_transfer_signals(self, status):
+        # XXX This does not take into account erasure coding overhead
+        bytes_transferred = 0
+        bytes_total = 0
+        for task in status:
+            if task['queued_at'] >= self.sync_time_started:
+                size = task['size']
+                if not size:
+                    continue
+                if task['status'] in ('queued', 'started', 'success'):
+                    bytes_total += size
+                if task['status'] in ('started', 'success'):
+                    bytes_transferred += size * task['percent_done'] / 100
+        self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
+        if bytes_transferred:
+            duration = time.time() - self.sync_time_started
+            speed = bytes_transferred / duration
+            self.transfer_speed_updated.emit(speed)
+            bytes_remaining = bytes_total - bytes_transferred
+            seconds_remaining = bytes_remaining / speed
+            self.transfer_seconds_remaining_updated.emit(seconds_remaining)
+
     def parse_status(self, status):
         state = 0
         kind = ''
         path = ''
         failures = []
-        bytes_transferred = 0
-        bytes_total = 0
         if status is not None:
             for task in status:
                 if task['status'] in ('queued', 'started'):
@@ -87,37 +107,14 @@ class MagicFolderChecker(QObject):
                         path = task['path']
                 elif task['status'] == 'failure':
                     failures.append(task)
-            if state == 1:
-                for task in status:
-                    if task['queued_at'] >= self.sync_time_started:
-                        size = task['size']
-                        if not size:
-                            continue
-                        if task['status'] in ('queued', 'started', 'success'):
-                            bytes_total += size
-                        if task['status'] in ('started', 'success'):
-                            bytes_transferred += \
-                                size * task['percent_done'] / 100
             if not state:
                 state = 2  # "Up to date"
                 self.sync_time_started = 0
-        return state, kind, path, failures, bytes_transferred, bytes_total
-
-    def emit_transfer_signals(self, bytes_transferred, bytes_total):
-        # XXX This does not take into account erasure coding overhead
-        self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
-        if bytes_transferred:
-            duration = time.time() - self.sync_time_started
-            speed = bytes_transferred / duration
-            self.transfer_speed_updated.emit(speed)
-            bytes_remaining = bytes_total - bytes_transferred
-            seconds_remaining = bytes_remaining / speed
-            self.transfer_seconds_remaining_updated.emit(seconds_remaining)
+        return state, kind, path, failures
 
     def process_status(self, status):
         remote_scan_needed = False
-        res = self.parse_status(status)
-        state, kind, filepath, _, bytes_transferred, bytes_total = res
+        state, kind, filepath, _ = self.parse_status(status)
         if status and self.state:
             if state == 1:  # "Syncing"
                 if self.state == 0:  # First sync after restoring
@@ -129,7 +126,7 @@ class MagicFolderChecker(QObject):
                     logging.debug("Sync in progress (%s)", self.name)
                     logging.debug("%sing %s...", kind, filepath)
                     # TODO: Emit uploading/downloading signal?
-                self.emit_transfer_signals(bytes_transferred, bytes_total)
+                self.emit_transfer_signals(status)
                 remote_scan_needed = True
             elif state == 2:
                 if self.state == 1:  # Sync just finished
