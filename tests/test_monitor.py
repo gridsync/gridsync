@@ -151,3 +151,153 @@ def test_process_status_emit_sync_finished(mfc, monkeypatch, qtbot):
     )
     with qtbot.wait_signal(mfc.sync_finished):
         mfc.process_status(status_data)
+
+
+def test_process_status_emit_sync_started(mfc, monkeypatch, qtbot):
+    mfc.state = 99
+    monkeypatch.setattr(
+        'gridsync.monitor.MagicFolderChecker.parse_status',
+        lambda x, y: (1, 'upload', 'file_0', [])
+    )
+    with qtbot.wait_signal(mfc.sync_started):
+        mfc.process_status(status_data)
+
+
+def test_compare_states_emit_file_updated(mfc, qtbot):
+    previous = {}
+    current = {
+        1234567890.123456: {
+            'size': 1024,
+            'mtime': 1234567890.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:aaaaaa:bbbbbb:1:1:1024',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    with qtbot.wait_signal(mfc.file_updated):
+        mfc.compare_states(current, previous)
+
+
+def test_compare_states_file_added(mfc):
+    previous = {}
+    current = {
+        1234567890.123456: {
+            'size': 1024,
+            'mtime': 1234567890.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:aaaaaa:bbbbbb:1:1:1024',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    mfc.compare_states(current, previous)
+    assert mfc.updated_files[0]['action'] == 'added'
+
+
+def test_compare_states_file_updated(mfc):
+    previous = {
+        1234567890.123456: {
+            'size': 1024,
+            'mtime': 1234567890.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:aaaaaa:bbbbbb:1:1:1024',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    current = {
+        1234567891.123456: {
+            'size': 2048,
+            'mtime': 1234567891.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:cccccc:dddddd:1:1:2048',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    mfc.compare_states(current, previous)
+    assert mfc.updated_files[0]['action'] == 'updated'
+
+
+def test_compare_states_file_deleted(mfc):
+    previous = {
+        1234567891.123456: {
+            'size': 2048,
+            'mtime': 1234567891.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:cccccc:dddddd:1:1:2048',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    current = {
+        1234567892.123456: {
+            'size': 2048,
+            'mtime': 1234567892.123456,
+            'deleted': True,
+            'cap': 'URI:CHK:cccccc:dddddd:1:1:2048',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    mfc.compare_states(current, previous)
+    assert mfc.updated_files[0]['action'] == 'deleted'
+
+
+def test_compare_states_file_restored(mfc):
+    previous = {
+        1234567892.123456: {
+            'size': 2048,
+            'mtime': 1234567892.123456,
+            'deleted': True,
+            'cap': 'URI:CHK:cccccc:dddddd:1:1:2048',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    current = {
+        1234567893.123456: {
+            'size': 2048,
+            'mtime': 1234567893.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:cccccc:dddddd:1:1:2048',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    mfc.compare_states(current, previous)
+    assert mfc.updated_files[0]['action'] == 'restored'
+
+
+def test_compare_states_directory_created(mfc):
+    previous = {
+        1234567893.123456: {
+            'size': 2048,
+            'mtime': 1234567893.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:cccccc:dddddd:1:1:2048',
+            'path': 'file_1',
+            'member': 'admin'
+        }
+    }
+    current = {
+        1234567893.123456: {
+            'size': 2048,
+            'mtime': 1234567893.123456,
+            'deleted': False,
+            'cap': 'URI:CHK:cccccc:dddddd:1:1:2048',
+            'path': 'file_1',
+            'member': 'admin'
+        },
+        1234567894.123456: {
+            'size': 0,
+            'mtime': 1234567894.123456,
+            'deleted': False,
+            'cap': 'URI:DIR:eeeeee:ffffff',
+            'path': 'subdir/',
+            'member': 'admin'
+        }
+    }
+    mfc.compare_states(current, previous)
+    assert mfc.updated_files[0]['action'] == 'created'
