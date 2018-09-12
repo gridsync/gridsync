@@ -114,30 +114,27 @@ class MagicFolderChecker(QObject):
     def process_status(self, status):
         remote_scan_needed = False
         state, kind, filepath, _ = self.parse_status(status)
-        if status and self.state:
-            if state == 1:  # "Syncing"
-                if self.state != 1:  # Sync just started
-                    logging.debug("Sync started (%s)", self.name)
-                    self.sync_started.emit()
-                elif self.state == 1:  # Sync started earlier; still going
-                    logging.debug("Sync in progress (%s)", self.name)
-                    logging.debug("%sing %s...", kind, filepath)
-                    # TODO: Emit uploading/downloading signal?
-                self.emit_transfer_signals(status)
+        if state == 1:  # "Syncing"
+            if self.state != 1:  # Sync just started
+                logging.debug("Sync started (%s)", self.name)
+                self.sync_started.emit()
+            elif self.state == 1:  # Sync started earlier; still going
+                logging.debug("Sync in progress (%s)", self.name)
+                logging.debug("%sing %s...", kind, filepath)
+                # TODO: Emit uploading/downloading signal?
+            self.emit_transfer_signals(status)
+            remote_scan_needed = True
+        elif state == 2:
+            if self.state == 1:  # Sync just finished
+                logging.debug(
+                    "Sync complete (%s); doing final scan...", self.name)
                 remote_scan_needed = True
-            elif state == 2:
-                if self.state == 1:  # Sync just finished
-                    logging.debug(
-                        "Sync complete (%s); doing final scan...", self.name)
-                    remote_scan_needed = True
-                    state = 99
-                elif self.state == 99:  # Final scan just finished
-                    logging.debug("Final scan complete (%s)", self.name)
-                    self.sync_finished.emit()
-                    self.notify_updated_files()
-            if state != self.state:
-                self.status_updated.emit(state)
-        else:
+                state = 99
+            elif self.state == 99:  # Final scan just finished
+                logging.debug("Final scan complete (%s)", self.name)
+                self.sync_finished.emit()
+                self.notify_updated_files()
+        if state != self.state:
             self.status_updated.emit(state)
         self.state = state
         # TODO: Notify failures/conflicts
