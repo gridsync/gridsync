@@ -116,8 +116,6 @@ class MagicFolderChecker(QObject):
         state, kind, filepath, _ = self.parse_status(status)
         if status and self.state:
             if state == 1:  # "Syncing"
-                if self.state == 0:  # First sync after restoring
-                    self.first_sync_started.emit()
                 if self.state != 1:  # Sync just started
                     logging.debug("Sync started (%s)", self.name)
                     self.sync_started.emit()
