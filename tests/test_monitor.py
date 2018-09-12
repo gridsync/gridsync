@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from unittest.mock import MagicMock
+
 import pytest
 
 from gridsync.monitor import MagicFolderChecker
@@ -301,3 +303,42 @@ def test_compare_states_directory_created(mfc):
     }
     mfc.compare_states(current, previous)
     assert mfc.updated_files[0]['action'] == 'created'
+
+
+fake_gateway = MagicMock()
+fake_gateway.get_magic_folder_state = MagicMock(
+    return_value=([('Alice', 'URI:DIR2:aaaa:bbbb')], 2048, 9999, {})
+)
+
+
+@pytest.inlineCallbacks
+def test_do_remote_scan_emit_member_added(mfc, qtbot):
+    mfc.gateway = fake_gateway
+    with qtbot.wait_signal(mfc.member_added) as blocker:
+        yield mfc.do_remote_scan()
+    assert blocker.args == ['Alice']
+
+
+@pytest.inlineCallbacks
+def test_do_remote_scan_emit_size_updated(mfc, qtbot):
+    mfc.gateway = fake_gateway
+    with qtbot.wait_signal(mfc.size_updated) as blocker:
+        yield mfc.do_remote_scan()
+    assert blocker.args == [2048]
+
+
+@pytest.inlineCallbacks
+def test_do_remote_scan_emit_mtime_updated(mfc, qtbot):
+    mfc.gateway = fake_gateway
+    with qtbot.wait_signal(mfc.mtime_updated) as blocker:
+        yield mfc.do_remote_scan()
+    assert blocker.args == [9999]
+
+
+@pytest.inlineCallbacks
+def test_do_check(mfc):
+    mfc.gateway = MagicMock()
+    mfc.gateway.get_magic_folder_status = MagicMock(return_value={})
+    mfc.do_remote_scan = MagicMock()
+    yield mfc.do_check()
+    assert mfc.do_remote_scan.call_count
