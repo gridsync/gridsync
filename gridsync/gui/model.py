@@ -52,7 +52,6 @@ class Model(QStandardItemModel):
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
         self.monitor.member_added.connect(self.add_member)
-        self.monitor.first_sync_started.connect(self.on_first_sync)
         self.monitor.sync_started.connect(self.on_sync_started)
         self.monitor.sync_finished.connect(self.on_sync_finished)
         self.monitor.files_updated.connect(self.on_updated_files)
@@ -264,12 +263,6 @@ class Model(QStandardItemModel):
             font.setItalic(False)
             item.setFont(font)
             item.setForeground(default_foreground)
-
-    @pyqtSlot(str)
-    def on_first_sync(self, folder_name):
-        self.unfade_row(folder_name)
-        self.update_folder_icon(
-            folder_name, self.gateway.get_magic_folder_directory(folder_name))
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):

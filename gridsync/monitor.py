@@ -11,7 +11,6 @@ from twisted.internet.task import LoopingCall
 
 class MagicFolderChecker(QObject):
 
-    first_sync_started = pyqtSignal()
     sync_started = pyqtSignal()
     sync_finished = pyqtSignal()
 
@@ -240,7 +239,6 @@ class Monitor(QObject):
 
     remote_folder_added = pyqtSignal(str, str)
 
-    first_sync_started = pyqtSignal(str)
     sync_started = pyqtSignal(str)
     sync_finished = pyqtSignal(str)
 
@@ -276,8 +274,6 @@ class Monitor(QObject):
     def add_magic_folder_checker(self, name, remote=False):
         mfc = MagicFolderChecker(self.gateway, name, remote)
 
-        mfc.first_sync_started.connect(
-            lambda: self.first_sync_started.emit(name))
         mfc.sync_started.connect(lambda: self.sync_started.emit(name))
         mfc.sync_finished.connect(lambda: self.sync_finished.emit(name))
 
