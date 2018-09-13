@@ -20,6 +20,32 @@ def test_magic_folder_checker_remote_default_false(mfc):
     assert mfc.remote is False
 
 
+def test_notify_updated_files(mfc, qtbot):
+    mfc.updated_files = [
+        {
+            'action': 'added',
+            'cap': 'URI:LIT',
+            'deleted': False,
+            'member': 'admin',
+            'mtime': 1,
+            'path': 'file_1.txt',
+            'size': 0, 
+        },
+        {
+            'action': 'added',
+            'cap': 'URI:LIT',
+            'deleted': False,
+            'member': 'admin',
+            'mtime': 2,
+            'path': 'file_2.txt',
+            'size': 0, 
+        }
+    ]
+    with qtbot.wait_signal(mfc.files_updated) as blocker:
+        mfc.notify_updated_files()
+    assert blocker.args == [['file_1.txt', 'file_2.txt'], 'added', '']
+
+
 status_data = [
     {
         'kind': 'upload',
