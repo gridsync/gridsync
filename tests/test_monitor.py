@@ -29,7 +29,7 @@ def test_notify_updated_files(mfc, qtbot):
             'member': 'admin',
             'mtime': 1,
             'path': 'file_1.txt',
-            'size': 0, 
+            'size': 0,
         },
         {
             'action': 'added',
@@ -38,7 +38,7 @@ def test_notify_updated_files(mfc, qtbot):
             'member': 'admin',
             'mtime': 2,
             'path': 'file_2.txt',
-            'size': 0, 
+            'size': 0,
         }
     ]
     with qtbot.wait_signal(mfc.files_updated) as blocker:
