@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 import pytest
 
-from gridsync.monitor import MagicFolderChecker, GridChecker
+from gridsync.monitor import MagicFolderChecker, GridChecker, Monitor
 
 
 @pytest.fixture(scope='function')
@@ -411,3 +411,73 @@ def test_grid_checker_not_connected(qtbot):
     gc.gateway.get_grid_status = MagicMock(return_value=None)
     yield gc.do_check()
     assert gc.num_connected == 0
+
+
+def test_monitor_add_magic_folder_checker():
+    monitor = Monitor(MagicMock())
+    monitor.add_magic_folder_checker('TestFolder')
+    assert 'TestFolder' in monitor.magic_folder_checkers
+
+
+@pytest.inlineCallbacks
+def test_monitor_scan_rootcap_no_folders():
+    monitor = Monitor(MagicMock())
+    monitor.gateway.await_ready = MagicMock(return_value=True)
+    monitor.gateway.get_magic_folders_from_rootcap = MagicMock(
+        return_value=None)
+    yield monitor.scan_rootcap()
+    assert monitor.magic_folder_checkers == {}
+
+
+@pytest.inlineCallbacks
+def test_monitor_scan_rootcap_add_folder(qtbot, monkeypatch):
+    monitor = Monitor(MagicMock())
+    monitor.gateway.await_ready = MagicMock(return_value=True)
+    monitor.gateway.get_magic_folders_from_rootcap = MagicMock(
+        return_value={'TestFolder': {'collective_dircap': 'URI:DIR2:'}})
+    monkeypatch.setattr(
+        'gridsync.monitor.MagicFolderChecker.do_remote_scan',
+        lambda x, y: MagicMock())
+    with qtbot.wait_signal(monitor.remote_folder_added) as blocker:
+        yield monitor.scan_rootcap('test_overlay.png')
+    assert blocker.args == ['TestFolder', 'test_overlay.png']
+
+
+@pytest.inlineCallbacks
+def test_monitor_do_checks_add_magic_folder_checker(monkeypatch):
+    monkeypatch.setattr(
+        'gridsync.monitor.MagicFolderChecker.do_check', lambda _: MagicMock())
+    monitor = Monitor(MagicMock(magic_folders={'TestFolder': {}}))
+    monitor.grid_checker = MagicMock()
+    yield monitor.do_checks()
+    assert 'TestFolder' in monitor.magic_folder_checkers
+
+
+@pytest.inlineCallbacks
+def test_monitor_do_checks_switch_magic_folder_checker_remote(monkeypatch):
+    monkeypatch.setattr(
+        'gridsync.monitor.MagicFolderChecker.do_check', lambda _: MagicMock())
+    monitor = Monitor(MagicMock(magic_folders={'TestFolder': {}}))
+    monitor.grid_checker = MagicMock()
+    test_mfc = MagicFolderChecker(MagicMock(), 'TestFolder')
+    test_mfc.remote = True
+    monitor.magic_folder_checkers = {'TestFolder': test_mfc}
+    yield monitor.do_checks()
+    assert monitor.magic_folder_checkers['TestFolder'].remote is False
+
+
+@pytest.inlineCallbacks
+def test_monitor_emit_check_finished(monkeypatch, qtbot):
+    monkeypatch.setattr(
+        'gridsync.monitor.MagicFolderChecker.do_check', lambda _: MagicMock())
+    monitor = Monitor(MagicMock(magic_folders={'TestFolder': {}}))
+    monitor.grid_checker = MagicMock()
+    with qtbot.wait_signal(monitor.check_finished):
+        yield monitor.do_checks()
+
+
+def test_monitor_start():
+    monitor = Monitor(MagicMock())
+    monitor.timer = MagicMock()
+    monitor.start()
+    assert monitor.timer.mock_calls == [call.start(2, now=True)]
