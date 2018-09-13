@@ -10,8 +10,9 @@ import shutil
 import signal
 import sys
 import tempfile
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from io import BytesIO
+
 
 import treq
 from twisted.internet import reactor
@@ -26,6 +27,7 @@ import yaml
 from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
+from gridsync.monitor import Monitor
 from gridsync.preferences import set_preference, get_preference
 
 
@@ -77,7 +79,7 @@ class CommandProtocol(ProcessProtocol):
                     self.output.getvalue().decode('utf-8').strip()))
 
 
-class Tahoe():  # pylint: disable=too-many-public-methods
+class Tahoe():
     def __init__(self, nodedir=None, executable=None):
         self.executable = executable
         self.multi_folder_support = True
@@ -100,6 +102,7 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         self.magic_folders = defaultdict(dict)
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
+        self.monitor = Monitor(self)
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -815,52 +818,47 @@ class Tahoe():  # pylint: disable=too-many-public-methods
         return None
 
     @staticmethod
-    def size_from_content(content):
-        size = 0
-        filenodes = content[1]['children']
-        for filenode in filenodes:
-            size += int(filenodes[filenode][1]['size'])
-        return size
+    def _extract_metadata(metadata):
+        try:
+            deleted = metadata['metadata']['deleted']
+        except KeyError:
+            deleted = False
+        if deleted:
+            cap = metadata['metadata']['last_downloaded_uri']
+        else:
+            cap = metadata['ro_uri']
+        return {
+            'size': int(metadata['size']),
+            'mtime': float(metadata['metadata']['tahoe']['linkmotime']),
+            'deleted': deleted,
+            'cap': cap
+        }
 
     @inlineCallbacks
-    def get_magic_folder_size(self, name, content=None):
-        if not content:
-            content = yield self.get_json(self.get_magic_folder_dircap(name))
-        if content:
-            return self.size_from_content(content)
-        return None
-
-    @inlineCallbacks  # noqa: max-complexity=12 XXX
-    def get_magic_folder_info(self, name, members=None):
+    def get_magic_folder_state(self, name, members=None):
         total_size = 0
-        sizes_dict = {}
-        latest_mtime = 0
+        history_dict = {}
         if not members:
             members = yield self.get_magic_folder_members(name)
         if members:
-            for member, dircap in reversed(members):
-                sizes_dict[member] = {}
+            for member, dircap in members:
                 json_data = yield self.get_json(dircap)
                 try:
                     children = json_data[1]['children']
-                except TypeError:
+                except (TypeError, KeyError):
                     continue
                 for filenode, data in children.items():
-                    filepath = filenode.replace('@_', os.path.sep)
-                    metadata = data[1]
                     try:
-                        size = int(metadata['size'])
-                    except KeyError:  # if linked manually
-                        continue
-                    sizes_dict[member][filepath] = size
-                    total_size += size
-                    try:
-                        mt = int(metadata['metadata']['tahoe']['linkmotime'])
+                        metadata = self._extract_metadata(data[1])
                     except KeyError:
                         continue
-                    if mt > latest_mtime:
-                        latest_mtime = mt
-        return members, total_size, latest_mtime, sizes_dict
+                    metadata['path'] = filenode.replace('@_', os.path.sep)
+                    metadata['member'] = member
+                    history_dict[metadata['mtime']] = metadata
+                    total_size += metadata['size']
+        history_od = OrderedDict(sorted(history_dict.items()))
+        latest_mtime = next(reversed(history_od), 0)
+        return members, total_size, latest_mtime, history_od
 
 
 @inlineCallbacks

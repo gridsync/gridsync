@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import resource, config_dir
 from gridsync.gui.widgets import CompositePixmap
-from gridsync.monitor import Monitor
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
@@ -24,7 +23,7 @@ class Model(QStandardItemModel):
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
-        self.monitor = Monitor(self.gateway)
+        self.monitor = self.gateway.monitor
         self.status_dict = {}
         self.members_dict = {}
         self.grid_status = ''
@@ -49,17 +48,17 @@ class Model(QStandardItemModel):
         self.monitor.disconnected.connect(self.on_disconnected)
         self.monitor.nodes_updated.connect(self.on_nodes_updated)
         self.monitor.space_updated.connect(self.on_space_updated)
-        self.monitor.data_updated.connect(self.set_data)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
         self.monitor.member_added.connect(self.add_member)
-        self.monitor.first_sync_started.connect(self.on_first_sync)
         self.monitor.sync_started.connect(self.on_sync_started)
         self.monitor.sync_finished.connect(self.on_sync_finished)
         self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
         self.monitor.remote_folder_added.connect(self.add_remote_folder)
+        self.monitor.transfer_progress_updated.connect(
+            self.set_transfer_progress)
 
     def on_space_updated(self, size):
         self.available_space = size
@@ -81,24 +80,30 @@ class Model(QStandardItemModel):
             )
         self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
 
-    @pyqtSlot(str)
-    def on_connected(self, grid_name):
+    @pyqtSlot()
+    def on_connected(self):
         if get_preference('notifications', 'connection') != 'false':
             self.gui.show_message(
-                grid_name, "Connected to {}".format(grid_name))
+                self.gateway.name, "Connected to {}".format(self.gateway.name))
 
-    @pyqtSlot(str)
-    def on_disconnected(self, grid_name):
+    @pyqtSlot()
+    def on_disconnected(self):
         if get_preference('notifications', 'connection') != 'false':
             self.gui.show_message(
-                grid_name, "Disconnected from {}".format(grid_name))
+                self.gateway.name,
+                "Disconnected from {}".format(self.gateway.name)
+            )
 
-    @pyqtSlot(str, list)
-    def on_updated_files(self, folder_name, files_list):
+    @pyqtSlot(str, list, str, str)
+    def on_updated_files(self, folder_name, files_list, action, author):
         if get_preference('notifications', 'folder') != 'false':
             self.gui.show_message(
                 folder_name + " folder updated",
-                "Updated " + humanized_list(files_list))
+                "{} {}".format(
+                    author + " " + action if author else action.capitalize(),
+                    humanized_list(files_list)
+                )
+            )
 
     def data(self, index, role):
         value = super(Model, self).data(index, role)
@@ -185,12 +190,6 @@ class Model(QStandardItemModel):
         else:
             self.set_status_private(folder_name)
 
-    @pyqtSlot(str, object)
-    def set_data(self, folder_name, data):
-        items = self.findItems(folder_name)
-        if items:
-            items[0].setData(data, Qt.UserRole)
-
     @pyqtSlot(str, int)
     def set_status(self, name, status):
         items = self.findItems(name)
@@ -222,8 +221,21 @@ class Model(QStandardItemModel):
                 'This folder is stored remotely on the "{}" grid.\n'
                 'Right-click and select "Download" to sync it with your '
                 'local computer.'.format(self.gateway.name))
+        elif status == 99:
+            item.setIcon(self.icon_blank)
+            item.setText("Scanning")
+            item.setToolTip(
+                "This folder is being scanned for changes.")
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
+
+    @pyqtSlot(str, object, object)
+    def set_transfer_progress(self, folder_name, transferred, total):
+        items = self.findItems(folder_name)
+        if not items:
+            return
+        item = self.item(items[0].row(), 1)
+        item.setText("Syncing ({}%)".format(int(transferred / total * 100)))
 
     def fade_row(self, folder_name, overlay_file=None):
         folder_item = self.findItems(folder_name)[0]
@@ -251,12 +263,6 @@ class Model(QStandardItemModel):
             font.setItalic(False)
             item.setFont(font)
             item.setForeground(default_foreground)
-
-    @pyqtSlot(str)
-    def on_first_sync(self, folder_name):
-        self.unfade_row(folder_name)
-        self.update_folder_icon(
-            folder_name, self.gateway.get_magic_folder_directory(folder_name))
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):
