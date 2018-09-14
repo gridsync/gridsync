@@ -230,7 +230,7 @@ frozen-tahoe:
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
 	pip install packaging && \
-	pip install pyinstaller==3.3.1 && \
+	pip install pyinstaller==3.4 && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
@@ -254,20 +254,10 @@ pyinstaller:
 	case `uname` in \
 		Darwin) \
 			python scripts/maybe_rebuild_libsodium.py && \
-			python scripts/maybe_downgrade_pyqt.py && \
-			git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
-			pushd build/pyinstaller && \
-			git checkout 355f0c76b2ee5af0cb2f7cb5512a060d2ed02b2b && \
-			pushd bootloader && \
-			python ./waf all && \
-			popd && \
-			pip install . && \
-			popd \
-		;; \
-		*) \
-			pip install pyinstaller==3.3.1 \
+			python scripts/maybe_downgrade_pyqt.py \
 		;; \
 	esac &&	\
+	pip install pyinstaller==3.4 && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/gridsync.spec

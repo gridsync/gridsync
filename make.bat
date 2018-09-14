@@ -75,7 +75,7 @@ call pushd .\build\tahoe-lafs
 call python setup.py update_version
 call pip install .
 call pip install packaging
-call pip install pyinstaller==3.3.1
+call pip install pyinstaller==3.4
 call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
@@ -98,7 +98,7 @@ call .\build\venv-gridsync\Scripts\activate
 call pip install --upgrade setuptools pip
 call pip install -r .\requirements\requirements-hashes.txt
 call pip install . 
-call pip install pyinstaller==3.3.1
+call pip install pyinstaller==3.4
 call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller -y --clean misc\gridsync.spec
