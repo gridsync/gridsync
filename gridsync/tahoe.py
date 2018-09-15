@@ -848,6 +848,10 @@ class Tahoe():
                 except (TypeError, KeyError):
                     continue
                 for filenode, data in children.items():
+                    if filenode.endswith('@_'):
+                        # Ignore subdirectories, due to Tahoe-LAFS bug #2924
+                        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2924
+                        continue
                     try:
                         metadata = self._extract_metadata(data[1])
                     except KeyError:
