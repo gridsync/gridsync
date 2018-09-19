@@ -13,6 +13,7 @@ from twisted.internet import reactor
 from gridsync import resource, APP_NAME, config_dir
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
+from gridsync.gui.history import HistoryView
 from gridsync.gui.preferences import PreferencesWidget
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
@@ -51,12 +52,14 @@ class CentralWidget(QStackedWidget):
         super(CentralWidget, self).__init__()
         self.gui = gui
         self.views = []
+        self.folders_views = {}
+        self.history_views = {}
 
     def clear(self):
         for _ in range(self.count()):
             self.removeWidget(self.currentWidget())
 
-    def add_view_widget(self, gateway):
+    def add_folders_view(self, gateway):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
@@ -65,11 +68,22 @@ class CentralWidget(QStackedWidget):
         layout.addWidget(view)
         self.addWidget(widget)
         self.views.append(view)
+        self.folders_views[gateway] = widget
+
+    def add_history_view(self, gateway):
+        view = HistoryView(gateway)
+        self.addWidget(view)
+        self.history_views[gateway] = view
+        gateway.monitor.file_updated.connect(view.add_item)
+        gateway.monitor.check_finished.connect(view.update_visible_widgets)
 
     def populate(self, gateways):
         self.clear()
+        self.folders_views = {}
+        self.history_views = {}
         for gateway in gateways:
-            self.add_view_widget(gateway)
+            self.add_folders_view(gateway)
+            self.add_history_view(gateway)
 
 
 class MainWindow(QMainWindow):
@@ -175,6 +189,15 @@ class MainWindow(QMainWindow):
         recovery_button.setStyleSheet(
             'QToolButton::menu-indicator { image: none }')
 
+        history_action = QAction(
+            QIcon(resource('time.png')), 'History', self)
+        history_action.setStatusTip('History')
+        history_action.triggered.connect(self.on_history_button_clicked)
+
+        self.history_button = QToolButton(self)
+        self.history_button.setDefaultAction(history_action)
+        self.history_button.setCheckable(True)
+
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
         preferences_action.setStatusTip('Preferences')
@@ -205,6 +228,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_right)
         self.toolbar.addWidget(recovery_button)
         #self.toolbar.addAction(export_action)
+        self.toolbar.addWidget(self.history_button)
         self.toolbar.addWidget(self.preferences_button)
 
         self.status_bar = self.statusBar()
@@ -213,7 +237,7 @@ class MainWindow(QMainWindow):
         self.status_bar.addPermanentWidget(self.status_bar_label)
 
         self.preferences_widget = PreferencesWidget()
-        self.preferences_widget.accepted.connect(self.show_selected_grid_view)
+        self.preferences_widget.accepted.connect(self.show_folders_view)
 
         self.active_pair_widgets = []
         self.active_invite_receivers = []
@@ -229,29 +253,45 @@ class MainWindow(QMainWindow):
         self.preferences_widget.load_preferences()
 
     def current_view(self):
-        current_widget = self.central_widget.currentWidget()
-        if current_widget:
-            view = current_widget.layout().itemAt(0).widget()
-            if isinstance(view, View):
-                return view
-        return None
+        try:
+            w = self.central_widget.folders_views[self.combo_box.currentData()]
+        except KeyError:
+            return None
+        return w.layout().itemAt(0).widget()
 
     def select_folder(self):
-        self.show_selected_grid_view()
-        try:
-            view = self.current_view()
-        except AttributeError:
-            return
-        view.select_folder()
+        self.show_folders_view()
+        view = self.current_view()
+        if view:
+            view.select_folder()
 
     def set_current_grid_status(self):
         if self.central_widget.currentWidget() == self.preferences_widget:
             return
         current_view = self.current_view()
+        if not current_view:
+            return
         self.status_bar_label.setText(current_view.model().grid_status)
-        self.setWindowTitle("{} - {}".format(
-            APP_NAME, current_view.gateway.name))
+        self.status_bar.show()
         self.gui.systray.update()
+
+    def show_folders_view(self):
+        try:
+            self.central_widget.setCurrentWidget(
+                self.central_widget.folders_views[self.combo_box.currentData()]
+            )
+        except KeyError:
+            pass
+        self.set_current_grid_status()
+
+    def show_history_view(self):
+        try:
+            self.central_widget.setCurrentWidget(
+                self.central_widget.history_views[self.combo_box.currentData()]
+            )
+        except KeyError:
+            pass
+        self.set_current_grid_status()
 
     def show_welcome_dialog(self):
         if self.welcome_dialog:
@@ -263,26 +303,13 @@ class MainWindow(QMainWindow):
     def on_grid_selected(self, index):
         if index == self.combo_box.count() - 1:
             self.show_welcome_dialog()
+        elif self.history_button.isChecked():
+            self.show_history_view()
         else:
-            self.central_widget.setCurrentIndex(index)
-            self.status_bar.show()
-            self.set_current_grid_status()
-
-    def show_selected_grid_view(self):
-        for i in range(self.central_widget.count()):
-            widget = self.central_widget.widget(i)
-            try:
-                gateway = widget.layout().itemAt(0).widget().gateway
-            except AttributeError:
-                continue
-            if gateway == self.combo_box.currentData():
-                self.central_widget.setCurrentIndex(i)
-                self.status_bar.show()
-                self.set_current_grid_status()
-                self.preferences_button.setChecked(False)
-                return
-        self.combo_box.setCurrentIndex(0)  # Fallback to 0 if none selected
-        self.on_grid_selected(0)
+            self.show_folders_view()
+        self.setWindowTitle(
+            "{} - {}".format(APP_NAME, self.combo_box.currentData().name)
+        )
 
     def confirm_export(self, path):
         if os.path.isfile(path):
@@ -297,9 +324,9 @@ class MainWindow(QMainWindow):
                 "Destination file not found after export: {}".format(path))
 
     def export_recovery_key(self, gateway=None):
-        self.show_selected_grid_view()
+        self.show_folders_view()
         if not gateway:
-            gateway = self.current_view().gateway
+            gateway = self.combo_box.currentData()
         self.recovery_key_exporter = RecoveryKeyExporter(self)
         self.recovery_key_exporter.done.connect(self.confirm_export)
         self.recovery_key_exporter.do_export(gateway)
@@ -309,9 +336,19 @@ class MainWindow(QMainWindow):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
         self.welcome_dialog.on_restore_link_activated()
 
+    def on_history_button_clicked(self):
+        self.preferences_button.setChecked(False)
+        if not self.history_button.isChecked():
+            self.history_button.setChecked(True)
+            self.show_history_view()
+        else:
+            self.history_button.setChecked(False)
+            self.show_folders_view()
+
     def toggle_preferences_widget(self):
+        self.history_button.setChecked(False)
         if self.central_widget.currentWidget() == self.preferences_widget:
-            self.show_selected_grid_view()
+            self.show_folders_view()
         else:
             for i in range(self.central_widget.count()):
                 if self.central_widget.widget(i) == self.preferences_widget:
