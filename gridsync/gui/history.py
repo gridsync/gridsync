@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import os
+import sys
 import time
 
 from humanize import naturalsize, naturaltime
@@ -51,12 +52,18 @@ class HistoryItemWidget(QWidget):
 
         self.basename_label = QLabel(self.basename)
         font = QFont()
-        font.setPointSize(12)
+        if sys.platform == 'darwin':
+            font.setPointSize(16)
+        else:
+            font.setPointSize(12)
         self.basename_label.setFont(font)
 
         self.details_label = QLabel()
         font = QFont()
-        font.setPointSize(10)
+        if sys.platform == 'darwin':
+            font.setPointSize(13)
+        else:
+            font.setPointSize(10)
         self.details_label.setFont(font)
         self.details_label.setStyleSheet('color: grey')
 
