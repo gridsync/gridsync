@@ -7,7 +7,7 @@ import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QTimer, Qt
-from PyQt5.QtGui import QColor, QCursor, QFont, QIcon, QPixmap
+from PyQt5.QtGui import QColor, QCursor, QFont, QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QAbstractItemView, QFileIconProvider, QGridLayout, QLabel,
     QListWidgetItem, QListWidget, QMenu, QPushButton, QSizePolicy, QSpacerItem,
@@ -132,9 +132,9 @@ class HistoryItemWidget(QWidget):
         self.parent.highlighted = self
 
 
-class HistoryView(QListWidget):
+class HistoryListWidget(QListWidget):
     def __init__(self, gateway, deduplicate=True, max_items=30):
-        super(HistoryView, self).__init__()
+        super(HistoryListWidget, self).__init__()
         self.gateway = gateway
         self.deduplicate = deduplicate
         self.max_items = max_items
@@ -163,6 +163,11 @@ class HistoryView(QListWidget):
         self.sb.valueChanged.connect(self.update_visible_widgets)
         self.itemDoubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
+
+        self.gateway.monitor.file_updated.connect(self.add_item)
+        self.gateway.monitor.check_finished.connect(
+            self.update_visible_widgets
+        )
 
     def on_double_click(self, item):
         open_folder(os.path.dirname(self.itemWidget(item).path))
@@ -224,3 +229,67 @@ class HistoryView(QListWidget):
 
     def showEvent(self, _):
         self.update_visible_widgets()
+
+
+class StatusPanel(QWidget):
+    def __init__(self, gateway):
+        super(StatusPanel, self).__init__()
+        self.gateway = gateway
+        self.icon_checkmark = QLabel()
+        self.icon_checkmark.setPixmap(
+            QPixmap(resource('checkmark.png')).scaled(20, 20)
+        )
+        self.icon_checkmark.hide()
+
+        self.icon_syncing = QLabel()
+        self.icon_syncing.hide()
+
+        self.sync_movie = QMovie(resource('sync.gif'))
+        self.sync_movie.setCacheMode(True)
+        self.sync_movie.updated.connect(
+            lambda: self.icon_syncing.setPixmap(
+                self.sync_movie.currentPixmap().scaled(20, 20)
+            )
+        )
+
+        self.status_label = QLabel()
+        self.status_label.setStyleSheet("color: dimgrey")
+
+        self.icon_onion = QLabel()
+        self.icon_onion.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(24, 24)
+        )
+
+        layout = QGridLayout(self)
+        left, _, right, bottom = layout.getContentsMargins()
+        layout.setContentsMargins(left, 0, right, bottom - 2)
+        layout.addWidget(self.icon_checkmark, 1, 1)
+        layout.addWidget(self.icon_syncing, 1, 1)
+        layout.addWidget(self.status_label, 1, 2)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
+        layout.addWidget(self.icon_onion, 1, 4)
+
+        self.gateway.monitor.total_sync_state_updated.connect(
+            self.on_sync_state_updated
+        )
+
+    def on_sync_state_updated(self, state):
+        if state == 1:
+            self.status_label.setText("Syncing")
+            self.icon_checkmark.hide()
+            self.icon_syncing.show()
+            self.sync_movie.setPaused(False)
+        elif state == 2:
+            self.status_label.setText("Up to date")
+            self.sync_movie.setPaused(True)
+            self.icon_syncing.hide()
+            self.icon_checkmark.show()
+
+
+class HistoryView(QWidget):
+    def __init__(self, gateway, deduplicate=True, max_items=30):
+        super(HistoryView, self).__init__()
+        layout = QGridLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(HistoryListWidget(gateway, deduplicate, max_items))
+        layout.addWidget(StatusPanel(gateway))

@@ -74,8 +74,6 @@ class CentralWidget(QStackedWidget):
         view = HistoryView(gateway)
         self.addWidget(view)
         self.history_views[gateway] = view
-        gateway.monitor.file_updated.connect(view.add_item)
-        gateway.monitor.check_finished.connect(view.update_visible_widgets)
 
     def populate(self, gateways):
         self.clear()
@@ -272,7 +270,6 @@ class MainWindow(QMainWindow):
         if not current_view:
             return
         self.status_bar_label.setText(current_view.model().grid_status)
-        self.status_bar.show()
         self.gui.systray.update()
 
     def show_folders_view(self):
@@ -283,6 +280,7 @@ class MainWindow(QMainWindow):
         except KeyError:
             pass
         self.set_current_grid_status()
+        self.status_bar.show()
 
     def show_history_view(self):
         try:
@@ -292,6 +290,7 @@ class MainWindow(QMainWindow):
         except KeyError:
             pass
         self.set_current_grid_status()
+        self.status_bar.hide()
 
     def show_welcome_dialog(self):
         if self.welcome_dialog:
