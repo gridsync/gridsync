@@ -11,14 +11,16 @@ class StatusPanel(QWidget):
     def __init__(self, gateway):
         super(StatusPanel, self).__init__()
         self.gateway = gateway
+
+        self.num_connected = 0
+        self.num_known = 0
+
         self.icon_checkmark = QLabel()
         self.icon_checkmark.setPixmap(
             QPixmap(resource('checkmark.png')).scaled(20, 20)
         )
-        self.icon_checkmark.hide()
 
         self.icon_syncing = QLabel()
-        self.icon_syncing.hide()
 
         self.sync_movie = QMovie(resource('sync.gif'))
         self.sync_movie.setCacheMode(True)
@@ -30,6 +32,8 @@ class StatusPanel(QWidget):
 
         self.status_label = QLabel()
         self.status_label.setStyleSheet("color: dimgrey")
+
+        self.on_sync_state_updated(0)
 
         self.icon_onion = QLabel()
         self.icon_onion.setPixmap(
@@ -56,14 +60,15 @@ class StatusPanel(QWidget):
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
         )
-        self.gateway.monitor.nodes_updated.connect(
-            lambda x, y: self.globe_icon.setToolTip(
-                "Connected to {} of {} storage nodes".format(x, y)
-            )
-        )
+        self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
 
     def on_sync_state_updated(self, state):
-        if state == 1:
+        if state == 0:
+            self.status_label.setText("Connecting...")
+            self.sync_movie.setPaused(True)
+            self.icon_syncing.hide()
+            self.icon_checkmark.hide()
+        elif state == 1:
             self.status_label.setText("Syncing")
             self.icon_checkmark.hide()
             self.icon_syncing.show()
@@ -73,3 +78,10 @@ class StatusPanel(QWidget):
             self.sync_movie.setPaused(True)
             self.icon_syncing.hide()
             self.icon_checkmark.show()
+
+    def on_nodes_updated(self, connected, known):
+        text = "Connected to {} of {} storage nodes".format(connected, known)
+        self.status_label.setText(text)
+        self.globe_icon.setToolTip(text)
+        self.num_connected = connected
+        self.num_known = known
