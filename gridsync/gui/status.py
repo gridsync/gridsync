@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from humanize import naturalsize
 from PyQt5.QtGui import QMovie, QPixmap
 from PyQt5.QtWidgets import (
     QGridLayout, QLabel, QSizePolicy, QSpacerItem, QWidget)
@@ -14,6 +15,7 @@ class StatusPanel(QWidget):
 
         self.num_connected = 0
         self.num_known = 0
+        self.available_space = 0
 
         self.icon_checkmark = QLabel()
         self.icon_checkmark.setPixmap(
@@ -60,6 +62,7 @@ class StatusPanel(QWidget):
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
         )
+        self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
 
     def on_sync_state_updated(self, state):
@@ -79,9 +82,27 @@ class StatusPanel(QWidget):
             self.icon_syncing.hide()
             self.icon_checkmark.show()
 
+    def _update_grid_info_tooltip(self):
+        if self.available_space:
+            self.globe_icon.setToolTip(
+                "Connected to {} of {} storage nodes\n{} available".format(
+                    self.num_connected, self.num_known, self.available_space
+                )
+            )
+        else:
+            self.globe_icon.setToolTip(
+                "Connected to {} of {} storage nodes".format(
+                    self.num_connected, self.num_known
+                )
+            )
+
+    def on_space_updated(self, space):
+        self.available_space = naturalsize(space)
+        self._update_grid_info_tooltip()
+
     def on_nodes_updated(self, connected, known):
         text = "Connected to {} of {} storage nodes".format(connected, known)
         self.status_label.setText(text)
-        self.globe_icon.setToolTip(text)
         self.num_connected = connected
         self.num_known = known
+        self._update_grid_info_tooltip()
