@@ -54,9 +54,9 @@ class HistoryItemWidget(QWidget):
         self.basename_label = QLabel(self.basename)
         font = QFont()
         if sys.platform == 'darwin':
-            font.setPointSize(16)
+            font.setPointSize(15)
         else:
-            font.setPointSize(12)
+            font.setPointSize(11)
         self.basename_label.setFont(font)
 
         self.details_label = QLabel()
