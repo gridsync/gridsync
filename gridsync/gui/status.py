@@ -38,6 +38,11 @@ class StatusPanel(QWidget):
         if not self.gateway.use_tor:
             self.icon_onion.hide()
 
+        self.globe_icon = QLabel()
+        self.globe_icon.setPixmap(
+            QPixmap(resource('globe.png')).scaled(20, 20)
+        )
+
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
         layout.setContentsMargins(left, 0, right, bottom - 2)
@@ -46,9 +51,15 @@ class StatusPanel(QWidget):
         layout.addWidget(self.status_label, 1, 2)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.icon_onion, 1, 4)
+        layout.addWidget(self.globe_icon, 1, 5)
 
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
+        )
+        self.gateway.monitor.nodes_updated.connect(
+            lambda x, y: self.globe_icon.setToolTip(
+                "Connected to {} of {} storage nodes".format(x, y)
+            )
         )
 
     def on_sync_state_updated(self, state):
