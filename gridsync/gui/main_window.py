@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
 from PyQt5.QtGui import QIcon, QKeySequence
@@ -63,8 +64,9 @@ class CentralWidget(QStackedWidget):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
-        margin_left, _, margin_right, _ = layout.getContentsMargins()
-        layout.setContentsMargins(margin_left, 0, margin_right, 0)
+        if sys.platform != 'darwin':
+            margin_left, _, margin_right, _ = layout.getContentsMargins()
+            layout.setContentsMargins(margin_left, 0, margin_right, 0)
         layout.addWidget(view)
         self.addWidget(widget)
         self.views.append(view)
@@ -94,6 +96,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(500, 300))
+        self.setUnifiedTitleAndToolBarOnMac(True)
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
         self.shortcut_new.activated.connect(self.show_welcome_dialog)
@@ -213,7 +216,8 @@ class MainWindow(QMainWindow):
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         self.toolbar = self.addToolBar('')
-        self.toolbar.setStyleSheet("QToolBar { border: 0px }")
+        if sys.platform != 'darwin':
+            self.toolbar.setStyleSheet("QToolBar { border: 0px }")
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toolbar.setIconSize(QSize(24, 24))
