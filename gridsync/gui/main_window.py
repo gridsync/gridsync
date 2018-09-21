@@ -277,6 +277,7 @@ class MainWindow(QMainWindow):
         self.gui.systray.update()
 
     def show_folders_view(self):
+        self.preferences_button.setChecked(False)
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.folders_views[self.combo_box.currentData()]
