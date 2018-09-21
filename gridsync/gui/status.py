@@ -35,6 +35,8 @@ class StatusPanel(QWidget):
         self.icon_onion.setPixmap(
             QPixmap(resource('tor-onion.png')).scaled(24, 24)
         )
+        if not self.gateway.use_tor:
+            self.icon_onion.hide()
 
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
