@@ -13,10 +13,9 @@ from PyQt5.QtWidgets import (
     QListWidgetItem, QListWidget, QMenu, QPushButton, QSizePolicy, QSpacerItem,
     QWidget)
 
-from gridsync import config_dir, resource
+from gridsync import resource
 from gridsync.desktop import open_folder
 from gridsync.gui.status import StatusPanel
-from gridsync.gui.widgets import CompositePixmap
 
 
 class HistoryItemWidget(QWidget):
@@ -145,11 +144,6 @@ class HistoryListWidget(QListWidget):
         self.highlighted = None
 
         self.action_icon = QIcon(resource('dots-horizontal-triple.png'))
-        folder_icon = QFileIconProvider().icon(QFileInfo(config_dir))
-        composite_pixmap = CompositePixmap(
-            folder_icon.pixmap(256, 256), overlay=None, grayout=True)
-        self.folder_icon = QIcon(composite_pixmap)
-        self.share_icon = QIcon(resource('share.png'))
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setFocusPolicy(Qt.NoFocus)
