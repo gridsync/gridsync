@@ -184,7 +184,7 @@ class HistoryListWidget(QListWidget):
         open_file_action = QAction("Open file")
         open_file_action.triggered.connect(lambda: open_folder(widget.path))
         menu.addAction(open_file_action)
-        open_folder_action = QAction(self.folder_icon, "Open enclosing folder")
+        open_folder_action = QAction("Open enclosing folder")
         open_folder_action.triggered.connect(
             lambda: self.on_double_click(item))
         menu.addAction(open_folder_action)
