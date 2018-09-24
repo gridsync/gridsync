@@ -29,7 +29,6 @@ class HistoryItemWidget(QWidget):
         self.size = data['size']
         self.action = data['action']
         self.mtime = data['mtime']
-        self.member = data['member']
         self._thumbnail_loaded = False
 
         self.setAutoFillBackground(True)
@@ -85,10 +84,9 @@ class HistoryItemWidget(QWidget):
 
     def update_text(self):
         self.details_label.setText(
-            "{} {} by {}".format(
+            "{} {}".format(
                 self.action.capitalize(),
                 naturaltime(datetime.fromtimestamp(self.mtime)),
-                self.member
             )
         )
 
@@ -108,7 +106,6 @@ class HistoryItemWidget(QWidget):
         self.size = data['size']
         self.action = data['action']
         self.mtime = data['mtime']
-        self.member = data['member']
         self._thumbnail_loaded = False
         self.update_text()
         self.load_thumbnail()
