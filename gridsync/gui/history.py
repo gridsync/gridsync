@@ -179,9 +179,6 @@ class HistoryListWidget(QListWidget):
         open_folder_action.triggered.connect(
             lambda: self.on_double_click(item))
         menu.addAction(open_folder_action)
-        #menu.addSeparator()
-        #share_action = QAction(self.share_icon, "Share...")
-        #menu.addAction(share_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_item(self, folder_name, data):
