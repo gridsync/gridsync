@@ -100,16 +100,6 @@ class HistoryItemWidget(QWidget):
             self._thumbnail_loaded = True
             QTimer.singleShot(50, self._do_load_thumbnail)
 
-    def reset_data(self, data):
-        self.data = data
-        self.path = data['path']
-        self.size = data['size']
-        self.action = data['action']
-        self.mtime = data['mtime']
-        self._thumbnail_loaded = False
-        self.update_text()
-        self.load_thumbnail()
-
     def unhighlight(self):
         self.button.hide()
         palette = self.palette()
