@@ -101,8 +101,9 @@ class StatusPanel(QWidget):
         self._update_grid_info_tooltip()
 
     def on_nodes_updated(self, connected, known):
-        text = "Connected to {} of {} storage nodes".format(connected, known)
-        self.status_label.setText(text)
+        self.status_label.setText(
+            "Connected to {} of {} storage nodes".format(connected, known)
+        )
         self.num_connected = connected
         self.num_known = known
         self._update_grid_info_tooltip()
