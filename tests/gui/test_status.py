@@ -11,7 +11,7 @@ def test_status_panel_hide_tor_icon():
     gateway = MagicMock()
     gateway.use_tor = False
     sp = StatusPanel(gateway)
-    assert sp.tor_icon.isHidden() == True
+    assert sp.tor_icon.isHidden() is True
 
 
 @pytest.mark.parametrize("state,text", [
