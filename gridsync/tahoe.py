@@ -103,6 +103,7 @@ class Tahoe():
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
+        self._monitor_started = False
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -429,6 +430,9 @@ class Tahoe():
 
     @inlineCallbacks
     def start(self):
+        if not self._monitor_started:
+            self.monitor.start()
+            self._monitor_started = True
         tcp = self.config_get('connections', 'tcp')
         if tcp and tcp.lower() == 'tor':
             self.use_tor = True

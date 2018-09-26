@@ -87,6 +87,7 @@ app = BUNDLE(
         'CFBundleShortVersionString': version,
         'LSBackgroundOnly': True,
         'LSUIElement': True,
+        'NSHighResolutionCapable': True,
     }
 )
 

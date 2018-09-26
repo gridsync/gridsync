@@ -385,7 +385,7 @@ def test_grid_checker_emit_nodes_updated_(qtbot):
     gc.gateway.get_grid_status = MagicMock(return_value=(8, 10, 1234))
     with qtbot.wait_signal(gc.nodes_updated) as blocker:
         yield gc.do_check()
-    assert blocker.args == [8, 7]
+    assert blocker.args == [8, 10]
 
 
 @pytest.inlineCallbacks

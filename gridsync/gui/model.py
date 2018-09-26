@@ -146,7 +146,6 @@ class Model(QStandardItemModel):
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
             self.add_folder(magic_folder['directory'])
-        self.monitor.start()
 
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
         items = self.findItems(folder_name)

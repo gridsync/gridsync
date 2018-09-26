@@ -198,6 +198,7 @@ class GridChecker(QObject):
         super(GridChecker, self).__init__()
         self.gateway = gateway
         self.num_connected = 0
+        self.num_known = 0
         self.num_happy = 0
         self.is_connected = False
         self.available_space = 0
@@ -206,9 +207,10 @@ class GridChecker(QObject):
     def do_check(self):
         results = yield self.gateway.get_grid_status()
         if results:
-            num_connected, _, available_space = results
+            num_connected, num_known, available_space = results
         else:
             num_connected = 0
+            num_known = 0
             available_space = 0
         if available_space != self.available_space:
             self.available_space = available_space
@@ -216,8 +218,8 @@ class GridChecker(QObject):
         num_happy = self.gateway.shares_happy
         if not num_happy:
             num_happy = 0
-        if num_connected != self.num_connected or num_happy != self.num_happy:
-            self.nodes_updated.emit(num_connected, num_happy)
+        if num_connected != self.num_connected or num_known != self.num_known:
+            self.nodes_updated.emit(num_connected, num_known)
             if num_happy and num_connected >= num_happy:
                 if not self.is_connected:
                     self.is_connected = True
@@ -227,6 +229,7 @@ class GridChecker(QObject):
                     self.is_connected = False
                     self.disconnected.emit()
             self.num_connected = num_connected
+            self.num_known = num_known
             self.num_happy = num_happy
 
 
@@ -256,6 +259,8 @@ class Monitor(QObject):
     file_updated = pyqtSignal(str, object)
     files_updated = pyqtSignal(str, list, str, str)
 
+    total_sync_state_updated = pyqtSignal(int)
+
     check_finished = pyqtSignal()
 
     def __init__(self, gateway):
@@ -270,6 +275,7 @@ class Monitor(QObject):
         self.grid_checker.nodes_updated.connect(self.nodes_updated.emit)
         self.grid_checker.space_updated.connect(self.space_updated.emit)
         self.magic_folder_checkers = {}
+        self.total_sync_state = 0
 
     def add_magic_folder_checker(self, name, remote=False):
         mfc = MagicFolderChecker(self.gateway, name, remote)
@@ -322,9 +328,20 @@ class Monitor(QObject):
                 self.add_magic_folder_checker(folder)
             elif self.magic_folder_checkers[folder].remote:
                 self.magic_folder_checkers[folder].remote = False
+        states = set()
         for magic_folder_checker in list(self.magic_folder_checkers.values()):
             if not magic_folder_checker.remote:
                 yield magic_folder_checker.do_check()
+                states.add(magic_folder_checker.state)
+        if 1 in states or 99 in states:  # At least one folder is syncing
+            state = 1
+        elif 2 in states and len(states) == 1:  # All folders are up to date
+            state = 2
+        else:
+            state = 0
+        if state != self.total_sync_state:
+            self.total_sync_state = state
+            self.total_sync_state_updated.emit(state)
         self.check_finished.emit()
 
     def start(self, interval=2):
