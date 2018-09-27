@@ -18,7 +18,7 @@ from gridsync import settings as global_settings
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
     get_settings_from_cheatcode, InviteCodeWidget, show_failure)
-from gridsync.gui.preferences import PreferencesWidget
+from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
@@ -226,12 +226,11 @@ class WelcomeDialog(QStackedWidget):
         self.page_1 = WelcomeWidget(self)
         self.page_2 = ProgressBarWidget()
         self.page_3 = TahoeConfigForm()
-        self.page_4 = PreferencesWidget()
+        self.preferences_window = PreferencesWindow()
 
         self.addWidget(self.page_1)
         self.addWidget(self.page_2)
         self.addWidget(self.page_3)
-        self.addWidget(self.page_4)
 
         self.lineedit = self.page_1.lineedit
         self.checkbox = self.page_1.invite_code_widget.checkbox
@@ -259,9 +258,7 @@ class WelcomeDialog(QStackedWidget):
             self.on_restore_link_activated)
         self.configure_link.linkActivated.connect(
             self.on_configure_link_activated)
-        self.preferences_button.clicked.connect(
-            self.on_preferences_button_clicked)
-        self.page_4.accepted.connect(self.on_preferences_accepted)
+        self.preferences_button.clicked.connect(self.preferences_window.show)
 
     def on_checkbox_state_changed(self, state):
         self.use_tor = bool(state)
@@ -276,12 +273,6 @@ class WelcomeDialog(QStackedWidget):
 
     def on_configure_link_activated(self):
         self.setCurrentIndex(2)
-
-    def on_preferences_button_clicked(self):
-        self.setCurrentIndex(3)
-
-    def on_preferences_accepted(self):
-        self.setCurrentIndex(0)
 
     def update_progress(self, message):
         self.page_2.update_progress(message)
