@@ -207,10 +207,6 @@ class MainWindow(QMainWindow):
         preferences_action.setShortcut(QKeySequence.Preferences)
         preferences_action.triggered.connect(self.preferences_window.show)
 
-        self.preferences_button = QToolButton(self)
-        self.preferences_button.setDefaultAction(preferences_action)
-        self.preferences_button.setCheckable(True)
-
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
 
@@ -233,7 +229,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(recovery_button)
         #self.toolbar.addAction(export_action)
         self.toolbar.addWidget(self.history_button)
-        self.toolbar.addWidget(self.preferences_button)
+        self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
         self.status_bar.setStyleSheet('QStatusBar::item { border: 0px; }')
@@ -272,7 +268,6 @@ class MainWindow(QMainWindow):
         self.gui.systray.update()
 
     def show_folders_view(self):
-        self.preferences_button.setChecked(False)
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.folders_views[self.combo_box.currentData()]
@@ -336,7 +331,6 @@ class MainWindow(QMainWindow):
         self.welcome_dialog.on_restore_link_activated()
 
     def on_history_button_clicked(self):
-        self.preferences_button.setChecked(False)
         if not self.history_button.isChecked():
             self.history_button.setChecked(True)
             self.show_history_view()
