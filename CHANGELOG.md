@@ -10,6 +10,9 @@
 - Backspace/Delete key-presses can now be used to remove folders
 - An "action" button/column has been added for each folder/row, making folder-specific actions accessible via left-click (Issue #89)
 - A (very) basic "About"/version dialog has been added, accessible via the systray menu
+- A "history" view has been added, displaying a chronological record of recent changes made to magic-folders and enabling per-file actions (Issue #92, PR #116)
+- A "status panel" has been added alongside the history view for showing grid-related status information in a more compact manner (PR #116)
+- Support for high-DPI "retina" displays has been enabled for macOS ".app" bundles (PR #116)
 
 ### Changed
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
