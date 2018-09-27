@@ -15,7 +15,6 @@ from gridsync import resource, APP_NAME, config_dir
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.history import HistoryView
-from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
 from gridsync.gui.share import InviteReceiver, ShareWidget
@@ -199,13 +198,11 @@ class MainWindow(QMainWindow):
         self.history_button.setDefaultAction(history_action)
         self.history_button.setCheckable(True)
 
-        self.preferences_window = PreferencesWindow()
-
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
         preferences_action.setStatusTip('Preferences')
         preferences_action.setShortcut(QKeySequence.Preferences)
-        preferences_action.triggered.connect(self.preferences_window.show)
+        preferences_action.triggered.connect(self.gui.show_preferences_window)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)

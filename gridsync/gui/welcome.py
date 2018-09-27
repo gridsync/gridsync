@@ -18,7 +18,6 @@ from gridsync import settings as global_settings
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import (
     get_settings_from_cheatcode, InviteCodeWidget, show_failure)
-from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
@@ -226,7 +225,6 @@ class WelcomeDialog(QStackedWidget):
         self.page_1 = WelcomeWidget(self)
         self.page_2 = ProgressBarWidget()
         self.page_3 = TahoeConfigForm()
-        self.preferences_window = PreferencesWindow()
 
         self.addWidget(self.page_1)
         self.addWidget(self.page_2)
@@ -258,7 +256,8 @@ class WelcomeDialog(QStackedWidget):
             self.on_restore_link_activated)
         self.configure_link.linkActivated.connect(
             self.on_configure_link_activated)
-        self.preferences_button.clicked.connect(self.preferences_window.show)
+        self.preferences_button.clicked.connect(
+            self.gui.show_preferences_window)
 
     def on_checkbox_state_changed(self, state):
         self.use_tor = bool(state)
