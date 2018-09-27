@@ -2,8 +2,10 @@
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import (
-    QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QSizePolicy,
-    QSpacerItem, QWidget)
+    QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QMainWindow,
+    QSizePolicy, QSpacerItem, QWidget)
+
+from gridsync import APP_NAME
 from gridsync.desktop import (
     autostart_enable, autostart_is_enabled, autostart_disable)
 from gridsync.preferences import set_preference, get_preference
@@ -109,3 +111,12 @@ class PreferencesWidget(QWidget):
             autostart_enable()
         else:
             autostart_disable()
+
+
+class PreferencesWindow(QMainWindow):
+    def __init__(self):
+        super(PreferencesWindow, self).__init__()
+        self.setWindowTitle("{} - Preferences".format(APP_NAME))
+        self.preferences_widget = PreferencesWidget()
+        self.setCentralWidget(self.preferences_widget)
+        self.preferences_widget.accepted.connect(self.close)
