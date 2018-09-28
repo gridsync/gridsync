@@ -169,3 +169,7 @@ class PreferencesWindow(QMainWindow):
         self.notifications_button.setChecked(True)
         self.general_button.setChecked(False)
         self.stacked_widget.setCurrentWidget(self.notifications_pane)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close()
