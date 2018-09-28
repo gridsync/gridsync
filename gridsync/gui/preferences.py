@@ -123,6 +123,7 @@ class NotificationsPane(QWidget):
 class PreferencesWindow(QMainWindow):
     def __init__(self):
         super(PreferencesWindow, self).__init__()
+        self.setMinimumSize(500, 300)
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.setWindowTitle("{} - Preferences".format(APP_NAME))
 
