@@ -125,7 +125,6 @@ class PreferencesWindow(QMainWindow):
         super(PreferencesWindow, self).__init__()
         self.setMinimumSize(500, 300)
         self.setUnifiedTitleAndToolBarOnMac(True)
-        self.setWindowTitle("{} - Preferences".format(APP_NAME))
 
         self.toolbar = self.addToolBar('')
         self.toolbar.setIconSize(QSize(36, 36))
@@ -161,11 +160,14 @@ class PreferencesWindow(QMainWindow):
         self.on_general_button_clicked()
 
     def on_general_button_clicked(self):
+        self.setWindowTitle("{} - Preferences - General".format(APP_NAME))
         self.general_button.setChecked(True)
         self.notifications_button.setChecked(False)
         self.stacked_widget.setCurrentWidget(self.general_pane)
 
     def on_notifications_button_clicked(self):
+        self.setWindowTitle(
+            "{} - Preferences - Notifications".format(APP_NAME))
         self.notifications_button.setChecked(True)
         self.general_button.setChecked(False)
         self.stacked_widget.setCurrentWidget(self.notifications_pane)
