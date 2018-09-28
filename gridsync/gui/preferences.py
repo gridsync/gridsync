@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import pyqtSignal, QSize, Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel, QMainWindow,
-    QSizePolicy, QSpacerItem, QWidget)
+    QAction, QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel,
+    QMainWindow, QSizePolicy, QSpacerItem, QToolButton, QWidget)
 
-from gridsync import APP_NAME
+from gridsync import APP_NAME, resource
 from gridsync.desktop import (
     autostart_enable, autostart_is_enabled, autostart_disable)
 from gridsync.preferences import set_preference, get_preference
@@ -116,7 +117,29 @@ class PreferencesWidget(QWidget):
 class PreferencesWindow(QMainWindow):
     def __init__(self):
         super(PreferencesWindow, self).__init__()
+        self.setUnifiedTitleAndToolBarOnMac(True)
         self.setWindowTitle("{} - Preferences".format(APP_NAME))
+
+        self.toolbar = self.addToolBar('')
+        self.toolbar.setIconSize(QSize(36, 36))
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        self.general_button = QToolButton(self)
+        self.general_button.setDefaultAction(
+            QAction(QIcon(resource('preferences.png')), "General"))
+        self.general_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.general_button.setCheckable(True)
+
+        self.notifications_button = QToolButton(self)
+        self.notifications_button.setDefaultAction(
+            QAction(QIcon(resource('preferences.png')), "Notifications"))
+        self.notifications_button.setToolButtonStyle(
+            Qt.ToolButtonTextUnderIcon)
+        self.notifications_button.setCheckable(True)
+
+        self.toolbar.addWidget(self.general_button)
+        self.toolbar.addWidget(self.notifications_button)
+
         self.preferences_widget = PreferencesWidget()
         self.setCentralWidget(self.preferences_widget)
         self.preferences_widget.accepted.connect(self.close)
