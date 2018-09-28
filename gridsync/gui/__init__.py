@@ -3,6 +3,7 @@
 from gridsync.desktop import notify
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.main_window import MainWindow
+from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.systray import SystemTrayIcon
 
 
@@ -11,6 +12,7 @@ class Gui():
         self.core = core
         self.welcome_dialog = WelcomeDialog(self)
         self.main_window = MainWindow(self)
+        self.preferences_window = PreferencesWindow()
         self.systray = SystemTrayIcon(self)
 
     def show_message(self, title, message, duration=5000):
@@ -23,6 +25,10 @@ class Gui():
     def show_main_window(self):
         self.main_window.show()
         self.main_window.raise_()
+
+    def show_preferences_window(self):
+        self.preferences_window.show()
+        self.preferences_window.raise_()
 
     def show_systray(self):
         if self.systray.isSystemTrayAvailable():
@@ -37,6 +43,7 @@ class Gui():
     def hide(self):
         self.systray.hide()
         self.main_window.hide()
+        self.preferences_window.hide()
 
     def toggle(self):
         if self.main_window.isVisible():

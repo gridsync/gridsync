@@ -15,7 +15,6 @@ from gridsync import resource, APP_NAME, config_dir
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.history import HistoryView
-from gridsync.gui.preferences import PreferencesWidget
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
 from gridsync.gui.share import InviteReceiver, ShareWidget
@@ -203,11 +202,7 @@ class MainWindow(QMainWindow):
             QIcon(resource('preferences.png')), 'Preferences', self)
         preferences_action.setStatusTip('Preferences')
         preferences_action.setShortcut(QKeySequence.Preferences)
-        preferences_action.triggered.connect(self.toggle_preferences_widget)
-
-        self.preferences_button = QToolButton(self)
-        self.preferences_button.setDefaultAction(preferences_action)
-        self.preferences_button.setCheckable(True)
+        preferences_action.triggered.connect(self.gui.show_preferences_window)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
@@ -231,15 +226,12 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(recovery_button)
         #self.toolbar.addAction(export_action)
         self.toolbar.addWidget(self.history_button)
-        self.toolbar.addWidget(self.preferences_button)
+        self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
         self.status_bar.setStyleSheet('QStatusBar::item { border: 0px; }')
         self.status_bar_label = QLabel('Loading...')
         self.status_bar.addPermanentWidget(self.status_bar_label)
-
-        self.preferences_widget = PreferencesWidget()
-        self.preferences_widget.accepted.connect(self.show_folders_view)
 
         self.active_pair_widgets = []
         self.active_invite_receivers = []
@@ -250,9 +242,7 @@ class MainWindow(QMainWindow):
                 self.gateways.append(gateway)
         self.combo_box.populate(self.gateways)
         self.central_widget.populate(self.gateways)
-        self.central_widget.addWidget(self.preferences_widget)
         self.gui.systray.menu.populate()
-        self.preferences_widget.load_preferences()
 
     def current_view(self):
         try:
@@ -268,8 +258,6 @@ class MainWindow(QMainWindow):
             view.select_folder()
 
     def set_current_grid_status(self):
-        if self.central_widget.currentWidget() == self.preferences_widget:
-            return
         current_view = self.current_view()
         if not current_view:
             return
@@ -277,7 +265,6 @@ class MainWindow(QMainWindow):
         self.gui.systray.update()
 
     def show_folders_view(self):
-        self.preferences_button.setChecked(False)
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.folders_views[self.combo_box.currentData()]
@@ -341,24 +328,12 @@ class MainWindow(QMainWindow):
         self.welcome_dialog.on_restore_link_activated()
 
     def on_history_button_clicked(self):
-        self.preferences_button.setChecked(False)
         if not self.history_button.isChecked():
             self.history_button.setChecked(True)
             self.show_history_view()
         else:
             self.history_button.setChecked(False)
             self.show_folders_view()
-
-    def toggle_preferences_widget(self):
-        self.history_button.setChecked(False)
-        if self.central_widget.currentWidget() == self.preferences_widget:
-            self.show_folders_view()
-        else:
-            for i in range(self.central_widget.count()):
-                if self.central_widget.widget(i) == self.preferences_widget:
-                    self.central_widget.setCurrentIndex(i)
-                    self.status_bar.hide()
-                    self.preferences_button.setChecked(True)
 
     def on_invite_received(self, _):
         for view in self.central_widget.views:
