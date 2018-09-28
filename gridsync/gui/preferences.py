@@ -128,6 +128,7 @@ class PreferencesWindow(QMainWindow):
 
         self.toolbar = self.addToolBar('')
         self.toolbar.setIconSize(QSize(36, 36))
+        self.toolbar.setMovable(False)
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.general_button = QToolButton(self)
