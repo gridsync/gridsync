@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QAction, QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel,
-    QMainWindow, QSizePolicy, QSpacerItem, QStackedWidget, QToolButton,
-    QWidget)
+    QAction, QCheckBox, QGridLayout, QGroupBox, QLabel, QMainWindow,
+    QSizePolicy, QSpacerItem, QStackedWidget, QToolButton, QWidget)
 
 from gridsync import APP_NAME, resource
 from gridsync.desktop import (
@@ -140,7 +139,7 @@ class PreferencesWindow(QMainWindow):
 
         self.notifications_button = QToolButton(self)
         self.notifications_button.setDefaultAction(
-            QAction(QIcon(resource('preferences.png')), "Notifications"))
+            QAction(QIcon(resource('notification.png')), "Notifications"))
         self.notifications_button.setToolButtonStyle(
             Qt.ToolButtonTextUnderIcon)
         self.notifications_button.setCheckable(True)
