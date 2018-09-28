@@ -4,7 +4,8 @@ from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QDialogButtonBox, QGridLayout, QGroupBox, QLabel,
-    QMainWindow, QSizePolicy, QSpacerItem, QToolButton, QWidget)
+    QMainWindow, QSizePolicy, QSpacerItem, QStackedWidget, QToolButton,
+    QWidget)
 
 from gridsync import APP_NAME, resource
 from gridsync.desktop import (
@@ -135,6 +136,7 @@ class PreferencesWindow(QMainWindow):
             QAction(QIcon(resource('preferences.png')), "General"))
         self.general_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.general_button.setCheckable(True)
+        self.general_button.triggered.connect(self.on_general_button_clicked)
 
         self.notifications_button = QToolButton(self)
         self.notifications_button.setDefaultAction(
@@ -142,9 +144,28 @@ class PreferencesWindow(QMainWindow):
         self.notifications_button.setToolButtonStyle(
             Qt.ToolButtonTextUnderIcon)
         self.notifications_button.setCheckable(True)
+        self.notifications_button.triggered.connect(
+            self.on_notifications_button_clicked)
 
         self.toolbar.addWidget(self.general_button)
         self.toolbar.addWidget(self.notifications_button)
 
-        self.preferences_widget = GeneralPane()
-        self.setCentralWidget(self.preferences_widget)
+        self.general_pane = GeneralPane()
+        self.notifications_pane = NotificationsPane()
+
+        self.stacked_widget = QStackedWidget()
+        self.stacked_widget.addWidget(self.general_pane)
+        self.stacked_widget.addWidget(self.notifications_pane)
+        self.setCentralWidget(self.stacked_widget)
+
+        self.on_general_button_clicked()
+
+    def on_general_button_clicked(self):
+        self.general_button.setChecked(True)
+        self.notifications_button.setChecked(False)
+        self.stacked_widget.setCurrentWidget(self.general_pane)
+
+    def on_notifications_button_clicked(self):
+        self.notifications_button.setChecked(True)
+        self.general_button.setChecked(False)
+        self.stacked_widget.setCurrentWidget(self.notifications_pane)
