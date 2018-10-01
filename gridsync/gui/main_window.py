@@ -117,9 +117,9 @@ class MainWindow(QMainWindow):
 
         font = QFont()
         if sys.platform == 'darwin':
-            font.setPointSize(12)
+            font.setPointSize(11)
         else:
-            font.setPointSize(9)
+            font.setPointSize(8)
 
         folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
         folder_icon_composite = CompositePixmap(
