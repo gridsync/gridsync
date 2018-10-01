@@ -132,6 +132,7 @@ class MainWindow(QMainWindow):
         self.history_button = QToolButton(self)
         self.history_button.setDefaultAction(history_action)
         self.history_button.setCheckable(True)
+        self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         invite_action = QAction(
             QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
@@ -174,6 +175,7 @@ class MainWindow(QMainWindow):
         recovery_button.setPopupMode(2)
         recovery_button.setStyleSheet(
             'QToolButton::menu-indicator { image: none }')
+        recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
@@ -190,8 +192,7 @@ class MainWindow(QMainWindow):
         self.toolbar = self.addToolBar('')
         if sys.platform != 'darwin':
             self.toolbar.setStyleSheet("QToolBar { border: 0px }")
-        #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(folder_action)
