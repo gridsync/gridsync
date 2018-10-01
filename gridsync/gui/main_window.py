@@ -126,7 +126,7 @@ class MainWindow(QMainWindow):
             folder_icon_default.pixmap(256, 256), resource('green-plus.png'))
         folder_icon = QIcon(folder_icon_composite)
 
-        folder_action = QAction(folder_icon, "Add folder...", self)
+        folder_action = QAction(folder_icon, "Add folder", self)
         folder_action.setStatusTip("Add folder...")
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         invite_action = QAction(
-            QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
+            QIcon(resource('invite.png')), "Enter Code", self)
         invite_action.setStatusTip('Enter an Invite Code...')
         invite_action.setFont(font)
         invite_action.triggered.connect(self.open_invite_receiver)
@@ -155,7 +155,7 @@ class MainWindow(QMainWindow):
                     resource('green-plus.png')
                 )
             ),
-            "Connect another device...",
+            "Connect device",
             self
         )
         pair_action.setStatusTip('Connect another device...')
@@ -163,15 +163,15 @@ class MainWindow(QMainWindow):
         pair_action.triggered.connect(self.open_pair_widget)
 
         recovery_action = QAction(
-            QIcon(resource('key.png')), "Import/Export Recovery Key...", self)
+            QIcon(resource('key.png')), "Recovery", self)
         recovery_action.setStatusTip("Import/Export Recovery Key...")
         recovery_action.setFont(font)
 
-        import_action = QAction(QIcon(), 'Import...', self)
+        import_action = QAction(QIcon(), 'Import Recovery Key...', self)
         import_action.setStatusTip('Import Recovery Key...')
         import_action.triggered.connect(self.import_recovery_key)
 
-        export_action = QAction(QIcon(), 'Export...', self)
+        export_action = QAction(QIcon(), 'Export Recovery Key...', self)
         export_action.setStatusTip('Export Recovery Key...')
         export_action.setShortcut(QKeySequence.Save)
         export_action.triggered.connect(self.export_recovery_key)
