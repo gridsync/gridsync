@@ -4,7 +4,7 @@ import os
 import sys
 
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtGui import QFont, QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QAction, QComboBox, QFileIconProvider, QGridLayout, QLabel, QMainWindow,
     QMenu, QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton,
@@ -115,6 +115,12 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
+        font = QFont()
+        if sys.platform == 'darwin':
+            font.setPointSize(12)
+        else:
+            font.setPointSize(9)
+
         folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
         folder_icon_composite = CompositePixmap(
             folder_icon_default.pixmap(256, 256), resource('green-plus.png'))
@@ -122,11 +128,13 @@ class MainWindow(QMainWindow):
 
         folder_action = QAction(folder_icon, "Add folder...", self)
         folder_action.setStatusTip("Add folder...")
+        folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
         history_action = QAction(
             QIcon(resource('time.png')), 'History', self)
         history_action.setStatusTip('History')
+        history_action.setFont(font)
         history_action.triggered.connect(self.on_history_button_clicked)
 
         self.history_button = QToolButton(self)
@@ -137,6 +145,7 @@ class MainWindow(QMainWindow):
         invite_action = QAction(
             QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
         invite_action.setStatusTip('Enter an Invite Code...')
+        invite_action.setFont(font)
         invite_action.triggered.connect(self.open_invite_receiver)
 
         pair_action = QAction(
@@ -150,11 +159,13 @@ class MainWindow(QMainWindow):
             self
         )
         pair_action.setStatusTip('Connect another device...')
+        pair_action.setFont(font)
         pair_action.triggered.connect(self.open_pair_widget)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Import/Export Recovery Key...", self)
         recovery_action.setStatusTip("Import/Export Recovery Key...")
+        recovery_action.setFont(font)
 
         import_action = QAction(QIcon(), 'Import...', self)
         import_action.setStatusTip('Import Recovery Key...')
@@ -180,6 +191,7 @@ class MainWindow(QMainWindow):
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
         preferences_action.setStatusTip('Preferences')
+        preferences_action.setFont(font)
         preferences_action.setShortcut(QKeySequence.Preferences)
         preferences_action.triggered.connect(self.gui.show_preferences_window)
 
