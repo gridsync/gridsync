@@ -127,30 +127,7 @@ class MainWindow(QMainWindow):
 
         folder_action = QAction(folder_icon, "Add folder...", self)
         folder_action.setStatusTip("Add folder...")
-
-        folder_from_local_action = QAction(
-            QIcon(resource('laptop.png')), "From local computer...", self)
-        folder_from_local_action.setStatusTip("Add folder from local computer")
-        folder_from_local_action.setToolTip("Add folder from local computer")
-        #self.from_local_action.setShortcut(QKeySequence.Open)
-        folder_from_local_action.triggered.connect(self.select_folder)
-
-        folder_from_invite_action = QAction(
-            QIcon(resource('invite.png')), "From Invite Code...", self)
-        folder_from_invite_action.setStatusTip("Add folder from Invite Code")
-        folder_from_invite_action.setToolTip("Add folder from Invite Code")
-        folder_from_invite_action.triggered.connect(self.open_invite_receiver)
-
-        folder_menu = QMenu(self)
-        folder_menu.addAction(folder_from_local_action)
-        folder_menu.addAction(folder_from_invite_action)
-
-        folder_button = QToolButton(self)
-        folder_button.setDefaultAction(folder_action)
-        folder_button.setMenu(folder_menu)
-        folder_button.setPopupMode(2)
-        folder_button.setStyleSheet(
-            'QToolButton::menu-indicator { image: none }')
+        folder_action.triggered.connect(self.select_folder)
 
         pair_action = QAction(
             QIcon(
@@ -217,8 +194,9 @@ class MainWindow(QMainWindow):
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
-        self.toolbar.addWidget(folder_button)
-        #self.toolbar.addAction(invite_action)
+        #self.toolbar.addWidget(folder_button)
+        self.toolbar.addAction(folder_action)
+        self.toolbar.addAction(invite_action)
         self.toolbar.addAction(pair_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
