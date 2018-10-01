@@ -148,19 +148,10 @@ class MainWindow(QMainWindow):
         invite_action.setFont(font)
         invite_action.triggered.connect(self.open_invite_receiver)
 
-        pair_action = QAction(
-            QIcon(
-                CompositePixmap(
-                    QIcon(resource('laptop.png')).pixmap(256, 256),
-                    resource('green-plus.png')
-                )
-            ),
-            "Connect device",
-            self
-        )
-        pair_action.setStatusTip('Connect another device...')
-        pair_action.setFont(font)
-        pair_action.triggered.connect(self.open_pair_widget)
+        share_action = QAction(QIcon(resource('share.png')), "Share", self)
+        share_action.setStatusTip("Share...")
+        share_action.setFont(font)
+        share_action.triggered.connect(self.open_pair_widget)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
@@ -213,7 +204,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
-        self.toolbar.addAction(pair_action)
+        self.toolbar.addAction(share_action)
         self.toolbar.addWidget(recovery_button)
         self.toolbar.addAction(preferences_action)
 
