@@ -127,13 +127,15 @@ class MainWindow(QMainWindow):
         folder_icon = QIcon(folder_icon_composite)
 
         folder_action = QAction(folder_icon, "Add folder", self)
-        folder_action.setStatusTip("Add folder...")
+        folder_action.setStatusTip("Add a folder...")
+        folder_action.setToolTip("Add a folder...")
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
         history_action = QAction(
             QIcon(resource('time.png')), 'History', self)
-        history_action.setStatusTip('History')
+        history_action.setStatusTip("View history")
+        history_action.setToolTip("View history")
         history_action.setFont(font)
         history_action.triggered.connect(self.on_history_button_clicked)
 
@@ -144,26 +146,31 @@ class MainWindow(QMainWindow):
 
         invite_action = QAction(
             QIcon(resource('invite.png')), "Enter Code", self)
-        invite_action.setStatusTip('Enter an Invite Code...')
+        invite_action.setStatusTip("Enter an Invite Code...")
+        invite_action.setToolTip("Enter an Invite Code...")
         invite_action.setFont(font)
         invite_action.triggered.connect(self.open_invite_receiver)
 
         share_action = QAction(QIcon(resource('share.png')), "Share", self)
         share_action.setStatusTip("Share...")
+        share_action.setToolTip("Share...")
         share_action.setFont(font)
         share_action.triggered.connect(self.open_pair_widget)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
         recovery_action.setStatusTip("Import/Export Recovery Key...")
+        recovery_action.setToolTip("Import/Export Recovery Key...")
         recovery_action.setFont(font)
 
-        import_action = QAction(QIcon(), 'Import Recovery Key...', self)
-        import_action.setStatusTip('Import Recovery Key...')
+        import_action = QAction(QIcon(), "Import Recovery Key...", self)
+        import_action.setStatusTip("Import Recovery Key...")
+        import_action.setToolTip("Import Recovery Key...")
         import_action.triggered.connect(self.import_recovery_key)
 
-        export_action = QAction(QIcon(), 'Export Recovery Key...', self)
-        export_action.setStatusTip('Export Recovery Key...')
+        export_action = QAction(QIcon(), "Export Recovery Key...", self)
+        export_action.setStatusTip("Export Recovery Key...")
+        export_action.setToolTip("Export Recovery Key...")
         export_action.setShortcut(QKeySequence.Save)
         export_action.triggered.connect(self.export_recovery_key)
 
@@ -180,8 +187,9 @@ class MainWindow(QMainWindow):
         recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         preferences_action = QAction(
-            QIcon(resource('preferences.png')), 'Preferences', self)
-        preferences_action.setStatusTip('Preferences')
+            QIcon(resource('preferences.png')), "Preferences", self)
+        preferences_action.setStatusTip("Preferences")
+        preferences_action.setToolTip("Preferences")
         preferences_action.setFont(font)
         preferences_action.setShortcut(QKeySequence.Preferences)
         preferences_action.triggered.connect(self.gui.show_preferences_window)
