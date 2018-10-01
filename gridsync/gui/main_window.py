@@ -202,7 +202,13 @@ class MainWindow(QMainWindow):
 
         self.toolbar = self.addToolBar('')
         if sys.platform != 'darwin':
-            self.toolbar.setStyleSheet("QToolBar { border: 0px }")
+            self.toolbar.setStyleSheet("""
+                QToolBar { border: 0px }
+                QToolButton { color: rgb(50, 50, 50) }
+            """)
+        else:
+            self.toolbar.setStyleSheet(
+                "QToolButton { color: rgb(50, 50, 50 }")
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
