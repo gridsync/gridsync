@@ -115,11 +115,6 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        invite_action = QAction(
-            QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
-        invite_action.setStatusTip('Enter an Invite Code...')
-        invite_action.triggered.connect(self.open_invite_receiver)
-
         folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
         folder_icon_composite = CompositePixmap(
             folder_icon_default.pixmap(256, 256), resource('green-plus.png'))
@@ -128,6 +123,20 @@ class MainWindow(QMainWindow):
         folder_action = QAction(folder_icon, "Add folder...", self)
         folder_action.setStatusTip("Add folder...")
         folder_action.triggered.connect(self.select_folder)
+
+        history_action = QAction(
+            QIcon(resource('time.png')), 'History', self)
+        history_action.setStatusTip('History')
+        history_action.triggered.connect(self.on_history_button_clicked)
+
+        self.history_button = QToolButton(self)
+        self.history_button.setDefaultAction(history_action)
+        self.history_button.setCheckable(True)
+
+        invite_action = QAction(
+            QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
+        invite_action.setStatusTip('Enter an Invite Code...')
+        invite_action.triggered.connect(self.open_invite_receiver)
 
         pair_action = QAction(
             QIcon(
@@ -166,15 +175,6 @@ class MainWindow(QMainWindow):
         recovery_button.setStyleSheet(
             'QToolButton::menu-indicator { image: none }')
 
-        history_action = QAction(
-            QIcon(resource('time.png')), 'History', self)
-        history_action.setStatusTip('History')
-        history_action.triggered.connect(self.on_history_button_clicked)
-
-        self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(history_action)
-        self.history_button.setCheckable(True)
-
         preferences_action = QAction(
             QIcon(resource('preferences.png')), 'Preferences', self)
         preferences_action.setStatusTip('Preferences')
@@ -194,16 +194,14 @@ class MainWindow(QMainWindow):
         #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
-        #self.toolbar.addWidget(folder_button)
         self.toolbar.addAction(folder_action)
+        self.toolbar.addWidget(self.history_button)
         self.toolbar.addAction(invite_action)
-        self.toolbar.addAction(pair_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
+        self.toolbar.addAction(pair_action)
         self.toolbar.addWidget(recovery_button)
-        #self.toolbar.addAction(export_action)
-        self.toolbar.addWidget(self.history_button)
         self.toolbar.addAction(preferences_action)
 
         self.status_bar = self.statusBar()
