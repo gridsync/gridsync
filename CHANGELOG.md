@@ -24,6 +24,7 @@
 - The dynamic action button inside invite code fields will now also update on window-enter cursor events (allowing, e.g., the "paste" button to become conveniently activated after copying an invite code to the clipboard from another window)
 - The main/status window's title will now include the name of the currently-active grid
 - The Preferences pane has been detached into a floating Preferences window with per-section "tabs" (Issue #117)
+- The MainWindow toolbar has been updated; text labels have been added beneath buttons and some actions have been re-organized (Issue #106)
 
 ### Removed
 - The "default" provider section of `config.txt` has been removed; organizations wishing to deploy a modified Gridsync client with pre-configured settings are encouraged to use a ["cheat code"](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md) instead
