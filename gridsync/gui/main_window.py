@@ -222,10 +222,11 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(recovery_button)
         self.toolbar.addAction(preferences_action)
 
-        for action in self.toolbar.actions():
-            widget = self.toolbar.widgetForAction(action)
-            if isinstance(widget, QToolButton):
-                widget.setMaximumWidth(68)
+        if sys.platform != 'win32':  # Text is getting clipped on Windows 10
+            for action in self.toolbar.actions():
+                widget = self.toolbar.widgetForAction(action)
+                if isinstance(widget, QToolButton):
+                    widget.setMaximumWidth(68)
 
         self.status_bar = self.statusBar()
         self.status_bar.setStyleSheet('QStatusBar::item { border: 0px; }')
