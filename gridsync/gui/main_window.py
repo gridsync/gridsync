@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         self.recovery_key_exporter = None
 
         self.setWindowTitle(APP_NAME)
-        self.setMinimumSize(QSize(500, 300))
+        self.setMinimumSize(QSize(600, 400))
         self.setUnifiedTitleAndToolBarOnMac(True)
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
