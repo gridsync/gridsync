@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         self.toolbar = self.addToolBar('')
-        if sys.platform == 'darwin':
+        if sys.platform != 'darwin':
             self.toolbar.setStyleSheet("""
                 QToolBar { border: 0px }
                 QToolButton { color: rgb(50, 50, 50) }
