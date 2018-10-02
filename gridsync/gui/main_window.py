@@ -4,7 +4,7 @@ import os
 import sys
 
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtGui import QFont, QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QAction, QComboBox, QFileIconProvider, QGridLayout, QLabel, QMainWindow,
     QMenu, QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton,
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         self.recovery_key_exporter = None
 
         self.setWindowTitle(APP_NAME)
-        self.setMinimumSize(QSize(500, 300))
+        self.setMinimumSize(QSize(600, 400))
         self.setUnifiedTitleAndToolBarOnMac(True)
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
@@ -115,66 +115,62 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        invite_action = QAction(
-            QIcon(resource('invite.png')), 'Enter an Invite Code...', self)
-        invite_action.setStatusTip('Enter an Invite Code...')
-        invite_action.triggered.connect(self.open_invite_receiver)
+        font = QFont()
+        if sys.platform == 'darwin':
+            font.setPointSize(11)
+        else:
+            font.setPointSize(8)
 
         folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
         folder_icon_composite = CompositePixmap(
             folder_icon_default.pixmap(256, 256), resource('green-plus.png'))
         folder_icon = QIcon(folder_icon_composite)
 
-        folder_action = QAction(folder_icon, "Add folder...", self)
-        folder_action.setStatusTip("Add folder...")
+        folder_action = QAction(folder_icon, "Add folder", self)
+        folder_action.setStatusTip("Add a folder...")
+        folder_action.setToolTip("Add a folder...")
+        folder_action.setFont(font)
+        folder_action.triggered.connect(self.select_folder)
 
-        folder_from_local_action = QAction(
-            QIcon(resource('laptop.png')), "From local computer...", self)
-        folder_from_local_action.setStatusTip("Add folder from local computer")
-        folder_from_local_action.setToolTip("Add folder from local computer")
-        #self.from_local_action.setShortcut(QKeySequence.Open)
-        folder_from_local_action.triggered.connect(self.select_folder)
+        history_action = QAction(
+            QIcon(resource('time.png')), 'History', self)
+        history_action.setStatusTip("View history")
+        history_action.setToolTip("View history")
+        history_action.setFont(font)
+        history_action.triggered.connect(self.on_history_button_clicked)
 
-        folder_from_invite_action = QAction(
-            QIcon(resource('invite.png')), "From Invite Code...", self)
-        folder_from_invite_action.setStatusTip("Add folder from Invite Code")
-        folder_from_invite_action.setToolTip("Add folder from Invite Code")
-        folder_from_invite_action.triggered.connect(self.open_invite_receiver)
+        self.history_button = QToolButton(self)
+        self.history_button.setDefaultAction(history_action)
+        self.history_button.setCheckable(True)
+        self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        folder_menu = QMenu(self)
-        folder_menu.addAction(folder_from_local_action)
-        folder_menu.addAction(folder_from_invite_action)
+        invite_action = QAction(
+            QIcon(resource('invite.png')), "Enter Code", self)
+        invite_action.setStatusTip("Enter an Invite Code...")
+        invite_action.setToolTip("Enter an Invite Code...")
+        invite_action.setFont(font)
+        invite_action.triggered.connect(self.open_invite_receiver)
 
-        folder_button = QToolButton(self)
-        folder_button.setDefaultAction(folder_action)
-        folder_button.setMenu(folder_menu)
-        folder_button.setPopupMode(2)
-        folder_button.setStyleSheet(
-            'QToolButton::menu-indicator { image: none }')
-
-        pair_action = QAction(
-            QIcon(
-                CompositePixmap(
-                    QIcon(resource('laptop.png')).pixmap(256, 256),
-                    resource('green-plus.png')
-                )
-            ),
-            "Connect another device...",
-            self
-        )
-        pair_action.setStatusTip('Connect another device...')
-        pair_action.triggered.connect(self.open_pair_widget)
+        share_action = QAction(QIcon(resource('share.png')), "Share", self)
+        share_action.setStatusTip("Share...")
+        share_action.setToolTip("Share...")
+        share_action.setFont(font)
+        share_action.triggered.connect(self.open_pair_widget)
 
         recovery_action = QAction(
-            QIcon(resource('key.png')), "Import/Export Recovery Key...", self)
+            QIcon(resource('key.png')), "Recovery", self)
         recovery_action.setStatusTip("Import/Export Recovery Key...")
+        recovery_action.setToolTip("Import/Export Recovery Key...")
+        recovery_action.setFont(font)
 
-        import_action = QAction(QIcon(), 'Import...', self)
-        import_action.setStatusTip('Import Recovery Key...')
+        import_action = QAction(QIcon(), "Import Recovery Key...", self)
+        import_action.setStatusTip("Import Recovery Key...")
+        import_action.setToolTip("Import Recovery Key...")
         import_action.triggered.connect(self.import_recovery_key)
 
-        export_action = QAction(QIcon(), 'Export...', self)
-        export_action.setStatusTip('Export Recovery Key...')
+        export_action = QAction(QIcon(), "Export Recovery Key...", self)
+        export_action.setStatusTip("Export Recovery Key...")
+        export_action.setToolTip("Export Recovery Key...")
         export_action.setShortcut(QKeySequence.Save)
         export_action.triggered.connect(self.export_recovery_key)
 
@@ -188,19 +184,13 @@ class MainWindow(QMainWindow):
         recovery_button.setPopupMode(2)
         recovery_button.setStyleSheet(
             'QToolButton::menu-indicator { image: none }')
-
-        history_action = QAction(
-            QIcon(resource('time.png')), 'History', self)
-        history_action.setStatusTip('History')
-        history_action.triggered.connect(self.on_history_button_clicked)
-
-        self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(history_action)
-        self.history_button.setCheckable(True)
+        recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         preferences_action = QAction(
-            QIcon(resource('preferences.png')), 'Preferences', self)
-        preferences_action.setStatusTip('Preferences')
+            QIcon(resource('preferences.png')), "Preferences", self)
+        preferences_action.setStatusTip("Preferences")
+        preferences_action.setToolTip("Preferences")
+        preferences_action.setFont(font)
         preferences_action.setShortcut(QKeySequence.Preferences)
         preferences_action.triggered.connect(self.gui.show_preferences_window)
 
@@ -212,21 +202,31 @@ class MainWindow(QMainWindow):
 
         self.toolbar = self.addToolBar('')
         if sys.platform != 'darwin':
-            self.toolbar.setStyleSheet("QToolBar { border: 0px }")
-        #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        #self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            self.toolbar.setStyleSheet("""
+                QToolBar { border: 0px }
+                QToolButton { color: rgb(50, 50, 50) }
+            """)
+        else:
+            self.toolbar.setStyleSheet(
+                "QToolButton { color: rgb(50, 50, 50) }")
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
-        self.toolbar.addWidget(folder_button)
-        #self.toolbar.addAction(invite_action)
-        self.toolbar.addAction(pair_action)
+        self.toolbar.addAction(folder_action)
+        self.toolbar.addWidget(self.history_button)
+        self.toolbar.addAction(invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
+        self.toolbar.addAction(share_action)
         self.toolbar.addWidget(recovery_button)
-        #self.toolbar.addAction(export_action)
-        self.toolbar.addWidget(self.history_button)
         self.toolbar.addAction(preferences_action)
+
+        if sys.platform != 'win32':  # Text is getting clipped on Windows 10
+            for action in self.toolbar.actions():
+                widget = self.toolbar.widgetForAction(action)
+                if isinstance(widget, QToolButton):
+                    widget.setMaximumWidth(68)
 
         self.status_bar = self.statusBar()
         self.status_bar.setStyleSheet('QStatusBar::item { border: 0px; }')
