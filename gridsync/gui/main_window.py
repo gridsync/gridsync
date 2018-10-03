@@ -6,9 +6,8 @@ import sys
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence
 from PyQt5.QtWidgets import (
-    QAction, QComboBox, QFileIconProvider, QGridLayout, QLabel, QMainWindow,
-    QMenu, QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton,
-    QWidget)
+    QAction, QComboBox, QFileIconProvider, QGridLayout, QMainWindow, QMenu,
+    QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir
