@@ -161,9 +161,7 @@ class Model(QStandardItemModel):
     def set_status_private(self, folder_name):
         folder_path = self.gateway.get_magic_folder_directory(folder_name)
         self.update_folder_icon(
-            folder_name,
-            self.gateway.get_magic_folder_directory(folder_name),
-            'lock-closed-green.svg')
+            folder_name, self.gateway.get_magic_folder_directory(folder_name))
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
