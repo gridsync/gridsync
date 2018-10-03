@@ -6,9 +6,8 @@ import sys
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QKeySequence
 from PyQt5.QtWidgets import (
-    QAction, QComboBox, QFileIconProvider, QGridLayout, QLabel, QMainWindow,
-    QMenu, QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton,
-    QWidget)
+    QAction, QComboBox, QFileIconProvider, QGridLayout, QMainWindow, QMenu,
+    QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir
@@ -18,6 +17,7 @@ from gridsync.gui.history import HistoryView
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
 from gridsync.gui.share import InviteReceiver, ShareWidget
+from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
 
 
@@ -67,6 +67,7 @@ class CentralWidget(QStackedWidget):
             margin_left, _, margin_right, _ = layout.getContentsMargins()
             layout.setContentsMargins(margin_left, 0, margin_right, 0)
         layout.addWidget(view)
+        layout.addWidget(StatusPanel(gateway))
         self.addWidget(widget)
         self.views.append(view)
         self.folders_views[gateway] = widget
@@ -127,14 +128,12 @@ class MainWindow(QMainWindow):
         folder_icon = QIcon(folder_icon_composite)
 
         folder_action = QAction(folder_icon, "Add folder", self)
-        folder_action.setStatusTip("Add a folder...")
         folder_action.setToolTip("Add a folder...")
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
         history_action = QAction(
             QIcon(resource('time.png')), 'History', self)
-        history_action.setStatusTip("View history")
         history_action.setToolTip("View history")
         history_action.setFont(font)
         history_action.triggered.connect(self.on_history_button_clicked)
@@ -146,30 +145,25 @@ class MainWindow(QMainWindow):
 
         invite_action = QAction(
             QIcon(resource('invite.png')), "Enter Code", self)
-        invite_action.setStatusTip("Enter an Invite Code...")
         invite_action.setToolTip("Enter an Invite Code...")
         invite_action.setFont(font)
         invite_action.triggered.connect(self.open_invite_receiver)
 
         share_action = QAction(QIcon(resource('share.png')), "Share", self)
-        share_action.setStatusTip("Share...")
         share_action.setToolTip("Share...")
         share_action.setFont(font)
         share_action.triggered.connect(self.open_pair_widget)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
-        recovery_action.setStatusTip("Import/Export Recovery Key...")
         recovery_action.setToolTip("Import/Export Recovery Key...")
         recovery_action.setFont(font)
 
         import_action = QAction(QIcon(), "Import Recovery Key...", self)
-        import_action.setStatusTip("Import Recovery Key...")
         import_action.setToolTip("Import Recovery Key...")
         import_action.triggered.connect(self.import_recovery_key)
 
         export_action = QAction(QIcon(), "Export Recovery Key...", self)
-        export_action.setStatusTip("Export Recovery Key...")
         export_action.setToolTip("Export Recovery Key...")
         export_action.setShortcut(QKeySequence.Save)
         export_action.triggered.connect(self.export_recovery_key)
@@ -228,11 +222,6 @@ class MainWindow(QMainWindow):
                 if isinstance(widget, QToolButton):
                     widget.setMaximumWidth(68)
 
-        self.status_bar = self.statusBar()
-        self.status_bar.setStyleSheet('QStatusBar::item { border: 0px; }')
-        self.status_bar_label = QLabel('Loading...')
-        self.status_bar.addPermanentWidget(self.status_bar_label)
-
         self.active_pair_widgets = []
         self.active_invite_receivers = []
 
@@ -261,7 +250,6 @@ class MainWindow(QMainWindow):
         current_view = self.current_view()
         if not current_view:
             return
-        self.status_bar_label.setText(current_view.model().grid_status)
         self.gui.systray.update()
 
     def show_folders_view(self):
@@ -272,7 +260,6 @@ class MainWindow(QMainWindow):
         except KeyError:
             pass
         self.set_current_grid_status()
-        self.status_bar.show()
 
     def show_history_view(self):
         try:
@@ -282,7 +269,6 @@ class MainWindow(QMainWindow):
         except KeyError:
             pass
         self.set_current_grid_status()
-        self.status_bar.hide()
 
     def show_welcome_dialog(self):
         if self.welcome_dialog:
