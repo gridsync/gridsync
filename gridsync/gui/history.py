@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QWidget)
 
 from gridsync import resource
-from gridsync.desktop import open_folder
+from gridsync.desktop import open_enclosing_folder, open_folder
 from gridsync.gui.status import StatusPanel
 
 
@@ -152,7 +152,7 @@ class HistoryListWidget(QListWidget):
         )
 
     def on_double_click(self, item):
-        open_folder(os.path.dirname(self.itemWidget(item).path))
+        open_enclosing_folder(self.itemWidget(item).path)
 
     def on_right_click(self, position):
         if not position:
