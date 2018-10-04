@@ -72,7 +72,7 @@ def open_enclosing_folder(path):
         subprocess.Popen(['xdg-open', os.path.dirname(path)])
 
 
-def open_folder(path):
+def open_path(path):
     path = os.path.expanduser(path)
     if sys.platform == 'darwin':
         subprocess.Popen(['open', path])

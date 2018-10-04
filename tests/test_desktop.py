@@ -7,7 +7,7 @@ import pytest
 
 from gridsync.desktop import (
     _dbus_notify, notify, get_clipboard_modes, get_clipboard_text,
-    set_clipboard_text, open_enclosing_folder, open_folder,
+    set_clipboard_text, open_enclosing_folder, open_path,
     autostart_enable, autostart_is_enabled, autostart_disable)
 
 
@@ -106,19 +106,19 @@ def test_open_enclosing_folder(platform, args, monkeypatch):
         ('linux', ['xdg-open', '/test/path/file.txt'])
     ]
 )
-def test_open_folder(platform, args, monkeypatch):
+def test_open_path(platform, args, monkeypatch):
     m = MagicMock()
     monkeypatch.setattr('subprocess.Popen', m)
     monkeypatch.setattr('sys.platform', platform)
-    open_folder('/test/path/file.txt')
+    open_path('/test/path/file.txt')
     assert m.mock_calls == [call(args)]
 
 
-def test_open_folder_win32(monkeypatch):
+def test_open_path_win32(monkeypatch):
     m = MagicMock()
     monkeypatch.setattr('os.startfile', m, raising=False)
     monkeypatch.setattr('sys.platform', 'win32')
-    open_folder('/test/path/file.txt')
+    open_path('/test/path/file.txt')
     assert m.mock_calls == [call('/test/path/file.txt')]
 
 

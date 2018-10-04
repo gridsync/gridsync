@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QWidget)
 
 from gridsync import resource
-from gridsync.desktop import open_enclosing_folder, open_folder
+from gridsync.desktop import open_enclosing_folder, open_path
 from gridsync.gui.status import StatusPanel
 
 
@@ -163,7 +163,7 @@ class HistoryListWidget(QListWidget):
         widget = self.itemWidget(item)
         menu = QMenu(self)
         open_file_action = QAction("Open file")
-        open_file_action.triggered.connect(lambda: open_folder(widget.path))
+        open_file_action.triggered.connect(lambda: open_path(widget.path))
         menu.addAction(open_file_action)
         open_folder_action = QAction("Open enclosing folder")
         open_folder_action.triggered.connect(
