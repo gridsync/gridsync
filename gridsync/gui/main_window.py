@@ -63,9 +63,11 @@ class CentralWidget(QStackedWidget):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
-        if sys.platform != 'darwin':
-            margin_left, _, margin_right, _ = layout.getContentsMargins()
-            layout.setContentsMargins(margin_left, 0, margin_right, 0)
+        left, top, right, bottom = layout.getContentsMargins()
+        if sys.platform == 'darwin':
+            layout.setContentsMargins(left, top, right, 0)
+        else:
+            layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
         layout.addWidget(StatusPanel(gateway))
         self.addWidget(widget)
