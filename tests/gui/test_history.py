@@ -83,13 +83,12 @@ def hlw(tmpdir_factory):
 
 def test_history_list_widget_on_double_click(hlw, monkeypatch):
     m = MagicMock()
-    monkeypatch.setattr('gridsync.gui.history.open_folder', m)
+    monkeypatch.setattr('gridsync.gui.history.open_enclosing_folder', m)
     monkeypatch.setattr(
         'gridsync.gui.history.HistoryListWidget.itemWidget', MagicMock()
     )
-    monkeypatch.setattr('os.path.dirname', lambda _: '/test/path')
     hlw.on_double_click(None)
-    assert m.mock_calls == [call('/test/path')]
+    assert m.mock_calls
 
 
 def test_history_list_widget_on_right_click(hlw, monkeypatch):

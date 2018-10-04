@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, call
 
 import pytest
 
 from gridsync.desktop import (
     _dbus_notify, notify, get_clipboard_modes, get_clipboard_text,
-    set_clipboard_text, autostart_enable, autostart_is_enabled,
-    autostart_disable)
+    set_clipboard_text, open_enclosing_folder, open_path,
+    autostart_enable, autostart_is_enabled, autostart_disable)
 
 
 def test__dbus_notify_bus_not_connected(monkeypatch):
@@ -83,9 +83,43 @@ def test_notify_call_systray_show_message(monkeypatch):
     assert show_message_args == ['test_title', 'test_message', 9001]
 
 
-@pytest.fixture()
-def tmpfile(tmpdir):
-    return str(tmpdir.join('tmpfile.lnk'))  # .lnk extension required on win32
+@pytest.mark.parametrize(
+    'platform,args',
+    [
+        ('darwin', ['open', '--reveal', '/test/path/file.txt']),
+        ('linux', ['xdg-open', '/test/path']),
+        ('win32', 'explorer /select,"/test/path/file.txt"')
+    ]
+)
+def test_open_enclosing_folder(platform, args, monkeypatch):
+    m = MagicMock()
+    monkeypatch.setattr('subprocess.Popen', m)
+    monkeypatch.setattr('sys.platform', platform)
+    open_enclosing_folder('/test/path/file.txt')
+    assert m.mock_calls == [call(args)]
+
+
+@pytest.mark.parametrize(
+    'platform,args',
+    [
+        ('darwin', ['open', '/test/path/file.txt']),
+        ('linux', ['xdg-open', '/test/path/file.txt'])
+    ]
+)
+def test_open_path(platform, args, monkeypatch):
+    m = MagicMock()
+    monkeypatch.setattr('subprocess.Popen', m)
+    monkeypatch.setattr('sys.platform', platform)
+    open_path('/test/path/file.txt')
+    assert m.mock_calls == [call(args)]
+
+
+def test_open_path_win32(monkeypatch):
+    m = MagicMock()
+    monkeypatch.setattr('os.startfile', m, raising=False)
+    monkeypatch.setattr('sys.platform', 'win32')
+    open_path('/test/path/file.txt')
+    assert m.mock_calls == [call('/test/path/file.txt')]
 
 
 def test_get_clipboard_modes():
@@ -97,6 +131,11 @@ def test_get_clipboard_modes():
 def test_clipboard_text():
     set_clipboard_text('test')
     assert get_clipboard_text() == 'test'
+
+
+@pytest.fixture()
+def tmpfile(tmpdir):
+    return str(tmpdir.join('tmpfile.lnk'))  # .lnk extension required on win32
 
 
 def test_autostart_is_enabled_true(tmpfile, monkeypatch):

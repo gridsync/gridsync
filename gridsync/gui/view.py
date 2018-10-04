@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet.defer import DeferredList
 
 from gridsync import resource, APP_NAME
-from gridsync.desktop import open_folder
+from gridsync.desktop import open_path
 from gridsync.gui.model import Model
 from gridsync.gui.share import ShareWidget
 from gridsync.util import humanized_list
@@ -166,7 +166,7 @@ class View(QTreeView):
         item = self.model().itemFromIndex(index)
         name = self.model().item(item.row(), 0).text()
         if name in self.gateway.magic_folders:
-            open_folder(self.gateway.magic_folders[name]['directory'])
+            open_path(self.gateway.magic_folders[name]['directory'])
         elif self.gateway.remote_magic_folder_exists(name):
             self.select_download_location([name])
 
@@ -281,7 +281,7 @@ class View(QTreeView):
         for folder in folders:
             folder_info = self.gateway.magic_folders.get(folder)
             if folder_info:
-                open_folder(folder_info['directory'])
+                open_path(folder_info['directory'])
 
     def deselect_local_folders(self):
         selected = self.selectedIndexes()

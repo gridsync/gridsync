@@ -60,7 +60,19 @@ def notify(systray, title, message, duration=5000):
         systray.showMessage(title, message, msecs=duration)
 
 
-def open_folder(path):
+def open_enclosing_folder(path):
+    path = os.path.expanduser(path)
+    if sys.platform == 'darwin':
+        subprocess.Popen(['open', '--reveal', path])
+    elif sys.platform == 'win32':
+        subprocess.Popen('explorer /select,"{}"'.format(path))
+    else:
+        # TODO: Get file-manager via `xdg-mime query default inode/directory`
+        # and, if 'org.gnome.Nautilus.desktop', call `nautilus --select`?
+        subprocess.Popen(['xdg-open', os.path.dirname(path)])
+
+
+def open_path(path):
     path = os.path.expanduser(path)
     if sys.platform == 'darwin':
         subprocess.Popen(['open', path])
