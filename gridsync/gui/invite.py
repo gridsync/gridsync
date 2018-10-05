@@ -244,23 +244,26 @@ def show_failure(failure, parent=None):
     msg.setDetailedText(str(failure))
     if failure.type == ServerConnectionError:
         msg.setWindowTitle("Server Connection Error")
-        msg.setText(
-            "An error occured while connecting to the invite server. This "
-            "could mean that it is currently offline or that there is some "
-            "other problem with your connection. Please try again later.")
+        msg.setText("An error occured while connecting to the invite server.")
+        msg.setInformativeText(
+            "This could mean that it is currently offline or that there is "
+            "some other problem with your connection. Please try again later.")
     elif failure.type == WelcomeError:
         msg.setWindowTitle("Invite refused")
         msg.setText(
-            "The server negotiating your invitation is online but is "
-            "currently refusing to process any invitations. This may indicate "
-            "that your version of {} is out-of-date, in which case you should "
-            "upgrade to the latest version and try again.".format(APP_NAME))
+            "The server negotiating your invitation is refusing to process "
+            "any invitations.")
+        msg.setInformativeText(
+            "This may indicate that your version of {} is out-of-date, in "
+            "which case you should upgrade to the latest version and try "
+            "again.".format(APP_NAME))
         msg.setIcon(QMessageBox.Critical)
         msg.setStandardButtons(QMessageBox.Ok)
         msg.setEscapeButton(QMessageBox.Ok)
     elif failure.type == WrongPasswordError:
         msg.setWindowTitle("Invite confirmation failed")
-        msg.setText(
+        msg.setWindowTitle("Invite confirmation failed")
+        msg.setInformativeText(
             "Either your recipient mistyped the invite code or a potential "
             "attacker tried to guess the code and failed.\n\nTo try again, "
             "you will need a new invite code.")
@@ -268,18 +271,19 @@ def show_failure(failure, parent=None):
         return
     elif failure.type == UpgradeRequiredError:
         msg.setWindowTitle("Upgrade required")
-        msg.setText(
-            "Your version of {} is out-of-date. Please upgrade to the latest "
-            "version and try again with a new invite code.".format(APP_NAME))
+        msg.setText("Your version of {} is out-of-date.".format(APP_NAME))
+        msg.setInformativeText(
+            "Please upgrade to the latest version and try again with a new "
+            "invite code.")
         msg.setIcon(QMessageBox.Critical)
         msg.setStandardButtons(QMessageBox.Ok)
         msg.setEscapeButton(QMessageBox.Ok)
     elif failure.type == CancelledError:
         msg.setWindowTitle("Invite timed out")
-        msg.setText(
-            "The invitation process has timed out. Your invite code may have "
-            "have expired. Please request a new invite code from the other "
-            "party and try again.")
+        msg.setText("The invitation process has timed out.")
+        msg.setInformativeText(
+            "Your invite code may have expired. Please request a new invite "
+            "code from the other party and try again.")
     else:
         msg.setWindowTitle(str(failure.type.__name__))
         msg.setText(str(failure.value))

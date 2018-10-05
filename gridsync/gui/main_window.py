@@ -63,9 +63,12 @@ class CentralWidget(QStackedWidget):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
-        if sys.platform != 'darwin':
-            margin_left, _, margin_right, _ = layout.getContentsMargins()
-            layout.setContentsMargins(margin_left, 0, margin_right, 0)
+        if sys.platform == 'darwin':
+            # XXX: For some reason, getContentsMargins returns 20 px on macOS..
+            layout.setContentsMargins(11, 11, 11, 0)
+        else:
+            left, _, right, _ = layout.getContentsMargins()
+            layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
         layout.addWidget(StatusPanel(gateway))
         self.addWidget(widget)
@@ -347,13 +350,22 @@ class MainWindow(QMainWindow):
             self.active_pair_widgets.append(pair_widget)
 
     def confirm_quit(self):
-        reply = QMessageBox.question(
-            self, "Exit {}?".format(APP_NAME),
-            "Are you sure you wish to quit? If you quit, {} will stop "
-            "synchronizing your folders until you run it again.".format(
-                APP_NAME),
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Question)
+        if sys.platform == 'darwin':
+            msg.setText("Are you sure you wish to quit?")
+            msg.setInformativeText(
+                "If you quit, {} will stop synchronizing your folders until "
+                "you run it again.".format(APP_NAME))
+        else:
+            msg.setWindowTitle("Exit {}?".format(APP_NAME))
+            msg.setText(
+                "Are you sure you wish to quit? If you quit, {} will stop "
+                "synchronizing your folders until you run it again.".format(
+                    APP_NAME))
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.No)
+        if msg.exec_() == QMessageBox.Yes:
             reactor.stop()
 
     def keyPressEvent(self, event):

@@ -41,7 +41,7 @@ def test_get_tor_with_prompt_retry(monkeypatch):
     monkeypatch.setattr(
         'gridsync.tor.get_tor', MagicMock(side_effect=[None, 'FakeTxtorcon']))
     monkeypatch.setattr(
-        'PyQt5.QtWidgets.QMessageBox.critical',
+        'PyQt5.QtWidgets.QMessageBox.exec_',
         MagicMock(return_value=QMessageBox.Retry))
     tor = yield get_tor_with_prompt(None)
     assert tor == 'FakeTxtorcon'
@@ -52,7 +52,7 @@ def test_get_tor_with_prompt_abort(monkeypatch):
     monkeypatch.setattr(
         'gridsync.tor.get_tor', MagicMock(return_value=None))
     monkeypatch.setattr(
-        'PyQt5.QtWidgets.QMessageBox.critical',
+        'PyQt5.QtWidgets.QMessageBox.exec_',
         MagicMock(return_value=QMessageBox.Abort))
     tor = yield get_tor_with_prompt(None)
     assert tor is None

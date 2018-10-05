@@ -206,22 +206,25 @@ class View(QTreeView):
         msg.exec_()
 
     def confirm_unlink(self, folders):
+        msgbox = QMessageBox(self)
+        msgbox.setIcon(QMessageBox.Question)
         humanized_folders = humanized_list(folders, "folders")
-        title = "Permanently remove {}?".format(humanized_folders)
+        msgbox.setWindowTitle(
+            "Permanently remove {}?".format(humanized_folders))
         if len(folders) == 1:
-            text = ("Are you sure you wish to <b>permanently</b> remove the "
-                    "'{}' folder? If you do, it will be unlinked from your "
-                    "rootcap and cannot be restored with your Recovery Key."
-                    .format(folders[0]))
+            msgbox.setText(
+                'Are you sure you wish to <b>permanently</b> remove the "{}" '
+                'folder?'.format(folders[0]))
         else:
-            text = ("Are you sure you wish to <b>permanently</b> remove {}? "
-                    "If you do, they will be unlinked from your rootcap and "
-                    "cannot be restored with your Recovery Key.".format(
-                        humanized_folders))
-        reply = QMessageBox.question(
-            self, title, text, QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No)
-        if reply == QMessageBox.Yes:
+            msgbox.setText(
+                "Are you sure you wish to <b>permanently</b> remove {}?"
+                .format(humanized_folders))
+        msgbox.setInformativeText(
+            "Permanently removed folders cannot be restored with your "
+            "Recovery Key.")
+        msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msgbox.setDefaultButton(QMessageBox.No)
+        if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
             for folder in folders:
                 d = self.gateway.unlink_magic_folder_from_rootcap(folder)
@@ -233,36 +236,32 @@ class View(QTreeView):
             d.addCallback(self.show_drop_label)
 
     def confirm_remove(self, folders):
-        humanized_folders = humanized_list(folders, "folders")
-        title = "Remove {}?".format(humanized_folders)
-        if len(folders) == 1:
-            text = ("Are you sure you wish to remove the '{}' folder? If "
-                    "you do, it will remain on your computer, however, {} "
-                    "will no longer synchronize its contents with {}.".format(
-                        folders[0], APP_NAME, self.gateway.name))
-            cb_text = ("Allow this folder to be restored later with my "
-                       "Recovery Key")
-        else:
-            text = ("Are you sure you wish to remove {}? If you do, they "
-                    "will remain on your computer, however, {} will no "
-                    "longer synchronize their contents with {}.".format(
-                        humanized_folders, APP_NAME, self.gateway.name))
-            cb_text = ("Allow these folders to be restored later with my "
-                       "Recovery Key")
-        checkbox = QCheckBox(cb_text)
-        checkbox.setCheckState(Qt.Checked)
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
-        msgbox.setWindowTitle(title)
-        msgbox.setText(text)
+        humanized_folders = humanized_list(folders, "folders")
+        msgbox.setWindowTitle("Remove {}?".format(humanized_folders))
+        if len(folders) == 1:
+            msgbox.setText(
+                'Are you sure you wish to remove the "{}" folder?'.format(
+                    folders[0]))
+            checkbox = QCheckBox(
+                "Allow this folder to be restored later with my Recovery Key")
+        else:
+            msgbox.setText(
+                "Are you sure you wish to remove {}?".format(humanized_folders)
+            )
+            checkbox = QCheckBox(
+                "Allow these folders to be restored later with my Recovery Key"
+            )
+        msgbox.setInformativeText(
+            "Removed folders will remain on your computer but {} will no "
+            "longer synchronize their contents with {}.".format(
+                APP_NAME, self.gateway.name))
+        checkbox.setCheckState(Qt.Checked)
         msgbox.setCheckBox(checkbox)
         msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msgbox.setDefaultButton(QMessageBox.Yes)
-        reply = msgbox.exec_()
-        #reply = QMessageBox.question(
-        #    self, title, text, QMessageBox.Yes | QMessageBox.No,
-        #    QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
             for folder in folders:
                 d = self.gateway.remove_magic_folder(folder)
