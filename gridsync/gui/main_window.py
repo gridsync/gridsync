@@ -350,13 +350,23 @@ class MainWindow(QMainWindow):
             self.active_pair_widgets.append(pair_widget)
 
     def confirm_quit(self):
-        reply = QMessageBox.question(
-            self, "Exit {}?".format(APP_NAME),
-            "Are you sure you wish to quit? If you quit, {} will stop "
-            "synchronizing your folders until you run it again.".format(
-                APP_NAME),
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Question)
+        if sys.platform == 'darwin':
+            msg.setText("Are you sure you wish to quit?")
+            msg.setInformativeText(
+                "If you quit, {} will stop synchronizing your folders until "
+                "you run it again.".format(APP_NAME))
+            msg.setWindowModality(Qt.WindowModal)
+        else:
+            msg.setWindowTitle("Exit {}?".format(APP_NAME))
+            msg.setText(
+                "Are you sure you wish to quit? If you quit, {} will stop "
+                "synchronizing your folders until you run it again.".format(
+                    APP_NAME))
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.No)
+        if msg.exec_() == QMessageBox.Yes:
             reactor.stop()
 
     def keyPressEvent(self, event):
