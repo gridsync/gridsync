@@ -46,16 +46,18 @@ def get_tor(reactor):  # TODO: Add launch option?
 def get_tor_with_prompt(reactor, parent=None):
     tor = yield get_tor(reactor)
     while not tor:
-        reply = QMessageBox.critical(
-            parent,
-            "Tor Required",
+        msgbox = QMessageBox(parent)
+        msgbox.setIcon(QMessageBox.Critical)
+        msgbox.setWindowTitle("Tor Required")
+        msgbox.setText(
             "This connection can only be made over the Tor network, however, "
-            "no running Tor daemon was found.<p>Please ensure that Tor is "
-            "running and try again.<p>For help installing Tor, visit "
-            "<a href=https://torproject.org>https://torproject.org</a>",
-            QMessageBox.Abort | QMessageBox.Retry
-        )
-        if reply == QMessageBox.Retry:
+            "no running Tor daemon was found.")
+        msgbox.setInformativeText(
+            "Please ensure that Tor is running and try again.<p>For help "
+            "installing Tor, visit "
+            "<a href=https://torproject.org>https://torproject.org</a>")
+        msgbox.setStandardButtons(QMessageBox.Abort | QMessageBox.Retry)
+        if msgbox.exec_() == QMessageBox.Retry:
             tor = yield get_tor(reactor)
         else:
             break

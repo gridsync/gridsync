@@ -371,13 +371,15 @@ class WelcomeDialog(QStackedWidget):
         if self.page_2.is_complete():
             self.finish_button_clicked()
             return
-        reply = QMessageBox.question(
-            self, "Cancel setup?",
-            "Are you sure you wish to cancel the {} setup process? "
-            "If you do, you may need to obtain a new invite code.".format(
-                APP_NAME),
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        msgbox = QMessageBox(self)
+        msgbox.setIcon(QMessageBox.Question)
+        msgbox.setWindowTitle("Cancel setup?")
+        msgbox.setText("Are you sure you wish to cancel the setup process?")
+        msgbox.setInformativeText(
+            "If you cancel, you may need to obtain a new invite code.")
+        msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msgbox.setDefaultButton(QMessageBox.No)
+        if msgbox.exec_() == QMessageBox.Yes:
             self.reset()
 
     def on_accepted(self):
@@ -413,14 +415,15 @@ class WelcomeDialog(QStackedWidget):
         msg.setText(
             "Before uploading any folders to {}, it is recommended that you "
             "export a Recovery Key and store it in a safe location (such as "
-            "an encrypted USB drive or password manager).<p><p>"
+            "an encrypted USB drive or password manager).".format(gateway.name)
+        )
+        msg.setInformativeText(
             "{} does not have access to your folders, and cannot restore "
             "access to them. But with a Recovery Key, you can restore access "
             "to uploaded folders in case something goes wrong (e.g., hardware "
             "failure, accidental data-loss).<p><p><a href={}>More information."
             "..</a>".format(
-                gateway.name, gateway.name,
-                global_settings['help']['recovery_url']
+                gateway.name, global_settings['help']['recovery_url']
             )
         )
         #msg.setText(
@@ -463,9 +466,13 @@ class WelcomeDialog(QStackedWidget):
             event.accept()
         else:
             event.ignore()
-            reply = QMessageBox.question(
-                self, "Exit setup?", "{} has not yet been configured. "
-                "Are you sure you wish to exit?".format(APP_NAME),
-                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes:
+            msgbox = QMessageBox(self)
+            msgbox.setIcon(QMessageBox.Question)
+            msgbox.setWindowTitle("Exit setup?")
+            msgbox.setText("Are you sure you wish to exit?")
+            msgbox.setInformativeText(
+                "{} has not yet been configured.".format(APP_NAME))
+            msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            if msgbox.exec_() == QMessageBox.Yes:
                 QCoreApplication.instance().quit()

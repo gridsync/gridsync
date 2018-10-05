@@ -320,14 +320,18 @@ class ShareWidget(QDialog):
 
     def closeEvent(self, event):
         if self.code_label.text() and self.progress_bar.value() < 2:
-            reply = QMessageBox.question(
-                self, "Cancel invitation?",
-                'Are you sure you wish to cancel the invitation to "{}"?\n\n'
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Question)
+            msg.setWindowTitle("Cancel invitation?")
+            msg.setText(
+                'Are you sure you wish to cancel the invitation to "{}"?'
+                .format(self.gateway.name))
+            msg.setInformativeText(
                 'The invite code "{}" will no longer be valid.'.format(
-                    self.gateway.name, self.code_label.text()),
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No)
-            if reply == QMessageBox.Yes:
+                    self.code_label.text()))
+            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg.setDefaultButton(QMessageBox.No)
+            if msg.exec_() == QMessageBox.Yes:
                 self.wormhole.close()
                 if self.folder_names:
                     for folder, member_id in self.pending_invites:
