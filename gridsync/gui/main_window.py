@@ -357,7 +357,6 @@ class MainWindow(QMainWindow):
             msg.setInformativeText(
                 "If you quit, {} will stop synchronizing your folders until "
                 "you run it again.".format(APP_NAME))
-            msg.setWindowModality(Qt.WindowModal)
         else:
             msg.setWindowTitle("Exit {}?".format(APP_NAME))
             msg.setText(
