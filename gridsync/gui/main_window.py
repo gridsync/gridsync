@@ -274,7 +274,7 @@ class MainWindow(QMainWindow):
             self.show_welcome_dialog()
         if not self.combo_box.currentData():
             return
-        elif self.history_button.isChecked():
+        if self.history_button.isChecked():
             self.show_history_view()
         else:
             self.show_folders_view()
