@@ -26,6 +26,8 @@ class ComboBox(QComboBox):
         super(ComboBox, self).__init__()
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.current_index = 0
+        self.insertSeparator(0)
+        self.addItem(" Add new...")
 
         self.activated.connect(self.on_activated)
 
@@ -35,16 +37,14 @@ class ComboBox(QComboBox):
         else:
             self.current_index = index
 
-    def populate(self, gateways):
-        self.clear()
-        for gateway in gateways:
-            basename = os.path.basename(os.path.normpath(gateway.nodedir))
-            icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
-            if not icon.availableSizes():
-                icon = QIcon(resource('tahoe-lafs.png'))
-            self.addItem(icon, basename, gateway)
-        self.insertSeparator(self.count())
-        self.addItem(" Add new...")
+    def add_gateway(self, gateway):
+        basename = os.path.basename(os.path.normpath(gateway.nodedir))
+        icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
+        if not icon.availableSizes():
+            icon = QIcon(resource('tahoe-lafs.png'))
+        self.insertItem(0, icon, basename, gateway)
+        self.setCurrentIndex(0)
+        self.current_index = 0
 
 
 class CentralWidget(QStackedWidget):
@@ -54,10 +54,6 @@ class CentralWidget(QStackedWidget):
         self.views = []
         self.folders_views = {}
         self.history_views = {}
-
-    def clear(self):
-        for _ in range(self.count()):
-            self.removeWidget(self.currentWidget())
 
     def add_folders_view(self, gateway):
         view = View(self.gui, gateway)
@@ -79,14 +75,6 @@ class CentralWidget(QStackedWidget):
         view = HistoryView(gateway)
         self.addWidget(view)
         self.history_views[gateway] = view
-
-    def populate(self, gateways):
-        self.clear()
-        self.folders_views = {}
-        self.history_views = {}
-        for gateway in gateways:
-            self.add_folders_view(gateway)
-            self.add_history_view(gateway)
 
 
 class MainWindow(QMainWindow):
@@ -114,7 +102,7 @@ class MainWindow(QMainWindow):
         self.shortcut_quit.activated.connect(self.confirm_quit)
 
         self.combo_box = ComboBox()
-        self.combo_box.activated[int].connect(self.on_grid_selected)
+        self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
 
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
@@ -231,9 +219,10 @@ class MainWindow(QMainWindow):
     def populate(self, gateways):
         for gateway in gateways:
             if gateway not in self.gateways:
+                self.central_widget.add_folders_view(gateway)
+                self.central_widget.add_history_view(gateway)
+                self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
-        self.combo_box.populate(self.gateways)
-        self.central_widget.populate(self.gateways)
         self.gui.systray.menu.populate()
 
     def current_view(self):
@@ -283,6 +272,8 @@ class MainWindow(QMainWindow):
     def on_grid_selected(self, index):
         if index == self.combo_box.count() - 1:
             self.show_welcome_dialog()
+        if not self.combo_box.currentData():
+            return
         elif self.history_button.isChecked():
             self.show_history_view()
         else:
