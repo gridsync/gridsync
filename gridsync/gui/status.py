@@ -51,7 +51,10 @@ class StatusPanel(QWidget):
 
         self.tor_button = QToolButton()
         self.tor_button.setIconSize(QSize(20, 20))
-        self.tor_action = QAction(QIcon(resource('tor-onion.png')), '')
+        self.tor_action = QAction(
+            QIcon(resource('tor-onion.png')),
+            "This connection is being routed through the Tor network"
+        )
         self.tor_button.setDefaultAction(self.tor_action)
         if not self.gateway.use_tor:
             self.tor_button.hide()
