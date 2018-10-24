@@ -7,11 +7,11 @@ import pytest
 from gridsync.gui.status import StatusPanel
 
 
-def test_status_panel_hide_tor_icon():
+def test_status_panel_hide_tor_button():
     gateway = MagicMock()
     gateway.use_tor = False
     sp = StatusPanel(gateway)
-    assert sp.tor_icon.isHidden() is True
+    assert sp.tor_button.isHidden() is True
 
 
 @pytest.mark.parametrize("state,text", [
@@ -35,7 +35,7 @@ def test__update_grid_info(num_connected, num_known, available_space, tooltip):
     sp.num_known = num_known
     sp.available_space = available_space
     sp._update_grid_info_tooltip()
-    assert sp.globe_icon.toolTip() == tooltip
+    assert sp.globe_action.toolTip() == tooltip
 
 
 def test_on_space_updated_humanize():
