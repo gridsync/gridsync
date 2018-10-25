@@ -457,8 +457,6 @@ class WelcomeDialog(QStackedWidget):
 
     def enterEvent(self, event):
         event.accept()
-        # XXX Quick hacks for user-testing; change later
-        self.page_1.invite_code_widget.maybe_enable_tor_checkbox()
         self.lineedit.update_action_button()
 
     def closeEvent(self, event):
