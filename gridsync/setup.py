@@ -123,6 +123,7 @@ class SetupRunner(QObject):
 
     grid_already_joined = pyqtSignal(str)
     update_progress = pyqtSignal(str)
+    client_started = pyqtSignal(object)
     joined_folders = pyqtSignal(list)
     got_icon = pyqtSignal(str)
     done = pyqtSignal(object)
@@ -232,7 +233,7 @@ class SetupRunner(QObject):
 
         self.update_progress.emit(msg)
         yield self.gateway.start()
-
+        self.client_started.emit(self.gateway)
         self.update_progress.emit(msg)
         yield self.gateway.await_ready()
 
