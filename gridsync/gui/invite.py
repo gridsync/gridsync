@@ -9,8 +9,7 @@ from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
     QMessageBox, QSizePolicy, QSpacerItem, QWidget)
-from twisted.internet import reactor
-from twisted.internet.defer import CancelledError, inlineCallbacks
+from twisted.internet.defer import CancelledError
 from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WrongPasswordError)
 try:
@@ -21,7 +20,7 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API
 from gridsync import pkgdir, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
-from gridsync.tor import TOR_PURPLE, TOR_DARK_PURPLE, get_tor
+from gridsync.tor import TOR_PURPLE, TOR_DARK_PURPLE
 
 
 cheatcodes = []
