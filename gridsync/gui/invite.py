@@ -4,11 +4,11 @@ import json
 import os
 import sys
 
-from PyQt5.QtCore import pyqtSignal, QStringListModel, Qt
+from PyQt5.QtCore import pyqtSignal, QSize, QStringListModel, Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
-    QMessageBox, QSizePolicy, QSpacerItem, QWidget)
+    QMessageBox, QPushButton, QSizePolicy, QSpacerItem, QWidget)
 from twisted.internet.defer import CancelledError
 from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WrongPasswordError)
@@ -189,11 +189,40 @@ class InviteCodeWidget(QWidget):
         self.checkbox.setStyleSheet("QCheckBox { color: dimgrey }")
         self.checkbox.setFocusPolicy(Qt.NoFocus)
 
+        self.tor_info_text = (
+            "Tor is an anonymizing network that helps defend against network "
+            "surveillance and traffic analysis. With this checkbox enabled, "
+            "Gridsync will route all traffic corresponding to this connection "
+            "through the Tor network, concealing your geographical location "
+            "from your storage provider and other parties (such as any "
+            "persons with whom you might share folders).<p>"
+            "Using this option requires that Tor already be installed and "
+            "running on your computer and may be slower or less reliable than "
+            "your normal internet connection.<p>"
+            "For more information or to download Tor, please visit "
+            "<a href=https://torproject.org>https://torproject.org</a>"
+        )
+
+        self.tor_info_button = QPushButton()
+        self.tor_info_button.setFlat(True)
+        self.tor_info_button.setIcon(QIcon(resource('question')))
+        self.tor_info_button.setIconSize(QSize(13, 13))
+        self.tor_info_button.setFixedSize(13, 13)
+        self.tor_info_button.setToolTip(self.tor_info_text)
+        self.tor_info_button.clicked.connect(self.on_tor_info_button_clicked)
+
+        tor_layout = QGridLayout()
+        tor_layout.setHorizontalSpacing(0)
+        tor_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        tor_layout.addWidget(self.checkbox, 1, 2, Qt.AlignCenter)
+        tor_layout.addWidget(self.tor_info_button, 1, 3, Qt.AlignLeft)
+        tor_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
         layout.addWidget(self.label, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
-        layout.addWidget(self.checkbox, 4, 1, Qt.AlignCenter)
+        layout.addLayout(tor_layout, 4, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
         self.checkbox.stateChanged.connect(self.toggle_tor_status)
@@ -215,6 +244,13 @@ class InviteCodeWidget(QWidget):
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")
             self.lineedit.setStyleSheet("")
+
+    def on_tor_info_button_clicked(self):
+        msgbox = QMessageBox(self)
+        msgbox.setWindowTitle("About Tor")
+        msgbox.setIconPixmap(self.lineedit.tor_icon.pixmap(64, 64))
+        msgbox.setInformativeText(self.tor_info_text)
+        msgbox.show()
 
 
 def show_failure(failure, parent=None):
