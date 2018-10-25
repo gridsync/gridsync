@@ -20,7 +20,7 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API
 from gridsync import pkgdir, resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
-from gridsync.tor import TOR_PURPLE, TOR_DARK_PURPLE
+from gridsync.tor import TOR_DARK_PURPLE
 
 
 cheatcodes = []
@@ -211,12 +211,10 @@ class InviteCodeWidget(QWidget):
                 "border-radius: 2px;"
                 "padding: 2px;"
                 "color: {};".format(TOR_DARK_PURPLE, TOR_DARK_PURPLE))
-            self.checkbox.setStyleSheet("color: {};".format(TOR_PURPLE))
         else:
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")
             self.lineedit.setStyleSheet("")
-            self.checkbox.setStyleSheet("color: grey")
 
 
 def show_failure(failure, parent=None):
