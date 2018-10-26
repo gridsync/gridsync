@@ -312,7 +312,6 @@ class WelcomeDialog(QStackedWidget):
 
     def on_done(self, gateway):
         self.gateway = gateway
-        self.gui.populate([gateway])
         self.page_2.progressbar.setValue(self.page_2.progressbar.maximum())
         self.finish_button.show()
 
@@ -335,6 +334,9 @@ class WelcomeDialog(QStackedWidget):
         self.setup_runner.grid_already_joined.connect(self.on_already_joined)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.got_icon.connect(self.load_service_icon)
+        self.setup_runner.client_started.connect(
+            lambda gateway: self.gui.populate([gateway])
+        )
         self.setup_runner.done.connect(self.on_done)
         d = self.setup_runner.run(settings)
         d.addErrback(self.handle_failure)
@@ -457,8 +459,6 @@ class WelcomeDialog(QStackedWidget):
 
     def enterEvent(self, event):
         event.accept()
-        # XXX Quick hacks for user-testing; change later
-        self.page_1.invite_code_widget.maybe_enable_tor_checkbox()
         self.lineedit.update_action_button()
 
     def closeEvent(self, event):
