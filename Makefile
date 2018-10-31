@@ -258,7 +258,6 @@ pyinstaller:
 		;; \
 	esac &&	\
 	pip install pyinstaller==3.4 && \
-	pip install future==0.16.0 && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/gridsync.spec

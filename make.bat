@@ -76,7 +76,6 @@ call python setup.py update_version
 call pip install .
 call pip install packaging
 call pip install pyinstaller==3.4
-call pip install future==0.16.0
 call pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
