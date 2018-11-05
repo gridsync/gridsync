@@ -210,6 +210,7 @@ class InviteCodeWidget(QWidget):
         self.tor_info_button.setFixedSize(13, 13)
         self.tor_info_button.setToolTip(self.tor_info_text)
         self.tor_info_button.clicked.connect(self.on_tor_info_button_clicked)
+        self.tor_info_button.setFocusPolicy(Qt.NoFocus)
 
         tor_layout = QGridLayout()
         tor_layout.setHorizontalSpacing(0)
