@@ -28,10 +28,13 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 * Desktop integration -- Gridsync can (optionally) start automatically on login and provide notifications when certain operations have completed.
 * Easy sharing -- Gridsync uses the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
 * Simple recovery -- Gridsync's "`Recovery Key`_" subsystem allows connections and folders to be easily restored from a single file in the event of a disaster.
+* `Tor support`_ -- Gridsync can tunnel outgoing connections through the `Tor`_ anonymity network, concealing users' network location from storage service providers and each other.
 
 .. _magic-wormhole: http://magic-wormhole.io
 .. _invite codes: https://github.com/gridsync/gridsync/blob/master/docs/invite-codes.md
 .. _Recovery Key: https://github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md
+.. _Tor support: https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md
+.. _Tor: https://torproject.org
 
 .. [*] Tahoe-LAFS' "Magic Folder" functionality is not (yet) fully supported on macOS or other BSD-based operating systems and is presently marked as experimental.
 
