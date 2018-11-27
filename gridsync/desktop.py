@@ -105,12 +105,12 @@ def _autostart_enable_linux(executable):
     with open(autostart_file_path, 'w') as f:
         f.write('''\
 [Desktop Entry]
-Name={}
-Comment={}
+Name={0}
+Comment={0}
 Type=Application
-Exec=env PATH={} {}
+Exec=env PATH={1} {2}
 Terminal=false
-'''.format(APP_NAME, APP_NAME, os.environ['PATH'], executable))
+'''.format(APP_NAME, os.environ['PATH'], executable))
 
 
 def _autostart_enable_mac(executable):

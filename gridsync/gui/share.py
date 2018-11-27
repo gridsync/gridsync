@@ -488,13 +488,13 @@ class InviteReceiver(QDialog):
         if self.joined_folders and len(self.joined_folders) == 1:
             target = self.joined_folders[0]
             self.message_label.setText(
-                'Successfully joined folder "{}"!\n"{}" is now available for '
-                'download'.format(target, target))
+                'Successfully joined folder "{0}"!\n"{0}" is now available '
+                'for download'.format(target))
         elif self.joined_folders:
             target = humanized_list(self.joined_folders, 'folders')
             self.message_label.setText(
-                'Successfully joined {}!\n{} are now available for '
-                'download'.format(target, target))
+                'Successfully joined {0}!\n{0} are now available for '
+                'download'.format(target))
 
     def on_grid_already_joined(self, grid_name):
         QMessageBox.information(
