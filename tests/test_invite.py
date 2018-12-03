@@ -10,8 +10,8 @@ from wormhole.errors import (
     WrongPasswordError)
 
 from gridsync.errors import UpgradeRequiredError
-from gridsync.gui.invite import (
-    get_settings_from_cheatcode, is_valid, InviteCodeWidget, show_failure)
+from gridsync.invite import load_settings_from_cheatcode, is_valid_code
+from gridsync.gui.invite import InviteCodeWidget, show_failure  # XXX
 
 
 @pytest.mark.parametrize("code,result", [
@@ -22,24 +22,24 @@ from gridsync.gui.invite import (
     ['1-cranky-tapeworm', True]
 ])
 def test_is_valid_code(code, result):
-    assert is_valid(code) == result
+    assert is_valid_code(code) == result
 
 
-def test_get_settings_from_cheatcode(tmpdir_factory, monkeypatch):
+def test_load_settings_from_cheatcode(tmpdir_factory, monkeypatch):
     pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), 'pkgdir')
     providers_path = os.path.join(pkgdir, 'resources', 'providers')
     os.makedirs(providers_path)
     with open(os.path.join(providers_path, 'test-test.json'), 'w') as f:
         f.write('{"introducer": "pb://"}')
-    monkeypatch.setattr('gridsync.gui.invite.pkgdir', pkgdir)
-    settings = get_settings_from_cheatcode('test-test')
+    monkeypatch.setattr('gridsync.invite.pkgdir', pkgdir)
+    settings = load_settings_from_cheatcode('test-test')
     assert settings['introducer'] == 'pb://'
 
 
-def test_get_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
+def test_load_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
     pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), 'pkgdir-empty')
-    monkeypatch.setattr('gridsync.gui.invite.pkgdir', pkgdir)
-    assert get_settings_from_cheatcode('test-test') is None
+    monkeypatch.setattr('gridsync.invite.pkgdir', pkgdir)
+    assert load_settings_from_cheatcode('test-test') is None
 
 
 def test_invite_code_widget_lineedit():
