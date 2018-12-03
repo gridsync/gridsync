@@ -15,14 +15,13 @@ from wormhole.errors import (
 
 from gridsync import resource, APP_NAME
 from gridsync import settings as global_settings
+from gridsync.invite import InviteReceiver
 from gridsync.errors import UpgradeRequiredError
-from gridsync.gui.invite import (
-    get_settings_from_cheatcode, InviteCodeWidget, show_failure)
+from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
-from gridsync.wormhole_ import wormhole_receive
 
 
 class WelcomeWidget(QWidget):
@@ -355,19 +354,33 @@ class WelcomeDialog(QStackedWidget):
         self.recovery_key_importer.done.connect(self.on_import_done)
         self.recovery_key_importer.do_import()
 
+    #def go(self, code):
+    #    self.setCurrentIndex(1)
+    #    self.page_2.progressbar.setValue(1)
+    #    self.update_progress('Verifying invitation code...')
+    #    if code.split('-')[0] == "0":
+    #        settings = get_settings_from_cheatcode(code[2:])
+    #        if settings:
+    #            self.verify_settings(settings)
+    #            return
+    #    d = wormhole_receive(code, self.use_tor)  # pylint: disable=assignment-from-no-return
+    #    d.addCallback(self.verify_settings)
+    #    d.addErrback(self.handle_failure)
+    #    reactor.callLater(30, d.cancel)
+
     def go(self, code):
         self.setCurrentIndex(1)
         self.page_2.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
-        if code.split('-')[0] == "0":
-            settings = get_settings_from_cheatcode(code[2:])
-            if settings:
-                self.verify_settings(settings)
-                return
-        d = wormhole_receive(code, self.use_tor)  # pylint: disable=assignment-from-no-return
-        d.addCallback(self.verify_settings)
-        d.addErrback(self.handle_failure)
-        reactor.callLater(30, d.cancel)
+        invite_receiver = InviteReceiver(self.known_gateways, self.use_tor)
+        invite_receiver.grid_already_joined.connect(self.on_already_joined)
+        invite_receiver.update_progress.connect(self.update_progress)
+        invite_receiver.got_icon.connect(self.load_service_icon)
+        invite_receiver.client_started.connect(
+            lambda gateway: self.gui.populate([gateway])
+        )
+        invite_receiver.done.connect(self.on_done)
+        invite_receiver.receive(code)
 
     def cancel_button_clicked(self):
         if self.page_2.is_complete():

@@ -11,16 +11,13 @@ from PyQt5.QtWidgets import (
     QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel, QMessageBox,
     QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
-from twisted.internet.defer import (
-    CancelledError, gatherResults, inlineCallbacks)
+from twisted.internet.defer import CancelledError
 import wormhole.errors
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.errors import TahoeError
-from gridsync.gui.invite import (
-    get_settings_from_cheatcode, InviteCodeWidget, show_failure)
-from gridsync.msg import error
+from gridsync.invite import load_settings_from_cheatcode
+from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tor import TOR_PURPLE
@@ -39,7 +36,7 @@ class ShareWidget(QDialog):
         self.folder_names = folder_names
         self.folder_names_humanized = humanized_list(folder_names, 'folders')
         self.settings = {}
-        self.wormhole = None
+        #self.wormhole = None
         self.pending_invites = []
         self.use_tor = self.gateway.use_tor
 
@@ -190,6 +187,7 @@ class ShareWidget(QDialog):
         self.close_button.clicked.connect(self.close)
 
         self.set_box_title("Generating invite code...")
+        self.subtext_label.setText("Creating folder invite(s)...\n\n")
 
         if self.use_tor:
             self.tor_label.show()
@@ -277,46 +275,22 @@ class ShareWidget(QDialog):
             return
         logging.error(str(failure))
         show_failure(failure, self)
-        self.wormhole.close()
+        #self.wormhole.close()
+        self.invite_sender.cancel()
         self.close()
 
-    @inlineCallbacks
-    def get_folder_invite(self, folder):
-        member_id = b58encode(os.urandom(8))
-        try:
-            code = yield self.gateway.magic_folder_invite(folder, member_id)
-        except TahoeError as err:
-            code = None
-            self.wormhole.close()
-            error(self, "Invite Error", str(err))
-            self.close()
-        return folder, member_id, code
-
-    @inlineCallbacks
-    def get_folder_invites(self):
-        self.subtext_label.setText("Creating folder invite(s)...\n\n")
-        folders_data = {}
-        tasks = []
-        for folder in self.folder_names:
-            tasks.append(self.get_folder_invite(folder))
-        results = yield gatherResults(tasks)
-        for folder, member_id, code in results:
-            folders_data[folder] = {'code': code}
-            self.pending_invites.append((folder, member_id))
-        return folders_data
-
-    @inlineCallbacks
-    def go(self):
-        self.wormhole = Wormhole(self.use_tor)
-        self.wormhole.got_code.connect(self.on_got_code)
-        self.wormhole.got_introduction.connect(self.on_got_introduction)
-        self.wormhole.send_completed.connect(self.on_send_completed)
-        self.settings = self.gateway.get_settings()
-        if self.folder_names:
-            folders_data = yield self.get_folder_invites()
-            self.settings['magic-folders'] = folders_data
+    def on_created_invite(self):
         self.subtext_label.setText("Opening wormhole...\n\n")
-        self.wormhole.send(self.settings).addErrback(self.handle_failure)
+
+    def go(self):
+        from gridsync.invite import InviteSender
+        self.invite_sender = InviteSender(self.use_tor)
+        self.invite_sender.created_invite.connect(self.on_created_invite)
+        self.invite_sender.got_code.connect(self.on_got_code)
+        self.invite_sender.got_introduction.connect(self.on_got_introduction)
+        self.invite_sender.send_completed.connect(self.on_send_completed)
+        self.invite_sender.send(self.gateway, self.folder_names).addErrback(
+            self.handle_failure)
 
     def closeEvent(self, event):
         if self.code_label.text() and self.progress_bar.value() < 2:
@@ -332,10 +306,11 @@ class ShareWidget(QDialog):
             msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg.setDefaultButton(QMessageBox.No)
             if msg.exec_() == QMessageBox.Yes:
-                self.wormhole.close()
-                if self.folder_names:
-                    for folder, member_id in self.pending_invites:
-                        self.gateway.magic_folder_uninvite(folder, member_id)
+                self.invite_sender.cancel()
+                #self.wormhole.close()
+                #if self.folder_names:
+                #    for folder, member_id in self.pending_invites:
+                #        self.gateway.magic_folder_uninvite(folder, member_id)
                 event.accept()
                 self.closed.emit(self)
             else:
@@ -536,7 +511,7 @@ class InviteReceiver(QDialog):
             self.tor_label.show()
         self.update_progress("Verifying invitation...")  # 1
         if code.split('-')[0] == "0":
-            settings = get_settings_from_cheatcode(code[2:])
+            settings = load_settings_from_cheatcode(code[2:])
             if settings:
                 self.got_message(settings)
                 return

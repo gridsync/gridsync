@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
-import os
 import sys
 
 from PyQt5.QtCore import pyqtSignal, QSize, QStringListModel, Qt
@@ -12,53 +10,12 @@ from PyQt5.QtWidgets import (
 from twisted.internet.defer import CancelledError
 from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WrongPasswordError)
-try:
-    from wormhole.wordlist import raw_words
-except ImportError:  # TODO: Switch to new magic-wormhole completion API
-    from wormhole._wordlist import raw_words
 
-from gridsync import pkgdir, resource, APP_NAME
+from gridsync import resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
+from gridsync.invite import wordlist, is_valid_code
 from gridsync.tor import TOR_DARK_PURPLE
-
-
-cheatcodes = []
-try:
-    for file in os.listdir(os.path.join(pkgdir, 'resources', 'providers')):
-        cheatcodes.append(file.split('.')[0].lower())
-except OSError:
-    pass
-
-
-wordlist = []
-for word in raw_words.items():
-    wordlist.extend(word[1])
-for c in cheatcodes:
-    wordlist.extend(c.split('-'))
-wordlist = sorted([word.lower() for word in wordlist])
-
-
-def get_settings_from_cheatcode(cheatcode):
-    path = os.path.join(pkgdir, 'resources', 'providers', cheatcode + '.json')
-    try:
-        with open(path) as f:
-            return json.loads(f.read())
-    except (OSError, json.decoder.JSONDecodeError):
-        return None
-
-
-def is_valid(code):
-    words = code.split('-')
-    if len(words) != 3:
-        return False
-    if not words[0].isdigit():
-        return False
-    if not words[1] in wordlist:
-        return False
-    if not words[2] in wordlist:
-        return False
-    return True
 
 
 class InviteCodeCompleter(QCompleter):
@@ -124,10 +81,10 @@ class InviteCodeLineEdit(QLineEdit):
             self.action_button.setIcon(QIcon())
             self.action_button.setToolTip('')
             for mode in get_clipboard_modes():
-                if is_valid(get_clipboard_text(mode)):
+                if is_valid_code(get_clipboard_text(mode)):
                     self.action_button.setIcon(self.paste_icon)
                     self.action_button.setToolTip("Paste")
-        elif is_valid(text):
+        elif is_valid_code(text):
             self.action_button.setIcon(self.go_icon)
             self.action_button.setToolTip("Go")
         else:
@@ -150,7 +107,7 @@ class InviteCodeLineEdit(QLineEdit):
 
     def return_pressed(self):
         code = self.text().lower()
-        if is_valid(code):
+        if is_valid_code(code):
             self.go.emit(code)
         else:
             self.error.emit("Invalid code")
@@ -160,9 +117,9 @@ class InviteCodeLineEdit(QLineEdit):
         if not code:
             for mode in get_clipboard_modes():
                 text = get_clipboard_text(mode)
-                if is_valid(text):
+                if is_valid_code(text):
                     self.setText(text)
-        elif is_valid(code):
+        elif is_valid_code(code):
             self.go.emit(code)
         else:
             self.setText('')
