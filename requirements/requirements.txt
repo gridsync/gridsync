@@ -27,7 +27,7 @@ PyQt5-sip==4.19.13
 pywin32==223 ; sys_platform == "win32"
 PyYAML==3.13
 qt5reactor==0.5
-requests==2.20.1
+requests==2.21.0
 service_identity==18.1.0
 six==1.11.0
 spake2==0.8
