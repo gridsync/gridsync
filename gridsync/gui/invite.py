@@ -143,8 +143,8 @@ class InviteCodeWidget(QWidget):
         self.code_info_text = (
             'An <i>invite code</i> is a short combination of numbers and '
             'words (like "7-guitarist-revenge" or "9-potato-gremlin") that '
-            'allows two parties with the same code to temporarily establish '
-            'a secure communication channel with each other. In Gridsync, '
+            'allows two parties with the same code to establish a one-time '
+            'secure communication channel with each other. In Gridsync, '
             'invite codes are used to safely share the credentials needed '
             'to access resources -- for example, allowing another person or '
             'device to store files on a grid or granting them the ability to ' 
