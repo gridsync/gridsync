@@ -139,6 +139,34 @@ class InviteCodeWidget(QWidget):
         self.label.setFont(font)
         self.label.setStyleSheet("color: grey")
         self.label.setAlignment(Qt.AlignCenter)
+       
+        self.code_info_text = (
+            'An <i>invite code</i> is a short combination of numbers and '
+            'words (like "7-guitarist-revenge" or "9-potato-gremlin") that '
+            'allows two parties with the same code to temporarily establish '
+            'a secure communication channel with each other. In Gridsync, '
+            'invite codes are used to safely share the credentials needed '
+            'to access resources -- for example, allowing another person or '
+            'device to store files on a grid or granting them the ability to ' 
+            'view and modify a folder.<p>'
+            'Invite codes can only be used once and expire immediately when '
+            'used or cancelled.'
+        )
+        self.code_info_button = QPushButton()
+        self.code_info_button.setFlat(True)
+        self.code_info_button.setIcon(QIcon(resource('question')))
+        self.code_info_button.setIconSize(QSize(13, 13))
+        self.code_info_button.setFixedSize(13, 13)
+        self.code_info_button.setToolTip(self.code_info_text)
+        self.code_info_button.clicked.connect(self.on_code_info_button_clicked)
+        self.code_info_button.setFocusPolicy(Qt.NoFocus)
+        
+        label_layout = QGridLayout()
+        label_layout.setHorizontalSpacing(6)
+        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        label_layout.addWidget(self.label, 1, 2, Qt.AlignCenter)
+        label_layout.addWidget(self.code_info_button, 1, 3, Qt.AlignLeft)
+        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
 
         self.lineedit = InviteCodeLineEdit(self)
 
@@ -178,7 +206,8 @@ class InviteCodeWidget(QWidget):
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
-        layout.addWidget(self.label, 2, 1)
+        #layout.addWidget(self.label, 2, 1)
+        layout.addLayout(label_layout, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
         layout.addLayout(tor_layout, 4, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
@@ -208,6 +237,16 @@ class InviteCodeWidget(QWidget):
         msgbox.setWindowTitle("About Tor")
         msgbox.setIconPixmap(self.lineedit.tor_icon.pixmap(64, 64))
         msgbox.setInformativeText(self.tor_info_text)
+        msgbox.show()
+
+    def on_code_info_button_clicked(self):
+        msgbox = QMessageBox(self)
+        msgbox.setWindowTitle("About Invite Codes")
+        msgbox.setIcon(QMessageBox.Information)
+        msgbox.setInformativeText(
+           '{}<p><a href=https://github.com/gridsync/gridsync/blob/master/'
+           'docs/invite-codes.md>Learn more...</a>'.format(self.code_info_text)
+        )
         msgbox.show()
 
 
