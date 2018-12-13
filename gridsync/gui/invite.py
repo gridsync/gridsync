@@ -139,7 +139,7 @@ class InviteCodeWidget(QWidget):
         self.label.setFont(font)
         self.label.setStyleSheet("color: grey")
         self.label.setAlignment(Qt.AlignCenter)
-       
+
         self.code_info_text = (
             'An <i>invite code</i> is a short combination of numbers and '
             'words (like "7-guitarist-revenge" or "9-potato-gremlin") that '
@@ -147,7 +147,7 @@ class InviteCodeWidget(QWidget):
             'secure communication channel with each other. In Gridsync, '
             'invite codes are used to safely share the credentials needed '
             'to access resources -- for example, allowing another person or '
-            'device to store files on a grid or granting them the ability to ' 
+            'device to store files on a grid or granting them the ability to '
             'view and modify a folder.<p>'
             'Invite codes can only be used once and expire immediately when '
             'used or cancelled.'
@@ -160,7 +160,7 @@ class InviteCodeWidget(QWidget):
         self.code_info_button.setToolTip(self.code_info_text)
         self.code_info_button.clicked.connect(self.on_code_info_button_clicked)
         self.code_info_button.setFocusPolicy(Qt.NoFocus)
-        
+
         label_layout = QGridLayout()
         label_layout.setHorizontalSpacing(6)
         label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
@@ -187,7 +187,6 @@ class InviteCodeWidget(QWidget):
             "For more information or to download Tor, please visit "
             "<a href=https://torproject.org>https://torproject.org</a>"
         )
-
         self.tor_info_button = QPushButton()
         self.tor_info_button.setFlat(True)
         self.tor_info_button.setIcon(QIcon(resource('question')))
@@ -244,8 +243,8 @@ class InviteCodeWidget(QWidget):
         msgbox.setWindowTitle("About Invite Codes")
         msgbox.setIcon(QMessageBox.Information)
         msgbox.setInformativeText(
-           '{}<p><a href=https://github.com/gridsync/gridsync/blob/master/'
-           'docs/invite-codes.md>Learn more...</a>'.format(self.code_info_text)
+            '{}<p><a href=https://github.com/gridsync/gridsync/blob/master/doc'
+            's/invite-codes.md>Learn more...</a>'.format(self.code_info_text)
         )
         msgbox.show()
 
