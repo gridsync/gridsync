@@ -196,12 +196,12 @@ class InviteCodeWidget(QWidget):
         self.tor_checkbox_animation_out.setEndValue(0)
 
         self.tor_info_text = (
-            "Tor is an anonymizing network that helps defend against network "
-            "surveillance and traffic analysis. With this checkbox enabled, "
-            "{} will route all traffic corresponding to this connection "
-            "through the Tor network, concealing your geographical location "
-            "from your storage provider and other parties (such as any "
-            "persons with whom you might share folders).<p>"
+            "<i>Tor</i> is an anonymizing network that helps defend against "
+            "network surveillance and traffic analysis. With this checkbox "
+            "enabled, {} will route all traffic corresponding to this "
+            "connection through the Tor network, concealing your geographical "
+            "location from your storage provider and other parties (such as "
+            "any persons with whom you might share folders).<p>"
             "Using this option requires that Tor already be installed and "
             "running on your computer and may be slower or less reliable than "
             "your normal internet connection.<p>"
