@@ -159,7 +159,10 @@ class InviteCodeWidget(QWidget):
         self.code_info_button.setFlat(True)
         self.code_info_button.setIcon(QIcon(resource('question')))
         self.code_info_button.setIconSize(QSize(13, 13))
-        self.code_info_button.setFixedSize(13, 13)
+        if sys.platform == 'darwin':
+            self.code_info_button.setFixedSize(16, 16)
+        else:
+            self.code_info_button.setFixedSize(13, 13)
         self.code_info_button.setToolTip(self.code_info_text)
         self.code_info_button.clicked.connect(self.on_code_info_button_clicked)
         self.code_info_button.setFocusPolicy(Qt.NoFocus)
@@ -209,7 +212,10 @@ class InviteCodeWidget(QWidget):
         self.tor_info_button.setFlat(True)
         self.tor_info_button.setIcon(QIcon(resource('question')))
         self.tor_info_button.setIconSize(QSize(13, 13))
-        self.tor_info_button.setFixedSize(13, 13)
+        if sys.platform == 'darwin':
+            self.tor_info_button.setFixedSize(16, 16)
+        else:
+            self.tor_info_button.setFixedSize(13, 13)
         self.tor_info_button.setToolTip(self.tor_info_text)
         self.tor_info_button.clicked.connect(self.on_tor_info_button_clicked)
         self.tor_info_button.setFocusPolicy(Qt.NoFocus)
