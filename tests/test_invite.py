@@ -47,9 +47,9 @@ def test_invite_code_widget_lineedit():
     assert w.lineedit
 
 
-def test_invite_code_widget_checkbox():
+def test_invite_code_widget_tor_checkbox():
     w = InviteCodeWidget()
-    assert w.checkbox
+    assert w.tor_checkbox
 
 
 @pytest.mark.parametrize("failure", [
