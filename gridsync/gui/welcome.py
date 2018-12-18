@@ -230,7 +230,7 @@ class WelcomeDialog(QStackedWidget):
         self.addWidget(self.page_3)
 
         self.lineedit = self.page_1.lineedit
-        self.checkbox = self.page_1.invite_code_widget.checkbox
+        self.checkbox = self.page_1.invite_code_widget.tor_checkbox
         self.cancel_button = self.page_2.cancel_button
         self.finish_button = self.page_2.finish_button
         self.buttonbox = self.page_3.buttonbox
@@ -472,6 +472,7 @@ class WelcomeDialog(QStackedWidget):
 
     def enterEvent(self, event):
         event.accept()
+        self.page_1.invite_code_widget.maybe_enable_tor_checkbox()
         self.lineedit.update_action_button()
 
     def closeEvent(self, event):

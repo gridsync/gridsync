@@ -2,12 +2,15 @@
 
 import sys
 
-from PyQt5.QtCore import pyqtSignal, QSize, QStringListModel, Qt
+from PyQt5.QtCore import (
+    pyqtSignal, QPropertyAnimation, QSize, QStringListModel, Qt)
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
-    QAction, QCheckBox, QCompleter, QGridLayout, QLabel, QLineEdit,
-    QMessageBox, QPushButton, QSizePolicy, QSpacerItem, QWidget)
-from twisted.internet.defer import CancelledError
+    QAction, QCheckBox, QCompleter, QGraphicsOpacityEffect, QGridLayout,
+    QLabel, QLineEdit, QMessageBox, QPushButton, QSizePolicy, QSpacerItem,
+    QWidget)
+from twisted.internet import reactor
+from twisted.internet.defer import CancelledError, inlineCallbacks
 from wormhole.errors import (
     LonelyError, ServerConnectionError, WelcomeError, WrongPasswordError)
 
@@ -15,7 +18,7 @@ from gridsync import resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import wordlist, is_valid_code
-from gridsync.tor import TOR_DARK_PURPLE
+from gridsync.tor import TOR_DARK_PURPLE, get_tor
 
 
 class InviteCodeCompleter(QCompleter):
@@ -126,7 +129,7 @@ class InviteCodeLineEdit(QLineEdit):
 
 
 class InviteCodeWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, tor_available=False):
         super(InviteCodeWidget, self).__init__()
         self.parent = parent
 
@@ -170,9 +173,24 @@ class InviteCodeWidget(QWidget):
 
         self.lineedit = InviteCodeLineEdit(self)
 
-        self.checkbox = QCheckBox("Connect over the Tor network")
-        self.checkbox.setStyleSheet("QCheckBox { color: dimgrey }")
-        self.checkbox.setFocusPolicy(Qt.NoFocus)
+        self.tor_checkbox = QCheckBox("Connect over the Tor network")
+        self.tor_checkbox.setStyleSheet("QCheckBox { color: dimgrey }")
+        self.tor_checkbox.setFocusPolicy(Qt.NoFocus)
+        self.tor_checkbox_effect = QGraphicsOpacityEffect()
+        self.tor_checkbox.setGraphicsEffect(self.tor_checkbox_effect)
+        self.tor_checkbox.setAutoFillBackground(True)
+
+        self.tor_checkbox_animation_in = QPropertyAnimation(
+            self.tor_checkbox_effect, b'opacity')
+        self.tor_checkbox_animation_in.setDuration(500)
+        self.tor_checkbox_animation_in.setStartValue(0)
+        self.tor_checkbox_animation_in.setEndValue(1)
+
+        self.tor_checkbox_animation_out = QPropertyAnimation(
+            self.tor_checkbox_effect, b'opacity')
+        self.tor_checkbox_animation_out.setDuration(500)
+        self.tor_checkbox_animation_out.setStartValue(1)
+        self.tor_checkbox_animation_out.setEndValue(0)
 
         self.tor_info_text = (
             "Tor is an anonymizing network that helps defend against network "
@@ -195,11 +213,36 @@ class InviteCodeWidget(QWidget):
         self.tor_info_button.setToolTip(self.tor_info_text)
         self.tor_info_button.clicked.connect(self.on_tor_info_button_clicked)
         self.tor_info_button.setFocusPolicy(Qt.NoFocus)
+        #self.tor_info_button.hide()
+        self.tor_info_button_effect = QGraphicsOpacityEffect()
+        self.tor_info_button_effect.setOpacity(1.0)
+        self.tor_info_button.setGraphicsEffect(self.tor_info_button_effect)
+        self.tor_info_button.setAutoFillBackground(True)
+
+        self.tor_info_button_animation_in = QPropertyAnimation(
+            self.tor_info_button_effect, b'opacity')
+        self.tor_info_button_animation_in.setDuration(500)
+        self.tor_info_button_animation_in.setStartValue(0)
+        self.tor_info_button_animation_in.setEndValue(1)
+
+        self.tor_info_button_animation_out = QPropertyAnimation(
+            self.tor_info_button_effect, b'opacity')
+        self.tor_info_button_animation_out.setDuration(500)
+        self.tor_info_button_animation_out.setStartValue(1)
+        self.tor_info_button_animation_out.setEndValue(0)
+
+        if tor_available:
+            self.tor_checkbox_effect.setOpacity(1.0)
+            self.tor_info_button_effect.setOpacity(1.0)
+        else:
+            self.tor_checkbox.setEnabled(False)
+            self.tor_checkbox_effect.setOpacity(0.0)
+            self.tor_info_button_effect.setOpacity(0.0)
 
         tor_layout = QGridLayout()
         tor_layout.setHorizontalSpacing(0)
         tor_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        tor_layout.addWidget(self.checkbox, 1, 2, Qt.AlignCenter)
+        tor_layout.addWidget(self.tor_checkbox, 1, 2, Qt.AlignCenter)
         tor_layout.addWidget(self.tor_info_button, 1, 3, Qt.AlignLeft)
         tor_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
 
@@ -211,7 +254,22 @@ class InviteCodeWidget(QWidget):
         layout.addLayout(tor_layout, 4, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
-        self.checkbox.stateChanged.connect(self.toggle_tor_status)
+        self.tor_checkbox.stateChanged.connect(self.toggle_tor_status)
+
+        self.maybe_enable_tor_checkbox()
+
+    @inlineCallbacks
+    def maybe_enable_tor_checkbox(self):
+        tor = yield get_tor(reactor)
+        if tor and not self.tor_checkbox.isEnabled():
+            self.tor_checkbox.setEnabled(True)
+            self.tor_checkbox_animation_in.start()
+            self.tor_info_button_animation_in.start()
+
+        elif not tor and self.tor_checkbox.isEnabled():
+            self.tor_checkbox.setEnabled(False)
+            self.tor_checkbox_animation_out.start()
+            self.tor_info_button_animation_out.start()
 
     def toggle_tor_status(self, state):
         if state:
