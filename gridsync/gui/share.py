@@ -357,7 +357,7 @@ class InviteReceiver(QDialog):
 
         self.invite_code_widget = InviteCodeWidget(self)
         self.label = self.invite_code_widget.label
-        self.tor_checkbox = self.invite_code_widget.checkbox
+        self.tor_checkbox = self.invite_code_widget.tor_checkbox
         self.tor_checkbox.stateChanged.connect(self.on_checkbox_state_changed)
         self.lineedit = self.invite_code_widget.lineedit
         self.lineedit.error.connect(self.show_error)
