@@ -198,7 +198,7 @@ class InviteCodeWidget(QWidget):
         self.tor_info_text = (
             "Tor is an anonymizing network that helps defend against network "
             "surveillance and traffic analysis. With this checkbox enabled, "
-            "Gridsync will route all traffic corresponding to this connection "
+            "{} will route all traffic corresponding to this connection "
             "through the Tor network, concealing your geographical location "
             "from your storage provider and other parties (such as any "
             "persons with whom you might share folders).<p>"
@@ -206,7 +206,8 @@ class InviteCodeWidget(QWidget):
             "running on your computer and may be slower or less reliable than "
             "your normal internet connection.<p>"
             "For more information or to download Tor, please visit "
-            "<a href=https://torproject.org>https://torproject.org</a>"
+            "<a href=https://torproject.org>https://torproject.org</a>".format(
+                APP_NAME)
         )
         self.tor_info_button = QPushButton()
         self.tor_info_button.setFlat(True)
