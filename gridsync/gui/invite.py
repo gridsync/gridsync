@@ -177,6 +177,10 @@ class InviteCodeWidget(QWidget):
         self.lineedit = InviteCodeLineEdit(self)
 
         self.tor_checkbox = QCheckBox("Connect over the Tor network")
+        if sys.platform == 'darwin':
+            # For some reason, the checkbox and pushbutton overlap slightly on
+            # macOS. A space here adds just enough padding to separate them.
+            self.tor_checkbox.setText(self.tor_checkbox.text() + ' ')
         self.tor_checkbox.setStyleSheet("QCheckBox { color: dimgrey }")
         self.tor_checkbox.setFocusPolicy(Qt.NoFocus)
         self.tor_checkbox_effect = QGraphicsOpacityEffect()
