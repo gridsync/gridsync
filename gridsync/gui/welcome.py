@@ -85,6 +85,10 @@ class WelcomeWidget(QWidget):
         links_grid.addWidget(self.configure_link, 4, 1)
         links_grid.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
+        prefs_layout = QGridLayout()
+        prefs_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        prefs_layout.addWidget(self.preferences_button, 1, 2)
+
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
@@ -100,7 +104,7 @@ class WelcomeWidget(QWidget):
         layout.addLayout(links_grid, 7, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 8, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
-        layout.addWidget(self.preferences_button, 10, 5, Qt.AlignRight)
+        layout.addLayout(prefs_layout, 10, 1, 1, 5)
 
     def show_error(self, message):
         self.message.setText(message)
