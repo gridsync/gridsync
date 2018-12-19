@@ -224,9 +224,7 @@ class InviteCodeWidget(QWidget):
         self.tor_info_button.setToolTip(self.tor_info_text)
         self.tor_info_button.clicked.connect(self.on_tor_info_button_clicked)
         self.tor_info_button.setFocusPolicy(Qt.NoFocus)
-        #self.tor_info_button.hide()
         self.tor_info_button_effect = QGraphicsOpacityEffect()
-        self.tor_info_button_effect.setOpacity(1.0)
         self.tor_info_button.setGraphicsEffect(self.tor_info_button_effect)
         self.tor_info_button.setAutoFillBackground(True)
 
@@ -259,7 +257,6 @@ class InviteCodeWidget(QWidget):
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
-        #layout.addWidget(self.label, 2, 1)
         layout.addLayout(label_layout, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
         layout.addLayout(tor_layout, 4, 1)
@@ -276,7 +273,6 @@ class InviteCodeWidget(QWidget):
             self.tor_checkbox.setEnabled(True)
             self.tor_checkbox_animation_in.start()
             self.tor_info_button_animation_in.start()
-
         elif not tor and self.tor_checkbox.isEnabled():
             self.tor_checkbox.setEnabled(False)
             self.tor_checkbox_animation_out.start()

@@ -16,7 +16,7 @@ import wormhole.errors
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.invite import load_settings_from_cheatcode
+from gridsync.invite import load_settings_from_cheatcode, InviteSender
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.preferences import get_preference
 from gridsync.setup import SetupRunner, validate_settings
@@ -36,7 +36,6 @@ class ShareWidget(QDialog):
         self.folder_names = folder_names
         self.folder_names_humanized = humanized_list(folder_names, 'folders')
         self.settings = {}
-        #self.wormhole = None
         self.pending_invites = []
         self.use_tor = self.gateway.use_tor
 
@@ -275,7 +274,6 @@ class ShareWidget(QDialog):
             return
         logging.error(str(failure))
         show_failure(failure, self)
-        #self.wormhole.close()
         self.invite_sender.cancel()
         self.close()
 
@@ -283,7 +281,6 @@ class ShareWidget(QDialog):
         self.subtext_label.setText("Opening wormhole...\n\n")
 
     def go(self):
-        from gridsync.invite import InviteSender
         self.invite_sender = InviteSender(self.use_tor)
         self.invite_sender.created_invite.connect(self.on_created_invite)
         self.invite_sender.got_code.connect(self.on_got_code)
@@ -307,10 +304,6 @@ class ShareWidget(QDialog):
             msg.setDefaultButton(QMessageBox.No)
             if msg.exec_() == QMessageBox.Yes:
                 self.invite_sender.cancel()
-                #self.wormhole.close()
-                #if self.folder_names:
-                #    for folder, member_id in self.pending_invites:
-                #        self.gateway.magic_folder_uninvite(folder, member_id)
                 event.accept()
                 self.closed.emit(self)
             else:
