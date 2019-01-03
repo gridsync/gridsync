@@ -16,7 +16,7 @@ from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.history import HistoryView
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
-from gridsync.gui.share import InviteReceiver, ShareWidget
+from gridsync.gui.share import InviteReceiverDialog, ShareWidget
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
 
@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
                     widget.setMaximumWidth(68)
 
         self.active_pair_widgets = []
-        self.active_invite_receivers = []
+        self.active_invite_receiver_dialogs = []
 
     def populate(self, gateways):
         for gateway in gateways:
@@ -321,16 +321,16 @@ class MainWindow(QMainWindow):
 
     def on_invite_closed(self, obj):
         try:
-            self.active_invite_receivers.remove(obj)
+            self.active_invite_receiver_dialogs.remove(obj)
         except ValueError:
             pass
 
     def open_invite_receiver(self):
-        invite_receiver = InviteReceiver(self.gateways)
-        invite_receiver.done.connect(self.on_invite_received)
-        invite_receiver.closed.connect(self.on_invite_closed)
-        invite_receiver.show()
-        self.active_invite_receivers.append(invite_receiver)
+        invite_receiver_dialog = InviteReceiverDialog(self.gateways)
+        invite_receiver_dialog.done.connect(self.on_invite_received)
+        invite_receiver_dialog.closed.connect(self.on_invite_closed)
+        invite_receiver_dialog.show()
+        self.active_invite_receiver_dialogs.append(invite_receiver_dialog)
 
     def open_pair_widget(self):
         gateway = self.combo_box.currentData()

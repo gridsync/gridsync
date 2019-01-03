@@ -319,12 +319,12 @@ class ShareWidget(QDialog):
             self.close()
 
 
-class InviteReceiver(QDialog):
+class InviteReceiverDialog(QDialog):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
     def __init__(self, gateways):
-        super(InviteReceiver, self).__init__()
+        super(InviteReceiverDialog, self).__init__()
         self.gateways = gateways
         self.wormhole = None
         self.setup_runner = None
