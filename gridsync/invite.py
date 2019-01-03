@@ -101,6 +101,9 @@ class InviteReceiver(QObject):
         self.wormhole.got_introduction.connect(self.got_introduction.emit)
         self.wormhole.got_message.connect(self.got_message.emit)
 
+    def cancel(self):
+        self.wormhole.close()
+
     @inlineCallbacks
     def _run_setup(self, settings, from_wormhole):
         settings = validate_settings(
