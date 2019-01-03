@@ -16,13 +16,11 @@ import wormhole.errors
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.invite import load_settings_from_cheatcode, InviteSender
+from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.preferences import get_preference
-from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
-from gridsync.wormhole_ import Wormhole
 
 
 class ShareWidget(QDialog):
@@ -326,8 +324,7 @@ class InviteReceiverDialog(QDialog):
     def __init__(self, gateways):
         super(InviteReceiverDialog, self).__init__()
         self.gateways = gateways
-        self.wormhole = None
-        self.setup_runner = None
+        self.invite_receiver = None
         self.joined_folders = []
         self.use_tor = False
 
@@ -457,17 +454,8 @@ class InviteReceiverDialog(QDialog):
         )
         self.close()
 
-    def got_message(self, message):
+    def got_message(self, _):
         self.update_progress("Reading invitation...")  # 3
-        message = validate_settings(message, self.gateways, self)
-        self.setup_runner = SetupRunner(self.gateways, self.use_tor)
-        if not message.get('magic-folders'):
-            self.setup_runner.grid_already_joined.connect(
-                self.on_grid_already_joined)
-        self.setup_runner.update_progress.connect(self.update_progress)
-        self.setup_runner.joined_folders.connect(self.set_joined_folders)
-        self.setup_runner.done.connect(self.on_done)
-        self.setup_runner.run(message)
 
     def got_welcome(self):
         self.update_progress("Connected; waiting for message...")  # 2
@@ -486,15 +474,15 @@ class InviteReceiverDialog(QDialog):
         if self.use_tor:
             self.tor_label.show()
         self.update_progress("Verifying invitation...")  # 1
-        if code.split('-')[0] == "0":
-            settings = load_settings_from_cheatcode(code[2:])
-            if settings:
-                self.got_message(settings)
-                return
-        self.wormhole = Wormhole(self.use_tor)
-        self.wormhole.got_welcome.connect(self.got_welcome)
-        self.wormhole.got_message.connect(self.got_message)
-        d = self.wormhole.receive(code)
+        self.invite_receiver = InviteReceiver(self.gateways, self.use_tor)
+        self.invite_receiver.got_welcome.connect(self.got_welcome)
+        self.invite_receiver.got_message.connect(self.got_message)
+        self.invite_receiver.grid_already_joined.connect(
+            self.on_grid_already_joined)
+        self.invite_receiver.update_progress.connect(self.update_progress)
+        self.invite_receiver.joined_folders.connect(self.set_joined_folders)
+        self.invite_receiver.done.connect(self.on_done)
+        d = self.invite_receiver.receive(code)
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)
 
@@ -505,7 +493,7 @@ class InviteReceiverDialog(QDialog):
     def closeEvent(self, event):
         event.accept()
         try:
-            self.wormhole.close()
+            self.invite_receiver.cancel()
         except AttributeError:
             pass
         self.closed.emit(self)
