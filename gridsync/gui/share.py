@@ -349,25 +349,32 @@ class InviteReceiver(QDialog):
         self.folder_icon.setAlignment(Qt.AlignCenter)
 
         self.invite_code_widget = InviteCodeWidget(self)
-        self.label = self.invite_code_widget.label
-        self.tor_checkbox = self.invite_code_widget.tor_checkbox
-        self.tor_checkbox.stateChanged.connect(self.on_checkbox_state_changed)
-        self.lineedit = self.invite_code_widget.lineedit
-        self.lineedit.error.connect(self.show_error)
-        self.lineedit.go.connect(self.go)
+        #self.label = self.invite_code_widget.label
+        #self.tor_checkbox = self.invite_code_widget.tor_checkbox
+        #self.tor_checkbox.stateChanged.connect(self.on_checkbox_state_changed)
+        #self.lineedit = self.invite_code_widget.lineedit
+        #self.lineedit.error.connect(self.show_error)
+        #self.lineedit.go.connect(self.go)
+        self.invite_code_widget.lineedit.go.connect(self.go)  # XXX
 
-        self.tor_label = QLabel()
-        self.tor_label.setToolTip(
-            "This connection is being routed through the Tor network.")
-        self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(32, 32))
+        self.checkmark = QLabel()
+        self.checkmark.setAlignment(Qt.AlignCenter)
+        self.checkmark.setPixmap(
+            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+        self.checkmark.hide()
+
+        #self.tor_label = QLabel()
+        #self.tor_label.setToolTip(
+        #    "This connection is being routed through the Tor network.")
+        #self.tor_label.setPixmap(
+        #    QPixmap(resource('tor-onion.png')).scaled(32, 32))
 
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
         self.progressbar.setMaximum(6)  # XXX
         self.progressbar.setTextVisible(False)
 
-        self.message_label = QLabel()
+        self.message_label = QLabel(' ')
         self.message_label.setStyleSheet("color: grey")
         self.message_label.setAlignment(Qt.AlignCenter)
 
@@ -382,17 +389,20 @@ class InviteReceiver(QDialog):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.mail_closed_icon, 1, 2, 1, 3)
         layout.addWidget(self.mail_open_icon, 1, 2, 1, 3)
         layout.addWidget(self.folder_icon, 1, 2, 1, 3)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-        layout.addWidget(self.label, 2, 3, 1, 1)
-        layout.addWidget(
-            self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
-        layout.addWidget(self.lineedit, 3, 2, 1, 3)
+        layout.addWidget(self.invite_code_widget, 2, 2, 1, 3)
+        #layout.addWidget(self.invite_code_widget, 2, 2, 1, 3)
+        layout.addWidget(self.checkmark, 2, 3, 1, 1)
+        #layout.addWidget(
+        #    self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
+        #layout.addWidget(self.lineedit, 3, 2, 1, 3)
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
-        layout.addWidget(self.tor_checkbox, 4, 2, 1, 3, Qt.AlignCenter)
+        #layout.addWidget(self.tor_checkbox, 4, 2, 1, 3, Qt.AlignCenter)
         layout.addWidget(self.message_label, 5, 1, 1, 5)
         layout.addWidget(self.error_label, 5, 2, 1, 3)
         layout.addWidget(self.close_button, 6, 3)
@@ -404,17 +414,17 @@ class InviteReceiver(QDialog):
         self.mail_open_icon.hide()
         self.folder_icon.hide()
         self.mail_closed_icon.show()
-        self.label.setText("Enter invite code:")
-        self.lineedit.show()
-        self.lineedit.setText('')
-        self.tor_checkbox.show()
+        #self.label.setText("Enter invite code:")
+        #self.lineedit.show()
+        #self.lineedit.setText('')
+        #self.tor_checkbox.show()
         self.progressbar.hide()
-        self.message_label.setText(
-            "Invite codes can be used to join a grid or a folder")
+        #self.message_label.setText(
+        #    "Invite codes can be used to join a grid or a folder")
         self.error_label.setText('')
         self.error_label.hide()
         self.close_button.hide()
-        self.tor_label.hide()
+        #self.tor_label.hide()
 
     def on_checkbox_state_changed(self, state):
         self.use_tor = bool(state)
@@ -450,9 +460,10 @@ class InviteReceiver(QDialog):
     def on_done(self, _):
         self.progressbar.setValue(self.progressbar.maximum())
         self.close_button.show()
+        self.checkmark.show()
         self.done.emit(self)
-        self.label.setPixmap(
-            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+        #self.label.setPixmap(
+        #    QPixmap(resource('green_checkmark.png')).scaled(32, 32))
         if self.joined_folders and len(self.joined_folders) == 1:
             target = self.joined_folders[0]
             self.message_label.setText(
@@ -496,9 +507,10 @@ class InviteReceiver(QDialog):
 
     def go(self, code):
         self.reset()
-        self.label.setText(' ')
-        self.lineedit.hide()
-        self.tor_checkbox.hide()
+        #self.label.setText(' ')
+        #self.lineedit.hide()
+        #self.tor_checkbox.hide()
+        self.invite_code_widget.hide()
         self.progressbar.show()
         if self.use_tor:
             self.tor_label.show()
@@ -517,7 +529,7 @@ class InviteReceiver(QDialog):
 
     def enterEvent(self, event):
         event.accept()
-        self.lineedit.update_action_button()
+        self.invite_code_widget.lineedit.update_action_button()  # XXX
 
     def closeEvent(self, event):
         event.accept()
