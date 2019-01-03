@@ -100,17 +100,17 @@ To install and run Gridsync on Windows (tested on Windows 7 SP1, Windows 8.1, an
 
 **From source:**
 
-Because Tahoe-LAFS has not yet been ported to python3, and because some GNU/Linux distributions might contain especially old packages for some dependencies (including Tahoe-LAFS and Qt5), it is recommended to install and run Tahoe-LAFS and Gridsync inside their own virtual environments using updated dependencies from PyPI (ideally with hashes verified). Installing and running Gridsync with python3.5 (instead of python2) furthermore avoids having to install Qt5/PyQt5 manually (since PyQt5 wheels containing Qt5 are available on PyPI for python 3.5+ only).
+Because Tahoe-LAFS has not yet been ported to python3, and because some GNU/Linux distributions might contain especially old versions of some dependencies, it is recommended to install and run Tahoe-LAFS and Gridsync inside their own virtual environments using updated dependencies from PyPI (ideally with hashes verified).
 
-The following series of steps (run from the top level of the Gridsync source tree) should work on Debian-based GNU/Linux distributions:
+The following series of steps (run from the top level of the Gridsync source tree) should work on most Debian-based GNU/Linux distributions:
 
 .. code-block:: shell-session
 
-    sudo apt-get install virtualenv build-essential python-dev libssl-dev libffi-dev python3.5-dev
+    sudo apt-get install build-essential libffi-dev libssl-dev python python-dev python3 python3-dev virtualenv
     virtualenv --python=python2 ./venv2
     ./venv2/bin/pip install --upgrade setuptools pip
     ./venv2/bin/pip install tahoe-lafs
-    virtualenv --python=python3.5 ./venv3
+    virtualenv --python=python3 ./venv3
     ./venv3/bin/pip install --upgrade setuptools pip
     ./venv3/bin/pip install -r requirements/requirements-hashes.txt
     ./venv3/bin/pip install .
