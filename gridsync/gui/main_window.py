@@ -101,9 +101,6 @@ class MainWindow(QMainWindow):
         self.shortcut_quit = QShortcut(QKeySequence.Quit, self)
         self.shortcut_quit.activated.connect(self.confirm_quit)
 
-        self.combo_box = ComboBox()
-        self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
-
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
@@ -123,6 +120,12 @@ class MainWindow(QMainWindow):
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
+        invite_action = QAction(
+            QIcon(resource('invite.png')), "Enter Code", self)
+        invite_action.setToolTip("Enter an Invite Code...")
+        invite_action.setFont(font)
+        invite_action.triggered.connect(self.open_invite_receiver)
+
         history_action = QAction(
             QIcon(resource('time.png')), 'History', self)
         history_action.setToolTip("View history")
@@ -134,11 +137,14 @@ class MainWindow(QMainWindow):
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        invite_action = QAction(
-            QIcon(resource('invite.png')), "Enter Code", self)
-        invite_action.setToolTip("Enter an Invite Code...")
-        invite_action.setFont(font)
-        invite_action.triggered.connect(self.open_invite_receiver)
+        spacer_left = QWidget()
+        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
+
+        self.combo_box = ComboBox()
+        self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
+
+        spacer_right = QWidget()
+        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         share_action = QAction(QIcon(resource('share.png')), "Share", self)
         share_action.setToolTip("Share...")
@@ -179,12 +185,6 @@ class MainWindow(QMainWindow):
         preferences_action.setShortcut(QKeySequence.Preferences)
         preferences_action.triggered.connect(self.gui.show_preferences_window)
 
-        spacer_left = QWidget()
-        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
-
-        spacer_right = QWidget()
-        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
-
         self.toolbar = self.addToolBar('')
         if sys.platform != 'darwin':
             self.toolbar.setStyleSheet("""
@@ -198,8 +198,8 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(folder_action)
-        self.toolbar.addWidget(self.history_button)
         self.toolbar.addAction(invite_action)
+        self.toolbar.addWidget(self.history_button)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
