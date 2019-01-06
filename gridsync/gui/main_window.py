@@ -335,7 +335,12 @@ class MainWindow(QMainWindow):
     def open_share_widget(self):
         gateway = self.combo_box.currentData()
         if gateway:
-            share_widget = ShareWidget(gateway, self.gui)
+            view = self.current_view()
+            if view:
+                share_widget = ShareWidget(
+                    gateway, self.gui, view.get_selected_folders())
+            else:
+                share_widget = ShareWidget(gateway, self.gui)
             share_widget.closed.connect(self.active_share_widgets.remove)
             share_widget.show()
             self.active_share_widgets.append(share_widget)
