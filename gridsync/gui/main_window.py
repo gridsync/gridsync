@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
         share_action = QAction(QIcon(resource('share.png')), "Share", self)
         share_action.setToolTip("Share...")
         share_action.setFont(font)
-        share_action.triggered.connect(self.open_pair_widget)
+        share_action.triggered.connect(self.open_share_widget)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
@@ -213,7 +213,7 @@ class MainWindow(QMainWindow):
                 if isinstance(widget, QToolButton):
                     widget.setMaximumWidth(68)
 
-        self.active_pair_widgets = []
+        self.active_share_widgets = []
         self.active_invite_receiver_dialogs = []
 
     def populate(self, gateways):
@@ -332,13 +332,13 @@ class MainWindow(QMainWindow):
         invite_receiver_dialog.show()
         self.active_invite_receiver_dialogs.append(invite_receiver_dialog)
 
-    def open_pair_widget(self):
+    def open_share_widget(self):
         gateway = self.combo_box.currentData()
         if gateway:
-            pair_widget = ShareWidget(gateway, self.gui)
-            pair_widget.closed.connect(self.active_pair_widgets.remove)
-            pair_widget.show()
-            self.active_pair_widgets.append(pair_widget)
+            share_widget = ShareWidget(gateway, self.gui)
+            share_widget.closed.connect(self.active_share_widgets.remove)
+            share_widget.show()
+            self.active_share_widgets.append(share_widget)
 
     def confirm_quit(self):
         msg = QMessageBox(self)
