@@ -152,7 +152,10 @@ class Model(QStandardItemModel):
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
         items = self.findItems(folder_name)
         if items:
-            folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
+            if folder_path:
+                folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
+            else:
+                folder_icon = self.icon_folder_gray
             folder_pixmap = folder_icon.pixmap(256, 256)
             if overlay_file:
                 pixmap = CompositePixmap(folder_pixmap, resource(overlay_file))
