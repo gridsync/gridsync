@@ -142,6 +142,8 @@ class Model(QStandardItemModel):
     @pyqtSlot(str, str)
     def add_member(self, folder, _):
         self.members_dict[folder] = self.members_dict.get(folder, 0) + 1
+        if self.members_dict.get(folder, 0) == 2:
+            self.set_status_shared(folder)
 
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
