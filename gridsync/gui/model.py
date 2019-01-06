@@ -171,8 +171,8 @@ class Model(QStandardItemModel):
             items[0].setToolTip(
                 "{}\n\nThis folder is private; only you can view and\nmodify "
                 "its contents.".format(
-                    self.gateway.get_magic_folder_directory(folder_name) or
-                    folder_name + " (Stored remotely)"))
+                    self.gateway.get_magic_folder_directory(folder_name)
+                    or folder_name + " (Stored remotely)"))
 
     def set_status_shared(self, folder_name):
         self.update_folder_icon(
@@ -184,8 +184,8 @@ class Model(QStandardItemModel):
             items[0].setToolTip(
                 "{}\n\nThis folder is shared; at least one other person\nor "
                 "device can view and modify its contents.".format(
-                    self.gateway.get_magic_folder_directory(folder_name) or
-                    folder_name + " (Stored remotely)"))
+                    self.gateway.get_magic_folder_directory(folder_name)
+                    or folder_name + " (Stored remotely)"))
 
     def update_overlay(self, folder_name):
         members = self.members_dict.get(folder_name)
