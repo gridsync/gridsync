@@ -340,7 +340,7 @@ def show_failure(failure, parent=None):
         msg.setEscapeButton(QMessageBox.Ok)
     elif failure.type == WrongPasswordError:
         msg.setWindowTitle("Invite confirmation failed")
-        msg.setWindowTitle("Invite confirmation failed")
+        msg.setText("Invite confirmation failed")
         msg.setInformativeText(
             "Either your recipient mistyped the invite code or a potential "
             "attacker tried to guess the code and failed.\n\nTo try again, "
