@@ -12,7 +12,6 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API?
     from wormhole._wordlist import raw_words
 
 from gridsync import pkgdir
-from gridsync.errors import TahoeError
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.util import b58encode
 from gridsync.wormhole_ import Wormhole
@@ -161,8 +160,9 @@ class InviteSender(QObject):
             for folder, member_id in self._pending_invites:
                 self._gateway.magic_folder_uninvite(folder, member_id)
 
+    @staticmethod
     @inlineCallbacks
-    def _get_folder_invite(self, gateway, folder):
+    def _get_folder_invite(gateway, folder):
         member_id = b58encode(os.urandom(8))
         code = yield gateway.magic_folder_invite(folder, member_id)
         return folder, member_id, code
