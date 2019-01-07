@@ -5,7 +5,7 @@ import os
 
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtCore import QObject
-from twisted.internet.defer import gatherResults, inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks
 try:
     from wormhole.wordlist import raw_words
 except ImportError:  # TODO: Switch to new magic-wormhole completion API?
@@ -141,7 +141,6 @@ class InviteSender(QObject):
     closed = Signal(object)
 
     progress_updated = Signal(int, int, str)  # current, total, msg
-    failed = Signal(str, str, str, str)  # title, text, informative, detailed
     succeeded = Signal()
 
     def __init__(self, use_tor=False):
@@ -165,19 +164,7 @@ class InviteSender(QObject):
     @inlineCallbacks
     def _get_folder_invite(self, gateway, folder):
         member_id = b58encode(os.urandom(8))
-        try:
-            code = yield gateway.magic_folder_invite(folder, member_id)
-        except TahoeError as err:
-            code = None
-            self.wormhole.close()
-            #error(self, "Invite Error", str(err))
-            self.failed.emit(
-                "Invite Error",
-                "Error creating invite for folder {}".format(folder),
-                str(err),
-                None
-            )
-            self.cancel()
+        code = yield gateway.magic_folder_invite(folder, member_id)
         return folder, member_id, code
 
     @inlineCallbacks
@@ -186,10 +173,14 @@ class InviteSender(QObject):
         tasks = []
         for folder in folders:
             tasks.append(self._get_folder_invite(gateway, folder))
-        results = yield gatherResults(tasks)
-        for folder, member_id, code in results:
-            folders_data[folder] = {'code': code}
-            self._pending_invites.append((folder, member_id))
+        results = yield DeferredList(tasks, consumeErrors=True)
+        for success, result in results:
+            if success:
+                folder, member_id, code = result
+                folders_data[folder] = {'code': code}
+                self._pending_invites.append((folder, member_id))
+            else:  # Failure
+                raise result.type(result.value)
         return folders_data
 
     @inlineCallbacks
