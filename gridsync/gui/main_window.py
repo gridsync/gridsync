@@ -315,7 +315,8 @@ class MainWindow(QMainWindow):
             self.history_button.setChecked(False)
             self.show_folders_view()
 
-    def on_invite_received(self, _):
+    def on_invite_received(self, gateway):
+        self.populate([gateway])
         for view in self.central_widget.views:
             view.model().monitor.scan_rootcap('star.png')
 
