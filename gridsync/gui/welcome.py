@@ -108,10 +108,8 @@ class WelcomeWidget(QWidget):
 
     def show_error(self, message):
         self.message.setText(message)
-        #self.checkbox.hide()
         self.message.show()
         reactor.callLater(3, self.message.hide)
-        #reactor.callLater(3, self.checkbox.show)
 
     def reset(self):
         self.lineedit.setText('')
