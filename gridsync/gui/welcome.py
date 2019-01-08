@@ -235,12 +235,15 @@ class WelcomeDialog(QStackedWidget):
 
         self.lineedit = self.page_1.lineedit
         self.checkbox = self.page_1.invite_code_widget.tor_checkbox
-        self.cancel_button = self.page_2.cancel_button
-        self.finish_button = self.page_2.finish_button
-        self.buttonbox = self.page_3.buttonbox
         self.restore_link = self.page_1.restore_link
         self.configure_link = self.page_1.configure_link
         self.preferences_button = self.page_1.preferences_button
+
+        self.progressbar = self.page_2.progressbar
+        self.cancel_button = self.page_2.cancel_button
+        self.finish_button = self.page_2.finish_button
+
+        self.buttonbox = self.page_3.buttonbox
 
         self.shortcut_close = QShortcut(QKeySequence.Close, self)
         self.shortcut_close.activated.connect(self.close)
@@ -251,10 +254,6 @@ class WelcomeDialog(QStackedWidget):
         self.lineedit.go.connect(self.go)
         self.lineedit.error.connect(self.show_error)
         self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
-        self.cancel_button.clicked.connect(self.cancel_button_clicked)
-        self.finish_button.clicked.connect(self.finish_button_clicked)
-        self.buttonbox.accepted.connect(self.on_accepted)
-        self.buttonbox.rejected.connect(self.reset)
         self.restore_link.linkActivated.connect(
             self.on_restore_link_activated)
         self.configure_link.linkActivated.connect(
@@ -262,17 +261,23 @@ class WelcomeDialog(QStackedWidget):
         self.preferences_button.clicked.connect(
             self.gui.show_preferences_window)
 
+        self.cancel_button.clicked.connect(self.cancel_button_clicked)
+        self.finish_button.clicked.connect(self.finish_button_clicked)
+
+        self.buttonbox.accepted.connect(self.on_accepted)
+        self.buttonbox.rejected.connect(self.reset)
+
     def on_checkbox_state_changed(self, state):
         self.use_tor = bool(state)
         log.debug("use_tor=%s", self.use_tor)
         if state:
             self.page_2.tor_label.show()
-            self.page_2.progressbar.setStyleSheet(
+            self.progressbar.setStyleSheet(
                 'QProgressBar::chunk {{ background-color: {}; }}'.format(
                     TOR_PURPLE))
         else:
             self.page_2.tor_label.hide()
-            self.page_2.progressbar.setStyleSheet('')
+            self.progressbar.setStyleSheet('')
 
     def on_configure_link_activated(self):
         self.setCurrentIndex(2)
@@ -296,7 +301,7 @@ class WelcomeDialog(QStackedWidget):
     def handle_failure(self, failure):
         log.error(str(failure))
         if failure.type == CancelledError:
-            if self.page_2.progressbar.value() <= 2:
+            if self.progressbar.value() <= 2:
                 show_failure(failure, self)
                 self.show_error("Invite timed out")
                 self.reset()
@@ -316,7 +321,7 @@ class WelcomeDialog(QStackedWidget):
 
     def on_done(self, gateway):
         self.gateway = gateway
-        self.page_2.progressbar.setValue(self.page_2.progressbar.maximum())
+        self.progressbar.setValue(self.progressbar.maximum())
         self.page_2.checkmark.setPixmap(
             QPixmap(resource('green_checkmark.png')).scaled(32, 32))
         self.finish_button.show()
@@ -336,7 +341,7 @@ class WelcomeDialog(QStackedWidget):
             settings, self.known_gateways, self, from_wormhole)
         self.setup_runner = SetupRunner(self.known_gateways, self.use_tor)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
-        self.page_2.progressbar.setMaximum(steps)
+        self.progressbar.setMaximum(steps)
         self.setup_runner.grid_already_joined.connect(self.on_already_joined)
         self.setup_runner.update_progress.connect(self.update_progress)
         self.setup_runner.got_icon.connect(self.load_service_icon)
@@ -351,7 +356,7 @@ class WelcomeDialog(QStackedWidget):
         if settings.get('hide-ip'):
             self.on_checkbox_state_changed(1)  # Toggle Tor checkbox "on"
         self.setCurrentIndex(1)
-        self.page_2.progressbar.setValue(1)
+        self.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
         self.prompt_to_export = False
         self.verify_settings(settings, from_wormhole=False)
@@ -363,7 +368,7 @@ class WelcomeDialog(QStackedWidget):
 
     #def go(self, code):
     #    self.setCurrentIndex(1)
-    #    self.page_2.progressbar.setValue(1)
+    #    self.progressbar.setValue(1)
     #    self.update_progress('Verifying invitation code...')
     #    if code.split('-')[0] == "0":
     #        settings = get_settings_from_cheatcode(code[2:])
@@ -377,7 +382,7 @@ class WelcomeDialog(QStackedWidget):
 
     def go(self, code):
         self.setCurrentIndex(1)
-        self.page_2.progressbar.setValue(1)
+        self.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
         invite_receiver = InviteReceiver(self.known_gateways, self.use_tor)
         invite_receiver.grid_already_joined.connect(self.on_already_joined)
