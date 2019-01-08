@@ -30,8 +30,8 @@ class WelcomeWidget(QWidget):
         self.parent = parent
 
         self.icon = QLabel()
-        pixmap = QPixmap(resource('gridsync.png')).scaled(220, 220)
-        self.icon.setPixmap(pixmap)
+        self.icon.setPixmap(
+            QPixmap(resource('gridsync.png')).scaled(220, 220))
         self.icon.setAlignment(Qt.AlignCenter)
 
         self.slogan = QLabel("<i>Secure, distributed storage</i>")
@@ -122,28 +122,28 @@ class ProgressBarWidget(QWidget):
         super(ProgressBarWidget, self).__init__()
 
         self.icon_server = QLabel()
-        pixmap = QPixmap(resource('cloud.png')).scaled(220, 220)
-        self.icon_server.setPixmap(pixmap)
+        self.icon_server.setPixmap(
+            QPixmap(resource('cloud.png')).scaled(220, 220))
         self.icon_server.setAlignment(Qt.AlignCenter)
 
         self.icon_overlay = QLabel()
-        pixmap = QPixmap(resource('pixel.png')).scaled(75, 75)
-        self.icon_overlay.setPixmap(pixmap)
+        self.icon_overlay.setPixmap(
+            QPixmap(resource('pixel.png')).scaled(75, 75))
         self.icon_overlay.setAlignment(Qt.AlignHCenter)
 
         self.icon_connection = QLabel()
-        pixmap = QPixmap(resource('wifi.png')).scaled(128, 128)
-        self.icon_connection.setPixmap(pixmap)
+        self.icon_connection.setPixmap(
+            QPixmap(resource('wifi.png')).scaled(128, 128))
         self.icon_connection.setAlignment(Qt.AlignCenter)
 
         self.icon_client = QLabel()
-        pixmap = QPixmap(resource('laptop-with-icon.png')).scaled(128, 128)
-        self.icon_client.setPixmap(pixmap)
+        self.icon_client.setPixmap(
+            QPixmap(resource('laptop-with-icon.png')).scaled(128, 128))
         self.icon_client.setAlignment(Qt.AlignCenter)
 
         self.checkmark = QLabel()
-        pixmap = QPixmap(resource('pixel.png')).scaled(32, 32)
-        self.checkmark.setPixmap(pixmap)
+        self.checkmark.setPixmap(
+            QPixmap(resource('pixel.png')).scaled(32, 32))
         self.checkmark.setAlignment(Qt.AlignCenter)
 
         self.tor_label = QLabel()
@@ -192,16 +192,16 @@ class ProgressBarWidget(QWidget):
         self.progressbar.setValue(step)
         self.message.setText(message)
         if step == 2:  # "Connecting to <nickname>..."
-            pixmap = QPixmap(resource('lines_dotted.png')).scaled(128, 128)
-            self.icon_connection.setPixmap(pixmap)
-            pixmap = QPixmap(resource('cloud_storage.png')).scaled(220, 220)
-            self.icon_server.setPixmap(pixmap)
+            self.icon_connection.setPixmap(
+                QPixmap(resource('lines_dotted.png')).scaled(128, 128))
+            self.icon_server.setPixmap(
+                QPixmap(resource('cloud_storage.png')).scaled(220, 220))
         elif step == 5:  # After await_ready()
-            pixmap = QPixmap(resource('lines_solid.png')).scaled(128, 128)
-            self.icon_connection.setPixmap(pixmap)
+            self.icon_connection.setPixmap(
+                QPixmap(resource('lines_solid.png')).scaled(128, 128))
         elif step == self.progressbar.maximum():  # "Done!"
-            pixmap = QPixmap(resource('green_checkmark.png')).scaled(32, 32)
-            self.checkmark.setPixmap(pixmap)
+            self.checkmark.setPixmap(
+                QPixmap(resource('green_checkmark.png')).scaled(32, 32))
 
     def is_complete(self):
         return self.progressbar.value() == self.progressbar.maximum()
@@ -210,8 +210,8 @@ class ProgressBarWidget(QWidget):
         self.progressbar.setValue(0)
         self.message.setText('')
         self.finish_button.hide()
-        pixmap = QPixmap(resource('pixel.png')).scaled(32, 32)
-        self.checkmark.setPixmap(pixmap)
+        self.checkmark.setPixmap(
+            QPixmap(resource('pixel.png')).scaled(32, 32))
 
 
 class WelcomeDialog(QStackedWidget):
@@ -290,8 +290,8 @@ class WelcomeDialog(QStackedWidget):
         self.setCurrentIndex(0)
 
     def load_service_icon(self, filepath):
-        pixmap = QPixmap(filepath).scaled(100, 100)
-        self.page_2.icon_overlay.setPixmap(pixmap)
+        self.page_2.icon_overlay.setPixmap(
+            QPixmap(filepath).scaled(100, 100))
 
     def handle_failure(self, failure):
         log.error(str(failure))
