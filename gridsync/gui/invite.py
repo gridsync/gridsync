@@ -18,7 +18,7 @@ from gridsync import resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 from gridsync.invite import wordlist, is_valid_code
-from gridsync.tor import TOR_DARK_PURPLE, get_tor
+from gridsync.tor import get_tor
 
 
 class InviteCodeCompleter(QCompleter):
