@@ -318,7 +318,7 @@ class ShareWidget(QDialog):
 
 
 class InviteReceiverDialog(QDialog):
-    done = pyqtSignal(QWidget)
+    done = pyqtSignal(object)  # Tahoe gateway
     closed = pyqtSignal(QWidget)
 
     def __init__(self, gateways):
@@ -430,11 +430,11 @@ class InviteReceiverDialog(QDialog):
     def set_joined_folders(self, folders):
         self.joined_folders = folders
 
-    def on_done(self, _):
+    def on_done(self, gateway):
         self.progressbar.setValue(self.progressbar.maximum())
         self.close_button.show()
         self.checkmark.show()
-        self.done.emit(self)
+        self.done.emit(gateway)
         if self.joined_folders and len(self.joined_folders) == 1:
             target = self.joined_folders[0]
             self.message_label.setText(
