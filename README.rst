@@ -100,17 +100,17 @@ To install and run Gridsync on Windows (tested on Windows 7 SP1, Windows 8.1, an
 
 **From source:**
 
-Because Tahoe-LAFS has not yet been ported to python3, and because some GNU/Linux distributions might contain especially old packages for some dependencies (including Tahoe-LAFS and Qt5), it is recommended to install and run Tahoe-LAFS and Gridsync inside their own virtual environments using updated dependencies from PyPI (ideally with hashes verified). Installing and running Gridsync with python3.5 (instead of python2) furthermore avoids having to install Qt5/PyQt5 manually (since PyQt5 wheels containing Qt5 are available on PyPI for python 3.5+ only).
+Because Tahoe-LAFS has not yet been ported to python3, and because some GNU/Linux distributions might contain especially old versions of some dependencies, it is recommended to install and run Tahoe-LAFS and Gridsync inside their own virtual environments using updated dependencies from PyPI (ideally with hashes verified).
 
-The following series of steps (run from the top level of the Gridsync source tree) should work on Debian-based GNU/Linux distributions:
+The following series of steps (run from the top level of the Gridsync source tree) should work on most Debian-based GNU/Linux distributions:
 
 .. code-block:: shell-session
 
-    sudo apt-get install virtualenv build-essential python-dev libssl-dev libffi-dev python3.5-dev
+    sudo apt-get install build-essential libffi-dev libssl-dev python python-dev python3 python3-dev virtualenv
     virtualenv --python=python2 ./venv2
     ./venv2/bin/pip install --upgrade setuptools pip
     ./venv2/bin/pip install tahoe-lafs
-    virtualenv --python=python3.5 ./venv3
+    virtualenv --python=python3 ./venv3
     ./venv3/bin/pip install --upgrade setuptools pip
     ./venv3/bin/pip install -r requirements/requirements-hashes.txt
     ./venv3/bin/pip install .
@@ -120,6 +120,10 @@ The following series of steps (run from the top level of the Gridsync source tre
 Users of other distributions and operating systems should modify the above steps as required (for example, by installing Xcode on macOS in addition to python -- or the dependencies listed at the top of `make.bat`_ in the case of Windows).
 
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
+
+Alternatively, users can build a more portable binary distribution of Gridsync and Tahoe-LAFS (suitable for running on other machines of the same architecture) by installing the above dependencies and typing `make` in the top-level of the source tree. This will create a "frozen" distribution of Gridsync and all of its dependencies (including python and Tahoe-LAFS) using `PyInstaller`_, placing the resultant executable files/installers in the `dist/` subdirectory.
+
+.. _PyInstaller: http://www.pyinstaller.org/
 
 
 **Development builds:**
@@ -154,7 +158,7 @@ Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requ
 License:
 --------
 
-Copyright (C) 2015-2018  Christopher R. Wood
+Copyright (C) 2015-2019  Christopher R. Wood
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
