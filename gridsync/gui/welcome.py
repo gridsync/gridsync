@@ -317,6 +317,8 @@ class WelcomeDialog(QStackedWidget):
     def on_done(self, gateway):
         self.gateway = gateway
         self.page_2.progressbar.setValue(self.page_2.progressbar.maximum())
+        self.page_2.checkmark.setPixmap(
+            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
         self.finish_button.show()
 
     def on_already_joined(self, grid_name):
