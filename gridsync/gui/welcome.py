@@ -22,6 +22,7 @@ from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl
+from gridsync.tor import TOR_PURPLE
 
 
 class WelcomeWidget(QWidget):
@@ -267,7 +268,8 @@ class WelcomeDialog(QStackedWidget):
         if state:
             self.page_2.tor_label.show()
             self.page_2.progressbar.setStyleSheet(
-                'QProgressBar::chunk { background-color: #7D4698; }')
+                'QProgressBar::chunk {{ background-color: {}; }}'.format(
+                    TOR_PURPLE))
         else:
             self.page_2.tor_label.hide()
             self.page_2.progressbar.setStyleSheet('')
