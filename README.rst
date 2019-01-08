@@ -121,6 +121,10 @@ Users of other distributions and operating systems should modify the above steps
 
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
 
+Alternatively, users can build a more portable binary distribution of Gridsync and Tahoe-LAFS (suitable for running on other machines of the same architecture) by installing the above dependencies and typing `make` in the top-level of the source tree. This will create a "frozen" distribution of Gridsync and all of its dependencies (including python and Tahoe-LAFS) using `PyInstaller`_, placing the resultant executable files/installers in the `dist/` subdirectory.
+
+.. _PyInstaller: http://www.pyinstaller.org/
+
 
 **Development builds:**
 
