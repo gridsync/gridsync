@@ -152,8 +152,8 @@ class ShareWidget(QDialog):
         self.tor_label.setToolTip(
             "This connection is being routed through the Tor network.")
         self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(32, 32,
-                Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            QPixmap(resource('tor-onion.png')).scaled(
+                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.tor_label.hide()
 
         self.progress_bar = QProgressBar()
