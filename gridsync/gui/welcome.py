@@ -392,7 +392,8 @@ class WelcomeDialog(QStackedWidget):
             lambda gateway: self.gui.populate([gateway])
         )
         invite_receiver.done.connect(self.on_done)
-        invite_receiver.receive(code)
+        d = invite_receiver.receive(code)
+        d.addErrback(self.handle_failure)
 
     def cancel_button_clicked(self):
         if self.page_2.is_complete():
