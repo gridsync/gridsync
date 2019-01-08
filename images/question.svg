@@ -13,7 +13,7 @@
    sodipodi:docname="question.svg"
    inkscape:version="0.92.1 r15371"
    inkscape:export-xdpi="1228.8"
-   inkscape:export-ydpi="1228.8">
+   inkscape:export-ydpi="1228.8"
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -40,15 +40,19 @@
      inkscape:window-height="1036"
      id="namedview6"
      showgrid="false"
-     inkscape:zoom="11.8"
-     inkscape:cx="-20.508475"
+     inkscape:zoom="33.37544"
+     inkscape:cx="9.2859752"
      inkscape:cy="10"
      inkscape:window-x="2"
      inkscape:window-y="42"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg4" />
   <path
-     d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm2-13c0 .28-.21.8-.42 1L10 9.58c-.57.58-1 1.6-1 2.42v1h2v-1c0-.29.21-.8.42-1L13 9.42c.57-.58 1-1.6 1-2.42a4 4 0 1 0-8 0h2a2 2 0 1 1 4 0zm-3 8v2h2v-2H9z"
+     d="m 10.059924,20.029962 a 10,10 0 1 1 0,-19.99999985 10,10 0 0 1 0,19.99999985 z m 2,-12.9999998 c 0,0.28 -0.21,0.8 -0.42,1 l -1.58,1.58 C 9.4899243,10.189962 9.0599243,11.209962 9.0599243,12.029962 v 1 h 1.9999997 v -1 c 0,-0.29 0.21,-0.8 0.42,-1 l 1.58,-1.5799998 c 0.57,-0.58 1,-1.6 1,-2.42 a 4,4 0 1 0 -7.9999997,0 h 2 a 2,2 0 1 1 3.9999997,0 z M 9.0599243,15.029962 v 2 h 1.9999997 v -2 z"
      id="path2"
-     style="fill:#0080ff;fill-opacity:1" />
+     style="fill:#65a4cd;fill-opacity:1"
+     inkscape:export-filename="/home/user/code/gridsync/gridsync/resources/path2.png"
+     inkscape:export-xdpi="1228.8"
+     inkscape:export-ydpi="1228.8"
+     inkscape:connector-curvature="0" />
 </svg>
