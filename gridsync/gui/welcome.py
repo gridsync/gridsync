@@ -150,7 +150,8 @@ class ProgressBarWidget(QWidget):
         self.tor_label.setToolTip(
             "This connection is being routed through the Tor network.")
         self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(24, 24))
+            QPixmap(resource('tor-onion.png')).scaled(24, 24,
+                Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.tor_label.hide()
 
         self.progressbar = QProgressBar()
