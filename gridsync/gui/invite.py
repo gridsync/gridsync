@@ -284,17 +284,17 @@ class InviteCodeWidget(QWidget):
             self.lineedit.status_action.setToolTip(
                 "Tor: Enabled\n\n"
                 "This connection will be routed through the Tor network.")
-            self.lineedit.setStyleSheet(
-                "border-width: 1px;"
-                "border-style: solid;"
-                "border-color: {0};"
-                "border-radius: 2px;"
-                "padding: 2px;"
-                "color: {0};".format(TOR_DARK_PURPLE))
+            #self.lineedit.setStyleSheet(
+            #    "border-width: 1px;"
+            #    "border-style: solid;"
+            #    "border-color: {0};"
+            #    "border-radius: 2px;"
+            #    "padding: 2px;"
+            #    "color: {0};".format(TOR_DARK_PURPLE))
         else:
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")
-            self.lineedit.setStyleSheet("")
+            #self.lineedit.setStyleSheet("")
 
     def on_tor_info_button_clicked(self):
         msgbox = QMessageBox(self)
