@@ -298,19 +298,28 @@ class InviteCodeWidget(QWidget):
 
     def on_tor_info_button_clicked(self):
         msgbox = QMessageBox(self)
-        msgbox.setWindowTitle("About Tor")
         msgbox.setIconPixmap(self.lineedit.tor_icon.pixmap(64, 64))
-        msgbox.setInformativeText(self.tor_info_text)
+        if sys.platform == 'darwin':
+            msgbox.setText("About Tor")
+            msgbox.setInformativeText(self.tor_info_text)
+        else:
+            msgbox.setWindowTitle("About Tor")
+            msgbox.setText(self.tor_info_text)
         msgbox.show()
 
     def on_code_info_button_clicked(self):
         msgbox = QMessageBox(self)
-        msgbox.setWindowTitle("About Invite Codes")
         msgbox.setIcon(QMessageBox.Information)
-        msgbox.setInformativeText(
+        text = (
             '{}<p><a href=https://github.com/gridsync/gridsync/blob/master/doc'
             's/invite-codes.md>Learn more...</a>'.format(self.code_info_text)
         )
+        if sys.platform == 'darwin':
+            msgbox.setText("About Invite Codes")
+            msgbox.setInformativeText(text)
+        else:
+            msgbox.setWindowTitle("About Invite Codes")
+            msgbox.setText(text)
         msgbox.show()
 
 
