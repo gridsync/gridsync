@@ -14,7 +14,6 @@ from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
 from gridsync import resource, APP_NAME
-from gridsync import settings as global_settings
 from gridsync.invite import InviteReceiver
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import InviteCodeWidget, show_failure
@@ -436,10 +435,9 @@ class WelcomeDialog(QStackedWidget):
             "{} does not have access to your folders, and cannot restore "
             "access to them. But with a Recovery Key, you can restore access "
             "to uploaded folders in case something goes wrong (e.g., hardware "
-            "failure, accidental data-loss).<p><p><a href={}>More information."
-            "..</a>".format(
-                gateway.name, global_settings['help']['recovery_url']
-            )
+            "failure, accidental data-loss).<p><p><a href=https://github.com/"
+            "gridsync/gridsync/blob/master/docs/recovery-keys.md>More "
+            "information...</a>".format(gateway.name)
         )
         #msg.setText(
         #    "Before uploading any folders to {}, it is <b>strongly "
