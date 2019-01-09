@@ -366,20 +366,6 @@ class WelcomeDialog(QStackedWidget):
         self.recovery_key_importer.done.connect(self.on_import_done)
         self.recovery_key_importer.do_import()
 
-    #def go(self, code):
-    #    self.setCurrentIndex(1)
-    #    self.progressbar.setValue(1)
-    #    self.update_progress('Verifying invitation code...')
-    #    if code.split('-')[0] == "0":
-    #        settings = get_settings_from_cheatcode(code[2:])
-    #        if settings:
-    #            self.verify_settings(settings)
-    #            return
-    #    d = wormhole_receive(code, self.use_tor)  # pylint: disable=assignment-from-no-return
-    #    d.addCallback(self.verify_settings)
-    #    d.addErrback(self.handle_failure)
-    #    reactor.callLater(30, d.cancel)
-
     def go(self, code):
         self.setCurrentIndex(1)
         self.progressbar.setValue(1)
