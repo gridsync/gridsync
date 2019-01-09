@@ -424,12 +424,12 @@ class InviteReceiverDialog(QDialog):
         if step == 3:
             self.mail_closed_icon.hide()
             self.mail_open_icon.show()
-        if step == 4:
-            self.mail_open_icon.hide()
-            self.folder_icon.show()
 
     def set_joined_folders(self, folders):
         self.joined_folders = folders
+        if folders:
+            self.mail_open_icon.hide()
+            self.folder_icon.show()
 
     def on_done(self, gateway):
         self.progressbar.setValue(self.progressbar.maximum())
