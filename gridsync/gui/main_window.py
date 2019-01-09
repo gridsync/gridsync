@@ -16,7 +16,7 @@ from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.history import HistoryView
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
-from gridsync.gui.share import InviteReceiverDialog, ShareWidget
+from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
 
@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
         share_action = QAction(QIcon(resource('share.png')), "Share", self)
         share_action.setToolTip("Share...")
         share_action.setFont(font)
-        share_action.triggered.connect(self.open_share_widget)
+        share_action.triggered.connect(self.open_invite_sender_dialog)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
@@ -213,7 +213,7 @@ class MainWindow(QMainWindow):
                 if isinstance(widget, QToolButton):
                     widget.setMaximumWidth(68)
 
-        self.active_share_widgets = []
+        self.active_invite_sender_dialogs = []
         self.active_invite_receiver_dialogs = []
 
     def populate(self, gateways):
@@ -333,18 +333,19 @@ class MainWindow(QMainWindow):
         invite_receiver_dialog.show()
         self.active_invite_receiver_dialogs.append(invite_receiver_dialog)
 
-    def open_share_widget(self):
+    def open_invite_sender_dialog(self):
         gateway = self.combo_box.currentData()
         if gateway:
             view = self.current_view()
             if view:
-                share_widget = ShareWidget(
+                invite_sender_dialog = InviteSenderDialog(
                     gateway, self.gui, view.get_selected_folders())
             else:
-                share_widget = ShareWidget(gateway, self.gui)
-            share_widget.closed.connect(self.active_share_widgets.remove)
-            share_widget.show()
-            self.active_share_widgets.append(share_widget)
+                invite_sender_dialog = InviteSenderDialog(gateway, self.gui)
+            invite_sender_dialog.closed.connect(
+                self.active_invite_sender_dialogs.remove)
+            invite_sender_dialog.show()
+            self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
     def confirm_quit(self):
         msg = QMessageBox(self)

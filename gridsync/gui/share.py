@@ -23,12 +23,12 @@ from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
 
 
-class ShareWidget(QDialog):
+class InviteSenderDialog(QDialog):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
     def __init__(self, gateway, gui, folder_names=None):  # noqa: max-complexity=11 XXX
-        super(ShareWidget, self).__init__()
+        super(InviteSenderDialog, self).__init__()
         self.gateway = gateway
         self.gui = gui
         self.folder_names = folder_names
