@@ -394,6 +394,7 @@ class WelcomeDialog(QStackedWidget):
         invite_receiver.done.connect(self.on_done)
         d = invite_receiver.receive(code)
         d.addErrback(self.handle_failure)
+        reactor.callLater(30, d.cancel)
 
     def cancel_button_clicked(self):
         if self.page_2.is_complete():
