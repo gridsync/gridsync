@@ -2,34 +2,37 @@
 
 ## Unreleased
 ### Added
-- Tor integration (EXPERIMENTAL)
-    - Gridsync can now optionally tunnel outgoing connections through the Tor anonymity network; see [`docs/tor-integration.md`](https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md) (Issue #64)
+- Tor integration (**EXPERIMENTAL**)
+    - Gridsync can now optionally tunnel outgoing connections through the Tor anonymity network; see [`docs/tor-integration.md`](https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md) (Issue #64, Issue #99, PR #82, PR #127, PR #129)
 - Application preferences are now also accessible from the initial welcome screen
 - A "Restore from Recovery Key" link/option is now available directly from the initial welcome screen (Issue #60)
 - An Inno Setup Windows executable installer ("Gridsync-setup.exe") is now provided (Issue #35)
 - Backspace/Delete key-presses can now be used to remove folders
 - An "action" button/column has been added for each folder/row, making folder-specific actions accessible via left-click (Issue #89)
 - A (very) basic "About"/version dialog has been added, accessible via the systray menu
-- A "history" view has been added, displaying a chronological record of recent changes made to magic-folders and enabling per-file actions (Issue #92, PR #116)
+- A "history" view has been added, displaying a chronological record of recent changes made to magic-folders and enabling per-file actions (Issue #92, PR #116, PR #124)
 - Support for high-DPI "retina" displays has been enabled for macOS ".app" bundles (PR #116)
+- In-app "help" buttons/dialogs have been added to invite-code widgets, providing additional information about "invite codes" and "Tor" (PR #129)
 
 ### Changed
 - Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
+- The version of Tahoe-LAFS included in Windows and Linux binary distrubutions has been upgraded to 1.13.0 (PR #108)
 - macOS binary distributions will now include a more recent (but still unreleased) version of Tahoe-LAFS with numerous magic-folder-related bug-fixes and improvements -- thanks @vu3rdd!
-- Gridsync will now run as an "agent" application on macOS, accessible from the menu bar but no longer appearing in the Dock (Issue #86)
-- Icons for folders that have been shared will now be displayed with a "person" overlay
+- Gridsync will now run as an "agent" application on macOS, accessible from the menu bar but no longer appearing in the Dock (Issue #86, PR #112, PR #114)
+- Icons for folders that have been shared will now be displayed with a "person" overlay (PR #129)
 - Failure to decrypt a recovery key no longer requires re-importing the file to try again (Issue #60)
 - Font sizes have been increased on macOS to match the equivalent weights on most Linux and Windows environments
 - The dynamic action button inside invite code fields will now also update on window-enter cursor events (allowing, e.g., the "paste" button to become conveniently activated after copying an invite code to the clipboard from another window)
 - The main/status window's title will now include the name of the currently-active grid
-- The Preferences pane has been detached into a floating Preferences window with per-section "tabs" (Issue #117)
-- The MainWindow toolbar has been updated; text labels have been added beneath buttons and some actions have been re-organized (Issue #106)
+- The Preferences pane has been detached into a floating Preferences window with per-section "tabs" (Issue #117, PR #119)
+- The MainWindow toolbar has been updated; text labels have been added beneath buttons and some actions have been re-organized (Issue #106, PR #120)
 - The MainWindow status bar has been replaced with a "status panel", showing grid-related status information in a more compact manner (PR #116, PR #123)
+- Various misc. UI elements (widgets, margins, fonts, etc.) have been adjusted on macOS and Windows to better match the underlying desktop environment (PR #125, PR #129)
 
 ### Removed
 - The "default" provider section of `config.txt` has been removed; organizations wishing to deploy a modified Gridsync client with pre-configured settings are encouraged to use a ["cheat code"](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md) instead
 - The "Import from Recovery Key" option has been removed from the manual configuration screen (since this functionality is now available from the welcome screen)
-- The "green lock" folder icon overlay has been removed (Issue #121)
+- The "green lock" folder icon overlay has been removed (Issue #121, PR #122)
 
 ### Fixed
 - `tahoe.select_executable()` will now use an empty nodedir when checking tahoe instances for multi-magic-folder support (preventing potential inaccuracies caused, e.g., by a pre-existing/misconfigured `$HOME/.tahoe` nodedir)
@@ -38,6 +41,8 @@
 - Users will no longer be prompted to export a Recovery Key after restoring a connection from one
 - Empty folders will no longer appear stuck in a "Loading" state (Issue #73)
 - Gridsync will now shutdown more gracefully, avoiding qt5reactor-related hangs when exiting
+- Subdirectory objects are now ignored when parsing magic-folders (avoiding [Tahoe-LAFS bug #2924](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2924)) (PR #115)
+- Newly joined grids will become available/selected immediately from the main window comboxbox (PR #126, PR #129)
 
 ## 0.3.2 - 2018-04-17
 ### Added
