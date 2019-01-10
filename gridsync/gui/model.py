@@ -239,7 +239,10 @@ class Model(QStandardItemModel):
         if not items:
             return
         item = self.item(items[0].row(), 1)
-        item.setText("Syncing ({}%)".format(int(transferred / total * 100)))
+        item.setText("Syncing ({}%)".format(
+            # XXX The magic-folder status queue will sometimes display transfer
+            # progresses as exceeding 100%. Cap it at 100% in the UI for now.
+            min(100, int(transferred / total * 100))))
 
     def fade_row(self, folder_name, overlay_file=None):
         folder_item = self.findItems(folder_name)[0]
