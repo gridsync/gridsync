@@ -444,6 +444,7 @@ class InviteReceiverDialog(QDialog):
             self.message_label.setText(
                 'Successfully joined {0}!\n{0} are now available for '
                 'download'.format(target))
+        self.close()  # TODO: Cleanup
 
     def on_grid_already_joined(self, grid_name):
         QMessageBox.information(

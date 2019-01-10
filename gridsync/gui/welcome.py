@@ -313,6 +313,7 @@ class WelcomeDialog(QStackedWidget):
         self.page_2.checkmark.setPixmap(
             QPixmap(resource('green_checkmark.png')).scaled(32, 32))
         self.finish_button.show()
+        self.finish_button_clicked()  # TODO: Cleanup
 
     def on_already_joined(self, grid_name):
         QMessageBox.information(
