@@ -86,6 +86,10 @@ class MagicFolderChecker(QObject):
             bytes_remaining = bytes_total - bytes_transferred
             seconds_remaining = bytes_remaining / speed
             self.transfer_seconds_remaining_updated.emit(seconds_remaining)
+            logging.debug(
+                "%s: %s / %s (%s%%); %s seconds remaining",
+                self.name, bytes_transferred, bytes_total,
+                int(bytes_transferred / bytes_total * 100), seconds_remaining)
 
     def parse_status(self, status):
         state = 0
