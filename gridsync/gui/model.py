@@ -57,8 +57,10 @@ class Model(QStandardItemModel):
         self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
         self.monitor.remote_folder_added.connect(self.add_remote_folder)
-        self.monitor.transfer_progress_updated.connect(
-            self.set_transfer_progress)
+
+        # XXX Temporarily(?) disabled due to magic-folder queue/status bugs
+        #self.monitor.transfer_progress_updated.connect(
+        #    self.set_transfer_progress)
 
     def on_space_updated(self, size):
         self.available_space = size
@@ -239,7 +241,10 @@ class Model(QStandardItemModel):
         if not items:
             return
         item = self.item(items[0].row(), 1)
-        item.setText("Syncing ({}%)".format(int(transferred / total * 100)))
+        item.setText("Syncing ({}%)".format(
+            # XXX The magic-folder status queue will sometimes display transfer
+            # progresses as exceeding 100%. Cap it at 100% in the UI for now.
+            min(100, int(transferred / total * 100))))
 
     def fade_row(self, folder_name, overlay_file=None):
         folder_item = self.findItems(folder_name)[0]
