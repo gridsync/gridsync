@@ -147,7 +147,7 @@ class InviteSenderDialog(QDialog):
             "This connection is being routed through the Tor network.")
         self.tor_label.setPixmap(
             QPixmap(resource('tor-onion.png')).scaled(
-                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.tor_label.hide()
 
         self.progress_bar = QProgressBar()
@@ -348,7 +348,7 @@ class InviteReceiverDialog(QDialog):
             "This connection is being routed through the Tor network.")
         self.tor_label.setPixmap(
             QPixmap(resource('tor-onion.png')).scaled(
-                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.tor_label.hide()
 
         self.checkmark = QLabel()
