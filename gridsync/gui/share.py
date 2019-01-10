@@ -340,6 +340,8 @@ class InviteReceiverDialog(QDialog):
 
         self.invite_code_widget = InviteCodeWidget(self)
         self.invite_code_widget.lineedit.go.connect(self.go)  # XXX
+        self.invite_code_widget.tor_checkbox.stateChanged.connect(
+            self.on_checkbox_state_changed)
 
         self.checkmark = QLabel()
         self.checkmark.setAlignment(Qt.AlignCenter)
