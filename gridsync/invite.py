@@ -63,7 +63,6 @@ class InviteReceiver(QObject):
     got_introduction = Signal()
     got_message = Signal(dict)
     closed = Signal()
-    send_completed = Signal()
 
     # SetupRunner
     grid_already_joined = Signal(str)
@@ -72,14 +71,6 @@ class InviteReceiver(QObject):
     client_started = Signal(object)
     joined_folders = Signal(list)
     done = Signal(object)
-
-    # ShareWidget
-    done = Signal(object)
-    closed = Signal(object)
-
-    progress_updated = Signal(int, int, str)  # current, total, msg
-    failed = Signal(str, str, str, str)  # title, text, informative, detailed
-    succeeded = Signal()
 
     def __init__(self, known_gateways=None, use_tor=False):
         super(InviteReceiver, self).__init__()
@@ -99,6 +90,7 @@ class InviteReceiver(QObject):
         self.wormhole.got_welcome.connect(self.got_welcome.emit)
         self.wormhole.got_introduction.connect(self.got_introduction.emit)
         self.wormhole.got_message.connect(self.got_message.emit)
+        self.wormhole.closed.connect(self.closed.emit)
 
     def cancel(self):
         self.wormhole.close()
@@ -131,25 +123,19 @@ class InviteSender(QObject):
     got_welcome = Signal(dict)
     got_code = Signal(str)
     got_introduction = Signal()
-    #got_message = Signal(dict)
     send_completed = Signal()
     closed = Signal()
-
-    # ShareWidget
-    done = Signal(object)
-    closed = Signal(object)
-
-    progress_updated = Signal(int, int, str)  # current, total, msg
-    succeeded = Signal()
 
     def __init__(self, use_tor=False):
         super(InviteSender, self).__init__()
         self.use_tor = use_tor
 
         self.wormhole = Wormhole(use_tor)
+        self.wormhole.got_welcome.connect(self.got_welcome.emit)
         self.wormhole.got_code.connect(self.got_code.emit)
         self.wormhole.got_introduction.connect(self.got_introduction.emit)
         self.wormhole.send_completed.connect(self.send_completed.emit)
+        self.wormhole.closed.connect(self.closed.emit)
 
         self._pending_invites = []
         self._gateway = None
