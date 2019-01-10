@@ -423,6 +423,12 @@ class InviteReceiverDialog(QDialog):
             self.mail_open_icon.hide()
             self.folder_icon.show()
 
+    def on_got_icon(self, path):
+        self.mail_open_icon.setPixmap(
+            QPixmap(path).scaled(128, 128))
+        self.mail_closed_icon.hide()
+        self.mail_open_icon.show()
+
     def on_done(self, gateway):
         self.progressbar.setValue(self.progressbar.maximum())
         self.close_button.show()
@@ -473,6 +479,7 @@ class InviteReceiverDialog(QDialog):
         self.invite_receiver.grid_already_joined.connect(
             self.on_grid_already_joined)
         self.invite_receiver.update_progress.connect(self.update_progress)
+        self.invite_receiver.got_icon.connect(self.on_got_icon)
         self.invite_receiver.joined_folders.connect(self.set_joined_folders)
         self.invite_receiver.done.connect(self.on_done)
         d = self.invite_receiver.receive(code)
