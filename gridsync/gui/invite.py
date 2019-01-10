@@ -262,7 +262,7 @@ class InviteCodeWidget(QWidget):
         layout.addLayout(tor_layout, 4, 1)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
 
-        self.tor_checkbox.stateChanged.connect(self.toggle_tor_status)
+        self.tor_checkbox.toggled.connect(self.toggle_tor_status)
 
         self.maybe_enable_tor_checkbox()
 
@@ -280,6 +280,29 @@ class InviteCodeWidget(QWidget):
 
     def toggle_tor_status(self, state):
         if state:
+            msgbox = QMessageBox(self)
+            msgbox.setIcon(QMessageBox.Warning)
+            title = "Enable Tor?"
+            text = (
+                "Tor support in {} is currently <i>experimental</i> and may "
+                "contain serious bugs that could jeopardize your anonymity.<p>"
+                "Are you sure you wish to enable Tor for this connection?<br>"
+                .format(APP_NAME)
+            )
+            if sys.platform == 'darwin':
+                msgbox.setText(title)
+                msgbox.setInformativeText(text)
+            else:
+                msgbox.setWindowTitle(title)
+                msgbox.setText(text)
+            checkbox = QCheckBox(
+                "I understand and accept the risks. Enable Tor.")
+            msgbox.setCheckBox(checkbox)
+            msgbox.setWindowModality(Qt.ApplicationModal)
+            msgbox.exec_()
+            if not checkbox.isChecked():
+                self.tor_checkbox.setChecked(False)
+                return
             self.lineedit.status_action.setIcon(self.lineedit.tor_icon)
             self.lineedit.status_action.setToolTip(
                 "Tor: Enabled\n\n"
