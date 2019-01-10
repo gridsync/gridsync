@@ -210,6 +210,8 @@ class ProgressBarWidget(QWidget):
         self.finish_button.hide()
         self.checkmark.setPixmap(
             QPixmap(resource('pixel.png')).scaled(32, 32))
+        self.tor_label.hide()
+        self.progressbar.setStyleSheet('')
 
 
 class WelcomeDialog(QStackedWidget):
@@ -233,7 +235,7 @@ class WelcomeDialog(QStackedWidget):
         self.addWidget(self.page_3)
 
         self.lineedit = self.page_1.lineedit
-        self.checkbox = self.page_1.invite_code_widget.tor_checkbox
+        self.tor_checkbox = self.page_1.invite_code_widget.tor_checkbox
         self.restore_link = self.page_1.restore_link
         self.configure_link = self.page_1.configure_link
         self.preferences_button = self.page_1.preferences_button
@@ -252,7 +254,6 @@ class WelcomeDialog(QStackedWidget):
 
         self.lineedit.go.connect(self.go)
         self.lineedit.error.connect(self.show_error)
-        self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
         self.restore_link.linkActivated.connect(
             self.on_restore_link_activated)
         self.configure_link.linkActivated.connect(
@@ -265,18 +266,6 @@ class WelcomeDialog(QStackedWidget):
 
         self.buttonbox.accepted.connect(self.on_accepted)
         self.buttonbox.rejected.connect(self.reset)
-
-    def on_checkbox_state_changed(self, state):
-        self.use_tor = bool(state)
-        log.debug("use_tor=%s", self.use_tor)
-        if state:
-            self.page_2.tor_label.show()
-            self.progressbar.setStyleSheet(
-                'QProgressBar::chunk {{ background-color: {}; }}'.format(
-                    TOR_PURPLE))
-        else:
-            self.page_2.tor_label.hide()
-            self.progressbar.setStyleSheet('')
 
     def on_configure_link_activated(self):
         self.setCurrentIndex(2)
@@ -352,8 +341,12 @@ class WelcomeDialog(QStackedWidget):
         d.addErrback(self.handle_failure)
 
     def on_import_done(self, settings):
-        if settings.get('hide-ip'):
-            self.on_checkbox_state_changed(1)  # Toggle Tor checkbox "on"
+        if settings.get('hide-ip') or self.tor_checkbox.isChecked():
+            self.use_tor = True
+            self.page_2.tor_label.show()
+            self.progressbar.setStyleSheet(
+                'QProgressBar::chunk {{ background-color: {}; }}'.format(
+                    TOR_PURPLE))
         self.setCurrentIndex(1)
         self.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')
@@ -366,6 +359,12 @@ class WelcomeDialog(QStackedWidget):
         self.recovery_key_importer.do_import()
 
     def go(self, code):
+        if self.tor_checkbox.isChecked():
+            self.use_tor = True
+            self.page_2.tor_label.show()
+            self.progressbar.setStyleSheet(
+                'QProgressBar::chunk {{ background-color: {}; }}'.format(
+                    TOR_PURPLE))
         self.setCurrentIndex(1)
         self.progressbar.setValue(1)
         self.update_progress('Verifying invitation code...')

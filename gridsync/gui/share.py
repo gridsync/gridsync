@@ -319,7 +319,6 @@ class InviteReceiverDialog(QDialog):
         self.gateways = gateways
         self.invite_receiver = None
         self.joined_folders = []
-        self.use_tor = False
 
         self.setMinimumSize(500, 300)
 
@@ -340,8 +339,6 @@ class InviteReceiverDialog(QDialog):
 
         self.invite_code_widget = InviteCodeWidget(self)
         self.invite_code_widget.lineedit.go.connect(self.go)  # XXX
-        self.invite_code_widget.tor_checkbox.stateChanged.connect(
-            self.on_checkbox_state_changed)
 
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
@@ -349,13 +346,11 @@ class InviteReceiverDialog(QDialog):
         self.tor_label.setPixmap(
             QPixmap(resource('tor-onion.png')).scaled(
                 24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        self.tor_label.hide()
 
         self.checkmark = QLabel()
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.setPixmap(
             QPixmap(resource('green_checkmark.png')).scaled(32, 32))
-        self.checkmark.hide()
 
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
@@ -403,16 +398,9 @@ class InviteReceiverDialog(QDialog):
         self.error_label.setText('')
         self.error_label.hide()
         self.close_button.hide()
-
-    def on_checkbox_state_changed(self, state):
-        self.use_tor = bool(state)
-        logging.debug("use_tor=%s", self.use_tor)
-        if state:
-            self.progressbar.setStyleSheet(
-                'QProgressBar::chunk {{ background-color: {}; }}'.format(
-                    TOR_PURPLE))
-        else:
-            self.progressbar.setStyleSheet('')
+        self.tor_label.hide()
+        self.checkmark.hide()
+        self.progressbar.setStyleSheet('')
 
     def show_error(self, text):
         self.error_label.setText(text)
@@ -482,10 +470,16 @@ class InviteReceiverDialog(QDialog):
         self.reset()
         self.invite_code_widget.hide()
         self.progressbar.show()
-        if self.use_tor:
+        if self.invite_code_widget.tor_checkbox.isChecked():
+            use_tor = True
             self.tor_label.show()
+            self.progressbar.setStyleSheet(
+                'QProgressBar::chunk {{ background-color: {}; }}'.format(
+                    TOR_PURPLE))
+        else:
+            use_tor = False
         self.update_progress("Verifying invitation...")  # 1
-        self.invite_receiver = InviteReceiver(self.gateways, self.use_tor)
+        self.invite_receiver = InviteReceiver(self.gateways, use_tor)
         self.invite_receiver.got_welcome.connect(self.got_welcome)
         self.invite_receiver.got_message.connect(self.got_message)
         self.invite_receiver.grid_already_joined.connect(
