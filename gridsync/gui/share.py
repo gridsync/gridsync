@@ -343,6 +343,14 @@ class InviteReceiverDialog(QDialog):
         self.invite_code_widget.tor_checkbox.stateChanged.connect(
             self.on_checkbox_state_changed)
 
+        self.tor_label = QLabel()
+        self.tor_label.setToolTip(
+            "This connection is being routed through the Tor network.")
+        self.tor_label.setPixmap(
+            QPixmap(resource('tor-onion.png')).scaled(
+                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.tor_label.hide()
+
         self.checkmark = QLabel()
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.setPixmap(
@@ -377,6 +385,8 @@ class InviteReceiverDialog(QDialog):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
         layout.addWidget(self.invite_code_widget, 2, 2, 1, 3)
         layout.addWidget(self.checkmark, 2, 3, 1, 1)
+        layout.addWidget(
+            self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
         layout.addWidget(self.message_label, 5, 1, 1, 5)
         layout.addWidget(self.error_label, 5, 2, 1, 3)
