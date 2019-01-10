@@ -142,6 +142,8 @@ class Model(QStandardItemModel):
     @pyqtSlot(str, str)
     def add_member(self, folder, _):
         self.members_dict[folder] = self.members_dict.get(folder, 0) + 1
+        if self.members_dict.get(folder, 0) == 2:
+            self.set_status_shared(folder)
 
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
@@ -150,7 +152,10 @@ class Model(QStandardItemModel):
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
         items = self.findItems(folder_name)
         if items:
-            folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
+            if folder_path:
+                folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
+            else:
+                folder_icon = self.icon_folder_gray
             folder_pixmap = folder_icon.pixmap(256, 256)
             if overlay_file:
                 pixmap = CompositePixmap(folder_pixmap, resource(overlay_file))
@@ -159,17 +164,17 @@ class Model(QStandardItemModel):
             items[0].setIcon(QIcon(pixmap))
 
     def set_status_private(self, folder_name):
-        folder_path = self.gateway.get_magic_folder_directory(folder_name)
         self.update_folder_icon(
             folder_name, self.gateway.get_magic_folder_directory(folder_name))
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
                 "{}\n\nThis folder is private; only you can view and\nmodify "
-                "its contents.".format(folder_path))
+                "its contents.".format(
+                    self.gateway.get_magic_folder_directory(folder_name)
+                    or folder_name + " (Stored remotely)"))
 
     def set_status_shared(self, folder_name):
-        folder_path = self.gateway.get_magic_folder_directory(folder_name)
         self.update_folder_icon(
             folder_name,
             self.gateway.get_magic_folder_directory(folder_name),
@@ -178,7 +183,9 @@ class Model(QStandardItemModel):
         if items:
             items[0].setToolTip(
                 "{}\n\nThis folder is shared; at least one other person\nor "
-                "device can view and modify its contents.".format(folder_path))
+                "device can view and modify its contents.".format(
+                    self.gateway.get_magic_folder_directory(folder_name)
+                    or folder_name + " (Stored remotely)"))
 
     def update_overlay(self, folder_name):
         members = self.members_dict.get(folder_name)

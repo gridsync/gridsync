@@ -16,7 +16,7 @@ from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.history import HistoryView
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
-from gridsync.gui.share import InviteReceiver, ShareWidget
+from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
 
@@ -101,9 +101,6 @@ class MainWindow(QMainWindow):
         self.shortcut_quit = QShortcut(QKeySequence.Quit, self)
         self.shortcut_quit.activated.connect(self.confirm_quit)
 
-        self.combo_box = ComboBox()
-        self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
-
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
@@ -123,6 +120,12 @@ class MainWindow(QMainWindow):
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
+        invite_action = QAction(
+            QIcon(resource('invite.png')), "Enter Code", self)
+        invite_action.setToolTip("Enter an Invite Code...")
+        invite_action.setFont(font)
+        invite_action.triggered.connect(self.open_invite_receiver)
+
         history_action = QAction(
             QIcon(resource('time.png')), 'History', self)
         history_action.setToolTip("View history")
@@ -134,16 +137,19 @@ class MainWindow(QMainWindow):
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        invite_action = QAction(
-            QIcon(resource('invite.png')), "Enter Code", self)
-        invite_action.setToolTip("Enter an Invite Code...")
-        invite_action.setFont(font)
-        invite_action.triggered.connect(self.open_invite_receiver)
+        spacer_left = QWidget()
+        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
+
+        self.combo_box = ComboBox()
+        self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
+
+        spacer_right = QWidget()
+        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         share_action = QAction(QIcon(resource('share.png')), "Share", self)
         share_action.setToolTip("Share...")
         share_action.setFont(font)
-        share_action.triggered.connect(self.open_pair_widget)
+        share_action.triggered.connect(self.open_invite_sender_dialog)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
@@ -179,12 +185,6 @@ class MainWindow(QMainWindow):
         preferences_action.setShortcut(QKeySequence.Preferences)
         preferences_action.triggered.connect(self.gui.show_preferences_window)
 
-        spacer_left = QWidget()
-        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
-
-        spacer_right = QWidget()
-        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
-
         self.toolbar = self.addToolBar('')
         if sys.platform != 'darwin':
             self.toolbar.setStyleSheet("""
@@ -198,8 +198,8 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(folder_action)
-        self.toolbar.addWidget(self.history_button)
         self.toolbar.addAction(invite_action)
+        self.toolbar.addWidget(self.history_button)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
@@ -213,8 +213,8 @@ class MainWindow(QMainWindow):
                 if isinstance(widget, QToolButton):
                     widget.setMaximumWidth(68)
 
-        self.active_pair_widgets = []
-        self.active_invite_receivers = []
+        self.active_invite_sender_dialogs = []
+        self.active_invite_receiver_dialogs = []
 
     def populate(self, gateways):
         for gateway in gateways:
@@ -315,30 +315,37 @@ class MainWindow(QMainWindow):
             self.history_button.setChecked(False)
             self.show_folders_view()
 
-    def on_invite_received(self, _):
+    def on_invite_received(self, gateway):
+        self.populate([gateway])
         for view in self.central_widget.views:
             view.model().monitor.scan_rootcap('star.png')
 
     def on_invite_closed(self, obj):
         try:
-            self.active_invite_receivers.remove(obj)
+            self.active_invite_receiver_dialogs.remove(obj)
         except ValueError:
             pass
 
     def open_invite_receiver(self):
-        invite_receiver = InviteReceiver(self.gateways)
-        invite_receiver.done.connect(self.on_invite_received)
-        invite_receiver.closed.connect(self.on_invite_closed)
-        invite_receiver.show()
-        self.active_invite_receivers.append(invite_receiver)
+        invite_receiver_dialog = InviteReceiverDialog(self.gateways)
+        invite_receiver_dialog.done.connect(self.on_invite_received)
+        invite_receiver_dialog.closed.connect(self.on_invite_closed)
+        invite_receiver_dialog.show()
+        self.active_invite_receiver_dialogs.append(invite_receiver_dialog)
 
-    def open_pair_widget(self):
+    def open_invite_sender_dialog(self):
         gateway = self.combo_box.currentData()
         if gateway:
-            pair_widget = ShareWidget(gateway, self.gui)
-            pair_widget.closed.connect(self.active_pair_widgets.remove)
-            pair_widget.show()
-            self.active_pair_widgets.append(pair_widget)
+            view = self.current_view()
+            if view:
+                invite_sender_dialog = InviteSenderDialog(
+                    gateway, self.gui, view.get_selected_folders())
+            else:
+                invite_sender_dialog = InviteSenderDialog(gateway, self.gui)
+            invite_sender_dialog.closed.connect(
+                self.active_invite_sender_dialogs.remove)
+            invite_sender_dialog.show()
+            self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
     def confirm_quit(self):
         msg = QMessageBox(self)

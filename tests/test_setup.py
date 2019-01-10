@@ -619,7 +619,7 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.join_folders', lambda x, y: None)
     sr = SetupRunner([])
-    settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
+    settings = {'nickname': 'TestGrid'}
     with qtbot.wait_signal(sr.grid_already_joined) as blocker:
         yield sr.run(settings)
     assert blocker.args == ['TestGrid']

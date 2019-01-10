@@ -670,7 +670,8 @@ class Tahoe():
         admin_dircap = self.get_admin_dircap(name)
         if not admin_dircap:
             raise TahoeError(
-                'No admin dircap found for folder "{}"'.format(name)
+                'No admin dircap found for folder "{}"; you do not have the '
+                'authority to create invites for this folder.'.format(name)
             )
         created = yield self.mkdir(admin_dircap, nickname)
         code = '{}+{}'.format(self.get_collective_dircap(name), created)

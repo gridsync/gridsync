@@ -15,7 +15,7 @@ from twisted.internet.defer import DeferredList
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_path
 from gridsync.gui.model import Model
-from gridsync.gui.share import ShareWidget
+from gridsync.gui.share import InviteSenderDialog
 from gridsync.util import humanized_list
 
 
@@ -61,7 +61,7 @@ class View(QTreeView):
         super(View, self).__init__()
         self.gui = gui
         self.gateway = gateway
-        self.share_widgets = []
+        self.invite_sender_dialogs = []
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
 
@@ -170,10 +170,10 @@ class View(QTreeView):
         elif self.gateway.remote_magic_folder_exists(name):
             self.select_download_location([name])
 
-    def open_share_widget(self, folder_name):
-        share_widget = ShareWidget(self.gateway, self.gui, folder_name)
-        self.share_widgets.append(share_widget)  # TODO: Remove on close
-        share_widget.show()
+    def open_invite_sender_dialog(self, folder_name):
+        isd = InviteSenderDialog(self.gateway, self.gui, folder_name)
+        self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
+        isd.show()
 
     def restart_gateway(self, _):
         self.gateway.restart()
@@ -344,7 +344,7 @@ class View(QTreeView):
             lambda: self.open_folders(selected))
         share_action = QAction(QIcon(resource('share.png')), "Share...")
         share_action.triggered.connect(
-            lambda: self.open_share_widget(selected))
+            lambda: self.open_invite_sender_dialog(selected))
         remove_action = QAction(QIcon(resource('close.png')), "Remove...")
         menu.addAction(open_action)
         menu.addAction(share_action)

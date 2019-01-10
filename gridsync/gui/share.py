@@ -11,45 +11,33 @@ from PyQt5.QtWidgets import (
     QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel, QMessageBox,
     QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)
 from twisted.internet import reactor
-from twisted.internet.defer import (
-    CancelledError, gatherResults, inlineCallbacks)
+from twisted.internet.defer import CancelledError
 import wormhole.errors
 
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.errors import TahoeError
-from gridsync.gui.invite import (
-    get_settings_from_cheatcode, InviteCodeWidget, show_failure)
-from gridsync.msg import error
+from gridsync.invite import InviteReceiver, InviteSender
+from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.preferences import get_preference
-from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
-from gridsync.wormhole_ import Wormhole
 
 
-class ShareWidget(QDialog):
+class InviteSenderDialog(QDialog):
     done = pyqtSignal(QWidget)
     closed = pyqtSignal(QWidget)
 
-    def __init__(self, gateway, gui, folder_names=None):  # noqa: max-complexity=11 XXX
-        super(ShareWidget, self).__init__()
+    def __init__(self, gateway, gui, folder_names=None):
+        super(InviteSenderDialog, self).__init__()
         self.gateway = gateway
         self.gui = gui
         self.folder_names = folder_names
         self.folder_names_humanized = humanized_list(folder_names, 'folders')
         self.settings = {}
-        self.wormhole = None
         self.pending_invites = []
         self.use_tor = self.gateway.use_tor
 
-        # XXX Temporary(?) workaround for font-scaling inconsistencies observed
-        # during user-testing (wherein fonts on Windows on one laptop were
-        # rendering especially large for some reason but were fine elsewhere)
-        if sys.platform == 'win32':
-            self.setMinimumSize(600, 400)
-        else:
-            self.setMinimumSize(500, 300)
+        self.setMinimumSize(500, 300)
 
         header_icon = QLabel(self)
         if self.folder_names:
@@ -158,7 +146,8 @@ class ShareWidget(QDialog):
         self.tor_label.setToolTip(
             "This connection is being routed through the Tor network.")
         self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(32, 32))
+            QPixmap(resource('tor-onion.png')).scaled(
+                24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.tor_label.hide()
 
         self.progress_bar = QProgressBar()
@@ -190,6 +179,7 @@ class ShareWidget(QDialog):
         self.close_button.clicked.connect(self.close)
 
         self.set_box_title("Generating invite code...")
+        self.subtext_label.setText("Creating folder invite(s)...\n\n")
 
         if self.use_tor:
             self.tor_label.show()
@@ -258,7 +248,6 @@ class ShareWidget(QDialog):
         if get_preference('notifications', 'invite') != 'false':
             self.gui.show_message("Invite successful", text)
 
-        # XXX FIXME Quick and dirty hack for user-testing
         if self.folder_names:
             for view in self.gui.main_window.central_widget.views:
                 if view.gateway.name == self.gateway.name:
@@ -270,53 +259,26 @@ class ShareWidget(QDialog):
                         # FIXME Force call a Monitor.do_remote_scan() instead?
                         view.model().add_member(folder, None)
                         view.model().add_member(folder, None)
-                        view.model().set_status_shared(folder)
 
     def handle_failure(self, failure):
         if failure.type == wormhole.errors.LonelyError:
             return
         logging.error(str(failure))
         show_failure(failure, self)
-        self.wormhole.close()
+        self.invite_sender.cancel()
         self.close()
 
-    @inlineCallbacks
-    def get_folder_invite(self, folder):
-        member_id = b58encode(os.urandom(8))
-        try:
-            code = yield self.gateway.magic_folder_invite(folder, member_id)
-        except TahoeError as err:
-            code = None
-            self.wormhole.close()
-            error(self, "Invite Error", str(err))
-            self.close()
-        return folder, member_id, code
-
-    @inlineCallbacks
-    def get_folder_invites(self):
-        self.subtext_label.setText("Creating folder invite(s)...\n\n")
-        folders_data = {}
-        tasks = []
-        for folder in self.folder_names:
-            tasks.append(self.get_folder_invite(folder))
-        results = yield gatherResults(tasks)
-        for folder, member_id, code in results:
-            folders_data[folder] = {'code': code}
-            self.pending_invites.append((folder, member_id))
-        return folders_data
-
-    @inlineCallbacks
-    def go(self):
-        self.wormhole = Wormhole(self.use_tor)
-        self.wormhole.got_code.connect(self.on_got_code)
-        self.wormhole.got_introduction.connect(self.on_got_introduction)
-        self.wormhole.send_completed.connect(self.on_send_completed)
-        self.settings = self.gateway.get_settings()
-        if self.folder_names:
-            folders_data = yield self.get_folder_invites()
-            self.settings['magic-folders'] = folders_data
+    def on_created_invite(self):
         self.subtext_label.setText("Opening wormhole...\n\n")
-        self.wormhole.send(self.settings).addErrback(self.handle_failure)
+
+    def go(self):
+        self.invite_sender = InviteSender(self.use_tor)
+        self.invite_sender.created_invite.connect(self.on_created_invite)
+        self.invite_sender.got_code.connect(self.on_got_code)
+        self.invite_sender.got_introduction.connect(self.on_got_introduction)
+        self.invite_sender.send_completed.connect(self.on_send_completed)
+        self.invite_sender.send(self.gateway, self.folder_names).addErrback(
+            self.handle_failure)
 
     def closeEvent(self, event):
         if self.code_label.text() and self.progress_bar.value() < 2:
@@ -332,10 +294,7 @@ class ShareWidget(QDialog):
             msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg.setDefaultButton(QMessageBox.No)
             if msg.exec_() == QMessageBox.Yes:
-                self.wormhole.close()
-                if self.folder_names:
-                    for folder, member_id in self.pending_invites:
-                        self.gateway.magic_folder_uninvite(folder, member_id)
+                self.invite_sender.cancel()
                 event.accept()
                 self.closed.emit(self)
             else:
@@ -351,17 +310,15 @@ class ShareWidget(QDialog):
             self.close()
 
 
-class InviteReceiver(QDialog):
-    done = pyqtSignal(QWidget)
+class InviteReceiverDialog(QDialog):
+    done = pyqtSignal(object)  # Tahoe gateway
     closed = pyqtSignal(QWidget)
 
     def __init__(self, gateways):
-        super(InviteReceiver, self).__init__()
+        super(InviteReceiverDialog, self).__init__()
         self.gateways = gateways
-        self.wormhole = None
-        self.setup_runner = None
+        self.invite_receiver = None
         self.joined_folders = []
-        self.use_tor = False
 
         self.setMinimumSize(500, 300)
 
@@ -381,25 +338,26 @@ class InviteReceiver(QDialog):
         self.folder_icon.setAlignment(Qt.AlignCenter)
 
         self.invite_code_widget = InviteCodeWidget(self)
-        self.label = self.invite_code_widget.label
-        self.tor_checkbox = self.invite_code_widget.checkbox
-        self.tor_checkbox.stateChanged.connect(self.on_checkbox_state_changed)
-        self.lineedit = self.invite_code_widget.lineedit
-        self.lineedit.error.connect(self.show_error)
-        self.lineedit.go.connect(self.go)
+        self.invite_code_widget.lineedit.go.connect(self.go)  # XXX
 
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
             "This connection is being routed through the Tor network.")
         self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(32, 32))
+            QPixmap(resource('tor-onion.png')).scaled(
+                24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
+        self.checkmark = QLabel()
+        self.checkmark.setAlignment(Qt.AlignCenter)
+        self.checkmark.setPixmap(
+            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
 
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
         self.progressbar.setMaximum(6)  # XXX
         self.progressbar.setTextVisible(False)
 
-        self.message_label = QLabel()
+        self.message_label = QLabel(' ')
         self.message_label.setStyleSheet("color: grey")
         self.message_label.setAlignment(Qt.AlignCenter)
 
@@ -414,17 +372,17 @@ class InviteReceiver(QDialog):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.mail_closed_icon, 1, 2, 1, 3)
         layout.addWidget(self.mail_open_icon, 1, 2, 1, 3)
         layout.addWidget(self.folder_icon, 1, 2, 1, 3)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
-        layout.addWidget(self.label, 2, 3, 1, 1)
+        layout.addWidget(self.invite_code_widget, 2, 2, 1, 3)
+        layout.addWidget(self.checkmark, 2, 3, 1, 1)
         layout.addWidget(
             self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
-        layout.addWidget(self.lineedit, 3, 2, 1, 3)
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
-        layout.addWidget(self.tor_checkbox, 4, 2, 1, 3, Qt.AlignCenter)
         layout.addWidget(self.message_label, 5, 1, 1, 5)
         layout.addWidget(self.error_label, 5, 2, 1, 3)
         layout.addWidget(self.close_button, 6, 3)
@@ -436,27 +394,13 @@ class InviteReceiver(QDialog):
         self.mail_open_icon.hide()
         self.folder_icon.hide()
         self.mail_closed_icon.show()
-        self.label.setText("Enter invite code:")
-        self.lineedit.show()
-        self.lineedit.setText('')
-        self.tor_checkbox.show()
         self.progressbar.hide()
-        self.message_label.setText(
-            "Invite codes can be used to join a grid or a folder")
         self.error_label.setText('')
         self.error_label.hide()
         self.close_button.hide()
         self.tor_label.hide()
-
-    def on_checkbox_state_changed(self, state):
-        self.use_tor = bool(state)
-        logging.debug("use_tor=%s", self.use_tor)
-        if state:
-            self.progressbar.setStyleSheet(
-                'QProgressBar::chunk {{ background-color: {}; }}'.format(
-                    TOR_PURPLE))
-        else:
-            self.progressbar.setStyleSheet('')
+        self.checkmark.hide()
+        self.progressbar.setStyleSheet('')
 
     def show_error(self, text):
         self.error_label.setText(text)
@@ -472,19 +416,24 @@ class InviteReceiver(QDialog):
         if step == 3:
             self.mail_closed_icon.hide()
             self.mail_open_icon.show()
-        if step == 4:
-            self.mail_open_icon.hide()
-            self.folder_icon.show()
 
     def set_joined_folders(self, folders):
         self.joined_folders = folders
+        if folders:
+            self.mail_open_icon.hide()
+            self.folder_icon.show()
 
-    def on_done(self, _):
+    def on_got_icon(self, path):
+        self.mail_open_icon.setPixmap(
+            QPixmap(path).scaled(128, 128))
+        self.mail_closed_icon.hide()
+        self.mail_open_icon.show()
+
+    def on_done(self, gateway):
         self.progressbar.setValue(self.progressbar.maximum())
         self.close_button.show()
-        self.done.emit(self)
-        self.label.setPixmap(
-            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+        self.checkmark.show()
+        self.done.emit(gateway)
         if self.joined_folders and len(self.joined_folders) == 1:
             target = self.joined_folders[0]
             self.message_label.setText(
@@ -504,17 +453,8 @@ class InviteReceiver(QDialog):
         )
         self.close()
 
-    def got_message(self, message):
+    def got_message(self, _):
         self.update_progress("Reading invitation...")  # 3
-        message = validate_settings(message, self.gateways, self)
-        self.setup_runner = SetupRunner(self.gateways, self.use_tor)
-        if not message.get('magic-folders'):
-            self.setup_runner.grid_already_joined.connect(
-                self.on_grid_already_joined)
-        self.setup_runner.update_progress.connect(self.update_progress)
-        self.setup_runner.joined_folders.connect(self.set_joined_folders)
-        self.setup_runner.done.connect(self.on_done)
-        self.setup_runner.run(message)
 
     def got_welcome(self):
         self.update_progress("Connected; waiting for message...")  # 2
@@ -528,33 +468,38 @@ class InviteReceiver(QDialog):
 
     def go(self, code):
         self.reset()
-        self.label.setText(' ')
-        self.lineedit.hide()
-        self.tor_checkbox.hide()
+        self.invite_code_widget.hide()
         self.progressbar.show()
-        if self.use_tor:
+        if self.invite_code_widget.tor_checkbox.isChecked():
+            use_tor = True
             self.tor_label.show()
+            self.progressbar.setStyleSheet(
+                'QProgressBar::chunk {{ background-color: {}; }}'.format(
+                    TOR_PURPLE))
+        else:
+            use_tor = False
         self.update_progress("Verifying invitation...")  # 1
-        if code.split('-')[0] == "0":
-            settings = get_settings_from_cheatcode(code[2:])
-            if settings:
-                self.got_message(settings)
-                return
-        self.wormhole = Wormhole(self.use_tor)
-        self.wormhole.got_welcome.connect(self.got_welcome)
-        self.wormhole.got_message.connect(self.got_message)
-        d = self.wormhole.receive(code)
+        self.invite_receiver = InviteReceiver(self.gateways, use_tor)
+        self.invite_receiver.got_welcome.connect(self.got_welcome)
+        self.invite_receiver.got_message.connect(self.got_message)
+        self.invite_receiver.grid_already_joined.connect(
+            self.on_grid_already_joined)
+        self.invite_receiver.update_progress.connect(self.update_progress)
+        self.invite_receiver.got_icon.connect(self.on_got_icon)
+        self.invite_receiver.joined_folders.connect(self.set_joined_folders)
+        self.invite_receiver.done.connect(self.on_done)
+        d = self.invite_receiver.receive(code)
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)
 
     def enterEvent(self, event):
         event.accept()
-        self.lineedit.update_action_button()
+        self.invite_code_widget.lineedit.update_action_button()  # XXX
 
     def closeEvent(self, event):
         event.accept()
         try:
-            self.wormhole.close()
+            self.invite_receiver.cancel()
         except AttributeError:
             pass
         self.closed.emit(self)
