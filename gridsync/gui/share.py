@@ -248,7 +248,6 @@ class InviteSenderDialog(QDialog):
         if get_preference('notifications', 'invite') != 'false':
             self.gui.show_message("Invite successful", text)
 
-        # XXX FIXME Quick and dirty hack for user-testing
         if self.folder_names:
             for view in self.gui.main_window.central_widget.views:
                 if view.gateway.name == self.gateway.name:
@@ -260,7 +259,6 @@ class InviteSenderDialog(QDialog):
                         # FIXME Force call a Monitor.do_remote_scan() instead?
                         view.model().add_member(folder, None)
                         view.model().add_member(folder, None)
-                        view.model().set_status_shared(folder)
 
     def handle_failure(self, failure):
         if failure.type == wormhole.errors.LonelyError:
