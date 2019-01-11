@@ -23,8 +23,6 @@ class MagicFolderChecker(QObject):
     size_updated = pyqtSignal(object)
 
     members_updated = pyqtSignal(list)
-    member_added = pyqtSignal(str)
-    member_removed = pyqtSignal(str)
 
     file_updated = pyqtSignal(object)
     files_updated = pyqtSignal(list, str, str)
@@ -176,10 +174,6 @@ class MagicFolderChecker(QObject):
             if members != self.members:
                 self.members = members
                 self.members_updated.emit(members)
-            #for member in members:
-            #    if member not in self.members:
-            #        self.member_added.emit(member[0])
-            #        self.members.append(member)
             self.size_updated.emit(size)
             self.mtime_updated.emit(t)
             self.compare_states(history, self.history)
@@ -263,8 +257,6 @@ class Monitor(QObject):
     size_updated = pyqtSignal(str, object)
 
     members_updated = pyqtSignal(str, list)
-    member_added = pyqtSignal(str, str)
-    member_removed = pyqtSignal(str, str)
 
     file_updated = pyqtSignal(str, object)
     files_updated = pyqtSignal(str, list, str, str)
@@ -306,8 +298,6 @@ class Monitor(QObject):
 
         mfc.members_updated.connect(
             lambda x: self.members_updated.emit(name, x))
-        mfc.member_added.connect(lambda x: self.member_added.emit(name, x))
-        mfc.member_removed.connect(lambda x: self.member_removed.emit(name, x))
 
         mfc.file_updated.connect(lambda x: self.file_updated.emit(name, x))
         mfc.files_updated.connect(
