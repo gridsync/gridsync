@@ -24,11 +24,11 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 * A graphical user interface for managing primary Tahoe-LAFS functionality (e.g., starting, stopping, configuring gateways) -- the user will never have to edit a text file by hand or touch the command line.
 * "Native" look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
 * Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' "Magic Folder" feature [*]_ ).
-* Status indicators -- the user will know, at a glance, the number of connected storage nodes and available space, folder sizes and modification times, when folders are synchronizing, etc.
-* Desktop integration -- Gridsync can (optionally) start automatically on login and provide notifications when certain operations have completed.
+* Status indicators -- the user will know, at a glance, the number of connected storage nodes, folder sizes and modification times, when folders are synchronizing, recently updated files, etc.
+* Desktop integration -- Gridsync can (optionally) start automatically on login and provide desktop notifications when certain operations have completed.
 * Easy sharing -- Gridsync uses the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
 * Simple recovery -- Gridsync's "`Recovery Key`_" subsystem allows connections and folders to be easily restored from a single file in the event of a disaster.
-* `Tor support`_ -- Gridsync can tunnel outgoing connections through the `Tor`_ anonymity network, concealing users' network location from storage service providers and each other.
+* `Tor support`_ (experimental) -- Gridsync can tunnel outgoing connections through the `Tor`_ anonymity network, concealing users' network location from storage service providers and each other.
 
 .. _magic-wormhole: http://magic-wormhole.io
 .. _invite codes: https://github.com/gridsync/gridsync/blob/master/docs/invite-codes.md
@@ -87,11 +87,11 @@ To install and run Gridsync on macOS (OS X 10.10 and later) [*]_ :
 
 To install and run Gridsync on Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
 
-1. Download `Gridsync-Windows.zip`_ (and `verify`_ its signature)
-2. Extract the enclosed "Gridsync" folder anywhere
-3. Run the contained ``Gridsync.exe`` binary
+1. Download `Gridsync-setup.exe`_ (and `verify`_ its signature)
+2. Run the executable installer and follow/complete the setup wizard
+3. Select "Launch Gridsync" when installation is finished
 
-.. _Gridsync-Windows.zip: https://github.com/gridsync/gridsync/releases
+.. _Gridsync-setup.exe: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
 
@@ -136,14 +136,12 @@ Unsigned binary distributions (currently tracking the `master` branch) are also 
 Known issues and limitations:
 -----------------------------
 
-While Gridsync ultimately aims to provide an easy-to-use frontend for users of Tahoe-LAFS, at present, its interface only supports a very limited subset of Tahoe-LAFS's underlying features and potential use-cases (namely, it provides simplified means for joining storage grids, creating and removing personal "magic-folders," and receiving status updates and notifications pertaining to those processes as they occur). Accordingly, users should not (yet) expect Gridsync to provide a complete backup solution or to serve as a stand-in replacement for other tools with robust sharing and collaboration capabilities.
+While Gridsync ultimately aims to provide an easy-to-use frontend for users of Tahoe-LAFS, at present, its interface only supports a very limited subset of Tahoe-LAFS's underlying features and potential use-cases (namely, it provides simplified means for joining storage grids, creating and sharing "magic-folders," and receiving status updates and notifications pertaining to those processes). Accordingly, users should not (yet) expect Gridsync to provide a complete backup solution or to serve as a stand-in replacement for other tools with robust sharing and collaboration capabilities.
 
-In addition, it should be noted that Tahoe-LAFS's "magic-folder" functionality itself is currently considered "experimental" and has a number of known issues and bugs that users should be aware of. For example, on macOS, magic-folders currently `do not preserve metadata`_ (such as file modification times), will often `overwrite local file permissions`_, and have been known to `create duplicate copies of local files`_. A more complete listing of upstream issues relating to Tahoe-LAFS's magic-folders can be found on the official `Tahoe-LAFS project website`_.
+In addition, it should be noted that Tahoe-LAFS's "magic-folder" functionality itself is currently considered "experimental" and has a number of `known issues and limitations`_ and `open development tickets`_.
 
-.. _do not preserve metadata: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2882
-.. _overwrite local file permissions: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2881
-.. _create duplicate copies of local files: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2880
-.. _Tahoe-LAFS project website: https://tahoe-lafs.org/trac/tahoe-lafs/search?q=magic-folder&noquickjump=1&ticket=on
+.. _known issues and limitations: https://tahoe-lafs.readthedocs.io/en/tahoe-lafs-1.12.1/frontends/magic-folder.html#known-issues-and-limitations-with-magic-folder
+.. _open development tickets: https://tahoe-lafs.org/trac/tahoe-lafs/search?q=magic-folder&noquickjump=1&ticket=on
 
 
 Contributing:
