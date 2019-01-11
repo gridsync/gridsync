@@ -19,7 +19,7 @@
 - The version of Tahoe-LAFS included in Windows and Linux binary distrubutions has been upgraded to 1.13.0 (PR #108)
 - macOS binary distributions will now include a more recent (but still unreleased) version of Tahoe-LAFS with numerous magic-folder-related bug-fixes and improvements -- thanks @vu3rdd!
 - Gridsync will now run as an "agent" application on macOS, accessible from the menu bar but no longer appearing in the Dock (Issue #86, PR #112, PR #114)
-- Icons for folders that have been shared will now be displayed with a "person" overlay (PR #129)
+- A "person" overlay/embled will now be displayed over the icons of shared folders (PR #129, PR #133)
 - Failure to decrypt a recovery key no longer requires re-importing the file to try again (Issue #60)
 - Font sizes have been increased on macOS to match the equivalent weights on most Linux and Windows environments
 - The dynamic action button inside invite code fields will now also update on window-enter cursor events (allowing, e.g., the "paste" button to become conveniently activated after copying an invite code to the clipboard from another window)
