@@ -221,6 +221,7 @@ frozen-tahoe:
 			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout tahoe-lafs-1.13.0 \
 		;; \
 	esac
+	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
@@ -234,6 +235,9 @@ frozen-tahoe:
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
+	rm -rf dist/Tahoe-LAFS/cryptography-2.4.2-py2.7.egg-info && \
+	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
+	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
@@ -287,25 +291,32 @@ py2app:
 	cp -r dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 	touch dist/Gridsync.app
 
-dmg: pyinstaller
+dmg:
 	python3 -m virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \
 	python misc/call_dmgbuild.py
-	#dmgbuild -s misc/dmgbuild_settings.py Gridsync dist/Gridsync.dmg
-	#mkdir -p dist/dmg
-	#mv dist/Gridsync.app dist/dmg
-	# From https://github.com/andreyvit/create-dmg
-	#create-dmg --volname "Gridsync" \
-	#	--app-drop-link 320 2 \
-	#	dist/Gridsync.dmg \
-	#	dist/dmg
-	#mv dist/dmg/Gridsync.app dist
-	#rm -rf dist/dmg
+
+# https://developer.apple.com/library/archive/technotes/tn2206/_index.html
+codesign-app:
+	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.app
+	codesign --verify --verbose=1 dist/Gridsync.app
+	codesign --display --verbose=4 dist/Gridsync.app
+	spctl -a -t exec -vv dist/Gridsync.app
+
+codesign-dmg:
+	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.dmg
+	codesign --verify --verbose=1 dist/Gridsync.dmg
+	codesign --display --verbose=4 dist/Gridsync.dmg
+	spctl -a -t open --context context:primary-signature -v dist/Gridsync.dmg
+	shasum -a 256 dist/Gridsync.dmg
+
+codesign-all:
+	$(MAKE) codesign-app dmg codesign-dmg
 
 all:
 	@case `uname` in \
-		Darwin)	$(MAKE) dmg ;; \
+		Darwin)	$(MAKE) pyinstaller dmg ;; \
 		*) $(MAKE) pyinstaller ;; \
 	esac
 

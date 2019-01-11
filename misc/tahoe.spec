@@ -15,6 +15,9 @@ if not hasattr(sys, 'real_prefix'):
     sys.exit("Please run inside a virtualenv with Tahoe-LAFS installed.")
 
 
+# https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
+sys.modules['FixTk'] = None
+
 options = [('u', None, 'OPTION')]  # Unbuffered stdio
 
 added_files = [
@@ -47,7 +50,7 @@ a = Analysis(
     hiddenimports=hidden_imports,
     hookspath=[],
     runtime_hooks=[],
-    excludes=[],
+    excludes=['FixTk', 'tcl', 'tk', '_tkinter', 'tkinter', 'Tkinter'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=None)
