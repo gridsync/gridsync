@@ -44,16 +44,19 @@ Screenshots:
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/welcome.png
 
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/connecting.png
+
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/dropzone.png
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/passphrase.gif
-
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/animations.gif
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/menu.png
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/share.png
 
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/notify.gif
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/history.png
 
 Installation and running:
 -------------------------
