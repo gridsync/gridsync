@@ -296,24 +296,11 @@ dmg:
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \
 	python misc/call_dmgbuild.py
-	#dmgbuild -s misc/dmgbuild_settings.py Gridsync dist/Gridsync.dmg
-	#mkdir -p dist/dmg
-	#mv dist/Gridsync.app dist/dmg
-	# From https://github.com/andreyvit/create-dmg
-	#create-dmg --volname "Gridsync" \
-	#	--app-drop-link 320 2 \
-	#	dist/Gridsync.dmg \
-	#	dist/dmg
-	#mv dist/dmg/Gridsync.app dist
-	#rm -rf dist/dmg
 
 codesign:
 	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.app
-	codesign --verify dist/Gridsync.app
+	codesign --verify --verbose=1 dist/Gridsync.app
 	codesign --display --verbose=4 dist/Gridsync.app
-	rm dist/Gridsync.dmg
-	$(MAKE) dmg
-	shasum -a 256 dist/Gridsync.dmg
 
 all:
 	@case `uname` in \
