@@ -235,6 +235,9 @@ frozen-tahoe:
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
+	rm -rf dist/Tahoe-LAFS/cryptography-2.4.2-py2.7.egg-info && \
+	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
+	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
