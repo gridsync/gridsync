@@ -32,7 +32,8 @@ class WelcomeWidget(QWidget):
 
         self.icon = QLabel()
         self.icon.setPixmap(QPixmap(resource(
-            global_settings['application']['tray_icon'])).scaled(220, 220))
+            global_settings['application']['tray_icon'])).scaled(
+                220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.icon.setAlignment(Qt.AlignCenter)
 
         self.slogan = QLabel("<i>{}</i>".format(
