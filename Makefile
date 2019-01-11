@@ -291,7 +291,7 @@ py2app:
 	cp -r dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
 	touch dist/Gridsync.app
 
-dmg: pyinstaller
+dmg:
 	python3 -m virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	pip install dmgbuild && \
@@ -307,9 +307,17 @@ dmg: pyinstaller
 	#mv dist/dmg/Gridsync.app dist
 	#rm -rf dist/dmg
 
+codesign:
+	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.app
+	codesign --verify dist/Gridsync.app
+	codesign --display --verbose=4 dist/Gridsync.app
+	rm dist/Gridsync.dmg
+	$(MAKE) dmg
+	shasum -a 256 dist/Gridsync.dmg
+
 all:
 	@case `uname` in \
-		Darwin)	$(MAKE) dmg ;; \
+		Darwin)	$(MAKE) pyinstaller dmg ;; \
 		*) $(MAKE) pyinstaller ;; \
 	esac
 
