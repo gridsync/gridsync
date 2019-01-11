@@ -37,23 +37,27 @@ messages = []
 for msg in ' '.join(sys.argv[1:]).split(','):
     messages.append(msg.format(**vars()).strip())
 
-s = ssl.wrap_socket(socket.socket(socket.AF_INET,socket.SOCK_STREAM))
-s.connect((socket.gethostbyname("chat.freenode.net"), 6697))
-s.send("NICK {0}\r\nUSER {0} * 0 :{0}\r\n".format(username).encode())
-f = s.makefile()
-while f:
-    line = f.readline()
-    print(line.rstrip())
-    w = line.split()
-    if w[0] == "PING":
-        s.send("PONG {}\r\n".format(w[1]).encode())
-    elif w[1] == "433":
-        s.send("NICK {}{}\r\n".format(
-            sys.argv[1], str(random.randint(1,9999))).encode())
-    elif w[1] == "001":
-        time.sleep(5)
-        for msg in messages:
-            print("NOTICE #{} :{}".format(project_name, msg))
-            s.send("NOTICE #{} :{}\r\n".format(project_name, msg).encode())
-        time.sleep(5)
-        sys.exit()
+try: # Because lots can go wrong and builds shouldn't fail because of freenode
+    s = ssl.wrap_socket(socket.socket(socket.AF_INET,socket.SOCK_STREAM))
+    s.connect((socket.gethostbyname("chat.freenode.net"), 6697))
+    s.send("NICK {0}\r\nUSER {0} * 0 :{0}\r\n".format(username).encode())
+    f = s.makefile()
+    while f:
+        line = f.readline()
+        print(line.rstrip())
+        w = line.split()
+        if w[0] == "PING":
+            s.send("PONG {}\r\n".format(w[1]).encode())
+        elif w[1] == "433":
+            s.send("NICK {}{}\r\n".format(
+                sys.argv[1], str(random.randint(1,9999))).encode())
+        elif w[1] == "001":
+            time.sleep(5)
+            for msg in messages:
+                print("NOTICE #{} :{}".format(project_name, msg))
+                s.send("NOTICE #{} :{}\r\n".format(project_name, msg).encode())
+            time.sleep(5)
+            sys.exit()
+except Exception as exc:
+    print(str(exc))
+    sys.exit()
