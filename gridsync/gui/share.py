@@ -254,7 +254,7 @@ class InviteSenderDialog(QDialog):
                     for folder in self.folder_names:
                         # Immediately tell the Model that there are at least 2
                         # members for this folder, i.e., that it is now shared
-                        view.model().members_updated(folder, [None, None])
+                        view.model().on_members_updated(folder, [None, None])
 
     def handle_failure(self, failure):
         if failure.type == wormhole.errors.LonelyError:
