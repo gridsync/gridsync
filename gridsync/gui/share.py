@@ -252,13 +252,9 @@ class InviteSenderDialog(QDialog):
             for view in self.gui.main_window.central_widget.views:
                 if view.gateway.name == self.gateway.name:
                     for folder in self.folder_names:
-                        # Add two members for now, in case the original folder
-                        # was empty (in which case the original "syncing"
-                        # operation would not have occured and thus "admin"'s
-                        # membership would not have been detected).
-                        # FIXME Force call a Monitor.do_remote_scan() instead?
-                        view.model().add_member(folder, None)
-                        view.model().add_member(folder, None)
+                        # Immediately tell the Model that there are at least 2
+                        # members for this folder, i.e., that it is now shared
+                        view.model().members_updated(folder, [None, None])
 
     def handle_failure(self, failure):
         if failure.type == wormhole.errors.LonelyError:
