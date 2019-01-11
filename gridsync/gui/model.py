@@ -52,7 +52,6 @@ class Model(QStandardItemModel):
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
         self.monitor.members_updated.connect(self.on_members_updated)
-        #self.monitor.member_added.connect(self.add_member)
         self.monitor.sync_started.connect(self.on_sync_started)
         self.monitor.sync_finished.connect(self.on_sync_finished)
         self.monitor.files_updated.connect(self.on_updated_files)
@@ -141,12 +140,6 @@ class Model(QStandardItemModel):
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
         self.set_status(basename, status_data)
-
-    @pyqtSlot(str, str)
-    def add_member(self, folder, _):
-        self.members_dict[folder] = self.members_dict.get(folder, 0) + 1
-        if self.members_dict.get(folder, 0) == 2:
-            self.set_status_shared(folder)
 
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
