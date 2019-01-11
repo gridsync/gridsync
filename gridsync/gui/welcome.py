@@ -14,6 +14,7 @@ from wormhole.errors import (
     ServerConnectionError, WelcomeError, WrongPasswordError)
 
 from gridsync import resource, APP_NAME
+from gridsync import settings as global_settings
 from gridsync.invite import InviteReceiver
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import InviteCodeWidget, show_failure
@@ -30,11 +31,12 @@ class WelcomeWidget(QWidget):
         self.parent = parent
 
         self.icon = QLabel()
-        self.icon.setPixmap(
-            QPixmap(resource('gridsync.png')).scaled(220, 220))
+        self.icon.setPixmap(QPixmap(resource(
+            global_settings['application']['tray_icon'])).scaled(220, 220))
         self.icon.setAlignment(Qt.AlignCenter)
 
-        self.slogan = QLabel("<i>Secure, distributed storage</i>")
+        self.slogan = QLabel("<i>{}</i>".format(
+            global_settings['application']['description']))
         font = QFont()
         if sys.platform == 'darwin':
             font.setPointSize(16)
