@@ -1,5 +1,6 @@
 [application]
 name = Gridsync
+description = Secure, distributed storage
 tray_icon = gridsync.png
 tray_icon_sync = gridsync.gif
 
