@@ -297,10 +297,22 @@ dmg:
 	pip install dmgbuild && \
 	python misc/call_dmgbuild.py
 
-codesign:
+# https://developer.apple.com/library/archive/technotes/tn2206/_index.html
+codesign-app:
 	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.app
 	codesign --verify --verbose=1 dist/Gridsync.app
 	codesign --display --verbose=4 dist/Gridsync.app
+	spctl -a -t exec -vv dist/Gridsync.app
+
+codesign-dmg:
+	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.dmg
+	codesign --verify --verbose=1 dist/Gridsync.dmg
+	codesign --display --verbose=4 dist/Gridsync.dmg
+	spctl -a -t open --context context:primary-signature -v dist/Gridsync.dmg
+	shasum -a 256 dist/Gridsync.dmg
+
+codesign-all:
+	$(MAKE) codesign-app dmg codesign-dmg
 
 all:
 	@case `uname` in \
