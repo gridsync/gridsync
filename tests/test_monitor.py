@@ -338,11 +338,11 @@ fake_gateway.get_magic_folder_state = MagicMock(
 
 
 @pytest.inlineCallbacks
-def test_do_remote_scan_emit_member_added(mfc, qtbot):
+def test_do_remote_scan_emit_members_updated(mfc, qtbot):
     mfc.gateway = fake_gateway
-    with qtbot.wait_signal(mfc.member_added) as blocker:
+    with qtbot.wait_signal(mfc.members_updated) as blocker:
         yield mfc.do_remote_scan()
-    assert blocker.args == ['Alice']
+    assert blocker.args == [[('Alice', 'URI:DIR2:aaaa:bbbb')]]
 
 
 @pytest.inlineCallbacks
