@@ -320,5 +320,23 @@ all:
 		*) $(MAKE) pyinstaller ;; \
 	esac
 
+gpg-sign:
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.tar.gz
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Mac.dmg
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Mac-Legacy.dmg
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-setup.exe
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows.zip
+
+gpg-verify:
+	gpg2 --verify release/Gridsync-Linux.tar.gz{.asc,}
+	gpg2 --verify release/Gridsync-Mac.dmg{.asc,}
+	gpg2 --verify release/Gridsync-Mac-Legacy.dmg{.asc,}
+	gpg2 --verify release/Gridsync-setup.exe{.asc,}
+	gpg2 --verify release/Gridsync-Windows.zip{.asc,}
+
+pypi-release:
+	python setup.py sdist bdist_wheel
+	twine upload --verbose dist/gridsync-*.*
+
 uninstall:
 	pip3 uninstall -y gridsync
