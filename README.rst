@@ -79,14 +79,17 @@ To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23; 64-b
 .. _Gridsync-Linux.tar.gz: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on macOS (OS X 10.10 and later) [*]_ :
+To install and run Gridsync on macOS (version 10.11 or later):
 
 1. Download `Gridsync-Mac.dmg`_ (and `verify`_ its signature)
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
 3. Double-click ``Gridsync.app``
 
+Users on older Macs can alternatively try `Gridsync-Mac-Legacy.dmg`_ (which has been tested to work on 2009-era hardware with versions of macOS as old as 10.9).
+
 .. _Gridsync-Mac.dmg: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
+.. _Gridsync-Mac-Legacy.dmg: https://github.com/gridsync/gridsync/releases
 
 To install and run Gridsync on Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
 
@@ -94,11 +97,11 @@ To install and run Gridsync on Windows (tested on Windows 7 SP1, Windows 8.1, an
 2. Run the executable installer and follow/complete the setup wizard
 3. Select "Launch Gridsync" when installation is finished
 
+Alternatively, Windows users who do not wish to use the executable installer can download and verify `Gridsync-Windows.zip`_, extract the enclosed "Gridsync" folder anywhere, and run `Gridsync.exe`.
+
 .. _Gridsync-setup.exe: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
-
-
-.. [*] macOS users may need to explicitly allow third-party apps in order to use Gridsync ("System Preferences" -> "Security & Privacy" -> "General" -> "Allow apps downloaded from:" -> "Anywhere").
+.. _Gridsync-Windows.zip: https://github.com/gridsync/gridsync/releases
 
 
 **From source:**
