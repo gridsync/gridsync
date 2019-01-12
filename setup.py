@@ -113,7 +113,7 @@ setup(
         "Topic :: Desktop Environment",
         "Topic :: Internet",
         "Topic :: Security",
-        "Topic :: Cryptography",
+        "Topic :: Security :: Cryptography",
         "Topic :: System :: Archiving",
         "Topic :: System :: Archiving :: Backup",
         "Topic :: System :: Archiving :: Mirroring",
