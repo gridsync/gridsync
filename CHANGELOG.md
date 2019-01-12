@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4 - 2019-01-11
 ### Added
 - Tor integration (**EXPERIMENTAL**)
     - Gridsync can now optionally tunnel outgoing connections through the Tor anonymity network; see [`docs/tor-integration.md`](https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md) (Issue #64, Issue #99, PR #82, PR #127, PR #129)
@@ -13,9 +13,10 @@
 - A "history" view has been added, displaying a chronological record of recent changes made to magic-folders and enabling per-file actions (Issue #92, PR #116, PR #124)
 - Support for high-DPI "retina" displays has been enabled for macOS ".app" bundles (PR #116)
 - In-app "help" buttons/dialogs have been added to invite-code widgets, providing additional information about "invite codes" and "Tor" (PR #129)
+- macOS binary releases are now certified by Apple (signed by "Developer ID Application: Christopher Wood (6X3QVDWX28)"); users should no longer receive "unidentified developer" warnings from Gatekeeper when launching Gridsync (Issue #20)
 
 ### Changed
-- Due to upstream changes/deprecations with the Homebrew package manager, the minimum supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). Users of macOS 10.10 or lower are advised to either upgrade or build/install Gridsync from source.
+- Due to upstream changes/deprecations with the Homebrew package manager and Qt5, the minimum "officially" supported version of macOS for Gridsync binary distributions has been increased from 10.10 ("Yosemite") to 10.11 ("El Capitan"). For users who have not yet upgraded or who are still using older hardware, however, a ["legacy"](https://github.com/gridsync/gridsync/releases) distribution of Gridsync has been provided (based off Qt 5.8 and tested to run on 2009-era hardware with versions of macOS as old as 10.9) (Issue #110)
 - The version of Tahoe-LAFS included in Windows and Linux binary distrubutions has been upgraded to 1.13.0 (PR #108)
 - macOS binary distributions will now include a more recent (but still unreleased) version of Tahoe-LAFS with numerous magic-folder-related bug-fixes and improvements -- thanks @vu3rdd!
 - Gridsync will now run as an "agent" application on macOS, accessible from the menu bar but no longer appearing in the Dock (Issue #86, PR #112, PR #114)
