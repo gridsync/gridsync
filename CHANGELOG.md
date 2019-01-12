@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4 - 2019-01-11
+## 0.4.0 - 2019-01-11
 ### Added
 - Tor integration (**EXPERIMENTAL**)
     - Gridsync can now optionally tunnel outgoing connections through the Tor anonymity network; see [`docs/tor-integration.md`](https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md) (Issue #64, Issue #99, PR #82, PR #127, PR #129)
