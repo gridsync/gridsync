@@ -9,25 +9,25 @@ from gridsync.lock import Lock
 
 def test_lock_acquire(tmpdir):
     lock = Lock(os.path.join(str(tmpdir), 'test.lock'))
-    lock._acquire()
+    lock.acquire()
     assert lock.fd
 
 
 def test_lock_acquire_lockfile_created(tmpdir):
     lock = Lock(os.path.join(str(tmpdir), 'test.lock'))
-    lock._acquire()
+    lock.acquire()
     assert os.path.isfile(lock.lockfile)
 
 
 def test_lock_acquire_raise_oserror(tmpdir):
     lock = Lock(os.path.join(str(tmpdir), 'test.lock'))
-    lock._acquire()
+    lock.acquire()
     with pytest.raises(OSError):
-        lock._acquire()
+        lock.acquire()
 
 
 def test_lock_release_lockfile_removed(tmpdir):
     lock = Lock(os.path.join(str(tmpdir), 'test.lock'))
-    lock._acquire()
-    lock._release()
+    lock.acquire()
+    lock.release()
     assert not os.path.isfile(lock.lockfile)
