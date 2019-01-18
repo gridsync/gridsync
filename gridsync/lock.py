@@ -39,7 +39,7 @@ class Lock():
 
     def _release_win32(self):
         if self.fd:
-            self.fd.close()
+            os.close(self.fd)
 
     def _release(self):
         if self.fd:
