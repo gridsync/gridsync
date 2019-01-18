@@ -16,10 +16,10 @@ class Lock():
         self.fd = None
 
     def _acquire_win32(self):
-        #try:
-        #    os.remove(self.lockfile)
-        #except OSError:
-        #    pass
+        try:
+            os.remove(self.lockfile)
+        except OSError:
+            pass
         fd = os.open(self.lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
         self.fd = fd
 
