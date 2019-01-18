@@ -5,8 +5,6 @@ import argparse
 import logging
 import sys
 
-from twisted.internet.error import CannotListenError
-
 from gridsync import APP_NAME
 from gridsync import __doc__ as description
 from gridsync._version import __version__

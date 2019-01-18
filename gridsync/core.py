@@ -15,7 +15,6 @@ qt5reactor.install()
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-from twisted.internet.protocol import Protocol, Factory
 
 from gridsync import config_dir, resource, settings, APP_NAME
 from gridsync import msg
@@ -27,10 +26,6 @@ from gridsync.tor import get_tor
 
 
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
-
-
-class CoreFactory(Factory):  # pylint: disable=no-init
-    protocol = Protocol
 
 
 class Core():
