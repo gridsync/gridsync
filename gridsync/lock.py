@@ -43,7 +43,7 @@ class Lock():
 
     def _release(self):
         if self.fd:
-            fcntl.lockf(self.fd, fcntl.LOCK_UN)
+            fcntl.flock(self.fd, fcntl.LOCK_UN)
 
     def release(self):
         logging.debug("Releasing lock: %s ...", self.lockfile)
