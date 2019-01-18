@@ -52,7 +52,7 @@ class Lock():
         else:
             self._release()
         logging.debug("Lock released.")
-        #try:
-        #    os.remove(self.lockfile)
-        #except OSError:
-        #    pass
+        try:
+            os.remove(self.lockfile)
+        except OSError:
+            pass
