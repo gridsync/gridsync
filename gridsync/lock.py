@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import fcntl
 import logging
 import os
 import sys
+
+try:
+    import fcntl
+except ImportError:  # win32
+    pass
 
 
 class Lock():
