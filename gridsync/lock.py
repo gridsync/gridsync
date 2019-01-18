@@ -10,7 +10,7 @@ except ImportError:  # win32
     pass
 
 
-class Lock():
+class FilesystemLock():
     def __init__(self, filepath):
         self.filepath = filepath
         self.fd = None
