@@ -13,10 +13,10 @@ def test_lock_acquire(tmpdir):
     assert lock.fd
 
 
-def test_lock_acquire_lockfile_created(tmpdir):
+def test_lock_acquire_filepath_created(tmpdir):
     lock = Lock(os.path.join(str(tmpdir), 'test.lock'))
     lock.acquire()
-    assert os.path.isfile(lock.lockfile)
+    assert os.path.isfile(lock.filepath)
 
 
 def test_lock_acquire_raise_oserror_on_second_call(tmpdir):
