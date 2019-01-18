@@ -17,9 +17,10 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.protocol import Protocol, Factory
 
-from gridsync import config_dir, resource, settings
+from gridsync import config_dir, resource, settings, APP_NAME
 from gridsync import msg
 from gridsync.gui import Gui
+from gridsync.lock import FilesystemLock
 from gridsync.preferences import get_preference
 from gridsync.tahoe import get_nodedirs, Tahoe, select_executable
 from gridsync.tor import get_tor
@@ -83,8 +84,11 @@ class Core():
             yield self.select_executable()
 
     def start(self):
-        # Listen on a port to prevent multiple instances from running
-        reactor.listenTCP(52045, CoreFactory(), interface='localhost')
+        # Acquire a filesystem lock to prevent multiple instances from running
+        lock = FilesystemLock(
+            os.path.join(config_dir, "{}.lock".format(APP_NAME)))
+        lock.acquire()
+
         try:
             os.makedirs(config_dir)
         except OSError:
