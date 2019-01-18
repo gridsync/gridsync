@@ -1,6 +1,6 @@
 asn1crypto==0.24.0
 attrs==18.2.0
-autobahn==18.12.1
+autobahn==19.1.1
 Automat==0.7.0
 certifi==2018.11.29
 cffi==1.11.5
@@ -31,11 +31,11 @@ requests==2.21.0
 service_identity==18.1.0
 six==1.12.0
 spake2==0.8
-tqdm==4.28.1
+tqdm==4.29.1
 treq==18.6.0
 Twisted==18.9.0
 txaio==18.8.1
-txtorcon==18.3.0
+txtorcon==19.0.0
 urllib3==1.24.1
 zope.interface==4.6.0
 zxcvbn==4.4.27
