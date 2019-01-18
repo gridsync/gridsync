@@ -56,6 +56,3 @@ class Lock():
             os.remove(self.lockfile)
         except OSError:
             pass
-
-    def __del__(self):
-        self.release()
