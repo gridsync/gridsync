@@ -26,8 +26,9 @@ def test_lock_acquire_raise_oserror(tmpdir):
         lock.acquire()
 
 
-def test_lock_release_lockfile_removed(tmpdir):
+def test_lock_release(tmpdir):
     lock = Lock(os.path.join(str(tmpdir), 'test.lock'))
     lock.acquire()
     lock.release()
-    assert not os.path.isfile(lock.lockfile)
+    lock.acquire()
+    lock.release()
