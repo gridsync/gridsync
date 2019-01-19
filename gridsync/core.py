@@ -79,15 +79,15 @@ class Core():
             yield self.select_executable()
 
     def start(self):
-        # Acquire a filesystem lock to prevent multiple instances from running
-        lock = FilesystemLock(
-            os.path.join(config_dir, "{}.lock".format(APP_NAME)))
-        lock.acquire()
-
         try:
             os.makedirs(config_dir)
         except OSError:
             pass
+
+        # Acquire a filesystem lock to prevent multiple instances from running
+        lock = FilesystemLock(
+            os.path.join(config_dir, "{}.lock".format(APP_NAME)))
+        lock.acquire()
 
         logging.info("Core starting with args: %s", self.args)
         logging.debug("$PATH is: %s", os.getenv('PATH'))
