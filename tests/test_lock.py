@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from gridsync.lock import FilesystemLock
+from gridsync.lock import FilesystemLock, FilesystemLockError
 
 
 def test_lock_acquire(tmpdir):
@@ -19,18 +19,18 @@ def test_lock_acquire_filepath_created(tmpdir):
     assert os.path.isfile(lock.filepath)
 
 
-def test_lock_acquire_raise_oserror_on_second_call(tmpdir):
+def test_lock_acquire_raise_filesystemlockerror_on_second_call(tmpdir):
     lock = FilesystemLock(os.path.join(str(tmpdir), 'test.lock'))
     lock.acquire()
-    with pytest.raises(OSError):
+    with pytest.raises(FilesystemLockError):
         lock.acquire()
 
 
-def test_lock_acquire_raise_oserror_from_second_instance(tmpdir):
+def test_lock_acquire_raise_filesystemlockerror_from_second_instance(tmpdir):
     lock_1 = FilesystemLock(os.path.join(str(tmpdir), 'test.lock'))
     lock_1.acquire()
     lock_2 = FilesystemLock(os.path.join(str(tmpdir), 'test.lock'))
-    with pytest.raises(OSError):
+    with pytest.raises(FilesystemLockError):
         lock_2.acquire()
 
 
