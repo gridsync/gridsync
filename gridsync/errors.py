@@ -5,6 +5,10 @@ class GridsyncError(Exception):
     pass
 
 
+class FilesystemLockError(GridsyncError):
+    pass
+
+
 class UpgradeRequiredError(GridsyncError):
     pass
 

@@ -15,21 +15,17 @@ qt5reactor.install()
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-from twisted.internet.protocol import Protocol, Factory
 
-from gridsync import config_dir, resource, settings
+from gridsync import config_dir, resource, settings, APP_NAME
 from gridsync import msg
 from gridsync.gui import Gui
+from gridsync.lock import FilesystemLock
 from gridsync.preferences import get_preference
 from gridsync.tahoe import get_nodedirs, Tahoe, select_executable
 from gridsync.tor import get_tor
 
 
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
-
-
-class CoreFactory(Factory):  # pylint: disable=no-init
-    protocol = Protocol
 
 
 class Core():
@@ -83,12 +79,15 @@ class Core():
             yield self.select_executable()
 
     def start(self):
-        # Listen on a port to prevent multiple instances from running
-        reactor.listenTCP(52045, CoreFactory(), interface='localhost')
         try:
             os.makedirs(config_dir)
         except OSError:
             pass
+
+        # Acquire a filesystem lock to prevent multiple instances from running
+        lock = FilesystemLock(
+            os.path.join(config_dir, "{}.lock".format(APP_NAME)))
+        lock.acquire()
 
         logging.info("Core starting with args: %s", self.args)
         logging.debug("$PATH is: %s", os.getenv('PATH'))
@@ -101,3 +100,4 @@ class Core():
         reactor.run()
         for nodedir in get_nodedirs(config_dir):
             Tahoe(nodedir, executable=self.executable).kill()
+        lock.release()
