@@ -9,7 +9,7 @@ from gridsync import APP_NAME
 from gridsync import __doc__ as description
 from gridsync._version import __version__
 from gridsync.core import Core
-from gridsync.lock import FilesystemLockError
+from gridsync.errors import FilesystemLockError
 from gridsync import msg
 
 

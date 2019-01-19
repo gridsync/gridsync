@@ -9,9 +9,7 @@ try:
 except ImportError:  # win32
     pass
 
-
-class FilesystemLockError(OSError):
-    pass
+from gridsync.errors import FilesystemLockError
 
 
 class FilesystemLock():
