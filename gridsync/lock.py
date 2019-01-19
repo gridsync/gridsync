@@ -29,7 +29,7 @@ class FilesystemLock():
             try:
                 fd = os.open(self.filepath, os.O_CREAT | os.O_EXCL | os.O_RDWR)
             except OSError as error:
-                if error.errno == 13:  # Permission denied
+                if error.errno == 17:  # File exists
                     raise FilesystemLockError(
                         "Could not acquire lock on {}: {}".format(
                             self.filepath, str(error)))
