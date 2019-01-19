@@ -100,3 +100,4 @@ class Core():
         reactor.run()
         for nodedir in get_nodedirs(config_dir):
             Tahoe(nodedir, executable=self.executable).kill()
+        lock.release()
