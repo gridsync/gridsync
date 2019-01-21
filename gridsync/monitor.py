@@ -94,7 +94,7 @@ class MagicFolderChecker(QObject):
     def parse_status(self, status):
         state = 0
         kind = ''
-        path = ''
+        filepath = ''
         failures = []
         if status is not None:
             for task in status:
@@ -109,13 +109,13 @@ class MagicFolderChecker(QObject):
                     if not task['path'].endswith('/'):
                         state = 1  # "Syncing"
                         kind = task['kind']
-                        path = task['path']
+                        filepath = task['path']
                 elif task['status'] == 'failure':
                     failures.append(task)
             if not state:
                 state = 2  # "Up to date"
                 self.sync_time_started = 0
-        return state, kind, path, failures
+        return state, kind, filepath, failures
 
     def process_status(self, status):
         remote_scan_needed = False
