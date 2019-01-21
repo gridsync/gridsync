@@ -66,7 +66,7 @@ class MagicFolderChecker(QObject):
                 self.files_updated.emit(files, action, author)
 
     def emit_transfer_signals(self, status):
-        # XXX This does not take into account erasure coding overhead
+        # This does not take into account erasure coding overhead
         bytes_transferred = 0
         bytes_total = 0
         for task in status:
@@ -77,7 +77,11 @@ class MagicFolderChecker(QObject):
                 if task['status'] in ('queued', 'started', 'success'):
                     bytes_total += size
                 if task['status'] in ('started', 'success'):
-                    bytes_transferred += size * task['percent_done'] / 100
+                    # A (temporary?) workaround for Tahoe-LAFS ticket #2954
+                    # whereby 'percent_done' will sometimes exceed 100%
+                    # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2954
+                    percent_done = min(100, task['percent_done'])
+                    bytes_transferred += size * percent_done / 100
         if bytes_transferred and bytes_total:
             self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
             duration = time.time() - self.sync_time_started
