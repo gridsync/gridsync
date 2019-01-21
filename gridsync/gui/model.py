@@ -57,10 +57,8 @@ class Model(QStandardItemModel):
         self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
         self.monitor.remote_folder_added.connect(self.add_remote_folder)
-
-        # XXX Temporarily(?) disabled due to magic-folder queue/status bugs
-        #self.monitor.transfer_progress_updated.connect(
-        #    self.set_transfer_progress)
+        self.monitor.transfer_progress_updated.connect(
+            self.set_transfer_progress)
 
     def on_space_updated(self, size):
         self.available_space = size
