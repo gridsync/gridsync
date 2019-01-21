@@ -126,7 +126,7 @@ def test_parse_status_state_up_to_date(mfc):
 
 
 def test_parse_status_append_failure(mfc):
-    task = {'kind': 'upload', 'status': 'failure'}
+    task = {'kind': 'upload', 'status': 'failure', 'path': '0', 'queued_at': 1}
     _, _, _, failures = mfc.parse_status([task])
     assert failures == [task]
 
