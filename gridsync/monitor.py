@@ -91,27 +91,28 @@ class MagicFolderChecker(QObject):
                 self.name, bytes_transferred, bytes_total,
                 int(bytes_transferred / bytes_total * 100), seconds_remaining)
 
-    def parse_status(self, status):
+    def parse_status(self, status_data):
         state = 0
         kind = ''
         filepath = ''
         failures = []
-        if status is not None:
-            for task in status:
+        if status_data is not None:
+            for task in status_data:
+                status = task['status']
                 path = task['path']
                 queued_at = task['queued_at']
-                self.operations["{}@{}".format(path, queued_at)] = task
-                if task['status'] in ('queued', 'started'):
+                if status in ('queued', 'started'):
                     if not self.sync_time_started:
-                        self.sync_time_started = task['queued_at']
-                    elif task['queued_at'] < self.sync_time_started:
-                        self.sync_time_started = task['queued_at']
-                    if not task['path'].endswith('/'):
+                        self.sync_time_started = queued_at
+                    elif queued_at < self.sync_time_started:
+                        self.sync_time_started = queued_at
+                    if not path.endswith('/'):
                         state = 1  # "Syncing"
                         kind = task['kind']
-                        filepath = task['path']
-                elif task['status'] == 'failure':
+                        filepath = path
+                elif status == 'failure':
                     failures.append(task)
+                self.operations["{}@{}".format(path, queued_at)] = task
             if not state:
                 state = 2  # "Up to date"
                 self.sync_time_started = 0
