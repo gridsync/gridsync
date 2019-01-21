@@ -128,7 +128,7 @@ class MagicFolderChecker(QObject):
                 logging.debug("Sync in progress (%s)", self.name)
                 logging.debug("%sing %s...", kind, filepath)
                 # TODO: Emit uploading/downloading signal?
-            self.emit_transfer_signals(status)
+            self.emit_transfer_signals(self.operations.values())
             remote_scan_needed = True
         elif state == 2:
             if self.state == 1:  # Sync just finished
