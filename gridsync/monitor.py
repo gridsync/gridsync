@@ -39,6 +39,7 @@ class MagicFolderChecker(QObject):
 
         self.members = []
         self.history = {}
+        self.operations = {}
 
         self.updated_files = []
         self.initial_scan_completed = False
@@ -97,6 +98,9 @@ class MagicFolderChecker(QObject):
         failures = []
         if status is not None:
             for task in status:
+                path = task['path']
+                queued_at = task['queued_at']
+                self.operations["{}@{}".format(path, queued_at)] = task
                 if task['status'] in ('queued', 'started'):
                     if not self.sync_time_started:
                         self.sync_time_started = task['queued_at']
@@ -136,6 +140,7 @@ class MagicFolderChecker(QObject):
                 logging.debug("Final scan complete (%s)", self.name)
                 self.sync_finished.emit()
                 self.notify_updated_files()
+                self.operations = {}
         if state != self.state:
             self.status_updated.emit(state)
         self.state = state
