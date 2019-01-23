@@ -18,7 +18,7 @@ if (major, minor) < (10, 10):
     print("Older Mac detected ({}); "
           "Downgrading SIP, PyQt5...".format(version))
     subprocess.call([
-        'python', 'm', 'pip', 'install', 'SIP==4.19.2', 'PyQt5==5.8.2'])
+        'python', '-m', 'pip', 'install', 'SIP==4.19.2', 'PyQt5==5.8.2'])
 # As of version 5.11, a "private" SIP module is provided by PyQt5, replacing
 # the standalone "SIP" library. Unfortunately, py2app seems unable to detect
 # the vendored version, so install the standalone SIP 4.19.8 library for now.
