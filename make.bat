@@ -96,7 +96,7 @@ if exist .\dist\Tahoe-LAFS.zip (
 )
 call %PYTHON3% -m venv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
-call pip install --upgrade setuptools pip
+call python -m pip install --upgrade setuptools pip
 call pip install -r .\requirements\requirements-hashes.txt
 call pip install . 
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
