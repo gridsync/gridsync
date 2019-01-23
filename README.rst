@@ -114,12 +114,12 @@ The following series of steps (run from the top level of the Gridsync source tre
 
     sudo apt-get install build-essential libffi-dev libssl-dev python python-dev python3 python3-dev virtualenv
     virtualenv --python=python2 ./venv2
-    ./venv2/bin/pip install --upgrade setuptools pip
-    ./venv2/bin/pip install tahoe-lafs
+    ./venv2/bin/python -m pip install --upgrade setuptools pip
+    ./venv2/bin/python -m pip install tahoe-lafs
     virtualenv --python=python3 ./venv3
-    ./venv3/bin/pip install --upgrade setuptools pip
-    ./venv3/bin/pip install -r requirements/requirements-hashes.txt
-    ./venv3/bin/pip install .
+    ./venv3/bin/python -m pip install --upgrade setuptools pip
+    ./venv3/bin/python -m pip install -r requirements/requirements-hashes.txt
+    ./venv3/bin/python -m pip install .
     PATH=$PATH:./venv2/bin ./venv3/bin/gridsync
 
 

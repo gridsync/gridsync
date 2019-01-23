@@ -7,6 +7,7 @@ except ImportError:
     from mock import MagicMock
 
 import pytest
+from pytest_twisted import inlineCallbacks
 from twisted.internet.defer import returnValue
 import yaml
 
@@ -233,7 +234,7 @@ def test_load_magic_folders(tahoe):
     assert tahoe.magic_folders['test_folder']['directory'] == 'test_dir'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_command_win32_monkeypatch(tahoe, monkeypatch):
     monkeypatch.setattr('sys.platform', 'win32')
     monkeypatch.setattr('sys.frozen', True, raising=False)
@@ -243,14 +244,14 @@ def test_tahoe_command_win32_monkeypatch(tahoe, monkeypatch):
     assert output == 'test output'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_get_features_multi_magic_folder_support(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: 'test')
     output = yield tahoe.get_features()
     assert output == ('tahoe_exe', True, True)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_get_features_no_multi_magic_folder_support(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', MagicMock(
         side_effect=TahoeCommandError('Unknown command: list')))
@@ -258,7 +259,7 @@ def test_tahoe_get_features_no_multi_magic_folder_support(tahoe, monkeypatch):
     assert output == ('tahoe_exe', True, False)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_get_features_no_magic_folder_support(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', MagicMock(
         side_effect=TahoeCommandError('Unknown command: magic-folder')))
@@ -266,13 +267,13 @@ def test_tahoe_get_features_no_magic_folder_support(tahoe, monkeypatch):
     assert output == ('tahoe_exe', False, False)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(FileExistsError):
         yield tahoe.create_client()
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_create_client_args(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
 
@@ -283,7 +284,7 @@ def test_tahoe_create_client_args(tahoe, monkeypatch):
     assert set(['--nickname', 'test_nickname']).issubset(set(args))
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
 
@@ -294,7 +295,7 @@ def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     assert set(['--shares-happy', '7']).issubset(set(args))
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
 
@@ -306,7 +307,7 @@ def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
     assert '--hide-ip' in args
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     nodedir = str(tmpdir.mkdir('TestGrid'))
     os.makedirs(os.path.join(nodedir, 'private'))
@@ -345,7 +346,7 @@ def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
     assert (killed[0], removed[0]) == (4194305, pidfile)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     def return_args(_, args):
         returnValue(args)
@@ -355,7 +356,7 @@ def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     assert output == ['stop']
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_get_grid_status(tahoe, monkeypatch):
     json_content = b'''{
         "introducers": {
@@ -396,7 +397,7 @@ def test_get_grid_status(tahoe, monkeypatch):
     assert (num_connected, num_known, available_space) == (2, 3, 3072)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_get_connected_servers(tahoe, monkeypatch):
     html = b'Connected to <span>3</span>of <span>10</span>'
     monkeypatch.setattr('treq.get', fake_get)
@@ -405,13 +406,13 @@ def test_get_connected_servers(tahoe, monkeypatch):
     assert output == 3
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_is_ready_false_not_shares_happy(tahoe, monkeypatch):
     output = yield tahoe.is_ready()
     assert output is False
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
@@ -420,7 +421,7 @@ def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
     assert output is False
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_is_ready_true(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
@@ -429,7 +430,7 @@ def test_is_ready_true(tahoe, monkeypatch):
     assert output is True
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
@@ -438,14 +439,14 @@ def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
     assert output is False
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_await_ready(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.is_ready', lambda _: True)
     yield tahoe.await_ready()
     assert True
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_mkdir(tahoe, monkeypatch):
     monkeypatch.setattr('treq.post', fake_post)
     monkeypatch.setattr('treq.content', lambda _: b'URI:DIR2:abc234:def567')
@@ -453,7 +454,7 @@ def test_tahoe_mkdir(tahoe, monkeypatch):
     assert output == 'URI:DIR2:abc234:def567'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr('treq.post', fake_post_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
@@ -461,20 +462,20 @@ def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
         yield tahoe.mkdir()
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_create_rootcap(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
     output = yield tahoe.create_rootcap()
     assert output == 'URI:DIR2:abc'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_create_rootcap_already_exists(tahoe, monkeypatch):
     with pytest.raises(OSError):
         yield tahoe.create_rootcap()
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_upload(tahoe, monkeypatch):
     monkeypatch.setattr('treq.put', fake_put)
     monkeypatch.setattr('treq.content', lambda _: b'test_cap')
@@ -482,7 +483,7 @@ def test_tahoe_upload(tahoe, monkeypatch):
     assert output == 'test_cap'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr('treq.put', fake_put_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
@@ -490,7 +491,7 @@ def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
         yield tahoe.upload(tahoe.rootcap_path)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_download(tahoe, monkeypatch):
     def fake_collect(response, collector):
         collector(b'test_content')  # f.write(b'test_content')
@@ -503,7 +504,7 @@ def test_tahoe_download(tahoe, monkeypatch):
         assert content == 'test_content'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr('treq.get', fake_get_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
@@ -511,14 +512,14 @@ def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
         yield tahoe.download('test_cap', os.path.join(tahoe.nodedir, 'nofile'))
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_link(tahoe, monkeypatch):
     monkeypatch.setattr('treq.post', fake_post)
     yield tahoe.link('test_dircap', 'test_childname', 'test_childcap')
     assert True
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_link_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr('treq.post', fake_post_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
@@ -526,14 +527,14 @@ def test_tahoe_link_fail_code_500(tahoe, monkeypatch):
         yield tahoe.link('test_dircap', 'test_childname', 'test_childcap')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_unlink(tahoe, monkeypatch):
     monkeypatch.setattr('treq.post', fake_post)
     yield tahoe.unlink('test_dircap', 'test_childname')
     assert True
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr('treq.post', fake_post_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
@@ -571,7 +572,7 @@ def test_magic_folder_exists_false(tahoe):
     assert not tahoe.magic_folder_exists('ExistingTestFolder')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_magic_folder_invite(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.is_ready', lambda _: True)
     monkeypatch.setattr(
@@ -583,14 +584,14 @@ def test_tahoe_magic_folder_invite(tahoe, monkeypatch):
     assert output == 'URI:c+URI:u'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_magic_folder_invite_raise_tahoe_error(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.is_ready', lambda _: True)
     with pytest.raises(TahoeError):
         yield tahoe.magic_folder_invite('Test Folder', 'Bob')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_magic_folder_uninvite(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.unlink', lambda x, y, z: None)
     monkeypatch.setattr('gridsync.tahoe.Tahoe.get_alias', lambda x, y: 'test')
@@ -598,7 +599,7 @@ def test_tahoe_magic_folder_uninvite(tahoe, monkeypatch):
     assert True
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_magic_folder_uninvite_from_subclient(tahoe, monkeypatch):
     tahoe.magic_folders['TestUninviteFolder'] = {'client': MagicMock()}
     monkeypatch.setattr('gridsync.tahoe.Tahoe.unlink', lambda x, y, z: None)
@@ -607,7 +608,7 @@ def test_tahoe_magic_folder_uninvite_from_subclient(tahoe, monkeypatch):
     assert True
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_upgrade_legacy_config(tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-legacy')))
     os.makedirs(os.path.join(client.nodedir, 'private'))
@@ -641,7 +642,7 @@ def test_upgrade_legacy_config(tmpdir_factory):
     assert not os.path.exists(client.magic_folders_dir)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
     privatedir = os.path.join(client.nodedir, 'private')
@@ -656,7 +657,7 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     assert not client.use_tor
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
     privatedir = os.path.join(client.nodedir, 'private')

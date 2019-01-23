@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+from pytest_twisted import inlineCallbacks
 from wormhole.errors import WormholeError
 
 from gridsync.errors import UpgradeRequiredError, TorError
@@ -16,7 +17,7 @@ def wormhole():
     return w
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_connect_emit_got_welcome_signal(qtbot, wormhole):
     wormhole._wormhole.get_welcome.return_value = {'current_cli_version': '0'}
     with qtbot.wait_signal(wormhole.got_welcome) as blocker:
@@ -24,7 +25,7 @@ def test_wormhole_connect_emit_got_welcome_signal(qtbot, wormhole):
     assert blocker.args == [{'current_cli_version': '0'}]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_connect_use_tor(qtbot, monkeypatch, wormhole):
     kwargs_received = []
 
@@ -40,7 +41,7 @@ def test_wormhole_connect_use_tor(qtbot, monkeypatch, wormhole):
     wormhole.use_tor = False
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_use_tor_raise_tor_error(qtbot, monkeypatch, wormhole):
     monkeypatch.setattr('gridsync.wormhole_.get_tor', lambda _: None)
     wormhole.use_tor = True
@@ -49,14 +50,14 @@ def test_wormhole_use_tor_raise_tor_error(qtbot, monkeypatch, wormhole):
     wormhole.use_tor = False
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_close_emit_closed_signal(qtbot, wormhole):
     with qtbot.wait_signal(wormhole.closed) as blocker:
         yield wormhole.close()
     assert blocker.args == []
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_close_emit_closed_signal_with_wormhole_error_pass(qtbot):
     wormhole = Wormhole()
     wormhole._wormhole = MagicMock()
@@ -66,7 +67,7 @@ def test_wormhole_close_emit_closed_signal_with_wormhole_error_pass(qtbot):
     assert blocker.args == []
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_via_xfer_util(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"offer": {"message": "{\\"nickname\\": \\"Test Grid\\"}"}}'
@@ -74,7 +75,7 @@ def test_wormhole_receive_via_xfer_util(qtbot, wormhole):
     assert output == {"nickname": "Test Grid"}
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_via_xfer_util_raise_unknown_offer(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"offer": {"NOT_message": "{\\"nickname\\": \\"Test Grid\\"}"}}'
@@ -82,7 +83,7 @@ def test_wormhole_receive_via_xfer_util_raise_unknown_offer(qtbot, wormhole):
         yield wormhole.receive('123-test-test')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_emit_got_introduction_signal(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"server-v1": {}}}'
@@ -90,14 +91,14 @@ def test_wormhole_receive_emit_got_introduction_signal(qtbot, wormhole):
         yield wormhole.receive('123-test-test')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_raise_upgrade_required_no_abilities(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = b'{"blah": "blah"}'
     with pytest.raises(UpgradeRequiredError):
         yield wormhole.receive('123-test-test')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_raise_upgrade_required_bad_version(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"server-v9999": {}}}'
@@ -105,7 +106,7 @@ def test_wormhole_receive_raise_upgrade_required_bad_version(qtbot, wormhole):
         yield wormhole.receive('123-test-test')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_succeed_return_msg_dict(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"server-v1": {}}}'
@@ -113,7 +114,7 @@ def test_wormhole_receive_succeed_return_msg_dict(qtbot, wormhole):
     assert output == {'abilities': {'server-v1': {}}}
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_succeed_emit_got_message_signal(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"offer": {"message": "{\\"nickname\\": \\"Test Grid\\"}"}}'
@@ -122,7 +123,7 @@ def test_wormhole_receive_succeed_emit_got_message_signal(qtbot, wormhole):
     assert blocker.args == [{'nickname': 'Test Grid'}]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_send_emit_got_introduction_signal(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"client-v1": {}}}'
@@ -130,14 +131,14 @@ def test_wormhole_send_emit_got_introduction_signal(qtbot, wormhole):
         yield wormhole.send('Testing', '123-test-test')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_send_raise_upgrade_required_no_abilities(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = b'{"blah": "blah"}'
     with pytest.raises(UpgradeRequiredError):
         yield wormhole.send('Testing', '123-test-test')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_send_raise_upgrade_required_bad_version(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"server-v9999": {}}}'
@@ -145,7 +146,7 @@ def test_wormhole_send_raise_upgrade_required_bad_version(qtbot, wormhole):
         yield wormhole.send('Testing', '123-test-test')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_send_allocate_code_emit_got_code_signal(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"client-v1": {}}}'
@@ -155,7 +156,7 @@ def test_wormhole_send_allocate_code_emit_got_code_signal(qtbot, wormhole):
     assert blocker.args == ['9999-test-code']
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_send_succeed_emit_send_completed_signal(qtbot, wormhole):
     wormhole._wormhole.get_message.return_value = \
         b'{"abilities": {"client-v1": {}}}'
@@ -163,7 +164,7 @@ def test_wormhole_send_succeed_emit_send_completed_signal(qtbot, wormhole):
         yield wormhole.send('Testing')
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_receive_function(monkeypatch):
     monkeypatch.setattr(
         'gridsync.wormhole_.Wormhole.receive', lambda x, y: 'msg')
@@ -171,7 +172,7 @@ def test_wormhole_receive_function(monkeypatch):
     assert output == 'msg'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_wormhole_send_function(monkeypatch):
     monkeypatch.setattr(
         'gridsync.wormhole_.Wormhole.send', lambda x, y, z: None)

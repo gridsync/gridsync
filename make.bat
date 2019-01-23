@@ -67,16 +67,17 @@ call .\build\venv-tahoe\Scripts\activate
 ::call powershell -Command "(New-Object Net.WebClient).DownloadFile('https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.zip', '.\build\tahoe-lafs.zip')"
 ::call C:\Python27\python.exe -m zipfile -e .\build\tahoe-lafs.zip .\build
 ::call move .\build\tahoe-lafs-1.11.0 .\build\tahoe-lafs
-call pip install --upgrade setuptools pip
+call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call git --git-dir=build\tahoe-lafs\.git --work-tree=build\tahoe-lafs checkout tahoe-lafs-1.13.0
 ::call copy .\misc\tahoe.spec .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call python setup.py update_version
-call pip install .
-call pip install packaging
-call pip install pyinstaller==3.4
-call pip list
+call python -m pip install .
+call python -m pip install packaging
+:: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
+call python -m pip install --no-use-pep517 pyinstaller==3.4
+call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
 call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
@@ -95,11 +96,12 @@ if exist .\dist\Tahoe-LAFS.zip (
 )
 call %PYTHON3% -m venv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
-call pip install --upgrade setuptools pip
-call pip install -r .\requirements\requirements-hashes.txt
-call pip install . 
-call pip install pyinstaller==3.4
-call pip list
+call python -m pip install --upgrade setuptools pip
+call python -m pip install -r .\requirements\requirements-hashes.txt
+call python -m pip install . 
+:: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
+call python -m pip install --no-use-pep517 pyinstaller==3.4
+call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller -y --clean misc\gridsync.spec
 call set PYTHONHASHSEED=

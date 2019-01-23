@@ -5,6 +5,7 @@ import os
 from unittest.mock import MagicMock
 
 import pytest
+from pytest_twisted import inlineCallbacks
 import yaml
 
 from gridsync import resource
@@ -318,7 +319,7 @@ def fake_get_code_500(*args, **kwargs):
     return response
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_fetch_icon(monkeypatch, tmpdir):
     sr = SetupRunner([])
     dest = str(tmpdir.join('icon.png'))
@@ -329,7 +330,7 @@ def test_fetch_icon(monkeypatch, tmpdir):
         assert f.read() == '0'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_fetch_icon_use_tor(monkeypatch, tmpdir):
     sr = SetupRunner([], use_tor=True)
     dest = str(tmpdir.join('icon.png'))
@@ -355,7 +356,7 @@ def test_fetch_icon_use_tor(monkeypatch, tmpdir):
     assert kwargs_received == [{'agent': fake_tor_web_agent}]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_fetch_icon_use_tor_raise_tor_error(monkeypatch, tmpdir):
     sr = SetupRunner([], use_tor=True)
     dest = str(tmpdir.join('icon.png'))
@@ -364,7 +365,7 @@ def test_fetch_icon_use_tor_raise_tor_error(monkeypatch, tmpdir):
         yield sr.fetch_icon('http://example.org/icon.png', dest)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_fetch_icon_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     sr = SetupRunner([])
     dest = str(tmpdir.join('icon.png'))
@@ -375,7 +376,7 @@ def test_fetch_icon_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     assert blocker.args == [dest]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     sr = SetupRunner([])
     dest = str(tmpdir.join('icon.png'))
@@ -384,7 +385,7 @@ def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
         yield sr.fetch_icon('http://example.org/icon.png', dest)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_grid_emit_update_progress_signal(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr(
         'gridsync.setup.select_executable', lambda: (None, None))
@@ -398,7 +399,7 @@ def test_join_grid_emit_update_progress_signal(monkeypatch, qtbot, tmpdir):
     assert blocker.args == ["Connecting to TestGrid..."]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_grid_emit_update_progress_signal_via_tor(
         monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr(
@@ -413,7 +414,7 @@ def test_join_grid_emit_update_progress_signal_via_tor(
     assert blocker.args == ["Connecting to TestGrid via Tor..."]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_grid_emit_got_icon_signal_nickname_least_authority_s4(
         monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr(
@@ -428,7 +429,7 @@ def test_join_grid_emit_got_icon_signal_nickname_least_authority_s4(
     assert blocker.args == [resource('leastauthority.com.icon')]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_grid_emit_got_icon_signal_icon_base64(monkeypatch, qtbot,
                                                     tmpdir):
     tmp_config_dir = str(tmpdir.mkdir('config_dir'))
@@ -443,7 +444,7 @@ def test_join_grid_emit_got_icon_signal_icon_base64(monkeypatch, qtbot,
     assert blocker.args == [os.path.join(tmp_config_dir, '.icon.tmp')]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_grid_emit_got_icon_signal_icon_url(monkeypatch, qtbot, tmpdir):
     tmp_config_dir = str(tmpdir.mkdir('config_dir'))
     os.makedirs(os.path.join(tmp_config_dir, 'TestGrid'))
@@ -460,7 +461,7 @@ def test_join_grid_emit_got_icon_signal_icon_url(monkeypatch, qtbot, tmpdir):
     assert blocker.args == [os.path.join(tmp_config_dir, '.icon.tmp')]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr(
         'gridsync.setup.select_executable', lambda: (None, None))
@@ -478,7 +479,7 @@ def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
         yield sr.join_grid(settings)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_grid_storage_servers(monkeypatch, tmpdir):
     monkeypatch.setattr(
         'gridsync.setup.select_executable', lambda: (None, None))
@@ -497,7 +498,7 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
     yield sr.join_grid(settings)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_ensure_recovery_write_settings(tmpdir):
     nodedir = str(tmpdir.mkdir('TestGrid'))
     os.makedirs(os.path.join(nodedir, 'private'))
@@ -509,7 +510,7 @@ def test_ensure_recovery_write_settings(tmpdir):
         assert json.loads(f.read()) == settings
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
     nodedir = str(tmpdir.mkdir('TestGrid'))
     os.makedirs(os.path.join(nodedir, 'private'))
@@ -526,7 +527,7 @@ def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
     yield sr.ensure_recovery(settings)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
     nodedir = str(tmpdir.mkdir('TestGrid'))
     os.makedirs(os.path.join(nodedir, 'private'))
@@ -545,7 +546,7 @@ def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
     yield sr.ensure_recovery(settings)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.link', lambda a, b, c, d: None)
     sr = SetupRunner([])
@@ -557,14 +558,14 @@ def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
     assert blocker.args == [['TestFolder']]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_run_raise_upgrade_required_error():
     sr = SetupRunner([])
     with pytest.raises(UpgradeRequiredError):
         yield sr.run({'version': 9999})
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_run_join_grid(monkeypatch):
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: None)
@@ -582,7 +583,7 @@ def test_run_join_grid(monkeypatch):
     yield sr.run(settings)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_run_join_grid_use_tor(monkeypatch):
     monkeypatch.setattr('gridsync.tor.get_tor', lambda _: 'FakeTorObject')
     monkeypatch.setattr(
@@ -599,7 +600,7 @@ def test_run_join_grid_use_tor(monkeypatch):
     assert settings['hide-ip']
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_run_join_grid_use_tor_raise_tor_error(monkeypatch):
     monkeypatch.setattr('gridsync.setup.get_tor_with_prompt', lambda _: None)
     sr = SetupRunner([], use_tor=True)
@@ -608,7 +609,7 @@ def test_run_join_grid_use_tor_raise_tor_error(monkeypatch):
         yield sr.run(settings)
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')
@@ -625,7 +626,7 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     assert blocker.args == ['TestGrid']
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_run_emit_done_signal(monkeypatch, qtbot):
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')

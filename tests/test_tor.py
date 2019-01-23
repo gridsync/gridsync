@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 from PyQt5.QtWidgets import QMessageBox
 import pytest
+from pytest_twisted import inlineCallbacks
 
 from gridsync.tor import tor_required, get_tor, get_tor_with_prompt
 
@@ -20,7 +21,7 @@ def test_tor_required(furl, result):
     assert tor_required(furl) == result
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_get_tor(monkeypatch):
     fake_tor = MagicMock()
     monkeypatch.setattr('txtorcon.connect', lambda _: fake_tor)
@@ -28,7 +29,7 @@ def test_get_tor(monkeypatch):
     assert tor == fake_tor
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_get_tor_return_none(monkeypatch):
     fake_connect = MagicMock(side_effect=RuntimeError())
     monkeypatch.setattr('txtorcon.connect', fake_connect)
@@ -36,7 +37,7 @@ def test_get_tor_return_none(monkeypatch):
     assert tor is None
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_get_tor_with_prompt_retry(monkeypatch):
     monkeypatch.setattr(
         'gridsync.tor.get_tor', MagicMock(side_effect=[None, 'FakeTxtorcon']))
@@ -47,7 +48,7 @@ def test_get_tor_with_prompt_retry(monkeypatch):
     assert tor == 'FakeTxtorcon'
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_get_tor_with_prompt_abort(monkeypatch):
     monkeypatch.setattr(
         'gridsync.tor.get_tor', MagicMock(return_value=None))
