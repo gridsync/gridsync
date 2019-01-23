@@ -226,13 +226,13 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
 	python setup.py update_version && \
-	pip install --find-links=https://tahoe-lafs.org/deps/ . && \
+	python -m pip install --find-links=https://tahoe-lafs.org/deps/ . && \
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
-	pip install packaging && \
-	pip install pyinstaller==3.4 && \
-	pip list && \
+	python -m pip install packaging && \
+	python -m pip install pyinstaller==3.4 && \
+	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
 	rm -rf dist/Tahoe-LAFS/cryptography-2.4.2-py2.7.egg-info && \
@@ -242,7 +242,7 @@ frozen-tahoe:
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
 install:
-	pip3 install --upgrade .
+	python3 -m pip install --upgrade .
 
 pyinstaller:
 	if [ -f dist/Tahoe-LAFS.zip ] ; then \
@@ -252,17 +252,17 @@ pyinstaller:
 	fi;
 	python3 -m virtualenv --clear --python=python3.6 build/venv-gridsync
 	source build/venv-gridsync/bin/activate && \
-	pip install --upgrade pip && \
-	pip install -r requirements/requirements-hashes.txt && \
-	pip install . && \
+	python -m pip install --upgrade pip && \
+	python -m pip install -r requirements/requirements-hashes.txt && \
+	python -m pip install . && \
 	case `uname` in \
 		Darwin) \
 			python scripts/maybe_rebuild_libsodium.py && \
 			python scripts/maybe_downgrade_pyqt.py \
 		;; \
 	esac &&	\
-	pip install pyinstaller==3.4 && \
-	pip list && \
+	python -m pip install pyinstaller==3.4 && \
+	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/gridsync.spec
 
@@ -274,17 +274,17 @@ py2app:
 	fi;
 	python3 -m virtualenv --clear --python=python3.6 build/venv-py2app
 	source build/venv-py2app/bin/activate && \
-	pip install --upgrade pip && \
-	pip install -r requirements/requirements-hashes.txt && \
+	python -m pip install --upgrade pip && \
+	python -m pip install -r requirements/requirements-hashes.txt && \
 	case `uname` in \
 		Darwin) \
 			python scripts/maybe_rebuild_libsodium.py && \
 			python scripts/maybe_downgrade_pyqt.py \
 		;; \
 	esac &&	\
-	pip install . && \
-	pip install py2app && \
-	pip list && \
+	python -m pip install . && \
+	python -m pip install py2app && \
+	python -m pip list && \
 	python setup.py py2app && \
 	python scripts/strip_py2app_bundle.py
 	cp -r gridsync/resources dist/Gridsync.app/Contents/MacOS
@@ -294,7 +294,7 @@ py2app:
 dmg:
 	python3 -m virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
-	pip install dmgbuild && \
+	python -m pip install dmgbuild && \
 	python misc/call_dmgbuild.py
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
@@ -339,4 +339,4 @@ pypi-release:
 	twine upload --verbose dist/gridsync-*.*
 
 uninstall:
-	pip3 uninstall -y gridsync
+	python3 -m pip uninstall -y gridsync

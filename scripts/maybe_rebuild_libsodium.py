@@ -20,5 +20,5 @@ if (major, minor) < (10, 10):
     # XXX Keep pinned to 1.2.1 for now; version 1.3.0 raises "AttributeError:
     # cffi library '_sodium' has no function, constant or global variable named
     # 'crypto_aead_chacha20poly1305_ietf_keybytes'"
-    subprocess.call(['pip', 'install', '--force-reinstall', '--no-deps',
-                     '--no-binary', 'PyNaCl', 'PyNaCl==1.2.1'])
+    subprocess.call(['python', '-m', 'pip', 'install', '--force-reinstall',
+                     '--no-deps', '--no-binary', 'PyNaCl', 'PyNaCl==1.2.1'])
