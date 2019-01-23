@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock, call
 
 import pytest
+from pytest_twisted import inlineCallbacks
 
 from gridsync.monitor import MagicFolderChecker, GridChecker, Monitor
 
@@ -337,7 +338,7 @@ fake_gateway.get_magic_folder_state = MagicMock(
 )
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_do_remote_scan_emit_members_updated(mfc, qtbot):
     mfc.gateway = fake_gateway
     with qtbot.wait_signal(mfc.members_updated) as blocker:
@@ -345,7 +346,7 @@ def test_do_remote_scan_emit_members_updated(mfc, qtbot):
     assert blocker.args == [[('Alice', 'URI:DIR2:aaaa:bbbb')]]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_do_remote_scan_emit_size_updated(mfc, qtbot):
     mfc.gateway = fake_gateway
     with qtbot.wait_signal(mfc.size_updated) as blocker:
@@ -353,7 +354,7 @@ def test_do_remote_scan_emit_size_updated(mfc, qtbot):
     assert blocker.args == [2048]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_do_remote_scan_emit_mtime_updated(mfc, qtbot):
     mfc.gateway = fake_gateway
     with qtbot.wait_signal(mfc.mtime_updated) as blocker:
@@ -361,7 +362,7 @@ def test_do_remote_scan_emit_mtime_updated(mfc, qtbot):
     assert blocker.args == [9999]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_do_check(mfc):
     mfc.gateway = MagicMock()
     mfc.gateway.get_magic_folder_status = MagicMock(return_value={})
@@ -370,7 +371,7 @@ def test_do_check(mfc):
     assert mfc.do_remote_scan.call_count
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_grid_checker_emit_space_updated(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
     gc.gateway.get_grid_status = MagicMock(return_value=(8, 10, 1234))
@@ -379,7 +380,7 @@ def test_grid_checker_emit_space_updated(qtbot):
     assert blocker.args == [1234]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_grid_checker_emit_nodes_updated_(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
     gc.gateway.get_grid_status = MagicMock(return_value=(8, 10, 1234))
@@ -388,7 +389,7 @@ def test_grid_checker_emit_nodes_updated_(qtbot):
     assert blocker.args == [8, 10]
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_grid_checker_emit_connected(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
     gc.gateway.get_grid_status = MagicMock(return_value=(8, 10, 1234))
@@ -396,7 +397,7 @@ def test_grid_checker_emit_connected(qtbot):
         yield gc.do_check()
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_grid_checker_emit_disconnected(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
     gc.gateway.get_grid_status = MagicMock(return_value=(5, 10, 1234))
@@ -405,7 +406,7 @@ def test_grid_checker_emit_disconnected(qtbot):
         yield gc.do_check()
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_grid_checker_not_connected(qtbot):
     gc = GridChecker(MagicMock(shares_happy=0))
     gc.gateway.get_grid_status = MagicMock(return_value=None)
@@ -419,7 +420,7 @@ def test_monitor_add_magic_folder_checker():
     assert 'TestFolder' in monitor.magic_folder_checkers
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_monitor_scan_rootcap_no_folders():
     monitor = Monitor(MagicMock())
     monitor.gateway.await_ready = MagicMock(return_value=True)
@@ -429,7 +430,7 @@ def test_monitor_scan_rootcap_no_folders():
     assert monitor.magic_folder_checkers == {}
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_monitor_scan_rootcap_add_folder(qtbot, monkeypatch):
     monitor = Monitor(MagicMock())
     monitor.gateway.await_ready = MagicMock(return_value=True)
@@ -443,7 +444,7 @@ def test_monitor_scan_rootcap_add_folder(qtbot, monkeypatch):
     assert blocker.args == ['TestFolder', 'test_overlay.png']
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_monitor_do_checks_add_magic_folder_checker(monkeypatch):
     monkeypatch.setattr(
         'gridsync.monitor.MagicFolderChecker.do_check', lambda _: MagicMock())
@@ -453,7 +454,7 @@ def test_monitor_do_checks_add_magic_folder_checker(monkeypatch):
     assert 'TestFolder' in monitor.magic_folder_checkers
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_monitor_do_checks_switch_magic_folder_checker_remote(monkeypatch):
     monkeypatch.setattr(
         'gridsync.monitor.MagicFolderChecker.do_check', lambda _: MagicMock())
@@ -466,7 +467,7 @@ def test_monitor_do_checks_switch_magic_folder_checker_remote(monkeypatch):
     assert monitor.magic_folder_checkers['TestFolder'].remote is False
 
 
-@pytest.inlineCallbacks
+@inlineCallbacks
 def test_monitor_emit_check_finished(monkeypatch, qtbot):
     monkeypatch.setattr(
         'gridsync.monitor.MagicFolderChecker.do_check', lambda _: MagicMock())
