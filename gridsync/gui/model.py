@@ -237,8 +237,28 @@ class Model(QStandardItemModel):
         items = self.findItems(folder_name)
         if not items:
             return
+        percent_done = int(transferred / total * 100)
+        if not percent_done:
+            # Magic-folder's periodic "full scan" (which occurs every 10
+            # minutes) temporarily adds *all* known files to the queue
+            # exposed by the "status" API for a very brief period (seemingly
+            # for only a second or two). Because of this -- and since we rely
+            # on the magic-folder "status" API to tell us information about
+            # current and pending transfers to calculate total progress --
+            # existing "syncing" operations will briefly display a progress
+            # of "0%" during this time (since the number of bytes to be
+            # transferred briefly becomes equal to the total size of the
+            # entire folder -- even though those transfers do not occur and
+            # vanish from the queue as soon as the the "full scan" is
+            # completed). To compensate for this strange (and rare) event --
+            # and because it's probably jarring to the end-user to see
+            # progress dip down to "0%" for a brief moment before returning to
+            # normal -- we ignore any updates to "0" here (on the assumption
+            # that it's better to have a couple of seconds of no progress
+            # updates than a progress update which is wrong or misleading).
+            return
         item = self.item(items[0].row(), 1)
-        item.setText("Syncing ({}%)".format(int(transferred / total * 100)))
+        item.setText("Syncing ({}%)".format(percent_done))
 
     def fade_row(self, folder_name, overlay_file=None):
         folder_item = self.findItems(folder_name)[0]
