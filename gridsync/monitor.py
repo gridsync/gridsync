@@ -39,6 +39,7 @@ class MagicFolderChecker(QObject):
 
         self.members = []
         self.history = {}
+        self.operations = {}
 
         self.updated_files = []
         self.initial_scan_completed = False
@@ -65,7 +66,7 @@ class MagicFolderChecker(QObject):
                 self.files_updated.emit(files, action, author)
 
     def emit_transfer_signals(self, status):
-        # XXX This does not take into account erasure coding overhead
+        # This does not take into account erasure coding overhead
         bytes_transferred = 0
         bytes_total = 0
         for task in status:
@@ -76,7 +77,11 @@ class MagicFolderChecker(QObject):
                 if task['status'] in ('queued', 'started', 'success'):
                     bytes_total += size
                 if task['status'] in ('started', 'success'):
-                    bytes_transferred += size * task['percent_done'] / 100
+                    # A (temporary?) workaround for Tahoe-LAFS ticket #2954
+                    # whereby 'percent_done' will sometimes exceed 100%
+                    # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2954
+                    percent_done = min(100, task['percent_done'])
+                    bytes_transferred += size * percent_done / 100
         if bytes_transferred and bytes_total:
             self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
             duration = time.time() - self.sync_time_started
@@ -90,28 +95,32 @@ class MagicFolderChecker(QObject):
                 self.name, bytes_transferred, bytes_total,
                 int(bytes_transferred / bytes_total * 100), seconds_remaining)
 
-    def parse_status(self, status):
+    def parse_status(self, status_data):
         state = 0
         kind = ''
-        path = ''
+        filepath = ''
         failures = []
-        if status is not None:
-            for task in status:
-                if task['status'] in ('queued', 'started'):
+        if status_data is not None:
+            for task in status_data:
+                status = task['status']
+                path = task['path']
+                queued_at = task['queued_at']
+                if status in ('queued', 'started'):
                     if not self.sync_time_started:
-                        self.sync_time_started = task['queued_at']
-                    elif task['queued_at'] < self.sync_time_started:
-                        self.sync_time_started = task['queued_at']
-                    if not task['path'].endswith('/'):
+                        self.sync_time_started = queued_at
+                    elif queued_at < self.sync_time_started:
+                        self.sync_time_started = queued_at
+                    if not path.endswith('/'):
                         state = 1  # "Syncing"
                         kind = task['kind']
-                        path = task['path']
-                elif task['status'] == 'failure':
+                        filepath = path
+                elif status == 'failure':
                     failures.append(task)
+                self.operations["{}@{}".format(path, queued_at)] = task
             if not state:
                 state = 2  # "Up to date"
                 self.sync_time_started = 0
-        return state, kind, path, failures
+        return state, kind, filepath, failures
 
     def process_status(self, status):
         remote_scan_needed = False
@@ -124,7 +133,7 @@ class MagicFolderChecker(QObject):
                 logging.debug("Sync in progress (%s)", self.name)
                 logging.debug("%sing %s...", kind, filepath)
                 # TODO: Emit uploading/downloading signal?
-            self.emit_transfer_signals(status)
+            self.emit_transfer_signals(self.operations.values())
             remote_scan_needed = True
         elif state == 2:
             if self.state == 1:  # Sync just finished
@@ -136,6 +145,7 @@ class MagicFolderChecker(QObject):
                 logging.debug("Final scan complete (%s)", self.name)
                 self.sync_finished.emit()
                 self.notify_updated_files()
+                self.operations = {}
         if state != self.state:
             self.status_updated.emit(state)
         self.state = state
