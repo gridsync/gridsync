@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Added
+- A rudimentary, text-based progress-indicator has been implemented, displaying the overall percentage of transferred/remaining bytes during folder-syncing operations (shown under the "Status" column of the folder-manager) (Issue #132, PR #142)
+
+### Changed
+- The interprocess mutex (used to prevent multiple instances of Gridsync from running at the same time) has been changed from a listening TCP port to a filesystem lock (using `fcntl` on UNIX-based systems), preventing false "Gridsync is already running" errors under some macOS 10.14 environments (Issue #138, PR #141)
+
 ## 0.4.0 - 2019-01-11
 ### Added
 - Tor integration (**EXPERIMENTAL**)
