@@ -187,8 +187,27 @@ class View(QTreeView):
         for folder in folders:
             data = self.gateway.remote_magic_folders[folder]
             admin_dircap = data.get('admin_dircap')
-            collective_dircap = data['collective_dircap']
-            upload_dircap = data['upload_dircap']
+            collective_dircap = data.get('collective_dircap')
+            upload_dircap = data.get('upload_dircap')
+            if not collective_dircap or not upload_dircap:
+                msgbox = QMessageBox(self)
+                msgbox.setIcon(QMessageBox.Critical)
+                title = 'Error Restoring Folder'
+                text = (
+                    'The capabilities needed to restore the folder "{}" could '
+                    'not be found. This probably means that the folder was '
+                    'never completely uploaded to begin with -- or worse, '
+                    'that your rootcap was corrupted somehow after the fact.\n'
+                    '\nYou will need to remove this folder and upload it '
+                    'again.'.format(folder))
+                if sys.platform == 'darwin':
+                    msgbox.setText(title)
+                    msgbox.setInformativeText(text)
+                else:
+                    msgbox.setWindowTitle(title)
+                    msgbox.setText(text)
+                msgbox.exec_()
+                return
             join_code = "{}+{}".format(collective_dircap, upload_dircap)
             path = os.path.join(dest, folder)
             tasks.append(
