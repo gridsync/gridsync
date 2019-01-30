@@ -28,6 +28,26 @@ from gridsync.tor import get_tor
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
 
 
+def print_environment_info():
+    print('################################################')
+    from PyQt5.QtCore import QLibraryInfo
+    print("ArchDataPath =", QLibraryInfo.location(QLibraryInfo.ArchDataPath))
+    print("BinariesPath =", QLibraryInfo.location(QLibraryInfo.BinariesPath))
+    print("DataPath =", QLibraryInfo.location(QLibraryInfo.DataPath))
+    print("ImportsPath =", QLibraryInfo.location(QLibraryInfo.ImportsPath))
+    print("HeadersPath =", QLibraryInfo.location(QLibraryInfo.HeadersPath))
+    print("LibrariesPath =", QLibraryInfo.location(QLibraryInfo.LibrariesPath))
+    print(
+        "LibraryExecutablesPath =",
+        QLibraryInfo.location(QLibraryInfo.LibraryExecutablesPath))
+    print("PrefixPath =", QLibraryInfo.location(QLibraryInfo.PrefixPath))
+    print("SettingsPath =", QLibraryInfo.location(QLibraryInfo.SettingsPath))
+    print('------------------------------------------------')
+    for k, v, in sorted(os.environ.items()):
+        print("{}={}".format(k, v))
+    print('################################################')
+
+
 class Core():
     def __init__(self, args):
         self.args = args
@@ -83,7 +103,7 @@ class Core():
             os.makedirs(config_dir)
         except OSError:
             pass
-
+        print_environment_info()
         # Acquire a filesystem lock to prevent multiple instances from running
         lock = FilesystemLock(
             os.path.join(config_dir, "{}.lock".format(APP_NAME)))
