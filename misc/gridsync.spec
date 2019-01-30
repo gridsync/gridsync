@@ -63,7 +63,7 @@ exe = EXE(
     a.scripts,
     exclude_binaries=True,
     name=app_name,
-    debug=True,
+    debug=(True if sys.platform.startswith('linux') else False),
     strip=False,
     upx=False,
     console=False,
