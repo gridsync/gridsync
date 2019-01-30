@@ -63,7 +63,7 @@ exe = EXE(
     a.scripts,
     exclude_binaries=True,
     name=app_name,
-    debug=False,
+    debug=True,
     strip=False,
     upx=False,
     console=False,
