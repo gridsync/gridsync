@@ -70,6 +70,10 @@ def open_enclosing_folder(path):
         # TODO: Get file-manager via `xdg-mime query default inode/directory`
         # and, if 'org.gnome.Nautilus.desktop', call `nautilus --select`?
         #subprocess.Popen(['xdg-open', os.path.dirname(path)])
+        try:
+            del os.environ['LD_LIBRARY_PATH']
+        except KeyError:
+            pass
         QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.dirname(path)))
 
 
@@ -81,6 +85,10 @@ def open_path(path):
         os.startfile(path)
     else:
         #subprocess.Popen(['xdg-open', path])
+        try:
+            del os.environ['LD_LIBRARY_PATH']
+        except KeyError:
+            pass
         QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
