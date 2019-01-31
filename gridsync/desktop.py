@@ -5,8 +5,8 @@ import os
 import subprocess
 import sys
 
-from PyQt5.QtCore import QCoreApplication, QMetaType, QVariant
-from PyQt5.QtGui import QClipboard
+from PyQt5.QtCore import QCoreApplication, QMetaType, QUrl, QVariant
+from PyQt5.QtGui import QClipboard, QDesktopServices
 
 if sys.platform == 'win32':
     from win32com.client import Dispatch  # pylint: disable=import-error
@@ -69,7 +69,8 @@ def open_enclosing_folder(path):
     else:
         # TODO: Get file-manager via `xdg-mime query default inode/directory`
         # and, if 'org.gnome.Nautilus.desktop', call `nautilus --select`?
-        subprocess.Popen(['xdg-open', os.path.dirname(path)])
+        #subprocess.Popen(['xdg-open', os.path.dirname(path)])
+        QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.dirname(path)))
 
 
 def open_path(path):
@@ -79,7 +80,8 @@ def open_path(path):
     elif sys.platform == 'win32':
         os.startfile(path)
     else:
-        subprocess.Popen(['xdg-open', path])
+        #subprocess.Popen(['xdg-open', path])
+        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
 def get_clipboard_modes():
