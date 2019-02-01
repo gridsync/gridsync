@@ -62,7 +62,7 @@ def notify(systray, title, message, duration=5000):
 
 def _desktop_open(path):
     if getattr(sys, 'frozen', False):  # PyInstaller
-        # PyInstaller's bootloader sets the 'LD_LIBRARY_PATH' environment 
+        # PyInstaller's bootloader sets the 'LD_LIBRARY_PATH' environment
         # variable (to the root of the executable's directory) which causes
         # `xdg-open` to fail to locate/launch the associated file-manager.
         # Unsetting it here results in the correct file-manager launching as
