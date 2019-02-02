@@ -9,6 +9,7 @@
 
 ### Fixed
 - Gridsync will now display an error message -- rather than crash -- in the (rare) event that a user tries to restore a folder without actually possessing the correct capabilities to do so (Issue #143, PR #144)
+- The desktop environment-specific file-manager should now properly launch when opening a folder under a PyInstaller build on Linux (Issue #146, PR #148)
 
 ## 0.4.0 - 2019-01-11
 ### Added
