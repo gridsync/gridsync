@@ -7,7 +7,7 @@ import pytest
 
 from gridsync.desktop import (
     _dbus_notify, notify, get_clipboard_modes, get_clipboard_text,
-    set_clipboard_text, open_enclosing_folder, open_path,
+    set_clipboard_text, _desktop_open, open_enclosing_folder, open_path,
     autostart_enable, autostart_is_enabled, autostart_disable)
 
 
@@ -83,43 +83,88 @@ def test_notify_call_systray_show_message(monkeypatch):
     assert show_message_args == ['test_title', 'test_message', 9001]
 
 
+def test__desktop_open_call_qdesktopservices_openurl(monkeypatch):
+    fromlocalfile_mock = MagicMock()
+    monkeypatch.setattr('PyQt5.QtCore.QUrl.fromLocalFile', fromlocalfile_mock)
+    openurl_mock = MagicMock()
+    monkeypatch.setattr('PyQt5.QtGui.QDesktopServices.openUrl', openurl_mock)
+    _desktop_open('/test/path/file.txt')
+    assert openurl_mock.call_count == 1 and fromlocalfile_mock.mock_calls == [
+        call('/test/path/file.txt')]
+
+
 @pytest.mark.parametrize(
-    'platform,args',
+    'frozen,given_ldlp_value,expected_ldlp_value',
+    [(True, '/FAKE/PATH', None), (False, '/FAKE/PATH', '/FAKE/PATH')]
+)
+def test__desktop_open_unset_ld_library_path_if_frozen(
+        frozen, given_ldlp_value, expected_ldlp_value, monkeypatch):
+    observed_ldlp_value = []
+
+    def fake_openurl(_):
+        observed_ldlp_value.append(os.environ.get('LD_LIBRARY_PATH'))
+    monkeypatch.setattr('PyQt5.QtGui.QDesktopServices.openUrl', fake_openurl)
+    monkeypatch.setattr('PyQt5.QtCore.QUrl.fromLocalFile', MagicMock())
+    monkeypatch.setattr('sys.frozen', frozen, raising=False)
+    monkeypatch.setattr('os.environ', {'LD_LIBRARY_PATH': given_ldlp_value})
+    _desktop_open('/test/path/file.txt')
+    assert observed_ldlp_value == [expected_ldlp_value]
+
+
+@pytest.mark.parametrize(
+    'platform,mocked_call,args',
     [
-        ('darwin', ['open', '--reveal', '/test/path/file.txt']),
-        ('linux', ['xdg-open', '/test/path']),
-        ('win32', 'explorer /select,"/test/path/file.txt"')
+        (
+            'darwin',
+            'subprocess.Popen',
+            ['open', '--reveal', '/test/path/file.txt']
+        ),
+        (
+            'win32',
+            'subprocess.Popen',
+            'explorer /select,"/test/path/file.txt"'
+        ),
+        (
+            'linux',
+            'gridsync.desktop._desktop_open',
+            '/test/path',
+        )
     ]
 )
-def test_open_enclosing_folder(platform, args, monkeypatch):
+def test_open_enclosing_folder(platform, mocked_call, args, monkeypatch):
     m = MagicMock()
-    monkeypatch.setattr('subprocess.Popen', m)
+    monkeypatch.setattr(mocked_call, m)
     monkeypatch.setattr('sys.platform', platform)
     open_enclosing_folder('/test/path/file.txt')
     assert m.mock_calls == [call(args)]
 
 
 @pytest.mark.parametrize(
-    'platform,args',
+    'platform,mocked_call,args',
     [
-        ('darwin', ['open', '/test/path/file.txt']),
-        ('linux', ['xdg-open', '/test/path/file.txt'])
+        (
+            'darwin',
+            'subprocess.Popen',
+            ['open', '/test/path/file.txt']
+        ),
+        (
+            'win32',
+            'os.startfile',
+            '/test/path/file.txt'
+        ),
+        (
+            'linux',
+            'gridsync.desktop._desktop_open',
+            '/test/path/file.txt',
+        )
     ]
 )
-def test_open_path(platform, args, monkeypatch):
+def test_open_path(platform, mocked_call, args, monkeypatch):
     m = MagicMock()
-    monkeypatch.setattr('subprocess.Popen', m)
+    monkeypatch.setattr(mocked_call, m, raising=False)
     monkeypatch.setattr('sys.platform', platform)
     open_path('/test/path/file.txt')
     assert m.mock_calls == [call(args)]
-
-
-def test_open_path_win32(monkeypatch):
-    m = MagicMock()
-    monkeypatch.setattr('os.startfile', m, raising=False)
-    monkeypatch.setattr('sys.platform', 'win32')
-    open_path('/test/path/file.txt')
-    assert m.mock_calls == [call('/test/path/file.txt')]
 
 
 def test_get_clipboard_modes():
