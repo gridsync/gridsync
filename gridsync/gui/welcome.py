@@ -30,14 +30,22 @@ class WelcomeWidget(QWidget):
         super(WelcomeWidget, self).__init__()
         self.parent = parent
 
+        application_settings = global_settings['application']
+        logo_icon = application_settings.get('logo_icon')
+        if logo_icon:
+            icon_file = logo_icon
+            icon_size = 288
+        else:
+            icon_file = application_settings.get('tray_icon')
+            icon_size = 220
+
         self.icon = QLabel()
-        self.icon.setPixmap(QPixmap(resource(
-            global_settings['application']['tray_icon'])).scaled(
-                220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.icon.setPixmap(QPixmap(resource(icon_file)).scaled(
+            icon_size, icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.icon.setAlignment(Qt.AlignCenter)
 
         self.slogan = QLabel("<i>{}</i>".format(
-            global_settings['application']['description']))
+            application_settings.get('description', '')))
         font = QFont()
         if sys.platform == 'darwin':
             font.setPointSize(16)
@@ -46,6 +54,8 @@ class WelcomeWidget(QWidget):
         self.slogan.setFont(font)
         self.slogan.setStyleSheet("color: grey")
         self.slogan.setAlignment(Qt.AlignCenter)
+        if logo_icon:
+            self.slogan.hide()
 
         self.invite_code_widget = InviteCodeWidget(self)
         self.lineedit = self.invite_code_widget.lineedit
