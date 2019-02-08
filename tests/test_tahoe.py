@@ -372,8 +372,8 @@ def test_tahoe_restart(tahoe_state, call_count, tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.start', mocked_start)
     monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
     monkeypatch.setattr('gridsync.tahoe.deferLater', MagicMock())
-    monkeypatch.setattr('gridsync.preferences.set_preference', MagicMock())
-    monkeypatch.setattr('gridsync.preferences.get_preference', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.set_preference', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.get_preference', MagicMock())
     tahoe.state = tahoe_state
     yield tahoe.restart()
     assert mocked_start.call_count == call_count
