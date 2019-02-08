@@ -80,6 +80,12 @@ class CommandProtocol(ProcessProtocol):
 
 
 class Tahoe():
+
+    STOPPED = 0
+    STARTING = 1
+    STARTED = 2
+    STOPPING = 3
+
     def __init__(self, nodedir=None, executable=None):
         self.executable = executable
         self.multi_folder_support = True
@@ -104,6 +110,7 @@ class Tahoe():
         self.use_tor = False
         self.monitor = Monitor(self)
         self._monitor_started = False
+        self.state = Tahoe.STOPPED
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -361,6 +368,7 @@ class Tahoe():
     @inlineCallbacks
     def stop(self):
         log.debug('Stopping "%s" tahoe client...', self.name)
+        self.state = Tahoe.STOPPING
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
@@ -375,6 +383,7 @@ class Tahoe():
             os.remove(self.pidfile)
         except EnvironmentError:
             pass
+        self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
     @inlineCallbacks
@@ -433,6 +442,7 @@ class Tahoe():
     @inlineCallbacks
     def start(self):
         log.debug('Starting "%s" tahoe client...', self.name)
+        self.state = Tahoe.STARTING
         if not self._monitor_started:
             self.monitor.start()
             self._monitor_started = True
@@ -455,6 +465,7 @@ class Tahoe():
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
+        self.state = Tahoe.STARTED
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid)
 
