@@ -472,6 +472,12 @@ class Tahoe():
     @inlineCallbacks
     def restart(self):
         log.debug("Restarting %s client...", self.name)
+        if self.state in (Tahoe.STOPPING, Tahoe.STARTING):
+            log.warning(
+                'Aborting restart operation; '
+                'the "%s" client is already (re)starting',
+                self.name)
+            return
         # Temporarily disable desktop notifications for (dis)connect events
         pref = get_preference('notifications', 'connection')
         set_preference('notifications', 'connection', 'false')
