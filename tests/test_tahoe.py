@@ -356,6 +356,29 @@ def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     assert output == ['stop']
 
 
+@pytest.mark.parametrize(
+    'tahoe_state,call_count',
+    [
+        (Tahoe.STOPPED, 1),  # restart completed
+        (Tahoe.STARTING, 0),  # restart aborted
+        (Tahoe.STARTED, 1),  # restart completed
+        (Tahoe.STOPPING, 0),  # restart aborted
+    ]
+)
+@inlineCallbacks
+def test_tahoe_restart(tahoe_state, call_count, tahoe, monkeypatch):
+    mocked_start = MagicMock()
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.stop', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.start', mocked_start)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.deferLater', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.set_preference', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.get_preference', MagicMock())
+    tahoe.state = tahoe_state
+    yield tahoe.restart()
+    assert mocked_start.call_count == call_count
+
+
 @inlineCallbacks
 def test_get_grid_status(tahoe, monkeypatch):
     json_content = b'''{
