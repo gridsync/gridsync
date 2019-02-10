@@ -7,12 +7,13 @@
 ::
 ::  3) Python 3.6 <https://www.python.org>
 ::      -Select "Add Python 3.6 to PATH" option during install
+::      -On Windows Server 2012, if installation fails, try installing update "KB2919355". See https://bugs.python.org/issue29583 
 ::
 ::  4) Microsoft Visual C++ Compiler for Python 2.7 <https://aka.ms/vcpython27>
 ::
-::  5) Microsoft .NET Framework <https://www.microsoft.com/net/download/framework>
+::  5) Microsoft .NET Framework Dev Pack <https://aka.ms/dotnet-download>
 ::
-::  6) Microsoft Visual C++ Build Tools 2015 <http://landinghub.visualstudio.com/visual-cpp-build-tools>
+::  6) Microsoft Visual C++ Build Tools 2015 <https://aka.ms/buildtools>
 ::      -Select "Windows 8.1 SDK" and "Windows 10 SDK" options during install
 ::
 ::  7) Inno Setup <http://www.jrsoftware.org/isinfo.php>
