@@ -9,7 +9,7 @@ DisableProgramGroupPage=yes
 OutputDir=dist
 OutputBaseFilename={#MyAppName}-setup
 PrivilegesRequired=lowest
-SetupIconFile=images\gridsync.ico
+SetupIconFile=images\{#MyAppName}.ico
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppName}.exe
 UsePreviousAppDir=no
@@ -32,7 +32,7 @@ Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppName}.exe"; Tasks: s
 [Tasks]
 Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:AdditionalIcons}
 Name: programsicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}
-Name: startupicon; Description: {cm:AutoStartProgram,Gridsync}; GroupDescription: {cm:AutoStartProgramGroupDescription}
+Name: startupicon; Description: {cm:AutoStartProgram,{#MyAppName}}; GroupDescription: {cm:AutoStartProgramGroupDescription}
 
 [Run]
 Filename: "{app}\{#MyAppName}.exe"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall
