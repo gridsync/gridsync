@@ -12,6 +12,13 @@ PrivilegesRequired=lowest
 SetupIconFile=images\gridsync.ico
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppName}.exe
+UsePreviousAppDir=no
+UsePreviousGroup=no
+UsePreviousLanguage=no
+UsePreviousPrivileges=no
+UsePreviousSetupType=no
+UsePreviousTasks=no
+UsePreviousUserInfo=no
 VersionInfoVersion={#MyAppVersion}
 
 [Files]
