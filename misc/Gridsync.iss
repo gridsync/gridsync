@@ -4,7 +4,7 @@
 [Setup]
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={userpf}\{#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=dist
 OutputBaseFilename={#MyAppName}-setup
