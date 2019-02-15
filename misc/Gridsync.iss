@@ -20,6 +20,7 @@ UsePreviousSetupType=no
 UsePreviousTasks=no
 UsePreviousUserInfo=no
 VersionInfoVersion={#MyAppVersion}
+WizardStyle=modern
 
 [Files]
 Source: "dist\{#MyAppName}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
