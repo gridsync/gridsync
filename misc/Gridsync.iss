@@ -1,8 +1,9 @@
 #define MyAppName "Gridsync"
+#define MyAppVersion "0.4.0"
 
 [Setup]
 AppName={#MyAppName}
-AppVersion=0.4.0
+AppVersion={#MyAppVersion}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=dist
@@ -11,6 +12,7 @@ PrivilegesRequired=lowest
 SetupIconFile=images\gridsync.ico
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppName}.exe
+VersionInfoVersion={#MyAppVersion}
 
 [Files]
 Source: "dist\Gridsync\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
