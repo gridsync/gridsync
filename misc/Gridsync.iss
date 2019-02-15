@@ -7,6 +7,7 @@ DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=dist
 OutputBaseFilename={#MyAppName}-setup
+PrivilegesRequired=lowest
 SetupIconFile=images\gridsync.ico
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppName}.exe
