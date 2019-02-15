@@ -16,8 +16,8 @@ UninstallDisplayIcon={app}\{#MyAppName}.exe
 Source: "dist\Gridsync\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppName}.exe"; Tasks: desktopicon
-Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppName}.exe"; Tasks: programsicon
+Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppName}.exe"; Tasks: desktopicon
+Name: "{userprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppName}.exe"; Tasks: programsicon
 Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppName}.exe"; Tasks: startupicon
 
 [Tasks]
