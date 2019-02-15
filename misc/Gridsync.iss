@@ -22,7 +22,7 @@ UsePreviousUserInfo=no
 VersionInfoVersion={#MyAppVersion}
 
 [Files]
-Source: "dist\Gridsync\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "dist\{#MyAppName}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppName}.exe"; Tasks: desktopicon
