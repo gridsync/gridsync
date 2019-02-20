@@ -605,6 +605,10 @@ class Tahoe():
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
+        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
+        childcap_hash = hashlib.sha256(childcap.encode()).hexdigest()
+        log.debug('Linking "%s" (%s) into %s...', childname, childcap_hash,
+                  dircap_hash)
         lock = yield self.lock.acquire()
         try:
             resp = yield treq.post(
@@ -615,9 +619,13 @@ class Tahoe():
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode('utf-8'))
+        log.debug('Done linking "%s" (%s) into %s', childname, childcap_hash,
+                  dircap_hash)
 
     @inlineCallbacks
     def unlink(self, dircap, childname):
+        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
+        log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         lock = yield self.lock.acquire()
         try:
             resp = yield treq.post(
@@ -628,6 +636,7 @@ class Tahoe():
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode('utf-8'))
+        log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     @inlineCallbacks
     def link_magic_folder_to_rootcap(self, name):
