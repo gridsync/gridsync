@@ -372,6 +372,13 @@ class Tahoe():
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
         self.state = Tahoe.STOPPING
+        if self.lock.locked:
+            log.warning(
+                "Delaying stop operation; "
+                "another operation is trying to modify the rootcap...")
+            yield self.lock.acquire()
+            yield self.lock.release()
+            log.debug("Lock released; resuming stop operation...")
         if sys.platform == 'win32':
             self.kill()
         else:
