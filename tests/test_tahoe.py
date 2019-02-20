@@ -356,6 +356,22 @@ def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     assert output == ['stop']
 
 
+@pytest.mark.parametrize('locked,call_count', [(True, 1), (False, 0)])
+@inlineCallbacks
+def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
+    lock = MagicMock()
+    lock.locked = locked
+    lock.acquire = MagicMock()
+    lock.release = MagicMock()
+    tahoe.lock = lock
+    monkeypatch.setattr('sys.platform', 'linux')
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', MagicMock())
+    monkeypatch.setattr('os.remove', MagicMock())
+    yield tahoe.stop()
+    assert (lock.acquire.call_count, lock.release.call_count) == (
+        call_count, call_count)
+
+
 @pytest.mark.parametrize(
     'tahoe_state,call_count',
     [
