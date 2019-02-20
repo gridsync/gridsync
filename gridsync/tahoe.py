@@ -609,13 +609,13 @@ class Tahoe():
         childcap_hash = hashlib.sha256(childcap.encode()).hexdigest()
         log.debug('Linking "%s" (%s) into %s...', childname, childcap_hash,
                   dircap_hash)
-        lock = yield self.lock.acquire()
+        yield self.lock.acquire()
         try:
             resp = yield treq.post(
                 '{}uri/{}/?t=uri&name={}&uri={}'.format(
                     self.nodeurl, dircap, childname, childcap))
         finally:
-            yield lock.release()
+            yield self.lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode('utf-8'))
@@ -626,13 +626,13 @@ class Tahoe():
     def unlink(self, dircap, childname):
         dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
-        lock = yield self.lock.acquire()
+        yield self.lock.acquire()
         try:
             resp = yield treq.post(
                 '{}uri/{}/?t=unlink&name={}'.format(
                     self.nodeurl, dircap, childname))
         finally:
-            yield lock.release()
+            yield self.lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode('utf-8'))
