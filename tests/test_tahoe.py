@@ -276,34 +276,31 @@ def test_tahoe_create_client_nodedir_exists_error(tahoe):
 @inlineCallbacks
 def test_tahoe_create_client_args(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
-
-    def return_args(_, args):
-        returnValue(args)
-    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
-    args = yield tahoe.create_client(nickname='test_nickname')
+    mocked_command = MagicMock()
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', mocked_command)
+    yield tahoe.create_client(nickname='test_nickname')
+    args = mocked_command.call_args[0][0]
     assert set(['--nickname', 'test_nickname']).issubset(set(args))
 
 
 @inlineCallbacks
 def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
-
-    def return_args(_, args):
-        returnValue(args)
-    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
-    args = yield tahoe.create_client(happy=7)
+    mocked_command = MagicMock()
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', mocked_command)
+    yield tahoe.create_client(happy=7)
+    args = mocked_command.call_args[0][0]
     assert set(['--shares-happy', '7']).issubset(set(args))
 
 
 @inlineCallbacks
 def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
     monkeypatch.setattr('os.path.exists', lambda x: False)
-
-    def return_args(_, args):
-        returnValue(args)
-    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
+    mocked_command = MagicMock()
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', mocked_command)
     settings = {'hide-ip': True}
-    args = yield tahoe.create_client(**settings)
+    yield tahoe.create_client(**settings)
+    args = mocked_command.call_args[0][0]
     assert '--hide-ip' in args
 
 
@@ -348,12 +345,12 @@ def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
-    def return_args(_, args):
-        returnValue(args)
-    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', return_args)
+    mocked_command = MagicMock()
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', mocked_command)
     monkeypatch.setattr('sys.platform', 'linux')
-    output = yield tahoe.stop()
-    assert output == ['stop']
+    yield tahoe.stop()
+    args = mocked_command.call_args[0][0]
+    assert args == ['stop']
 
 
 @pytest.mark.parametrize('locked,call_count', [(True, 1), (False, 0)])
