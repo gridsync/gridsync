@@ -633,24 +633,29 @@ class Tahoe():
     def link_magic_folder_to_rootcap(self, name):
         log.debug("Linking folder '%s' to rootcap...", name)
         rootcap = self.get_rootcap()
+        tasks = []
         admin_dircap = self.get_admin_dircap(name)
         if admin_dircap:
-            yield self.link(rootcap, name + ' (admin)', admin_dircap)
+            tasks.append(self.link(rootcap, name + ' (admin)', admin_dircap))
         collective_dircap = self.get_collective_dircap(name)
-        yield self.link(rootcap, name + ' (collective)', collective_dircap)
+        tasks.append(
+            self.link(rootcap, name + ' (collective)', collective_dircap))
         personal_dircap = self.get_magic_folder_dircap(name)
-        yield self.link(rootcap, name + ' (personal)', personal_dircap)
+        tasks.append(self.link(rootcap, name + ' (personal)', personal_dircap))
+        yield DeferredList(tasks)
         log.debug("Successfully linked folder '%s' to rootcap", name)
 
     @inlineCallbacks
     def unlink_magic_folder_from_rootcap(self, name):
         log.debug("Unlinking folder '%s' from rootcap...", name)
         rootcap = self.get_rootcap()
-        yield self.unlink(rootcap, name + ' (collective)')
-        yield self.unlink(rootcap, name + ' (personal)')
+        tasks = []
+        tasks.append(self.unlink(rootcap, name + ' (collective)'))
+        tasks.append(self.unlink(rootcap, name + ' (personal)'))
         if 'admin_dircap' in self.remote_magic_folders[name]:
-            yield self.unlink(rootcap, name + ' (admin)')
+            tasks.append(self.unlink(rootcap, name + ' (admin)'))
         del self.remote_magic_folders[name]
+        yield DeferredList(tasks)
         log.debug("Successfully unlinked folder '%s' from rootcap", name)
 
     @inlineCallbacks
