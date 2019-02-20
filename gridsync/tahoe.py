@@ -368,10 +368,10 @@ class Tahoe():
     @inlineCallbacks
     def stop(self):
         log.debug('Stopping "%s" tahoe client...', self.name)
-        self.state = Tahoe.STOPPING
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
+        self.state = Tahoe.STOPPING
         if sys.platform == 'win32':
             self.kill()
         else:
