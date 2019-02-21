@@ -272,7 +272,7 @@ class Tahoe():
             admin_dircap = self.get_admin_dircap(folder)
             if admin_dircap:
                 self.magic_folders[folder]['admin_dircap'] = admin_dircap
-        for root, dirs, files in os.walk(self.private_tmp_path):
+        for root, _, files in os.walk(self.private_tmp_path):
             for file in files:
                 with open(os.path.join(root, file)) as f:
                     log.debug(
