@@ -112,6 +112,7 @@ class Tahoe():
         self.monitor = Monitor(self)
         self._monitor_started = False
         self.state = Tahoe.STOPPED
+        self.pending_magic_folder_creates = []
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -271,6 +272,15 @@ class Tahoe():
             admin_dircap = self.get_admin_dircap(folder)
             if admin_dircap:
                 self.magic_folders[folder]['admin_dircap'] = admin_dircap
+        for root, dirs, files in os.walk(self.private_tmp_path):
+            for file in files:
+                with open(os.path.join(root, file)) as f:
+                    log.debug(
+                        'Found pending magic-folder creation event for "%s" '
+                        'on disk; loading into memory...', file)
+                    data = json.loads(f.read())
+                    if data not in self.pending_magic_folder_creates:
+                        self.pending_magic_folder_creates.append(data)
         return self.magic_folders
 
     def line_received(self, line):
