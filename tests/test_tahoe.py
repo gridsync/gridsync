@@ -8,7 +8,6 @@ except ImportError:
 
 import pytest
 from pytest_twisted import inlineCallbacks
-from twisted.internet.defer import returnValue
 import yaml
 
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
