@@ -446,7 +446,6 @@ class View(QTreeView):
         event.accept()
 
     def dragMoveEvent(self, event):  # pylint: disable=no-self-use
-        logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
 
