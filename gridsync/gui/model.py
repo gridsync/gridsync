@@ -303,17 +303,21 @@ class Model(QStandardItemModel):
     def set_mtime(self, name, mtime):
         if not mtime:
             return
-        item = self.item(self.findItems(name)[0].row(), 2)
-        item.setData(mtime, Qt.UserRole)
-        item.setText(
-            naturaltime(datetime.now() - datetime.fromtimestamp(mtime)))
-        item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
+        items = self.findItems(name)
+        if items:
+            item = self.item(items[0].row(), 2)
+            item.setData(mtime, Qt.UserRole)
+            item.setText(
+                naturaltime(datetime.now() - datetime.fromtimestamp(mtime)))
+            item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
     @pyqtSlot(str, object)
     def set_size(self, name, size):
-        item = self.item(self.findItems(name)[0].row(), 3)
-        item.setText(naturalsize(size))
-        item.setData(size, Qt.UserRole)
+        items = self.findItems(name)
+        if items:
+            item = self.item(items[0].row(), 3)
+            item.setText(naturalsize(size))
+            item.setData(size, Qt.UserRole)
 
     @pyqtSlot()
     def update_natural_times(self):
