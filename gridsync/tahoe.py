@@ -683,6 +683,32 @@ class Tahoe():
         log.debug("Successfully unlinked folder '%s' from rootcap", name)
 
     @inlineCallbacks
+    def _create_magic_folder(self, path, alias, poll_interval=60):
+        admin_dircap = yield self.mkdir()
+        admin_dircap_json = yield self.get_json(admin_dircap)
+        collective_dircap = admin_dircap_json[1]['ro_uri']
+        upload_dircap = yield self.mkdir()
+        upload_dircap_json = yield self.get_json(upload_dircap)
+        upload_dircap_ro = upload_dircap_json[1]['ro_uri']
+        yield self.link(admin_dircap, 'admin', upload_dircap_ro)
+        yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
+        try:
+            with open(yaml_path) as f:
+                yaml_data = yaml.safe_load(f)
+        except OSError:
+            yaml_data = {}
+        folders_data = yaml_data.get('magic-folders', {})
+        folders_data[os.path.basename(path)] = {
+            'directory': path,
+            'collective_dircap': collective_dircap,
+            'upload_dircap': upload_dircap,
+            'poll_interval': poll_interval,
+        }
+        with open(yaml_path, 'w') as f:
+            f.write(yaml.safe_dump({'magic-folders': folders_data}))
+        self.add_alias(alias, admin_dircap)
+
+    @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
                             poll_interval=60):  # XXX See Issue #55
         tmp_file = os.path.join(self.private_tmp_path, os.path.basename(path))
@@ -708,8 +734,9 @@ class Tahoe():
                 self.add_alias(alias, admin_dircap)
         else:
             yield self.await_ready()
-            yield self.command(['magic-folder', 'create', '-p', poll_interval,
-                                '-n', name, alias, 'admin', path])
+            #yield self.command(['magic-folder', 'create', '-p', poll_interval,
+            #                    '-n', name, alias, 'admin', path])
+            yield self._create_magic_folder(path, alias, poll_interval)
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
         os.remove(tmp_file)
