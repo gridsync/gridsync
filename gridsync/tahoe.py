@@ -737,6 +737,8 @@ class Tahoe():
             #yield self.command(['magic-folder', 'create', '-p', poll_interval,
             #                    '-n', name, alias, 'admin', path])
             yield self._create_magic_folder(path, alias, poll_interval)
+        if not self.config_get('magic_folder', 'enabled'):
+            self.config_set('magic_folder', 'enabled', 'True')
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
         os.remove(tmp_file)
