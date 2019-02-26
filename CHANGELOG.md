@@ -9,6 +9,7 @@
 - The interprocess mutex (used to prevent multiple instances of Gridsync from running at the same time) has been changed from a listening TCP port to a filesystem lock (using `fcntl` on UNIX-based systems), preventing false "Gridsync is already running" errors under some macOS 10.14 environments (Issue #138, PR #141)
 - The Windows executable installer will now prompt the user whether install the application "for me only" or "for all users"; it is now possible to install Gridsync without requiring an administrator password (Issue #152, PR #153)
 - The unnecessary Tcl/Tk dependency inserted by PyInstaller has been removed from Tahoe-LAFS bundles on Windows, reducing the resultant application filesize by about 10 MB (PR #154)
+- The "Open Gridsync" system tray menu action is now always enabled but now will show/raise the "welcome" window in the event that no storage grids have been joined (Issue #147, PR #155)
 
 ### Fixed
 - Gridsync will now display an error message -- rather than crash -- in the (rare) event that a user tries to restore a folder without actually possessing the correct capabilities to do so (Issue #143, PR #144)

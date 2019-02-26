@@ -38,7 +38,10 @@ class Gui():
 
     def show(self):
         self.systray.show()
-        self.show_main_window()
+        if self.main_window.gateways:
+            self.show_main_window()
+        else:
+            self.show_welcome_dialog()
 
     def hide(self):
         self.systray.hide()
