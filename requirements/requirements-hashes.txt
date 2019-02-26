@@ -156,6 +156,10 @@ pyOpenSSL==19.0.0 \
 pypiwin32==223 ; sys_platform == "win32" \
     --hash=sha256:67adf399debc1d5d14dffc1ab5acacb800da569754fafdc576b2a039485aa775 \
     --hash=sha256:71be40c1fbd28594214ecaecb58e7aa8b708eabfa0125c8a109ebd51edbd776a
+# PyQt 5.12 is not compatible with older GNU/Linux distros (including Ubuntu
+# 14.04 LTS) and will fail with the error message "libQt5DBus.so.5: symbol
+# dbus_message_get_allow_interactive_authorization, version LIBDBUS_1_3 not
+# defined in file libdbus-1.so.3 with link time reference" so pin to 5.11.3.
 PyQt5==5.11.3 \
     --hash=sha256:517e4339135c4874b799af0d484bc2e8c27b54850113a68eec40a0b56534f450 \
     --hash=sha256:ac1eb5a114b6e7788e8be378be41c5e54b17d5158994504e85e43b5fca006a39 \
