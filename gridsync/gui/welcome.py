@@ -475,7 +475,7 @@ class WelcomeDialog(QStackedWidget):
             pass
 
     def finish_button_clicked(self):
-        self.gui.show()
+        self.gui.show_main_window()
         self.close()
         if self.prompt_to_export:
             self.prompt_for_export(self.gateway)

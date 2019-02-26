@@ -46,7 +46,7 @@ class Menu(QMenu):
         logging.debug("(Re-)populating systray menu...")
 
         open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
-        open_action.triggered.connect(self.gui.show_main_window)
+        open_action.triggered.connect(self.gui.show)
         self.addAction(open_action)
 
         gateways = self.gui.main_window.gateways
@@ -61,8 +61,6 @@ class Menu(QMenu):
             export_action.triggered.connect(
                 self.gui.main_window.export_recovery_key)
             self.addAction(export_action)
-        else:
-            open_action.setEnabled(False)
 
         documentation_action = QAction(
             QIcon(''), "Browse Documentation...", self)
