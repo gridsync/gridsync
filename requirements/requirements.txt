@@ -1,9 +1,9 @@
 asn1crypto==0.24.0
 attrs==18.2.0
-autobahn==19.1.1
+autobahn==19.2.1
 Automat==0.7.0
 certifi==2018.11.29
-cffi==1.11.5
+cffi==1.12.1
 chardet==3.0.4
 click==7.0
 constantly==15.1.0
@@ -22,6 +22,10 @@ PyHamcrest==1.9.0
 PyNaCl==1.3.0
 pyOpenSSL==19.0.0
 pypiwin32==223 ; sys_platform == "win32"
+# PyQt 5.12 is not compatible with older GNU/Linux distros (including Ubuntu
+# 14.04 LTS) and will fail with the error message "libQt5DBus.so.5: symbol
+# dbus_message_get_allow_interactive_authorization, version LIBDBUS_1_3 not
+# defined in file libdbus-1.so.3 with link time reference" so pin to 5.11.3.
 PyQt5==5.11.3
 PyQt5-sip==4.19.13
 pywin32==223 ; sys_platform == "win32"
