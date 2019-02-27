@@ -16,6 +16,7 @@
 - The desktop environment-specific file-manager should now properly launch when opening a folder under a PyInstaller build on Linux (Issue #146, PR #148)
 - The environment-specified font should now correctly load when running a PyInstaller build on Linux (Issue #84)
 - Gridsync will now refrain from trying to restart a tahoe client if that client is already in the proccess of stopping or starting, preventing needless tahoe restarts when adding new folders in quick succession (Issue #149, PR #151)
+- On Windows, the application icon should no longer persist in the system tray after the application has exited (Issue #156, PR #157)
 
 ## 0.4.0 - 2019-01-11
 ### Added
