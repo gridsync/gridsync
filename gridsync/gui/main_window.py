@@ -364,6 +364,8 @@ class MainWindow(QMainWindow):
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setDefaultButton(QMessageBox.No)
         if msg.exec_() == QMessageBox.Yes:
+            if sys.platform == 'win32':
+                self.gui.systray.hide()
             reactor.stop()
 
     def keyPressEvent(self, event):

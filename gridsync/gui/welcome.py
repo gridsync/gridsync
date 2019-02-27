@@ -500,4 +500,6 @@ class WelcomeDialog(QStackedWidget):
             msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             if msgbox.exec_() == QMessageBox.Yes:
+                if sys.platform == 'win32':
+                    self.gui.systray.hide()
                 QCoreApplication.instance().quit()
