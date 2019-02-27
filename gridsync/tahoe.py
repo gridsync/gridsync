@@ -308,8 +308,7 @@ class Tahoe():
         proc.poll()
         if proc.returncode:
             raise TahoeCommandError(str(output.getvalue()).strip())
-        else:
-            return str(output.getvalue()).strip()
+        return str(output.getvalue()).strip()
 
     @inlineCallbacks
     def command(self, args, callback_trigger=None):

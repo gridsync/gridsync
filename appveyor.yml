@@ -26,7 +26,6 @@ after_test:
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
   - ".\\dist\\Gridsync\\Tahoe-LAFS\\tahoe.exe --version-and-path"
   - "move .\\dist\\Gridsync.zip .\\dist\\Gridsync-Windows.zip"
-  - "make installer"
 artifacts:
   - path: dist\Gridsync-Windows.zip
     name: Gridsync-Windows.zip

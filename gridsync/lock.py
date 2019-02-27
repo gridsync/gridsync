@@ -31,8 +31,7 @@ class FilesystemLock():
                     raise FilesystemLockError(
                         "Could not acquire lock on {}: {}".format(
                             self.filepath, str(error)))
-                else:
-                    raise
+                raise
         else:
             fd = open(self.filepath, 'w')
             fd.flush()
