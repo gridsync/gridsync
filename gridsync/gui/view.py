@@ -175,8 +175,12 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
-    def restart_gateway(self, _):
-        self.gateway.restart()
+    def maybe_restart_gateway(self, results):
+        for succeeded, _ in results:
+            if succeeded:
+                logging.debug("Successfully added a new folder; restarting...")
+                self.gateway.restart()
+                return
 
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
@@ -214,7 +218,7 @@ class View(QTreeView):
                 self.gateway.create_magic_folder(path, join_code, admin_dircap)
             )
         d = DeferredList(tasks)
-        d.addCallback(self.restart_gateway)
+        d.addCallback(self.maybe_restart_gateway)
 
     def show_failure(self, failure):
         msg = QMessageBox(self)
@@ -426,7 +430,7 @@ class View(QTreeView):
                 self.model().add_folder(path)
                 tasks.append(self.gateway.create_magic_folder(path))
             d = DeferredList(tasks)
-            d.addCallback(self.restart_gateway)
+            d.addCallback(self.maybe_restart_gateway)
 
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")
