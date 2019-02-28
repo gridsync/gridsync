@@ -741,6 +741,7 @@ class Tahoe():
                 log.debug(
                     'Magic-folder creation failed: "%s: %s"; retrying...',
                     type(e).__name__, str(e))
+                yield deferLater(reactor, 3, lambda: None)  # XXX
                 yield self.await_ready()
                 yield self._create_magic_folder(path, alias, poll_interval)
         if not self.config_get('magic_folder', 'enabled'):
