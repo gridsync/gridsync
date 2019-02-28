@@ -10,6 +10,7 @@
 - The Windows executable installer will now prompt the user whether install the application "for me only" or "for all users"; it is now possible to install Gridsync without requiring an administrator password (Issue #152, PR #153)
 - The unnecessary Tcl/Tk dependency inserted by PyInstaller has been removed from Tahoe-LAFS bundles on Windows, reducing the resultant application filesize by about 10 MB (PR #154)
 - The "Open Gridsync" system tray menu action is now always enabled but now will show/raise the "welcome" window in the event that no storage grids have been joined (Issue #147, PR #155)
+- PyInstaller/binary bundles will now always use the Tahoe-LAFS executable included inside the application directory (as opposed to selecting a `tahoe` executable from the user's `PATH`) (PR #158)
 
 ### Fixed
 - Gridsync will now display an error message -- rather than crash -- in the (rare) event that a user tries to restore a folder without actually possessing the correct capabilities to do so (Issue #143, PR #144)
