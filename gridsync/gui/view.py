@@ -409,7 +409,7 @@ class View(QTreeView):
                 msg.setText(title + ":\n\n{}".format(text))
             logging.error(str(e))
             msg.exec_()
-            # TODO: Remove folder from model
+            self.model().removeRow(self.model().findItems(name)[0].row())
             return
         self._restart_required = True
         logging.debug(
