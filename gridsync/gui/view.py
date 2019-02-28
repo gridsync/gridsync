@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
     QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
     QSpacerItem, QStyledItemDelegate, QTreeView)
-from twisted.internet.defer import DeferredList
+from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_path
@@ -389,25 +389,31 @@ class View(QTreeView):
                 lambda: self.confirm_remove(selected))
         menu.exec_(self.viewport().mapToGlobal(position))
 
-    def show_add_folder_failure(self, failure):
-        msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Critical)
-        title = "Error adding folder"
-        text = ("{}: {}\n\nPlease try again later".format(
-            str(failure.type.__name__), str(failure.value)))
-        if sys.platform == 'darwin':
-            msg.setText(title)
-            msg.setInformativeText(text)
-        else:
-            msg.setWindowTitle(title)
-            msg.setText(title + ":\n\n{}".format(text))
-        msg.setDetailedText(str(failure))
-        logging.error(str(failure))
-        msg.exec_()
-
-    def schedule_restart(self, _):
+    @inlineCallbacks
+    def add_folder(self, path):
+        self.model().add_folder(path)
+        name = os.path.basename(path)
+        try:
+            yield self.gateway.create_magic_folder(path)
+        except Exception as e:  # pylint: disable=broad-except
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            title = 'Error adding folder "{}"'.format(name)
+            text = ('"{}: {}"\n\nPlease try again later.'.format(
+                type(e).__name__, str(e)))
+            if sys.platform == 'darwin':
+                msg.setText(title)
+                msg.setInformativeText(text)
+            else:
+                msg.setWindowTitle(title)
+                msg.setText(title + ":\n\n{}".format(text))
+            logging.error(str(e))
+            msg.exec_()
+            # TODO: Remove folder from model
+            return
         self._restart_required = True
-        logging.debug("Restart scheduled")
+        logging.debug(
+            'Successfully added folder "%s"; scheduled restart', name)
 
     def add_folders(self, paths):
         paths_to_add = []
@@ -435,11 +441,7 @@ class View(QTreeView):
             self.hide_drop_label()
             tasks = []
             for path in paths_to_add:
-                self.model().add_folder(path)
-                task = self.gateway.create_magic_folder(path)
-                task.addCallback(self.schedule_restart)
-                task.addErrback(self.show_add_folder_failure)
-                tasks.append(task)
+                tasks.append(self.add_folder(path))
             d = DeferredList(tasks)
             d.addCallback(self.maybe_restart_gateway)
 
