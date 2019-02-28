@@ -976,8 +976,12 @@ class Tahoe():
 
 @inlineCallbacks
 def select_executable():
-    if sys.platform == 'darwin' and getattr(sys, 'frozen', False):
-        # Because magic-folder on macOS has not yet landed upstream
+    if getattr(sys, 'frozen', False):
+        # Always select the bundled tahoe executable if using a binary build.
+        # To prevent issues caused by potentially broken or outdated tahoe
+        # installations on the user's PATH.
+        if sys.platform == 'win32':
+            return os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe.exe')
         return os.path.join(pkgdir, 'Tahoe-LAFS', 'tahoe')
     executables = which('tahoe')
     if not executables:
