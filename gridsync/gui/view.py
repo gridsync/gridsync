@@ -387,6 +387,23 @@ class View(QTreeView):
                 lambda: self.confirm_remove(selected))
         menu.exec_(self.viewport().mapToGlobal(position))
 
+    def show_add_folder_failure(self, failure):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        title = "Error adding folder"
+        text = ("{}: {}\n\nPlease try again later".format(
+                str(failure.type.__name__), str(failure.value)))
+        if sys.platform == 'darwin':
+            msg.setText(title)
+            msg.setInformativeText(text)
+        else:
+            msg.setWindowTitle(title)
+            msg.setText(title + ":\n\n{}".format(text))
+        msg.setDetailedText(str(failure))
+        logging.error(str(failure))
+        msg.exec_()
+        return failure
+
     def add_folders(self, paths):
         paths_to_add = []
         for path in paths:
@@ -414,7 +431,9 @@ class View(QTreeView):
             tasks = []
             for path in paths_to_add:
                 self.model().add_folder(path)
-                tasks.append(self.gateway.create_magic_folder(path))
+                task = self.gateway.create_magic_folder(path)
+                task.addErrback(self.show_add_folder_failure)
+                tasks.append(task)
             d = DeferredList(tasks)
             d.addCallback(self.maybe_restart_gateway)
 
