@@ -62,6 +62,7 @@ class View(QTreeView):
         self.gui = gui
         self.gateway = gateway
         self.invite_sender_dialogs = []
+        self._restart_required = False
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
 
@@ -176,11 +177,12 @@ class View(QTreeView):
         isd.show()
 
     def maybe_restart_gateway(self, results):
-        for succeeded, _ in results:
-            if succeeded:
-                logging.debug("Successfully added a new folder; restarting...")
-                self.gateway.restart()
-                return
+        if self._restart_required:
+            self._restart_required = False
+            logging.debug("A restart was scheduled; restarting...")
+            self.gateway.restart()
+        else:
+            logging.debug("No restarts were scheduled; not restarting")
 
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
@@ -402,7 +404,10 @@ class View(QTreeView):
         msg.setDetailedText(str(failure))
         logging.error(str(failure))
         msg.exec_()
-        return failure
+
+    def schedule_restart(self, _):
+        self._restart_required = True
+        logging.debug("Restart scheduled")
 
     def add_folders(self, paths):
         paths_to_add = []
@@ -432,6 +437,7 @@ class View(QTreeView):
             for path in paths_to_add:
                 self.model().add_folder(path)
                 task = self.gateway.create_magic_folder(path)
+                task.addCallback(self.schedule_restart)
                 task.addErrback(self.show_add_folder_failure)
                 tasks.append(task)
             d = DeferredList(tasks)
