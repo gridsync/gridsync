@@ -176,7 +176,7 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
-    def maybe_restart_gateway(self, results):
+    def maybe_restart_gateway(self, _):
         if self._restart_required:
             self._restart_required = False
             logging.debug("A restart was scheduled; restarting...")
@@ -394,7 +394,7 @@ class View(QTreeView):
         msg.setIcon(QMessageBox.Critical)
         title = "Error adding folder"
         text = ("{}: {}\n\nPlease try again later".format(
-                str(failure.type.__name__), str(failure.value)))
+            str(failure.type.__name__), str(failure.value)))
         if sys.platform == 'darwin':
             msg.setText(title)
             msg.setInformativeText(text)
