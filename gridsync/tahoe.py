@@ -735,7 +735,14 @@ class Tahoe():
             yield self.await_ready()
             #yield self.command(['magic-folder', 'create', '-p', poll_interval,
             #                    '-n', name, alias, 'admin', path])
-            yield self._create_magic_folder(path, alias, poll_interval)
+            try:
+                yield self._create_magic_folder(path, alias, poll_interval)
+            except Exception as e:  # pylint: disable=broad-except
+                log.debug(
+                    'Magic-folder creation failed: "%s: %s"; retrying...',
+                    type(e).__name__, str(e))
+                yield self.await_ready()
+                yield self._create_magic_folder(path, alias, poll_interval)
         if not self.config_get('magic_folder', 'enabled'):
             self.config_set('magic_folder', 'enabled', 'True')
         self.load_magic_folders()
