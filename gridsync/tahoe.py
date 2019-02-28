@@ -96,7 +96,7 @@ class Tahoe():
         self.rootcap_path = os.path.join(self.nodedir, 'private', 'rootcap')
         self.servers_yaml_path = os.path.join(
             self.nodedir, 'private', 'servers.yaml')
-        self.private_tmp_path = os.path.join(self.nodedir, 'private', 'tmp')
+        #self.private_tmp_path = os.path.join(self.nodedir, 'private', 'tmp')
         self.config = Config(os.path.join(self.nodedir, 'tahoe.cfg'))
         self.pidfile = os.path.join(self.nodedir, 'twistd.pid')
         self.nodeurl = None
@@ -272,15 +272,15 @@ class Tahoe():
             admin_dircap = self.get_admin_dircap(folder)
             if admin_dircap:
                 self.magic_folders[folder]['admin_dircap'] = admin_dircap
-        for root, _, files in os.walk(self.private_tmp_path):
-            for file in files:
-                with open(os.path.join(root, file)) as f:
-                    log.debug(
-                        'Found pending magic-folder creation event for "%s" '
-                        'on disk; loading into memory...', file)
-                    data = json.loads(f.read())
-                    if data not in self.pending_magic_folder_creates:
-                        self.pending_magic_folder_creates.append(data)
+        #for root, _, files in os.walk(self.private_tmp_path):
+        #    for file in files:
+        #        with open(os.path.join(root, file)) as f:
+        #            log.debug(
+        #                'Found pending magic-folder creation event for "%s" '
+        #                'on disk; loading into memory...', file)
+        #            data = json.loads(f.read())
+        #            if data not in self.pending_magic_folder_creates:
+        #                self.pending_magic_folder_creates.append(data)
         return self.magic_folders
 
     def line_received(self, line):
@@ -360,10 +360,10 @@ class Tahoe():
         storage_servers = kwargs.get('storage')
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
-        try:
-            os.makedirs(self.private_tmp_path)
-        except OSError:
-            pass
+        #try:
+        #    os.makedirs(self.private_tmp_path)
+        #except OSError:
+        #    pass
 
     def kill(self):
         try:
@@ -711,14 +711,14 @@ class Tahoe():
     @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
                             poll_interval=60):  # XXX See Issue #55
-        tmp_file = os.path.join(self.private_tmp_path, os.path.basename(path))
-        with open(tmp_file, 'w') as f:
-            f.write(json.dumps({
-                'path': path,
-                'join_code': join_code,
-                'admin_dircap': admin_dircap,
-                'poll_interval': poll_interval
-            }))
+        #tmp_file = os.path.join(self.private_tmp_path, os.path.basename(path))
+        #with open(tmp_file, 'w') as f:
+        #    f.write(json.dumps({
+        #        'path': path,
+        #        'join_code': join_code,
+        #        'admin_dircap': admin_dircap,
+        #        'poll_interval': poll_interval
+        #    }))
         path = os.path.realpath(os.path.expanduser(path))
         poll_interval = str(poll_interval)
         try:
@@ -749,7 +749,7 @@ class Tahoe():
             self.config_set('magic_folder', 'enabled', 'True')
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
-        os.remove(tmp_file)
+        #os.remove(tmp_file)
 
     def local_magic_folder_exists(self, folder_name):
         if folder_name in self.magic_folders:
