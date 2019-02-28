@@ -683,6 +683,7 @@ class Tahoe():
 
     @inlineCallbacks
     def _create_magic_folder(self, path, alias, poll_interval=60):
+        log.debug("Creating magic-folder for %s...", path)
         admin_dircap = yield self.mkdir()
         admin_dircap_json = yield self.get_json(admin_dircap)
         collective_dircap = admin_dircap_json[1]['ro_uri']
