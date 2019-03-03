@@ -391,6 +391,7 @@ class View(QTreeView):
 
     @inlineCallbacks
     def add_folder(self, path):
+        path = os.path.realpath(path)
         self.model().add_folder(path)
         name = os.path.basename(path)
         try:
