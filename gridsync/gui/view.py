@@ -184,6 +184,56 @@ class View(QTreeView):
         else:
             logging.debug("No restarts were scheduled; not restarting")
 
+    @inlineCallbacks
+    def download_folder(self, folder_name, dest):
+        data = self.gateway.remote_magic_folders[folder_name]
+        admin_dircap = data.get('admin_dircap')
+        collective_dircap = data.get('collective_dircap')
+        upload_dircap = data.get('upload_dircap')
+        if not collective_dircap or not upload_dircap:
+            msgbox = QMessageBox(self)
+            msgbox.setIcon(QMessageBox.Critical)
+            title = 'Error Restoring Folder'
+            text = (
+                'The capabilities needed to restore the folder "{}" could '
+                'not be found. This probably means that the folder was '
+                'never completely uploaded to begin with -- or worse, '
+                'that your rootcap was corrupted somehow after the fact.\n'
+                '\nYou will need to remove this folder and upload it '
+                'again.'.format(folder_name))
+            if sys.platform == 'darwin':
+                msgbox.setText(title)
+                msgbox.setInformativeText(text)
+            else:
+                msgbox.setWindowTitle(title)
+                msgbox.setText(text)
+            msgbox.exec_()
+            return
+        try:
+            yield self.gateway.create_magic_folder(
+                os.path.join(dest, folder_name),
+                "{}+{}".format(collective_dircap, upload_dircap),
+                admin_dircap
+            )
+        except Exception as e:  # pylint: disable=broad-except
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            title = 'Error joining folder "{}"'.format(folder_name)
+            text = ('"{}: {}"\n\nPlease try again later.'.format(
+                type(e).__name__, str(e)))
+            if sys.platform == 'darwin':
+                msg.setText(title)
+                msg.setInformativeText(text)
+            else:
+                msg.setWindowTitle(title)
+                msg.setText(title + ":\n\n{}".format(text))
+            logging.error(str(e))
+            msg.exec_()
+            return
+        self._restart_required = True
+        logging.debug(
+            'Successfully joined folder "%s"; scheduled restart', folder_name)
+
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
             self, "Select a download destination", os.path.expanduser('~'))
@@ -191,34 +241,7 @@ class View(QTreeView):
             return
         tasks = []
         for folder in folders:
-            data = self.gateway.remote_magic_folders[folder]
-            admin_dircap = data.get('admin_dircap')
-            collective_dircap = data.get('collective_dircap')
-            upload_dircap = data.get('upload_dircap')
-            if not collective_dircap or not upload_dircap:
-                msgbox = QMessageBox(self)
-                msgbox.setIcon(QMessageBox.Critical)
-                title = 'Error Restoring Folder'
-                text = (
-                    'The capabilities needed to restore the folder "{}" could '
-                    'not be found. This probably means that the folder was '
-                    'never completely uploaded to begin with -- or worse, '
-                    'that your rootcap was corrupted somehow after the fact.\n'
-                    '\nYou will need to remove this folder and upload it '
-                    'again.'.format(folder))
-                if sys.platform == 'darwin':
-                    msgbox.setText(title)
-                    msgbox.setInformativeText(text)
-                else:
-                    msgbox.setWindowTitle(title)
-                    msgbox.setText(text)
-                msgbox.exec_()
-                return
-            join_code = "{}+{}".format(collective_dircap, upload_dircap)
-            path = os.path.join(dest, folder)
-            tasks.append(
-                self.gateway.create_magic_folder(path, join_code, admin_dircap)
-            )
+            tasks.append(self.download_folder(folder, dest))
         d = DeferredList(tasks)
         d.addCallback(self.maybe_restart_gateway)
 
