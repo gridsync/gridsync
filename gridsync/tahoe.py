@@ -751,6 +751,25 @@ class Tahoe():
         yield self.link_magic_folder_to_rootcap(name)
         #os.remove(tmp_file)
 
+    @inlineCallbacks
+    def restore_magic_folder(self, folder_name, dest):
+        data = self.remote_magic_folders[folder_name]
+        admin_dircap = data.get('admin_dircap')
+        collective_dircap = data.get('collective_dircap')
+        upload_dircap = data.get('upload_dircap')
+        if not collective_dircap or not upload_dircap:
+            raise TahoeError(
+                'The capabilities needed to restore the folder "{}" could '
+                'not be found. This probably means that the folder was '
+                'never completely uploaded to begin with -- or worse, '
+                'that your rootcap was corrupted somehow after the fact.\n'
+                '\nYou will need to remove this folder and upload it '
+                'again.'.format(folder_name))
+        yield self.create_magic_folder(
+            os.path.join(dest, folder_name),
+            "{}+{}".format(collective_dircap, upload_dircap),
+            admin_dircap)
+
     def local_magic_folder_exists(self, folder_name):
         if folder_name in self.magic_folders:
             return True

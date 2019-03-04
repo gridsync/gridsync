@@ -186,35 +186,8 @@ class View(QTreeView):
 
     @inlineCallbacks
     def download_folder(self, folder_name, dest):
-        data = self.gateway.remote_magic_folders[folder_name]
-        admin_dircap = data.get('admin_dircap')
-        collective_dircap = data.get('collective_dircap')
-        upload_dircap = data.get('upload_dircap')
-        if not collective_dircap or not upload_dircap:
-            msgbox = QMessageBox(self)
-            msgbox.setIcon(QMessageBox.Critical)
-            title = 'Error Restoring Folder'
-            text = (
-                'The capabilities needed to restore the folder "{}" could '
-                'not be found. This probably means that the folder was '
-                'never completely uploaded to begin with -- or worse, '
-                'that your rootcap was corrupted somehow after the fact.\n'
-                '\nYou will need to remove this folder and upload it '
-                'again.'.format(folder_name))
-            if sys.platform == 'darwin':
-                msgbox.setText(title)
-                msgbox.setInformativeText(text)
-            else:
-                msgbox.setWindowTitle(title)
-                msgbox.setText(text)
-            msgbox.exec_()
-            return
         try:
-            yield self.gateway.create_magic_folder(
-                os.path.join(dest, folder_name),
-                "{}+{}".format(collective_dircap, upload_dircap),
-                admin_dircap
-            )
+            yield self.gateway.restore_magic_folder(folder_name, dest)
         except Exception as e:  # pylint: disable=broad-except
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
