@@ -139,6 +139,11 @@ class Model(QStandardItemModel):
         self.view.hide_drop_label()
         self.set_status(basename, status_data)
 
+    def remove_folder(self, folder_name):
+        items = self.findItems(folder_name)
+        if items:
+            self.removeRow(items[0].row())
+
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
             self.add_folder(magic_folder['directory'])

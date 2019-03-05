@@ -244,7 +244,7 @@ class View(QTreeView):
                 d = self.gateway.unlink_magic_folder_from_rootcap(folder)
                 d.addErrback(self.show_failure)
                 tasks.append(d)
-                self.model().removeRow(self.model().findItems(folder)[0].row())
+                self.model().remove_folder(folder)
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
@@ -285,7 +285,7 @@ class View(QTreeView):
                     d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
                     d2.addErrback(self.show_failure)
                     tasks.append(d2)
-                self.model().removeRow(self.model().findItems(folder)[0].row())
+                self.model().remove_folder(folder)
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
@@ -394,7 +394,7 @@ class View(QTreeView):
                     name, type(e).__name__, str(e)
                 )
             )
-            self.model().removeRow(self.model().findItems(name)[0].row())
+            self.model().remove_folder(folder)
             return
         self._restart_required = True
         logging.debug(
