@@ -348,19 +348,42 @@ class MainWindow(QMainWindow):
             self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
     def confirm_quit(self):
+        folder_loading = False
+        folder_syncing = False
+        for model in [view.model() for view in self.central_widget.views]:
+            for row in range(model.rowCount()):
+                status = model.item(row, 1).data(Qt.UserRole)
+                mtime = model.item(row, 2).data(Qt.UserRole)
+                if not status and not mtime:  # "Loading..." and not yet synced
+                    folder_loading = True
+                    break
+                elif status == 1:  # "Syncing"
+                    folder_syncing = True
+                    break
         msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Question)
+        if folder_loading:
+            msg.setIcon(QMessageBox.Warning)
+            informative_text = (
+                "One or more folders have not finished loading. If these "
+                "folders were recently added, you may need to add them again.")
+        elif folder_syncing:
+            msg.setIcon(QMessageBox.Warning)
+            informative_text = (
+                "One or more folders are currently syncing. If you quit, any "
+                "pending upload or download operations will be cancelled "
+                "until you launch {} again.".format(APP_NAME))
+        else:
+            msg.setIcon(QMessageBox.Question)
+            informative_text = (
+                "If you quit, {} will stop synchronizing your folders until "
+                "you launch it again.".format(APP_NAME))
         if sys.platform == 'darwin':
             msg.setText("Are you sure you wish to quit?")
-            msg.setInformativeText(
-                "If you quit, {} will stop synchronizing your folders until "
-                "you run it again.".format(APP_NAME))
+            msg.setInformativeText(informative_text)
         else:
             msg.setWindowTitle("Exit {}?".format(APP_NAME))
             msg.setText(
-                "Are you sure you wish to quit? If you quit, {} will stop "
-                "synchronizing your folders until you run it again.".format(
-                    APP_NAME))
+                "Are you sure you wish to quit? {}".format(informative_text))
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setDefaultButton(QMessageBox.No)
         if msg.exec_() == QMessageBox.Yes:
