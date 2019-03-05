@@ -16,6 +16,7 @@ from gridsync import resource, APP_NAME
 from gridsync.desktop import open_path
 from gridsync.gui.model import Model
 from gridsync.gui.share import InviteSenderDialog
+from gridsync.msg import error
 from gridsync.util import humanized_list
 
 
@@ -189,19 +190,12 @@ class View(QTreeView):
         try:
             yield self.gateway.restore_magic_folder(folder_name, dest)
         except Exception as e:  # pylint: disable=broad-except
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Critical)
-            title = 'Error joining folder "{}"'.format(folder_name)
-            text = ('"{}: {}"\n\nPlease try again later.'.format(
-                type(e).__name__, str(e)))
-            if sys.platform == 'darwin':
-                msg.setText(title)
-                msg.setInformativeText(text)
-            else:
-                msg.setWindowTitle(title)
-                msg.setText(title + ":\n\n{}".format(text))
-            logging.error(str(e))
-            msg.exec_()
+            error(
+                self,
+                'Error downloading folder "{}"'.format(folder_name),
+                'An exception was raised when downloading the "{}" folder:\n\n'
+                '{}: {}'.format(folder_name, type(e).__name__, str(e))
+            )
             return
         self._restart_required = True
         logging.debug(
@@ -219,12 +213,11 @@ class View(QTreeView):
         d.addCallback(self.maybe_restart_gateway)
 
     def show_failure(self, failure):
-        msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Critical)
-        msg.setWindowTitle(str(failure.type.__name__))
-        msg.setText(str(failure.value))
-        logging.error(str(failure))
-        msg.exec_()
+        error(
+            self,
+            str(failure.type.__name__),
+            str(failure.value)
+        )
 
     def confirm_unlink(self, folders):
         msgbox = QMessageBox(self)
@@ -393,19 +386,14 @@ class View(QTreeView):
         try:
             yield self.gateway.create_magic_folder(path)
         except Exception as e:  # pylint: disable=broad-except
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Critical)
-            title = 'Error adding folder "{}"'.format(name)
-            text = ('"{}: {}"\n\nPlease try again later.'.format(
-                type(e).__name__, str(e)))
-            if sys.platform == 'darwin':
-                msg.setText(title)
-                msg.setInformativeText(text)
-            else:
-                msg.setWindowTitle(title)
-                msg.setText(title + ":\n\n{}".format(text))
-            logging.error(str(e))
-            msg.exec_()
+            error(
+                self,
+                'Error adding folder "{}"'.format(name),
+                'An exception was raised when adding the "{}" folder:\n\n'
+                '{}: {}\n\nPlease try again later.'.format(
+                    name, type(e).__name__, str(e)
+                )
+            )
             self.model().removeRow(self.model().findItems(name)[0].row())
             return
         self._restart_required = True
@@ -417,15 +405,14 @@ class View(QTreeView):
         for path in paths:
             basename = os.path.basename(os.path.normpath(path))
             if not os.path.isdir(path):
-                QMessageBox.critical(
+                error(
                     self,
-                    "Cannot add {}.".format(basename),
-                    "Cannot add '{}'.\n\n{} currently only supports uploading "
-                    "and syncing folders, and not individual files.".format(
-                        basename, APP_NAME)
+                    'Cannot add "{}".'.format(basename),
+                    "{} currently only supports uploading and syncing folders,"
+                    " and not individual files.".format(APP_NAME)
                 )
             elif self.gateway.magic_folder_exists(basename):
-                QMessageBox.critical(
+                error(
                     self,
                     "Folder already exists",
                     'You already belong to a folder named "{}" on {}. Please '
