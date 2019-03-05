@@ -382,23 +382,23 @@ class View(QTreeView):
     def add_folder(self, path):
         path = os.path.realpath(path)
         self.model().add_folder(path)
-        name = os.path.basename(path)
+        folder_name = os.path.basename(path)
         try:
             yield self.gateway.create_magic_folder(path)
         except Exception as e:  # pylint: disable=broad-except
             error(
                 self,
-                'Error adding folder "{}"'.format(name),
+                'Error adding folder "{}"'.format(folder_name),
                 'An exception was raised when adding the "{}" folder:\n\n'
                 '{}: {}\n\nPlease try again later.'.format(
-                    name, type(e).__name__, str(e)
+                    folder_name, type(e).__name__, str(e)
                 )
             )
-            self.model().remove_folder(folder)
+            self.model().remove_folder(folder_name)
             return
         self._restart_required = True
         logging.debug(
-            'Successfully added folder "%s"; scheduled restart', name)
+            'Successfully added folder "%s"; scheduled restart', folder_name)
 
     def add_folders(self, paths):
         paths_to_add = []
