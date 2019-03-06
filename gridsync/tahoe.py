@@ -367,10 +367,17 @@ class Tahoe():
     @inlineCallbacks
     def stop(self):
         log.debug('Stopping "%s" tahoe client...', self.name)
-        self.state = Tahoe.STOPPING
         if not os.path.isfile(self.pidfile):
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
+        self.state = Tahoe.STOPPING
+        if self.lock.locked:
+            log.warning(
+                "Delaying stop operation; "
+                "another operation is trying to modify the rootcap...")
+            yield self.lock.acquire()
+            yield self.lock.release()
+            log.debug("Lock released; resuming stop operation...")
         if sys.platform == 'win32':
             self.kill()
         else:
@@ -597,53 +604,94 @@ class Tahoe():
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
-        lock = yield self.lock.acquire()
+        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
+        childcap_hash = hashlib.sha256(childcap.encode()).hexdigest()
+        log.debug('Linking "%s" (%s) into %s...', childname, childcap_hash,
+                  dircap_hash)
+        yield self.lock.acquire()
         try:
             resp = yield treq.post(
                 '{}uri/{}/?t=uri&name={}&uri={}'.format(
                     self.nodeurl, dircap, childname, childcap))
         finally:
-            yield lock.release()
+            yield self.lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode('utf-8'))
+        log.debug('Done linking "%s" (%s) into %s', childname, childcap_hash,
+                  dircap_hash)
 
     @inlineCallbacks
     def unlink(self, dircap, childname):
-        lock = yield self.lock.acquire()
+        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
+        log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
+        yield self.lock.acquire()
         try:
             resp = yield treq.post(
                 '{}uri/{}/?t=unlink&name={}'.format(
                     self.nodeurl, dircap, childname))
         finally:
-            yield lock.release()
+            yield self.lock.release()
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode('utf-8'))
+        log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     @inlineCallbacks
     def link_magic_folder_to_rootcap(self, name):
         log.debug("Linking folder '%s' to rootcap...", name)
         rootcap = self.get_rootcap()
+        tasks = []
         admin_dircap = self.get_admin_dircap(name)
         if admin_dircap:
-            yield self.link(rootcap, name + ' (admin)', admin_dircap)
+            tasks.append(self.link(rootcap, name + ' (admin)', admin_dircap))
         collective_dircap = self.get_collective_dircap(name)
-        yield self.link(rootcap, name + ' (collective)', collective_dircap)
+        tasks.append(
+            self.link(rootcap, name + ' (collective)', collective_dircap))
         personal_dircap = self.get_magic_folder_dircap(name)
-        yield self.link(rootcap, name + ' (personal)', personal_dircap)
+        tasks.append(self.link(rootcap, name + ' (personal)', personal_dircap))
+        yield DeferredList(tasks)
         log.debug("Successfully linked folder '%s' to rootcap", name)
 
     @inlineCallbacks
     def unlink_magic_folder_from_rootcap(self, name):
         log.debug("Unlinking folder '%s' from rootcap...", name)
         rootcap = self.get_rootcap()
-        yield self.unlink(rootcap, name + ' (collective)')
-        yield self.unlink(rootcap, name + ' (personal)')
+        tasks = []
+        tasks.append(self.unlink(rootcap, name + ' (collective)'))
+        tasks.append(self.unlink(rootcap, name + ' (personal)'))
         if 'admin_dircap' in self.remote_magic_folders[name]:
-            yield self.unlink(rootcap, name + ' (admin)')
+            tasks.append(self.unlink(rootcap, name + ' (admin)'))
         del self.remote_magic_folders[name]
+        yield DeferredList(tasks)
         log.debug("Successfully unlinked folder '%s' from rootcap", name)
+
+    @inlineCallbacks
+    def _create_magic_folder(self, path, alias, poll_interval=60):
+        log.debug("Creating magic-folder for %s...", path)
+        admin_dircap = yield self.mkdir()
+        admin_dircap_json = yield self.get_json(admin_dircap)
+        collective_dircap = admin_dircap_json[1]['ro_uri']
+        upload_dircap = yield self.mkdir()
+        upload_dircap_json = yield self.get_json(upload_dircap)
+        upload_dircap_ro = upload_dircap_json[1]['ro_uri']
+        yield self.link(admin_dircap, 'admin', upload_dircap_ro)
+        yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
+        try:
+            with open(yaml_path) as f:
+                yaml_data = yaml.safe_load(f)
+        except OSError:
+            yaml_data = {}
+        folders_data = yaml_data.get('magic-folders', {})
+        folders_data[os.path.basename(path)] = {
+            'directory': path,
+            'collective_dircap': collective_dircap,
+            'upload_dircap': upload_dircap,
+            'poll_interval': poll_interval,
+        }
+        with open(yaml_path, 'w') as f:
+            f.write(yaml.safe_dump({'magic-folders': folders_data}))
+        self.add_alias(alias, admin_dircap)
 
     @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
@@ -663,10 +711,40 @@ class Tahoe():
                 self.add_alias(alias, admin_dircap)
         else:
             yield self.await_ready()
-            yield self.command(['magic-folder', 'create', '-p', poll_interval,
-                                '-n', name, alias, 'admin', path])
+            #yield self.command(['magic-folder', 'create', '-p', poll_interval,
+            #                    '-n', name, alias, 'admin', path])
+            try:
+                yield self._create_magic_folder(path, alias, poll_interval)
+            except Exception as e:  # pylint: disable=broad-except
+                log.debug(
+                    'Magic-folder creation failed: "%s: %s"; retrying...',
+                    type(e).__name__, str(e))
+                yield deferLater(reactor, 3, lambda: None)  # XXX
+                yield self.await_ready()
+                yield self._create_magic_folder(path, alias, poll_interval)
+        if not self.config_get('magic_folder', 'enabled'):
+            self.config_set('magic_folder', 'enabled', 'True')
         self.load_magic_folders()
         yield self.link_magic_folder_to_rootcap(name)
+
+    @inlineCallbacks
+    def restore_magic_folder(self, folder_name, dest):
+        data = self.remote_magic_folders[folder_name]
+        admin_dircap = data.get('admin_dircap')
+        collective_dircap = data.get('collective_dircap')
+        upload_dircap = data.get('upload_dircap')
+        if not collective_dircap or not upload_dircap:
+            raise TahoeError(
+                'The capabilities needed to restore the folder "{}" could '
+                'not be found. This probably means that the folder was '
+                'never completely uploaded to begin with -- or worse, '
+                'that your rootcap was corrupted somehow after the fact.\n'
+                '\nYou will need to remove this folder and upload it '
+                'again.'.format(folder_name))
+        yield self.create_magic_folder(
+            os.path.join(dest, folder_name),
+            "{}+{}".format(collective_dircap, upload_dircap),
+            admin_dircap)
 
     def local_magic_folder_exists(self, folder_name):
         if folder_name in self.magic_folders:

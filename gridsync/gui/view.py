@@ -10,12 +10,13 @@ from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
     QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
     QSpacerItem, QStyledItemDelegate, QTreeView)
-from twisted.internet.defer import DeferredList
+from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_path
 from gridsync.gui.model import Model
 from gridsync.gui.share import InviteSenderDialog
+from gridsync.msg import error
 from gridsync.util import humanized_list
 
 
@@ -62,6 +63,7 @@ class View(QTreeView):
         self.gui = gui
         self.gateway = gateway
         self.invite_sender_dialogs = []
+        self._restart_required = False
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
 
@@ -175,8 +177,29 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
-    def restart_gateway(self, _):
-        self.gateway.restart()
+    def maybe_restart_gateway(self, _):
+        if self._restart_required:
+            self._restart_required = False
+            logging.debug("A restart was scheduled; restarting...")
+            self.gateway.restart()
+        else:
+            logging.debug("No restarts were scheduled; not restarting")
+
+    @inlineCallbacks
+    def download_folder(self, folder_name, dest):
+        try:
+            yield self.gateway.restore_magic_folder(folder_name, dest)
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                'Error downloading folder "{}"'.format(folder_name),
+                'An exception was raised when downloading the "{}" folder:\n\n'
+                '{}: {}'.format(folder_name, type(e).__name__, str(e))
+            )
+            return
+        self._restart_required = True
+        logging.debug(
+            'Successfully joined folder "%s"; scheduled restart', folder_name)
 
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
@@ -185,44 +208,16 @@ class View(QTreeView):
             return
         tasks = []
         for folder in folders:
-            data = self.gateway.remote_magic_folders[folder]
-            admin_dircap = data.get('admin_dircap')
-            collective_dircap = data.get('collective_dircap')
-            upload_dircap = data.get('upload_dircap')
-            if not collective_dircap or not upload_dircap:
-                msgbox = QMessageBox(self)
-                msgbox.setIcon(QMessageBox.Critical)
-                title = 'Error Restoring Folder'
-                text = (
-                    'The capabilities needed to restore the folder "{}" could '
-                    'not be found. This probably means that the folder was '
-                    'never completely uploaded to begin with -- or worse, '
-                    'that your rootcap was corrupted somehow after the fact.\n'
-                    '\nYou will need to remove this folder and upload it '
-                    'again.'.format(folder))
-                if sys.platform == 'darwin':
-                    msgbox.setText(title)
-                    msgbox.setInformativeText(text)
-                else:
-                    msgbox.setWindowTitle(title)
-                    msgbox.setText(text)
-                msgbox.exec_()
-                return
-            join_code = "{}+{}".format(collective_dircap, upload_dircap)
-            path = os.path.join(dest, folder)
-            tasks.append(
-                self.gateway.create_magic_folder(path, join_code, admin_dircap)
-            )
+            tasks.append(self.download_folder(folder, dest))
         d = DeferredList(tasks)
-        d.addCallback(self.restart_gateway)
+        d.addCallback(self.maybe_restart_gateway)
 
     def show_failure(self, failure):
-        msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Critical)
-        msg.setWindowTitle(str(failure.type.__name__))
-        msg.setText(str(failure.value))
-        logging.error(str(failure))
-        msg.exec_()
+        error(
+            self,
+            str(failure.type.__name__),
+            str(failure.value)
+        )
 
     def confirm_unlink(self, folders):
         msgbox = QMessageBox(self)
@@ -249,7 +244,7 @@ class View(QTreeView):
                 d = self.gateway.unlink_magic_folder_from_rootcap(folder)
                 d.addErrback(self.show_failure)
                 tasks.append(d)
-                self.model().removeRow(self.model().findItems(folder)[0].row())
+                self.model().remove_folder(folder)
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
@@ -290,7 +285,7 @@ class View(QTreeView):
                     d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
                     d2.addErrback(self.show_failure)
                     tasks.append(d2)
-                self.model().removeRow(self.model().findItems(folder)[0].row())
+                self.model().remove_folder(folder)
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
@@ -383,34 +378,41 @@ class View(QTreeView):
                 lambda: self.confirm_remove(selected))
         menu.exec_(self.viewport().mapToGlobal(position))
 
-    def add_new_folder(self, path):
-        basename = os.path.basename(os.path.normpath(path))
-        if self.gateway.magic_folder_exists(basename):
-            QMessageBox.critical(
-                self,
-                "Folder already exists",
-                'You already belong to a folder named "{}" on {}. Please '
-                'rename it and try again.'.format(basename, self.gateway.name)
-            )
-            return
-        self.hide_drop_label()
+    @inlineCallbacks
+    def add_folder(self, path):
+        path = os.path.realpath(path)
         self.model().add_folder(path)
-        self.gateway.create_magic_folder(path)
+        folder_name = os.path.basename(path)
+        try:
+            yield self.gateway.create_magic_folder(path)
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                'Error adding folder "{}"'.format(folder_name),
+                'An exception was raised when adding the "{}" folder:\n\n'
+                '{}: {}\n\nPlease try again later.'.format(
+                    folder_name, type(e).__name__, str(e)
+                )
+            )
+            self.model().remove_folder(folder_name)
+            return
+        self._restart_required = True
+        logging.debug(
+            'Successfully added folder "%s"; scheduled restart', folder_name)
 
     def add_folders(self, paths):
         paths_to_add = []
         for path in paths:
             basename = os.path.basename(os.path.normpath(path))
             if not os.path.isdir(path):
-                QMessageBox.critical(
+                error(
                     self,
-                    "Cannot add {}.".format(basename),
-                    "Cannot add '{}'.\n\n{} currently only supports uploading "
-                    "and syncing folders, and not individual files.".format(
-                        basename, APP_NAME)
+                    'Cannot add "{}".'.format(basename),
+                    "{} currently only supports uploading and syncing folders,"
+                    " and not individual files.".format(APP_NAME)
                 )
             elif self.gateway.magic_folder_exists(basename):
-                QMessageBox.critical(
+                error(
                     self,
                     "Folder already exists",
                     'You already belong to a folder named "{}" on {}. Please '
@@ -423,10 +425,9 @@ class View(QTreeView):
             self.hide_drop_label()
             tasks = []
             for path in paths_to_add:
-                self.model().add_folder(path)
-                tasks.append(self.gateway.create_magic_folder(path))
+                tasks.append(self.add_folder(path))
             d = DeferredList(tasks)
-            d.addCallback(self.restart_gateway)
+            d.addCallback(self.maybe_restart_gateway)
 
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")
@@ -446,7 +447,6 @@ class View(QTreeView):
         event.accept()
 
     def dragMoveEvent(self, event):  # pylint: disable=no-self-use
-        logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
 
