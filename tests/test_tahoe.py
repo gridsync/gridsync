@@ -707,3 +707,131 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y, z: 9999)
     yield client.start()
     assert client.use_tor
+
+
+@inlineCallbacks
+def test__create_magic_folder_write_yaml(monkeypatch, tmpdir_factory):
+    client = Tahoe(str(tmpdir_factory.mktemp('nodedir')))
+    privatedir = os.path.join(client.nodedir, 'private')
+    os.makedirs(privatedir)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:aaa')
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.get_json',
+        lambda x, y: ["dirnode", {"ro_uri": "URI:DIR2-RO:bbb"}]
+    )
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.link', MagicMock())
+    folder_path = str(tmpdir_factory.mktemp('TestFolder'))
+    yield client._create_magic_folder(folder_path, 'testalias', 123)
+    with open(os.path.join(privatedir, 'magic_folders.yaml')) as f:
+        yaml_data = yaml.safe_load(f)
+    assert yaml_data == {
+        'magic-folders': {
+            os.path.basename(folder_path): {
+                'directory': folder_path,
+                'collective_dircap': 'URI:DIR2-RO:bbb',
+                'upload_dircap': 'URI:DIR2:aaa',
+                'poll_interval': 123,
+            }
+        }
+    }
+
+
+@inlineCallbacks
+def test__create_magic_folder_add_alias(monkeypatch, tmpdir_factory):
+    client = Tahoe(str(tmpdir_factory.mktemp('nodedir')))
+    privatedir = os.path.join(client.nodedir, 'private')
+    os.makedirs(privatedir)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:aaa')
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.get_json',
+        lambda x, y: ["dirnode", {"ro_uri": "URI:DIR2-RO:bbb"}]
+    )
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.link', MagicMock())
+    folder_path = str(tmpdir_factory.mktemp('TestFolder'))
+    yield client._create_magic_folder(folder_path, 'testalias', 123)
+    assert client.get_alias('testalias') == 'URI:DIR2:aaa'
+
+
+@pytest.mark.parametrize(
+    'exception_raised,num_calls',
+    [
+        (None, 1),
+        (Exception, 2),
+        (TahoeError, 2),
+    ]
+)
+@inlineCallbacks
+def test_create_magic_folder_call__create_magic_folder(
+        exception_raised, num_calls, monkeypatch, tmpdir_factory):
+    client = Tahoe(str(tmpdir_factory.mktemp('nodedir')))
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.load_magic_folders', MagicMock())
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.link_magic_folder_to_rootcap', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.deferLater', MagicMock())
+    m = MagicMock(side_effect=exception_raised)
+    monkeypatch.setattr('gridsync.tahoe.Tahoe._create_magic_folder', m)
+    folder_path = str(tmpdir_factory.mktemp('TestFolder'))
+    if exception_raised:
+        with pytest.raises(exception_raised):
+            yield client.create_magic_folder(folder_path)
+    else:
+        yield client.create_magic_folder(folder_path)
+    assert m.call_count == num_calls
+
+
+@pytest.mark.parametrize(
+    'admin_dircap,num_add_alias_calls',
+    [
+        (None, 0),
+        ('URI:TEST', 1),
+    ]
+)
+@inlineCallbacks
+def test_create_magic_folder_call_command_magic_folder_join_and_create_alias(
+        admin_dircap, num_add_alias_calls, monkeypatch, tmpdir_factory):
+    client = Tahoe(str(tmpdir_factory.mktemp('nodedir')))
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.load_magic_folders', MagicMock())
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.link_magic_folder_to_rootcap', MagicMock())
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', MagicMock())
+    m = MagicMock()
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.add_alias', m)
+    folder_path = str(tmpdir_factory.mktemp('TestFolder'))
+    yield client.create_magic_folder(folder_path, 'CAP1:CAP2', admin_dircap)
+    assert m.call_count == num_add_alias_calls
+
+
+@pytest.mark.parametrize(
+    'admin_dircap,collective_dircap,upload_dircap,exception_raised,call_count',
+    [
+        ('URI:admin', 'URI:collective', 'URI:upload', None, 1),
+        ('URI:admin', None, 'URI:upload', TahoeError, 0),
+        ('URI:admin', 'URI:collective', None, TahoeError, 0),
+    ]
+)
+@inlineCallbacks
+def test_restore_magic_folder_raise_tahoe_error(
+        admin_dircap,
+        collective_dircap,
+        upload_dircap,
+        exception_raised,
+        call_count,
+        monkeypatch,
+        tmpdir_factory):
+    client = Tahoe(str(tmpdir_factory.mktemp('nodedir')))
+    client.remote_magic_folders['TestFolder'] = {
+        'admin_dircap': admin_dircap,
+        'collective_dircap': collective_dircap,
+        'upload_dircap': upload_dircap,
+    }
+    m = MagicMock()
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.create_magic_folder', m)
+    dest = str(tmpdir_factory.mktemp('TestFolderDestination'))
+    if exception_raised:
+        with pytest.raises(exception_raised):
+            yield client.restore_magic_folder('TestFolder', dest)
+    else:
+        yield client.restore_magic_folder('TestFolder', dest)
+    assert m.call_count == call_count
