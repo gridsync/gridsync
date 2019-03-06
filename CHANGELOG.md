@@ -11,6 +11,9 @@
 - The unnecessary Tcl/Tk dependency inserted by PyInstaller has been removed from Tahoe-LAFS bundles on Windows, reducing the resultant application filesize by about 10 MB (PR #154)
 - The "Open Gridsync" system tray menu action is now always enabled but now will show/raise the "welcome" window in the event that no storage grids have been joined (Issue #147, PR #155)
 - PyInstaller/binary bundles will now always use the Tahoe-LAFS executable included inside the application directory (as opposed to selecting a `tahoe` executable from the user's `PATH`) (PR #158)
+- Gridsync will now use the Tahoe-LAFS web API directly when adding/creating new folders (instead of shelling out to the `tahoe` python CLI), resulting in significantly faster initial magic-folder creates and facilitating better error-handling (Issue #145, PR #160)
+- If a magic-folder fails to get added/created for any reason, Gridsync will automatically retry that operation after a 3 second delay. It will only re-try once, however (and will display an error message in the event of a second failure) (Issue #145, PR #160)
+- A warning/confirmation message-box will be displayed to the user in the event that they try to exit the application while a newly-added folder is still in the process of being created or if any existing folders are currently syncing (Issue #145, PR #160)
 
 ### Fixed
 - Gridsync will now display an error message -- rather than crash -- in the (rare) event that a user tries to restore a folder without actually possessing the correct capabilities to do so (Issue #143, PR #144)
@@ -18,6 +21,9 @@
 - The environment-specified font should now correctly load when running a PyInstaller build on Linux (Issue #84)
 - Gridsync will now refrain from trying to restart a tahoe client if that client is already in the proccess of stopping or starting, preventing needless tahoe restarts when adding new folders in quick succession (Issue #149, PR #151)
 - On Windows, the application icon should no longer persist in the system tray after the application has exited (Issue #156, PR #157)
+- The logic surrounding `tahoe` daemon restarts after adding folders has been improved; Gridsync will now wait until all known/queued linking events have completed before proceeding with a `tahoe stop` and will not attempt to restart unless at least one folder has been added/created successfully (Issue #145, PR #160)
+- In the event that a magic-folder cannot be added/created, it will be removed immediately from the folder view/model in the UI (after displaying an error message); failed folders should no longer linger or appear stuck in a "Loading..." state and/or need to be removed manually (PR #160)
+- A rare Qt-related crash (caused by Gridsync trying to update the mtime or size for a folder that has recently been removed) has been fixed (PR #160)
 
 ## 0.4.0 - 2019-01-11
 ### Added
