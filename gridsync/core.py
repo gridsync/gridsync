@@ -86,8 +86,9 @@ class Core():
         if get_preference('message', 'suppress') == 'true':
             return
         msgbox = QMessageBox()
-        icon_type = message_settings.get('type').lower()
+        icon_type = message_settings.get('type')
         if icon_type:
+            icon_type = icon_type.lower()
             if icon_type == 'information':
                 msgbox.setIcon(QMessageBox.Information)
             elif icon_type == 'warning':
