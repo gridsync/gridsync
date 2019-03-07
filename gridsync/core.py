@@ -78,7 +78,8 @@ class Core():
             self.gui.show_welcome_dialog()
             yield self.select_executable()
 
-    def show_warning(self):
+    @staticmethod
+    def show_warning():
         warning_settings = settings.get('warning')
         if not warning_settings:
             return
