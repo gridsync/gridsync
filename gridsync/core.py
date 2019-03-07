@@ -86,7 +86,14 @@ class Core():
         if get_preference('message', 'suppress') == 'true':
             return
         msgbox = QMessageBox()
-        msgbox.setIcon(QMessageBox.Warning)
+        icon_type = message_settings.get('type').lower()
+        if icon_type:
+            if icon_type == 'information':
+                msgbox.setIcon(QMessageBox.Information)
+            elif icon_type == 'warning':
+                msgbox.setIcon(QMessageBox.Warning)
+            elif icon_type == 'critical':
+                msgbox.setIcon(QMessageBox.Critical)
         if sys.platform == 'darwin':
             msgbox.setText(message_settings.get('title'))
             msgbox.setInformativeText(message_settings.get('text'))
