@@ -79,23 +79,23 @@ class Core():
             yield self.select_executable()
 
     @staticmethod
-    def show_warning():
-        warning_settings = settings.get('warning')
+    def show_message():
+        message_settings = settings.get('message')
         if not warning_settings:
             return
-        if get_preference('warning', 'suppress') == 'true':
+        if get_preference('message', 'suppress') == 'true':
             return
         msgbox = QMessageBox()
         msgbox.setIcon(QMessageBox.Warning)
         if sys.platform == 'darwin':
-            msgbox.setText(warning_settings.get('title'))
-            msgbox.setInformativeText(warning_settings.get('text'))
+            msgbox.setText(message_settings.get('title'))
+            msgbox.setInformativeText(message_settings.get('text'))
         else:
-            msgbox.setWindowTitle(warning_settings.get('title'))
-            msgbox.setText(warning_settings.get('text'))
+            msgbox.setWindowTitle(message_settings.get('title'))
+            msgbox.setText(message_settings.get('text'))
         checkbox = QCheckBox("Do not show this message again")
         checkbox.stateChanged.connect(lambda state: set_preference(
-            'warning', 'suppress', ('true' if state else 'false')))
+            'message', 'suppress', ('true' if state else 'false')))
         msgbox.setCheckBox(checkbox)
         msgbox.exec_()
 
@@ -118,7 +118,7 @@ class Core():
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)
-        reactor.callLater(0, self.show_warning)
+        reactor.callLater(0, self.show_message)
         reactor.run()
         for nodedir in get_nodedirs(config_dir):
             Tahoe(nodedir, executable=self.executable).kill()
