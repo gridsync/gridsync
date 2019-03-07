@@ -83,7 +83,7 @@ class Core():
         warning_settings = settings.get('warning')
         if not warning_settings:
             return
-        if get_preference('warning', 'ignore') == 'true':
+        if get_preference('warning', 'suppress') == 'true':
             return
         msgbox = QMessageBox()
         msgbox.setIcon(QMessageBox.Warning)
@@ -95,7 +95,7 @@ class Core():
             msgbox.setText(warning_settings.get('text'))
         checkbox = QCheckBox("Do not show this message again")
         checkbox.stateChanged.connect(lambda state: set_preference(
-            'warning', 'ignore', ('true' if state else 'false')))
+            'warning', 'suppress', ('true' if state else 'false')))
         msgbox.setCheckBox(checkbox)
         msgbox.exec_()
 
