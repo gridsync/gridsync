@@ -96,7 +96,7 @@ class Core():
         checkbox.stateChanged.connect(lambda state: set_preference(
             'warning', 'ignore', ('true' if state else 'false')))
         msgbox.setCheckBox(checkbox)
-        return msgbox.exec_()
+        msgbox.exec_()
 
     def start(self):
         try:
