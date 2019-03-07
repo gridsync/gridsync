@@ -81,7 +81,7 @@ class Core():
     @staticmethod
     def show_message():
         message_settings = settings.get('message')
-        if not warning_settings:
+        if not message_settings:
             return
         if get_preference('message', 'suppress') == 'true':
             return
