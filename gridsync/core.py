@@ -5,7 +5,7 @@ import os
 import sys
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
 app = QApplication(sys.argv)
 # qt5reactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
@@ -20,7 +20,7 @@ from gridsync import config_dir, resource, settings, APP_NAME
 from gridsync import msg
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
-from gridsync.preferences import get_preference
+from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import get_nodedirs, Tahoe, select_executable
 from gridsync.tor import get_tor
 
@@ -78,6 +78,26 @@ class Core():
             self.gui.show_welcome_dialog()
             yield self.select_executable()
 
+    def show_warning(self):
+        warning_settings = settings.get('warning')
+        if not warning_settings:
+            return
+        if get_preference('warning', 'ignore') == 'true':
+            return
+        msgbox = QMessageBox()
+        msgbox.setIcon(QMessageBox.Warning)
+        if sys.platform == 'darwin':
+            msgbox.setText(warning_settings.get('title'))
+            msgbox.setInformativeText(warning_settings.get('text'))
+        else:
+            msgbox.setWindowTitle(warning_settings.get('title'))
+            msgbox.setText(warning_settings.get('text'))
+        checkbox = QCheckBox("Do not show this message again")
+        checkbox.stateChanged.connect(lambda state: set_preference(
+            'warning', 'ignore', ('true' if state else 'false')))
+        msgbox.setCheckBox(checkbox)
+        return msgbox.exec_()
+
     def start(self):
         try:
             os.makedirs(config_dir)
@@ -97,6 +117,7 @@ class Core():
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)
+        reactor.callLater(0, self.show_warning)
         reactor.run()
         for nodedir in get_nodedirs(config_dir):
             Tahoe(nodedir, executable=self.executable).kill()
