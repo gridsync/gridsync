@@ -85,6 +85,7 @@ class Core():
             return
         if get_preference('message', 'suppress') == 'true':
             return
+        logging.debug("Showing custom message to user...")
         msgbox = QMessageBox()
         icon_type = message_settings.get('type')
         if icon_type:
@@ -106,6 +107,7 @@ class Core():
             'message', 'suppress', ('true' if state else 'false')))
         msgbox.setCheckBox(checkbox)
         msgbox.exec_()
+        logging.debug("Custom message closed; proceeding with start...")
 
     def start(self):
         try:
