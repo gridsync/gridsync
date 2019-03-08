@@ -122,11 +122,12 @@ class Core():
         logging.debug("$PATH is: %s", os.getenv('PATH'))
         logging.debug("Loaded config.txt settings: %s", settings)
 
+        self.show_message()
+
         self.gui = Gui(self)
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)
-        reactor.callLater(0, self.show_message)
         reactor.run()
         for nodedir in get_nodedirs(config_dir):
             Tahoe(nodedir, executable=self.executable).kill()
