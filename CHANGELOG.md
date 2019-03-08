@@ -4,7 +4,7 @@
 ### Added
 - A rudimentary, text-based progress-indicator has been implemented, displaying the overall percentage of transferred/remaining bytes during folder-syncing operations (shown under the "Status" column of the folder-manager) (Issue #132, PR #142)
 - `config.txt` now accepts a `logo_icon` application setting, allowing whitelabel/rebranded distributions to display a larger logo on the initial welcome screen (in place of the default application icon + description combination) (PR #150)
-- `config.txt` now also accepts an optional `[message]` section with `title`, `text`, and (icon) `type` settings, allowing whitelabel/rebranded distributions to display a custom message to users upon starting the application (PR #161)
+- `config.txt` now also accepts an optional `[message]` section with `title`, `text`, and (icon) `type` settings, allowing whitelabel/rebranded distributions to display a custom message to users upon starting the application (PR #161, #162)
 
 ### Changed
 - The interprocess mutex (used to prevent multiple instances of Gridsync from running at the same time) has been changed from a listening TCP port to a filesystem lock (using `fcntl` on UNIX-based systems), preventing false "Gridsync is already running" errors under some macOS 10.14 environments (Issue #138, PR #141)
