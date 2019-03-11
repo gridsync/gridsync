@@ -334,6 +334,7 @@ class View(QTreeView):
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
+            d.addCallback(self.maybe_restart_gateway)
 
     def open_folders(self, folders):
         for folder in folders:
