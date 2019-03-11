@@ -270,7 +270,7 @@ class View(QTreeView):
             d.addCallback(self.show_drop_label)
 
     @inlineCallbacks
-    def remove_folder(self, folder_name):
+    def remove_folder(self, folder_name, unlink=False):
         try:
             yield self.gateway.remove_magic_folder(folder_name)
         except Exception as e:  # pylint: disable=broad-except
@@ -287,6 +287,8 @@ class View(QTreeView):
         self._restart_required = True
         logging.debug(
             'Successfully removed folder "%s"; scheduled restart', folder_name)
+        if unlink:
+            yield self.unlink_folder(folder_name)
 
     def confirm_remove(self, folders):
         msgbox = QMessageBox(self)
