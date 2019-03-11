@@ -260,11 +260,7 @@ class View(QTreeView):
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
             for folder in folders:
-                #d = self.gateway.unlink_magic_folder_from_rootcap(folder)
-                d = self.unlink_folder(folder)
-                #d.addErrback(self.show_failure)
-                tasks.append(d)
-                #self.model().remove_folder(folder)
+                tasks.append(self.unlink_folder(folder))
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
@@ -324,13 +320,6 @@ class View(QTreeView):
             else:
                 for folder in folders:
                     tasks.append(self.remove_folder(folder, unlink=False))
-                #d.addErrback(self.show_failure)
-                #tasks.append(d)
-                #if checkbox.checkState() == Qt.Unchecked:
-                #    d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
-                #    d2.addErrback(self.show_failure)
-                #    tasks.append(d2)
-                #self.model().remove_folder(folder)
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
