@@ -318,16 +318,19 @@ class View(QTreeView):
         msgbox.setDefaultButton(QMessageBox.Yes)
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
-            for folder in folders:
-                #d = self.gateway.remove_magic_folder(folder)
-                d = self.remove_folder(folder)
+            if checkbox.checkState() == Qt.Unchecked:
+                for folder in folders:
+                    tasks.append(self.remove_folder(folder, unlink=True))
+            else:
+                for folder in folders:
+                    tasks.append(self.remove_folder(folder, unlink=False))
                 #d.addErrback(self.show_failure)
-                tasks.append(d)
-                if checkbox.checkState() == Qt.Unchecked:
-                    d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
-                    d2.addErrback(self.show_failure)
-                    tasks.append(d2)
-                self.model().remove_folder(folder)
+                #tasks.append(d)
+                #if checkbox.checkState() == Qt.Unchecked:
+                #    d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
+                #    d2.addErrback(self.show_failure)
+                #    tasks.append(d2)
+                #self.model().remove_folder(folder)
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
