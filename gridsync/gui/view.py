@@ -63,6 +63,7 @@ class View(QTreeView):
         self.gui = gui
         self.gateway = gateway
         self.invite_sender_dialogs = []
+        self._rescan_required = False
         self._restart_required = False
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
@@ -177,6 +178,15 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
+    def maybe_rescan_rootcap(self, _):
+        if self._rescan_required:
+            self._rescan_required = False
+            logging.debug("A rescan was scheduled; rescanning...")
+            d = self.gateway.monitor.scan_rootcap()
+            d.addCallback(self.show_drop_label)
+        else:
+            logging.debug("No rescans were scheduled; not rescanning")
+
     def maybe_restart_gateway(self, _):
         if self._restart_required:
             self._restart_required = False
@@ -234,9 +244,9 @@ class View(QTreeView):
             )
             return
         self.model().remove_folder(folder_name)
-        self._restart_required = True
+        self._rescan_required = True
         logging.debug(
-            'Successfully unlinked folder "%s"; scheduled restart', folder_name)
+            'Successfully unlinked folder "%s"; scheduled rescan', folder_name)
 
     def confirm_unlink(self, folders):
         msgbox = QMessageBox(self)
@@ -262,8 +272,7 @@ class View(QTreeView):
             for folder in folders:
                 tasks.append(self.unlink_folder(folder))
             d = DeferredList(tasks)
-            d.addCallback(lambda _: self.model().monitor.scan_rootcap())
-            d.addCallback(self.show_drop_label)
+            d.addCallback(self.maybe_rescan_rootcap)
 
     @inlineCallbacks
     def remove_folder(self, folder_name, unlink=False):
