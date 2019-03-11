@@ -219,6 +219,25 @@ class View(QTreeView):
             str(failure.value)
         )
 
+    @inlineCallbacks
+    def unlink_folder(self, folder_name):
+        try:
+            yield self.gateway.unlink_magic_folder_from_rootcap(folder_name)
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                'Error unlinking folder "{}"'.format(folder_name),
+                'An exception was raised when unlinking the "{}" folder:\n\n'
+                '{}: {}\n\nPlease try again later.'.format(
+                    folder_name, type(e).__name__, str(e)
+                )
+            )
+            return
+        self.model().remove_folder(folder_name)
+        self._restart_required = True
+        logging.debug(
+            'Successfully unlinked folder "%s"; scheduled restart', folder_name)
+
     def confirm_unlink(self, folders):
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
@@ -241,10 +260,11 @@ class View(QTreeView):
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
             for folder in folders:
-                d = self.gateway.unlink_magic_folder_from_rootcap(folder)
-                d.addErrback(self.show_failure)
+                #d = self.gateway.unlink_magic_folder_from_rootcap(folder)
+                d = self.unlink_folder(folder)
+                #d.addErrback(self.show_failure)
                 tasks.append(d)
-                self.model().remove_folder(folder)
+                #self.model().remove_folder(folder)
             d = DeferredList(tasks)
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
