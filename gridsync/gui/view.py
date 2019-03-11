@@ -249,6 +249,25 @@ class View(QTreeView):
             d.addCallback(lambda _: self.model().monitor.scan_rootcap())
             d.addCallback(self.show_drop_label)
 
+    @inlineCallbacks
+    def remove_folder(self, folder_name):
+        try:
+            yield self.gateway.remove_magic_folder(folder_name)
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                'Error removing folder "{}"'.format(folder_name),
+                'An exception was raised when removing the "{}" folder:\n\n'
+                '{}: {}\n\nPlease try again later.'.format(
+                    folder_name, type(e).__name__, str(e)
+                )
+            )
+            return
+        self.model().remove_folder(folder_name)
+        self._restart_required = True
+        logging.debug(
+            'Successfully removed folder "%s"; scheduled restart', folder_name)
+
     def confirm_remove(self, folders):
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
@@ -278,8 +297,9 @@ class View(QTreeView):
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
             for folder in folders:
-                d = self.gateway.remove_magic_folder(folder)
-                d.addErrback(self.show_failure)
+                #d = self.gateway.remove_magic_folder(folder)
+                d = self.remove_folder(folder)
+                #d.addErrback(self.show_failure)
                 tasks.append(d)
                 if checkbox.checkState() == Qt.Unchecked:
                     d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
