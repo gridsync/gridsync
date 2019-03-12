@@ -178,20 +178,22 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
+    @inlineCallbacks
     def maybe_rescan_rootcap(self, _):
         if self._rescan_required:
             self._rescan_required = False
             logging.debug("A rescan was scheduled; rescanning...")
-            d = self.gateway.monitor.scan_rootcap()
-            d.addCallback(self.show_drop_label)
+            yield self.gateway.monitor.scan_rootcap()
+            self.show_drop_label()
         else:
             logging.debug("No rescans were scheduled; not rescanning")
 
+    @inlineCallbacks
     def maybe_restart_gateway(self, _):
         if self._restart_required:
             self._restart_required = False
             logging.debug("A restart was scheduled; restarting...")
-            self.gateway.restart()
+            yield self.gateway.restart()
         else:
             logging.debug("No restarts were scheduled; not restarting")
 
@@ -330,8 +332,6 @@ class View(QTreeView):
                 for folder in folders:
                     tasks.append(self.remove_folder(folder, unlink=False))
             d = DeferredList(tasks)
-            d.addCallback(lambda _: self.model().monitor.scan_rootcap())
-            d.addCallback(self.show_drop_label)
             d.addCallback(self.maybe_restart_gateway)
 
     def open_folders(self, folders):
