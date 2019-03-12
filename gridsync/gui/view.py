@@ -63,6 +63,7 @@ class View(QTreeView):
         self.gui = gui
         self.gateway = gateway
         self.invite_sender_dialogs = []
+        self._rescan_required = False
         self._restart_required = False
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
@@ -177,11 +178,22 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
+    @inlineCallbacks
+    def maybe_rescan_rootcap(self, _):
+        if self._rescan_required:
+            self._rescan_required = False
+            logging.debug("A rescan was scheduled; rescanning...")
+            yield self.gateway.monitor.scan_rootcap()
+            self.show_drop_label()
+        else:
+            logging.debug("No rescans were scheduled; not rescanning")
+
+    @inlineCallbacks
     def maybe_restart_gateway(self, _):
         if self._restart_required:
             self._restart_required = False
             logging.debug("A restart was scheduled; restarting...")
-            self.gateway.restart()
+            yield self.gateway.restart()
         else:
             logging.debug("No restarts were scheduled; not restarting")
 
@@ -219,6 +231,25 @@ class View(QTreeView):
             str(failure.value)
         )
 
+    @inlineCallbacks
+    def unlink_folder(self, folder_name):
+        try:
+            yield self.gateway.unlink_magic_folder_from_rootcap(folder_name)
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                'Error unlinking folder "{}"'.format(folder_name),
+                'An exception was raised when unlinking the "{}" folder:\n\n'
+                '{}: {}\n\nPlease try again later.'.format(
+                    folder_name, type(e).__name__, str(e)
+                )
+            )
+            return
+        self.model().remove_folder(folder_name)
+        self._rescan_required = True
+        logging.debug(
+            'Successfully unlinked folder "%s"; scheduled rescan', folder_name)
+
     def confirm_unlink(self, folders):
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
@@ -241,13 +272,30 @@ class View(QTreeView):
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
             for folder in folders:
-                d = self.gateway.unlink_magic_folder_from_rootcap(folder)
-                d.addErrback(self.show_failure)
-                tasks.append(d)
-                self.model().remove_folder(folder)
+                tasks.append(self.unlink_folder(folder))
             d = DeferredList(tasks)
-            d.addCallback(lambda _: self.model().monitor.scan_rootcap())
-            d.addCallback(self.show_drop_label)
+            d.addCallback(self.maybe_rescan_rootcap)
+
+    @inlineCallbacks
+    def remove_folder(self, folder_name, unlink=False):
+        try:
+            yield self.gateway.remove_magic_folder(folder_name)
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                'Error removing folder "{}"'.format(folder_name),
+                'An exception was raised when removing the "{}" folder:\n\n'
+                '{}: {}\n\nPlease try again later.'.format(
+                    folder_name, type(e).__name__, str(e)
+                )
+            )
+            return
+        self.model().remove_folder(folder_name)
+        self._restart_required = True
+        logging.debug(
+            'Successfully removed folder "%s"; scheduled restart', folder_name)
+        if unlink:
+            yield self.unlink_folder(folder_name)
 
     def confirm_remove(self, folders):
         msgbox = QMessageBox(self)
@@ -277,18 +325,15 @@ class View(QTreeView):
         msgbox.setDefaultButton(QMessageBox.Yes)
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
-            for folder in folders:
-                d = self.gateway.remove_magic_folder(folder)
-                d.addErrback(self.show_failure)
-                tasks.append(d)
-                if checkbox.checkState() == Qt.Unchecked:
-                    d2 = self.gateway.unlink_magic_folder_from_rootcap(folder)
-                    d2.addErrback(self.show_failure)
-                    tasks.append(d2)
-                self.model().remove_folder(folder)
+            if checkbox.checkState() == Qt.Unchecked:
+                for folder in folders:
+                    tasks.append(self.remove_folder(folder, unlink=True))
+            else:
+                for folder in folders:
+                    tasks.append(self.remove_folder(folder, unlink=False))
             d = DeferredList(tasks)
-            d.addCallback(lambda _: self.model().monitor.scan_rootcap())
-            d.addCallback(self.show_drop_label)
+            d.addCallback(self.maybe_rescan_rootcap)
+            d.addCallback(self.maybe_restart_gateway)
 
     def open_folders(self, folders):
         for folder in folders:
