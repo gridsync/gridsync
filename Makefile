@@ -214,7 +214,7 @@ frozen-tahoe:
 	#echo "package_imports.append(('setuptools', 'setuptools'))" >> build/tahoe-lafs/src/allmydata/_auto_deps.py
 	case `uname` in \
 		Darwin) \
-			git clone -b 1432.watchdog-magic-folder https://github.com/crwood/tahoe-lafs.git build/tahoe-lafs \
+			git clone -b 1432.watchdog-magic-folder-with-eliot https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs \
 		;; \
 		*) \
 			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
