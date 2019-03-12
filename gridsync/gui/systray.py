@@ -62,29 +62,30 @@ class Menu(QMenu):
                 self.gui.main_window.export_recovery_key)
             self.addAction(export_action)
 
-        documentation_action = QAction(
-            QIcon(''), "Browse Documentation...", self)
-        documentation_action.triggered.connect(open_documentation)
-
-        issue_action = QAction(QIcon(''), "Report Issue...", self)
-        issue_action.triggered.connect(open_issue)
-
-        about_action = QAction(QIcon(''), "About {}...".format(APP_NAME), self)
-        about_action.triggered.connect(self.about_msg.exec_)
-
         help_menu = QMenu(self)
         help_menu.setTitle("Help")
-        help_menu.addAction(documentation_action)
-        help_menu.addAction(issue_action)
-        help_menu.addSeparator()
+        help_settings = settings.get('help')
+        if help_settings:
+            if help_settings.get('docs_url'):
+                docs_action = QAction(
+                    QIcon(''), "Browse Documentation...", self)
+                docs_action.triggered.connect(open_documentation)
+                help_menu.addAction(docs_action)
+            if help_settings.get('issues_url'):
+                issue_action = QAction(QIcon(''), "Report Issue...", self)
+                issue_action.triggered.connect(open_issue)
+                help_menu.addAction(issue_action)
+            help_menu.addSeparator()
+        about_action = QAction(QIcon(''), "About {}...".format(APP_NAME), self)
+        about_action.triggered.connect(self.about_msg.exec_)
         help_menu.addAction(about_action)
+        self.addMenu(help_menu)
+
+        self.addSeparator()
 
         quit_action = QAction(
             QIcon(''), "&Quit {}".format(APP_NAME), self)
         quit_action.triggered.connect(self.gui.main_window.confirm_quit)
-
-        self.addMenu(help_menu)
-        self.addSeparator()
         self.addAction(quit_action)
 
 
