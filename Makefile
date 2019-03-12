@@ -261,6 +261,7 @@ pyinstaller:
 			python scripts/maybe_downgrade_pyqt.py \
 		;; \
 	esac &&	\
+	python -m pip install git+git://github.com/crwood/eliot.git@frozen-build-support && \
 	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
