@@ -332,6 +332,7 @@ class View(QTreeView):
                 for folder in folders:
                     tasks.append(self.remove_folder(folder, unlink=False))
             d = DeferredList(tasks)
+            d.addCallback(self.maybe_rescan_rootcap)
             d.addCallback(self.maybe_restart_gateway)
 
     def open_folders(self, folders):
