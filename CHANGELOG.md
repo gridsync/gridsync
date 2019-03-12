@@ -15,6 +15,7 @@
 - Gridsync will now use the Tahoe-LAFS web API directly when adding/creating new folders (instead of shelling out to the `tahoe` python CLI), resulting in significantly faster initial magic-folder creates and facilitating better error-handling (Issue #145, PR #160)
 - If a magic-folder fails to get added/created for any reason, Gridsync will automatically retry that operation after a 3 second delay. It will only re-try once, however (and will display an error message in the event of a second failure) (Issue #145, PR #160)
 - A warning/confirmation message-box will be displayed to the user in the event that they try to exit the application while a newly-added folder is still in the process of being created or if any existing folders are currently syncing (Issue #145, PR #160)
+- The `[help]` section of `config.txt` is now optional; the "Browse Documentation" and "Report Issue" actions in the systray help submenu will now only appear if 'docs_url' and 'issues_url' respectively have been set (PR #164) 
 
 ### Fixed
 - Gridsync will now display an error message -- rather than crash -- in the (rare) event that a user tries to restore a folder without actually possessing the correct capabilities to do so (Issue #143, PR #144)
