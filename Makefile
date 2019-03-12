@@ -212,15 +212,7 @@ frozen-tahoe:
 	#	https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
 	#cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	#echo "package_imports.append(('setuptools', 'setuptools'))" >> build/tahoe-lafs/src/allmydata/_auto_deps.py
-	case `uname` in \
-		Darwin) \
-			git clone -b 1432.watchdog-magic-folder-with-eliot https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs \
-		;; \
-		*) \
-			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
-			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout tahoe-lafs-1.13.0 \
-		;; \
-	esac
+	git clone -b 1432.watchdog-magic-folder-with-eliot https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
