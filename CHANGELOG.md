@@ -25,6 +25,8 @@
 - The logic surrounding `tahoe` daemon restarts after adding folders has been improved; Gridsync will now wait until all known/queued linking events have completed before proceeding with a `tahoe stop` and will not attempt to restart unless at least one folder has been added/created successfully (Issue #145, PR #160)
 - In the event that a magic-folder cannot be added/created, it will be removed immediately from the folder view/model in the UI (after displaying an error message); failed folders should no longer linger or appear stuck in a "Loading..." state and/or need to be removed manually (PR #160)
 - A rare Qt-related crash (caused by Gridsync trying to update the mtime or size for a folder that has recently been removed) has been fixed (PR #160)
+- In hopes of fighting off any ["Zombie Dragons"](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2996), Gridsync will now restart the `tahoe` daemon after successfully leaving a magic-folder (PR #163)
+- When permanently removing one or more magic-folders, Gridsync will now wait until all unlink operations have completed before rescanning the rootcap, preventing the situation in which a folder might re-appear in the UI as "Remotely stored" despite having just been removed (PR #163)
 
 ## 0.4.0 - 2019-01-11
 ### Added
