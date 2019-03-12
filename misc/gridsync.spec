@@ -99,7 +99,11 @@ app = BUNDLE(
 tahoe_bundle_path = os.path.join('dist', 'Tahoe-LAFS')
 if os.path.isdir(tahoe_bundle_path):
     if sys.platform == 'darwin':
-        tahoe_bundle_path = '/Users/vagrant/Tahoe-LAFS'  # XXX Temporary hack for testing custom eliot branch; remove!
+        # XXX Temporary hack for testing custom macOS wachdog/eliot branch; remove!
+        tahoe_bundle_path_override = os.path.join(os.path.expanduser('~'), 'Tahoe-LAFS')
+        if os.path.isdir(tahoe_bundle_path_override):
+            shutil.rmtree(tahoe_bundle_path)
+            shutil.copytree(tahoe_bundle_path_override, tahoe_bundle_path)
         dest = os.path.join(
             'dist', app_name + '.app', 'Contents', 'MacOS', 'Tahoe-LAFS')
     else:
