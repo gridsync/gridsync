@@ -26,7 +26,11 @@ The process of verifying a digital signature for the first time requires three s
 Step 1: Installing GnuPG
 ------------------------
 
-While most GNU/Linux distributions will already come with GnuPG pre-installed, macOS and Windows users will need to download and install GnuPG manually; macOS users can download and install the [GPG Suite](https://gpgtools.org/) (which includes a copy of GnuPG), while Windows users are recommended to download and install [Gpg4win](https://gpg4win.org/).
+If you don't already have it, you will need to download and install GnuPG or another reputable/compatible application that can verify OpenPGP signatures. The specific application you install depends on your underlying operating system:
+
+* For Windows: Download and install [Gpg4win](https://gpg4win.org/)
+* For macOS: Download and install the [GPG Suite](https://gpgtools.org/) or use [Homebrew](https://brew.sh/) to install the `gnupg` package
+* For GNU/Linux: Use your distribution's package manager to install the `gnupg` package
 
 
 Step 2: Importing the developer's public key
@@ -34,11 +38,13 @@ Step 2: Importing the developer's public key
 
 With GnuPG already installed, the Gridsync Release Signing Key can be imported directly with the following command:
 
-`gpg --keyserver pool.sks-keyservers.net --recv-keys 0xD38A20A62777E1A5`
+* For Windows: `"C:\Program Files\Gnu\GnuPg\gpg.exe" --keyserver pool.sks-keyservers.net --recv-keys 0xD38A20A62777E1A5`
+* For macOS or GNU/Linux: `gpg --keyserver pool.sks-keyservers.net --recv-keys 0xD38A20A62777E1A5`
 
 In order to ensure that the key has been imported successfully, you can run the following afterward:
 
-`gpg --fingerprint 0xD38A20A62777E1A5`
+* For Windows: `"C:\Program Files\Gnu\GnuPg\gpg.exe" --fingerprint 0xD38A20A62777E1A5`
+* For macOS or GNU/Linux: `gpg --fingerprint 0xD38A20A62777E1A5`
 
 This should display output containing the following lines:
 
@@ -54,17 +60,15 @@ If the "Key fingerprint" line above matches what you see on your computer, the k
 Step 3: Verifying the signature
 -------------------------------
 
-To verify a digital signature for Gridsync, you should download both the standard application package for your operating system (e.g., "Gridsync-Mac.dmg" for Macs) as well as the associated ".asc" digital signature file (e.g., "Gridsync-Mac.dmg.asc").
+To verify a digital signature for Gridsync, you should download both the standard application package for your operating system (e.g., "Gridsync-macOS.dmg" for macOS) as well as the associated ".asc" digital signature file (e.g., "Gridsync-macOS.dmg.asc").
 
 Assuming that both of these files have been placed into your home folder (and that you've already imported the Gridsync Release Signing Key in step 2 above), you can verify the application's signature by issuing one of the following commands:
 
-For GNU/Linux: `gpg --verify Gridsync-Linux.tar.gz.asc Gridsync-Linux.tar.gz`
+* For Windows: `"C:\Program Files\Gnu\GnuPg\gpg.exe" --verify Gridsync-Windows-setup.exe.asc Gridsync-Windows-setup.exe`
+* For macOS: `gpg --verify Gridsync-macOS.dmg{.asc,}`
+* For GNU/Linux: `gpg --verify Gridsync-Linux.tar.gz{.asc,}`
 
-For macOS: `gpg --verify Gridsync-Mac.dmg.asc Gridsync-Mac.dmg`
-
-for Windows: `"C:\Program Files\Gnu\GnuPg\gpg.exe" --verify Gridsync-Windows.zip.asc Gridsync-Windows.zip`
-
-If you have placed these files elsewhere (for example, in your local "Downloads" folder), you will have to modify the command above accordingly (e.g., replacing "Gridsync-Mac.dmg" with "Downloads/Gridsync-Mac.dmg" and so on).
+If you have placed these files elsewhere (for example, in your local "Downloads" folder), you will have to modify the command above accordingly (e.g., replacing "Gridsync-macOS.dmg" with "Downloads/Gridsync-macOS.dmg" and so on).
 
 Among the output from this command, you should see the the following lines:
 
