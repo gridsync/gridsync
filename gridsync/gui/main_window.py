@@ -119,8 +119,8 @@ class MainWindow(QMainWindow):
             folder_icon_default.pixmap(256, 256), resource('green-plus.png'))
         folder_icon = QIcon(folder_icon_composite)
 
-        folder_action = QAction(folder_icon, "Add folder", self)
-        folder_action.setToolTip("Add a folder...")
+        folder_action = QAction(folder_icon, "Add Folder", self)
+        folder_action.setToolTip("Add a Folder...")
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
