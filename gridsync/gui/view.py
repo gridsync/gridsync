@@ -403,6 +403,7 @@ class View(QTreeView):
             lambda: self.open_folders(selected))
 
         share_menu = QMenu()
+        share_menu.setIcon(QIcon(resource('up-down-arrows.png')))
         share_menu.setTitle("Sync with device")  # XXX Rephrase?
         invite_action = QAction(
             QIcon(resource('invite.png')), "Create Invite Code...")
