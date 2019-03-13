@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
-        recovery_action.setToolTip("Import/Export Recovery Key...")
+        recovery_action.setToolTip("Import or Export a Recovery Key...")
         recovery_action.setFont(font)
 
         import_action = QAction(QIcon(), "Import Recovery Key...", self)
