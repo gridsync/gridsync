@@ -63,14 +63,12 @@ Installation and running:
 
 **Stable releases:**
 
-Downloads for "stable" releases of Gridsync can be found on the project's `GitHub Releases page`_ and include pre-built/binary distrubitions for all three major desktop platforms. Users wishing to install these packages are strongly urged to `verify their signatures`_ before running and should additionally take into consideration the fact that these packages are presently compiled by third-party services (namely `Travis-CI`_ and `AppVeyor`_). As a result -- and until reproducible builds have been fully implemented -- some users may wish instead to build or install Gridsync manually from source (see below).
+Downloads for "stable" releases of Gridsync can be found on the project's `GitHub Releases page`_ and include pre-built/binary distrubitions for all three major desktop platforms that have been compiled inside dedicated virtual machines on dedicated hardware. Users wishing to install these packages are strongly urged to `verify their signatures`_ before running or, alternatively, to build/install Gridsync manually from source (see below).
 
 .. _GitHub Releases page: https://github.com/gridsync/gridsync/releases
 .. _verify their signatures: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
-.. _Travis-CI: https://travis-ci.org/gridsync/gridsync
-.. _AppVeyor: https://ci.appveyor.com/project/crwood/gridsync
 
-To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23; 64-bit only):
+To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Debian 8+, Ubuntu 14.04+, CentOS 7+, and Fedora 29+):
 
 1. Download `Gridsync-Linux.tar.gz`_ (and `verify`_ its signature)
 2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
@@ -79,27 +77,27 @@ To install and run Gridsync on GNU/Linux (tested on Debian 8 and Fedora 23; 64-b
 .. _Gridsync-Linux.tar.gz: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on macOS (version 10.11 or later):
+To install and run Gridsync on macOS (64-bit only; supporting macOS 10.12 "Sierra" and above):
 
-1. Download `Gridsync-Mac.dmg`_ (and `verify`_ its signature)
+1. Download `Gridsync-macOS.dmg`_ (and `verify`_ its signature)
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
 3. Double-click ``Gridsync.app``
 
-Users on older Macs can alternatively try `Gridsync-Mac-Legacy.dmg`_ (which has been tested to work on 2009-era hardware with versions of macOS as old as 10.9).
+Users on older Macs can alternatively try `Gridsync-macOS-Legacy.dmg`_ (which has been tested to work on 2009-era hardware with versions of macOS as old as 10.9).
 
-.. _Gridsync-Mac.dmg: https://github.com/gridsync/gridsync/releases
+.. _Gridsync-macOS.dmg: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
-.. _Gridsync-Mac-Legacy.dmg: https://github.com/gridsync/gridsync/releases
+.. _Gridsync-macOS-Legacy.dmg: https://github.com/gridsync/gridsync/releases
 
-To install and run Gridsync on Windows (tested on Windows 7 SP1, Windows 8.1, and Windows 10):
+To install and run Gridsync on Windows (64-bit only; supporting Windows Server 2012R2, Windows 7 SP1, Windows 8.1, and Windows 10):
 
-1. Download `Gridsync-setup.exe`_ (and `verify`_ its signature)
+1. Download `Gridsync-Windows-setup.exe`_ (and `verify`_ its signature)
 2. Run the executable installer and follow/complete the setup wizard
 3. Select "Launch Gridsync" when installation is finished
 
 Alternatively, Windows users who do not wish to use the executable installer can download and verify `Gridsync-Windows.zip`_, extract the enclosed "Gridsync" folder anywhere, and run `Gridsync.exe`.
 
-.. _Gridsync-setup.exe: https://github.com/gridsync/gridsync/releases
+.. _Gridsync-Windows-setup.exe: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 .. _Gridsync-Windows.zip: https://github.com/gridsync/gridsync/releases
 
