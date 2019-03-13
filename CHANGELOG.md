@@ -1,12 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.4.1 - 2019-03-12
 ### Added
 - A rudimentary, text-based progress-indicator has been implemented, displaying the overall percentage of transferred/remaining bytes during folder-syncing operations (shown under the "Status" column of the folder-manager) (Issue #132, PR #142)
 - `config.txt` now accepts a `logo_icon` application setting, allowing whitelabel/rebranded distributions to display a larger logo on the initial welcome screen (in place of the default application icon + description combination) (PR #150)
 - `config.txt` now also accepts an optional `[message]` section with `title`, `text`, and (icon) `type` settings, allowing whitelabel/rebranded distributions to display a custom message to users upon starting the application (PR #161, #162)
 
 ### Changed
+- The Gridsync project no longer depends on [Travis-CI](https://travis-ci.org/) or [AppVeyor](https://www.appveyor.com/) for build-deployment and will now instead use dedicated virtual machines running on dedicated hardware for releases (PR #165). Currently, the following operating system versions should be considered supported (64-bit only):
+    - For GNU/Linux: glibc 2.17 and above -- including Debian 8+, Ubuntu 14.04+, CentOS 7+, and Fedora 29+
+    - For macOS: macOS 10.12 "Sierra" and above
+    - For Windows: Windows Server 2012R2, Windows 7 SP1, Windows 8.1, and Windows 10
 - The interprocess mutex (used to prevent multiple instances of Gridsync from running at the same time) has been changed from a listening TCP port to a filesystem lock (using `fcntl` on UNIX-based systems), preventing false "Gridsync is already running" errors under some macOS 10.14 environments (Issue #138, PR #141)
 - The Windows executable installer will now prompt the user whether install the application "for me only" or "for all users"; it is now possible to install Gridsync without requiring an administrator password (Issue #152, PR #153)
 - The unnecessary Tcl/Tk dependency inserted by PyInstaller has been removed from Tahoe-LAFS bundles on Windows, reducing the resultant application filesize by about 10 MB (PR #154)
@@ -15,7 +19,7 @@
 - Gridsync will now use the Tahoe-LAFS web API directly when adding/creating new folders (instead of shelling out to the `tahoe` python CLI), resulting in significantly faster initial magic-folder creates and facilitating better error-handling (Issue #145, PR #160)
 - If a magic-folder fails to get added/created for any reason, Gridsync will automatically retry that operation after a 3 second delay. It will only re-try once, however (and will display an error message in the event of a second failure) (Issue #145, PR #160)
 - A warning/confirmation message-box will be displayed to the user in the event that they try to exit the application while a newly-added folder is still in the process of being created or if any existing folders are currently syncing (Issue #145, PR #160)
-- The `[help]` section of `config.txt` is now optional; the "Browse Documentation" and "Report Issue" actions in the systray help submenu will now only appear if 'docs_url' and 'issues_url' respectively have been set (PR #164) 
+- The `[help]` section of `config.txt` is now optional; the "Browse Documentation" and "Report Issue" actions in the systray help submenu will now only appear if `docs_url` and `issues_url` respectively have been set (PR #164) 
 
 ### Fixed
 - Gridsync will now display an error message -- rather than crash -- in the (rare) event that a user tries to restore a folder without actually possessing the correct capabilities to do so (Issue #143, PR #144)
