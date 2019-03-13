@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
         self.shortcut_open = QShortcut(QKeySequence.Open, self)
         self.shortcut_open.activated.connect(self.select_folder)
 
-	self.shortcut_preferences = QShortcut(QKeySequence.Preferences, self)
+        self.shortcut_preferences = QShortcut(QKeySequence.Preferences, self)
         self.shortcut_preferences.activated.connect(
             self.gui.show_preferences_window)
 
