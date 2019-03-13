@@ -150,11 +150,6 @@ class MainWindow(QMainWindow):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        share_action = QAction(QIcon(resource('share.png')), "Share", self)
-        share_action.setToolTip("Share...")
-        share_action.setFont(font)
-        share_action.triggered.connect(self.open_invite_sender_dialog)
-
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
         recovery_action.setToolTip("Import/Export Recovery Key...")
@@ -199,7 +194,6 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
-        self.toolbar.addAction(share_action)
         self.toolbar.addWidget(recovery_button)
 
         if sys.platform != 'win32':  # Text is getting clipped on Windows 10
