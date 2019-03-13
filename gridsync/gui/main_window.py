@@ -130,6 +130,15 @@ class MainWindow(QMainWindow):
         invite_action.setFont(font)
         invite_action.triggered.connect(self.open_invite_receiver)
 
+        spacer_left = QWidget()
+        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
+
+        self.combo_box = ComboBox()
+        self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
+
+        spacer_right = QWidget()
+        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
+
         history_action = QAction(
             QIcon(resource('time.png')), 'History', self)
         history_action.setToolTip("View history")
@@ -140,15 +149,6 @@ class MainWindow(QMainWindow):
         self.history_button.setDefaultAction(history_action)
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        spacer_left = QWidget()
-        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
-
-        self.combo_box = ComboBox()
-        self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
-
-        spacer_right = QWidget()
-        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
@@ -190,10 +190,10 @@ class MainWindow(QMainWindow):
         self.toolbar.setMovable(False)
         self.toolbar.addAction(folder_action)
         self.toolbar.addAction(invite_action)
-        self.toolbar.addWidget(self.history_button)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
+        self.toolbar.addWidget(self.history_button)
         self.toolbar.addWidget(recovery_button)
 
         if sys.platform != 'win32':  # Text is getting clipped on Windows 10
