@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
 
         history_action = QAction(
             QIcon(resource('time.png')), 'History', self)
-        history_action.setToolTip("View history")
+        history_action.setToolTip("Show/Hide History")
         history_action.setFont(font)
         history_action.triggered.connect(self.on_history_button_clicked)
 
