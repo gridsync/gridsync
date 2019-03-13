@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 
-from gridsync import resource, APP_NAME, config_dir
+from gridsync import resource, APP_NAME, config_dir, settings
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.history import HistoryView
@@ -124,11 +124,48 @@ class MainWindow(QMainWindow):
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
-        invite_action = QAction(
-            QIcon(resource('invite.png')), "Enter Code", self)
-        invite_action.setToolTip("Enter an Invite Code...")
-        invite_action.setFont(font)
-        invite_action.triggered.connect(self.open_invite_receiver)
+        grid_invites_enabled = True
+        features_settings = settings.get('features')
+        if features_settings:
+            grid_invites = features_settings.get('grid_invites')
+            if grid_invites and grid_invites.lower() == 'false':
+                grid_invites_enabled = False
+
+        if grid_invites_enabled:
+            invites_action = QAction(
+                QIcon(resource('invite.png')), "Invites", self)
+            invites_action.setToolTip("Enter or Create an Invite Code...")
+            invites_action.setFont(font)
+
+            enter_invite_action = QAction(
+                QIcon(), "Enter Invite Code...", self)
+            enter_invite_action.setToolTip("Enter an Invite Code...")
+            enter_invite_action.triggered.connect(self.open_invite_receiver)
+
+            create_invite_action = QAction(
+                QIcon(), "Create Invite Code...", self)
+            create_invite_action.setToolTip("Create on Invite Code...")
+            create_invite_action.triggered.connect(
+                self.open_invite_sender_dialog)
+
+            invites_menu = QMenu(self)
+            invites_menu.addAction(enter_invite_action)
+            invites_menu.addAction(create_invite_action)
+
+            invites_button = QToolButton(self)
+            invites_button.setDefaultAction(invites_action)
+            invites_button.setMenu(invites_menu)
+            invites_button.setPopupMode(2)
+            invites_button.setStyleSheet(
+                'QToolButton::menu-indicator { image: none }')
+            invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        else:
+            invite_action = QAction(
+                QIcon(resource('invite.png')), "Enter Code", self)
+            invite_action.setToolTip("Enter an Invite Code...")
+            invite_action.setFont(font)
+            invite_action.triggered.connect(self.open_invite_receiver)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
@@ -189,7 +226,10 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(folder_action)
-        self.toolbar.addAction(invite_action)
+        if grid_invites_enabled:
+            self.toolbar.addWidget(invites_button)
+        else:
+            self.toolbar.addAction(invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
