@@ -235,7 +235,7 @@ frozen-tahoe:
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
-	rm -rf dist/Tahoe-LAFS/cryptography-2.4.2-py2.7.egg-info && \
+	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
 	popd && \
@@ -322,16 +322,16 @@ all:
 
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.tar.gz
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Mac.dmg
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Mac-Legacy.dmg
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-setup.exe
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS.dmg
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS-Legacy.dmg
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows-setup.exe
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows.zip
 
 gpg-verify:
 	gpg2 --verify release/Gridsync-Linux.tar.gz{.asc,}
-	gpg2 --verify release/Gridsync-Mac.dmg{.asc,}
-	gpg2 --verify release/Gridsync-Mac-Legacy.dmg{.asc,}
-	gpg2 --verify release/Gridsync-setup.exe{.asc,}
+	gpg2 --verify release/Gridsync-macOS.dmg{.asc,}
+	gpg2 --verify release/Gridsync-macOS-Legacy.dmg{.asc,}
+	gpg2 --verify release/Gridsync-Windows-setup.exe{.asc,}
 	gpg2 --verify release/Gridsync-Windows.zip{.asc,}
 
 pypi-release:
