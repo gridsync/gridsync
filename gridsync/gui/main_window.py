@@ -134,7 +134,7 @@ class MainWindow(QMainWindow):
         if grid_invites_enabled:
             invites_action = QAction(
                 QIcon(resource('invite.png')), "Invites", self)
-            invites_action.setToolTip("Enter or Create an Invite Code...")
+            invites_action.setToolTip("Enter or Create an Invite Code")
             invites_action.setFont(font)
 
             enter_invite_action = QAction(
@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
-        recovery_action.setToolTip("Import or Export a Recovery Key...")
+        recovery_action.setToolTip("Import or Export a Recovery Key")
         recovery_action.setFont(font)
 
         import_action = QAction(QIcon(), "Import Recovery Key...", self)
