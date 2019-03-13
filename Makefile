@@ -202,25 +202,9 @@ build-deps: deps
 	esac
 
 frozen-tahoe:
-	# Requires libssl-dev libffi-dev
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
-	#curl --progress-bar --output build/tahoe-lafs.tar.bz2 --location \
-	#	https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
-	#tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
-	#git clone -b 1432.osx-watchdog-stable.10 \
-	#	https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
-	#cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
-	#echo "package_imports.append(('setuptools', 'setuptools'))" >> build/tahoe-lafs/src/allmydata/_auto_deps.py
-	case `uname` in \
-		Darwin) \
-			git clone -b 1432.watchdog-magic-folder https://github.com/crwood/tahoe-lafs.git build/tahoe-lafs \
-		;; \
-		*) \
-			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
-			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout tahoe-lafs-1.13.0 \
-		;; \
-	esac
+	git clone -b 1432.watchdog-magic-folder-with-eliot https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
@@ -231,6 +215,7 @@ frozen-tahoe:
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
 	python -m pip install packaging && \
+	python -m pip install git+git://github.com/crwood/eliot.git@frozen-build-support && \
 	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
