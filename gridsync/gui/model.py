@@ -177,12 +177,12 @@ class Model(QStandardItemModel):
         self.update_folder_icon(
             folder_name,
             self.gateway.get_magic_folder_directory(folder_name),
-            'user.png')
+            'laptop.png')
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
-                "{}\n\nThis folder is shared; at least one other person\nor "
-                "device can view and modify its contents.".format(
+                "{}\n\nAt least one other device can view and modify\n"
+                "this folder's contents.".format(
                     self.gateway.get_magic_folder_directory(folder_name)
                     or folder_name + " (Stored remotely)"))
 
