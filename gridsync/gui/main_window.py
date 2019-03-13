@@ -177,14 +177,6 @@ class MainWindow(QMainWindow):
             'QToolButton::menu-indicator { image: none }')
         recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        preferences_action = QAction(
-            QIcon(resource('preferences.png')), "Preferences", self)
-        preferences_action.setStatusTip("Preferences")
-        preferences_action.setToolTip("Preferences")
-        preferences_action.setFont(font)
-        preferences_action.setShortcut(QKeySequence.Preferences)
-        preferences_action.triggered.connect(self.gui.show_preferences_window)
-
         self.toolbar = self.addToolBar('')
         if sys.platform != 'darwin':
             self.toolbar.setStyleSheet("""
@@ -205,7 +197,6 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_right)
         self.toolbar.addAction(share_action)
         self.toolbar.addWidget(recovery_button)
-        self.toolbar.addAction(preferences_action)
 
         if sys.platform != 'win32':  # Text is getting clipped on Windows 10
             for action in self.toolbar.actions():

@@ -62,6 +62,10 @@ class Menu(QMenu):
                 self.gui.main_window.export_recovery_key)
             self.addAction(export_action)
 
+        preferences_action = QAction(QIcon(''), "Preferences...", self)
+        preferences_action.triggered.connect(self.gui.show_preferences_window)
+        self.addAction(preferences_action)
+
         help_menu = QMenu(self)
         help_menu.setTitle("Help")
         help_settings = settings.get('help')
