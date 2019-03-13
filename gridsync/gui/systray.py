@@ -43,6 +43,8 @@ class Menu(QMenu):
         open_action.triggered.connect(self.gui.show)
         self.addAction(open_action)
 
+        self.addSeparator()
+
         preferences_action = QAction(QIcon(''), "Preferences...", self)
         preferences_action.triggered.connect(self.gui.show_preferences_window)
         self.addAction(preferences_action)
