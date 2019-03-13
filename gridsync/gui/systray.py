@@ -35,12 +35,6 @@ class Menu(QMenu):
 
         self.populate()
 
-    def _add_export_action(self, gateway):
-        action = QAction(QIcon(''), gateway.name, self)
-        action.triggered.connect(
-            lambda: self.gui.main_window.export_recovery_key(gateway))
-        self.export_menu.addAction(action)
-
     def populate(self):
         self.clear()
         logging.debug("(Re-)populating systray menu...")
