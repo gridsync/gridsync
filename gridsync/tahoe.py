@@ -608,6 +608,7 @@ class Tahoe():
         childcap_hash = hashlib.sha256(childcap.encode()).hexdigest()
         log.debug('Linking "%s" (%s) into %s...', childname, childcap_hash,
                   dircap_hash)
+        yield self.await_ready()
         yield self.lock.acquire()
         try:
             resp = yield treq.post(
@@ -625,6 +626,7 @@ class Tahoe():
     def unlink(self, dircap, childname):
         dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
+        yield self.await_ready()
         yield self.lock.acquire()
         try:
             resp = yield treq.post(
