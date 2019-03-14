@@ -211,7 +211,7 @@ frozen-tahoe:
 	pushd build/tahoe-lafs && \
 	git checkout c1e6f0881331b6549337af651e87e2f1521c8945 && \
 	python setup.py update_version && \
-	python -m pip install --find-links=https://tahoe-lafs.org/deps/ . && \
+	python -m pip install . && \
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
