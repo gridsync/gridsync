@@ -401,24 +401,32 @@ class View(QTreeView):
         open_action = QAction(self.model().icon_folder_gray, "Open")
         open_action.triggered.connect(
             lambda: self.open_folders(selected))
-        share_action = QAction(QIcon(resource('share.png')), "Share...")
-        share_action.triggered.connect(
+
+        share_menu = QMenu()
+        share_menu.setIcon(QIcon(resource('laptop.png')))
+        share_menu.setTitle("Sync with device")  # XXX Rephrase?
+        invite_action = QAction(
+            QIcon(resource('invite.png')), "Create Invite Code...")
+        invite_action.triggered.connect(
             lambda: self.open_invite_sender_dialog(selected))
+        share_menu.addAction(invite_action)
+
         remove_action = QAction(QIcon(resource('close.png')), "Remove...")
         menu.addAction(open_action)
-        menu.addAction(share_action)
+        menu.addMenu(share_menu)
         menu.addSeparator()
         menu.addAction(remove_action)
         if selection_is_remote:
             open_action.setEnabled(False)
-            share_action.setEnabled(False)
+            share_menu.setEnabled(False)
             remove_action.triggered.connect(
                 lambda: self.confirm_unlink(selected))
         else:
             for folder in selected:
                 if not self.gateway.magic_folders[folder]['admin_dircap']:
-                    share_action.setEnabled(False)
-                    share_action.setText("Share (disabled; no admin access)")
+                    share_menu.setEnabled(False)
+                    share_menu.setTitle(
+                        "Sync with device (disabled; no admin access)")
             remove_action.triggered.connect(
                 lambda: self.confirm_remove(selected))
         menu.exec_(self.viewport().mapToGlobal(position))
