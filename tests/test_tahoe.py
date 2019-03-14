@@ -582,6 +582,7 @@ def test_tahoe_unlink(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
     monkeypatch.setattr('treq.post', fake_post_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
     with pytest.raises(TahoeWebError):
