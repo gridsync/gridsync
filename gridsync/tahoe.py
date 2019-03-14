@@ -554,6 +554,7 @@ class Tahoe():
 
     @inlineCallbacks
     def mkdir(self, parentcap=None, childname=None):
+        yield self.await_ready()
         url = self.nodeurl + 'uri'
         params = {'t': 'mkdir'}
         if parentcap and childname:
@@ -581,6 +582,7 @@ class Tahoe():
     @inlineCallbacks
     def upload(self, local_path):
         log.debug("Uploading %s...", local_path)
+        yield self.await_ready()
         with open(local_path, 'rb') as f:
             resp = yield treq.put('{}uri'.format(self.nodeurl), f)
         if resp.code == 200:
@@ -593,6 +595,7 @@ class Tahoe():
     @inlineCallbacks
     def download(self, cap, local_path):
         log.debug("Downloading %s...", local_path)
+        yield self.await_ready()
         resp = yield treq.get('{}uri/{}'.format(self.nodeurl, cap))
         if resp.code == 200:
             with open(local_path, 'wb') as f:
