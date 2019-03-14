@@ -204,11 +204,12 @@ build-deps: deps
 frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
-	git clone -b 1432.watchdog-magic-folder-with-eliot https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
+	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
+	git checkout c1e6f0881331b6549337af651e87e2f1521c8945 && \
 	python setup.py update_version && \
 	python -m pip install --find-links=https://tahoe-lafs.org/deps/ . && \
 	case `uname` in \
