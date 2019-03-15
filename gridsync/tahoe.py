@@ -548,9 +548,13 @@ class Tahoe():
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
         ready = yield self.is_ready()
+        if not ready:
+            log.debug('Connecting to "%s"...', self.name)
         while not ready:
             yield deferLater(reactor, 0.2, lambda: None)
             ready = yield self.is_ready()
+            if ready:
+                log.debug('Connected to "%s"', self.name)
 
     @inlineCallbacks
     def mkdir(self, parentcap=None, childname=None):
