@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+### Changed
+- "Sharing"-related actions have been reframed considerably throughout the interface in order to more precisely convey the underlying functionality of the application -- i.e., that "sharing" entails the _creating_ or _entering_ _invite codes_ and that these invite codes are created/entered on _devices_ (rather than "shared" with "persons") (Issue #139, PR #166). In particular:
+    - The "Enter Code" button on the MainWindow toolbar has been replaced with an "Invites" button (offering "Enter Invite Code" and "Create Invite Code" sub-actions), while the vague/ambiguous "Share" button has been removed completely
+    - The top-level "Share" action in the right-click/context menu has been replaced with a more accurate "Sync with Device" -> "Create Invite Code" menu/action hierarchy
+    - The "person" overlay/emblem (which appeared over icons for "shared" folders) has been replaced with a "laptop" overlay/emblem instead
+    - The tooltip for "shared" folders has removed references to "persons"
+- The "Export Recovery Key" action in the systray menu has been removed (since it is already available on the MainWindow toolbar) (PR #166)
+- The "Preferences" action/button on the MainWindow toolbar has been moved to the system tray menu (PR #166)
+- The History View toggle has been moved to the right-hand side of the grid pulldown/combobox (PR #166)
+- Binary distributions of Gridsync will now include a much newer build/version of Tahoe-LAFS that includes upstream support for magic-folders on macOS and numerous bug-fixes -- thanks @exarkun! :)
+
+### Fixed
+- Gridsync will now perform an additional check to ensure that enough storage servers are available before attempting to make a directory, link/unlink a capability, or upload/download a file (effectively "pausing" or delaying these operations until a sufficient number of connections have been established) in order to reduce the likelihood of connection-related errors/failures when initially joining a storage grid
+
 ## 0.4.1 - 2019-03-12
 ### Added
 - A rudimentary, text-based progress-indicator has been implemented, displaying the overall percentage of transferred/remaining bytes during folder-syncing operations (shown under the "Status" column of the folder-manager) (Issue #132, PR #142)
