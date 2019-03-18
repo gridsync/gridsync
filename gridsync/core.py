@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from io import StringIO
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
@@ -35,6 +36,7 @@ class Core():
         self.gateways = []
         self.executable = None
         self.operations = []
+        self.log_output = StringIO()
 
     @inlineCallbacks
     def select_executable(self):

@@ -39,12 +39,23 @@ def main():
         version='%(prog)s ' + __version__)
     args = parser.parse_args()
 
+    core = Core(args)
+
     if args.debug:
-        logging.basicConfig(
-            format='%(asctime)s %(levelname)s %(funcName)s %(message)s',
-            level=logging.DEBUG, stream=sys.stdout)
-        from twisted.python.log import startLogging
-        startLogging(sys.stdout)
+        stream = sys.stdout
+    else:
+        stream = core.log_output
+    logging.basicConfig(
+        format='%(asctime)s %(levelname)s %(funcName)s %(message)s',
+        level=logging.DEBUG, stream=stream)
+    from twisted.python.log import startLogging
+    startLogging(stream)
+    #if args.debug:
+    #    logging.basicConfig(
+    #        format='%(asctime)s %(levelname)s %(funcName)s %(message)s',
+    #        level=logging.DEBUG, stream=sys.stdout)
+    #    from twisted.python.log import startLogging
+    #    startLogging(sys.stdout)
     #else:
     #    appname = settings['application']['name']
     #    logfile = os.path.join(config_dir, '{}.log'.format(appname))
@@ -53,7 +64,6 @@ def main():
     #        level=logging.INFO, filename=logfile)
 
     try:
-        core = Core(args)
         core.start()
     except FilesystemLockError:
         msg.critical(
