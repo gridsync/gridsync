@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QDialog, QGridLayout, QPlainTextEdit
+from PyQt5.QtWidgets import (
+    QDialog, QDialogButtonBox, QGridLayout, QPlainTextEdit, QPushButton,
+    QSizePolicy, QSpacerItem)
 
 
 class DebugExporter(QDialog):
@@ -11,8 +13,22 @@ class DebugExporter(QDialog):
         self.plaintextedit = QPlainTextEdit(self)
         self.plaintextedit.setReadOnly(True)
 
+        self.reload_button = QPushButton("Reload")
+
+        self.copy_button = QPushButton("Copy to clipboard")
+
+        self.export_button = QPushButton("Export to file")
+
+        button_layout = QGridLayout()
+        button_layout.addWidget(self.reload_button, 1, 1)
+        button_layout.addItem(
+            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        button_layout.addWidget(self.copy_button, 1, 3)
+        button_layout.addWidget(self.export_button, 1, 4)
+
         layout = QGridLayout(self)
-        layout.addWidget(self.plaintextedit)
+        layout.addWidget(self.plaintextedit, 1, 1)
+        layout.addLayout(button_layout, 2, 1)
 
     def load(self, core):
         self.plaintextedit.setPlainText(str(core.log_output.getvalue()))
