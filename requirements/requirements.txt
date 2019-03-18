@@ -1,6 +1,6 @@
 asn1crypto==0.24.0
 attrs==19.1.0
-autobahn==19.2.1
+autobahn==19.3.2
 Automat==0.7.0
 certifi==2019.3.9
 cffi==1.12.2
@@ -29,7 +29,7 @@ pypiwin32==223 ; sys_platform == "win32"
 PyQt5==5.11.3
 PyQt5-sip==4.19.13
 pywin32==223 ; sys_platform == "win32"
-PyYAML==3.13
+PyYAML==5.1
 qt5reactor==0.5
 requests==2.21.0
 service_identity==18.1.0
