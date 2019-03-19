@@ -53,6 +53,9 @@ class Wormhole(QObject):
     @inlineCallbacks
     def close(self):
         logging.debug("Closing wormhole...")
+        if not self._wormhole:
+            logging.warning("No wormhole was created; returning")
+            return
         try:
             yield self._wormhole.close()
         except WormholeError:
