@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import APP_NAME
 from gridsync.msg import error
+from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 
 
 class DebugExporter(QDialog):
@@ -27,6 +28,7 @@ class DebugExporter(QDialog):
         self.reload_button = QPushButton("Reload")
 
         self.copy_button = QPushButton("Copy to clipboard")
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
 
         self.export_button = QPushButton("Export to file")
         self.export_button.clicked.connect(self.export_to_file)
@@ -44,6 +46,10 @@ class DebugExporter(QDialog):
 
     def load(self, core):
         self.plaintextedit.setPlainText(str(core.log_output.getvalue()))
+
+    def copy_to_clipboard(self):
+        for mode in get_clipboard_modes():
+            set_clipboard_text(self.plaintextedit.toPlainText(), mode)
 
     def export_to_file(self):
         dest, _ = QFileDialog.getSaveFileName(
