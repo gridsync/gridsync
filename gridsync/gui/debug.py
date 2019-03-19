@@ -63,7 +63,7 @@ class DebugExporter(QDialog):
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
 
-        self.export_button = QPushButton("Export to file")
+        self.export_button = QPushButton("Export to file...")
         self.export_button.setDefault(True)
         self.export_button.clicked.connect(self.export_to_file)
 
