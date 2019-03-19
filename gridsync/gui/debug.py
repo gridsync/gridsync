@@ -32,6 +32,7 @@ class DebugExporter(QDialog):
         self.plaintextedit.setFont(font)
 
         self.reload_button = QPushButton("Reload")
+        self.reload_button.clicked.connect(self.load)
 
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
