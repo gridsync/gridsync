@@ -85,9 +85,15 @@ def test_wormhole_receive_via_xfer_util(qtbot, monkeypatch):
 
 
 @inlineCallbacks
-def test_wormhole_receive_via_xfer_util_raise_unknown_offer(qtbot, wormhole):
-    wormhole._wormhole.get_message.return_value = \
+def test_wormhole_receive_via_xfer_util_raise_unknown_offer(
+        qtbot, monkeypatch):
+    fake_wormhole = MagicMock()
+    fake_wormhole.get_welcome.return_value = {}
+    fake_wormhole.get_message.return_value = \
         b'{"offer": {"NOT_message": "{\\"nickname\\": \\"Test Grid\\"}"}}'
+    monkeypatch.setattr(
+        'gridsync.wormhole_.wormhole.create', lambda x, y, z: fake_wormhole)
+    wormhole = Wormhole()
     with pytest.raises(Exception):
         yield wormhole.receive('123-test-test')
 
