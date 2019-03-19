@@ -15,7 +15,7 @@ class Gui():
         self.main_window = MainWindow(self)
         self.preferences_window = PreferencesWindow()
         self.systray = SystemTrayIcon(self)
-        self.debug_exporter = DebugExporter()
+        self.debug_exporter = DebugExporter(core)
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)
@@ -62,4 +62,4 @@ class Gui():
     def show_debug_exporter(self):
         self.debug_exporter.show()
         self.debug_exporter.raise_()
-        self.debug_exporter.load(self.core)
+        self.debug_exporter.load()

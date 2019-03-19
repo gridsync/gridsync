@@ -19,8 +19,9 @@ from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 
 
 class DebugExporter(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, core, parent=None):
         super().__init__(parent=None)
+        self.core = core
         self.parent = parent
 
         self.setMinimumSize(800, 600)
@@ -50,8 +51,8 @@ class DebugExporter(QDialog):
         layout.addWidget(self.plaintextedit, 1, 1)
         layout.addLayout(button_layout, 2, 1)
 
-    def load(self, core):
-        self.plaintextedit.setPlainText(str(core.log_output.getvalue()))
+    def load(self):
+        self.plaintextedit.setPlainText(str(self.core.log_output.getvalue()))
 
     def copy_to_clipboard(self):
         for mode in get_clipboard_modes():
