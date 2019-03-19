@@ -77,6 +77,13 @@ def test_wormhole_close_emit_closed_signal_with_wormhole_error_pass(qtbot):
 
 
 @inlineCallbacks
+def test_wormhole_close_return_early_no_wormhole_no_emit_closed(qtbot):
+    wormhole = Wormhole()
+    with qtbot.assert_not_emitted(wormhole.closed):
+        yield wormhole.close()
+
+
+@inlineCallbacks
 def test_wormhole_receive_via_xfer_util(qtbot, monkeypatch):
     fake_wormhole = MagicMock()
     fake_wormhole.get_welcome.return_value = {}
