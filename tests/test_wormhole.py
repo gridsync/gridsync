@@ -17,6 +17,11 @@ def wormhole():
     return w
 
 
+def test_wormhole_init__wormhole_object_is_none():
+    wormhole = Wormhole()
+    assert wormhole._wormhole is None
+
+
 @inlineCallbacks
 def test_wormhole_connect_emit_got_welcome_signal(qtbot, monkeypatch):
     fake_wormhole = MagicMock()
