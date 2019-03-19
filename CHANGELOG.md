@@ -14,6 +14,7 @@
 
 ### Fixed
 - Gridsync will now perform an additional check to ensure that enough storage servers are available before attempting to make a directory, link/unlink a capability, or upload/download a file (effectively "pausing" or delaying these operations until a sufficient number of connections have been established) in order to reduce the likelihood of connection-related errors/failures when initially joining a storage grid
+- Gridsync should no longer open a connection to the wormhole relay/rendezvous server when first initializing a `Wormhole` object, prevent the situation in which a second "clearnet" connection would idly persist (but remain unused) after adding a new connection via magic-wormhole over Tor -- big thanks to @abmoka for reporting this issue! (Issue #169, PR #171)
 
 ## 0.4.1 - 2019-03-12
 ### Added
