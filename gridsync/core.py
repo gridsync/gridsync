@@ -35,6 +35,7 @@ class Core():
         self.gui = None
         self.gateways = []
         self.executable = None
+        self.tahoe_version = None
         self.operations = []
         self.log_output = StringIO()
 
@@ -49,6 +50,15 @@ class Core():
                 "Please install Tahoe-LAFS version 1.13.0 or greater and try "
                 "again.")
             reactor.stop()
+
+    @inlineCallbacks
+    def get_tahoe_version(self, _):
+        tahoe = Tahoe(None, executable=self.executable)
+        version = yield tahoe.command(['--version'])
+        if version:
+            self.tahoe_version = version.split('\n')[0]
+            if self.tahoe_version.startswith('tahoe-lafs: '):
+                self.tahoe_version = self.tahoe_version.lstrip('tahoe-lafs: ')
 
     @inlineCallbacks
     def start_gateways(self):
@@ -75,6 +85,7 @@ class Core():
                 self.gateways.append(gateway)
                 d = gateway.start()
                 d.addCallback(gateway.ensure_folder_links)
+                d.addCallback(self.get_tahoe_version)
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()
