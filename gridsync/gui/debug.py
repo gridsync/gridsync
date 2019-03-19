@@ -1,8 +1,19 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from PyQt5.QtWidgets import (
-    QDialog, QDialogButtonBox, QGridLayout, QPlainTextEdit, QPushButton,
-    QSizePolicy, QSpacerItem)
+    QDialog,
+    QFileDialog,
+    QGridLayout,
+    QPlainTextEdit,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+)
+
+from gridsync import APP_NAME
+from gridsync.msg import error
 
 
 class DebugExporter(QDialog):
@@ -18,6 +29,7 @@ class DebugExporter(QDialog):
         self.copy_button = QPushButton("Copy to clipboard")
 
         self.export_button = QPushButton("Export to file")
+        self.export_button.clicked.connect(self.export_to_file)
 
         button_layout = QGridLayout()
         button_layout.addWidget(self.reload_button, 1, 1)
@@ -32,3 +44,24 @@ class DebugExporter(QDialog):
 
     def load(self, core):
         self.plaintextedit.setPlainText(str(core.log_output.getvalue()))
+
+    def export_to_file(self):
+        dest, _ = QFileDialog.getSaveFileName(
+            self,
+            "Select a destination",
+            os.path.join(
+                os.path.expanduser('~'),
+                APP_NAME + ' Debug Information.txt'))
+        if not dest:
+            return
+        try:
+            with open(dest, 'w') as f:
+                f.write(self.plaintextedit.toPlainText())
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                "Error exporting debug information",
+                str(e),
+            )
+            return
+        self.close()
