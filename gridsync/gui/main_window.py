@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton, QWidget)
 from twisted.internet import reactor
 
-from gridsync import resource, APP_NAME, config_dir
+from gridsync import resource, APP_NAME, config_dir, settings
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.history import HistoryView
@@ -95,6 +95,10 @@ class MainWindow(QMainWindow):
         self.shortcut_open = QShortcut(QKeySequence.Open, self)
         self.shortcut_open.activated.connect(self.select_folder)
 
+        self.shortcut_preferences = QShortcut(QKeySequence.Preferences, self)
+        self.shortcut_preferences.activated.connect(
+            self.gui.show_preferences_window)
+
         self.shortcut_close = QShortcut(QKeySequence.Close, self)
         self.shortcut_close.activated.connect(self.close)
 
@@ -115,27 +119,53 @@ class MainWindow(QMainWindow):
             folder_icon_default.pixmap(256, 256), resource('green-plus.png'))
         folder_icon = QIcon(folder_icon_composite)
 
-        folder_action = QAction(folder_icon, "Add folder", self)
-        folder_action.setToolTip("Add a folder...")
+        folder_action = QAction(folder_icon, "Add Folder", self)
+        folder_action.setToolTip("Add a Folder...")
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
 
-        invite_action = QAction(
-            QIcon(resource('invite.png')), "Enter Code", self)
-        invite_action.setToolTip("Enter an Invite Code...")
-        invite_action.setFont(font)
-        invite_action.triggered.connect(self.open_invite_receiver)
+        grid_invites_enabled = True
+        features_settings = settings.get('features')
+        if features_settings:
+            grid_invites = features_settings.get('grid_invites')
+            if grid_invites and grid_invites.lower() == 'false':
+                grid_invites_enabled = False
 
-        history_action = QAction(
-            QIcon(resource('time.png')), 'History', self)
-        history_action.setToolTip("View history")
-        history_action.setFont(font)
-        history_action.triggered.connect(self.on_history_button_clicked)
+        if grid_invites_enabled:
+            invites_action = QAction(
+                QIcon(resource('invite.png')), "Invites", self)
+            invites_action.setToolTip("Enter or Create an Invite Code")
+            invites_action.setFont(font)
 
-        self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(history_action)
-        self.history_button.setCheckable(True)
-        self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+            enter_invite_action = QAction(
+                QIcon(), "Enter Invite Code...", self)
+            enter_invite_action.setToolTip("Enter an Invite Code...")
+            enter_invite_action.triggered.connect(self.open_invite_receiver)
+
+            create_invite_action = QAction(
+                QIcon(), "Create Invite Code...", self)
+            create_invite_action.setToolTip("Create on Invite Code...")
+            create_invite_action.triggered.connect(
+                self.open_invite_sender_dialog)
+
+            invites_menu = QMenu(self)
+            invites_menu.addAction(enter_invite_action)
+            invites_menu.addAction(create_invite_action)
+
+            invites_button = QToolButton(self)
+            invites_button.setDefaultAction(invites_action)
+            invites_button.setMenu(invites_menu)
+            invites_button.setPopupMode(2)
+            invites_button.setStyleSheet(
+                'QToolButton::menu-indicator { image: none }')
+            invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        else:
+            invite_action = QAction(
+                QIcon(resource('invite.png')), "Enter Code", self)
+            invite_action.setToolTip("Enter an Invite Code...")
+            invite_action.setFont(font)
+            invite_action.triggered.connect(self.open_invite_receiver)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
@@ -146,14 +176,20 @@ class MainWindow(QMainWindow):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        share_action = QAction(QIcon(resource('share.png')), "Share", self)
-        share_action.setToolTip("Share...")
-        share_action.setFont(font)
-        share_action.triggered.connect(self.open_invite_sender_dialog)
+        history_action = QAction(
+            QIcon(resource('time.png')), 'History', self)
+        history_action.setToolTip("Show/Hide History")
+        history_action.setFont(font)
+        history_action.triggered.connect(self.on_history_button_clicked)
+
+        self.history_button = QToolButton(self)
+        self.history_button.setDefaultAction(history_action)
+        self.history_button.setCheckable(True)
+        self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         recovery_action = QAction(
             QIcon(resource('key.png')), "Recovery", self)
-        recovery_action.setToolTip("Import/Export Recovery Key...")
+        recovery_action.setToolTip("Import or Export a Recovery Key")
         recovery_action.setFont(font)
 
         import_action = QAction(QIcon(), "Import Recovery Key...", self)
@@ -177,14 +213,6 @@ class MainWindow(QMainWindow):
             'QToolButton::menu-indicator { image: none }')
         recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        preferences_action = QAction(
-            QIcon(resource('preferences.png')), "Preferences", self)
-        preferences_action.setStatusTip("Preferences")
-        preferences_action.setToolTip("Preferences")
-        preferences_action.setFont(font)
-        preferences_action.setShortcut(QKeySequence.Preferences)
-        preferences_action.triggered.connect(self.gui.show_preferences_window)
-
         self.toolbar = self.addToolBar('')
         if sys.platform != 'darwin':
             self.toolbar.setStyleSheet("""
@@ -198,14 +226,15 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(folder_action)
-        self.toolbar.addAction(invite_action)
-        self.toolbar.addWidget(self.history_button)
+        if grid_invites_enabled:
+            self.toolbar.addWidget(invites_button)
+        else:
+            self.toolbar.addAction(invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
-        self.toolbar.addAction(share_action)
+        self.toolbar.addWidget(self.history_button)
         self.toolbar.addWidget(recovery_button)
-        self.toolbar.addAction(preferences_action)
 
         if sys.platform != 'win32':  # Text is getting clipped on Windows 10
             for action in self.toolbar.actions():

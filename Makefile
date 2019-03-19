@@ -202,40 +202,26 @@ build-deps: deps
 	esac
 
 frozen-tahoe:
-	# Requires libssl-dev libffi-dev
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
-	#curl --progress-bar --output build/tahoe-lafs.tar.bz2 --location \
-	#	https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.tar.bz2
-	#tar jxf build/tahoe-lafs.tar.bz2 -C build/tahoe-lafs --strip-components=1
-	#git clone -b 1432.osx-watchdog-stable.10 \
-	#	https://github.com/david415/tahoe-lafs.git build/tahoe-lafs
-	#cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
-	#echo "package_imports.append(('setuptools', 'setuptools'))" >> build/tahoe-lafs/src/allmydata/_auto_deps.py
-	case `uname` in \
-		Darwin) \
-			git clone -b 1432.watchdog-magic-folder https://github.com/crwood/tahoe-lafs.git build/tahoe-lafs \
-		;; \
-		*) \
-			git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs && \
-			git --git-dir=build/tahoe-lafs/.git --work-tree=build/tahoe-lafs checkout tahoe-lafs-1.13.0 \
-		;; \
-	esac
+	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
+	git checkout c1e6f0881331b6549337af651e87e2f1521c8945 && \
 	python setup.py update_version && \
-	python -m pip install --find-links=https://tahoe-lafs.org/deps/ . && \
+	python -m pip install . && \
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
 	python -m pip install packaging && \
+	python -m pip install git+git://github.com/crwood/eliot.git@frozen-build-support && \
 	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
-	rm -rf dist/Tahoe-LAFS/cryptography-2.4.2-py2.7.egg-info && \
+	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
 	popd && \
@@ -322,16 +308,16 @@ all:
 
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.tar.gz
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Mac.dmg
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Mac-Legacy.dmg
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-setup.exe
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS.dmg
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS-Legacy.dmg
+	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows-setup.exe
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows.zip
 
 gpg-verify:
 	gpg2 --verify release/Gridsync-Linux.tar.gz{.asc,}
-	gpg2 --verify release/Gridsync-Mac.dmg{.asc,}
-	gpg2 --verify release/Gridsync-Mac-Legacy.dmg{.asc,}
-	gpg2 --verify release/Gridsync-setup.exe{.asc,}
+	gpg2 --verify release/Gridsync-macOS.dmg{.asc,}
+	gpg2 --verify release/Gridsync-macOS-Legacy.dmg{.asc,}
+	gpg2 --verify release/Gridsync-Windows-setup.exe{.asc,}
 	gpg2 --verify release/Gridsync-Windows.zip{.asc,}
 
 pypi-release:

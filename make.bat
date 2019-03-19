@@ -70,12 +70,13 @@ call .\build\venv-tahoe\Scripts\activate
 ::call move .\build\tahoe-lafs-1.11.0 .\build\tahoe-lafs
 call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
-call git --git-dir=build\tahoe-lafs\.git --work-tree=build\tahoe-lafs checkout tahoe-lafs-1.13.0
 call copy .\misc\tahoe.spec .\build\tahoe-lafs\pyinstaller.spec
 call pushd .\build\tahoe-lafs
+call git checkout c1e6f0881331b6549337af651e87e2f1521c8945
 call python setup.py update_version
 call python -m pip install .
 call python -m pip install packaging
+call python -m pip install git+git://github.com/crwood/eliot.git@frozen-build-support
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
 call python -m pip install --no-use-pep517 pyinstaller==3.4
 call python -m pip list

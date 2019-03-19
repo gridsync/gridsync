@@ -35,12 +35,6 @@ class Menu(QMenu):
 
         self.populate()
 
-    def _add_export_action(self, gateway):
-        action = QAction(QIcon(''), gateway.name, self)
-        action.triggered.connect(
-            lambda: self.gui.main_window.export_recovery_key(gateway))
-        self.export_menu.addAction(action)
-
     def populate(self):
         self.clear()
         logging.debug("(Re-)populating systray menu...")
@@ -49,18 +43,11 @@ class Menu(QMenu):
         open_action.triggered.connect(self.gui.show)
         self.addAction(open_action)
 
-        gateways = self.gui.main_window.gateways
-        if gateways and len(gateways) > 1:
-            self.export_menu = QMenu(self)
-            self.export_menu.setTitle("Export Recovery Key")
-            for gateway in gateways:
-                self._add_export_action(gateway)
-            self.addMenu(self.export_menu)
-        elif gateways:
-            export_action = QAction(QIcon(''), "Export Recovery Key...", self)
-            export_action.triggered.connect(
-                self.gui.main_window.export_recovery_key)
-            self.addAction(export_action)
+        self.addSeparator()
+
+        preferences_action = QAction(QIcon(''), "Preferences...", self)
+        preferences_action.triggered.connect(self.gui.show_preferences_window)
+        self.addAction(preferences_action)
 
         help_menu = QMenu(self)
         help_menu.setTitle("Help")

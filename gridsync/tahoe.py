@@ -548,12 +548,17 @@ class Tahoe():
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
         ready = yield self.is_ready()
+        if not ready:
+            log.debug('Connecting to "%s"...', self.name)
         while not ready:
             yield deferLater(reactor, 0.2, lambda: None)
             ready = yield self.is_ready()
+            if ready:
+                log.debug('Connected to "%s"', self.name)
 
     @inlineCallbacks
     def mkdir(self, parentcap=None, childname=None):
+        yield self.await_ready()
         url = self.nodeurl + 'uri'
         params = {'t': 'mkdir'}
         if parentcap and childname:
@@ -581,6 +586,7 @@ class Tahoe():
     @inlineCallbacks
     def upload(self, local_path):
         log.debug("Uploading %s...", local_path)
+        yield self.await_ready()
         with open(local_path, 'rb') as f:
             resp = yield treq.put('{}uri'.format(self.nodeurl), f)
         if resp.code == 200:
@@ -593,6 +599,7 @@ class Tahoe():
     @inlineCallbacks
     def download(self, cap, local_path):
         log.debug("Downloading %s...", local_path)
+        yield self.await_ready()
         resp = yield treq.get('{}uri/{}'.format(self.nodeurl, cap))
         if resp.code == 200:
             with open(local_path, 'wb') as f:
@@ -608,6 +615,7 @@ class Tahoe():
         childcap_hash = hashlib.sha256(childcap.encode()).hexdigest()
         log.debug('Linking "%s" (%s) into %s...', childname, childcap_hash,
                   dircap_hash)
+        yield self.await_ready()
         yield self.lock.acquire()
         try:
             resp = yield treq.post(
@@ -625,6 +633,7 @@ class Tahoe():
     def unlink(self, dircap, childname):
         dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
+        yield self.await_ready()
         yield self.lock.acquire()
         try:
             resp = yield treq.post(
