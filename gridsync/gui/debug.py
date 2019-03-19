@@ -2,6 +2,7 @@
 
 import os
 
+from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -24,6 +25,8 @@ class DebugExporter(QDialog):
 
         self.plaintextedit = QPlainTextEdit(self)
         self.plaintextedit.setReadOnly(True)
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        self.plaintextedit.setFont(font)
 
         self.reload_button = QPushButton("Reload")
 
