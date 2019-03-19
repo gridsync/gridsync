@@ -50,7 +50,7 @@ class DebugExporter(QDialog):
         self.parent = parent
 
         self.setMinimumSize(800, 600)
-        self.setWindowTitle("{} - Export Debug Information".format(APP_NAME))
+        self.setWindowTitle("{} - Debug Information".format(APP_NAME))
 
         self.plaintextedit = QPlainTextEdit(self)
         self.plaintextedit.setReadOnly(True)
