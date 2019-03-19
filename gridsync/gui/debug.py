@@ -23,6 +23,8 @@ class DebugExporter(QDialog):
         super().__init__(parent=None)
         self.parent = parent
 
+        self.setMinimumSize(800, 600)
+
         self.plaintextedit = QPlainTextEdit(self)
         self.plaintextedit.setReadOnly(True)
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
