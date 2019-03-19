@@ -85,11 +85,11 @@ class Core():
                 self.gateways.append(gateway)
                 d = gateway.start()
                 d.addCallback(gateway.ensure_folder_links)
-                d.addCallback(self.get_tahoe_version)
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()
             yield self.select_executable()
+        self.get_tahoe_version()
 
     @staticmethod
     def show_message():
