@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import platform
+import sys
 
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import (
@@ -13,9 +15,32 @@ from PyQt5.QtWidgets import (
     QSpacerItem,
 )
 
-from gridsync import APP_NAME
+from gridsync import APP_NAME, __version__
 from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
+
+
+if sys.platform == 'darwin':
+    system = 'macOS {}'.format(platform.mac_ver()[0])
+elif sys.platform == 'win32':
+    system = 'Windows {}'.format(platform.win32_ver()[0])
+elif sys.platform.startswith('linux'):
+    name, version, _ = platform.dist()  # pylint: disable=deprecated-method
+    system = 'Linux ({} {})'.format(name, version)
+else:
+    system = platform.system()
+
+header = """Application:  {} {}
+System:       {}
+Python:       {}
+Frozen:       {}
+""".format(
+        APP_NAME,
+        __version__,
+        system,
+        platform.python_version(),
+        getattr(sys, 'frozen', False)
+    )
 
 
 class DebugExporter(QDialog):
@@ -54,7 +79,17 @@ class DebugExporter(QDialog):
         layout.addLayout(button_layout, 2, 1)
 
     def load(self):
-        self.plaintextedit.setPlainText(str(self.core.log_output.getvalue()))
+        if self.core.gui.main_window.gateways:
+            names = [g.name for g in self.core.gui.main_window.gateways]
+            gateways = ', '.join(names)
+        else:
+            gateways = 'None'
+        self.plaintextedit.setPlainText(
+            header
+            + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
+            + "Gateway(s):   {}\n\n\n".format(gateways)
+            + str(self.core.log_output.getvalue())
+        )
 
     def copy_to_clipboard(self):
         for mode in get_clipboard_modes():
