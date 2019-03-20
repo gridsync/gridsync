@@ -35,12 +35,12 @@ System:       {}
 Python:       {}
 Frozen:       {}
 """.format(
-        APP_NAME,
-        __version__,
-        system,
-        platform.python_version(),
-        getattr(sys, 'frozen', False)
-    )
+    APP_NAME,
+    __version__,
+    system,
+    platform.python_version(),
+    getattr(sys, 'frozen', False)
+)
 
 
 class DebugExporter(QDialog):
