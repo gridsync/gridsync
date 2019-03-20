@@ -94,6 +94,7 @@ class DebugExporter(QDialog):
     def copy_to_clipboard(self):
         for mode in get_clipboard_modes():
             set_clipboard_text(self.plaintextedit.toPlainText(), mode)
+        self.close()
 
     def export_to_file(self):
         dest, _ = QFileDialog.getSaveFileName(
