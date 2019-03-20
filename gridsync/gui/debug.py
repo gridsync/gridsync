@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import os
 import platform
 import sys
@@ -87,7 +88,8 @@ class DebugExporter(QDialog):
         self.plaintextedit.setPlainText(
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
-            + "Gateway(s):   {}\n\n\n".format(gateways)
+            + "Gateway(s):   {}\n".format(gateways)
+            + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + str(self.core.log_output.getvalue())
         )
 
