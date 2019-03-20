@@ -10,7 +10,7 @@
 - The "Export Recovery Key" action in the systray menu has been removed (since it is already available on the MainWindow toolbar) (PR #166)
 - The "Preferences" action/button on the MainWindow toolbar has been moved to the system tray menu (PR #166)
 - The History View toggle has been moved to the right-hand side of the grid pulldown/combobox (PR #166)
-- Binary distributions of Gridsync will now include a much newer build/version of Tahoe-LAFS that includes upstream support for magic-folders on macOS (Tahoe ticket [1432](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1432) and other bug-fixes (Tahoe tickets [2965](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2965), [2997](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2997])) -- thanks (again) @exarkun! :)
+- Binary distributions of Gridsync will now include a much newer build/version of Tahoe-LAFS that includes upstream support for magic-folders on macOS (Tahoe ticket [1432](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1432)) and other bug-fixes (Tahoe tickets [2965](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2965), [2997](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2997)) -- thanks (again) @exarkun! :)
 
 ### Fixed
 - Gridsync will now perform an additional check to ensure that enough storage servers are available before attempting to make a directory, link/unlink a capability, or upload/download a file (effectively "pausing" or delaying these operations until a sufficient number of connections have been established) in order to reduce the likelihood of connection-related errors/failures when initially joining a storage grid
