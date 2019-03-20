@@ -52,7 +52,7 @@ class Core():
             reactor.stop()
 
     @inlineCallbacks
-    def get_tahoe_version(self, _):
+    def get_tahoe_version(self):
         tahoe = Tahoe(None, executable=self.executable)
         version = yield tahoe.command(['--version'])
         if version:
@@ -89,7 +89,14 @@ class Core():
         else:
             self.gui.show_welcome_dialog()
             yield self.select_executable()
-        self.get_tahoe_version()
+        try:
+            yield self.get_tahoe_version()
+        except Exception as e:  # pylint: disable=broad-except
+            msg.critical(
+                "Error getting Tahoe-LAFS version",
+                "{}: {}".format(type(e).__name__, str(e))
+            )
+            reactor.stop()
 
     @staticmethod
     def show_message():
