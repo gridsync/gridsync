@@ -10,11 +10,11 @@
 - The "Export Recovery Key" action in the systray menu has been removed (since it is already available on the MainWindow toolbar) (PR #166)
 - The "Preferences" action/button on the MainWindow toolbar has been moved to the system tray menu (PR #166)
 - The History View toggle has been moved to the right-hand side of the grid pulldown/combobox (PR #166)
-- Binary distributions of Gridsync will now include a much newer build/version of Tahoe-LAFS that includes upstream support for magic-folders on macOS and numerous bug-fixes -- thanks @exarkun! :)
+- Binary distributions of Gridsync will now include a much newer build/version of Tahoe-LAFS that includes upstream support for magic-folders on macOS (Tahoe ticket [1432](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1432)) and other bug-fixes (Tahoe tickets [2965](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2965), [2997](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2997)) -- thanks (again) @exarkun! :)
 
 ### Fixed
 - Gridsync will now perform an additional check to ensure that enough storage servers are available before attempting to make a directory, link/unlink a capability, or upload/download a file (effectively "pausing" or delaying these operations until a sufficient number of connections have been established) in order to reduce the likelihood of connection-related errors/failures when initially joining a storage grid
-- Gridsync should no longer open a connection to the wormhole relay/rendezvous server when first initializing a `Wormhole` object, prevent the situation in which a second "clearnet" connection would idly persist (but remain unused) after adding a new connection via magic-wormhole over Tor -- big thanks to @abmoka for reporting this issue! (Issue #169, PR #171)
+- Gridsync should no longer open a connection to the wormhole relay/rendezvous server when first initializing a `Wormhole` object, prevent the situation in which a second "clearnet" connection would idly persist (but remain unused) after adding a new connection via magic-wormhole over Tor -- big thanks to @abmoka (82b13dff1b5fee62eaaff6d483da66bb792a73cd @ Akomba Labs) for reporting this issue! (Issue #169, PR #171)
 
 ## 0.4.1 - 2019-03-12
 ### Added
