@@ -204,19 +204,18 @@ build-deps: deps
 frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
-	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
+	git clone -b 3005.upstream-inline_callbacks https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout a14d9f61163d9a0edf2c9bec328be8d9119e3303 && \
+	git checkout 5bdb37b78685a3e901405256bdfe7fd32cd0913d && \
 	python setup.py update_version && \
 	python -m pip install . && \
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
 	python -m pip install packaging && \
-	python -m pip install git+git://github.com/crwood/eliot.git@frozen-build-support && \
 	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
