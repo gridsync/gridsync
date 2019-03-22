@@ -36,12 +36,9 @@ def main():
         '--version',
         action="version",
         version='%(prog)s ' + __version__)
-    args = parser.parse_args()
-
-    core = Core(args)
 
     try:
-        core.start()
+        Core(parser.parse_args()).start()
     except FilesystemLockError:
         msg.critical(
             "{} already running".format(APP_NAME),
