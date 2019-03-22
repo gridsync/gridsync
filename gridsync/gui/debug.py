@@ -100,7 +100,7 @@ class DebugExporter(QDialog):
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
             + "Gateway(s):   {}\n".format(gateways)
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
-            + str(self.core.log_output.getvalue())
+            + '\n'.join(self.core.log_deque)
         )
         self.maybe_enable_buttons(self.scrollbar.value())
 
