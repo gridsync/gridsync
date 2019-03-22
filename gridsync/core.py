@@ -29,6 +29,15 @@ from gridsync.tor import get_tor
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
 
 
+class DequeHandler(logging.Handler):
+    def __init__(self, deque):
+        super().__init__()
+        self.deque = deque
+
+    def emit(self, record):
+        self.deque.append(self.format(record))
+
+
 class Core():
     def __init__(self, args):
         self.args = args
