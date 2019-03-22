@@ -58,15 +58,20 @@ class DebugExporter(QDialog):
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         self.plaintextedit.setFont(font)
 
+        self.scrollbar = self.plaintextedit.verticalScrollBar()
+        self.scrollbar.valueChanged.connect(self.maybe_enable_buttons)
+
         self.reload_button = QPushButton("Reload")
         self.reload_button.clicked.connect(self.load)
 
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
+        self.copy_button.setEnabled(False)
 
         self.export_button = QPushButton("Export to file...")
         self.export_button.setDefault(True)
         self.export_button.clicked.connect(self.export_to_file)
+        self.export_button.setEnabled(False)
 
         button_layout = QGridLayout()
         button_layout.addWidget(self.reload_button, 1, 1)
@@ -78,6 +83,11 @@ class DebugExporter(QDialog):
         layout = QGridLayout(self)
         layout.addWidget(self.plaintextedit, 1, 1)
         layout.addLayout(button_layout, 2, 1)
+
+    def maybe_enable_buttons(self, scrollbar_value):
+        if scrollbar_value == self.scrollbar.maximum():
+            self.copy_button.setEnabled(True)
+            self.export_button.setEnabled(True)
 
     def load(self):
         if self.core.gui.main_window.gateways:
@@ -92,6 +102,7 @@ class DebugExporter(QDialog):
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + str(self.core.log_output.getvalue())
         )
+        self.maybe_enable_buttons(self.scrollbar.value())
 
     def copy_to_clipboard(self):
         for mode in get_clipboard_modes():
