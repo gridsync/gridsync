@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import collections
 import logging
 import os
 import sys
@@ -16,6 +17,7 @@ qt5reactor.install()
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
+from twisted.python.log import startLogging, PythonLoggingObserver
 
 from gridsync import config_dir, resource, settings, APP_NAME
 from gridsync import msg
@@ -46,7 +48,7 @@ class Core():
         self.executable = None
         self.tahoe_version = None
         self.operations = []
-        self.log_output = StringIO()
+        self.log_deque = collections.deque(maxlen=10)
 
     @inlineCallbacks
     def select_executable(self):
@@ -138,7 +140,23 @@ class Core():
         msgbox.exec_()
         logging.debug("Custom message closed; proceeding with start...")
 
+    def initialize_logger(self, to_stdout=False):
+        if to_stdout:
+            handler = logging.StreamHandler(stream=sys.stdout)
+            startLogging(sys.stdout)
+        else:
+            handler = DequeHandler(self.log_deque)
+            observer = PythonLoggingObserver()
+            observer.start()
+        fmt = '%(asctime)s %(levelname)s %(funcName)s %(message)s'
+        handler.setFormatter(logging.Formatter(fmt))
+        logger = logging.getLogger()
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+        logging.debug("Hello World!")
+
     def start(self):
+        self.initialize_logger(self.args.debug)
         try:
             os.makedirs(config_dir)
         except OSError:
