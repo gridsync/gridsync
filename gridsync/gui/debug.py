@@ -49,6 +49,7 @@ class DebugExporter(QDialog):
         super().__init__(parent=None)
         self.core = core
         self.parent = parent
+        self.loaded = False
 
         self.setMinimumSize(800, 600)
         self.setWindowTitle("{} - Debug Information".format(APP_NAME))
@@ -102,6 +103,7 @@ class DebugExporter(QDialog):
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + '\n'.join(self.core.log_deque)
         )
+        self.loaded = True
         self.maybe_enable_buttons(self.scrollbar.value())
 
     def copy_to_clipboard(self):
@@ -129,3 +131,7 @@ class DebugExporter(QDialog):
             )
             return
         self.close()
+
+    def resizeEvent(self, _):
+        if self.loaded:
+            self.maybe_enable_buttons(self.scrollbar.value())
