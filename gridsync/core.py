@@ -48,7 +48,7 @@ class Core():
         self.executable = None
         self.tahoe_version = None
         self.operations = []
-        self.log_deque = collections.deque(maxlen=10)
+        self.log_deque = collections.deque(maxlen=1000)  # XXX
 
     @inlineCallbacks
     def select_executable(self):
