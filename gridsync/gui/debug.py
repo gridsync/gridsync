@@ -5,8 +5,10 @@ import os
 import platform
 import sys
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import (
+    QCheckBox,
     QDialog,
     QFileDialog,
     QGridLayout,
@@ -65,6 +67,11 @@ class DebugExporter(QDialog):
         self.reload_button = QPushButton("Reload")
         self.reload_button.clicked.connect(self.load)
 
+        self.checkbox = QCheckBox(
+            "Conceal potentially-identifying information", self)
+        self.checkbox.setCheckState(Qt.Checked)
+        self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
+
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         self.copy_button.setEnabled(False)
@@ -75,11 +82,12 @@ class DebugExporter(QDialog):
         self.export_button.setEnabled(False)
 
         button_layout = QGridLayout()
-        button_layout.addWidget(self.reload_button, 1, 1)
+        button_layout.addWidget(self.checkbox, 1, 1)
         button_layout.addItem(
             QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
-        button_layout.addWidget(self.copy_button, 1, 3)
-        button_layout.addWidget(self.export_button, 1, 4)
+        button_layout.addWidget(self.reload_button, 1, 3)
+        button_layout.addWidget(self.copy_button, 1, 4)
+        button_layout.addWidget(self.export_button, 1, 5)
 
         layout = QGridLayout(self)
         layout.addWidget(self.plaintextedit, 1, 1)
