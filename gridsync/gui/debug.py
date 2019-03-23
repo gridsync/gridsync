@@ -60,6 +60,9 @@ class DebugExporter(QDialog):
         self.plaintextedit.setReadOnly(True)
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         self.plaintextedit.setFont(font)
+        self.plaintextedit.setStyleSheet(
+            "QPlainTextEdit { background-color: black; color: lime }"
+        )
 
         self.scrollbar = self.plaintextedit.verticalScrollBar()
         self.scrollbar.valueChanged.connect(self.maybe_enable_buttons)
