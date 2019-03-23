@@ -73,7 +73,7 @@ class DebugExporter(QDialog):
         self.checkbox = QCheckBox(
             "Conceal potentially-identifying information", self)
         self.checkbox.setCheckState(Qt.Checked)
-        self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
+        #self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
 
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
@@ -102,6 +102,7 @@ class DebugExporter(QDialog):
             self.export_button.setEnabled(True)
 
     def load(self):
+        self.loaded = list(self.core.log_deque)
         if self.core.gui.main_window.gateways:
             names = [g.name for g in self.core.gui.main_window.gateways]
             gateways = ', '.join(names)
@@ -112,9 +113,8 @@ class DebugExporter(QDialog):
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
             + "Gateway(s):   {}\n".format(gateways)
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
-            + '\n'.join(self.core.log_deque)
+            + '\n'.join(self.loaded)
         )
-        self.loaded = True
         self.maybe_enable_buttons(self.scrollbar.value())
 
     def copy_to_clipboard(self):
