@@ -108,13 +108,17 @@ class DebugExporter(QDialog):
             gateways = ', '.join(names)
         else:
             gateways = 'None'
-        self.plaintextedit.setPlainText(
+        content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
             + "Gateway(s):   {}\n".format(gateways)
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + '\n'.join(self.loaded)
         )
+        if self.checkbox.checkState():
+            self.plaintextedit.setPlainText('<FILTERED>')  # XXX
+        else:
+            self.plaintextedit.setPlainText(content)
         self.maybe_enable_buttons(self.scrollbar.value())
 
     def copy_to_clipboard(self):
