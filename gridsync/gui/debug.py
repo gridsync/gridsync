@@ -79,12 +79,10 @@ class DebugExporter(QDialog):
 
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
-        self.copy_button.setEnabled(False)
 
         self.export_button = QPushButton("Export to file...")
         self.export_button.setDefault(True)
         self.export_button.clicked.connect(self.export_to_file)
-        self.export_button.setEnabled(False)
 
         button_layout = QGridLayout()
         button_layout.addWidget(self.checkbox, 1, 1)
@@ -102,6 +100,9 @@ class DebugExporter(QDialog):
         if scrollbar_value == self.scrollbar.maximum():
             self.copy_button.setEnabled(True)
             self.export_button.setEnabled(True)
+        else:
+            self.copy_button.setEnabled(False)
+            self.export_button.setEnabled(False)
 
     def on_checkbox_state_changed(self, state):
         scrollbar_position = self.scrollbar.value()
@@ -169,5 +170,4 @@ class DebugExporter(QDialog):
         self.close()
 
     def resizeEvent(self, _):
-        if self.content:
-            self.maybe_enable_buttons(self.scrollbar.value())
+        self.maybe_enable_buttons(self.scrollbar.value())
