@@ -115,15 +115,20 @@ class DebugExporter(QDialog):
         self.scrollbar.setValue(scrollbar_position)
 
     def filter_content(self):
-        fmt = '<Filtered:{}>'
         filters = [
-            (pkgdir, fmt.format('PkgDir')),
-            (config_dir, fmt.format('ConfigDir')),
-            (autostart_file_path, fmt.format('AutostartFilePath')),
+            (pkgdir, 'PkgDir'),
+            (config_dir, 'ConfigDir'),
+            (autostart_file_path, 'AutostartFilePath'),
         ]
+        if self.core.executable:
+            filters.append((self.core.executable, 'TahoeExecutablePath'))
+        filters.append((os.path.expanduser('~'), 'HomeDir'))
+        for i, gateway in enumerate(self.core.gui.main_window.gateways):  # XXX
+            filters.append((gateway.name, 'GatewayName:{}'.format(i + 1)))
+
         filtered = self.content
         for s, mask in filters:
-            filtered = filtered.replace(s, mask)
+            filtered = filtered.replace(s, '<Filtered:{}>'.format(mask))
         self.filtered_content = filtered
 
     def load(self):
