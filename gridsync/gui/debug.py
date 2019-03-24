@@ -18,7 +18,8 @@ from PyQt5.QtWidgets import (
     QSpacerItem,
 )
 
-from gridsync import APP_NAME, __version__
+from gridsync import (
+    APP_NAME, __version__, pkgdir, config_dir, autostart_file_path)
 from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 
@@ -52,6 +53,7 @@ class DebugExporter(QDialog):
         self.core = core
         self.parent = parent
         self.content = ''
+        self.filtered_content = ''
 
         self.setMinimumSize(800, 600)
         self.setWindowTitle("{} - Debug Information".format(APP_NAME))
@@ -103,9 +105,21 @@ class DebugExporter(QDialog):
 
     def on_checkbox_state_changed(self, state):
         if state == Qt.Checked:
-            self.plaintextedit.setPlainText('<FILTERED>')  # XXX
+            self.plaintextedit.setPlainText(self.filtered_content)  # XXX
         else:
             self.plaintextedit.setPlainText(self.content)
+
+    def filter_content(self):
+        fmt = '<Filtered:{}>'
+        filters = [
+            (pkgdir, fmt.format('PkgDir')),
+            (config_dir, fmt.format('ConfigDir')),
+            (autostart_file_path, fmt.format('AutostartFilePath')),
+        ]
+        filtered = self.content
+        for s, mask in filters:
+            filtered = filtered.replace(s, mask)
+        self.filtered_content = filtered
 
     def load(self):
         if self.core.gui.main_window.gateways:
@@ -120,6 +134,7 @@ class DebugExporter(QDialog):
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + '\n'.join(self.core.log_deque)
         )
+        self.filter_content()
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.maybe_enable_buttons(self.scrollbar.value())
 
