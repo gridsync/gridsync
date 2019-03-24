@@ -104,10 +104,14 @@ class DebugExporter(QDialog):
             self.export_button.setEnabled(True)
 
     def on_checkbox_state_changed(self, state):
+        scrollbar_position = self.scrollbar.value()
         if state == Qt.Checked:
             self.plaintextedit.setPlainText(self.filtered_content)  # XXX
         else:
             self.plaintextedit.setPlainText(self.content)
+        # Needed on some platforms to maintain scroll step accuracy/consistency
+        self.scrollbar.setValue(self.scrollbar.maximum())
+        self.scrollbar.setValue(scrollbar_position)
 
     def filter_content(self):
         fmt = '<Filtered:{}>'
