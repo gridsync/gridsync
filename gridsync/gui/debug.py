@@ -51,7 +51,7 @@ class DebugExporter(QDialog):
         super().__init__(parent=None)
         self.core = core
         self.parent = parent
-        self.loaded = False
+        self.content = ''
 
         self.setMinimumSize(800, 600)
         self.setWindowTitle("{} - Debug Information".format(APP_NAME))
@@ -108,7 +108,6 @@ class DebugExporter(QDialog):
             self.plaintextedit.setPlainText(self.content)
 
     def load(self):
-        self.loaded = list(self.core.log_deque)
         if self.core.gui.main_window.gateways:
             names = [g.name for g in self.core.gui.main_window.gateways]
             gateways = ', '.join(names)
@@ -119,7 +118,7 @@ class DebugExporter(QDialog):
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
             + "Gateway(s):   {}\n".format(gateways)
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
-            + '\n'.join(self.loaded)
+            + '\n'.join(self.core.log_deque)
         )
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.maybe_enable_buttons(self.scrollbar.value())
@@ -151,5 +150,5 @@ class DebugExporter(QDialog):
         self.close()
 
     def resizeEvent(self, _):
-        if self.loaded:
+        if self.content:
             self.maybe_enable_buttons(self.scrollbar.value())
