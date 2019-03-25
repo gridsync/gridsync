@@ -5,8 +5,8 @@ import os
 import platform
 import sys
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QFontDatabase, QIcon
 from PyQt5.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
 )
 
 from gridsync import (
-    APP_NAME, __version__, pkgdir, config_dir, autostart_file_path)
+    APP_NAME, __version__, pkgdir, config_dir, autostart_file_path, resource)
 from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 
@@ -77,6 +77,16 @@ class DebugExporter(QDialog):
         self.checkbox.setCheckState(Qt.Checked)
         self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
 
+        self.filter_info_button = QPushButton()
+        self.filter_info_button.setFlat(True)
+        self.filter_info_button.setFocusPolicy(Qt.NoFocus)
+        self.filter_info_button.setIcon(QIcon(resource('question')))
+        self.filter_info_button.setIconSize(QSize(13, 13))
+        if sys.platform == 'darwin':
+            self.filter_info_button.setFixedSize(16, 16)
+        else:
+            self.filter_info_button.setFixedSize(13, 13)
+
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
 
@@ -84,17 +94,25 @@ class DebugExporter(QDialog):
         self.export_button.setDefault(True)
         self.export_button.clicked.connect(self.export_to_file)
 
-        button_layout = QGridLayout()
-        button_layout.addWidget(self.checkbox, 1, 1)
-        button_layout.addItem(
+        checkbox_layout = QGridLayout()
+        checkbox_layout.setHorizontalSpacing(0)
+        checkbox_layout.addWidget(self.checkbox, 1, 1)
+        checkbox_layout.addWidget(self.filter_info_button, 1, 2)
+
+        buttons_layout = QGridLayout()
+        buttons_layout.addWidget(self.reload_button, 1, 1)
+        buttons_layout.addWidget(self.copy_button, 1, 2)
+        buttons_layout.addWidget(self.export_button, 1, 3)
+
+        bottom_layout = QGridLayout()
+        bottom_layout.addLayout(checkbox_layout, 1, 1)
+        bottom_layout.addItem(
             QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
-        button_layout.addWidget(self.reload_button, 1, 3)
-        button_layout.addWidget(self.copy_button, 1, 4)
-        button_layout.addWidget(self.export_button, 1, 5)
+        bottom_layout.addLayout(buttons_layout, 1, 3)
 
         layout = QGridLayout(self)
         layout.addWidget(self.plaintextedit, 1, 1)
-        layout.addLayout(button_layout, 2, 1)
+        layout.addLayout(bottom_layout, 2, 1)
 
     def maybe_enable_buttons(self, scrollbar_value):
         if scrollbar_value == self.scrollbar.maximum():
