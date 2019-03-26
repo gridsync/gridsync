@@ -86,7 +86,9 @@ class Tahoe():
     STARTED = 2
     STOPPING = 3
 
-    def __init__(self, nodedir=None, executable=None):
+    def __init__(self, nodedir=None, executable=None, reactor=None):
+        if reactor is None:
+            from twisted.internet import reactor
         self.executable = executable
         self.multi_folder_support = True
         if nodedir:
@@ -109,7 +111,7 @@ class Tahoe():
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
-        self.streamed_logs = StreamedLogs(self)
+        self.streamedlogs = StreamedLogs(reactor, self)
         self.state = Tahoe.STOPPED
 
     def config_set(self, section, option, value):
@@ -451,7 +453,7 @@ class Tahoe():
         log.debug('Starting "%s" tahoe client...', self.name)
         self.state = Tahoe.STARTING
         self.monitor.start()
-        self.streamed_logs.start()
+        self.streamedlogs.start()
         tcp = self.config_get('connections', 'tcp')
         if tcp and tcp.lower() == 'tor':
             self.use_tor = True

@@ -5,6 +5,10 @@ Support for reading the streaming Eliot logs available from a Tahoe-LAFS
 node.
 """
 
+import logging
+from collections import deque
+from urllib.parse import urlsplit
+
 from autobahn.twisted.websocket import (
     WebSocketClientFactory,
     WebSocketClientProtocol,
@@ -24,8 +28,10 @@ class TahoeLogReader(WebSocketClientProtocol):
 class StreamedLogs():
     _started = False
 
-    def __init__(self, gateway):
+    def __init__(self, reactor, gateway, maxlen=10000):
+        self._reactor = reactor
         self._gateway = gateway
+        self._buffer = deque(maxlen=maxlen)
 
     def start(self):
         if not self._started:

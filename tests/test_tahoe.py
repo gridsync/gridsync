@@ -2,9 +2,9 @@
 
 import os
 try:
-    from unittest.mock import MagicMock
+    from unittest.mock import Mock, MagicMock
 except ImportError:
-    from mock import MagicMock
+    from mock import Mock, MagicMock
 
 import pytest
 from pytest_twisted import inlineCallbacks
@@ -50,9 +50,14 @@ def fake_post_code_500(*args, **kwargs):
     return response
 
 
-@pytest.fixture(scope='module')
-def tahoe(tmpdir_factory):
-    client = Tahoe(str(tmpdir_factory.mktemp('tahoe')), executable='tahoe_exe')
+@pytest.fixture()
+def reactor():
+    return Mock()
+
+
+@pytest.fixture()
+def tahoe(tmpdir_factory, reactor):
+    client = Tahoe(str(tmpdir_factory.mktemp('tahoe')), executable='tahoe_exe', reactor=reactor)
     with open(os.path.join(client.nodedir, 'tahoe.cfg'), 'w') as f:
         f.write('[node]\nnickname = default')
     with open(os.path.join(client.nodedir, 'icon.url'), 'w') as f:
