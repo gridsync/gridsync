@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (
     QDialog,
     QFileDialog,
     QGridLayout,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
@@ -97,6 +98,8 @@ class DebugExporter(QDialog):
             self.filter_info_button.setFixedSize(16, 16)
         else:
             self.filter_info_button.setFixedSize(13, 13)
+        self.filter_info_button.clicked.connect(
+            self.on_filter_info_button_clicked)
 
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
@@ -142,6 +145,17 @@ class DebugExporter(QDialog):
         # Needed on some platforms to maintain scroll step accuracy/consistency
         self.scrollbar.setValue(self.scrollbar.maximum())
         self.scrollbar.setValue(scrollbar_position)
+
+    def on_filter_info_button_clicked(self):
+        msgbox = QMessageBox(self)
+        msgbox.setIcon(QMessageBox.Information)
+        if sys.platform == 'darwin':
+            msgbox.setText("About Log Filtering")
+            msgbox.setInformativeText(self.filter_info_text)
+        else:
+            msgbox.setWindowTitle("About Log Filtering")
+            msgbox.setText(self.filter_info_text)
+        msgbox.show()
 
     def filter_content(self):
         filters = [
