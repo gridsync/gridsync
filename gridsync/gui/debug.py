@@ -138,11 +138,38 @@ class DebugExporter(QDialog):
             (config_dir, 'ConfigDir'),
             (autostart_file_path, 'AutostartFilePath'),
         ]
-        if self.core.executable:
-            filters.append((self.core.executable, 'TahoeExecutablePath'))
-        filters.append((os.path.expanduser('~'), 'HomeDir'))
         for i, gateway in enumerate(self.core.gui.main_window.gateways):  # XXX
-            filters.append((gateway.name, 'GatewayName:{}'.format(i + 1)))
+            gateway_id = i + 1
+            filters.append((gateway.name, 'GatewayName:{}'.format(gateway_id)))
+            for n, items in enumerate(gateway.magic_folders.items()):
+                folder_id = n + 1
+                name, data = items
+                filters.append((
+                    data.get('collective_dircap'),
+                    'Folder:{}:{}:CollectiveDircap'.format(
+                        gateway_id, folder_id),
+                ))
+                filters.append((
+                    data.get('upload_dircap'),
+                    'Folder:{}:{}:UploadDircap'.format(gateway_id, folder_id),
+                ))
+                filters.append((
+                    data.get('admin_dircap'),
+                    'Folder:{}:{}:AdminDircap'.format(gateway_id, folder_id),
+                ))
+                filters.append((
+                    data.get('directory'),
+                    'Folder:{}:{}:Directory'.format(gateway_id, folder_id),
+                ))
+                filters.append((
+                    data.get('member'),
+                    'Folder:{}:{}:Member'.format(gateway_id, folder_id),
+                ))
+                filters.append((
+                    name, 'Folder:{}:{}:Name'.format(gateway_id, folder_id),
+                ))
+        filters.append((os.path.expanduser('~'), 'HomeDir'))
+        filters.append((self.core.executable, 'TahoeExecutablePath'))
 
         filtered = self.content
         for s, mask in filters:
