@@ -16,6 +16,7 @@ if (sys.version_info.major, sys.version_info.minor) < (3, 5):
 
 
 requirements = [
+    'autobahn',
     'humanize',
     'magic-wormhole',
     'PyNaCl >= 1.2.0',  # 1.2.0 adds Argon2id KDF
