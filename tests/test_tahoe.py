@@ -708,8 +708,10 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
     privatedir = os.path.join(client.nodedir, 'private')
     os.makedirs(privatedir)
+    nodeurl = 'http://127.0.0.1:54321'
+    client.set_nodeurl(nodeurl)
     with open(os.path.join(client.nodedir, 'node.url'), 'w') as f:
-        f.write('http://127.0.0.1:65536')
+        f.write(nodeurl)
     with open(os.path.join(privatedir, 'api_auth_token'), 'w') as f:
         f.write('1234567890')
     client.config_set('client', 'shares.happy', '99999')
@@ -723,8 +725,10 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
     privatedir = os.path.join(client.nodedir, 'private')
     os.makedirs(privatedir)
+    nodeurl = 'http://127.0.0.1:54321'
+    client.set_nodeurl(nodeurl)
     with open(os.path.join(client.nodedir, 'node.url'), 'w') as f:
-        f.write('http://127.0.0.1:65536')
+        f.write(nodeurl)
     with open(os.path.join(privatedir, 'api_auth_token'), 'w') as f:
         f.write('1234567890')
     client.config_set('client', 'shares.happy', '99999')
