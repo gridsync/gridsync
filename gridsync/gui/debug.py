@@ -173,7 +173,8 @@ class DebugExporter(QDialog):
 
         filtered = self.content
         for s, mask in filters:
-            filtered = filtered.replace(s, '<Filtered:{}>'.format(mask))
+            if s and mask:
+                filtered = filtered.replace(s, '<Filtered:{}>'.format(mask))
         self.filtered_content = filtered
 
     def load(self):
