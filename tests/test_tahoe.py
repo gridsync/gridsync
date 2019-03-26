@@ -721,6 +721,14 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 
 
 @inlineCallbacks
+def test_tahoe_stops_streamedlogs(monkeypatch, tahoe):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y, z: 9999)
+    yield client.start()
+    yield client.stop()
+    assert not client.streamedlogs.running
+
+
+@inlineCallbacks
 def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
     privatedir = os.path.join(client.nodedir, 'private')
