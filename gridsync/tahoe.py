@@ -447,6 +447,15 @@ class Tahoe():
 
         log.debug("Finished upgrading legacy configuration")
 
+    def get_streamed_log_messages(self):
+        """
+        Return a ``deque`` containing all buffered log messages.
+
+        :return: A ``deque`` where each element is a UTF-8 & JSON encoded
+            ``bytes`` object giving a single log event with older events
+            appearing first.
+        """
+        return self.streamedlogs.get_streamed_log_messages()
 
     @inlineCallbacks
     def start(self):

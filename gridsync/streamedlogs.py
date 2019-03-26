@@ -26,6 +26,15 @@ class TahoeLogReader(WebSocketClientProtocol):
 
 
 class StreamedLogs():
+    """
+    :ivar _reactor: A reactor that can connect using whatever transport the
+        Tahoe-LAFS node requires (TCP, etc).
+
+    :ivar Tahoe _gateway: The object representing the Tahoe-LAFS node from
+        which this object will receive streamed logs.
+
+    :ivar deque _buffer: Bounded storage for the streamed messages.
+    """
     _started = False
 
     def __init__(self, reactor, gateway, maxlen=10000):
@@ -36,6 +45,14 @@ class StreamedLogs():
     def start(self):
         if not self._started:
             self._started = True
+            self._connect_log_reader()
+
+    def get_streamed_log_messages(self):
+        """
+        :return list[str]: The messages currently in the message buffer.
+        """
+        return list(msg.decode("utf-8") for msg in self._buffer)
+
     def _connect_log_reader(self):
         nodeurl = self._gateway.nodeurl
 
