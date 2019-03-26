@@ -63,7 +63,7 @@ def tahoe(tmpdir_factory):
         f.write('test_alias: test_cap')
     with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
         f.write("magic-folders:\n  test_folder: {directory: test_dir}")
-    client.nodeurl = 'http://127.0.0.1:65536/'
+    client.set_nodeurl('http://example.invalid:12345/')
     return client
 
 

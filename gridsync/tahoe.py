@@ -488,7 +488,7 @@ class Tahoe():
             with open(self.pidfile, 'w') as f:
                 f.write(pid)
         with open(os.path.join(self.nodedir, 'node.url')) as f:
-            self.nodeurl = f.read().strip()
+            self.set_nodeurl(f.read().strip())
         token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
         with open(token_file) as f:
             self.api_token = f.read().strip()
@@ -498,6 +498,14 @@ class Tahoe():
         self.state = Tahoe.STARTED
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid)
+
+    def set_nodeurl(self, nodeurl):
+        """
+        Specify the location of the Tahoe-LAFS web API.
+
+        :param str nodeurl: A text string giving the URI root of the web API.
+        """
+        self.nodeurl = nodeurl
 
     @inlineCallbacks
     def restart(self):
