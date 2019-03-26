@@ -10,14 +10,9 @@ import shutil
 import signal
 import sys
 import tempfile
-from collections import defaultdict, deque, OrderedDict
+from collections import defaultdict, OrderedDict
 from io import BytesIO
-from urllib.parse import urlsplit
 
-from autobahn.twisted.websocket import (
-    WebSocketClientFactory,
-    WebSocketClientProtocol,
-)
 import treq
 from twisted.internet import reactor
 from twisted.internet.defer import (
@@ -84,12 +79,6 @@ class CommandProtocol(ProcessProtocol):
                     self.output.getvalue().decode('utf-8').strip()))
 
 
-class TahoeLogReader(WebSocketClientProtocol):
-    def onMessage(self, payload, _):
-        print(self.factory.tahoe.name, payload.decode('utf-8'))  # XXX
-        self.factory.tahoe.eliot_log.append(payload.decode('utf-8'))
-
-
 class Tahoe():
 
     STOPPED = 0
@@ -122,7 +111,6 @@ class Tahoe():
         self.monitor = Monitor(self)
         self.streamed_logs = StreamedLogs(self)
         self.state = Tahoe.STOPPED
-        self.eliot_log = deque(maxlen=10000)
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -457,17 +445,6 @@ class Tahoe():
 
         log.debug("Finished upgrading legacy configuration")
 
-    def connect_log_reader(self):
-        factory = WebSocketClientFactory(
-            url=self.nodeurl.replace("http://", "ws://") + "private/logs/v1",
-            headers={
-                "Authorization": "{} {}".format('tahoe-lafs', self.api_token)
-            }
-        )
-        factory.protocol = TahoeLogReader
-        factory.tahoe = self
-        host, port = urlsplit(self.nodeurl).netloc.split(':')
-        reactor.connectTCP(host, int(port), factory)
 
     @inlineCallbacks
     def start(self):
@@ -492,7 +469,6 @@ class Tahoe():
         token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
         with open(token_file) as f:
             self.api_token = f.read().strip()
-        self.connect_log_reader()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
         self.state = Tahoe.STARTED
