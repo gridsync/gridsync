@@ -9,6 +9,9 @@ import logging
 from collections import deque
 from urllib.parse import urlsplit
 
+from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.application.internet import ClientService
+
 from autobahn.twisted.websocket import (
     WebSocketClientFactory,
     WebSocketClientProtocol,
@@ -70,7 +73,5 @@ class StreamedLogs():
         factory.streamedlogs = self
         host, port = urlsplit(nodeurl).netloc.split(':')
 
-        # endpoint = HostnameEndpoint(self._reactor, host, int(port))
-        # ClientService(endpoint, factory).startService()
-
-        self._reactor.connectTCP(host, int(port), factory)
+        endpoint = TCP4ClientEndpoint(self._reactor, host, int(port))
+        ClientService(endpoint, factory, clock=self._reactor).startService()

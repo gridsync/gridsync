@@ -27,7 +27,7 @@ def test_do_nothing_before_start(reactor, tahoe):
     assert reactor.connectTCP.call_count == 0
 
 
-def test_connect_eliot_logs(reactor, tahoe):
+def test_connect_to_nodeurl(reactor, tahoe):
     """
     When ``StreamedLogs`` starts it tries to connect to the streaming log
     WebSocket endpoint run by the Tahoe-LAFS node.
@@ -38,7 +38,6 @@ def test_connect_eliot_logs(reactor, tahoe):
     expected_url = urlsplit(tahoe.nodeurl)
 
     assert "{}:{}".format(host, port) == expected_url.netloc
-    assert isinstance(factory, WebSocketClientFactory)
 
 
 def fake_log_server(protocol):
@@ -78,14 +77,7 @@ def twlog():
     globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
 
 
-@inlineCallbacks
-def test_collect_eliot_logs(reactor, tahoe):
-    """
-    ``StreamedLogs`` saves the JSON log messages so that they can be retrieved
-    using ``Tahoe.get_streamed_log_messages``.
-    """
-    twlog()
-
+def connect_to_log_endpoint(reactor, tahoe, real_reactor):
     server_port = fake_log_server(FakeLogServerProtocol)
     server_addr = server_port.getHost()
 
@@ -96,9 +88,19 @@ def test_collect_eliot_logs(reactor, tahoe):
     tahoe.streamedlogs.start()
     _, _, client_factory = reactor.connectTCP.call_args[0]
 
-    from twisted.internet import reactor as real_reactor
     endpoint = HostnameEndpoint(real_reactor, server_addr.host, server_addr.port)
-    client_protocol = yield endpoint.connect(client_factory)
+    return endpoint.connect(client_factory)
+
+
+@inlineCallbacks
+def test_collect_eliot_logs(reactor, tahoe):
+    """
+    ``StreamedLogs`` saves the JSON log messages so that they can be retrieved
+    using ``Tahoe.get_streamed_log_messages``.
+    """
+    from twisted.internet import reactor as real_reactor
+
+    yield connect_to_log_endpoint(reactor, tahoe, real_reactor)
 
     # Arbitrarily give it about a second to deliver the message.  All the I/O
     # is loopback and the data is small.  One second should be plenty of time.
@@ -110,3 +112,37 @@ def test_collect_eliot_logs(reactor, tahoe):
 
     messages = tahoe.get_streamed_log_messages()
     assert FakeLogServerProtocol.FAKE_MESSAGE in messages
+
+
+@inlineCallbacks
+def test_reconnect_to_websocket(reactor, tahoe):
+    """
+    If the connection to the WebSocket endpoint is lost, an attempt is made to
+    re-establish.
+    """
+    # This test might be simpler and more robust if it used
+    # twisted.internet.task.Clock and twisted.test.proto_helpers.MemoryReactor
+    # instead of a Mock reactor.
+    from twisted.internet import reactor as real_reactor
+
+    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor)
+    client_protocol.transport.abortConnection()
+
+    for i in range(100):
+        for call in reactor.callLater.call_args_list:
+            args, kwargs = call
+            delay, func = args[:2]
+            posargs = args[2:]
+            func(*posargs, **kwargs)
+
+        reactor.callLater.reset_mock()
+
+        if reactor.connectTCP.call_count >= 2:
+            break
+        yield deferLater(real_reactor, 0.01, lambda: None)
+
+    assert reactor.connectTCP.call_count >= 2
+    host, port, _ = reactor.connectTCP.call_args[0]
+
+    expected_url = urlsplit(tahoe.nodeurl)
+    assert "{}:{}".format(host, port) == expected_url.netloc
