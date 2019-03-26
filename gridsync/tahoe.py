@@ -28,6 +28,7 @@ from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.monitor import Monitor
+from gridsync.streamedlogs import StreamedLogs
 from gridsync.preferences import set_preference, get_preference
 
 
@@ -109,6 +110,7 @@ class Tahoe():
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
+        self.streamed_logs = StreamedLogs(self)
         self.state = Tahoe.STOPPED
 
     def config_set(self, section, option, value):
