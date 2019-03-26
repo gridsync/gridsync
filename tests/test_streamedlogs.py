@@ -14,6 +14,7 @@ from autobahn.twisted.websocket import (
 
 )
 
+from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
 from twisted.internet.endpoints import HostnameEndpoint
 
@@ -77,8 +78,8 @@ def twlog():
     globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
 
 
-def connect_to_log_endpoint(reactor, tahoe, real_reactor):
-    server_port = fake_log_server(FakeLogServerProtocol)
+def connect_to_log_endpoint(reactor, tahoe, real_reactor, protocolClass):
+    server_port = fake_log_server(protocolClass)
     server_addr = server_port.getHost()
 
     # Make sure the streamed logs websocket client can compute the correct ws
@@ -100,7 +101,7 @@ def test_collect_eliot_logs(reactor, tahoe):
     """
     from twisted.internet import reactor as real_reactor
 
-    yield connect_to_log_endpoint(reactor, tahoe, real_reactor)
+    yield connect_to_log_endpoint(reactor, tahoe, real_reactor, FakeLogServerProtocol)
 
     # Arbitrarily give it about a second to deliver the message.  All the I/O
     # is loopback and the data is small.  One second should be plenty of time.
@@ -132,7 +133,7 @@ def test_reconnect_to_websocket(reactor, tahoe):
     # instead of a Mock reactor.
     from twisted.internet import reactor as real_reactor
 
-    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor)
+    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor, FakeLogServerProtocol)
     client_protocol.transport.abortConnection()
 
     # Let the reactor process the disconnect.
@@ -154,7 +155,7 @@ def test_stop(reactor, tahoe):
     """
     from twisted.internet import reactor as real_reactor
 
-    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor)
+    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor, FakeLogServerProtocol)
     tahoe.streamedlogs.stop()
     client_protocol.transport.abortConnection()
 
@@ -164,3 +165,29 @@ def test_stop(reactor, tahoe):
     advance_mock_clock(reactor)
 
     assert reactor.connectTCP.call_count == 1
+
+
+@inlineCallbacks
+def test_authentication(reactor, tahoe):
+    """
+    The request to the WebSocket endpoint includes the necessary
+    *Authorization* header including the Tahoe-LAFS API token.
+    """
+    from twisted.internet import reactor as real_reactor
+
+    api_token = "12345abcdef"
+    tahoe.api_token = api_token
+
+    headers = Deferred()
+    class AuthorizationCheckingProtocol(WebSocketServerProtocol):
+        def onConnect(self, request):
+            headers.callback(request.headers)
+
+    client_protocol = yield connect_to_log_endpoint(
+        reactor,
+        tahoe,
+        real_reactor,
+        AuthorizationCheckingProtocol,
+    )
+    h = yield headers
+    assert h.get("authorization", None) == "tahoe-lafs {}".format(api_token), h
