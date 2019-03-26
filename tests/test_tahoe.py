@@ -327,10 +327,15 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     assert client.get_storage_servers() == storage_servers
 
 
-def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
-    pidfile = os.path.join(tahoe.nodedir, 'twistd.pid')
+def write_pidfile(nodedir):
+    pidfile = os.path.join(nodedir, 'twistd.pid')
     with open(pidfile, 'w') as f:
         f.write('4194305')
+    return pidfile
+
+
+def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
+    pidfile = write_pidfile(tahoe.nodedir)
     killed = [None]
 
     def fake_kill(pid, _):
@@ -352,6 +357,7 @@ def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     mocked_command = MagicMock()
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', mocked_command)
     monkeypatch.setattr('sys.platform', 'linux')
+    write_pidfile(tahoe.nodedir)
     yield tahoe.stop()
     args = mocked_command.call_args[0][0]
     assert args == ['stop']
@@ -514,24 +520,30 @@ def test_create_rootcap(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_create_rootcap_already_exists(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
+    yield tahoe.create_rootcap()
     with pytest.raises(OSError):
         yield tahoe.create_rootcap()
 
 
 @inlineCallbacks
 def test_tahoe_upload(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
     monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
     monkeypatch.setattr('treq.put', fake_put)
     monkeypatch.setattr('treq.content', lambda _: b'test_cap')
+    yield tahoe.create_rootcap()
     output = yield tahoe.upload(tahoe.rootcap_path)
     assert output == 'test_cap'
 
 
 @inlineCallbacks
 def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
     monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
     monkeypatch.setattr('treq.put', fake_put_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
+    yield tahoe.create_rootcap()
     with pytest.raises(TahoeWebError):
         yield tahoe.upload(tahoe.rootcap_path)
 
@@ -600,7 +612,6 @@ def test_local_magic_folder_exists_true(tahoe):
 
 
 def test_local_magic_folder_exists_false(tahoe):
-    del tahoe.magic_folders['LocalTestFolder']
     assert not tahoe.local_magic_folder_exists('LocalTestFolder')
 
 
@@ -610,7 +621,6 @@ def test_remote_magic_folder_exists_true(tahoe):
 
 
 def test_remote_magic_folder_exists_false(tahoe):
-    del tahoe.remote_magic_folders['RemoteTestFolder']
     assert not tahoe.local_magic_folder_exists('RemoteTestFolder')
 
 
@@ -620,7 +630,6 @@ def test_magic_folder_exists_true(tahoe):
 
 
 def test_magic_folder_exists_false(tahoe):
-    del tahoe.magic_folders['ExistingTestFolder']
     assert not tahoe.magic_folder_exists('ExistingTestFolder')
 
 
