@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 
 from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.application.internet import ClientService
+from twisted.application.service import MultiService
 
 from autobahn.twisted.websocket import (
     WebSocketClientFactory,
@@ -28,7 +29,7 @@ class TahoeLogReader(WebSocketClientProtocol):
         self.factory.streamedlogs._buffer.append(payload)
 
 
-class StreamedLogs():
+class StreamedLogs(MultiService):
     """
     :ivar _reactor: A reactor that can connect using whatever transport the
         Tahoe-LAFS node requires (TCP, etc).
@@ -41,14 +42,22 @@ class StreamedLogs():
     _started = False
 
     def __init__(self, reactor, gateway, maxlen=10000):
+        super().__init__()
         self._reactor = reactor
         self._gateway = gateway
         self._buffer = deque(maxlen=maxlen)
 
     def start(self):
-        if not self._started:
-            self._started = True
-            self._connect_log_reader()
+        if not self.running:
+            self._client_service = self._create_client_service()
+            self._client_service.setServiceParent(self)
+            return super().startService()
+
+    def stop(self):
+        if self.running:
+            self._client_service.disownServiceParent()
+            self._client_service = None
+            return super().stopService()
 
     def get_streamed_log_messages(self):
         """
@@ -56,17 +65,18 @@ class StreamedLogs():
         """
         return list(msg.decode("utf-8") for msg in self._buffer)
 
-    def _connect_log_reader(self):
+    def _create_client_service(self):
         nodeurl = self._gateway.nodeurl
 
         from hyperlink import parse
         url = parse(nodeurl)
         wsurl = url.replace(scheme="ws").child("private", "logs", "v1")
 
+        api_token = self._gateway.api_token
         factory = WebSocketClientFactory(
             url=wsurl.to_uri().to_text(),
             headers={
-                "Authorization": "{} {}".format('tahoe-lafs', "abcd"),
+                "Authorization": "{} {}".format('tahoe-lafs', api_token),
             }
         )
         factory.protocol = TahoeLogReader
@@ -74,4 +84,5 @@ class StreamedLogs():
         host, port = urlsplit(nodeurl).netloc.split(':')
 
         endpoint = TCP4ClientEndpoint(self._reactor, host, int(port))
-        ClientService(endpoint, factory, clock=self._reactor).startService()
+        client_service = ClientService(endpoint, factory, clock=self._reactor)
+        return client_service

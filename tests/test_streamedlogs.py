@@ -113,6 +113,13 @@ def test_collect_eliot_logs(reactor, tahoe):
     messages = tahoe.get_streamed_log_messages()
     assert FakeLogServerProtocol.FAKE_MESSAGE in messages
 
+def advance_mock_clock(reactor):
+    for call in reactor.callLater.call_args_list:
+        args, kwargs = call
+        delay, func = args[:2]
+        posargs = args[2:]
+        func(*posargs, **kwargs)
+
 
 @inlineCallbacks
 def test_reconnect_to_websocket(reactor, tahoe):
@@ -128,21 +135,32 @@ def test_reconnect_to_websocket(reactor, tahoe):
     client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor)
     client_protocol.transport.abortConnection()
 
-    for i in range(100):
-        for call in reactor.callLater.call_args_list:
-            args, kwargs = call
-            delay, func = args[:2]
-            posargs = args[2:]
-            func(*posargs, **kwargs)
+    # Let the reactor process the disconnect.
+    yield deferLater(real_reactor, 0.0, lambda: None)
 
-        reactor.callLater.reset_mock()
-
-        if reactor.connectTCP.call_count >= 2:
-            break
-        yield deferLater(real_reactor, 0.01, lambda: None)
-
-    assert reactor.connectTCP.call_count >= 2
+    advance_mock_clock(reactor)
+    assert reactor.connectTCP.call_count == 2
     host, port, _ = reactor.connectTCP.call_args[0]
 
     expected_url = urlsplit(tahoe.nodeurl)
     assert "{}:{}".format(host, port) == expected_url.netloc
+
+
+@inlineCallbacks
+def test_stop(reactor, tahoe):
+    """
+    ``StreamedLogs`` stops trying to reconnect when its ``stop`` method is
+    called.
+    """
+    from twisted.internet import reactor as real_reactor
+
+    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor)
+    tahoe.streamedlogs.stop()
+    client_protocol.transport.abortConnection()
+
+    # Let the reactor process the disconnect.
+    yield deferLater(real_reactor, 0.0, lambda: None)
+
+    advance_mock_clock(reactor)
+
+    assert reactor.connectTCP.call_count == 1
