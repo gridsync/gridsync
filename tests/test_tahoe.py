@@ -746,11 +746,11 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     )
     tahoe = tahoe_factory(MemoryReactorClock())
     tahoe.monitor = Mock()
-    write_pidfile(tahoe.nodedir)
     tahoe.config_set('client', 'shares.needed', '3')
     tahoe.config_set('client', 'shares.happy', '7')
     tahoe.config_set('client', 'shares.total', '10')
     yield tahoe.start()
+    write_pidfile(tahoe.nodedir)
     yield tahoe.stop()
     assert not tahoe.streamedlogs.running
 
