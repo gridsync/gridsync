@@ -37,17 +37,13 @@ class StreamedLogs(MultiService):
     :ivar _reactor: A reactor that can connect using whatever transport the
         Tahoe-LAFS node requires (TCP, etc).
 
-    :ivar Tahoe _gateway: The object representing the Tahoe-LAFS node from
-        which this object will receive streamed logs.
-
     :ivar deque _buffer: Bounded storage for the streamed messages.
     """
     _started = False
 
-    def __init__(self, reactor, gateway, maxlen=None):
+    def __init__(self, reactor, maxlen=None):
         super().__init__()
         self._reactor = reactor
-        self._gateway = gateway
         if maxlen is None:
             # This deque limit is based on average message size of 260 bytes
             # and a desire to limit maximum memory consumption here to around
@@ -60,9 +56,15 @@ class StreamedLogs(MultiService):
         self._buffer.append(message)
 
 
-    def start(self):
+    def start(self, nodeurl, api_token):
+        """
+        Start reading logs from the streaming log endpoint.
+
+        :param str nodeurl: The root URL of the Tahoe-LAFS web API.
+        :param str api_token: The secret Tahoe-LAFS API token.
+        """
         if not self.running:
-            self._client_service = self._create_client_service()
+            self._client_service = self._create_client_service(nodeurl, api_token)
             self._client_service.setServiceParent(self)
             return super().startService()
 
@@ -78,11 +80,10 @@ class StreamedLogs(MultiService):
         """
         return list(msg.decode("utf-8") for msg in self._buffer)
 
-    def _create_client_service(self):
-        url = parse(self._gateway.nodeurl)
+    def _create_client_service(self, nodeurl, api_token):
+        url = parse(nodeurl)
         wsurl = url.replace(scheme="ws").child("private", "logs", "v1")
 
-        api_token = self._gateway.api_token
         factory = WebSocketClientFactory(
             url=wsurl.to_uri().to_text(),
             headers={

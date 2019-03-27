@@ -33,10 +33,11 @@ def test_connect_to_nodeurl(reactor, tahoe):
     When ``StreamedLogs`` starts it tries to connect to the streaming log
     WebSocket endpoint run by the Tahoe-LAFS node.
     """
-    tahoe.streamedlogs.start()
+    nodeurl = "http://example.invalid:12345"
+    tahoe.streamedlogs.start(nodeurl, "api-token")
 
     host, port, factory = reactor.connectTCP.call_args[0]
-    expected_url = urlsplit(tahoe.nodeurl)
+    expected_url = urlsplit(nodeurl)
 
     assert "{}:{}".format(host, port) == expected_url.netloc
 
@@ -84,9 +85,8 @@ def connect_to_log_endpoint(reactor, tahoe, real_reactor, protocolClass):
 
     # Make sure the streamed logs websocket client can compute the correct ws
     # url.  If it doesn't match the server, the handshake fails.
-    tahoe.set_nodeurl("http://{}:{}".format(server_addr.host, server_addr.port))
-
-    tahoe.streamedlogs.start()
+    tahoe.nodeurl = "http://{}:{}".format(server_addr.host, server_addr.port)
+    tahoe.streamedlogs.start(tahoe.nodeurl, tahoe.api_token)
     _, _, client_factory = reactor.connectTCP.call_args[0]
 
     endpoint = TCP4ClientEndpoint(real_reactor, server_addr.host, server_addr.port)
@@ -121,7 +121,7 @@ def test_bounded_streamed_log_buffer(reactor, tahoe):
     log message buffer.
     """
     maxlen = 3
-    streamedlogs = StreamedLogs(reactor, tahoe, maxlen=maxlen)
+    streamedlogs = StreamedLogs(reactor, maxlen=maxlen)
     for i in range(maxlen + 1):
         streamedlogs.add_message(u"{}".format(i).encode("ascii"))
 

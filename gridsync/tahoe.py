@@ -111,7 +111,7 @@ class Tahoe():
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
-        self.streamedlogs = StreamedLogs(reactor, self)
+        self.streamedlogs = StreamedLogs(reactor)
         self.state = Tahoe.STOPPED
 
     def config_set(self, section, option, value):
@@ -463,7 +463,6 @@ class Tahoe():
         log.debug('Starting "%s" tahoe client...', self.name)
         self.state = Tahoe.STARTING
         self.monitor.start()
-        self.streamedlogs.start()
         tcp = self.config_get('connections', 'tcp')
         if tcp and tcp.lower() == 'tor':
             self.use_tor = True
@@ -483,6 +482,7 @@ class Tahoe():
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
+        self.streamedlogs.start(self.nodeurl, self.api_token)
         self.state = Tahoe.STARTED
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid)
