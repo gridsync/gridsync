@@ -17,6 +17,7 @@ from autobahn.twisted.websocket import (
 from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
 from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.error import CannotListenError
 
 from gridsync.tahoe import Tahoe
 from gridsync.streamedlogs import StreamedLogs
