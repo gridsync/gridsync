@@ -7,7 +7,7 @@
 ::
 ::  3) Python 3.6 <https://www.python.org>
 ::      -Select "Add Python 3.6 to PATH" option during install
-::      -On Windows Server 2012, if installation fails, try installing update "KB2919355". See https://bugs.python.org/issue29583 
+::      -On Windows Server 2012, if installation fails, try installing update "KB2919355". See https://bugs.python.org/issue29583
 ::
 ::  4) Microsoft Visual C++ Compiler for Python 2.7 <https://aka.ms/vcpython27>
 ::
@@ -99,7 +99,7 @@ call %PYTHON3% -m venv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call python -m pip install -r .\requirements\requirements-hashes.txt
-call python -m pip install . 
+call python -m pip install .
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
 call python -m pip install --no-use-pep517 pyinstaller==3.4
 call python -m pip list
