@@ -745,6 +745,7 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
         lambda self, args, callback_trigger=None: 9999,
     )
     tahoe = tahoe_factory(MemoryReactorClock())
+    tahoe.monitor = Mock()
     write_pidfile(tahoe.nodedir)
     tahoe.config_set('client', 'shares.needed', '3')
     tahoe.config_set('client', 'shares.happy', '7')
