@@ -28,7 +28,7 @@ class TahoeLogReader(WebSocketClientProtocol):
                 "Received a binary-mode WebSocket message from Tahoe-LAFS "
                 "streaming log; dropping.",
             )
-        self.factory.streamedlogs._buffer.append(payload)
+        self.factory.streamedlogs.add_message(payload)
 
 
 class StreamedLogs(MultiService):
@@ -43,11 +43,21 @@ class StreamedLogs(MultiService):
     """
     _started = False
 
-    def __init__(self, reactor, gateway, maxlen=10000):
+    def __init__(self, reactor, gateway, maxlen=None):
         super().__init__()
         self._reactor = reactor
         self._gateway = gateway
+        if maxlen is None:
+            # This deque limit is based on average message size of 260 bytes
+            # and a desire to limit maximum memory consumption here to around
+            # 500 MiB.
+            maxlen = 2000000
         self._buffer = deque(maxlen=maxlen)
+
+
+    def add_message(self, message):
+        self._buffer.append(message)
+
 
     def start(self):
         if not self.running:

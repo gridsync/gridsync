@@ -114,6 +114,26 @@ def test_collect_eliot_logs(reactor, tahoe):
     messages = tahoe.get_streamed_log_messages()
     assert FakeLogServerProtocol.FAKE_MESSAGE in messages
 
+
+def test_bounded_streamed_log_buffer(reactor, tahoe):
+    """
+    Only a limited number of the most recent messages remain in the streamed
+    log message buffer.
+    """
+    maxlen = 3
+    streamedlogs = StreamedLogs(reactor, tahoe, maxlen=maxlen)
+    for i in range(maxlen + 1):
+        streamedlogs.add_message(u"{}".format(i).encode("ascii"))
+
+    actual = streamedlogs.get_streamed_log_messages()
+    expected = list(
+        u"{}".format(i)
+        for i
+        in range(1, maxlen + 1)
+    )
+    assert actual == expected
+
+
 def advance_mock_clock(reactor):
     for call in reactor.callLater.call_args_list:
         args, kwargs = call
