@@ -19,10 +19,10 @@ from PyQt5.QtWidgets import (
     QSpacerItem,
 )
 
-from gridsync import (
-    APP_NAME, __version__, pkgdir, config_dir, autostart_file_path, resource)
+from gridsync import APP_NAME, __version__, resource
 from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
+from gridsync.filter import get_filters, apply_filters
 
 
 if sys.platform == 'darwin':
@@ -157,52 +157,6 @@ class DebugExporter(QDialog):
             msgbox.setText(self.filter_info_text)
         msgbox.show()
 
-    def filter_content(self):
-        filters = [
-            (pkgdir, 'PkgDir'),
-            (config_dir, 'ConfigDir'),
-            (autostart_file_path, 'AutostartFilePath'),
-        ]
-        for i, gateway in enumerate(self.core.gui.main_window.gateways):  # XXX
-            gateway_id = i + 1
-            filters.append((gateway.name, 'GatewayName:{}'.format(gateway_id)))
-            for n, items in enumerate(gateway.magic_folders.items()):
-                folder_id = n + 1
-                folder_name, data = items
-                filters.append((
-                    data.get('collective_dircap'),
-                    'Folder:{}:{}:CollectiveDircap'.format(
-                        gateway_id, folder_id),
-                ))
-                filters.append((
-                    data.get('upload_dircap'),
-                    'Folder:{}:{}:UploadDircap'.format(gateway_id, folder_id),
-                ))
-                filters.append((
-                    data.get('admin_dircap'),
-                    'Folder:{}:{}:AdminDircap'.format(gateway_id, folder_id),
-                ))
-                filters.append((
-                    data.get('directory'),
-                    'Folder:{}:{}:Directory'.format(gateway_id, folder_id),
-                ))
-                filters.append((
-                    data.get('member'),
-                    'Folder:{}:{}:Member'.format(gateway_id, folder_id),
-                ))
-                filters.append((
-                    folder_name, 'Folder:{}:{}:Name'.format(
-                        gateway_id, folder_id),
-                ))
-        filters.append((os.path.expanduser('~'), 'HomeDir'))
-        filters.append((self.core.executable, 'TahoeExecutablePath'))
-
-        filtered = self.content
-        for s, mask in filters:
-            if s and mask:
-                filtered = filtered.replace(s, '<Filtered:{}>'.format(mask))
-        self.filtered_content = filtered
-
     def load(self):
         if self.core.gui.main_window.gateways:
             names = [g.name for g in self.core.gui.main_window.gateways]
@@ -216,7 +170,9 @@ class DebugExporter(QDialog):
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + '\n'.join(self.core.log_deque)
         )
-        self.filter_content()
+        filters = get_filters(self.core)
+        self.filtered_content = apply_filters(self.content, filters)
+        #self.filter_content()
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.maybe_enable_buttons(self.scrollbar.value())
 
