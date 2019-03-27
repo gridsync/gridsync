@@ -77,9 +77,6 @@ def _tahoe(tmpdir_factory, reactor):
         f.write('http://example.invalid:12345/')
     with open(os.path.join(private_dir, 'api_auth_token'), 'w') as f:
         f.write(b64encode(b'a' * 32).decode('ascii'))
-    client.config_set('client', 'shares.needed', '3')
-    client.config_set('client', 'shares.happy', '7')
-    client.config_set('client', 'shares.total', '10')
     return client
 
 
@@ -749,6 +746,9 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     )
     tahoe = tahoe_factory(MemoryReactorClock())
     write_pidfile(tahoe.nodedir)
+    tahoe.config_set('client', 'shares.needed', '3')
+    tahoe.config_set('client', 'shares.happy', '7')
+    tahoe.config_set('client', 'shares.total', '10')
     yield tahoe.start()
     yield tahoe.stop()
     assert not tahoe.streamedlogs.running
