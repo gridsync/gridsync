@@ -191,11 +191,3 @@ def test_authentication(reactor, tahoe):
     )
     h = yield headers
     assert h.get("authorization", None) == "tahoe-lafs {}".format(api_token), h
-
-
-def test_restart():
-    """
-    When the Tahoe-LAFS process is restarted, a new connection is made and a
-    request is sent including the new Tahoe-LAFS API token in the
-    *Authorization* header.
-    """
