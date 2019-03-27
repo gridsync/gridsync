@@ -188,6 +188,29 @@ def test_stop(reactor, tahoe):
 
 
 @inlineCallbacks
+def test_path(reactor, tahoe):
+    """
+    The request is made to the correct path on the server to reach the
+    WebSocket endpoint.
+    """
+    from twisted.internet import reactor as real_reactor
+
+    path = Deferred()
+    class PathCheckingProtocol(WebSocketServerProtocol):
+        def onConnect(self, request):
+            path.callback(request.path)
+
+    client_protocol = yield connect_to_log_endpoint(
+        reactor,
+        tahoe,
+        real_reactor,
+        PathCheckingProtocol,
+    )
+    p = yield path
+    assert p == "/private/logs/v1"
+
+
+@inlineCallbacks
 def test_authentication(reactor, tahoe):
     """
     The request to the WebSocket endpoint includes the necessary
