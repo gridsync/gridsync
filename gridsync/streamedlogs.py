@@ -9,6 +9,8 @@ import logging
 from collections import deque
 from urllib.parse import urlsplit
 
+from hyperlink import parse
+
 from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
@@ -66,10 +68,7 @@ class StreamedLogs(MultiService):
         return list(msg.decode("utf-8") for msg in self._buffer)
 
     def _create_client_service(self):
-        nodeurl = self._gateway.nodeurl
-
-        from hyperlink import parse
-        url = parse(nodeurl)
+        url = parse(self._gateway.nodeurl)
         wsurl = url.replace(scheme="ws").child("private", "logs", "v1")
 
         api_token = self._gateway.api_token
@@ -81,8 +80,7 @@ class StreamedLogs(MultiService):
         )
         factory.protocol = TahoeLogReader
         factory.streamedlogs = self
-        host, port = urlsplit(nodeurl).netloc.split(':')
 
-        endpoint = TCP4ClientEndpoint(self._reactor, host, int(port))
+        endpoint = TCP4ClientEndpoint(self._reactor, url.host, url.port)
         client_service = ClientService(endpoint, factory, clock=self._reactor)
         return client_service
