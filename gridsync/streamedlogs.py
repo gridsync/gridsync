@@ -28,7 +28,8 @@ class TahoeLogReader(WebSocketClientProtocol):
                 "Received a binary-mode WebSocket message from Tahoe-LAFS "
                 "streaming log; dropping.",
             )
-        self.factory.streamedlogs.add_message(payload)
+        else:
+            self.factory.streamedlogs.add_message(payload)
 
 
 class StreamedLogs(MultiService):

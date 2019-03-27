@@ -134,6 +134,46 @@ def test_bounded_streamed_log_buffer(reactor, tahoe):
     assert actual == expected
 
 
+class BinaryMessageServerProtocol(WebSocketServerProtocol):
+    def onOpen(self):
+        self.sendMessage(
+            b"this is a binary message",
+            isBinary=True,
+        )
+        self.transport.loseConnection()
+
+
+@inlineCallbacks
+def test_binary_messages_dropped(reactor, tahoe):
+    from twisted.internet import reactor as real_reactor
+
+    server = BinaryMessageServerProtocol()
+
+    client = yield connect_to_log_endpoint(
+        reactor,
+        tahoe,
+        real_reactor,
+        lambda: server,
+    )
+    # client is a _WrappingProtocol because the implementation uses
+    # TCP4ClientEndpoint which puts a _WrappingFactory into the reactor.  Then
+    # connect_to_log_endpoint takes the _WrappingFactory out of the _mock_
+    # reactor it supplied and puts it into a new TCP4ClientEndpoint and uses
+    # that against a real reactor.  The connection gets set up and the
+    # _WrappingFactory creates a _WrappingProtocol which the new
+    # TCP4ClientEndpoint happily hands back to us.
+    #
+    # Sadly, this hack makes us dependent on the implementation of endpoints,
+    # the use of endpoints in streamedlogs.py, and the use of endpoints in
+    # connect_to_log_endpoint.
+    #
+    # Maybe it would be good to try to use twisted.test.iosim instead?  Or
+    # build something like RequestTraversalAgent but for Autobahn/WebSocket.
+    yield client._wrappedProtocol.is_closed
+
+    assert tahoe.streamedlogs.get_streamed_log_messages() == []
+
+
 def advance_mock_clock(reactor):
     for call in reactor.callLater.call_args_list:
         args, kwargs = call
