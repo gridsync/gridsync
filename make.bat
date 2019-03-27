@@ -72,7 +72,7 @@ call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call copy .\misc\tahoe.spec .\build\tahoe-lafs\pyinstaller.spec
 call pushd .\build\tahoe-lafs
-call git checkout f7f9cf6abcc8ecb2e25cead4f6cb2de3fe2a82a6
+call git checkout d73626b7da7133776c93c093f406f68c2b864446
 call python setup.py update_version
 call python -m pip install .
 call python -m pip install packaging
