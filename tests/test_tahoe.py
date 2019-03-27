@@ -10,6 +10,8 @@ import pytest
 from pytest_twisted import inlineCallbacks
 import yaml
 
+from twisted.test.proto_helpers import MemoryReactorClock
+
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.tahoe import is_valid_furl, get_nodedirs, Tahoe
 
@@ -55,8 +57,7 @@ def reactor():
     return Mock()
 
 
-@pytest.fixture()
-def tahoe(tmpdir_factory, reactor):
+def _tahoe(tmpdir_factory, reactor):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe')), executable='tahoe_exe', reactor=reactor)
     with open(os.path.join(client.nodedir, 'tahoe.cfg'), 'w') as f:
         f.write('[node]\nnickname = default')
@@ -70,6 +71,16 @@ def tahoe(tmpdir_factory, reactor):
         f.write("magic-folders:\n  test_folder: {directory: test_dir}")
     client.set_nodeurl('http://example.invalid:12345/')
     return client
+
+
+@pytest.fixture()
+def tahoe_factory(tmpdir_factory):
+    return partial(_tahoe, tmpdir_factory)
+
+
+@pytest.fixture()
+def tahoe(tmpdir_factory, reactor):
+    return _tahoe(tmpdir_factory, reactor)
 
 
 def test_is_valid_furl():
@@ -721,11 +732,16 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 
 
 @inlineCallbacks
-def test_tahoe_stops_streamedlogs(monkeypatch, tahoe):
-    monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y, z: 9999)
-    yield client.start()
-    yield client.stop()
-    assert not client.streamedlogs.running
+def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.command',
+        lambda self, args, callback_trigger=None: 9999,
+    )
+    tahoe = tahoe_factory(MemoryReactorClock())
+    write_pidfile(tahoe.nodedir)
+    yield tahoe.start()
+    yield tahoe.stop()
+    assert not tahoe.streamedlogs.running
 
 
 @inlineCallbacks
