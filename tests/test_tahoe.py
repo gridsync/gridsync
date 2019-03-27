@@ -739,6 +739,24 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 
 
 @inlineCallbacks
+def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.command',
+        lambda self, args, callback_trigger=None: 9999,
+    )
+    reactor = MemoryReactorClock()
+    tahoe = tahoe_factory(reactor)
+    tahoe.monitor = Mock()
+    tahoe.config_set('client', 'shares.needed', '3')
+    tahoe.config_set('client', 'shares.happy', '7')
+    tahoe.config_set('client', 'shares.total', '10')
+    yield tahoe.start()
+    assert tahoe.streamedlogs.running
+    (host, port, _, _, _) = reactor.tcpClients.pop(0)
+    assert (host, port) == ("example.invalid", 12345)
+
+
+@inlineCallbacks
 def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         'gridsync.tahoe.Tahoe.command',
