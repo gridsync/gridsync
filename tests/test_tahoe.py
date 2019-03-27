@@ -6,6 +6,9 @@ try:
 except ImportError:
     from mock import Mock, MagicMock
 
+from functools import partial
+from base64 import b64encode
+
 import pytest
 from pytest_twisted import inlineCallbacks
 import yaml
@@ -70,6 +73,13 @@ def _tahoe(tmpdir_factory, reactor):
     with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
         f.write("magic-folders:\n  test_folder: {directory: test_dir}")
     client.set_nodeurl('http://example.invalid:12345/')
+    with open(os.path.join(client.nodedir, 'node.url'), 'w') as f:
+        f.write('http://example.invalid:12345/')
+    with open(os.path.join(private_dir, 'api_auth_token'), 'w') as f:
+        f.write(b64encode(b'a' * 32).decode('ascii'))
+    client.config_set('client', 'shares.needed', '3')
+    client.config_set('client', 'shares.happy', '7')
+    client.config_set('client', 'shares.total', '10')
     return client
 
 

@@ -373,6 +373,7 @@ class Tahoe():
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
         self.state = Tahoe.STOPPING
+        self.streamedlogs.stop()
         if self.lock.locked:
             log.warning(
                 "Delaying stop operation; "
