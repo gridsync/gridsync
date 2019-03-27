@@ -168,7 +168,7 @@ class DebugExporter(QDialog):
             filters.append((gateway.name, 'GatewayName:{}'.format(gateway_id)))
             for n, items in enumerate(gateway.magic_folders.items()):
                 folder_id = n + 1
-                name, data = items
+                folder_name, data = items
                 filters.append((
                     data.get('collective_dircap'),
                     'Folder:{}:{}:CollectiveDircap'.format(
@@ -191,7 +191,8 @@ class DebugExporter(QDialog):
                     'Folder:{}:{}:Member'.format(gateway_id, folder_id),
                 ))
                 filters.append((
-                    name, 'Folder:{}:{}:Name'.format(gateway_id, folder_id),
+                    folder_name, 'Folder:{}:{}:Name'.format(
+                        gateway_id, folder_id),
                 ))
         filters.append((os.path.expanduser('~'), 'HomeDir'))
         filters.append((self.core.executable, 'TahoeExecutablePath'))
