@@ -16,7 +16,7 @@ from autobahn.twisted.websocket import (
 
 from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
-from twisted.internet.endpoints import HostnameEndpoint
+from twisted.internet.endpoints import TCP4ClientEndpoint
 
 from gridsync.tahoe import Tahoe
 from gridsync.streamedlogs import StreamedLogs
@@ -89,7 +89,7 @@ def connect_to_log_endpoint(reactor, tahoe, real_reactor, protocolClass):
     tahoe.streamedlogs.start()
     _, _, client_factory = reactor.connectTCP.call_args[0]
 
-    endpoint = HostnameEndpoint(real_reactor, server_addr.host, server_addr.port)
+    endpoint = TCP4ClientEndpoint(real_reactor, server_addr.host, server_addr.port)
     return endpoint.connect(client_factory)
 
 
