@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import OrderedDict
 import os
 from unittest.mock import Mock
 
@@ -15,21 +16,20 @@ def core():
     c.executable = '/tmp/test/tahoe.exe'
     gateway = Mock()
     gateway.name = 'TestGrid'
-    gateway.magic_folders = {
-        'TestFolder': {
-            'collective_dircap': 'URI:aaa:bbb',
-            'upload_dircap': 'URI:ccc:ddd',
-            'admin_dircap': 'URI:eee:fff',
-            'directory': '/tmp/test/TestFolder',
-            'member': 'Alice',
-        },
-        'CatPics': {
-            'collective_dircap': 'URI:ggg:hhh',
-            'upload_dircap': 'URI:iii:jjj',
-            'admin_dircap': 'URI:kkk:lll',
-            'directory': '/tmp/test/CatPics',
-            'member': 'Bob',
-        }
+    gateway.magic_folders = OrderedDict()  # Because python3.5
+    gateway.magic_folders['TestFolder'] = {
+        'collective_dircap': 'URI:aaa:bbb',
+        'upload_dircap': 'URI:ccc:ddd',
+        'admin_dircap': 'URI:eee:fff',
+        'directory': '/tmp/test/TestFolder',
+        'member': 'Alice',
+    }
+    gateway.magic_folders['CatPics'] = {
+        'collective_dircap': 'URI:ggg:hhh',
+        'upload_dircap': 'URI:iii:jjj',
+        'admin_dircap': 'URI:kkk:lll',
+        'directory': '/tmp/test/CatPics',
+        'member': 'Bob',
     }
     c.gui.main_window.gateways = [gateway]
     return c
