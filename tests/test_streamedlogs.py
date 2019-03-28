@@ -90,7 +90,12 @@ def connect_to_log_endpoint(reactor, tahoe, real_reactor, protocolClass):
     tahoe.streamedlogs.start(tahoe.nodeurl, tahoe.api_token)
     _, _, client_factory = reactor.connectTCP.call_args[0]
 
-    endpoint = TCP4ClientEndpoint(real_reactor, server_addr.host, server_addr.port)
+    endpoint = TCP4ClientEndpoint(
+        real_reactor,
+        # Windows doesn't like to connect to 0.0.0.0.
+        "127.0.0.1" if server_addr.host == "0.0.0.0" else server_addr.host,
+        server_addr.port,
+        )
     return endpoint.connect(client_factory)
 
 
