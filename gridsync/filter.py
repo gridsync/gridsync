@@ -14,6 +14,27 @@ def get_filters(core):
     for i, gateway in enumerate(core.gui.main_window.gateways):  # XXX
         gateway_id = i + 1
         filters.append((gateway.name, 'GatewayName:{}'.format(gateway_id)))
+        tahoe_settings = gateway.get_settings(include_rootcap=True)
+        filters.append((
+            tahoe_settings.get('rootcap'), 'Rootcap:{}'.format(gateway_id)
+        ))
+        filters.append((
+            tahoe_settings.get('introducer'),
+            'IntroducerFurl:{}'.format(gateway_id)
+        ))
+        storage_settings = tahoe_settings.get('storage')
+        if storage_settings:
+            for n, items in enumerate(storage_settings.items()):
+                server_id = n + 1
+                server_name, data = items
+                filters.append((
+                    data.get('anonymous-storage-FURL'),
+                    'StorageServerFurl:{}:{}'.format(gateway_id, server_id),
+                ))
+                filters.append((
+                    server_name,
+                    'StorageServerName:{}:{}'.format(gateway_id, server_id),
+                ))
         for n, items in enumerate(gateway.magic_folders.items()):
             folder_id = n + 1
             folder_name, data = items
