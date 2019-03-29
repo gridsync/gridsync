@@ -79,14 +79,10 @@ class DebugExporter(QDialog):
         self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
 
         self.filter_info_text = (
-            'With this checkbox enabled, {} will attempt to remove or filter '
-            'out certain types of known information (such as folder names) '
-            'from exported logs that could potentially be used to identify a '
-            'given user or computer.\n\nThis feature is not perfect, however, '
-            'and it is still possible that logs may contain sensitive '
-            'information. Accordingly, it is important to manually inspect '
-            'the contents of logs to verify that they contain no sensitive '
-            'information before sharing with others.'.format(APP_NAME)
+            "When enabled, {} will filter some information that could be used "
+            "to identify a user or computer. This feature is not perfect, "
+            "however, nor is it a substitute for manually checking logs for "
+            "sensitive information before sharing.".format(APP_NAME)
         )
         self.filter_info_button = QPushButton()
         self.filter_info_button.setToolTip(self.filter_info_text)
