@@ -43,6 +43,7 @@ class StreamedLogs(MultiService):
     def __init__(self, reactor, maxlen=None):
         super().__init__()
         self._reactor = reactor
+        self._client_service = None
         if maxlen is None:
             # This deque limit is based on average message size of 260 bytes
             # and a desire to limit maximum memory consumption here to around
