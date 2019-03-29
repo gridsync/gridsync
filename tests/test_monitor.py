@@ -482,3 +482,15 @@ def test_monitor_start():
     monitor.timer = MagicMock()
     monitor.start()
     assert monitor.timer.mock_calls == [call.start(2, now=True)]
+
+
+def test_monitor_multiple_start():
+    """
+    Calling ``Monitor.start`` multiple times has no effects beyond those of
+    calling it once.
+    """
+    monitor = Monitor(MagicMock())
+    monitor.timer = MagicMock()
+    monitor.start()
+    monitor.start()
+    assert monitor.timer.mock_calls == [call.start(2, now=True)]

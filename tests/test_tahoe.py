@@ -2,13 +2,15 @@
 
 import os
 try:
-    from unittest.mock import MagicMock
+    from unittest.mock import Mock, MagicMock
 except ImportError:
-    from mock import MagicMock
+    from mock import Mock, MagicMock
 
 import pytest
 from pytest_twisted import inlineCallbacks
 import yaml
+
+from twisted.test.proto_helpers import MemoryReactorClock
 
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.tahoe import is_valid_furl, get_nodedirs, Tahoe
@@ -48,23 +50,6 @@ def fake_post_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
     return response
-
-
-@pytest.fixture(scope='module')
-def tahoe(tmpdir_factory):
-    client = Tahoe(str(tmpdir_factory.mktemp('tahoe')), executable='tahoe_exe')
-    with open(os.path.join(client.nodedir, 'tahoe.cfg'), 'w') as f:
-        f.write('[node]\nnickname = default')
-    with open(os.path.join(client.nodedir, 'icon.url'), 'w') as f:
-        f.write('test_url')
-    private_dir = os.path.join(client.nodedir, 'private')
-    os.mkdir(private_dir)
-    with open(os.path.join(private_dir, 'aliases'), 'w') as f:
-        f.write('test_alias: test_cap')
-    with open(os.path.join(private_dir, 'magic_folders.yaml'), 'w') as f:
-        f.write("magic-folders:\n  test_folder: {directory: test_dir}")
-    client.nodeurl = 'http://127.0.0.1:65536/'
-    return client
 
 
 def test_is_valid_furl():
@@ -322,10 +307,15 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     assert client.get_storage_servers() == storage_servers
 
 
-def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
-    pidfile = os.path.join(tahoe.nodedir, 'twistd.pid')
+def write_pidfile(nodedir):
+    pidfile = os.path.join(nodedir, 'twistd.pid')
     with open(pidfile, 'w') as f:
         f.write('4194305')
+    return pidfile
+
+
+def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
+    pidfile = write_pidfile(tahoe.nodedir)
     killed = [None]
 
     def fake_kill(pid, _):
@@ -347,6 +337,7 @@ def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
     mocked_command = MagicMock()
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', mocked_command)
     monkeypatch.setattr('sys.platform', 'linux')
+    write_pidfile(tahoe.nodedir)
     yield tahoe.stop()
     args = mocked_command.call_args[0][0]
     assert args == ['stop']
@@ -509,24 +500,30 @@ def test_create_rootcap(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_create_rootcap_already_exists(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
+    yield tahoe.create_rootcap()
     with pytest.raises(OSError):
         yield tahoe.create_rootcap()
 
 
 @inlineCallbacks
 def test_tahoe_upload(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
     monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
     monkeypatch.setattr('treq.put', fake_put)
     monkeypatch.setattr('treq.content', lambda _: b'test_cap')
+    yield tahoe.create_rootcap()
     output = yield tahoe.upload(tahoe.rootcap_path)
     assert output == 'test_cap'
 
 
 @inlineCallbacks
 def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
+    monkeypatch.setattr('gridsync.tahoe.Tahoe.mkdir', lambda _: 'URI:DIR2:abc')
     monkeypatch.setattr('gridsync.tahoe.Tahoe.await_ready', MagicMock())
     monkeypatch.setattr('treq.put', fake_put_code_500)
     monkeypatch.setattr('treq.content', lambda _: b'test content')
+    yield tahoe.create_rootcap()
     with pytest.raises(TahoeWebError):
         yield tahoe.upload(tahoe.rootcap_path)
 
@@ -595,7 +592,6 @@ def test_local_magic_folder_exists_true(tahoe):
 
 
 def test_local_magic_folder_exists_false(tahoe):
-    del tahoe.magic_folders['LocalTestFolder']
     assert not tahoe.local_magic_folder_exists('LocalTestFolder')
 
 
@@ -605,7 +601,6 @@ def test_remote_magic_folder_exists_true(tahoe):
 
 
 def test_remote_magic_folder_exists_false(tahoe):
-    del tahoe.remote_magic_folders['RemoteTestFolder']
     assert not tahoe.local_magic_folder_exists('RemoteTestFolder')
 
 
@@ -615,7 +610,6 @@ def test_magic_folder_exists_true(tahoe):
 
 
 def test_magic_folder_exists_false(tahoe):
-    del tahoe.magic_folders['ExistingTestFolder']
     assert not tahoe.magic_folder_exists('ExistingTestFolder')
 
 
@@ -694,8 +688,10 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
     privatedir = os.path.join(client.nodedir, 'private')
     os.makedirs(privatedir)
+    nodeurl = 'http://127.0.0.1:54321'
+    client.set_nodeurl(nodeurl)
     with open(os.path.join(client.nodedir, 'node.url'), 'w') as f:
-        f.write('http://127.0.0.1:65536')
+        f.write(nodeurl)
     with open(os.path.join(privatedir, 'api_auth_token'), 'w') as f:
         f.write('1234567890')
     client.config_set('client', 'shares.happy', '99999')
@@ -705,12 +701,49 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 
 
 @inlineCallbacks
+def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.command',
+        lambda self, args, callback_trigger=None: 9999,
+    )
+    reactor = MemoryReactorClock()
+    tahoe = tahoe_factory(reactor)
+    tahoe.monitor = Mock()
+    tahoe.config_set('client', 'shares.needed', '3')
+    tahoe.config_set('client', 'shares.happy', '7')
+    tahoe.config_set('client', 'shares.total', '10')
+    yield tahoe.start()
+    assert tahoe.streamedlogs.running
+    (host, port, _, _, _) = reactor.tcpClients.pop(0)
+    assert (host, port) == ("example.invalid", 12345)
+
+
+@inlineCallbacks
+def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
+    monkeypatch.setattr(
+        'gridsync.tahoe.Tahoe.command',
+        lambda self, args, callback_trigger=None: 9999,
+    )
+    tahoe = tahoe_factory(MemoryReactorClock())
+    tahoe.monitor = Mock()
+    tahoe.config_set('client', 'shares.needed', '3')
+    tahoe.config_set('client', 'shares.happy', '7')
+    tahoe.config_set('client', 'shares.total', '10')
+    yield tahoe.start()
+    write_pidfile(tahoe.nodedir)
+    yield tahoe.stop()
+    assert not tahoe.streamedlogs.running
+
+
+@inlineCallbacks
 def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
     privatedir = os.path.join(client.nodedir, 'private')
     os.makedirs(privatedir)
+    nodeurl = 'http://127.0.0.1:54321'
+    client.set_nodeurl(nodeurl)
     with open(os.path.join(client.nodedir, 'node.url'), 'w') as f:
-        f.write('http://127.0.0.1:65536')
+        f.write(nodeurl)
     with open(os.path.join(privatedir, 'api_auth_token'), 'w') as f:
         f.write('1234567890')
     client.config_set('client', 'shares.happy', '99999')

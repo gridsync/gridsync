@@ -247,6 +247,11 @@ class GridChecker(QObject):
 
 
 class Monitor(QObject):
+    """
+
+    :ivar bool _started: Whether or not ``start`` has already been called.
+    """
+    _started = False
 
     connected = pyqtSignal()
     disconnected = pyqtSignal()
@@ -357,4 +362,6 @@ class Monitor(QObject):
         self.check_finished.emit()
 
     def start(self, interval=2):
-        self.timer.start(interval, now=True)
+        if not self._started:
+            self._started = True
+            self.timer.start(interval, now=True)
