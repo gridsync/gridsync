@@ -14,7 +14,6 @@ from collections import defaultdict, OrderedDict
 from io import BytesIO
 
 import treq
-from twisted.internet import reactor
 from twisted.internet.defer import (
     Deferred, DeferredList, DeferredLock, inlineCallbacks)
 from twisted.internet.error import ConnectError, ProcessDone
@@ -303,6 +302,8 @@ class Tahoe():
 
     @inlineCallbacks
     def command(self, args, callback_trigger=None):
+        from twisted.internet import reactor
+
         exe = (self.executable if self.executable else which('tahoe')[0])
         args = [exe] + ['-d', self.nodedir] + args
         env = os.environ
@@ -497,6 +498,8 @@ class Tahoe():
 
     @inlineCallbacks
     def restart(self):
+        from twisted.internet import reactor
+
         log.debug("Restarting %s client...", self.name)
         if self.state in (Tahoe.STOPPING, Tahoe.STARTING):
             log.warning(
@@ -567,6 +570,8 @@ class Tahoe():
     def await_ready(self):
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
+        from twisted.internet import reactor
+
         ready = yield self.is_ready()
         if not ready:
             log.debug('Connecting to "%s"...', self.name)
@@ -725,6 +730,8 @@ class Tahoe():
     @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
                             poll_interval=60):  # XXX See Issue #55
+        from twisted.internet import reactor
+
         path = os.path.realpath(os.path.expanduser(path))
         poll_interval = str(poll_interval)
         try:
