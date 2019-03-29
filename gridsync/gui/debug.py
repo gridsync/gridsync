@@ -22,8 +22,8 @@ from PyQt5.QtWidgets import (
 from gridsync import APP_NAME, __version__, resource
 from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.filter import get_filters, apply_filters
-
+from gridsync.filter import (
+    get_filters, apply_filters, filter_tahoe_log_message)
 
 if sys.platform == 'darwin':
     system = 'macOS {}'.format(platform.mac_ver()[0])
@@ -168,7 +168,26 @@ class DebugExporter(QDialog):
         )
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
-        #self.filter_content()
+        for gateway in self.core.gui.main_window.gateways:
+            # XXX Work-in-progress...
+            unfiltered_list = gateway.get_streamed_log_messages()
+            filtered_list = []
+            for line in unfiltered_list:
+                filtered_list.append(filter_tahoe_log_message(line))
+            #import json
+            #from pprint import pformat
+            #unfiltered_list = [pformat(json.loads(i)) for i in unfiltered_list]
+            self.content = self.content + (
+                '\n----- Beginning of {} Tahoe-LAFS logs -----\n{}'
+                '\n----- End of {} Tahoe-LAFS logs -----\n'.format(
+                    gateway.name, ',\n'.join(unfiltered_list), gateway.name)
+            )
+            #filtered_list = [pformat(json.loads(i)) for i in filtered_list]
+            self.filtered_content = self.filtered_content + (
+                '\n----- Beginning of {} Tahoe-LAFS logs -----\n{}'
+                '\n----- End of Tahoe-LAFS logs for {} -----\n'.format(
+                    gateway.name, ',\n'.join(filtered_list), gateway.name)
+            )
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.maybe_enable_buttons(self.scrollbar.value())
 
