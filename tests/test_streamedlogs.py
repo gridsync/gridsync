@@ -3,10 +3,7 @@ from urllib.parse import urlsplit
 from json import dumps
 from errno import EADDRINUSE
 
-import pytest
 from pytest_twisted import inlineCallbacks
-
-from test_tahoe import reactor, tahoe
 
 from autobahn.twisted.websocket import (
     WebSocketServerFactory,
