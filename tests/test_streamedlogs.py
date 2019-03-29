@@ -1,6 +1,7 @@
 from random import randrange
 from urllib.parse import urlsplit
 from json import dumps
+from errno import EADDRINUSE
 
 import pytest
 from pytest_twisted import inlineCallbacks
@@ -8,7 +9,6 @@ from pytest_twisted import inlineCallbacks
 from test_tahoe import reactor, tahoe
 
 from autobahn.twisted.websocket import (
-    WebSocketClientFactory,
     WebSocketServerFactory,
     WebSocketServerProtocol,
 
@@ -19,8 +19,8 @@ from twisted.internet.task import deferLater
 from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.error import CannotListenError
 
-from gridsync.tahoe import Tahoe
 from gridsync.streamedlogs import StreamedLogs
+
 
 def test_do_nothing_before_start(reactor, tahoe):
     """
@@ -95,7 +95,7 @@ def connect_to_log_endpoint(reactor, tahoe, real_reactor, protocolClass):
         # Windows doesn't like to connect to 0.0.0.0.
         "127.0.0.1" if server_addr.host == "0.0.0.0" else server_addr.host,
         server_addr.port,
-        )
+    )
     return endpoint.connect(client_factory)
 
 
@@ -242,11 +242,12 @@ def test_path(reactor, tahoe):
     from twisted.internet import reactor as real_reactor
 
     path = Deferred()
+
     class PathCheckingProtocol(WebSocketServerProtocol):
         def onConnect(self, request):
             path.callback(request.path)
 
-    client_protocol = yield connect_to_log_endpoint(
+    yield connect_to_log_endpoint(
         reactor,
         tahoe,
         real_reactor,
@@ -268,11 +269,12 @@ def test_authentication(reactor, tahoe):
     tahoe.api_token = api_token
 
     headers = Deferred()
+
     class AuthorizationCheckingProtocol(WebSocketServerProtocol):
         def onConnect(self, request):
             headers.callback(request.headers)
 
-    client_protocol = yield connect_to_log_endpoint(
+    yield connect_to_log_endpoint(
         reactor,
         tahoe,
         real_reactor,

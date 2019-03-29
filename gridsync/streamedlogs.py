@@ -7,7 +7,6 @@ node.
 
 import logging
 from collections import deque
-from urllib.parse import urlsplit
 
 from hyperlink import parse
 
@@ -51,10 +50,8 @@ class StreamedLogs(MultiService):
             maxlen = 2000000
         self._buffer = deque(maxlen=maxlen)
 
-
     def add_message(self, message):
         self._buffer.append(message)
-
 
     def start(self, nodeurl, api_token):
         """
