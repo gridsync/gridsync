@@ -65,12 +65,14 @@ class StreamedLogs(MultiService):
             self._client_service = self._create_client_service(nodeurl, api_token)
             self._client_service.setServiceParent(self)
             return super().startService()
+        return None
 
     def stop(self):
         if self.running:
             self._client_service.disownServiceParent()
             self._client_service = None
             return super().stopService()
+        return None
 
     def get_streamed_log_messages(self):
         """
