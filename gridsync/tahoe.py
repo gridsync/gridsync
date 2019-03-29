@@ -13,9 +13,7 @@ import tempfile
 from collections import defaultdict, OrderedDict
 from io import BytesIO
 
-
 import treq
-from twisted.internet import reactor
 from twisted.internet.defer import (
     Deferred, DeferredList, DeferredLock, inlineCallbacks)
 from twisted.internet.error import ConnectError, ProcessDone
@@ -28,6 +26,7 @@ from gridsync import pkgdir
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.monitor import Monitor
+from gridsync.streamedlogs import StreamedLogs
 from gridsync.preferences import set_preference, get_preference
 
 
@@ -86,7 +85,9 @@ class Tahoe():
     STARTED = 2
     STOPPING = 3
 
-    def __init__(self, nodedir=None, executable=None):
+    def __init__(self, nodedir=None, executable=None, reactor=None):
+        if reactor is None:
+            from twisted.internet import reactor
         self.executable = executable
         self.multi_folder_support = True
         if nodedir:
@@ -109,7 +110,7 @@ class Tahoe():
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
-        self._monitor_started = False
+        self.streamedlogs = StreamedLogs(reactor)
         self.state = Tahoe.STOPPED
 
     def config_set(self, section, option, value):
@@ -301,6 +302,8 @@ class Tahoe():
 
     @inlineCallbacks
     def command(self, args, callback_trigger=None):
+        from twisted.internet import reactor
+
         exe = (self.executable if self.executable else which('tahoe')[0])
         args = [exe] + ['-d', self.nodedir] + args
         env = os.environ
@@ -371,6 +374,7 @@ class Tahoe():
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
         self.state = Tahoe.STOPPING
+        self.streamedlogs.stop()
         if self.lock.locked:
             log.warning(
                 "Delaying stop operation; "
@@ -445,13 +449,21 @@ class Tahoe():
 
         log.debug("Finished upgrading legacy configuration")
 
+    def get_streamed_log_messages(self):
+        """
+        Return a ``deque`` containing all buffered log messages.
+
+        :return: A ``deque`` where each element is a UTF-8 & JSON encoded
+            ``bytes`` object giving a single log event with older events
+            appearing first.
+        """
+        return self.streamedlogs.get_streamed_log_messages()
+
     @inlineCallbacks
     def start(self):
         log.debug('Starting "%s" tahoe client...', self.name)
         self.state = Tahoe.STARTING
-        if not self._monitor_started:
-            self.monitor.start()
-            self._monitor_started = True
+        self.monitor.start()
         tcp = self.config_get('connections', 'tcp')
         if tcp and tcp.lower() == 'tor':
             self.use_tor = True
@@ -465,18 +477,29 @@ class Tahoe():
             with open(self.pidfile, 'w') as f:
                 f.write(pid)
         with open(os.path.join(self.nodedir, 'node.url')) as f:
-            self.nodeurl = f.read().strip()
+            self.set_nodeurl(f.read().strip())
         token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
         with open(token_file) as f:
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
+        self.streamedlogs.start(self.nodeurl, self.api_token)
         self.state = Tahoe.STARTED
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid)
 
+    def set_nodeurl(self, nodeurl):
+        """
+        Specify the location of the Tahoe-LAFS web API.
+
+        :param str nodeurl: A text string giving the URI root of the web API.
+        """
+        self.nodeurl = nodeurl
+
     @inlineCallbacks
     def restart(self):
+        from twisted.internet import reactor
+
         log.debug("Restarting %s client...", self.name)
         if self.state in (Tahoe.STOPPING, Tahoe.STARTING):
             log.warning(
@@ -547,6 +570,8 @@ class Tahoe():
     def await_ready(self):
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
+        from twisted.internet import reactor
+
         ready = yield self.is_ready()
         if not ready:
             log.debug('Connecting to "%s"...', self.name)
@@ -705,6 +730,8 @@ class Tahoe():
     @inlineCallbacks
     def create_magic_folder(self, path, join_code=None, admin_dircap=None,
                             poll_interval=60):  # XXX See Issue #55
+        from twisted.internet import reactor
+
         path = os.path.realpath(os.path.expanduser(path))
         poll_interval = str(poll_interval)
         try:
