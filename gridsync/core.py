@@ -166,7 +166,7 @@ class Core():
             os.path.join(config_dir, "{}.lock".format(APP_NAME)))
         lock.acquire()
 
-        logging.info("Core starting with args: %s", self.args)
+        logging.debug("Core starting with args: %s", self.args)
         logging.debug("Loaded config.txt settings: %s", settings)
 
         self.show_message()
