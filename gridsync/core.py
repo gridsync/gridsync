@@ -167,7 +167,6 @@ class Core():
         lock.acquire()
 
         logging.info("Core starting with args: %s", self.args)
-        logging.debug("$PATH is: %s", os.getenv('PATH'))
         logging.debug("Loaded config.txt settings: %s", settings)
 
         self.show_message()
