@@ -88,7 +88,7 @@ def apply_filter(dictionary, key, tag, identifier=None):
         dictionary[key] = get_mask(value, tag, identifier=identifier)
 
 
-def filter_tahoe_log_message(message, identifier):
+def filter_tahoe_log_message(message, identifier):  # noqa: max-complexity=12
     msg = json.loads(message)
 
     action_type = msg.get('action_type')
