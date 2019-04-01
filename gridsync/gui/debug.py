@@ -182,14 +182,14 @@ class DebugExporter(QDialog):
             #from pprint import pformat
             #unfiltered_list = [pformat(json.loads(i)) for i in unfiltered_list]
             self.content = self.content + (
-                '\n----- Beginning of Tahoe-LAFS logs for {0} -----\n{1}'
-                '\n----- End of Tahoe-LAFS logs for {0} -----\n'.format(
+                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
+                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
                     gateway.name, '\n'.join(unfiltered_list))
             )
             #filtered_list = [pformat(json.loads(i)) for i in filtered_list]
             self.filtered_content = self.filtered_content + (
-                '\n----- Beginning of Tahoe-LAFS logs for {0} -----\n{1}'
-                '\n----- End of Tahoe-LAFS logs for {0} -----\n'.format(
+                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
+                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
                     gateway_mask, '\n'.join(filtered_list))
             )
         self.on_checkbox_state_changed(self.checkbox.checkState())
