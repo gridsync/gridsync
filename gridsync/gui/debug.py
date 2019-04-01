@@ -154,15 +154,9 @@ class DebugExporter(QDialog):
         msgbox.show()
 
     def load(self):
-        if self.core.gui.main_window.gateways:
-            names = [g.name for g in self.core.gui.main_window.gateways]
-            gateways = ', '.join(names)
-        else:
-            gateways = 'None'
         self.content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
-            + "Gateway(s):   {}\n".format(gateways)
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + '\n'.join(self.core.log_deque)
         )
