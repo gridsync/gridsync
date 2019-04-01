@@ -26,6 +26,7 @@ from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
     get_filters, apply_filters, get_mask, filter_tahoe_log_message)
 
+
 if sys.platform == 'darwin':
     system = 'macOS {}'.format(platform.mac_ver()[0])
 elif sys.platform == 'win32':
@@ -46,6 +47,17 @@ Frozen:       {}
     system,
     platform.python_version(),
     getattr(sys, 'frozen', False)
+)
+
+
+warning_text = (
+    "####################################################################\n"
+    "#                                                                  #\n"
+    "#  WARNING: The following logs may contain sensitive information!  #\n"
+    "#  Please exercise appropriate caution and review them carefully   #\n"
+    "#  before copying, exporting, or otherwise sharing with others!    #\n"
+    "#                                                                  #\n"
+    "####################################################################\n\n"
 )
 
 
@@ -158,7 +170,8 @@ class DebugExporter(QDialog):
         self.content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
-            + "Datetime:     {}\n\n".format(datetime.utcnow().isoformat())
+            + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
+            + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
             + '\n'.join(self.core.log_deque)
             + "\n----- End of {} debug log -----\n".format(APP_NAME)
