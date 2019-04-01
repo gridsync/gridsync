@@ -47,7 +47,13 @@ class Core():
         self.executable = None
         self.tahoe_version = None
         self.operations = []
-        self.log_deque = collections.deque(maxlen=1000)  # XXX
+        log_deque_maxlen = 100000  # XXX
+        debug_settings = settings.get('debug')
+        if debug_settings:
+            log_maxlen = debug_settings.get('log_maxlen')
+            if log_maxlen is not None:
+                log_deque_maxlen = int(log_maxlen)
+        self.log_deque = collections.deque(maxlen=log_deque_maxlen)
 
     @inlineCallbacks
     def select_executable(self):

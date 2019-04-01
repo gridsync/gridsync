@@ -23,6 +23,7 @@ from twisted.python.procutils import which
 import yaml
 
 from gridsync import pkgdir
+from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.monitor import Monitor
@@ -110,7 +111,13 @@ class Tahoe():
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
-        self.streamedlogs = StreamedLogs(reactor)
+        streamedlogs_maxlen = None
+        debug_settings = global_settings.get('debug')
+        if debug_settings:
+            log_maxlen = debug_settings.get('log_maxlen')
+            if log_maxlen is not None:
+                streamedlogs_maxlen = int(log_maxlen)
+        self.streamedlogs = StreamedLogs(reactor, streamedlogs_maxlen)
         self.state = Tahoe.STOPPED
 
     def config_set(self, section, option, value):
