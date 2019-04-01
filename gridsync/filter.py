@@ -76,19 +76,19 @@ def apply_filters(in_str, filters):
     return filtered
 
 
-def get_mask(string, tag, mask=True):
-    if mask:
-        return '<Filtered:{}>'.format(tag + ':' + trunchash(string))
-    return '<Filtered:{}>'.format(tag)
+def get_mask(string, tag, identifier=None):
+    if identifier:
+        return '<Filtered:{}>'.format(tag + ':' + identifier)
+    return '<Filtered:{}>'.format(tag + ':' + trunchash(string))
 
 
-def apply_filter(dictionary, key, tag, mask=True):
+def apply_filter(dictionary, key, tag, identifier=None):
     value = dictionary.get(key)
     if value:
-        dictionary[key] = get_mask(value, tag, mask=mask)
+        dictionary[key] = get_mask(value, tag, identifier=identifier)
 
 
-def filter_tahoe_log_message(message):
+def filter_tahoe_log_message(message, identifier):
     msg = json.loads(message)
 
     action_type = msg.get('action_type')
@@ -104,7 +104,7 @@ def filter_tahoe_log_message(message):
         if action_type == 'magic-folder:scan-remote-dmd':
             apply_filter(msg, 'nickname', 'MemberName')
         else:
-            apply_filter(msg, 'nickname', 'GatewayName')
+            apply_filter(msg, 'nickname', 'GatewayName', identifier)
 
     # TODO: Filter others by 'action_type'/'message_type' too?
 

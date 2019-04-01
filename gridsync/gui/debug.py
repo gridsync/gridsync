@@ -168,12 +168,14 @@ class DebugExporter(QDialog):
         )
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
-        for gateway in self.core.gui.main_window.gateways:
+        for i, gateway in enumerate(self.core.gui.main_window.gateways):
             # XXX Work-in-progress...
+            gateway_id = str(i + 1)
             unfiltered_list = gateway.get_streamed_log_messages()
             filtered_list = []
             for line in unfiltered_list:
-                filtered_list.append(filter_tahoe_log_message(line))
+                filtered_list.append(
+                    filter_tahoe_log_message(line, gateway_id))
             #import json
             #from pprint import pformat
             #unfiltered_list = [pformat(json.loads(i)) for i in unfiltered_list]
