@@ -136,4 +136,4 @@ def filter_tahoe_log_message(message, identifier):
             pathentry['last_uploaded_uri'] = get_mask(
                 last_uploaded_uri, 'Capability')
 
-    return json.dumps(msg)
+    return json.dumps(msg, sort_keys=True)

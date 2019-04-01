@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import json
 import os
 import platform
 import sys
@@ -166,12 +167,16 @@ class DebugExporter(QDialog):
             # XXX Work-in-progress...
             gateway_id = str(i + 1)
             gateway_mask = get_mask(gateway.name, 'GatewayName', gateway_id)
-            unfiltered_list = gateway.get_streamed_log_messages()
+
+            unfiltered_list = []
+            for line in gateway.get_streamed_log_messages():
+                unfiltered_list.append(
+                    json.dumps(json.loads(line), sort_keys=True))
+
             filtered_list = []
             for line in unfiltered_list:
                 filtered_list.append(
                     filter_tahoe_log_message(line, gateway_id))
-            #import json
             #from pprint import pformat
             #unfiltered_list = [pformat(json.loads(i)) for i in unfiltered_list]
             self.content = self.content + (
