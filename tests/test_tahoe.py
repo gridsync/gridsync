@@ -103,6 +103,22 @@ def test_tahoe_default_nodedir():
         os.path.expanduser('~'), '.tahoe')
 
 
+@pytest.mark.parametrize(
+    'given,expected',
+    [
+        (123456, 123456),
+        (0, 0),
+        (None, 2000000),  # Default specified in gridsync.streamedlogs
+    ]
+)
+def test_tahoe_set_streamedlogs_maxlen_from_config_txt(
+        monkeypatch, given, expected):
+    monkeypatch.setattr(
+        'gridsync.tahoe.global_settings', {'debug': {'log_maxlen': given}})
+    client = Tahoe()
+    assert client.streamedlogs._buffer.maxlen == expected
+
+
 def test_config_get(tahoe):
     assert tahoe.config_get('node', 'nickname') == 'default'
 
