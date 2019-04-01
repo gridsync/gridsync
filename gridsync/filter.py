@@ -108,8 +108,17 @@ def filter_tahoe_log_message(message, identifier):
 
     # TODO: Filter others by 'action_type'/'message_type' too?
 
+    apply_filter(msg, 'name', 'Path')  # XXX
     apply_filter(msg, 'relpath', 'Path')
     apply_filter(msg, 'remote_uri', 'Capability')
+    apply_filter(msg, 'last_downloaded_uri', 'Capability')
+    apply_filter(msg, 'last_uploaded_uri', 'Capability')
+
+    item = msg.get('item')  # "magic-folder:process-item"
+    if item:
+        relpath = item.get('relpath')
+        if relpath:
+            msg['item']['relpath'] = get_mask(relpath, 'Path')
 
     pending = msg.get('pending')
     if pending:
