@@ -23,7 +23,7 @@ from gridsync import APP_NAME, __version__, resource
 from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
-    get_filters, apply_filters, filter_tahoe_log_message)
+    get_filters, apply_filters, get_mask, filter_tahoe_log_message)
 
 if sys.platform == 'darwin':
     system = 'macOS {}'.format(platform.mac_ver()[0])
@@ -165,6 +165,7 @@ class DebugExporter(QDialog):
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             # XXX Work-in-progress...
             gateway_id = str(i + 1)
+            gateway_mask = get_mask(gateway.name, 'GatewayName', gateway_id)
             unfiltered_list = gateway.get_streamed_log_messages()
             filtered_list = []
             for line in unfiltered_list:
@@ -182,7 +183,7 @@ class DebugExporter(QDialog):
             self.filtered_content = self.filtered_content + (
                 '\n----- Beginning of Tahoe-LAFS logs for {} -----\n{}'
                 '\n----- End of Tahoe-LAFS logs for {} -----\n'.format(
-                    gateway.name, '\n'.join(filtered_list), gateway.name)
+                    gateway_mask, '\n'.join(filtered_list), gateway_mask)
             )
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.maybe_enable_buttons(self.scrollbar.value())
