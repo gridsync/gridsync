@@ -158,8 +158,10 @@ class DebugExporter(QDialog):
         self.content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
-            + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
+            + "Datetime:     {}\n\n".format(datetime.utcnow().isoformat())
+            + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
             + '\n'.join(self.core.log_deque)
+            + "\n----- End of {} debug log -----\n".format(APP_NAME)
         )
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
