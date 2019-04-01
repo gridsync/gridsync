@@ -91,8 +91,23 @@ def apply_filter(dictionary, key, tag, mask=True):
 def filter_tahoe_log_message(message):
     msg = json.loads(message)
 
-    # TODO: Filter by 'action_type'/'message_type'?
-    apply_filter(msg, 'nickname', 'Nickname', mask=False)
+    action_type = msg.get('action_type')
+    if action_type:
+        # In the "magic-folder:scan-remote-dmd" action type, "nickname"
+        # refers to the name of the subdirectory in the magic-folder DMD
+        # for which only one given "member" typically has write access. In
+        # "magic-folder:start-uploading", "magic-folder:start-downloading",
+        # "magic-folder:start-monitoring", "magic-folder:processing-loop",
+        # "magic-folder:iteration", and "magic-folder:full-scan", it refers
+        # instead to the name of the local client node as assigned via the
+        # "nickname" field in tahoe.cfg.
+        if action_type == 'magic-folder:scan-remote-dmd':
+            apply_filter(msg, 'nickname', 'MemberName')
+        else:
+            apply_filter(msg, 'nickname', 'GatewayName')
+
+    # TODO: Filter others by 'action_type'/'message_type' too?
+
     apply_filter(msg, 'relpath', 'Path')
     apply_filter(msg, 'remote_uri', 'Capability')
 
