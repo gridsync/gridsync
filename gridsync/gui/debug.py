@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import json
 import os
 import platform
 import sys
@@ -23,8 +22,7 @@ from PyQt5.QtWidgets import (
 from gridsync import APP_NAME, __version__, resource
 from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.filter import (
-    get_filters, apply_filters, get_mask, filter_tahoe_log_message)
+from gridsync.filter import get_filters, apply_filters, get_mask
 
 
 if sys.platform == 'darwin':
@@ -181,27 +179,17 @@ class DebugExporter(QDialog):
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
             gateway_mask = get_mask(gateway.name, 'GatewayName', gateway_id)
-
-            unfiltered_list = []
-            for line in gateway.get_streamed_log_messages():
-                unfiltered_list.append(
-                    json.dumps(json.loads(line), sort_keys=True))
-
-            filtered_list = []
-            for line in unfiltered_list:
-                filtered_list.append(
-                    filter_tahoe_log_message(line, gateway_id))
-
             self.content = self.content + (
                 '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
                 '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
-                    gateway.name, '\n'.join(unfiltered_list))
+                    gateway.name, gateway.get_log())
             )
-
             self.filtered_content = self.filtered_content + (
                 '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
                 '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
-                    gateway_mask, '\n'.join(filtered_list))
+                    gateway_mask,
+                    gateway.get_log(apply_filter=True, identifier=gateway_id)
+                )
             )
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.maybe_enable_buttons(self.scrollbar.value())

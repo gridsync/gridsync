@@ -26,6 +26,7 @@ from gridsync import pkgdir
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
+from gridsync.filter import filter_tahoe_log_message
 from gridsync.monitor import Monitor
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.preferences import set_preference, get_preference
@@ -465,6 +466,16 @@ class Tahoe():
             appearing first.
         """
         return self.streamedlogs.get_streamed_log_messages()
+
+    def get_log(self, apply_filter=False, identifier=None):
+        messages = []
+        if apply_filter:
+            for line in self.streamedlogs.get_streamed_log_messages():
+                messages.append(filter_tahoe_log_message(line, identifier))
+        else:
+            for line in self.streamedlogs.get_streamed_log_messages():
+                messages.append(json.dumps(json.loads(line), sort_keys=True))
+        return '\n'.join(messages)
 
     @inlineCallbacks
     def start(self):
