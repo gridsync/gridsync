@@ -63,8 +63,8 @@ def get_filters(core):
             filters.append((
                 folder_name, 'Folder:{}:{}:Name'.format(gateway_id, folder_id),
             ))
-    filters.append((os.path.expanduser('~'), 'HomeDir'))
     filters.append((core.executable, 'TahoeExecutablePath'))
+    filters.append((os.path.expanduser('~'), 'HomeDir'))
     return filters
 
 
