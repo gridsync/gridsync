@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import deque
 from unittest.mock import Mock
 
 import pytest
@@ -76,6 +77,45 @@ def test_debug_exporter_on_info_button_clicked(monkeypatch):
     monkeypatch.setattr('gridsync.gui.debug.QMessageBox', fake_msgbox)
     de.on_filter_info_button_clicked()
     assert fake_msgbox.called
+
+
+@pytest.fixture
+def core():
+    fake_core = Mock()
+    fake_core.executable = '/test/tahoe'
+    fake_core.tahoe_version = '9.999'
+    fake_core.log_deque = deque(['debug msg 1', '/test/tahoe', 'debug msg 3'])
+    fake_gateway = Mock()
+    fake_gateway.name = 'TestGridOne'
+    fake_gateway.magic_folders = {}
+    fake_gateway.get_log = Mock(return_value='tahoe msg 1')
+    fake_gateway.get_settings = Mock(return_value={})
+    fake_core.gui.main_window.gateways = [fake_gateway]
+    return fake_core
+
+
+def test_debug_exporter_load_content(core):
+    de = DebugExporter(core)
+    de.load()
+    assert core.executable in de.content
+
+
+def test_debug_exporter_load_filtered_content(core):
+    de = DebugExporter(core)
+    de.load()
+    assert core.executable not in de.filtered_content
+
+
+def test_debug_exporter_load_warning_text_in_content(core):
+    de = DebugExporter(core)
+    de.load()
+    assert warning_text in de.content
+
+
+def test_debug_exporter_load_warning_text_in_filtered_content(core):
+    de = DebugExporter(core)
+    de.load()
+    assert warning_text in de.filtered_content
 
 
 def test_debug_exporter_copy_to_clipboard(monkeypatch):
