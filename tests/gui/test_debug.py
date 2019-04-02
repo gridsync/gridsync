@@ -131,3 +131,10 @@ def test_debug_exporter_export_to_file_failure(monkeypatch, tmpdir):
     monkeypatch.setattr('gridsync.gui.debug.error', fake_error)
     de.export_to_file()
     assert fake_error.call_args[0][2] == error_message
+
+
+def test_debug_exporter_maybe_enable_buttons_on_resizeEvent():
+    de = DebugExporter(None)
+    de.maybe_enable_buttons = Mock()
+    de.resizeEvent(None)
+    assert de.maybe_enable_buttons.call_args[0][0] == de.scrollbar.value()
