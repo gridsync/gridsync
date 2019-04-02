@@ -699,6 +699,32 @@ def test_upgrade_legacy_config(tmpdir_factory):
     assert not os.path.exists(client.magic_folders_dir)
 
 
+def test_tahoe_get_log_sort_output(tahoe):
+    tahoe.streamedlogs._buffer.append(b'{"C": 3, "A": 1, "B": 2}')
+    output = tahoe.get_log()
+    assert output == '{"A": 1, "B": 2, "C": 3}'
+
+
+def test_tahoe_get_log_apply_filter(tahoe):
+    tahoe.streamedlogs._buffer.append(
+        b'{"action_type": "magic-folder:full-scan", "nickname": "TestGrid"}')
+    output = tahoe.get_log(apply_filter=True)
+    assert output == (
+        '{"action_type": "magic-folder:full-scan", '
+        '"nickname": "<Filtered:GatewayName:95e65be>"}'
+    )
+
+
+def test_tahoe_get_log_apply_filter_use_identifier(tahoe):
+    tahoe.streamedlogs._buffer.append(
+        b'{"action_type": "magic-folder:full-scan", "nickname": "TestGrid"}')
+    output = tahoe.get_log(apply_filter=True, identifier='1')
+    assert output == (
+        '{"action_type": "magic-folder:full-scan", '
+        '"nickname": "<Filtered:GatewayName:1>"}'
+    )
+
+
 @inlineCallbacks
 def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp('tahoe-start')))
