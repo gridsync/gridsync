@@ -97,7 +97,7 @@ class Wormhole(QObject):
             msg = yield self._wormhole.get_message()
             msg = json.loads(msg.decode("utf-8"))
 
-        logging.debug("Received message: %s", msg)
+        logging.debug("Received wormhole message.")
         self.got_message.emit(msg)
         yield self.close()
         return msg
@@ -126,7 +126,7 @@ class Wormhole(QObject):
             raise UpgradeRequiredError
         self.got_introduction.emit()
 
-        logging.debug("Sending message: %s", msg)
+        logging.debug("Sending wormhole message...")
         self._wormhole.send_message(json.dumps(msg).encode('utf-8'))
         yield self.close()
         self.send_completed.emit()
