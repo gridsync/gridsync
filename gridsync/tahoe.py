@@ -25,6 +25,7 @@ import yaml
 from gridsync import pkgdir
 from gridsync import settings as global_settings
 from gridsync.config import Config
+from gridsync.crypto import trunchash
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.filter import filter_tahoe_log_message
 from gridsync.monitor import Monitor
@@ -654,8 +655,8 @@ class Tahoe():
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
-        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
-        childcap_hash = hashlib.sha256(childcap.encode()).hexdigest()
+        dircap_hash = trunchash(dircap)
+        childcap_hash = trunchash(childcap)
         log.debug('Linking "%s" (%s) into %s...', childname, childcap_hash,
                   dircap_hash)
         yield self.await_ready()
@@ -674,7 +675,7 @@ class Tahoe():
 
     @inlineCallbacks
     def unlink(self, dircap, childname):
-        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
+        dircap_hash = trunchash(dircap)
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         yield self.await_ready()
         yield self.lock.acquire()
