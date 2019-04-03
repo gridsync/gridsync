@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import logging
 import os
 import platform
 import sys
+import time
 
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import pyqtSignal, QObject, QSize, Qt, QThread
 from PyQt5.QtGui import QFontDatabase, QIcon
 from PyQt5.QtWidgets import (
     QCheckBox,
@@ -59,18 +61,65 @@ warning_text = (
 )
 
 
+class LogLoader(QObject):
+
+    done = pyqtSignal()
+
+    def __init__(self, core):
+        super().__init__()
+        self.core = core
+        self.content = ''
+        self.filtered_content = ''
+
+    def load(self):
+        start_time = time.time()
+        self.content = (
+            header
+            + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
+            + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
+            + warning_text
+            + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
+            + '\n'.join(self.core.log_deque)
+            + "\n----- End of {} debug log -----\n".format(APP_NAME)
+        )
+        filters = get_filters(self.core)
+        self.filtered_content = apply_filters(self.content, filters)
+        for i, gateway in enumerate(self.core.gui.main_window.gateways):
+            gateway_id = str(i + 1)
+            gateway_mask = get_mask(gateway.name, 'GatewayName', gateway_id)
+            self.content = self.content + (
+                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
+                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
+                    gateway.name, gateway.get_log())
+            )
+            self.filtered_content = self.filtered_content + (
+                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
+                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
+                    gateway_mask,
+                    gateway.get_log(apply_filter=True, identifier=gateway_id)
+                )
+            )
+        self.done.emit()
+        logging.debug("Loaded logs in %f seconds", time.time() - start_time)
+
+
 class DebugExporter(QDialog):
     def __init__(self, core, parent=None):
         super().__init__(parent=None)
         self.core = core
         self.parent = parent
-        self.content = ''
-        self.filtered_content = ''
+
+        self.log_loader = LogLoader(self.core)
+        self.log_loader_thread = QThread()
+        self.log_loader.moveToThread(self.log_loader_thread)
+        self.log_loader.done.connect(self.on_loaded)
+        self.log_loader_thread.started.connect(self.log_loader.load)
 
         self.setMinimumSize(800, 600)
         self.setWindowTitle("{} - Debug Information".format(APP_NAME))
 
         self.plaintextedit = QPlainTextEdit(self)
+        self.plaintextedit.setPlainText("Loading logs; please wait...")
         self.plaintextedit.setReadOnly(True)
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         self.plaintextedit.setFont(font)
@@ -146,9 +195,9 @@ class DebugExporter(QDialog):
     def on_checkbox_state_changed(self, state):
         scrollbar_position = self.scrollbar.value()
         if state == Qt.Checked:
-            self.plaintextedit.setPlainText(self.filtered_content)  # XXX
+            self.plaintextedit.setPlainText(self.log_loader.filtered_content)
         else:
-            self.plaintextedit.setPlainText(self.content)
+            self.plaintextedit.setPlainText(self.log_loader.content)
         # Needed on some platforms to maintain scroll step accuracy/consistency
         self.scrollbar.setValue(self.scrollbar.maximum())
         self.scrollbar.setValue(scrollbar_position)
@@ -164,35 +213,17 @@ class DebugExporter(QDialog):
             msgbox.setText(self.filter_info_text)
         msgbox.show()
 
-    def load(self):
-        self.content = (
-            header
-            + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
-            + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
-            + warning_text
-            + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
-            + '\n'.join(self.core.log_deque)
-            + "\n----- End of {} debug log -----\n".format(APP_NAME)
-        )
-        filters = get_filters(self.core)
-        self.filtered_content = apply_filters(self.content, filters)
-        for i, gateway in enumerate(self.core.gui.main_window.gateways):
-            gateway_id = str(i + 1)
-            gateway_mask = get_mask(gateway.name, 'GatewayName', gateway_id)
-            self.content = self.content + (
-                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
-                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
-                    gateway.name, gateway.get_log())
-            )
-            self.filtered_content = self.filtered_content + (
-                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
-                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
-                    gateway_mask,
-                    gateway.get_log(apply_filter=True, identifier=gateway_id)
-                )
-            )
+    def on_loaded(self):
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.maybe_enable_buttons(self.scrollbar.value())
+        self.log_loader_thread.quit()
+        self.log_loader_thread.wait()
+
+    def load(self):
+        if self.log_loader_thread.isRunning():
+            logging.warning("LogLoader thread is already running; returning")
+            return
+        self.log_loader_thread.start()
 
     def copy_to_clipboard(self):
         for mode in get_clipboard_modes():
