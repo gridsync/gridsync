@@ -313,11 +313,17 @@ class Tahoe():
     def command(self, args, callback_trigger=None):
         from twisted.internet import reactor
 
+        # Some args may contain sensitive information. Don't show them in logs.
+        if args[0] == 'magic-folder':
+            first_args = args[0:2]
+        else:
+            first_args = args[0:1]
         exe = (self.executable if self.executable else which('tahoe')[0])
         args = [exe] + ['-d', self.nodedir] + args
+        logged_args = [exe] + ['-d', self.nodedir] + first_args
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
-        log.debug("Executing: %s", ' '.join(args))
+        log.debug("Executing: %s...", ' '.join(logged_args))
         if sys.platform == 'win32' and getattr(sys, 'frozen', False):
             from twisted.internet.threads import deferToThread
             output = yield deferToThread(
