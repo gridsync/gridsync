@@ -94,24 +94,6 @@ def test__desktop_open_call_qdesktopservices_openurl(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    'frozen,given_ldlp_value,expected_ldlp_value',
-    [(True, '/FAKE/PATH', None), (False, '/FAKE/PATH', '/FAKE/PATH')]
-)
-def test__desktop_open_unset_ld_library_path_if_frozen(
-        frozen, given_ldlp_value, expected_ldlp_value, monkeypatch):
-    observed_ldlp_value = []
-
-    def fake_openurl(_):
-        observed_ldlp_value.append(os.environ.get('LD_LIBRARY_PATH'))
-    monkeypatch.setattr('PyQt5.QtGui.QDesktopServices.openUrl', fake_openurl)
-    monkeypatch.setattr('PyQt5.QtCore.QUrl.fromLocalFile', MagicMock())
-    monkeypatch.setattr('sys.frozen', frozen, raising=False)
-    monkeypatch.setattr('os.environ', {'LD_LIBRARY_PATH': given_ldlp_value})
-    _desktop_open('/test/path/file.txt')
-    assert observed_ldlp_value == [expected_ldlp_value]
-
-
-@pytest.mark.parametrize(
     'platform,mocked_call,args',
     [
         (
