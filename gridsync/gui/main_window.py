@@ -252,7 +252,6 @@ class MainWindow(QMainWindow):
                 self.central_widget.add_history_view(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
-        self.gui.systray.menu.populate()
 
     def current_view(self):
         try:

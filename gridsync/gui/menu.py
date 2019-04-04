@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import webbrowser
 
 from PyQt5.QtCore import Qt
@@ -31,12 +30,6 @@ class Menu(QMenu):
         self.about_msg.setIconPixmap(app_icon.pixmap(64, 64))
         self.about_msg.setText("{} {}".format(APP_NAME, __version__))
         self.about_msg.setWindowModality(Qt.WindowModal)
-
-        self.populate()
-
-    def populate(self):
-        self.clear()
-        logging.debug("(Re-)populating systray menu...")
 
         open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
         open_action.triggered.connect(self.gui.show)
