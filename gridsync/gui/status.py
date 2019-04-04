@@ -69,7 +69,7 @@ class StatusPanel(QWidget):
         preferences_button = QToolButton(self)
         preferences_button.setIcon(QIcon(resource('preferences.png')))
         preferences_button.setIconSize(QSize(20, 20))
-        preferences_button.setMenu(Menu(self.gui))
+        preferences_button.setMenu(Menu(self.gui, show_open_action=False))
         preferences_button.setPopupMode(2)
         preferences_button.setStyleSheet(
             'QToolButton::menu-indicator { image: none }')

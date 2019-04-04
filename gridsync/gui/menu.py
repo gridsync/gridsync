@@ -11,7 +11,7 @@ from gridsync._version import __version__
 
 
 class Menu(QMenu):
-    def __init__(self, gui):
+    def __init__(self, gui, show_open_action=True):
         super(Menu, self).__init__()
         self.gui = gui
 
@@ -22,11 +22,11 @@ class Menu(QMenu):
         self.about_msg.setText("{} {}".format(APP_NAME, __version__))
         self.about_msg.setWindowModality(Qt.WindowModal)
 
-        open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
-        open_action.triggered.connect(self.gui.show)
-        self.addAction(open_action)
-
-        self.addSeparator()
+        if show_open_action:
+            open_action = QAction(QIcon(''), "Open {}".format(APP_NAME), self)
+            open_action.triggered.connect(self.gui.show)
+            self.addAction(open_action)
+            self.addSeparator()
 
         preferences_action = QAction(QIcon(''), "Preferences...", self)
         preferences_action.triggered.connect(self.gui.show_preferences_window)
