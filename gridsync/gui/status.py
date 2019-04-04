@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QWidget)
 
 from gridsync import resource
+from gridsync.gui.menu import Menu
 
 
 class StatusPanel(QWidget):
@@ -65,6 +66,14 @@ class StatusPanel(QWidget):
         self.globe_action = QAction(QIcon(resource('globe.png')), '')
         self.globe_button.setDefaultAction(self.globe_action)
 
+        preferences_button = QToolButton(self)
+        preferences_button.setIcon(QIcon(resource('preferences.png')))
+        preferences_button.setIconSize(QSize(20, 20))
+        preferences_button.setMenu(Menu(self.gui))
+        preferences_button.setPopupMode(2)
+        preferences_button.setStyleSheet(
+            'QToolButton::menu-indicator { image: none }')
+
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
         layout.setContentsMargins(left, 0, right, bottom - 2)
@@ -74,6 +83,7 @@ class StatusPanel(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.tor_button, 1, 4)
         layout.addWidget(self.globe_button, 1, 5)
+        layout.addWidget(preferences_button, 1, 6)
 
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
