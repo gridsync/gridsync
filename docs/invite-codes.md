@@ -10,9 +10,7 @@ An _invite code_ is a short combination of numbers and words (e.g., `9-hamburger
 What are invite codes used for?
 -------------------------------
 
-In Gridsync, invite codes are currently used as a means for storage service providers to send required account-related information to users (such as the address or "introducer fURL" of a storage grid and other important configuration information) without requiring those users to enter this information manually. Knowing and entering an invite code is thus typically sufficient – and is usually the only step required – to configure Gridsync "from scratch" after installation.
-
-In the future, invite codes will be used by Gridsync for additional purposes (like pairing account information to other devices and sharing files and folders between computers or other users).
+In Gridsync, invite codes are used as a means of securely transferring credentials to users (such as Tahoe-LAFS storage fURLs or the capabilities needed to join a magic-folder) without requiring users to handle or enter this information manually. Knowing and entering an invite code is thus typically sufficient – and is usually the only step required – to configure Gridsync "from scratch" after installation or to access a folder shared by another device or user.
 
 
 Why use invite codes (instead of, e.g., passwords or email)?
