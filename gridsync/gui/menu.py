@@ -10,14 +10,6 @@ from gridsync import resource, settings, APP_NAME
 from gridsync._version import __version__
 
 
-def open_documentation():
-    webbrowser.open(settings['help']['docs_url'])
-
-
-def open_issue():
-    webbrowser.open(settings['help']['issues_url'])
-
-
 class Menu(QMenu):
     def __init__(self, parent):
         super(Menu, self).__init__()
@@ -48,11 +40,13 @@ class Menu(QMenu):
             if help_settings.get('docs_url'):
                 docs_action = QAction(
                     QIcon(''), "Browse Documentation...", self)
-                docs_action.triggered.connect(open_documentation)
+                docs_action.triggered.connect(
+                    lambda: webbrowser.open(settings['help']['docs_url']))
                 help_menu.addAction(docs_action)
             if help_settings.get('issues_url'):
                 issue_action = QAction(QIcon(''), "Report Issue...", self)
-                issue_action.triggered.connect(open_issue)
+                issue_action.triggered.connect(
+                    lambda: webbrowser.open(settings['help']['issues_url']))
                 help_menu.addAction(issue_action)
         export_action = QAction(QIcon(''), "Export Debug Information...", self)
         export_action.triggered.connect(self.gui.show_debug_exporter)
