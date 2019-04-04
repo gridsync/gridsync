@@ -23,8 +23,11 @@ from twisted.python.procutils import which
 import yaml
 
 from gridsync import pkgdir
+from gridsync import settings as global_settings
 from gridsync.config import Config
+from gridsync.crypto import trunchash
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
+from gridsync.filter import filter_tahoe_log_message
 from gridsync.monitor import Monitor
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.preferences import set_preference, get_preference
@@ -110,7 +113,13 @@ class Tahoe():
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
-        self.streamedlogs = StreamedLogs(reactor)
+        streamedlogs_maxlen = None
+        debug_settings = global_settings.get('debug')
+        if debug_settings:
+            log_maxlen = debug_settings.get('log_maxlen')
+            if log_maxlen is not None:
+                streamedlogs_maxlen = int(log_maxlen)
+        self.streamedlogs = StreamedLogs(reactor, streamedlogs_maxlen)
         self.state = Tahoe.STOPPED
 
     def config_set(self, section, option, value):
@@ -304,11 +313,17 @@ class Tahoe():
     def command(self, args, callback_trigger=None):
         from twisted.internet import reactor
 
+        # Some args may contain sensitive information. Don't show them in logs.
+        if args[0] == 'magic-folder':
+            first_args = args[0:2]
+        else:
+            first_args = args[0:1]
         exe = (self.executable if self.executable else which('tahoe')[0])
         args = [exe] + ['-d', self.nodedir] + args
+        logged_args = [exe] + ['-d', self.nodedir] + first_args
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
-        log.debug("Executing: %s", ' '.join(args))
+        log.debug("Executing: %s...", ' '.join(logged_args))
         if sys.platform == 'win32' and getattr(sys, 'frozen', False):
             from twisted.internet.threads import deferToThread
             output = yield deferToThread(
@@ -458,6 +473,16 @@ class Tahoe():
             appearing first.
         """
         return self.streamedlogs.get_streamed_log_messages()
+
+    def get_log(self, apply_filter=False, identifier=None):
+        messages = []
+        if apply_filter:
+            for line in self.streamedlogs.get_streamed_log_messages():
+                messages.append(filter_tahoe_log_message(line, identifier))
+        else:
+            for line in self.streamedlogs.get_streamed_log_messages():
+                messages.append(json.dumps(json.loads(line), sort_keys=True))
+        return '\n'.join(messages)
 
     @inlineCallbacks
     def start(self):
@@ -636,8 +661,8 @@ class Tahoe():
 
     @inlineCallbacks
     def link(self, dircap, childname, childcap):
-        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
-        childcap_hash = hashlib.sha256(childcap.encode()).hexdigest()
+        dircap_hash = trunchash(dircap)
+        childcap_hash = trunchash(childcap)
         log.debug('Linking "%s" (%s) into %s...', childname, childcap_hash,
                   dircap_hash)
         yield self.await_ready()
@@ -656,7 +681,7 @@ class Tahoe():
 
     @inlineCallbacks
     def unlink(self, dircap, childname):
-        dircap_hash = hashlib.sha256(dircap.encode()).hexdigest()
+        dircap_hash = trunchash(dircap)
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         yield self.await_ready()
         yield self.lock.acquire()

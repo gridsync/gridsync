@@ -113,7 +113,8 @@ def get_clipboard_text(mode=QClipboard.Clipboard):
 
 def set_clipboard_text(text, mode=QClipboard.Clipboard):
     QCoreApplication.instance().clipboard().setText(text, mode)
-    logging.debug("Copied text '%s' to clipboard %i", text, mode)
+    logging.debug(
+        "Copied %i bytes to clipboard %i", len(text) if text else 0, mode)
 
 
 def _autostart_enable_linux(executable):

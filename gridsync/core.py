@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import collections
 import logging
 import os
 import sys
@@ -15,6 +16,7 @@ qt5reactor.install()
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
+from twisted.python.log import startLogging, PythonLoggingObserver
 
 from gridsync import config_dir, resource, settings, APP_NAME
 from gridsync import msg
@@ -28,13 +30,30 @@ from gridsync.tor import get_tor
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
 
 
+class DequeHandler(logging.Handler):
+    def __init__(self, deque):
+        super().__init__()
+        self.deque = deque
+
+    def emit(self, record):
+        self.deque.append(self.format(record))
+
+
 class Core():
     def __init__(self, args):
         self.args = args
         self.gui = None
         self.gateways = []
         self.executable = None
+        self.tahoe_version = None
         self.operations = []
+        log_deque_maxlen = 100000  # XXX
+        debug_settings = settings.get('debug')
+        if debug_settings:
+            log_maxlen = debug_settings.get('log_maxlen')
+            if log_maxlen is not None:
+                log_deque_maxlen = int(log_maxlen)
+        self.log_deque = collections.deque(maxlen=log_deque_maxlen)
 
     @inlineCallbacks
     def select_executable(self):
@@ -47,6 +66,15 @@ class Core():
                 "Please install Tahoe-LAFS version 1.13.0 or greater and try "
                 "again.")
             reactor.stop()
+
+    @inlineCallbacks
+    def get_tahoe_version(self):
+        tahoe = Tahoe(None, executable=self.executable)
+        version = yield tahoe.command(['--version'])
+        if version:
+            self.tahoe_version = version.split('\n')[0]
+            if self.tahoe_version.startswith('tahoe-lafs: '):
+                self.tahoe_version = self.tahoe_version.lstrip('tahoe-lafs: ')
 
     @inlineCallbacks
     def start_gateways(self):
@@ -77,6 +105,14 @@ class Core():
         else:
             self.gui.show_welcome_dialog()
             yield self.select_executable()
+        try:
+            yield self.get_tahoe_version()
+        except Exception as e:  # pylint: disable=broad-except
+            msg.critical(
+                "Error getting Tahoe-LAFS version",
+                "{}: {}".format(type(e).__name__, str(e))
+            )
+            reactor.stop()
 
     @staticmethod
     def show_message():
@@ -109,7 +145,23 @@ class Core():
         msgbox.exec_()
         logging.debug("Custom message closed; proceeding with start...")
 
+    def initialize_logger(self, to_stdout=False):
+        if to_stdout:
+            handler = logging.StreamHandler(stream=sys.stdout)
+            startLogging(sys.stdout)
+        else:
+            handler = DequeHandler(self.log_deque)
+            observer = PythonLoggingObserver()
+            observer.start()
+        fmt = '%(asctime)s %(levelname)s %(funcName)s %(message)s'
+        handler.setFormatter(logging.Formatter(fmt))
+        logger = logging.getLogger()
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+        logging.debug("Hello World!")
+
     def start(self):
+        self.initialize_logger(self.args.debug)
         try:
             os.makedirs(config_dir)
         except OSError:
@@ -120,8 +172,7 @@ class Core():
             os.path.join(config_dir, "{}.lock".format(APP_NAME)))
         lock.acquire()
 
-        logging.info("Core starting with args: %s", self.args)
-        logging.debug("$PATH is: %s", os.getenv('PATH'))
+        logging.debug("Core starting with args: %s", self.args)
         logging.debug("Loaded config.txt settings: %s", settings)
 
         self.show_message()

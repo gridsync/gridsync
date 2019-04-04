@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from gridsync.desktop import notify
+from gridsync.gui.debug import DebugExporter
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.main_window import MainWindow
 from gridsync.gui.preferences import PreferencesWindow
@@ -14,6 +15,7 @@ class Gui():
         self.main_window = MainWindow(self)
         self.preferences_window = PreferencesWindow()
         self.systray = SystemTrayIcon(self)
+        self.debug_exporter = DebugExporter(core)
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)
@@ -56,3 +58,8 @@ class Gui():
 
     def populate(self, gateways):
         self.main_window.populate(gateways)
+
+    def show_debug_exporter(self):
+        self.debug_exporter.show()
+        self.debug_exporter.raise_()
+        self.debug_exporter.load()

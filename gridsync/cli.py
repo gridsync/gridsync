@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import logging
 import sys
 
 from gridsync import APP_NAME
@@ -37,24 +36,9 @@ def main():
         '--version',
         action="version",
         version='%(prog)s ' + __version__)
-    args = parser.parse_args()
-
-    if args.debug:
-        logging.basicConfig(
-            format='%(asctime)s %(levelname)s %(funcName)s %(message)s',
-            level=logging.DEBUG, stream=sys.stdout)
-        from twisted.python.log import startLogging
-        startLogging(sys.stdout)
-    #else:
-    #    appname = settings['application']['name']
-    #    logfile = os.path.join(config_dir, '{}.log'.format(appname))
-    #    logging.basicConfig(
-    #        format='%(asctime)s %(levelname)s %(funcName)s %(message)s',
-    #        level=logging.INFO, filename=logfile)
 
     try:
-        core = Core(args)
-        core.start()
+        Core(parser.parse_args()).start()
     except FilesystemLockError:
         msg.critical(
             "{} already running".format(APP_NAME),

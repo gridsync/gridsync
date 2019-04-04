@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import hashlib
+
 from PyQt5.QtCore import pyqtSignal, QObject
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
@@ -7,6 +9,10 @@ from nacl.secret import SecretBox
 from nacl.utils import random
 
 from gridsync.util import b58encode, b58decode
+
+
+def trunchash(string, length=7):
+    return hashlib.sha256(string.encode()).hexdigest()[:length]
 
 
 class VersionError(CryptoError):

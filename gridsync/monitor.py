@@ -8,6 +8,8 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
+from gridsync.crypto import trunchash
+
 
 class MagicFolderChecker(QObject):
 
@@ -59,7 +61,7 @@ class MagicFolderChecker(QObject):
                 if path not in notifications[action]:
                     notifications[action].append(path)
             for action, files, in notifications.items():
-                logging.debug("%s %s %s", author, action, files)
+                logging.debug("%s %s %s", author, action, len(files))
                 # Currently, for non-'admin' members, member/author names are
                 # random/non-human-meaningful strings, so omit them for now.
                 author = ""  # XXX
@@ -130,8 +132,8 @@ class MagicFolderChecker(QObject):
                 logging.debug("Sync started (%s)", self.name)
                 self.sync_started.emit()
             elif self.state == 1:  # Sync started earlier; still going
-                logging.debug("Sync in progress (%s)", self.name)
-                logging.debug("%sing %s...", kind, filepath)
+                logging.debug('Sync in progress (%sing "%s" in "%s")...', kind,
+                              trunchash(filepath), self.name)
                 # TODO: Emit uploading/downloading signal?
             self.emit_transfer_signals(self.operations.values())
             remote_scan_needed = True
