@@ -4,8 +4,8 @@ from humanize import naturalsize
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
-    QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QToolButton,
-    QWidget)
+    QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QSystemTrayIcon,
+    QToolButton, QWidget)
 
 from gridsync import resource
 from gridsync.gui.menu import Menu
@@ -73,6 +73,9 @@ class StatusPanel(QWidget):
         preferences_button.setPopupMode(2)
         preferences_button.setStyleSheet(
             'QToolButton::menu-indicator { image: none }')
+
+        if QSystemTrayIcon.isSystemTrayAvailable():
+            preferences_button.hide()
 
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
