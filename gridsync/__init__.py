@@ -19,6 +19,13 @@ if getattr(sys, 'frozen', False):
         del sys.modules['twisted.internet.reactor']  # PyInstaller workaround
     except KeyError:
         pass
+    if sys.platform not in ('win32', 'darwin'):
+        # PyInstaller's bootloader sets the 'LD_LIBRARY_PATH' environment
+        # variable to the root of the executable's directory which causes
+        # `xdg-open` -- and, by extension, QDesktopServices.openUrl() -- to
+        # fail to properly locate/launch applications by MIME-type/URI-handler.
+        # Unsetting it globally here fixes this issue.
+        os.environ.pop('LD_LIBRARY_PATH', None)
 else:
     pkgdir = os.path.dirname(os.path.realpath(__file__))
 

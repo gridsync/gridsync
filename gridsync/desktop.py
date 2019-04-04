@@ -60,18 +60,7 @@ def notify(systray, title, message, duration=5000):
 
 
 def _desktop_open(path):
-    if getattr(sys, 'frozen', False):  # PyInstaller
-        # PyInstaller's bootloader sets the 'LD_LIBRARY_PATH' environment
-        # variable (to the root of the executable's directory) which causes
-        # `xdg-open` to fail to locate/launch the associated file-manager.
-        # Unsetting it here results in the correct file-manager launching as
-        # expected. See: https://github.com/gridsync/gridsync/issues/146
-        ld_library_path = os.environ.pop('LD_LIBRARY_PATH', None)
-    else:
-        ld_library_path = None
     QDesktopServices.openUrl(QUrl.fromLocalFile(path))
-    if ld_library_path:  # Is it even necessary to restore this?
-        os.environ['LD_LIBRARY_PATH'] = ld_library_path
 
 
 def open_enclosing_folder(path):
