@@ -11,10 +11,9 @@ from gridsync._version import __version__
 
 
 class Menu(QMenu):
-    def __init__(self, parent):
+    def __init__(self, gui):
         super(Menu, self).__init__()
-        self.parent = parent
-        self.gui = self.parent.parent
+        self.gui = gui
 
         self.about_msg = QMessageBox()
         self.about_msg.setWindowTitle("{} - About".format(APP_NAME))

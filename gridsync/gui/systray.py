@@ -10,14 +10,14 @@ from gridsync.gui.menu import Menu
 
 
 class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, parent):
+    def __init__(self, gui):
         super(SystemTrayIcon, self).__init__()
-        self.parent = parent
+        self.gui = gui
 
         self.icon = QIcon(resource(settings['application']['tray_icon']))
         self.setIcon(self.icon)
 
-        self.menu = Menu(self)
+        self.menu = Menu(self.gui)
         self.setContextMenu(self.menu)
         self.activated.connect(self.on_click)
 
@@ -28,7 +28,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.animation.setCacheMode(True)
 
     def update(self):
-        if self.parent.core.operations:
+        if self.gui.core.operations:
             self.animation.setPaused(False)
             self.setIcon(QIcon(self.animation.currentPixmap()))
         else:
@@ -37,4 +37,4 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def on_click(self, value):
         if value == QSystemTrayIcon.Trigger and sys.platform != 'darwin':
-            self.parent.show_main_window()
+            self.gui.show_main_window()
