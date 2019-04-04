@@ -48,8 +48,7 @@ def _dbus_notify(title, message, duration=5000):
 
 
 def notify(systray, title, message, duration=5000):
-    logging.debug(
-        "Sending notification: title=%s message=%s", title, message)
+    logging.debug("Sending desktop notification...")
     if sys.platform.startswith('linux'):
         try:
             _dbus_notify(title, message, duration)
