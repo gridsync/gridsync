@@ -211,9 +211,9 @@ class HistoryListWidget(QListWidget):
 
 
 class HistoryView(QWidget):
-    def __init__(self, gateway, deduplicate=True, max_items=30):
+    def __init__(self, gateway, gui, deduplicate=True, max_items=30):
         super(HistoryView, self).__init__()
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(HistoryListWidget(gateway, deduplicate, max_items))
-        layout.addWidget(StatusPanel(gateway))
+        layout.addWidget(StatusPanel(gateway, gui))

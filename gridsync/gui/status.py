@@ -11,9 +11,10 @@ from gridsync import resource
 
 
 class StatusPanel(QWidget):
-    def __init__(self, gateway):
+    def __init__(self, gateway, gui):
         super(StatusPanel, self).__init__()
         self.gateway = gateway
+        self.gui = gui
 
         self.num_connected = 0
         self.num_known = 0
