@@ -88,61 +88,169 @@ def apply_filter(dictionary, key, tag, identifier=None):
         dictionary[key] = get_mask(value, tag, identifier=identifier)
 
 
-def filter_tahoe_log_message(message, identifier):  # noqa: max-complexity=12
+def _apply_filter_by_action_type(msg, action_type, identifier=None):  # noqa: max-complexity
+    if action_type == 'dirnode:add-file':
+        apply_filter(msg, 'name', 'Path')
+
+    elif action_type == 'invite-to-magic-folder':
+        apply_filter(msg, 'nickname', 'MemberName')
+
+    elif action_type == 'join-magic-folder':
+        apply_filter(msg, 'local_dir', 'Path')
+        apply_filter(msg, 'invite_code', 'InviteCode')
+
+    elif action_type == 'magic-folder-db:update-entry':
+        apply_filter(msg, 'last_downloaded_uri', 'Capability')
+        apply_filter(msg, 'last_uploaded_uri', 'Capability')
+        apply_filter(msg, 'relpath', 'Path')
+
+    elif action_type == 'magic-folder:add-pending':
+        apply_filter(msg, 'relpath', 'Path')
+
+    elif action_type == 'magic-folder:downloader:get-latest-file':
+        apply_filter(msg, 'name', 'Path')
+
+    elif action_type == 'magic-folder:full-scan':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:iteration':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:notified':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+        apply_filter(msg, 'path', 'Path')
+
+    elif action_type == 'magic-folder:process-directory':
+        apply_filter(msg, 'created_directory', 'Path')
+
+    elif action_type == 'magic-folder:process-item':
+        item = msg.get('item')
+        if item:
+            relpath = item.get('relpath')
+            if relpath:
+                msg['item']['relpath'] = get_mask(relpath, 'Path')
+
+    elif action_type == 'magic-folder:processing-loop':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:remove-from-pending':
+        apply_filter(msg, 'relpath', 'Path')
+        pending = msg.get('pending')
+        if pending:
+            new = []
+            for path in pending:
+                new.append(get_mask(path, 'Path'))
+            msg['pending'] = new
+
+    elif action_type == 'magic-folder:rename-conflicted':
+        apply_filter(msg, 'abspath_u', 'Path')
+        apply_filter(msg, 'replacement_path_u', 'Path')
+        apply_filter(msg, 'result', 'Path')
+
+    elif action_type == 'magic-folder:rename-deleted':
+        apply_filter(msg, 'abspath_u', 'Path')
+        apply_filter(msg, 'result', 'Path')
+
+    elif action_type == 'magic-folder:scan-remote-dmd':
+        apply_filter(msg, 'nickname', 'MemberName')
+
+    elif action_type == 'magic-folder:start-downloading':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:start-monitoring':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:start-uploading':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:stop':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:stop-monitoring':
+        apply_filter(msg, 'nickname', 'GatewayName', identifier)
+
+    elif action_type == 'magic-folder:write-downloaded-file':
+        apply_filter(msg, 'abspath', 'Path')
+
+    elif action_type == 'notify-when-pending':
+        apply_filter(msg, 'filename', 'Path')
+
+    elif action_type == 'watchdog:inotify:any-event':
+        apply_filter(msg, 'path', 'Path')
+
+    return msg
+
+
+def _apply_filter_by_message_type(msg, message_type):  # noqa: max-complexity
+    if message_type == 'fni':
+        apply_filter(msg, 'info', 'Event')
+
+    elif message_type == 'magic-folder:add-to-download-queue':
+        apply_filter(msg, 'relpath', 'Path')
+
+    elif message_type == 'magic-folder:all-files':
+        files = msg.get('files')
+        if files:
+            new = []
+            for path in files:
+                new.append(get_mask(path, 'Path'))
+            msg['files'] = new
+
+    elif message_type == (
+            'magic-folder:downloader:get-latest-file:collective-scan'):
+        dmds = msg.get('dmds')
+        if dmds:
+            new = []
+            for dmd in dmds:
+                new.append(get_mask(dmd, 'MemberName'))
+            msg['dmds'] = new
+
+    elif message_type == 'magic-folder:item:status-change':
+        apply_filter(msg, 'relpath', 'Path')
+
+    elif message_type == 'magic-folder:maybe-upload':
+        apply_filter(msg, 'relpath', 'Path')
+
+    elif message_type == 'magic-folder:notified-object-disappeared':
+        apply_filter(msg, 'path', 'Path')
+
+    elif message_type == 'magic-folder:remote-dmd-entry':
+        apply_filter(msg, 'relpath', 'Path')
+        apply_filter(msg, 'remote_uri', 'Capability')
+        pathentry = msg.get('pathentry')
+        if pathentry:
+            last_downloaded_uri = pathentry.get('last_downloaded_uri')
+            if last_downloaded_uri:
+                pathentry['last_downloaded_uri'] = get_mask(
+                    last_downloaded_uri, 'Capability')
+            last_uploaded_uri = pathentry.get('last_uploaded_uri')
+            if last_uploaded_uri:
+                pathentry['last_uploaded_uri'] = get_mask(
+                    last_uploaded_uri, 'Capability')
+
+    elif message_type == 'magic-folder:scan-batch':
+        batch = msg.get('batch')
+        if batch:
+            new = []
+            for path in batch:
+                new.append(get_mask(path, 'Path'))
+            msg['batch'] = new
+
+    elif message_type == 'processing':
+        apply_filter(msg, 'info', 'Event')
+
+    return msg
+
+
+def filter_tahoe_log_message(message, identifier):
     msg = json.loads(message)
 
     action_type = msg.get('action_type')
     if action_type:
-        # In the "magic-folder:scan-remote-dmd" action type, "nickname"
-        # refers to the name of the subdirectory in the magic-folder DMD
-        # for which only one given "member" typically has write access. In
-        # "magic-folder:start-uploading", "magic-folder:start-downloading",
-        # "magic-folder:start-monitoring", "magic-folder:processing-loop",
-        # "magic-folder:iteration", and "magic-folder:full-scan", it refers
-        # instead to the name of the local client node as assigned via the
-        # "nickname" field in tahoe.cfg.
-        if action_type == 'magic-folder:scan-remote-dmd':
-            apply_filter(msg, 'nickname', 'MemberName')
-        else:
-            apply_filter(msg, 'nickname', 'GatewayName', identifier)
+        _apply_filter_by_action_type(msg, action_type, identifier)
 
-    # TODO: Filter others by 'action_type'/'message_type' too?
-
-    apply_filter(msg, 'name', 'Path')  # XXX
-    apply_filter(msg, 'relpath', 'Path')
-    apply_filter(msg, 'remote_uri', 'Capability')
-    apply_filter(msg, 'last_downloaded_uri', 'Capability')
-    apply_filter(msg, 'last_uploaded_uri', 'Capability')
-
-    item = msg.get('item')  # "magic-folder:process-item"
-    if item:
-        relpath = item.get('relpath')
-        if relpath:
-            msg['item']['relpath'] = get_mask(relpath, 'Path')
-
-    pending = msg.get('pending')
-    if pending:
-        new = []
-        for path in pending:
-            new.append(get_mask(path, 'Path'))
-        msg['pending'] = new
-
-    files = msg.get('files')
-    if files:
-        new = []
-        for path in files:
-            new.append(get_mask(path, 'Path'))
-        msg['files'] = new
-
-    pathentry = msg.get('pathentry')
-    if pathentry:
-        last_downloaded_uri = pathentry.get('last_downloaded_uri')
-        if last_downloaded_uri:
-            pathentry['last_downloaded_uri'] = get_mask(
-                last_downloaded_uri, 'Capability')
-        last_uploaded_uri = pathentry.get('last_uploaded_uri')
-        if last_uploaded_uri:
-            pathentry['last_uploaded_uri'] = get_mask(
-                last_uploaded_uri, 'Capability')
+    message_type = msg.get('message_type')
+    if message_type:
+        _apply_filter_by_message_type(msg, message_type)
 
     return json.dumps(msg, sort_keys=True)
