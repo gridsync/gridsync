@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+### Added
+- An interface for viewing and exporting debugging information/logs for Gridsync and its underlying Tahoe-LAFS processes has been added (accessible via the system tray menu under "Help" -> "Export Debug Information...") (Issue #173, #168, #61 ; PR #174, #179)
+
 ### Changed
 - "Sharing"-related actions have been reframed considerably throughout the interface in order to more precisely convey the underlying functionality of the application -- i.e., that "sharing" entails the _creating_ or _entering_ _invite codes_ and that these invite codes are created/entered on _devices_ (rather than "shared" with "persons") (Issue #139, PR #166). In particular:
     - The "Enter Code" button on the MainWindow toolbar has been replaced with an "Invites" button (offering "Enter Invite Code" and "Create Invite Code" sub-actions), while the vague/ambiguous "Share" button has been removed completely
