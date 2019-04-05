@@ -67,13 +67,13 @@ class CentralWidget(QStackedWidget):
             left, _, right, _ = layout.getContentsMargins()
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
-        layout.addWidget(StatusPanel(gateway))
+        layout.addWidget(StatusPanel(gateway, self.gui))
         self.addWidget(widget)
         self.views.append(view)
         self.folders_views[gateway] = widget
 
     def add_history_view(self, gateway):
-        view = HistoryView(gateway)
+        view = HistoryView(gateway, self.gui)
         self.addWidget(view)
         self.history_views[gateway] = view
 
@@ -253,7 +253,6 @@ class MainWindow(QMainWindow):
                 self.central_widget.add_history_view(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
-        self.gui.systray.menu.populate()
 
     def current_view(self):
         try:

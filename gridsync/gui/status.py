@@ -4,16 +4,18 @@ from humanize import naturalsize
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
-    QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QToolButton,
-    QWidget)
+    QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QSystemTrayIcon,
+    QToolButton, QWidget)
 
 from gridsync import resource
+from gridsync.gui.menu import Menu
 
 
 class StatusPanel(QWidget):
-    def __init__(self, gateway):
+    def __init__(self, gateway, gui):
         super(StatusPanel, self).__init__()
         self.gateway = gateway
+        self.gui = gui
 
         self.num_connected = 0
         self.num_known = 0
@@ -64,6 +66,17 @@ class StatusPanel(QWidget):
         self.globe_action = QAction(QIcon(resource('globe.png')), '')
         self.globe_button.setDefaultAction(self.globe_action)
 
+        preferences_button = QToolButton(self)
+        preferences_button.setIcon(QIcon(resource('preferences.png')))
+        preferences_button.setIconSize(QSize(20, 20))
+        preferences_button.setMenu(Menu(self.gui, show_open_action=False))
+        preferences_button.setPopupMode(2)
+        preferences_button.setStyleSheet(
+            'QToolButton::menu-indicator { image: none }')
+
+        if QSystemTrayIcon.isSystemTrayAvailable():
+            preferences_button.hide()
+
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
         layout.setContentsMargins(left, 0, right, bottom - 2)
@@ -73,6 +86,7 @@ class StatusPanel(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.tor_button, 1, 4)
         layout.addWidget(self.globe_button, 1, 5)
+        layout.addWidget(preferences_button, 1, 6)
 
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated

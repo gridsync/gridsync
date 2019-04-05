@@ -208,5 +208,5 @@ def test_history_list_widget_update_visible_widgets_on_show_event(
 
 
 def test_history_view_init():
-    hv = HistoryView(MagicMock())
+    hv = HistoryView(MagicMock(), MagicMock())
     assert hv
