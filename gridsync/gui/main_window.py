@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os
 import sys
 
@@ -312,11 +313,13 @@ class MainWindow(QMainWindow):
 
     def confirm_export(self, path):
         if os.path.isfile(path):
+            logging.info("Recovery Key successfully exported")
             info(
                 self,
                 "Export successful",
                 "Recovery Key successfully exported to {}".format(path))
         else:
+            logging.error("Error exporting Recovery Key; file not found.")
             error(
                 self,
                 "Error exporting Recovery Key",
