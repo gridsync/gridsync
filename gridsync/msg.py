@@ -35,5 +35,4 @@ def info(parent, title, text):
     msg.setIcon(QMessageBox.Information)
     msg.setWindowTitle(title)
     msg.setText(text)
-    logging.info(text)
     return msg.exec_()
