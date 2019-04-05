@@ -202,6 +202,7 @@ class View(QTreeView):
         try:
             yield self.gateway.restore_magic_folder(folder_name, dest)
         except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
                 'Error downloading folder "{}"'.format(folder_name),
@@ -225,6 +226,7 @@ class View(QTreeView):
         d.addCallback(self.maybe_restart_gateway)
 
     def show_failure(self, failure):
+        logging.error("%s: %s", str(failure.type.__name__), str(failure.value))
         error(
             self,
             str(failure.type.__name__),
@@ -236,6 +238,7 @@ class View(QTreeView):
         try:
             yield self.gateway.unlink_magic_folder_from_rootcap(folder_name)
         except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
                 'Error unlinking folder "{}"'.format(folder_name),
@@ -281,6 +284,7 @@ class View(QTreeView):
         try:
             yield self.gateway.remove_magic_folder(folder_name)
         except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
                 'Error removing folder "{}"'.format(folder_name),
@@ -439,6 +443,7 @@ class View(QTreeView):
         try:
             yield self.gateway.create_magic_folder(path)
         except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
                 'Error adding folder "{}"'.format(folder_name),

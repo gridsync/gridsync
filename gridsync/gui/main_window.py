@@ -320,6 +320,7 @@ class MainWindow(QMainWindow):
                 "Export successful",
                 "Recovery Key successfully exported to {}".format(path))
         else:
+            logging.error("Error exporting Recovery Key; file not found.")
             error(
                 self,
                 "Error exporting Recovery Key",

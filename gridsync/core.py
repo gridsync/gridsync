@@ -91,6 +91,7 @@ class Core():
                 gateway = Tahoe(nodedir, executable=self.executable)
                 tcp = gateway.config_get('connections', 'tcp')
                 if tcp == 'tor' and not tor_available:
+                    logging.error("No running tor daemon found")
                     msg.error(
                         self.gui.main_window,
                         "Error Connecting To Tor Daemon",

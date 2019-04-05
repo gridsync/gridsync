@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import sys
 
 from PyQt5.QtWidgets import QMessageBox
@@ -26,7 +25,6 @@ def error(parent, title, text, detailed_text=None):
         msg.setWindowTitle(title)
         msg.setText(text)
     msg.setDetailedText(detailed_text)
-    logging.error("%s: %s", title, text)
     return msg.exec_()
 
 
