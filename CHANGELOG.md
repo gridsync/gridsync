@@ -2,7 +2,7 @@
 
 ## Unreleased
 ### Added
-- An interface for viewing and exporting debugging information/logs for Gridsync and its underlying Tahoe-LAFS processes has been added (accessible via the system tray menu under "Help" -> "Export Debug Information...") (Issue #173, #168, #61 ; PR #174, #179)
+- An interface for viewing and exporting debugging information/logs for Gridsync and its underlying Tahoe-LAFS processes has been added (accessible via the system tray menu under "Help" -> "Export Debug Information...") (Issue #173, #168; PR #174, #179) -- thanks to @exarkun for providing the Tahoe-side functionality to make this happen! :)
 
 ### Changed
 - "Sharing"-related actions have been reframed considerably throughout the interface in order to more precisely convey the underlying functionality of the application -- i.e., that "sharing" entails the _creating_ or _entering_ _invite codes_ and that these invite codes are created/entered on _devices_ (rather than "shared" with "persons") (Issue #139, PR #166). In particular:
@@ -14,11 +14,13 @@
 - The "Preferences" action/button on the MainWindow toolbar has been moved to the system tray menu (PR #166)
 - The History View toggle has been moved to the right-hand side of the grid pulldown/combobox (PR #166)
 - Binary distributions of Gridsync will now include a much newer build/version of Tahoe-LAFS that includes upstream support for magic-folders on macOS (Tahoe ticket [1432](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/1432)) and other bug-fixes (Tahoe tickets [2965](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2965), [2997](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2997),  [3006](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/3006), [3017](https://tahoe-lafs.org/trac/tahoe-lafs/ticket/3017)) -- thanks (again) @exarkun! :)
+- Numerous logging messages have been updated to remove or redact potentially sensitive information such as folder names, file/directory paths, Tahoe-LAFS storage fURLs, and capabilities (Issue #61; PR #179, #181)
 
 ### Fixed
 - Gridsync will now perform an additional check to ensure that enough storage servers are available before attempting to make a directory, link/unlink a capability, or upload/download a file (effectively "pausing" or delaying these operations until a sufficient number of connections have been established) in order to reduce the likelihood of connection-related errors/failures when initially joining a storage grid
-- Gridsync should no longer open a connection to the wormhole relay/rendezvous server when first initializing a `Wormhole` object, prevent the situation in which a second "clearnet" connection would idly persist (but remain unused) after adding a new connection via magic-wormhole over Tor -- big thanks to @abmoka (82b13dff1b5fee62eaaff6d483da66bb792a73cd @ Akomba Labs) for reporting this issue! (Issue #169, PR #171)
+- Gridsync should no longer open a connection to the wormhole relay/rendezvous server when first initializing a `Wormhole` object, preventing the situation in which a second "clearnet" connection would idly persist (but remain unused) after adding a new connection via magic-wormhole over Tor -- big thanks to @abmoka (82b13dff1b5fee62eaaff6d483da66bb792a73cd @ Akomba Labs) for reporting this issue! (Issue #169, PR #171)
 - When running under a PyInstaller/frozen python interpreter, Gridsync/`xdg-open` should now correctly launch the user's browser when clicking links to URLs within the application (Issue #177, PR #180)
+- On desktop environments that do not support a system tray, the system tray menu will be accessible instead from the bottom-right corner of the status panel (Issue #178; PR #182)
 
 ## 0.4.1 - 2019-03-12
 ### Added
