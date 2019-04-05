@@ -60,6 +60,7 @@ class Core():
         self.executable = yield select_executable()
         logging.debug("Selected executable: %s", self.executable)
         if not self.executable:
+            logging.critical("Tahoe-LAFS not found")
             msg.critical(
                 "Tahoe-LAFS not found",
                 "Could not find a suitable 'tahoe' executable in your PATH. "
@@ -90,6 +91,7 @@ class Core():
                 gateway = Tahoe(nodedir, executable=self.executable)
                 tcp = gateway.config_get('connections', 'tcp')
                 if tcp == 'tor' and not tor_available:
+                    logging.error("No running tor daemon found")
                     msg.error(
                         self.gui.main_window,
                         "Error Connecting To Tor Daemon",
@@ -108,6 +110,7 @@ class Core():
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except
+            logging.critical("Error getting Tahoe-LAFS version")
             msg.critical(
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e))

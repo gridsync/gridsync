@@ -43,7 +43,7 @@ def main():
         msg.critical(
             "{} already running".format(APP_NAME),
             "{} is already running.".format(APP_NAME))
-        return 1
+        return "ERROR: {} is already running.".format(APP_NAME)
     return 0
 
 
