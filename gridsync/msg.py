@@ -11,7 +11,6 @@ def critical(title, text):
     msg.setIcon(QMessageBox.Critical)
     msg.setWindowTitle(title)
     msg.setText(text)
-    logging.critical(text)
     return msg.exec_()
 
 

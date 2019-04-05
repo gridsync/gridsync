@@ -60,6 +60,7 @@ class Core():
         self.executable = yield select_executable()
         logging.debug("Selected executable: %s", self.executable)
         if not self.executable:
+            logging.critical("Tahoe-LAFS not found")
             msg.critical(
                 "Tahoe-LAFS not found",
                 "Could not find a suitable 'tahoe' executable in your PATH. "
@@ -108,6 +109,7 @@ class Core():
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except
+            logging.critical("Error getting Tahoe-LAFS version")
             msg.critical(
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e))
