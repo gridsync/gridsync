@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.2 - 2019-04-06
 ### Added
 - An interface for viewing and exporting debugging information/logs for Gridsync and its underlying Tahoe-LAFS processes has been added (accessible via the system tray menu under "Help" -> "Export Debug Information...") (Issue #173, #168; PR #174, #179) -- thanks to @exarkun for providing the Tahoe-side functionality to make this happen! :)
 
