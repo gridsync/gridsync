@@ -235,7 +235,7 @@ pyinstaller:
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	python3 -m virtualenv --clear --python=python3.6 build/venv-gridsync
+	python3 -m virtualenv --clear --python=python3.7 build/venv-gridsync
 	source build/venv-gridsync/bin/activate && \
 	python -m pip install --upgrade pip && \
 	python -m pip install -r requirements/requirements-hashes.txt && \
@@ -257,7 +257,7 @@ py2app:
 	else  \
 		make frozen-tahoe ; \
 	fi;
-	python3 -m virtualenv --clear --python=python3.6 build/venv-py2app
+	python3 -m virtualenv --clear --python=python3.7 build/venv-py2app
 	source build/venv-py2app/bin/activate && \
 	python -m pip install --upgrade pip && \
 	python -m pip install -r requirements/requirements-hashes.txt && \

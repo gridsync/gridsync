@@ -5,8 +5,8 @@
 ::
 ::  2) Python 2.7 <https://www.python.org>
 ::
-::  3) Python 3.6 <https://www.python.org>
-::      -Select "Add Python 3.6 to PATH" option during install
+::  3) Python 3.7 <https://www.python.org>
+::      -Select "Add Python 3.7 to PATH" option during install
 ::      -On Windows Server 2012, if installation fails, try installing update "KB2919355". See https://bugs.python.org/issue29583
 ::
 ::  4) Microsoft Visual C++ Compiler for Python 2.7 <https://aka.ms/vcpython27>
@@ -30,7 +30,7 @@ if defined APPVEYOR (
     set PYTHON3=%PYTHON%\python.exe
 ) else (
     set PYTHON2=py -2.7
-    set PYTHON3=py -3.6
+    set PYTHON3=py -3.7
 )
 
 if "%1"=="clean" call :clean
