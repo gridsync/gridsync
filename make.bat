@@ -95,7 +95,7 @@ if exist .\dist\Tahoe-LAFS.zip (
 ) else (
     call :frozen-tahoe
 )
-call %PYTHON3% -m venv --clear .\build\venv-gridsync
+call %PYTHON3% -m virtualenv --clear .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call python -m pip install -r .\requirements\requirements-hashes.txt
