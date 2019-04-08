@@ -301,44 +301,6 @@ class View(QTreeView):
         if unlink:
             yield self.unlink_folder(folder_name)
 
-    def confirm_remove(self, folders):
-        msgbox = QMessageBox(self)
-        msgbox.setIcon(QMessageBox.Question)
-        humanized_folders = humanized_list(folders, "folders")
-        msgbox.setWindowTitle("Remove {}?".format(humanized_folders))
-        if len(folders) == 1:
-            msgbox.setText(
-                'Are you sure you wish to remove the "{}" folder?'.format(
-                    folders[0]))
-            checkbox = QCheckBox(
-                "Allow this folder to be restored later with my Recovery Key")
-        else:
-            msgbox.setText(
-                "Are you sure you wish to remove {}?".format(humanized_folders)
-            )
-            checkbox = QCheckBox(
-                "Allow these folders to be restored later with my Recovery Key"
-            )
-        msgbox.setInformativeText(
-            "Removed folders will remain on your computer but {} will no "
-            "longer synchronize their contents with {}.".format(
-                APP_NAME, self.gateway.name))
-        checkbox.setCheckState(Qt.Checked)
-        msgbox.setCheckBox(checkbox)
-        msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        msgbox.setDefaultButton(QMessageBox.Yes)
-        if msgbox.exec_() == QMessageBox.Yes:
-            tasks = []
-            if checkbox.checkState() == Qt.Unchecked:
-                for folder in folders:
-                    tasks.append(self.remove_folder(folder, unlink=True))
-            else:
-                for folder in folders:
-                    tasks.append(self.remove_folder(folder, unlink=False))
-            d = DeferredList(tasks)
-            d.addCallback(self.maybe_rescan_rootcap)
-            d.addCallback(self.maybe_restart_gateway)
-
     def confirm_stop_syncing(self, folders):
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
