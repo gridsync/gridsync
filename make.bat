@@ -30,7 +30,7 @@ if defined APPVEYOR (
     set PYTHON3=%PYTHON%\python.exe
 ) else (
     set PYTHON2=py -2.7
-    set PYTHON3=py -3.7
+    set PYTHON3=py -3
 )
 
 if "%1"=="clean" call :clean
