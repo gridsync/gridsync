@@ -219,6 +219,11 @@ class SetupRunner(QObject):
         self.gateway = Tahoe(nodedir, executable=executable)
         yield self.gateway.create_client(**settings)
 
+        newscap = settings.get('newscap')
+        if newscap:
+            with open(os.path.join(nodedir, 'private', 'newscap'), 'w') as f:
+                f.write(newscap)
+
         if icon_path:
             try:
                 shutil.copy(icon_path, os.path.join(nodedir, 'icon'))
