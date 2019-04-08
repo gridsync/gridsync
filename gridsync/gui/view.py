@@ -339,6 +339,39 @@ class View(QTreeView):
             d.addCallback(self.maybe_rescan_rootcap)
             d.addCallback(self.maybe_restart_gateway)
 
+    def confirm_stop_syncing(self, folders):
+        msgbox = QMessageBox(self)
+        msgbox.setIcon(QMessageBox.Question)
+        humanized_folders = humanized_list(folders, "folders")
+        msgbox.setWindowTitle("Stop syncing {}?".format(humanized_folders))
+        if len(folders) == 1:
+            msgbox.setText(
+                'Are you sure you wish to stop syncing the "{}" folder?'
+                .format(folders[0])
+            )
+            msgbox.setInformativeText(
+                "This folder will remain on your computer but it will no "
+                "longer synchronize with {}.".format(self.gateway.name)
+            )
+        else:
+            msgbox.setText(
+                "Are you sure you wish to stop syncing {}?".format(
+                    humanized_folders)
+            )
+            msgbox.setInformativeText(
+                "These folders will remain on your computer but they will no "
+                "longer synchronize with {}.".format(self.gateway.name)
+            )
+        msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msgbox.setDefaultButton(QMessageBox.Yes)
+        if msgbox.exec_() == QMessageBox.Yes:
+            tasks = []
+            for folder in folders:
+                tasks.append(self.remove_folder(folder, unlink=True))
+            d = DeferredList(tasks)
+            d.addCallback(self.maybe_rescan_rootcap)
+            d.addCallback(self.maybe_restart_gateway)
+
     def open_folders(self, folders):
         for folder in folders:
             folder_info = self.gateway.magic_folders.get(folder)
@@ -415,7 +448,7 @@ class View(QTreeView):
             lambda: self.open_invite_sender_dialog(selected))
         share_menu.addAction(invite_action)
 
-        remove_action = QAction(QIcon(resource('close.png')), "Remove...")
+        remove_action = QAction(QIcon(resource('close.png')), "")
         menu.addAction(open_action)
         menu.addMenu(share_menu)
         menu.addSeparator()
@@ -423,6 +456,7 @@ class View(QTreeView):
         if selection_is_remote:
             open_action.setEnabled(False)
             share_menu.setEnabled(False)
+            remove_action.setText("Remove...")
             remove_action.triggered.connect(
                 lambda: self.confirm_unlink(selected))
         else:
@@ -431,8 +465,9 @@ class View(QTreeView):
                     share_menu.setEnabled(False)
                     share_menu.setTitle(
                         "Sync with device (disabled; no admin access)")
+            remove_action.setText('Stop syncing...')
             remove_action.triggered.connect(
-                lambda: self.confirm_remove(selected))
+                lambda: self.confirm_stop_syncing(selected))
         menu.exec_(self.viewport().mapToGlobal(position))
 
     @inlineCallbacks
