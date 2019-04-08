@@ -424,7 +424,7 @@ class View(QTreeView):
             lambda: self.open_invite_sender_dialog(selected))
         share_menu.addAction(invite_action)
 
-        remove_action = QAction(QIcon(resource('close.png')), "")
+        remove_action = QAction(QIcon(resource('close.png')), "Remove...")
         menu.addAction(open_action)
         menu.addMenu(share_menu)
         menu.addSeparator()
@@ -432,7 +432,6 @@ class View(QTreeView):
         if selection_is_remote:
             open_action.setEnabled(False)
             share_menu.setEnabled(False)
-            remove_action.setText("Remove...")
             remove_action.triggered.connect(
                 lambda: self.confirm_unlink(selected))
         else:
