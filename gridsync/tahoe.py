@@ -121,6 +121,7 @@ class Tahoe():
                 streamedlogs_maxlen = int(log_maxlen)
         self.streamedlogs = StreamedLogs(reactor, streamedlogs_maxlen)
         self.state = Tahoe.STOPPED
+        self.newscap = ""
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -506,6 +507,11 @@ class Tahoe():
         token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
         with open(token_file) as f:
             self.api_token = f.read().strip()
+        try:
+            with open(os.path.join(self.nodedir, 'private', 'newscap')) as f:
+                self.newscap = f.read().strip()
+        except OSError:
+            pass
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
         self.streamedlogs.start(self.nodeurl, self.api_token)
