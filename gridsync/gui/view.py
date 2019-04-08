@@ -351,8 +351,12 @@ class View(QTreeView):
             )
             msgbox.setInformativeText(
                 "This folder will remain on your computer but it will no "
-                "longer synchronize with {}.".format(self.gateway.name)
+                "longer synchronize automatically with {}.".format(
+                    self.gateway.name)
             )
+            checkbox = QCheckBox(
+                "Keep a backup copy of this folder on {}".format(
+                    self.gateway.name))
         else:
             msgbox.setText(
                 "Are you sure you wish to stop syncing {}?".format(
@@ -360,14 +364,24 @@ class View(QTreeView):
             )
             msgbox.setInformativeText(
                 "These folders will remain on your computer but they will no "
-                "longer synchronize with {}.".format(self.gateway.name)
+                "longer synchronize automatically with {}.".format(
+                    self.gateway.name)
             )
+            checkbox = QCheckBox(
+                "Keep backup copies of these folders on {}".format(
+                    self.gateway.name))
+        checkbox.setCheckState(Qt.Unchecked)
+        msgbox.setCheckBox(checkbox)
         msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msgbox.setDefaultButton(QMessageBox.Yes)
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
-            for folder in folders:
-                tasks.append(self.remove_folder(folder, unlink=True))
+            if checkbox.checkState() == Qt.Checked:
+                for folder in folders:
+                    tasks.append(self.remove_folder(folder, unlink=False))
+            else:
+                for folder in folders:
+                    tasks.append(self.remove_folder(folder, unlink=True))
             d = DeferredList(tasks)
             d.addCallback(self.maybe_rescan_rootcap)
             d.addCallback(self.maybe_restart_gateway)
