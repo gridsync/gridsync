@@ -4,10 +4,10 @@ cache:
     - $HOME/.cache/pyenv
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: PYTHON_CONFIGURE_OPTS="--enable-shared" CFLAGS=-I/usr/include/openssl LDFLAGS=-L/usr/lib
+    #- os: linux
+    #  dist: trusty
+    #  sudo: required
+    #  env: PYTHON_CONFIGURE_OPTS="--enable-shared" CFLAGS=-I/usr/include/openssl LDFLAGS=-L/usr/lib
       # https://bugreports.qt.io/browse/QTBUG-64928
       #addons:
       #  apt:
