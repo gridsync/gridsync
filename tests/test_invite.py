@@ -19,6 +19,7 @@ from gridsync.gui.invite import InviteCodeWidget, show_failure  # XXX
     ['corporate-cowbell-commando', False],  # First word not digit
     ['2-tanooki-travesty', False],  # Second word not in wordlist
     ['3-eating-wasabi', False],  # Third word not in wordlist
+    ['0-almighty-aardvark', False],  # Non-existent "cheat code"
     ['1-cranky-tapeworm', True]
 ])
 def test_is_valid_code(code, result):
