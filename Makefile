@@ -230,12 +230,12 @@ install:
 	python3 -m pip install --upgrade .
 
 pyinstaller:
-	if [ -f dist/Tahoe-LAFS.zip ] ; then \
-		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
-	else  \
-		make frozen-tahoe ; \
-	fi;
-	python3 -m virtualenv --clear --python=python3 build/venv-gridsync
+	if [ ! -d dist/Tahoe-LAFS ] ; then \
+        make frozen-tahoe ; \
+    fi
+	if [ ! -d build/venv-gridsync ] ; then \
+        python3 -m virtualenv --clear --python=python3 build/venv-gridsync ; \
+    fi
 	source build/venv-gridsync/bin/activate && \
 	python -m pip install --upgrade pip && \
 	python -m pip install -r requirements/requirements-hashes.txt && \
