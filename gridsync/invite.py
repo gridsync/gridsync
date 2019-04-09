@@ -52,6 +52,8 @@ def is_valid_code(code):
         return False
     if not words[2] in wordlist:
         return False
+    if words[0] == '0' and '-'.join(words[1:3]) not in cheatcodes:
+        return False
     return True
 
 

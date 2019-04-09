@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Changed
+- Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
+
+### Fixed
+- "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
+
 ## 0.4.2 - 2019-04-06
 ### Added
 - An interface for viewing and exporting debugging information/logs for Gridsync and its underlying Tahoe-LAFS processes has been added (accessible via the system tray menu under "Help" -> "Export Debug Information...") (Issue #173, #168; PR #174, #179) -- thanks to @exarkun for providing the Tahoe-side functionality to make this happen! :)
