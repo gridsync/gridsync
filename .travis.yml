@@ -11,7 +11,7 @@ matrix:
     # macOS 10.14
     - os: osx
       osx_image: xcode10.2
-      env: PYTHON_CONFIGURE_OPTS="--enable-framework" CFLAGS="-I$(brew --prefix openssl)/include" LDFLAGS="-L$(brew --prefix openssl)/lib"
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
     # macOS 10.13
     - os: osx
       osx_image: xcode10.1
