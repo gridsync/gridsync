@@ -25,6 +25,7 @@ matrix:
       osx_image: xcode7.3
       env: PYTHON_CONFIGURE_OPTS="--enable-framework"
 install:
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev; fi
   - rm -rf ~/.pyenv
