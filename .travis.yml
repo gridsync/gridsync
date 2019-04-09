@@ -19,6 +19,19 @@ matrix:
       dist: xenial
       sudo: required
       env: PYTHON_CONFIGURE_OPTS="--enable-shared"
+    # macOS 10.14
+    - os: osx
+      osx_image: xcode10.2
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    # macOS 10.13
+    - os: osx
+      osx_image: xcode10.1
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    # macOS 10.12
+    - os: osx
+      osx_image: xcode9.2
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    # macOS 10.11
     - os: osx
       osx_image: xcode7.3
       env: PYTHON_CONFIGURE_OPTS="--enable-framework"
