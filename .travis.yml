@@ -1,7 +1,7 @@
 cache:
   directories:
     - $HOME/.cache/pip
-    - $HOME/.pyenv
+    - $HOME/.cache/pyenv
 matrix:
   include:
     - os: linux
@@ -26,7 +26,10 @@ install:
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then echo "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe" | sudo tee -a /etc/apt/sources.list; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
   #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install build-essential xvfb; fi
+  - rm -rf ~/.pyenv
   - git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+  - mkdir -p ~/.cache/pyenv/versions
+  - ln -s ~/.cache/pyenv/versions ~/.pyenv/versions
   - echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
   - echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
   - echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
