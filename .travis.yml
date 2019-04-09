@@ -37,10 +37,10 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew list; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv install --list; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv versions; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 2.7.16; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.7.3; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.8; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.5.7; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 2.7.16; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.7.3; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.6.8; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.5.7; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv rehash; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv global 2.7.16 3.7.3 3.6.8 3.5.7; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=~/.pyenv/shims:$PATH; fi
