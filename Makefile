@@ -231,11 +231,11 @@ install:
 
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then \
-        make frozen-tahoe ; \
-    fi
+		make frozen-tahoe ; \
+	fi
 	if [ ! -d build/venv-gridsync ] ; then \
-        python3 -m virtualenv --clear --python=python3 build/venv-gridsync ; \
-    fi
+		python3 -m virtualenv --clear --python=python3 build/venv-gridsync ; \
+	fi
 	source build/venv-gridsync/bin/activate && \
 	python -m pip install --upgrade pip && \
 	python -m pip install -r requirements/requirements-hashes.txt && \
