@@ -7,6 +7,7 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+      env: PYTHON_CONFIGURE_OPTS="--enable-shared"
       # https://bugreports.qt.io/browse/QTBUG-64928
       #addons:
       #  apt:
@@ -17,8 +18,10 @@ matrix:
     - os: linux
       dist: xenial
       sudo: required
+      env: PYTHON_CONFIGURE_OPTS="--enable-shared"
     - os: osx
       osx_image: xcode7.3
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
       #osx_image: xcode6.4
       #language: python
       #cache: pip
@@ -35,26 +38,30 @@ install:
   - echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
   - source ~/.bash_profile
   - pyenv --version
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 2.7.14; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 3.5.4; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 3.6.3; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv rehash; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv global 2.7.14 3.6.3 3.5.4; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
+  - pyenv install --list
+  - pyenv versions
+  - pyenv install --skip-existing 2.7.16
+  - pyenv install --skip-existing 3.7.3
+  - pyenv install --skip-existing 3.6.8
+  - pyenv install --skip-existing 3.5.7
+  - pyenv rehash
+  - pyenv global 2.7.16 3.7.3 3.6.8 3.5.7
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 2.7.14; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 3.5.4; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 3.6.3; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv rehash; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv global 2.7.14 3.6.3 3.5.4; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew upgrade python pyenv; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python@2; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew list; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv install --list; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv versions; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 2.7.16; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.7.3; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.6.8; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.5.7; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv rehash; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv global 2.7.16 3.7.3 3.6.8 3.5.7; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew list; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 2.7.16; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.7.3; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.6.8; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install --skip-existing 3.5.7; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv rehash; fi
+  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv global 2.7.16 3.7.3 3.6.8 3.5.7; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=~/.pyenv/shims:$PATH; fi
   - pyenv versions
   - echo $PATH
