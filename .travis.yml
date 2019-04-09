@@ -25,7 +25,6 @@ matrix:
       osx_image: xcode7.3
       env: PYTHON_CONFIGURE_OPTS="--enable-framework"
 install:
-  - env
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / || true; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
@@ -48,7 +47,6 @@ install:
   - pyenv rehash
   - pyenv global 2.7.16 3.7.3 3.6.8 3.5.7
   - pyenv versions
-  - echo $PATH
   - which python && python --version
   - which python2 && python2 --version
   - which python2.7 && python2.7 --version
@@ -57,9 +55,7 @@ install:
   - which python3.6 && python3.6 --version
   - which python3.5 && python3.5 --version
   - python2 -m pip install --upgrade setuptools pip
-  - python3 -m pip install --upgrade setuptools pip
-  - python3 -m pip install --upgrade tox coveralls
-  - python3 -m virtualenv --version
+  - python3 -m pip install --upgrade setuptools pip tox coveralls
 script:
   - python3 -m tox
   - make all
