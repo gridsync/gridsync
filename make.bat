@@ -85,7 +85,7 @@ if not exist ".\build\venv-gridsync" call %PYTHON3% -m virtualenv .\build\venv-g
 call .\build\venv-gridsync\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call python -m pip install -r .\requirements\requirements-hashes.txt
-call python -m pip install .
+call python -m pip install --editable .
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
 call python -m pip install --no-use-pep517 pyinstaller==3.4
 call python -m pip list

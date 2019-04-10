@@ -171,7 +171,7 @@ pyinstaller:
 	source build/venv-gridsync/bin/activate && \
 	python -m pip install --upgrade pip && \
 	python -m pip install -r requirements/requirements-hashes.txt && \
-	python -m pip install . && \
+	python -m pip install --editable . && \
 	case `uname` in \
 		Darwin) \
 			python scripts/maybe_rebuild_libsodium.py && \
