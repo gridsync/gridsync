@@ -183,31 +183,6 @@ pyinstaller:
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/gridsync.spec
 
-py2app:
-	if [ -f dist/Tahoe-LAFS.zip ] ; then \
-		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
-	else  \
-		make frozen-tahoe ; \
-	fi;
-	python3 -m virtualenv --clear --python=python3 build/venv-py2app
-	source build/venv-py2app/bin/activate && \
-	python -m pip install --upgrade pip && \
-	python -m pip install -r requirements/requirements-hashes.txt && \
-	case `uname` in \
-		Darwin) \
-			python scripts/maybe_rebuild_libsodium.py && \
-			python scripts/maybe_downgrade_pyqt.py \
-		;; \
-	esac &&	\
-	python -m pip install . && \
-	python -m pip install py2app && \
-	python -m pip list && \
-	python setup.py py2app && \
-	python scripts/strip_py2app_bundle.py
-	cp -r gridsync/resources dist/Gridsync.app/Contents/MacOS
-	cp -r dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
-	touch dist/Gridsync.app
-
 dmg:
 	python3 -m virtualenv --clear --python=python2 build/venv-dmg
 	source build/venv-dmg/bin/activate && \
