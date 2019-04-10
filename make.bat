@@ -84,7 +84,7 @@ if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
 if not exist ".\build\venv-gridsync" call %PYTHON3% -m virtualenv .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
 call python -m pip install --upgrade setuptools pip
-call python -m pip install -r .\requirements\requirements-hashes.txt
+call python -m pip install -r .\requirements\requirements-gridsync.txt
 call python -m pip install --editable .
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
 call python -m pip install --no-use-pep517 pyinstaller==3.4

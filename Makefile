@@ -170,7 +170,7 @@ pyinstaller:
 	fi
 	source build/venv-gridsync/bin/activate && \
 	python -m pip install --upgrade pip && \
-	python -m pip install -r requirements/requirements-hashes.txt && \
+	python -m pip install -r requirements/requirements-gridsync.txt && \
 	python -m pip install --editable . && \
 	case `uname` in \
 		Darwin) \
