@@ -89,13 +89,8 @@ call deactivate
 goto :eof
 
 :pyinstaller
-if exist .\dist\Tahoe-LAFS.zip (
-    call %PYTHON2% -m zipfile -e .\dist\Tahoe-LAFS.zip dist
-    call .\dist\Tahoe-LAFS\tahoe.exe --version-and-path
-) else (
-    call :frozen-tahoe
-)
-call %PYTHON3% -m virtualenv --clear .\build\venv-gridsync
+if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
+if not exist ".\build\venv-gridsync" call %PYTHON3% -m virtualenv .\build\venv-gridsync
 call .\build\venv-gridsync\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call python -m pip install -r .\requirements\requirements-hashes.txt
