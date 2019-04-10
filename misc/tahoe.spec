@@ -3,11 +3,6 @@
 from __future__ import print_function
 
 from distutils.sysconfig import get_python_lib
-import hashlib
-import os
-import platform
-import shutil
-import struct
 import sys
 
 
@@ -79,25 +74,3 @@ coll = COLLECT(
     strip=False,
     upx=False,
     name='Tahoe-LAFS')
-
-
-print("Creating archive...")
-platform_tag = platform.system().replace('Darwin', 'MacOS')
-bitness_tag = str(struct.calcsize('P') * 8) + 'bit'
-archive_name = 'Tahoe-LAFS-{}-{}'.format(platform_tag, bitness_tag)
-if sys.platform == 'win32':
-    archive_format = 'zip'
-    archive_suffix = '.zip'
-else:
-    archive_format = 'gztar'
-    archive_suffix = '.tar.gz'
-base_name = os.path.join('dist', archive_name)
-shutil.make_archive(base_name, archive_format, 'dist', 'Tahoe-LAFS')
-
-print("Hashing (SHA256)...")
-archive_path = base_name + archive_suffix
-hasher = hashlib.sha256()
-with open(archive_path, 'rb') as f:
-    for block in iter(lambda: f.read(4096), b''):
-        hasher.update(block)
-print("{}  {}".format(hasher.hexdigest(), archive_path))
