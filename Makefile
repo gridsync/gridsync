@@ -210,6 +210,11 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
+macos-legacy:
+	$(MAKE) pyinstaller-legacy
+	$(MAKE) dmg
+	python3 scripts/sha256sum.py dist/*.*
+
 all:
 	$(MAKE) pyinstaller
 	@case `uname` in \
