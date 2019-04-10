@@ -211,10 +211,12 @@ codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
 all:
+	$(MAKE) pyinstaller
 	@case `uname` in \
-		Darwin)	$(MAKE) pyinstaller dmg ;; \
-		*) $(MAKE) pyinstaller ;; \
+		Darwin)	$(MAKE) dmg ;; \
+		*) python3 scripts/make_archive.py ;; \
 	esac
+	python3 scripts/sha256sum.py dist/*.*
 
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.tar.gz

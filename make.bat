@@ -93,4 +93,5 @@ goto :eof
 :all
 call :pyinstaller
 call :installer
+call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
 goto :eof
