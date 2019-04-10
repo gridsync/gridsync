@@ -81,18 +81,19 @@ goto :eof
 
 :pyinstaller
 if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
-if not exist ".\build\venv-gridsync" call %PYTHON3% -m virtualenv .\build\venv-gridsync
-call .\build\venv-gridsync\Scripts\activate
-call python -m pip install --upgrade setuptools pip
-call python -m pip install -r .\requirements\requirements-gridsync.txt
-call python -m pip install --editable .
+%PYTHON3% -m tox -e pyinstaller
+::if not exist ".\build\venv-gridsync" call %PYTHON3% -m virtualenv .\build\venv-gridsync
+::call .\build\venv-gridsync\Scripts\activate
+::call python -m pip install --upgrade setuptools pip
+::call python -m pip install -r .\requirements\requirements-gridsync.txt
+::call python -m pip install --editable .
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
-call python -m pip install -r .\requirements\requirements-pyinstaller.txt
-call python -m pip list
-call set PYTHONHASHSEED=1
-call pyinstaller -y --clean misc\gridsync.spec
-call set PYTHONHASHSEED=
-call deactivate
+::call python -m pip install -r .\requirements\requirements-pyinstaller.txt
+::call python -m pip list
+::call set PYTHONHASHSEED=1
+::call pyinstaller -y --clean misc\gridsync.spec
+::call set PYTHONHASHSEED=
+::call deactivate
 goto :eof
 
 :installer

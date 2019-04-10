@@ -161,7 +161,7 @@ frozen-tahoe:
 install:
 	python3 -m pip install --upgrade .
 
-pyinstaller:
+pyinstaller-legacy:
 	if [ ! -d dist/Tahoe-LAFS ] ; then \
 		make frozen-tahoe ; \
 	fi
@@ -182,6 +182,10 @@ pyinstaller:
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/gridsync.spec
+
+pyinstaller:
+	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
+	python3 -m tox -e pyinstaller
 
 dmg:
 	python3 -m virtualenv --clear --python=python2 build/venv-dmg
