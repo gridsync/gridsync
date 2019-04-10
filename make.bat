@@ -87,7 +87,7 @@ call python -m pip install --upgrade setuptools pip
 call python -m pip install -r .\requirements\requirements-gridsync.txt
 call python -m pip install --editable .
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
-call python -m pip install --no-use-pep517 pyinstaller==3.4
+call python -m pip install -r .\requirements\requirements-pyinstaller.txt
 call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller -y --clean misc\gridsync.spec

@@ -178,7 +178,7 @@ pyinstaller:
 			python scripts/maybe_downgrade_pyqt.py \
 		;; \
 	esac &&	\
-	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
+	python -m pip install -r requirements/requirements-pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/gridsync.spec
