@@ -1,57 +1,61 @@
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.cache/pyenv
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: xenial
       sudo: required
-      # https://bugreports.qt.io/browse/QTBUG-64928
-      #addons:
-      #  apt:
-      #    sources:
-      #    - sourceline: "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe"
-      #    packages:
-      #    - xvfb
+      env: PYTHON_CONFIGURE_OPTS="--enable-shared"
+    # macOS 10.14
+    - os: osx
+      osx_image: xcode10.2
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    # macOS 10.13
+    - os: osx
+      osx_image: xcode10.1
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    # macOS 10.12
+    - os: osx
+      osx_image: xcode9.2
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    # macOS 10.11
     - os: osx
       osx_image: xcode7.3
-      #osx_image: xcode6.4
-      #language: python
-      #cache: pip
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
 install:
-  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then echo "deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe" | sudo tee -a /etc/apt/sources.list; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install build-essential xvfb; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --list; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv versions; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 2.7.14; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 3.5.4; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv install --skip-existing 3.6.3; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv rehash; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then pyenv global 2.7.14 3.6.3 3.5.4; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew upgrade python pyenv; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install python@2; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew list; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv install --list; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv versions; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 2.7.16; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.7.3; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.8; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.5.7; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv rehash; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then pyenv global 2.7.16 3.7.3 3.6.8 3.5.7; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=~/.pyenv/shims:$PATH; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / || true; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev; fi
+  - rm -rf ~/.pyenv
+  - git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+  - mkdir -p ~/.cache/pyenv/versions
+  - ln -s ~/.cache/pyenv/versions ~/.pyenv/versions
+  - echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
+  - echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
+  - echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
+  - source ~/.bash_profile
+  - pyenv --version
+  - pyenv install --list
   - pyenv versions
-  - echo $PATH
+  - pyenv install --skip-existing 2.7.16
+  - pyenv install --skip-existing 3.7.3
+  - pyenv install --skip-existing 3.6.8
+  - pyenv install --skip-existing 3.5.7
+  - pyenv rehash
+  - pyenv global 2.7.16 3.7.3 3.6.8 3.5.7
+  - pyenv versions
   - which python && python --version
   - which python2 && python2 --version
   - which python2.7 && python2.7 --version
   - which python3 && python3 --version
-  - which python3.5 && python3.5 --version
+  - which python3.7 && python3.7 --version
   - which python3.6 && python3.6 --version
+  - which python3.5 && python3.5 --version
   - python2 -m pip install --upgrade setuptools pip
-  - python3 -m pip install --upgrade setuptools pip
-  - python3 -m pip install --upgrade tox coveralls
-  - python3 -m virtualenv --version
+  - python3 -m pip install --upgrade setuptools pip tox coveralls
 script:
   - python3 -m tox
   - make all
@@ -71,20 +75,3 @@ notifications:
     template:
       - "[%{repository_name}:%{branch}] %{commit}: %{commit_subject} (%{author}) %{message}"
       - "Details: %{build_url} | Changes: %{compare_url}"
-#before_deploy:
-#  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then mv dist/Gridsync.tar.gz dist/Gridsync-Linux.tar.gz; fi
-#  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then mv dist/Gridsync.dmg dist/Gridsync-Mac.dmg; fi
-#deploy:
-#  provider: releases
-#  api_key:
-#    secure: Sz/ABAcjcGZNuQ7K4KOtZJniW+ICsaxwrS0P2aAzaxrMQT8Ha/hnZ/yavZpI5azzUdC4i48Pu9Rv+OdlHDwPQkBpIIXYRTNlo3fPHSZv344HpTFu1tlJVuB0KXmXG04Abu5anEShV9MFJKrBe9sORBiIr1AQFCF0d5Gi5nVsRHm+kGy1NL4NnzFKJ5mE/yvAMdUXz2wi/lJR2z/0UkJJW6jIXNpsa/2G6HIQelYzAh8rlIJbpWzLWGpMvRlzqS3yl8EwrcCkb2IqVeSSamlq3SwyoinHf8+rlU/W8uiTnyOo5OPhKMknuUlLJkthMsdIUDWQILRd69peLoNAfwFusyvL229tdfLi5YYcRRM5QyQ0Vjy6YYKihwg0LRUg3NDLqA5YCOYszyzm6TzZlsF3niLe+ocIiqhueQdj4QwAMaagO1Ub2rFvrIGmO78oWfA7UzQCutJcZ66ETQyUdTANrDMZAKpwIzprz0v2NFkSyqLi7HkgPKREeV+nxGAVS0Gtw+EO0b3eF9JMJmly/qI+6yA4Rz/PqgLVz94X0fQnU6Eh2IzDhYn31SXo8fVMdxglV5KeStLvA8ofKA3VhVC+6U+u+4OwtIdFNMWZNlTFkT8uqVHcSPfNEU3gVpWu9ObM4e9yNJzcc7Cxx8+oN/+iWVy0BCetMxmQMBriW5vcCXU=
-#  file_glob: true
-#  file: dist/Gridsync-*.*
-#  skip_cleanup: true
-#  draft: false
-#  prerelease: true
-#  on:
-#    tags: true
-#env:
-#  global:
-#    secure: oxxJE7tFHxX5C0rP2eX0A0Y1U/NFOjNwg8NxYRj0UBuc/GHVZjvWwhuCU+IfwBXrrcDp8S899jvGZHJb85XFKgLC6Yu6JCgk+9zRuL8fIsMxIQQpCTfYPnrRJch2du5oGfX9087Bu9abr0t8BG0bAgMgT08sOKlI+GUwX1UEJ8cRHHBULR8MiKmP8jEAjJ7jcpppIGuXl8Cg6MN7MNZxdZ2K4EMgR4cFQklPzFo5o/+mgfe+5ovHVNA7yHYred1HpGUsiSAcceJsKOgKO7Z/Rz2EYoS8lk0z+2cncXOsTUS0ZK3rvrbsHDPaeEpMxPxeLDzn93XkbvU/rOzS4hOkWGeEeyW3JlEdW34QSDLSziSTye03XlkXplH9fbSut/mvxdFPmhPfKt/t6dAuNVVWBxlc0oiLmvzxrXB+iUZkv5Zgzcy7bZqSU5tG5EcVzigYFbBZ85mFrT5dU/HIRXr7Qe1/f+pTysnpnXsY06e2GPXUqS68WMzK0nWSEwSsWjOmg87zpoe24y9L8S9WxyQJBKF1xsZHpc2nLiP9KkPitdtoY1xb5AAxsIoKKh8tf4LnrUMciuBR5o4xaNoP8doEgVWtfFhNjbFC6mCR+v1jf+yvwOBej0TIC1LyA/rrfiEVWBUmgHc/Tf/unknsWNqoPNTxnc2rOyw5HOxtHgc/UzA=

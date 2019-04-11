@@ -25,7 +25,9 @@ after_test:
   - "make"
   - ".\\dist\\Gridsync\\Gridsync.exe --version"
   - ".\\dist\\Gridsync\\Tahoe-LAFS\\tahoe.exe --version-and-path"
+  - "python .\\scripts\\make_archive.py"
   - "move .\\dist\\Gridsync.zip .\\dist\\Gridsync-Windows.zip"
+  - "python .\\scripts\\sha256sum.py .\\dist\\Gridsync-Windows*"
 artifacts:
   - path: dist\Gridsync-Windows.zip
     name: Gridsync-Windows.zip
