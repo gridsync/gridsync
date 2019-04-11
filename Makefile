@@ -2,15 +2,6 @@
 SHELL := /bin/bash
 .PHONY: tahoe
 
-test:
-	python3 -m tox
-
-pytest:
-	@case `uname` in \
-		Linux) xvfb-run -a python -m pytest || exit 1;;\
-		Darwin) python -m pytest || exit 1;;\
-	esac
-
 clean:
 	rm -rf build/
 	rm -rf dist/
@@ -23,6 +14,9 @@ clean:
 	find . -name '*.egg' -exec rm -rf {} +
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -rf {} +
+
+test:
+	python3 -m tox
 
 pngs:
 	mkdir -p build/frames
@@ -139,68 +133,6 @@ gif: pngs
 		-loop 0 \
 		images/frames/sync-*.png build/sync.gif
 
-resources: gif
-	pyrcc5 misc/resources.qrc -o gridsync/resources.py
-
-ui:
-	for i in misc/designer/*.ui; do \
-		filename=$$(basename $$i); \
-		pyuic5 $$i -o gridsync/forms/$${filename%%.*}.py; \
-	done
-
-sip:
-	mkdir -p build/sip
-	curl --progress-bar --retry 20 --output "build/sip.tar.gz" --location \
-		"https://sourceforge.net/projects/pyqt/files/sip/sip-4.19.2/sip-4.19.2.tar.gz"
-	tar zxf build/sip.tar.gz -C build/sip --strip-components=1
-	cd build/sip && $${PYTHON=python} configure.py --incdir=build/sip/sipinc
-	$(MAKE) -C build/sip -j 4
-	$(MAKE) -C build/sip install
-
-pyqt: sip
-	# apt-get install qtbase5-dev
-	mkdir -p build/pyqt
-	curl --progress-bar --retry 20 --output "build/pyqt.tar.gz" --location \
-		"https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.8.2/PyQt5_gpl-5.8.2.tar.gz"
-	tar zxf build/pyqt.tar.gz -C build/pyqt --strip-components=1
-	cd build/pyqt && \
-		QT_SELECT=qt5 $${PYTHON=python} configure.py \
-			--confirm-license \
-			--sip ../sip/sipgen/sip \
-			--sip-incdir ../sip/siplib \
-			--enable QtCore \
-			--enable QtGui \
-			--enable QtWidgets
-	$(MAKE) -C build/pyqt -j 4
-	$(MAKE) -C build/pyqt install
-
-check_pyqt:
-	$${PYTHON=python} -c 'import PyQt5' && echo 'PyQt5 installed' || make pyqt
-
-deps:
-	case `uname` in \
-		Linux) \
-			apt-get update && \
-			apt-get install tahoe-lafs python3 python3-pyqt5 python3-pip \
-		;; \
-		Darwin) echo darwin \
-			brew -v update && \
-			brew -v install python3 pyqt5 \
-		;; \
-	esac
-
-build-deps: deps
-	case `uname` in \
-		Linux) \
-			apt-get update && \
-			apt-get install imagemagick \
-		;; \
-		Darwin) echo darwin \
-			brew -v update && \
-			brew -v install imagemagick \
-		;; \
-	esac
-
 frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
@@ -229,52 +161,31 @@ frozen-tahoe:
 install:
 	python3 -m pip install --upgrade .
 
-pyinstaller:
-	if [ -f dist/Tahoe-LAFS.zip ] ; then \
-		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
-	else  \
+pyinstaller-legacy:
+	if [ ! -d dist/Tahoe-LAFS ] ; then \
 		make frozen-tahoe ; \
-	fi;
-	python3 -m virtualenv --clear --python=python3 build/venv-gridsync
+	fi
+	if [ ! -d build/venv-gridsync ] ; then \
+		python3 -m virtualenv --python=python3 build/venv-gridsync ; \
+	fi
 	source build/venv-gridsync/bin/activate && \
 	python -m pip install --upgrade pip && \
-	python -m pip install -r requirements/requirements-hashes.txt && \
-	python -m pip install . && \
+	python -m pip install -r requirements/requirements-gridsync.txt && \
+	python -m pip install --editable . && \
 	case `uname` in \
 		Darwin) \
 			python scripts/maybe_rebuild_libsodium.py && \
 			python scripts/maybe_downgrade_pyqt.py \
 		;; \
 	esac &&	\
-	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
+	python -m pip install -r requirements/requirements-pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/gridsync.spec
 
-py2app:
-	if [ -f dist/Tahoe-LAFS.zip ] ; then \
-		python -m zipfile -e dist/Tahoe-LAFS.zip dist ; \
-	else  \
-		make frozen-tahoe ; \
-	fi;
-	python3 -m virtualenv --clear --python=python3 build/venv-py2app
-	source build/venv-py2app/bin/activate && \
-	python -m pip install --upgrade pip && \
-	python -m pip install -r requirements/requirements-hashes.txt && \
-	case `uname` in \
-		Darwin) \
-			python scripts/maybe_rebuild_libsodium.py && \
-			python scripts/maybe_downgrade_pyqt.py \
-		;; \
-	esac &&	\
-	python -m pip install . && \
-	python -m pip install py2app && \
-	python -m pip list && \
-	python setup.py py2app && \
-	python scripts/strip_py2app_bundle.py
-	cp -r gridsync/resources dist/Gridsync.app/Contents/MacOS
-	cp -r dist/Tahoe-LAFS dist/Gridsync.app/Contents/MacOS
-	touch dist/Gridsync.app
+pyinstaller:
+	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
+	python3 -m tox -e pyinstaller
 
 dmg:
 	python3 -m virtualenv --clear --python=python2 build/venv-dmg
@@ -299,11 +210,18 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
+macos-legacy:
+	$(MAKE) pyinstaller-legacy
+	$(MAKE) dmg
+	python3 scripts/sha256sum.py dist/*.*
+
 all:
+	$(MAKE) pyinstaller
 	@case `uname` in \
-		Darwin)	$(MAKE) pyinstaller dmg ;; \
-		*) $(MAKE) pyinstaller ;; \
+		Darwin)	$(MAKE) dmg ;; \
+		*) python3 scripts/make_archive.py ;; \
 	esac
+	python3 scripts/sha256sum.py dist/*.*
 
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.tar.gz

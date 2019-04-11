@@ -35,7 +35,6 @@ if defined APPVEYOR (
 
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
-if "%1"=="pytest" call :pytest
 if "%1"=="frozen-tahoe" call :frozen-tahoe
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="installer" call :installer
@@ -57,17 +56,10 @@ goto :eof
 call %PYTHON3% -m tox || exit /b 1
 goto :eof
 
-:pytest
-call python -m pytest || exit /b 1
-goto :eof
-
 :frozen-tahoe
 call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
 call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
-::call powershell -Command "(New-Object Net.WebClient).DownloadFile('https://tahoe-lafs.org/downloads/tahoe-lafs-1.11.0.zip', '.\build\tahoe-lafs.zip')"
-::call C:\Python27\python.exe -m zipfile -e .\build\tahoe-lafs.zip .\build
-::call move .\build\tahoe-lafs-1.11.0 .\build\tahoe-lafs
 call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call copy .\misc\tahoe.spec .\build\tahoe-lafs\pyinstaller.spec
@@ -81,7 +73,6 @@ call python -m pip install --no-use-pep517 pyinstaller==3.4
 call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
-call python -m zipfile -c dist\Tahoe-LAFS.zip dist\Tahoe-LAFS
 call set PYTHONHASHSEED=
 call move dist ..\..
 call popd
@@ -89,24 +80,8 @@ call deactivate
 goto :eof
 
 :pyinstaller
-if exist .\dist\Tahoe-LAFS.zip (
-    call %PYTHON2% -m zipfile -e .\dist\Tahoe-LAFS.zip dist
-    call .\dist\Tahoe-LAFS\tahoe.exe --version-and-path
-) else (
-    call :frozen-tahoe
-)
-call %PYTHON3% -m virtualenv --clear .\build\venv-gridsync
-call .\build\venv-gridsync\Scripts\activate
-call python -m pip install --upgrade setuptools pip
-call python -m pip install -r .\requirements\requirements-hashes.txt
-call python -m pip install .
-:: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
-call python -m pip install --no-use-pep517 pyinstaller==3.4
-call python -m pip list
-call set PYTHONHASHSEED=1
-call pyinstaller -y --clean misc\gridsync.spec
-call set PYTHONHASHSEED=
-call deactivate
+if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
+%PYTHON3% -m tox -e pyinstaller
 goto :eof
 
 :installer
@@ -118,4 +93,5 @@ goto :eof
 :all
 call :pyinstaller
 call :installer
+call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
 goto :eof

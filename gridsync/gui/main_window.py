@@ -428,7 +428,7 @@ class MainWindow(QMainWindow):
             view = self.current_view()
             selected = (view.selectedIndexes() if view else None)
             if selected:
-                view.confirm_remove(view.get_selected_folders())
+                view.confirm_stop_syncing(view.get_selected_folders())
         if key == Qt.Key_Escape:
             view = self.current_view()
             selected = (view.selectedIndexes() if view else None)
