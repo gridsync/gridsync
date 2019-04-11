@@ -424,7 +424,8 @@ class View(QTreeView):
             lambda: self.open_invite_sender_dialog(selected))
         share_menu.addAction(invite_action)
 
-        remove_action = QAction(QIcon(resource('close.png')), "Remove...")
+        remove_action = QAction(
+            QIcon(resource('close.png')), "Remove from Recovery Key...")
         menu.addAction(open_action)
         menu.addMenu(share_menu)
         menu.addSeparator()
