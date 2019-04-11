@@ -102,6 +102,7 @@ if sys.platform.startswith('linux'):
     bad_libs = [
         'libX11.so.6',  # https://github.com/gridsync/gridsync/issues/43
         'libdrm.so.2',  # https://github.com/gridsync/gridsync/issues/47
+        'libstdc++.so.6',  # https://github.com/gridsync/gridsync/issues/189
     ]
     for lib in bad_libs:
         try:
