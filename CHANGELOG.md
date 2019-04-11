@@ -3,9 +3,12 @@
 ## Unreleased
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
+- The "remove" folder action and subsequent confirmation dialog have been re-framed/updated to "stop syncing" instead. In addition, removing/stopping a folder will now unlink it from the user's rootcap/Recovery Key by default (i.e., unless the user checks the accompanying checkbox to "keep a backup copy of this folder on $GridName") (Issue #183, PR #190)
+- Various scripts, configurations, and operations relating to the Gridsync CI/testing/build process have been updated and improved, slightly reducing at least one developer's growing frustrations with Travis-CI and buildbot (PR #188)
 
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
+- `libstdc++` has been excluded from Linux PyInstaller bundles, preventing a crash that coincided with opening a native file-chooser dialog on ArchLinux (Issue #189, PR #191)
 
 ## 0.4.2 - 2019-04-06
 ### Added
