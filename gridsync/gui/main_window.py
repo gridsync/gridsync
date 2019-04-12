@@ -253,6 +253,26 @@ class MainWindow(QMainWindow):
                 self.central_widget.add_history_view(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
+                gateway.monitor.newscap_checker.message_received.connect(
+                    self.on_message_received)
+
+    def on_message_received(self, gateway, message):
+        title = "New message from {}".format(gateway.name)
+        self.gui.show_message(title, message)
+        msgbox = QMessageBox(self)
+        msgbox.setWindowModality(Qt.WindowModal)
+        icon_filepath = os.path.join(gateway.nodedir, 'icon')
+        if os.path.exists(icon_filepath):
+            msgbox.setIconPixmap(QIcon(icon_filepath).pixmap(64, 64))
+        else:
+            msgbox.setIcon(QMessageBox.Information)
+        if sys.platform == 'darwin':
+            msgbox.setText(title)
+            msgbox.setInformativeText(message)
+        else:
+            msgbox.setWindowTitle(title)
+            msgbox.setText(message)
+        msgbox.show()
 
     def current_view(self):
         try:
