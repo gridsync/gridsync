@@ -89,7 +89,7 @@ class NewscapChecker(QObject):
     def schedule_delayed_check(self):
         delay = randint(0, 60 * 60 * 12)  # 12 hours
         deferLater(reactor, delay, self.do_check)
-        logging.debug("Scheduled newscap check in {} seconds...".format(delay))
+        logging.debug("Scheduled newscap check in %i seconds...", delay)
 
     def start(self):
         if not self._started:
