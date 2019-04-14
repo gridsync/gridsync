@@ -344,7 +344,6 @@ class Monitor(QObject):
 
     @inlineCallbacks
     def do_checks(self):
-        yield self.newscap_checker.do_check()  # XXX
         yield self.grid_checker.do_check()
         for folder in list(self.gateway.magic_folders.keys()):
             if folder not in self.magic_folder_checkers:
@@ -371,3 +370,4 @@ class Monitor(QObject):
         if not self._started:
             self._started = True
             self.timer.start(interval, now=True)
+            self.newscap_checker.start()
