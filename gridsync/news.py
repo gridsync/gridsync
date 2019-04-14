@@ -17,6 +17,7 @@ class NewscapChecker(QObject):
     def __init__(self, gateway):
         super().__init__()
         self.gateway = gateway
+        self._started = False
 
     @inlineCallbacks
     def _download_messages(self, downloads):
@@ -89,3 +90,8 @@ class NewscapChecker(QObject):
         delay = randint(0, 60 * 60 * 12)  # 12 hours
         deferLater(reactor, delay, self.do_check)
         logging.debug("Scheduled newscap check in {} seconds...".format(delay))
+
+    def start(self):
+        if not self._started:
+            self._started = True
+            self.schedule_delayed_check()
