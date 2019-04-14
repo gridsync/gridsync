@@ -2,9 +2,12 @@
 
 import logging
 import os
+from random import randint
 
 from PyQt5.QtCore import pyqtSignal, QObject
+from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.task import deferLater
 
 
 class NewscapChecker(QObject):
@@ -59,6 +62,7 @@ class NewscapChecker(QObject):
 
     @inlineCallbacks
     def do_check(self):
+        self.schedule_delayed_check()
         if not self.gateway.newscap:
             return
         content = yield self.gateway.get_json(self.gateway.newscap)
@@ -80,3 +84,8 @@ class NewscapChecker(QObject):
                 logging.warning("'v1' is not a dirnode")
         else:
             logging.warning("No 'v1' object found in newscap")
+
+    def schedule_delayed_check(self):
+        delay = randint(0, 60 * 60 * 12)  # 12 hours
+        deferLater(reactor, delay, self.do_check)
+        logging.debug("Scheduled newscap check in {} seconds...".format(delay))
