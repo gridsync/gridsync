@@ -30,7 +30,7 @@ class NewscapChecker(QObject):
         newest_message_filepath = downloads[-1][0]
         if os.path.exists(newest_message_filepath):
             with open(newest_message_filepath) as f:
-                self.message_received.emit(self.gateway, f.read())
+                self.message_received.emit(self.gateway, f.read().strip())
 
     @inlineCallbacks
     def _check_v1(self):
