@@ -163,6 +163,9 @@ class Tahoe():
         if os.path.exists(icon_url_path):
             with open(icon_url_path) as f:
                 settings['icon_url'] = f.read().strip()
+        self.load_newscap()
+        if self.newscap:
+            settings['newscap'] = self.newscap
         if include_rootcap and os.path.exists(self.rootcap_path):
             settings['rootcap'] = self.read_cap_from_file(self.rootcap_path)
         # TODO: Verify integrity? Support 'icon_base64'?
