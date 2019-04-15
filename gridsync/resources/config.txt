@@ -16,6 +16,9 @@ log_maxlen = 100000
 docs_url = docs.gridsync.io
 issues_url = https://github.com/gridsync/gridsync/issues
 
+[news:Demo Grid]
+check_delay_max = 60
+
 [wormhole]
 appid = tahoe-lafs.org/invite
 relay = ws://wormhole.tahoe-lafs.org:4000/v1
