@@ -87,7 +87,7 @@ class NewscapChecker(QObject):
             logging.warning("No 'v1' object found in newscap")
 
     def schedule_delayed_check(self):
-        delay = randint(0, 60 * 60 * 12)  # 12 hours
+        delay = randint(0, 60 * 60 * 24)  # 24 hours
         deferLater(reactor, delay, self.do_check)
         logging.debug("Scheduled newscap check in %i seconds...", delay)
 
