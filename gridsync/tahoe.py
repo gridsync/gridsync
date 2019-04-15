@@ -123,6 +123,15 @@ class Tahoe():
         self.state = Tahoe.STOPPED
         self.newscap = ""
 
+    @staticmethod
+    def read_cap_from_file(filepath):
+        try:
+            with open(filepath) as f:
+                cap = f.read().strip()
+        except OSError:
+            return None
+        return cap
+
     def load_newscap(self):
         try:
             with open(os.path.join(self.nodedir, 'private', 'newscap')) as f:
@@ -889,15 +898,6 @@ class Tahoe():
             content = yield treq.content(resp)
             return json.loads(content.decode('utf-8'))
         return None
-
-    @staticmethod
-    def read_cap_from_file(filepath):
-        try:
-            with open(filepath) as f:
-                cap = f.read().strip()
-        except OSError:
-            return None
-        return cap
 
     def get_rootcap(self):
         if not self.rootcap:
