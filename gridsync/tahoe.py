@@ -133,11 +133,17 @@ class Tahoe():
         return cap
 
     def load_newscap(self):
-        cap = self.read_cap_from_file(
+        news_settings = global_settings.get('news:{}'.format(self.name))
+        if news_settings:
+            newscap = news_settings.get('newscap')
+            if newscap:
+                self.newscap = newscap
+                return
+        newscap = self.read_cap_from_file(
             os.path.join(self.nodedir, 'private', 'newscap')
         )
-        if cap:
-            self.newscap = cap
+        if newscap:
+            self.newscap = newscap
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
