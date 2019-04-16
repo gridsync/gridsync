@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
+from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt, QTimer
 from PyQt5.QtGui import QFont, QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QAction, QComboBox, QFileIconProvider, QGridLayout, QMainWindow, QMenu,
@@ -246,6 +246,8 @@ class MainWindow(QMainWindow):
         self.active_invite_sender_dialogs = []
         self.active_invite_receiver_dialogs = []
 
+        self.pending_news_message = ()
+
     def populate(self, gateways):
         for gateway in gateways:
             if gateway not in self.gateways:
@@ -256,9 +258,7 @@ class MainWindow(QMainWindow):
                 gateway.monitor.newscap_checker.message_received.connect(
                     self.on_message_received)
 
-    def on_message_received(self, gateway, message):
-        title = "New message from {}".format(gateway.name)
-        self.gui.show_message(title, message)
+    def show_news_message(self, gateway, title, message):
         msgbox = QMessageBox(self)
         msgbox.setWindowModality(Qt.WindowModal)
         icon_filepath = os.path.join(gateway.nodedir, 'icon')
@@ -273,6 +273,14 @@ class MainWindow(QMainWindow):
             msgbox.setWindowTitle(title)
             msgbox.setText(message)
         msgbox.show()
+
+    def on_message_received(self, gateway, message):
+        title = "New message from {}".format(gateway.name)
+        self.gui.show_message(title, message)
+        if self.isVisible():
+            self.show_news_message(gateway, title, message)
+        else:
+            self.pending_news_message = (gateway, title, message)
 
     def current_view(self):
         try:
@@ -465,3 +473,10 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
             self.confirm_quit()
+
+    def showEvent(self, event):
+        if self.pending_news_message:
+            gateway, title, message = self.pending_news_message
+            self.pending_news_message = ()
+            QTimer.singleShot(
+                0, lambda: self.show_news_message(gateway, title, message))
