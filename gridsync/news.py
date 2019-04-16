@@ -41,8 +41,6 @@ class NewscapChecker(QObject):
     def _download_messages(self, downloads):
         downloads = sorted(downloads)
         for dest, filecap in downloads:
-            if sys.platform = 'win32':
-                dest = dest.replace(':', '_')
             try:
                 yield self.gateway.download(filecap, dest)
             except Exception as e:  # pylint: disable=broad-except
@@ -75,6 +73,8 @@ class NewscapChecker(QObject):
             if kind != 'filenode':
                 logging.warning("'%s' is a '%s', not a filenode", file, kind)
                 continue
+            if sys.platform = 'win32':
+                file = file.replace(':', '_')
             local_filepath = os.path.join(messages_dirpath, file)
             if not os.path.exists(local_filepath):
                 downloads.append((local_filepath, data[1]['ro_uri']))
