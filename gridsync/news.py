@@ -30,6 +30,8 @@ class NewscapChecker(QObject):
             check_delay_max = newscap_settings.get('check_delay_max')
             if check_delay_max:
                 self.check_delay_max = int(check_delay_max)
+        if self.check_delay_max < self.check_delay_min:
+            self.check_delay_max = self.check_delay_min
 
     @inlineCallbacks
     def _download_messages(self, downloads):
