@@ -3,6 +3,7 @@
 import logging
 import os
 from random import randint
+import time
 
 from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet import reactor
@@ -99,6 +100,10 @@ class NewscapChecker(QObject):
                 logging.warning("'v1' is not a dirnode")
         else:
             logging.warning("No 'v1' object found in newscap")
+        last_checked_path = os.path.join(
+            self.gateway.nodedir, 'private', 'newscap.last_checked')
+        with open(last_checked_path, 'w') as f:
+            f.write(str(int(time.time())))
 
     def schedule_delayed_check(self):
         delay = randint(self.check_delay_min, self.check_delay_max)
