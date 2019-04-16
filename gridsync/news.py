@@ -73,7 +73,7 @@ class NewscapChecker(QObject):
             if kind != 'filenode':
                 logging.warning("'%s' is a '%s', not a filenode", file, kind)
                 continue
-            if sys.platform = 'win32':
+            if sys.platform == 'win32':
                 file = file.replace(':', '_')
             local_filepath = os.path.join(messages_dirpath, file)
             if not os.path.exists(local_filepath):
