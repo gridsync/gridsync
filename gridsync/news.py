@@ -83,6 +83,7 @@ class NewscapChecker(QObject):
         self.schedule_delayed_check()
         if not self.gateway.newscap:
             return
+        yield self.gateway.await_ready()
         content = yield self.gateway.get_json(self.gateway.newscap)
         if not content:
             return
