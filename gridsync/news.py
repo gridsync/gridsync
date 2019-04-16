@@ -4,6 +4,7 @@ import logging
 import os
 from random import randint
 import time
+import sys
 
 from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet import reactor
@@ -40,6 +41,8 @@ class NewscapChecker(QObject):
     def _download_messages(self, downloads):
         downloads = sorted(downloads)
         for dest, filecap in downloads:
+            if sys.platform = 'win32':
+                dest = dest.replace(':', '_')
             try:
                 yield self.gateway.download(filecap, dest)
             except Exception as e:  # pylint: disable=broad-except
