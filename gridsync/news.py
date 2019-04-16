@@ -121,6 +121,6 @@ class NewscapChecker(QObject):
                 last_checked = 0
             seconds_since_last_check = int(time.time()) - last_checked
             if seconds_since_last_check > self.check_delay_max:
-                self.schedule_delayed_check(self.check_delay_min) 
+                self.schedule_delayed_check(self.check_delay_min)
             else:
                 self.schedule_delayed_check()
