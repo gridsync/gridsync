@@ -264,6 +264,9 @@ class MainWindow(QMainWindow):
         icon_filepath = os.path.join(gateway.nodedir, 'icon')
         if os.path.exists(icon_filepath):
             msgbox.setIconPixmap(QIcon(icon_filepath).pixmap(64, 64))
+        elif os.path.exists(resource('tahoe-lafs.png')):
+            msgbox.setIconPixmap(
+                QIcon(resource('tahoe-lafs.png')).pixmap(64, 64))
         else:
             msgbox.setIcon(QMessageBox.Information)
         if sys.platform == 'darwin':
