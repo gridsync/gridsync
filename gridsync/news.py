@@ -20,10 +20,13 @@ class NewscapChecker(QObject):
         super().__init__()
         self.gateway = gateway
         self._started = False
-
+        self.check_delay_min = 30
         self.check_delay_max = 60 * 60 * 24  # 24 hours
         newscap_settings = settings.get('news:{}'.format(self.gateway.name))
         if newscap_settings:
+            check_delay_min = newscap_settings.get('check_delay_min')
+            if check_delay_min:
+                self.check_delay_min = int(check_delay_min)
             check_delay_max = newscap_settings.get('check_delay_max')
             if check_delay_max:
                 self.check_delay_max = int(check_delay_max)
@@ -96,7 +99,7 @@ class NewscapChecker(QObject):
             logging.warning("No 'v1' object found in newscap")
 
     def schedule_delayed_check(self):
-        delay = randint(0, self.check_delay_max)
+        delay = randint(self.check_delay_min, self.check_delay_max)
         deferLater(reactor, delay, self.do_check)
         logging.debug("Scheduled newscap check in %i seconds...", delay)
 
