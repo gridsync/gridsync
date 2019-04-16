@@ -474,7 +474,7 @@ class MainWindow(QMainWindow):
             event.ignore()
             self.confirm_quit()
 
-    def showEvent(self, event):
+    def showEvent(self, _):
         if self.pending_news_message:
             gateway, title, message = self.pending_news_message
             self.pending_news_message = ()
