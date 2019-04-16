@@ -33,6 +33,8 @@ class NewscapChecker(QObject):
                 self.check_delay_max = int(check_delay_max)
         if self.check_delay_max < self.check_delay_min:
             self.check_delay_max = self.check_delay_min
+        self._last_checked_path = os.path.join(
+            self.gateway.nodedir, 'private', 'newscap.last_checked')
 
     @inlineCallbacks
     def _download_messages(self, downloads):
@@ -100,17 +102,25 @@ class NewscapChecker(QObject):
                 logging.warning("'v1' is not a dirnode")
         else:
             logging.warning("No 'v1' object found in newscap")
-        last_checked_path = os.path.join(
-            self.gateway.nodedir, 'private', 'newscap.last_checked')
-        with open(last_checked_path, 'w') as f:
+        with open(self._last_checked_path, 'w') as f:
             f.write(str(int(time.time())))
 
-    def schedule_delayed_check(self):
-        delay = randint(self.check_delay_min, self.check_delay_max)
+    def schedule_delayed_check(self, delay=None):
+        if not delay:
+            delay = randint(self.check_delay_min, self.check_delay_max)
         deferLater(reactor, delay, self.do_check)
         logging.debug("Scheduled newscap check in %i seconds...", delay)
 
     def start(self):
         if not self._started:
             self._started = True
-            self.schedule_delayed_check()
+            try:
+                with open(self._last_checked_path) as f:
+                    last_checked = int(f.read())
+            except (OSError, ValueError):
+                last_checked = 0
+            seconds_since_last_check = int(time.time()) - last_checked
+            if seconds_since_last_check > self.check_delay_max:
+                self.schedule_delayed_check(self.check_delay_min) 
+            else:
+                self.schedule_delayed_check()
