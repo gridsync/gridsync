@@ -9,7 +9,6 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
 from gridsync.crypto import trunchash
-from gridsync.news import NewscapChecker
 
 
 class MagicFolderChecker(QObject):
@@ -288,8 +287,6 @@ class Monitor(QObject):
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
 
-        self.newscap_checker = NewscapChecker(self.gateway)
-
         self.grid_checker = GridChecker(self.gateway)
         self.grid_checker.connected.connect(self.connected.emit)
         self.grid_checker.connected.connect(self.scan_rootcap)  # XXX
@@ -370,4 +367,3 @@ class Monitor(QObject):
         if not self._started:
             self._started = True
             self.timer.start(interval, now=True)
-            self.newscap_checker.start()

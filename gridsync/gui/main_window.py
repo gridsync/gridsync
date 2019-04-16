@@ -255,7 +255,7 @@ class MainWindow(QMainWindow):
                 self.central_widget.add_history_view(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
-                gateway.monitor.newscap_checker.message_received.connect(
+                gateway.newscap_checker.message_received.connect(
                     self.on_message_received)
 
     def show_news_message(self, gateway, title, message):

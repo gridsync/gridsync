@@ -29,6 +29,7 @@ from gridsync.crypto import trunchash
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.filter import filter_tahoe_log_message
 from gridsync.monitor import Monitor
+from gridsync.news import NewscapChecker
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.preferences import set_preference, get_preference
 
@@ -122,6 +123,7 @@ class Tahoe():
         self.streamedlogs = StreamedLogs(reactor, streamedlogs_maxlen)
         self.state = Tahoe.STOPPED
         self.newscap = ""
+        self.newscap_checker = NewscapChecker(self)
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -532,10 +534,11 @@ class Tahoe():
         token_file = os.path.join(self.nodedir, 'private', 'api_auth_token')
         with open(token_file) as f:
             self.api_token = f.read().strip()
-        self.load_newscap()
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
         self.streamedlogs.start(self.nodeurl, self.api_token)
+        self.load_newscap()
+        self.newscap_checker.start()
         self.state = Tahoe.STARTED
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid)
