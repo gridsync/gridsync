@@ -82,8 +82,8 @@ class NewscapChecker(QObject):
             yield self._download_messages(downloads)
 
     @inlineCallbacks
-    def do_check(self):
-        self.schedule_delayed_check()
+    def _do_check(self):
+        self._schedule_delayed_check()
         if not self.gateway.newscap:
             return
         yield self.gateway.await_ready()
@@ -109,10 +109,10 @@ class NewscapChecker(QObject):
         with open(self._last_checked_path, 'w') as f:
             f.write(str(int(time.time())))
 
-    def schedule_delayed_check(self, delay=None):
+    def _schedule_delayed_check(self, delay=None):
         if not delay:
             delay = randint(self.check_delay_min, self.check_delay_max)
-        deferLater(reactor, delay, self.do_check)
+        deferLater(reactor, delay, self._do_check)
         logging.debug("Scheduled newscap check in %i seconds...", delay)
 
     def start(self):
@@ -125,6 +125,6 @@ class NewscapChecker(QObject):
                 last_checked = 0
             seconds_since_last_check = int(time.time()) - last_checked
             if seconds_since_last_check > self.check_delay_max:
-                self.schedule_delayed_check(self.check_delay_min)
+                self._schedule_delayed_check(self.check_delay_min)
             else:
-                self.schedule_delayed_check()
+                self._schedule_delayed_check()
