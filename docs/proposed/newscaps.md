@@ -62,9 +62,11 @@ messages.
 The "newscap" would consist in an ordinary Tahoe-LAFS directory capability 
 ("dircap") into which individual "mesages" would be linked, perhaps like so:
 
-`$newscap/v1/2017-09-25T17:56:35.484632.txt`
-`$newscap/v1/2017-10-13T13:22:03.782314.txt`
-`$newscap/v1/2017-10-19T18:42:23.152504.txt`
+```
+$newscap/v1/2017-09-25T17:56:35.484632.txt
+$newscap/v1/2017-10-13T13:22:03.782314.txt
+$newscap/v1/2017-10-19T18:42:23.152504.txt
+```
 
 (Note that naming the message files according to the timestamp is not really 
 necessary since Tahoe-LAFS dircaps already preserve a `linkmotime` value in the
@@ -112,9 +114,9 @@ magic-wormhole JSON message, like so:
 Upon seeing such a "newscap", the user's Tahoe-LAFS agent could then store the 
 value in the corresponding nodedir's "private" subdirectory (e.g., `Bob's 
 Storage Company/private/newscap`) and make any backups of this capability as 
-needed (for example, the Gridsync application <http://gridsync.io> might ensure
-that this value is also accessible from the user's "rootcap" so that future 
-news messages can be viewed in the event of a clean restore).
+needed (for example, the Gridsync application might ensure that this value is
+also accessible from the user's "rootcap" so that future news messages can be
+viewed in the event of a clean restore).
 
 
 Publishing a message to the "newscap":
