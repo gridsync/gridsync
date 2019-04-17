@@ -17,6 +17,7 @@ from gridsync import settings
 class NewscapChecker(QObject):
 
     message_received = pyqtSignal(object, str)
+    upgrade_required = pyqtSignal(object)
 
     def __init__(self, gateway):
         super().__init__()
@@ -95,9 +96,8 @@ class NewscapChecker(QObject):
         except (IndexError, KeyError) as e:
             logging.warning("%s: '%s'", type(e).__name__, str(e))
             return
-        #from gridsync.errors import UpgradeRequiredError
-        #if 'v2' in children:
-        #    raise UpgradeRequiredError
+        if 'v2' in children:
+            self.upgrade_required.emit(self.gateway)
         v1_data = children.get('v1')
         if v1_data:
             if v1_data[0] == 'dirnode':
