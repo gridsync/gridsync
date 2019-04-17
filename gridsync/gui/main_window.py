@@ -257,6 +257,8 @@ class MainWindow(QMainWindow):
                 self.gateways.append(gateway)
                 gateway.newscap_checker.message_received.connect(
                     self.on_message_received)
+                gateway.newscap_checker.upgrade_required.connect(
+                    self.on_upgrade_required)
 
     def show_news_message(self, gateway, title, message):
         msgbox = QMessageBox(self)
@@ -280,6 +282,19 @@ class MainWindow(QMainWindow):
     def on_message_received(self, gateway, message):
         title = "New message from {}".format(gateway.name)
         self.gui.show_message(title, message)
+        if self.isVisible():
+            self.show_news_message(gateway, title, message)
+        else:
+            self.pending_news_message = (gateway, title, message)
+
+    def on_upgrade_required(self, gateway):
+        title = "Upgrade required"
+        message = (
+            "A message was received from {} in an unsupported format. This "
+            "suggests that you are running an out-of-date version of {}.\n\n"
+            "To avoid seeing this warning, please upgrade to the latest "
+            "version.".format(gateway.name, APP_NAME)
+        )
         if self.isVisible():
             self.show_news_message(gateway, title, message)
         else:
