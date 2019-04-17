@@ -16,6 +16,7 @@ def get_filters(core):
     for i, gateway in enumerate(core.gui.main_window.gateways):  # XXX
         gateway_id = i + 1
         filters.append((gateway.name, 'GatewayName:{}'.format(gateway_id)))
+        filters.append((gateway.newscap, 'Newscap:{}'.format(gateway_id)))
         tahoe_settings = gateway.get_settings(include_rootcap=True)
         filters.append((
             tahoe_settings.get('rootcap'), 'Rootcap:{}'.format(gateway_id)

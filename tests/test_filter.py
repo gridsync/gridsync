@@ -21,6 +21,7 @@ def core():
     c.executable = '/tmp/test/tahoe.exe'
     gateway = Mock()
     gateway.name = 'TestGrid'
+    gateway.newscap = 'URI:NEWSCAP'
     storage_settings = OrderedDict()  # Because python3.5
     storage_settings['v0-22222'] = {
         'anonymous-storage-FURL': 'pb://333@444.example:1234/5555'
@@ -73,6 +74,7 @@ def test_get_filters_pair_in_default_filters(core, pair):
         config_dir,
         autostart_file_path,
         'TestGrid',
+        'URI:NEWSCAP',
         'URI:000:111',
         'v0-22222',
         'pb://333@444.example:1234/5555',
@@ -108,6 +110,7 @@ def test_apply_filters_string_not_in_result(core, string):
         (config_dir, 'ConfigDir'),
         (autostart_file_path, 'AutostartFilePath'),
         ('TestGrid', 'GatewayName:1'),
+        ('URI:NEWSCAP', 'Newscap:1'),
         ('URI:000:111', 'Rootcap:1'),
         ('v0-22222', 'StorageServerName:1:1'),
         ('pb://333@444.example:1234/5555', 'StorageServerFurl:1:1'),

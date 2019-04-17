@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt
+from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt, QTimer
 from PyQt5.QtGui import QFont, QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QAction, QComboBox, QFileIconProvider, QGridLayout, QMainWindow, QMenu,
@@ -246,6 +246,8 @@ class MainWindow(QMainWindow):
         self.active_invite_sender_dialogs = []
         self.active_invite_receiver_dialogs = []
 
+        self.pending_news_message = ()
+
     def populate(self, gateways):
         for gateway in gateways:
             if gateway not in self.gateways:
@@ -253,6 +255,50 @@ class MainWindow(QMainWindow):
                 self.central_widget.add_history_view(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
+                gateway.newscap_checker.message_received.connect(
+                    self.on_message_received)
+                gateway.newscap_checker.upgrade_required.connect(
+                    self.on_upgrade_required)
+
+    def show_news_message(self, gateway, title, message):
+        msgbox = QMessageBox(self)
+        msgbox.setWindowModality(Qt.WindowModal)
+        icon_filepath = os.path.join(gateway.nodedir, 'icon')
+        if os.path.exists(icon_filepath):
+            msgbox.setIconPixmap(QIcon(icon_filepath).pixmap(64, 64))
+        elif os.path.exists(resource('tahoe-lafs.png')):
+            msgbox.setIconPixmap(
+                QIcon(resource('tahoe-lafs.png')).pixmap(64, 64))
+        else:
+            msgbox.setIcon(QMessageBox.Information)
+        if sys.platform == 'darwin':
+            msgbox.setText(title)
+            msgbox.setInformativeText(message)
+        else:
+            msgbox.setWindowTitle(title)
+            msgbox.setText(message)
+        msgbox.show()
+
+    def on_message_received(self, gateway, message):
+        title = "New message from {}".format(gateway.name)
+        self.gui.show_message(title, message)
+        if self.isVisible():
+            self.show_news_message(gateway, title, message)
+        else:
+            self.pending_news_message = (gateway, title, message)
+
+    def on_upgrade_required(self, gateway):
+        title = "Upgrade required"
+        message = (
+            "A message was received from {} in an unsupported format. This "
+            "suggests that you are running an out-of-date version of {}.\n\n"
+            "To avoid seeing this warning, please upgrade to the latest "
+            "version.".format(gateway.name, APP_NAME)
+        )
+        if self.isVisible():
+            self.show_news_message(gateway, title, message)
+        else:
+            self.pending_news_message = (gateway, title, message)
 
     def current_view(self):
         try:
@@ -445,3 +491,10 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
             self.confirm_quit()
+
+    def showEvent(self, _):
+        if self.pending_news_message:
+            gateway, title, message = self.pending_news_message
+            self.pending_news_message = ()
+            QTimer.singleShot(
+                0, lambda: self.show_news_message(gateway, title, message))

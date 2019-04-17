@@ -29,6 +29,7 @@ from gridsync.crypto import trunchash
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.filter import filter_tahoe_log_message
 from gridsync.monitor import Monitor
+from gridsync.news import NewscapChecker
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.preferences import set_preference, get_preference
 
@@ -121,6 +122,30 @@ class Tahoe():
                 streamedlogs_maxlen = int(log_maxlen)
         self.streamedlogs = StreamedLogs(reactor, streamedlogs_maxlen)
         self.state = Tahoe.STOPPED
+        self.newscap = ""
+        self.newscap_checker = NewscapChecker(self)
+
+    @staticmethod
+    def read_cap_from_file(filepath):
+        try:
+            with open(filepath) as f:
+                cap = f.read().strip()
+        except OSError:
+            return None
+        return cap
+
+    def load_newscap(self):
+        news_settings = global_settings.get('news:{}'.format(self.name))
+        if news_settings:
+            newscap = news_settings.get('newscap')
+            if newscap:
+                self.newscap = newscap
+                return
+        newscap = self.read_cap_from_file(
+            os.path.join(self.nodedir, 'private', 'newscap')
+        )
+        if newscap:
+            self.newscap = newscap
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -146,6 +171,9 @@ class Tahoe():
         if os.path.exists(icon_url_path):
             with open(icon_url_path) as f:
                 settings['icon_url'] = f.read().strip()
+        self.load_newscap()
+        if self.newscap:
+            settings['newscap'] = self.newscap
         if include_rootcap and os.path.exists(self.rootcap_path):
             settings['rootcap'] = self.read_cap_from_file(self.rootcap_path)
         # TODO: Verify integrity? Support 'icon_base64'?
@@ -509,6 +537,8 @@ class Tahoe():
         self.shares_happy = int(self.config_get('client', 'shares.happy'))
         self.load_magic_folders()
         self.streamedlogs.start(self.nodeurl, self.api_token)
+        self.load_newscap()
+        self.newscap_checker.start()
         self.state = Tahoe.STARTED
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid)
@@ -880,15 +910,6 @@ class Tahoe():
             content = yield treq.content(resp)
             return json.loads(content.decode('utf-8'))
         return None
-
-    @staticmethod
-    def read_cap_from_file(filepath):
-        try:
-            with open(filepath) as f:
-                cap = f.read().strip()
-        except OSError:
-            return None
-        return cap
 
     def get_rootcap(self):
         if not self.rootcap:

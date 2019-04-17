@@ -30,6 +30,7 @@ def core():
     fake_core.log_deque = deque(['debug msg 1', '/test/tahoe', 'debug msg 3'])
     fake_gateway = Mock()
     fake_gateway.name = 'TestGridOne'
+    fake_gateway.newscap = 'URI:NEWSCAP'
     fake_gateway.magic_folders = {}
     fake_gateway.get_log = Mock(return_value='tahoe msg 1')
     fake_gateway.get_settings = Mock(return_value={})
