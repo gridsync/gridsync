@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
 app = QApplication(sys.argv)
@@ -27,6 +28,7 @@ from gridsync.tahoe import get_nodedirs, Tahoe, select_executable
 from gridsync.tor import get_tor
 
 
+app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
 
 
