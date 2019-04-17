@@ -29,6 +29,7 @@ from gridsync.tor import get_tor
 
 
 app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 app.setWindowIcon(QIcon(resource(settings['application']['tray_icon'])))
 
 
