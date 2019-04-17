@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Basic support for fetching and displaying "newscap" messages; see `docs/proposed/newscaps.md` (Issue #184; PR #192)
+
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
 - The "remove" folder action and subsequent confirmation dialog have been re-framed/updated to "stop syncing" instead. In addition, removing/stopping a folder will now unlink it from the user's rootcap/Recovery Key by default (i.e., unless the user checks the accompanying checkbox to "keep a backup copy of this folder on $GridName") (Issue #183, PR #190)
