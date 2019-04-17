@@ -62,21 +62,22 @@ messages.
 The "newscap" would consist in an ordinary Tahoe-LAFS directory capability 
 ("dircap") into which individual "mesages" would be linked, perhaps like so:
 
-`$newscap`/2017-09-25T17:56:35.484632.txt`
-`$newscap`/2017-10-13T13:22:03.782314.txt`
-`$newscap`/2017-10-19T18:42:23.152504.txt`
+`$newscap/v1/2017-09-25T17:56:35.484632.txt`
+`$newscap/v1/2017-10-13T13:22:03.782314.txt`
+`$newscap/v1/2017-10-19T18:42:23.152504.txt`
 
 (Note that naming the message files according to the timestamp is not really 
 necessary since Tahoe-LAFS dircaps already preserve a `linkmotime` value in the
 dircap's metadata; any filename could be used here)
 
-Distinguishing between the top-level dircap and its underlying individual
-messages (rather than structuring the "newscap" instead, say, as a single 
-mutable writecap into which new messages are appended) would allow for the 
-operator to remove old entries as desired while allowing the user's 
-agent/client to more easily distinguish between messages that have already been
-downloaded/seen and those that have not. In addition, this allows format users
-of the Tahoe-LAFS CLI to more easily see when a new message has been added.
+Structuring the newscap as a series of individual messages linked into a "v1"
+subdirectory (rather than, say, as a single mutable writecap into which new
+messages are appended) would allow for the operator to remove old entries as
+desired while making it easier for the user's agent/client to distinguish 
+between messages that have already been downloaded/seen and those that have 
+not. In addition, the usage of a "v1" subdirectory provides an upgrade path
+for future message formats (allowing, for example, for translated versions of 
+messages to be nested under a "v2/locale/" subdirectory in the future).
 
 Naturally, only the operator would be in possession of the read/write 
 capability needed to add entries to the newscap (and is thus the only party who
@@ -126,7 +127,7 @@ message to the storage grid and linking the resultant capability into the
 following command (assuming that the operator has already added a "newscap" 
 alias pointing to its writecap):
 
-`tahoe put /path/to/news.txt newscap:2017-10-19T18:42:23.152504.txt`
+`tahoe put /path/to/news.txt newscap:v1/2017-10-19T18:42:23.152504.txt`
 
 
 Reading the "newscap":
