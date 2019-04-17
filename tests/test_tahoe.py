@@ -119,6 +119,24 @@ def test_tahoe_set_streamedlogs_maxlen_from_config_txt(
     assert client.streamedlogs._buffer.maxlen == expected
 
 
+def test_tahoe_load_newscap_from_global_settings(tahoe, monkeypatch):
+    global_settings = {
+        'news:{}'.format(tahoe.name): {
+            'newscap': 'URI:NewscapFromSettings',
+        }
+    }
+    monkeypatch.setattr('gridsync.tahoe.global_settings', global_settings)
+    tahoe.load_newscap()
+    assert tahoe.newscap == 'URI:NewscapFromSettings'
+
+
+def test_tahoe_load_newscap_from_newscap_file(tahoe):
+    with open(os.path.join(tahoe.nodedir, 'private', 'newscap'), 'w') as f:
+        f.write('URI:NewscapFromFile')
+    tahoe.load_newscap()
+    assert tahoe.newscap == 'URI:NewscapFromFile'
+
+
 def test_config_get(tahoe):
     assert tahoe.config_get('node', 'nickname') == 'default'
 
