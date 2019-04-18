@@ -52,7 +52,6 @@ install:
   - which python3.5 && python3.5 --version
   - python2 -m pip install --upgrade setuptools pip
   - python3 -m pip install --upgrade setuptools pip tox coveralls
-  - export QT_DEBUG_PLUGINS=1
 script:
   - python3 -m tox
   - make all
