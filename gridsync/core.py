@@ -8,9 +8,11 @@ import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
+
+QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 app = QApplication(sys.argv)
-app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
 # qt5reactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
 # See https://github.com/gridsync/qt5reactor/blob/master/README.rst
