@@ -7,7 +7,7 @@ import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QTimer, Qt
-from PyQt5.QtGui import QColor, QCursor, QFont, QIcon, QPixmap
+from PyQt5.QtGui import QColor, QCursor, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QAbstractItemView, QFileIconProvider, QGridLayout, QLabel,
     QListWidgetItem, QListWidget, QMenu, QPushButton, QSizePolicy, QSpacerItem,
@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
+from gridsync.gui.font import Font
 from gridsync.gui.status import StatusPanel
 
 
@@ -50,20 +51,10 @@ class HistoryItemWidget(QWidget):
         )
 
         self.basename_label = QLabel(self.basename)
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(15)
-        else:
-            font.setPointSize(11)
-        self.basename_label.setFont(font)
+        self.basename_label.setFont(Font(11))
 
         self.details_label = QLabel()
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(13)
-        else:
-            font.setPointSize(10)
-        self.details_label.setFont(font)
+        self.details_label.setFont(Font(10))
         self.details_label.setStyleSheet('color: grey')
 
         self.button = QPushButton()

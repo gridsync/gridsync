@@ -17,6 +17,7 @@ import wormhole.errors
 from gridsync import resource, config_dir
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.invite import InviteReceiver, InviteSender
+from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.preferences import get_preference
 from gridsync.tor import TOR_PURPLE
@@ -54,12 +55,7 @@ class InviteSenderDialog(QDialog):
             header_text.setText(self.folder_names_humanized)
         else:
             header_text.setText(self.gateway.name)
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(22)
-        else:
-            font.setPointSize(18)
-        header_text.setFont(font)
+        header_text.setFont(Font(18))
         header_text.setAlignment(Qt.AlignCenter)
 
         header_layout = QGridLayout()
@@ -71,22 +67,13 @@ class InviteSenderDialog(QDialog):
             QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
 
         self.subtext_label = QLabel(self)
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(13)
-        else:
-            font.setPointSize(10)
-        self.subtext_label.setFont(font)
+        self.subtext_label.setFont(Font(10))
         self.subtext_label.setStyleSheet("color: grey")
         self.subtext_label.setWordWrap(True)
         self.subtext_label.setAlignment(Qt.AlignCenter)
 
         self.noise_label = QLabel()
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(20)
-        else:
-            font.setPointSize(16)
+        font = Font(16)
         font.setFamily("Courier")
         font.setStyleHint(QFont.Monospace)
         self.noise_label.setFont(font)
@@ -98,23 +85,13 @@ class InviteSenderDialog(QDialog):
         self.noise_timer.start(75)
 
         self.code_label = QLabel()
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(22)
-        else:
-            font.setPointSize(18)
-        self.code_label.setFont(font)
+        self.code_label.setFont(Font(18))
         self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.code_label.hide()
 
         self.box_title = QLabel(self)
         self.box_title.setAlignment(Qt.AlignCenter)
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(20)
-        else:
-            font.setPointSize(16)
-        self.box_title.setFont(font)
+        self.box_title.setFont(Font(16))
 
         self.box = QGroupBox()
         self.box.setAlignment(Qt.AlignCenter)

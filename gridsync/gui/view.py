@@ -5,7 +5,7 @@ import os
 import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
-from PyQt5.QtGui import QCursor, QFont, QIcon, QMovie, QPixmap
+from PyQt5.QtGui import QCursor, QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
     QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
@@ -14,6 +14,7 @@ from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_path
+from gridsync.gui.font import Font
 from gridsync.gui.model import Model
 from gridsync.gui.share import InviteSenderDialog
 from gridsync.msg import error
@@ -106,12 +107,7 @@ class View(QTreeView):
 
         self.drop_text = QLabel(self)
         self.drop_text.setText("Drag and drop folders here")
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(18)
-        else:
-            font.setPointSize(14)
-        self.drop_text.setFont(font)
+        self.drop_text.setFont(Font(14))
         self.drop_text.setStyleSheet('color: grey')
         self.drop_text.setAlignment(Qt.AlignCenter)
         self.drop_text.setAcceptDrops(True)

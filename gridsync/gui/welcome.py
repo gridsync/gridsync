@@ -4,7 +4,7 @@ import logging as log
 import sys
 
 from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtGui import QFont, QIcon, QKeySequence, QPixmap
+from PyQt5.QtGui import QIcon, QKeySequence, QPixmap
 from PyQt5.QtWidgets import (
     QGridLayout, QLabel, QPushButton, QMessageBox, QProgressBar, QShortcut,
     QSizePolicy, QSpacerItem, QStackedWidget, QToolButton, QWidget)
@@ -18,6 +18,7 @@ from gridsync import settings as global_settings
 from gridsync.invite import InviteReceiver
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import InviteCodeWidget, show_failure
+from gridsync.gui.font import Font
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
@@ -46,12 +47,7 @@ class WelcomeWidget(QWidget):
 
         self.slogan = QLabel("<i>{}</i>".format(
             application_settings.get('description', '')))
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(16)
-        else:
-            font.setPointSize(12)
-        self.slogan.setFont(font)
+        self.slogan.setFont(Font(12))
         self.slogan.setStyleSheet("color: grey")
         self.slogan.setAlignment(Qt.AlignCenter)
         if logo_icon:
@@ -67,22 +63,12 @@ class WelcomeWidget(QWidget):
 
         self.restore_link = QLabel()
         self.restore_link.setText("<a href>Restore from Recovery Key...</a>")
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(12)
-        else:
-            font.setPointSize(9)
-        self.restore_link.setFont(font)
+        self.restore_link.setFont(Font(9))
         self.restore_link.setAlignment(Qt.AlignCenter)
 
         self.configure_link = QLabel()
         self.configure_link.setText("<a href>Manual configuration...</a>")
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(12)
-        else:
-            font.setPointSize(9)
-        self.configure_link.setFont(font)
+        self.configure_link.setFont(Font(9))
         self.configure_link.setAlignment(Qt.AlignCenter)
 
         self.preferences_button = QPushButton()

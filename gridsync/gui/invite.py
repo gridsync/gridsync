@@ -4,7 +4,7 @@ import sys
 
 from PyQt5.QtCore import (
     pyqtSignal, QPropertyAnimation, QSize, QStringListModel, Qt)
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction, QCheckBox, QCompleter, QGraphicsOpacityEffect, QGridLayout,
     QLabel, QLineEdit, QMessageBox, QPushButton, QSizePolicy, QSpacerItem,
@@ -17,6 +17,7 @@ from wormhole.errors import (
 from gridsync import resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
+from gridsync.gui.font import Font
 from gridsync.invite import wordlist, is_valid_code
 from gridsync.tor import get_tor
 
@@ -50,12 +51,7 @@ class InviteCodeLineEdit(QLineEdit):
         model.setStringList(wordlist)
         completer = InviteCodeCompleter()
         completer.setModel(model)
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(20)
-        else:
-            font.setPointSize(16)
-        self.setFont(font)
+        self.setFont(Font(16))
         self.setCompleter(completer)
         self.setAlignment(Qt.AlignCenter)
         #self.setPlaceholderText("Enter invite code")
@@ -134,12 +130,7 @@ class InviteCodeWidget(QWidget):
         self.parent = parent
 
         self.label = QLabel("Enter invite code:")
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(18)
-        else:
-            font.setPointSize(14)
-        self.label.setFont(font)
+        self.label.setFont(Font(14))
         self.label.setStyleSheet("color: grey")
         self.label.setAlignment(Qt.AlignCenter)
 

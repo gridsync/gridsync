@@ -5,7 +5,7 @@ import os
 import sys
 
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt, QTimer
-from PyQt5.QtGui import QFont, QIcon, QKeySequence
+from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QAction, QComboBox, QFileIconProvider, QGridLayout, QMainWindow, QMenu,
     QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton, QWidget)
@@ -14,6 +14,7 @@ from twisted.internet import reactor
 from gridsync import resource, APP_NAME, config_dir, settings
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
+from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.widgets import CompositePixmap
@@ -109,11 +110,7 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(11)
-        else:
-            font.setPointSize(8)
+        font = Font(8)
 
         folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
         folder_icon_composite = CompositePixmap(
