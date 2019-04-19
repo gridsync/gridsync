@@ -6,7 +6,7 @@ import os
 import sys
 
 from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QTimer
-from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel, QMessageBox,
     QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)

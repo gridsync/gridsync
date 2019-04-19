@@ -4,7 +4,7 @@ import logging as log
 import sys
 
 from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtGui import QIcon, QKeySequence, QPixmap
+from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QGridLayout, QLabel, QPushButton, QMessageBox, QProgressBar, QShortcut,
     QSizePolicy, QSpacerItem, QStackedWidget, QToolButton, QWidget)

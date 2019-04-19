@@ -2,7 +2,7 @@
 
 from humanize import naturalsize
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon, QMovie, QPixmap
+from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import (
     QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QSystemTrayIcon,
     QToolButton, QWidget)

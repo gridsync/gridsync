@@ -4,7 +4,6 @@ import json
 import os
 
 from PyQt5.QtCore import QPropertyAnimation, QThread
-from PyQt5.QtGui import QColor, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QComboBox, QDialogButtonBox, QFileDialog, QFormLayout, QGridLayout,
     QGroupBox, QLabel, QLineEdit, QPlainTextEdit, QProgressDialog, QPushButton,
