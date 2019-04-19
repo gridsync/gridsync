@@ -12,7 +12,7 @@ class Pixmap(QPixmap):
         super().__init__(resource(resource_filename))
         if size:
             self.swap(self.scaled(
-                size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation 
+                size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation
             ))
 
 
