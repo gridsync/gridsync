@@ -5,9 +5,18 @@ import pytest
 from gridsync.gui.font import Font
 
 
-def test_font_default():
+@pytest.mark.parametrize(
+    'platform,expected',
+    [
+        ('darwin', 16),
+        ('linux', 12),
+        ('win32', 12),
+    ]
+)
+def test_font_default(platform, expected, monkeypatch):
+    monkeypatch.setattr('sys.platform', platform)
     font = Font()
-    assert font.pointSize() == 12
+    assert font.pointSize() == expected
 
 
 @pytest.mark.parametrize(
