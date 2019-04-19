@@ -115,7 +115,10 @@ class InviteSenderDialog(QDialog):
 
         self.checkmark = QLabel()
         self.checkmark.setPixmap(
-            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+            QPixmap(resource('green_checkmark.png')).scaled(
+                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        )
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.hide()
 
@@ -296,14 +299,20 @@ class InviteReceiverDialog(QDialog):
         self.setMinimumSize(500, 300)
 
         self.mail_closed_icon = QLabel()
-        self.mail_closed_icon.setPixmap(
-            QPixmap(resource('mail-envelope-closed.png')).scaled(128, 128))
         self.mail_closed_icon.setAlignment(Qt.AlignCenter)
+        self.mail_closed_icon.setPixmap(
+            QPixmap(resource('mail-envelope-closed.png')).scaled(
+                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        )
 
         self.mail_open_icon = QLabel()
-        self.mail_open_icon.setPixmap(
-            QPixmap(resource('mail-envelope-open.png')).scaled(128, 128))
         self.mail_open_icon.setAlignment(Qt.AlignCenter)
+        self.mail_open_icon.setPixmap(
+            QPixmap(resource('mail-envelope-open.png')).scaled(
+                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        )
 
         self.folder_icon = QLabel()
         icon = QFileIconProvider().icon(QFileInfo(config_dir))
@@ -323,7 +332,10 @@ class InviteReceiverDialog(QDialog):
         self.checkmark = QLabel()
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.setPixmap(
-            QPixmap(resource('green_checkmark.png')).scaled(32, 32))
+            QPixmap(resource('green_checkmark.png')).scaled(
+                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        )
 
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
@@ -398,7 +410,10 @@ class InviteReceiverDialog(QDialog):
 
     def on_got_icon(self, path):
         self.mail_open_icon.setPixmap(
-            QPixmap(path).scaled(128, 128))
+            QPixmap(path).scaled(
+                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        )
         self.mail_closed_icon.hide()
         self.mail_open_icon.show()
 

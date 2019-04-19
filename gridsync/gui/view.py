@@ -46,10 +46,14 @@ class Delegate(QStyledItemDelegate):
             status = index.data(Qt.UserRole)
             if not status:  # "Loading..."
                 self.waiting_movie.setPaused(False)
-                pixmap = self.waiting_movie.currentPixmap().scaled(20, 20)
+                pixmap = self.waiting_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
             elif status in (1, 99):  # "Syncing", "Scanning"
                 self.sync_movie.setPaused(False)
-                pixmap = self.sync_movie.currentPixmap().scaled(20, 20)
+                pixmap = self.sync_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
             if pixmap:
                 point = option.rect.topLeft()
                 painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)

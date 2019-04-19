@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from humanize import naturalsize
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QSystemTrayIcon,
@@ -23,7 +23,9 @@ class StatusPanel(QWidget):
 
         self.checkmark_icon = QLabel()
         self.checkmark_icon.setPixmap(
-            QPixmap(resource('checkmark.png')).scaled(20, 20)
+            QPixmap(resource('checkmark.png')).scaled(
+                20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
         )
 
         self.syncing_icon = QLabel()
@@ -32,7 +34,9 @@ class StatusPanel(QWidget):
         self.sync_movie.setCacheMode(True)
         self.sync_movie.updated.connect(
             lambda: self.syncing_icon.setPixmap(
-                self.sync_movie.currentPixmap().scaled(20, 20)
+                self.sync_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
             )
         )
 

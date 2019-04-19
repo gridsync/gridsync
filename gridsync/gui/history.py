@@ -83,7 +83,9 @@ class HistoryItemWidget(QWidget):
     def _do_load_thumbnail(self):
         pixmap = QPixmap(self.path)
         if not pixmap.isNull():
-            self.icon.setPixmap(pixmap.scaled(48, 48))
+            self.icon.setPixmap(pixmap.scaled(
+                48, 48, Qt.IgnoreAspectRatio, Qt.SmoothTransformation
+            ))
 
     def load_thumbnail(self):
         if self.isVisible() and not self._thumbnail_loaded:
