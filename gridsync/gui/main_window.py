@@ -12,15 +12,15 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir, settings
-from gridsync.msg import error, info
-from gridsync.recovery import RecoveryKeyExporter
 from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
-from gridsync.gui.welcome import WelcomeDialog
-from gridsync.gui.widgets import CompositePixmap
+from gridsync.gui.pixmap import CompositePixmap
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
+from gridsync.gui.welcome import WelcomeDialog
+from gridsync.msg import error, info
+from gridsync.recovery import RecoveryKeyExporter
 
 
 class ComboBox(QComboBox):
