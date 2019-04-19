@@ -2,7 +2,6 @@
 
 from datetime import datetime
 import os
-import sys
 import time
 
 from humanize import naturalsize, naturaltime

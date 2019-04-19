@@ -2,7 +2,6 @@
 
 import logging
 import os
-import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
 from PyQt5.QtGui import QCursor, QIcon, QMovie, QPixmap
