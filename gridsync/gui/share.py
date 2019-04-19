@@ -19,6 +19,7 @@ from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
+from gridsync.gui.pixmap import Pixmap
 from gridsync.preferences import get_preference
 from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
@@ -114,20 +115,14 @@ class InviteSenderDialog(QDialog):
         self.close_button.setAutoDefault(False)
 
         self.checkmark = QLabel()
-        self.checkmark.setPixmap(
-            QPixmap(resource('green_checkmark.png')).scaled(
-                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.hide()
 
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
             "This connection is being routed through the Tor network.")
-        self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(
-                24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.tor_label.setPixmap(Pixmap('tor-onion.png', 24))
         self.tor_label.hide()
 
         self.progress_bar = QProgressBar()
@@ -301,18 +296,12 @@ class InviteReceiverDialog(QDialog):
         self.mail_closed_icon = QLabel()
         self.mail_closed_icon.setAlignment(Qt.AlignCenter)
         self.mail_closed_icon.setPixmap(
-            QPixmap(resource('mail-envelope-closed.png')).scaled(
-                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
+            Pixmap('mail-envelope-closed.png', 128)
         )
 
         self.mail_open_icon = QLabel()
         self.mail_open_icon.setAlignment(Qt.AlignCenter)
-        self.mail_open_icon.setPixmap(
-            QPixmap(resource('mail-envelope-open.png')).scaled(
-                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.mail_open_icon.setPixmap(Pixmap('mail-envelope-open.png', 128))
 
         self.folder_icon = QLabel()
         icon = QFileIconProvider().icon(QFileInfo(config_dir))
@@ -325,17 +314,11 @@ class InviteReceiverDialog(QDialog):
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
             "This connection is being routed through the Tor network.")
-        self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(
-                24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.tor_label.setPixmap(Pixmap('tor-onion.png', 24))
 
         self.checkmark = QLabel()
         self.checkmark.setAlignment(Qt.AlignCenter)
-        self.checkmark.setPixmap(
-            QPixmap(resource('green_checkmark.png')).scaled(
-                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
 
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
@@ -409,11 +392,7 @@ class InviteReceiverDialog(QDialog):
             self.folder_icon.show()
 
     def on_got_icon(self, path):
-        self.mail_open_icon.setPixmap(
-            QPixmap(path).scaled(
-                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.mail_open_icon.setPixmap(Pixmap(path, 128))
         self.mail_closed_icon.hide()
         self.mail_open_icon.show()
 

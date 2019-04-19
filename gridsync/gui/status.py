@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 from gridsync.gui.menu import Menu
+from gridsync.gui.pixmap import Pixmap
 
 
 class StatusPanel(QWidget):
@@ -22,11 +23,7 @@ class StatusPanel(QWidget):
         self.available_space = 0
 
         self.checkmark_icon = QLabel()
-        self.checkmark_icon.setPixmap(
-            QPixmap(resource('checkmark.png')).scaled(
-                20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.checkmark_icon.setPixmap(Pixmap('checkmark.png', 20))
 
         self.syncing_icon = QLabel()
 

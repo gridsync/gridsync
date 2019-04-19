@@ -19,6 +19,7 @@ from gridsync.invite import InviteReceiver
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.font import Font
+from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
@@ -41,8 +42,7 @@ class WelcomeWidget(QWidget):
             icon_size = 220
 
         self.icon = QLabel()
-        self.icon.setPixmap(QPixmap(resource(icon_file)).scaled(
-            icon_size, icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.icon.setPixmap(Pixmap(icon_file, icon_size))
         self.icon.setAlignment(Qt.AlignCenter)
 
         self.slogan = QLabel("<i>{}</i>".format(
@@ -119,51 +119,29 @@ class ProgressBarWidget(QWidget):
         super(ProgressBarWidget, self).__init__()
 
         self.icon_server = QLabel()
+        self.icon_server.setPixmap(Pixmap('cloud.png', 220))
         self.icon_server.setAlignment(Qt.AlignCenter)
-        self.icon_server.setPixmap(
-            QPixmap(resource('cloud.png')).scaled(
-                220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
 
         self.icon_overlay = QLabel()
+        self.icon_overlay.setPixmap(Pixmap('pixel.png', 75))
         self.icon_overlay.setAlignment(Qt.AlignHCenter)
-        self.icon_overlay.setPixmap(
-            QPixmap(resource('pixel.png')).scaled(
-                75, 75, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
 
         self.icon_connection = QLabel()
+        self.icon_connection.setPixmap(Pixmap('wifi.png', 128))
         self.icon_connection.setAlignment(Qt.AlignCenter)
-        self.icon_connection.setPixmap(
-            QPixmap(resource('wifi.png')).scaled(
-                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
 
         self.icon_client = QLabel()
+        self.icon_client.setPixmap(Pixmap('laptop-with-icon.png', 128))
         self.icon_client.setAlignment(Qt.AlignCenter)
-        self.icon_client.setPixmap(
-            QPixmap(resource('laptop-with-icon.png')).scaled(
-                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
 
         self.checkmark = QLabel()
+        self.checkmark.setPixmap(Pixmap('pixel.png', 32))
         self.checkmark.setAlignment(Qt.AlignCenter)
-        self.checkmark.setPixmap(
-            QPixmap(resource('pixel.png')).scaled(
-                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
 
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
             "This connection is being routed through the Tor network.")
-        self.tor_label.setPixmap(
-            QPixmap(resource('tor-onion.png')).scaled(
-                24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.tor_label.setPixmap(Pixmap('tor-onion.png', 24))
         self.tor_label.hide()
 
         self.progressbar = QProgressBar()
@@ -204,28 +182,12 @@ class ProgressBarWidget(QWidget):
         self.progressbar.setValue(step)
         self.message.setText(message)
         if step == 2:  # "Connecting to <nickname>..."
-            self.icon_connection.setPixmap(
-                QPixmap(resource('lines_dotted.png')).scaled(
-                    128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            )
-            self.icon_server.setPixmap(
-                QPixmap(resource('cloud_storage.png')).scaled(
-                    220, 220, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            )
+            self.icon_connection.setPixmap(Pixmap('lines_dotted.png', 128))
+            self.icon_server.setPixmap(Pixmap('cloud_storage.png', 220))
         elif step == 5:  # After await_ready()
-            self.icon_connection.setPixmap(
-                QPixmap(resource('lines_solid.png')).scaled(
-                    128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            )
+            self.icon_connection.setPixmap(Pixmap('lines_solid.png', 128))
         elif step == self.progressbar.maximum():  # "Done!"
-            self.checkmark.setPixmap(
-                QPixmap(resource('green_checkmark.png')).scaled(
-                    32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            )
+            self.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
 
     def is_complete(self):
         return self.progressbar.value() == self.progressbar.maximum()
@@ -234,11 +196,7 @@ class ProgressBarWidget(QWidget):
         self.progressbar.setValue(0)
         self.message.setText('')
         self.finish_button.hide()
-        self.checkmark.setPixmap(
-            QPixmap(resource('pixel.png')).scaled(
-                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.checkmark.setPixmap(Pixmap('pixel.png', 32))
         self.tor_label.hide()
         self.progressbar.setStyleSheet('')
 
@@ -312,11 +270,7 @@ class WelcomeDialog(QStackedWidget):
         self.setCurrentIndex(0)
 
     def load_service_icon(self, filepath):
-        self.page_2.icon_overlay.setPixmap(
-            QPixmap(filepath).scaled(
-                100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.page_2.icon_overlay.setPixmap(Pixmap(filepath, 100))
 
     def handle_failure(self, failure):
         log.error(str(failure))
@@ -342,11 +296,7 @@ class WelcomeDialog(QStackedWidget):
     def on_done(self, gateway):
         self.gateway = gateway
         self.progressbar.setValue(self.progressbar.maximum())
-        self.page_2.checkmark.setPixmap(
-            QPixmap(resource('green_checkmark.png')).scaled(
-                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-        )
+        self.page_2.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
         self.finish_button.show()
         self.finish_button_clicked()  # TODO: Cleanup
 
