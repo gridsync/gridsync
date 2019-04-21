@@ -120,6 +120,7 @@ class View(QTreeView):
         self.drop_subtext = QLabel(self)
         self.drop_subtext.setText(
             "Added folders will sync with {}".format(self.gateway.name))
+        self.drop_subtext.setFont(Font(10))
         self.drop_subtext.setStyleSheet('color: grey')
         self.drop_subtext.setAlignment(Qt.AlignCenter)
         self.drop_subtext.setAcceptDrops(True)
