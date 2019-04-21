@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QToolButton, QWidget)
 
 from gridsync import resource
+from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
 
@@ -39,6 +40,7 @@ class StatusPanel(QWidget):
 
         self.status_label = QLabel()
         self.status_label.setStyleSheet("color: dimgrey")
+        self.status_label.setFont(Font(10))
 
         self.on_sync_state_updated(0)
 
