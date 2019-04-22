@@ -253,16 +253,6 @@ def test_load_magic_folders(tahoe):
 
 
 @inlineCallbacks
-def test_tahoe_command_win32_monkeypatch(tahoe, monkeypatch):
-    monkeypatch.setattr('sys.platform', 'win32')
-    monkeypatch.setattr('sys.frozen', True, raising=False)
-    monkeypatch.setattr('gridsync.tahoe.Tahoe._win32_popen',
-                        lambda a, b, c, d: 'test output')
-    output = yield tahoe.command(['test_command'])
-    assert output == 'test output'
-
-
-@inlineCallbacks
 def test_tahoe_get_features_multi_magic_folder_support(tahoe, monkeypatch):
     monkeypatch.setattr('gridsync.tahoe.Tahoe.command', lambda x, y: 'test')
     output = yield tahoe.get_features()
