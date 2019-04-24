@@ -57,7 +57,7 @@ install:
   - python2 -m pip install --upgrade setuptools pip
   - python3 -m pip install --upgrade setuptools pip tox coveralls
 script:
-  - python3 -m tox
+  - make test
   - make all
   - dist/Tahoe-LAFS/tahoe --version-and-path
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/gridsync --version; fi
