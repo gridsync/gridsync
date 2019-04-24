@@ -27,6 +27,7 @@ class ComboBox(QComboBox):
     def __init__(self):
         super(ComboBox, self).__init__()
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.setFont(Font(10))
         self.current_index = 0
         self.insertSeparator(0)
         self.addItem(" Add new...")
