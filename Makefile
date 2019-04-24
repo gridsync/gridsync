@@ -17,7 +17,7 @@ clean:
 
 test:
 	@case `uname` in \
-		Darwin)	$(MAKE) python3 -m tox ;; \
+		Darwin)	python3 -m tox ;; \
 		*) xvfb-run -a python3 -m tox ;; \
 	esac
 
