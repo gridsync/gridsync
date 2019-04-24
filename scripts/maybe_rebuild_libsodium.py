@@ -6,7 +6,7 @@ import sys
 version = platform.mac_ver()[0]
 
 if not version:
-    sys.exit("Not a Mac or no version detected; exiting")
+    sys.exit()
 
 major = int(version.split('.')[0])
 minor = int(version.split('.')[1])
