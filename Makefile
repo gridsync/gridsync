@@ -164,24 +164,6 @@ frozen-tahoe:
 install:
 	python3 -m pip install --upgrade .
 
-pyinstaller-legacy:
-	if [ ! -d dist/Tahoe-LAFS ] ; then \
-		make frozen-tahoe ; \
-	fi
-	if [ ! -d build/venv-gridsync ] ; then \
-		python3 -m virtualenv --python=python3 build/venv-gridsync ; \
-	fi
-	source build/venv-gridsync/bin/activate && \
-	python -m pip install --upgrade pip && \
-	python -m pip install -r requirements/requirements-gridsync.txt && \
-	python -m pip install --editable . && \
-	python scripts/maybe_rebuild_libsodium.py && \
-	python scripts/maybe_downgrade_pyqt.py && \
-	python -m pip install -r requirements/requirements-pyinstaller.txt && \
-	python -m pip list && \
-	export PYTHONHASHSEED=1 && \
-	python -m PyInstaller -y misc/gridsync.spec
-
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
 	python3 -m tox -e pyinstaller
@@ -208,14 +190,6 @@ codesign-dmg:
 
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
-
-legacy:
-	$(MAKE) pyinstaller-legacy
-	@case `uname` in \
-		Darwin)	$(MAKE) dmg ;; \
-		*) python3 scripts/make_archive.py ;; \
-	esac
-	python3 scripts/sha256sum.py dist/*.*
 
 all:
 	$(MAKE) pyinstaller
