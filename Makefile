@@ -16,7 +16,6 @@ clean:
 	find . -name '__pycache__' -exec rm -rf {} +
 
 test:
-	python3 -m tox
 	@case `uname` in \
 		Darwin)	$(MAKE) python3 -m tox ;; \
 		*) xvfb-run -a python3 -m tox ;; \
