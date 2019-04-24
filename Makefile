@@ -172,12 +172,8 @@ pyinstaller-legacy:
 	python -m pip install --upgrade pip && \
 	python -m pip install -r requirements/requirements-gridsync.txt && \
 	python -m pip install --editable . && \
-	case `uname` in \
-		Darwin) \
-			python scripts/maybe_rebuild_libsodium.py && \
-			python scripts/maybe_downgrade_pyqt.py \
-		;; \
-	esac &&	\
+	python scripts/maybe_rebuild_libsodium.py && \
+	python scripts/maybe_downgrade_pyqt.py && \
 	python -m pip install -r requirements/requirements-pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
@@ -210,9 +206,12 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
-macos-legacy:
+legacy:
 	$(MAKE) pyinstaller-legacy
-	$(MAKE) dmg
+	@case `uname` in \
+		Darwin)	$(MAKE) dmg ;; \
+		*) python3 scripts/make_archive.py ;; \
+	esac
 	python3 scripts/sha256sum.py dist/*.*
 
 all:
