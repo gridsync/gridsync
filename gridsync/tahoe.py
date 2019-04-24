@@ -314,29 +314,6 @@ class Tahoe():
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
 
-    def _win32_popen(self, args, env, callback_trigger=None):
-        # This is a workaround to prevent Command Prompt windows from opening
-        # when spawning tahoe processes from the GUI on Windows, as Twisted's
-        # reactor.spawnProcess() API does not allow Windows creation flags to
-        # be passed to subprocesses. By passing 0x08000000 (CREATE_NO_WINDOW),
-        # the opening of the Command Prompt window will be surpressed while
-        # still allowing access to stdout/stderr. See:
-        # https://twistedmatrix.com/pipermail/twisted-python/2007-February/014733.html
-        import subprocess
-        proc = subprocess.Popen(
-            args, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            universal_newlines=True, creationflags=0x08000000)
-        output = BytesIO()
-        for line in iter(proc.stdout.readline, ''):
-            output.write(line.encode('utf-8'))
-            self.line_received(line.rstrip())
-            if callback_trigger and callback_trigger in line.rstrip():
-                return proc.pid
-        proc.poll()
-        if proc.returncode:
-            raise TahoeCommandError(str(output.getvalue()).strip())
-        return str(output.getvalue()).strip()
-
     @inlineCallbacks
     def command(self, args, callback_trigger=None):
         from twisted.internet import reactor
@@ -352,14 +329,9 @@ class Tahoe():
         env = os.environ
         env['PYTHONUNBUFFERED'] = '1'
         log.debug("Executing: %s...", ' '.join(logged_args))
-        if sys.platform == 'win32' and getattr(sys, 'frozen', False):
-            from twisted.internet.threads import deferToThread
-            output = yield deferToThread(
-                self._win32_popen, args, env, callback_trigger)
-        else:
-            protocol = CommandProtocol(self, callback_trigger)
-            reactor.spawnProcess(protocol, exe, args=args, env=env)
-            output = yield protocol.done
+        protocol = CommandProtocol(self, callback_trigger)
+        reactor.spawnProcess(protocol, exe, args=args, env=env)
+        output = yield protocol.done
         return output
 
     @inlineCallbacks

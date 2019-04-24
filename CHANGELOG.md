@@ -8,6 +8,9 @@
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
 - The "remove" folder action and subsequent confirmation dialog have been re-framed/updated to "stop syncing" instead. In addition, removing/stopping a folder will now unlink it from the user's rootcap/Recovery Key by default (i.e., unless the user checks the accompanying checkbox to "keep a backup copy of this folder on $GridName") (Issue #183, PR #190)
 - Various scripts, configurations, and operations relating to the Gridsync CI/testing/build process have been updated and improved, slightly reducing at least one developer's growing frustrations with Travis-CI and buildbot (PR #188)
+- Twisted's `reactor.spawnProcess` will now be used for running `tahoe` subprocesses on Windows, instead of threaded `subprocess.Popen` calls (Issue #176, PR #195)
+- Gridsync binary distributions will now use and ship with Qt version 5.12 (Issue #194, PR #196)
+- Due to ending upstream support and binary incompatibily with Qt 5.12, Debian 8 ("Jessie") and Ubuntu 14.04 ("Trusty Tahr") are no longer supported. Users running Debian 8 or Ubuntu 14.04 will need to upgrade their operating systems or build/install Gridsync from source (via `make`) (PR #196)
 
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
