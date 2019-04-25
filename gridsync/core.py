@@ -9,9 +9,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
 
-if sys.platform in ('darwin', 'win32'):  # XXX Seemingly broken i3wm/Linux
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+#if sys.platform in ('darwin', 'win32'):  # XXX Seemingly broken i3wm/Linux
+QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 app = QApplication(sys.argv)
 
