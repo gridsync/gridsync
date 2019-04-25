@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from humanize import naturalsize
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QIcon, QMovie, QPixmap
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import (
     QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QSystemTrayIcon,
     QToolButton, QWidget)
 
 from gridsync import resource
+from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
+from gridsync.gui.pixmap import Pixmap
 
 
 class StatusPanel(QWidget):
@@ -22,9 +24,7 @@ class StatusPanel(QWidget):
         self.available_space = 0
 
         self.checkmark_icon = QLabel()
-        self.checkmark_icon.setPixmap(
-            QPixmap(resource('checkmark.png')).scaled(20, 20)
-        )
+        self.checkmark_icon.setPixmap(Pixmap('checkmark.png', 20))
 
         self.syncing_icon = QLabel()
 
@@ -32,12 +32,15 @@ class StatusPanel(QWidget):
         self.sync_movie.setCacheMode(True)
         self.sync_movie.updated.connect(
             lambda: self.syncing_icon.setPixmap(
-                self.sync_movie.currentPixmap().scaled(20, 20)
+                self.sync_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
             )
         )
 
         self.status_label = QLabel()
         self.status_label.setStyleSheet("color: dimgrey")
+        self.status_label.setFont(Font(10))
 
         self.on_sync_state_updated(0)
 

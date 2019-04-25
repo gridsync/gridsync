@@ -5,9 +5,22 @@ import logging
 import os
 import sys
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
+
+if sys.platform in ('darwin', 'win32'):
+    # XXX These attributes appear to be broken on Linux in at least two ways:
+    #   - Under i3wm on Qubes-OS, setting them doubles the window-size but
+    #     keeps font-sizes the same, even on low-resolution (1080p) displays.
+    #   - Under GNOME on both Fedora 29 and Ubuntu 19.04 and with a display
+    #     scaling setting of "200%", setting them doubles the font-sizes but
+    #     keeps the window-sizes the same (i.e., at 100%)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
 app = QApplication(sys.argv)
+
 # qt5reactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
 # See https://github.com/gridsync/qt5reactor/blob/master/README.rst

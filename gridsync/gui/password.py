@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import sys
-
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction, QDialog, QGridLayout, QGroupBox, QLabel, QLineEdit, QProgressBar,
     QSizePolicy, QSpacerItem)
 from zxcvbn import zxcvbn
 
 from gridsync import resource
+from gridsync.gui.font import Font
 
 
 class PasswordDialog(QDialog):
@@ -18,21 +17,11 @@ class PasswordDialog(QDialog):
         self.setMinimumWidth(400)
 
         self.label = QLabel("Password:")
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(18)
-        else:
-            font.setPointSize(14)
-        self.label.setFont(font)
+        self.label.setFont(Font(14))
         self.label.setStyleSheet('color: gray')
 
         self.lineedit = QLineEdit(self)
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(18)
-        else:
-            font.setPointSize(14)
-        self.lineedit.setFont(font)
+        self.lineedit.setFont(Font(14))
         self.lineedit.setEchoMode(QLineEdit.Password)
         self.action = QAction(QIcon(resource('eye.png')), "Toggle visibility")
         self.action.triggered.connect(self.toggle_visibility)

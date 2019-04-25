@@ -2,10 +2,9 @@
 
 import logging
 import os
-import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
-from PyQt5.QtGui import QCursor, QFont, QIcon, QMovie, QPixmap
+from PyQt5.QtGui import QCursor, QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
     QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
@@ -14,6 +13,7 @@ from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
 from gridsync.desktop import open_path
+from gridsync.gui.font import Font
 from gridsync.gui.model import Model
 from gridsync.gui.share import InviteSenderDialog
 from gridsync.msg import error
@@ -46,10 +46,14 @@ class Delegate(QStyledItemDelegate):
             status = index.data(Qt.UserRole)
             if not status:  # "Loading..."
                 self.waiting_movie.setPaused(False)
-                pixmap = self.waiting_movie.currentPixmap().scaled(20, 20)
+                pixmap = self.waiting_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
             elif status in (1, 99):  # "Syncing", "Scanning"
                 self.sync_movie.setPaused(False)
-                pixmap = self.sync_movie.currentPixmap().scaled(20, 20)
+                pixmap = self.sync_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
             if pixmap:
                 point = option.rect.topLeft()
                 painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
@@ -106,12 +110,7 @@ class View(QTreeView):
 
         self.drop_text = QLabel(self)
         self.drop_text.setText("Drag and drop folders here")
-        font = QFont()
-        if sys.platform == 'darwin':
-            font.setPointSize(18)
-        else:
-            font.setPointSize(14)
-        self.drop_text.setFont(font)
+        self.drop_text.setFont(Font(14))
         self.drop_text.setStyleSheet('color: grey')
         self.drop_text.setAlignment(Qt.AlignCenter)
         self.drop_text.setAcceptDrops(True)
@@ -121,6 +120,7 @@ class View(QTreeView):
         self.drop_subtext = QLabel(self)
         self.drop_subtext.setText(
             "Added folders will sync with {}".format(self.gateway.name))
+        self.drop_subtext.setFont(Font(10))
         self.drop_subtext.setStyleSheet('color: grey')
         self.drop_subtext.setAlignment(Qt.AlignCenter)
         self.drop_subtext.setAcceptDrops(True)

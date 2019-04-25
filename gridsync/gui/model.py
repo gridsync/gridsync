@@ -12,7 +12,7 @@ from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import resource, config_dir
-from gridsync.gui.widgets import CompositePixmap
+from gridsync.gui.pixmap import CompositePixmap
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
