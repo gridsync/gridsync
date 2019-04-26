@@ -140,6 +140,7 @@ class Model(QStandardItemModel):
         self.set_status(basename, status_data)
 
     def remove_folder(self, folder_name):
+        self.on_sync_finished(folder_name)
         items = self.findItems(folder_name)
         if items:
             self.removeRow(items[0].row())
