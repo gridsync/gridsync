@@ -16,6 +16,7 @@
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
 - `libstdc++` has been excluded from Linux PyInstaller bundles, preventing a crash that coincided with opening a native file-chooser dialog on ArchLinux (Issue #189, PR #191)
+- The "syncing" system tray icon animation will no longer continue to animate endlessly if a folder is removed/stopped before it finishes syncing (Issue #197, PR #200)
 
 ## 0.4.2 - 2019-04-06
 ### Added
