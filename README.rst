@@ -68,7 +68,7 @@ Downloads for "stable" releases of Gridsync can be found on the project's `GitHu
 .. _GitHub Releases page: https://github.com/gridsync/gridsync/releases
 .. _verify their signatures: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Debian 9+, Ubuntu 16.04 LTS+, CentOS 7+, and Fedora 29+):
+To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Debian 9+, Ubuntu 16.04 LTS+, CentOS 7+, and Fedora 28+):
 
 1. Download `Gridsync-Linux.tar.gz`_ (and `verify`_ its signature)
 2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
