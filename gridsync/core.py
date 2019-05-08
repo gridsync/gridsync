@@ -9,13 +9,15 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
 
-if sys.platform in ('darwin', 'win32'):
-    # XXX This attribute appears to be broken on Linux in at least two ways:
-    #   - On Qubes-OS, it doubles the window-size but keeps font-sizes the
-    #     same -- even on lower-resolution (1080p) displays.
-    #   - Under GNOME on both Fedora 29 and Ubuntu 19.04 and with a display
-    #     scaling setting of "200%", it doubles the font-sizes but keeps the
-    #     window-sizes the same (i.e., at 100% when 200% is expected)
+# These Qt attributes must be set *before* initializing a QApplication...
+if os.environ.get('QUBES_ENV_SOURCED'):
+    # On Qubes-OS, setting AA_EnableHighDpiScaling to 'True', *always* doubles
+    # the window-size -- even on lower-resolution (1080p) displays -- but does
+    # not do the same for font-sizes.
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+elif os.environ.get('DESKTOP_SESSION') == 'mate':
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+else:
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
