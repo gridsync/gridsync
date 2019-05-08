@@ -23,14 +23,17 @@ class Gui():
     def show_welcome_dialog(self):
         self.welcome_dialog.show()
         self.welcome_dialog.raise_()
+        self.welcome_dialog.activateWindow()
 
     def show_main_window(self):
         self.main_window.show()
         self.main_window.raise_()
+        self.main_window.activateWindow()
 
     def show_preferences_window(self):
         self.preferences_window.show()
         self.preferences_window.raise_()
+        self.preferences_window.activateWindow()
 
     def show_systray(self):
         if self.systray.isSystemTrayAvailable():
