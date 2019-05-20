@@ -20,7 +20,7 @@ from autobahn.twisted.websocket import (
 )
 
 
-class TahoeLogReader(WebSocketClientProtocol):
+class TahoeLogReader(WebSocketClientProtocol):  # pylint: disable=too-many-ancestors
     def onMessage(self, payload, isBinary):
         if isBinary:
             logging.warning(
