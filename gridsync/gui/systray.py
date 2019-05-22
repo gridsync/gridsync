@@ -21,6 +21,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setContextMenu(self.menu)
         self.activated.connect(self.on_click)
 
+        self.messageClicked.connect(self.gui.show_main_window)
+
         self.animation = QMovie()
         self.animation.setFileName(
             resource(settings['application']['tray_icon_sync']))
