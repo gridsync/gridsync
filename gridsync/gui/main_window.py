@@ -21,6 +21,7 @@ from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
+from gridsync.util import strip_html_tags
 
 
 class ComboBox(QComboBox):
@@ -279,7 +280,7 @@ class MainWindow(QMainWindow):
 
     def on_message_received(self, gateway, message):
         title = "New message from {}".format(gateway.name)
-        self.gui.show_message(title, message)
+        self.gui.show_message(title, strip_html_tags(message))
         if self.isVisible():
             self.show_news_message(gateway, title, message)
         else:
