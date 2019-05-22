@@ -280,7 +280,10 @@ class MainWindow(QMainWindow):
 
     def on_message_received(self, gateway, message):
         title = "New message from {}".format(gateway.name)
-        self.gui.show_message(title, strip_html_tags(message))
+        self.gui.show_message(
+            title,
+            strip_html_tags(message.replace('<p>', '\n\n'))
+        )
         if self.isVisible():
             self.show_news_message(gateway, title, message)
         else:
