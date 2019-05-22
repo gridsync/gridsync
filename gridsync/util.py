@@ -60,7 +60,7 @@ def humanized_list(list_, kind='files'):
                                             len(list_) - 2, kind)
 
 
-class _TagStripper(HTMLParser):
+class _TagStripper(HTMLParser):  # pylint: disable=abstract-method
     def __init__(self):
         super().__init__()
         self.data = []
