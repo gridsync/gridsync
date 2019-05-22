@@ -21,7 +21,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setContextMenu(self.menu)
         self.activated.connect(self.on_click)
 
-        self.messageClicked.connect(self.on_message_clicked)
+        self.messageClicked.connect(self.gui.show_main_window)
 
         self.animation = QMovie()
         self.animation.setFileName(
@@ -40,8 +40,3 @@ class SystemTrayIcon(QSystemTrayIcon):
     def on_click(self, value):
         if value == QSystemTrayIcon.Trigger and sys.platform != 'darwin':
             self.gui.show_main_window()
-
-    def on_message_clicked(self):
-        if sys.platform == 'win32':
-            self.gui.main_window.close()
-        self.gui.show_main_window()
