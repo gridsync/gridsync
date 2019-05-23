@@ -4,7 +4,8 @@ from binascii import hexlify, unhexlify
 
 import pytest
 
-from gridsync.util import b58encode, b58decode, humanized_list
+from gridsync.util import (
+    b58encode, b58decode, humanized_list, strip_html_tags)
 
 
 # From https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
@@ -48,3 +49,11 @@ def test_b58decode_value_error():
 ])
 def test_humanized_list(items, kind, humanized):
     assert humanized_list(items, kind) == humanized
+
+
+@pytest.mark.parametrize("s,expected", [
+    ['1<p>2<br>3', '123'],
+    ['<a href="https://example.org">link</a>', 'link']
+])
+def test_strip_html_tags(s, expected):
+    assert strip_html_tags(s) == expected

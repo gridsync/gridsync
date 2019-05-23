@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from binascii import hexlify, unhexlify
+from html.parser import HTMLParser
 
 
 B58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -57,3 +58,21 @@ def humanized_list(list_, kind='files'):
         return "{}, {}, and {}".format(*list_)
     return "{}, {}, and {} other {}".format(list_[0], list_[1],
                                             len(list_) - 2, kind)
+
+
+class _TagStripper(HTMLParser):  # pylint: disable=abstract-method
+    def __init__(self):
+        super().__init__()
+        self.data = []
+
+    def handle_data(self, data):
+        self.data.append(data)
+
+    def get_data(self):
+        return ''.join(self.data)
+
+
+def strip_html_tags(s):
+    ts = _TagStripper()
+    ts.feed(s)
+    return ts.get_data()
