@@ -2,7 +2,7 @@
 
 ## Unreleased
 ### Added
-- Basic support for fetching and displaying "newscap" messages; see `docs/proposed/newscaps.md` (Issue #184; PR #192)
+- Basic support for fetching and displaying "newscap" messages; see `docs/proposed/newscaps.md` (Issue #184; PR #192, #211)
 - The application menu -- normally accessible by right-clicking the system tray icon -- is now also always accessible via a button in the status panel (Issue #201, PR #202)
 - Clicking a desktop notification on Windows will now activate the main window (Issue #209; PR #210)
 
