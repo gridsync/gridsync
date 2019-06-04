@@ -151,6 +151,7 @@ frozen-tahoe:
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
 	python -m pip install packaging && \
+	python -m pip install dis3 && \
 	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
