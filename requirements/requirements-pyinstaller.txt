@@ -10,8 +10,8 @@ future==0.17.1 \
 macholib==1.11 \
     --hash=sha256:ac02d29898cf66f27510d8f39e9112ae00590adb4a48ec57b25028d6962b1ae1 \
     --hash=sha256:c4180ffc6f909bf8db6cd81cff4b6f601d575568f4d5dee148c830e9851eb9db
-pefile==2018.8.8 \
-    --hash=sha256:4c5b7e2de0c8cb6c504592167acf83115cbbde01fe4a507c16a1422850e86cd6
+pefile==2019.4.18 \
+    --hash=sha256:a5d6e8305c6b210849b47a6174ddf9c452b2888340b8177874b862ba6c207645
 PyInstaller==3.4 \
     --hash=sha256:a5a6e04a66abfcf8761e89a2ebad937919c6be33a7b8963e1a961b55cb35986b
 pywin32-ctypes==0.2.0 ; sys_platform == "win32" \
