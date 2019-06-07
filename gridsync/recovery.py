@@ -4,6 +4,7 @@ import json
 import logging
 import os
 
+from atomicwrites import atomic_write
 from PyQt5.QtCore import pyqtSignal, QObject, QPropertyAnimation, QThread
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
@@ -34,7 +35,7 @@ class RecoveryKeyExporter(QObject):
     def _on_encryption_succeeded(self, ciphertext):
         self.crypter_thread.quit()
         if self.filepath:
-            with open(self.filepath, 'wb') as f:
+            with atomic_write(self.filepath, mode='wb', overwrite=True) as f:
                 f.write(ciphertext)
             self.done.emit(self.filepath)
             self.filepath = None
@@ -72,7 +73,7 @@ class RecoveryKeyExporter(QObject):
         if not dest:
             return
         if self.ciphertext:
-            with open(dest, 'wb') as f:
+            with atomic_write(dest, mode='wb', overwrite=True) as f:
                 f.write(self.ciphertext)
             self.done.emit(dest)
             self.ciphertext = None
