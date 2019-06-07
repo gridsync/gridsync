@@ -7,6 +7,7 @@ import platform
 import sys
 import time
 
+from atomicwrites import atomic_write
 from PyQt5.QtCore import pyqtSignal, QObject, QSize, Qt, QThread
 from PyQt5.QtGui import QFontDatabase, QIcon
 from PyQt5.QtWidgets import (
@@ -240,7 +241,7 @@ class DebugExporter(QDialog):
         if not dest:
             return
         try:
-            with open(dest, 'w') as f:
+            with atomic_write(dest, mode='w', overwrite=True) as f:
                 f.write(self.plaintextedit.toPlainText())
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))

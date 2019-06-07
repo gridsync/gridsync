@@ -7,6 +7,7 @@ import os
 import shutil
 from binascii import Error
 
+from atomicwrites import atomic_write
 from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import QInputDialog
 import treq
@@ -157,7 +158,7 @@ class SetupRunner(QObject):
         return steps
 
     def decode_icon(self, s, dest):
-        with open(dest, 'wb') as f:
+        with atomic_write(dest, mode='wb', overwrite=True) as f:
             try:
                 f.write(base64.b64decode(s))
             except (Error, TypeError):
@@ -176,7 +177,7 @@ class SetupRunner(QObject):
         if resp.code == 200:
             content = yield treq.content(resp)
             log.debug("Received %i bytes", len(content))
-            with open(dest, 'wb') as f:
+            with atomic_write(dest, mode='wb', overwrite=True) as f:
                 f.write(content)
             self.got_icon.emit(dest)
         else:
@@ -221,7 +222,9 @@ class SetupRunner(QObject):
 
         newscap = settings.get('newscap')
         if newscap:
-            with open(os.path.join(nodedir, 'private', 'newscap'), 'w') as f:
+            with atomic_write(
+                    os.path.join(nodedir, 'private', 'newscap'),
+                    mode='w', overwrite=True) as f:
                 f.write(newscap)
 
         if icon_path:
@@ -231,7 +234,9 @@ class SetupRunner(QObject):
                 log.warning("Error copying icon file: %s", str(err))
         if 'icon_url' in settings:
             try:
-                with open(os.path.join(nodedir, 'icon.url'), 'w') as f:
+                with atomic_write(
+                        os.path.join(nodedir, 'icon.url'),
+                        mode='w', overwrite=True) as f:
                     f.write(settings['icon_url'])
             except OSError as err:
                 log.warning("Error writing icon url to file: %s", str(err))
@@ -248,9 +253,10 @@ class SetupRunner(QObject):
             self.gateway.nodedir, 'private', 'settings.json')
         if settings.get('rootcap'):
             self.update_progress.emit('Loading Recovery Key...')
-            with open(self.gateway.rootcap_path, 'w') as f:  # XXX
+            with atomic_write(
+                    self.gateway.rootcap_path, mode='w', overwrite=True) as f:
                 f.write(settings['rootcap'])
-            with open(settings_path, 'w') as f:
+            with atomic_write(settings_path, mode='w', overwrite=True) as f:
                 f.write(json.dumps(settings))
         else:
             self.update_progress.emit('Generating Recovery Key...')
@@ -258,7 +264,7 @@ class SetupRunner(QObject):
                 settings['rootcap'] = yield self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
-            with open(settings_path, 'w') as f:
+            with atomic_write(settings_path, mode='w', overwrite=True) as f:
                 f.write(json.dumps(settings))
             settings_cap = yield self.gateway.upload(settings_path)
             yield self.gateway.link(

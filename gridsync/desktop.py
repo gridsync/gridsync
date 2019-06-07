@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 
+from atomicwrites import atomic_write
 from PyQt5.QtCore import QCoreApplication, QMetaType, QUrl, QVariant
 from PyQt5.QtGui import QClipboard, QDesktopServices
 
@@ -106,7 +107,7 @@ def set_clipboard_text(text, mode=QClipboard.Clipboard):
 
 
 def _autostart_enable_linux(executable):
-    with open(autostart_file_path, 'w') as f:
+    with atomic_write(autostart_file_path, mode='w', overwrite=True) as f:
         f.write('''\
 [Desktop Entry]
 Name={0}
@@ -118,7 +119,7 @@ Terminal=false
 
 
 def _autostart_enable_mac(executable):
-    with open(autostart_file_path, 'w') as f:
+    with atomic_write(autostart_file_path, mode='w', overwrite=True) as f:
         f.write('''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

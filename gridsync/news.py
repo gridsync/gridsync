@@ -6,6 +6,7 @@ from random import randint
 import time
 import sys
 
+from atomicwrites import atomic_write
 from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
@@ -106,7 +107,8 @@ class NewscapChecker(QObject):
                 logging.warning("'v1' is not a dirnode")
         else:
             logging.warning("No 'v1' object found in newscap")
-        with open(self._last_checked_path, 'w') as f:
+        with atomic_write(
+                self._last_checked_path, mode='w', overwrite=True) as f:
             f.write(str(int(time.time())))
 
     def _schedule_delayed_check(self, delay=None):

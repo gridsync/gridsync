@@ -13,6 +13,7 @@ import tempfile
 from collections import defaultdict, OrderedDict
 from io import BytesIO
 
+from atomicwrites import atomic_write
 import treq
 from twisted.internet.defer import (
     Deferred, DeferredList, DeferredLock, inlineCallbacks)
@@ -184,7 +185,7 @@ class Tahoe():
         settings = self.get_settings(include_rootcap)
         if self.use_tor:
             settings['hide-ip'] = True
-        with open(dest, 'w') as f:
+        with atomic_write(dest, mode='w', overwrite=True) as f:
             f.write(json.dumps(settings))
         log.debug("Exported settings to '%s'", dest)
 
@@ -227,7 +228,7 @@ class Tahoe():
             except (KeyError, TypeError):
                 return
         tmp_aliases_file = os.path.join(self.nodedir, 'private', 'aliases.tmp')
-        with open(tmp_aliases_file, 'w') as f:
+        with atomic_write(tmp_aliases_file, mode='w', overwrite=True) as f:
             data = ''
             for name, dircap in aliases.items():
                 data += '{} {}\n'.format(name, dircap)
@@ -278,9 +279,9 @@ class Tahoe():
         }
         if nickname:
             yaml_data['storage'][server_id]['ann']['nickname'] = nickname
-        with open(self.servers_yaml_path + '.tmp', 'w') as f:
+        with atomic_write(
+                self.servers_yaml_path, mode='w', overwrite=True) as f:
             f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
-        shutil.move(self.servers_yaml_path + '.tmp', self.servers_yaml_path)
         log.debug("Added storage server: %s", server_id)
 
     def add_storage_servers(self, storage_servers):
@@ -453,7 +454,7 @@ class Tahoe():
 
         yaml_path = os.path.join(self.nodedir, 'private', 'magic_folders.yaml')
         log.debug("Writing magic-folder configs to %s...", yaml_path)
-        with open(yaml_path, 'w') as f:
+        with atomic_write(yaml_path, mode='w', overwrite=True) as f:
             f.write(yaml.safe_dump({'magic-folders': magic_folders}))
 
         log.debug("Backing up legacy configuration...")
@@ -499,7 +500,7 @@ class Tahoe():
         pid = yield self.command(['run'], 'client running')
         pid = str(pid)
         if sys.platform == 'win32' and pid.isdigit():
-            with open(self.pidfile, 'w') as f:
+            with atomic_write(self.pidfile, mode='w', overwrite=True) as f:
                 f.write(pid)
         with open(os.path.join(self.nodedir, 'node.url')) as f:
             self.set_nodeurl(f.read().strip())
@@ -630,7 +631,7 @@ class Tahoe():
             raise OSError(
                 "Rootcap file already exists: {}".format(self.rootcap_path))
         self.rootcap = yield self.mkdir()
-        with open(self.rootcap_path, 'w') as f:
+        with atomic_write(self.rootcap_path, mode='w') as f:
             f.write(self.rootcap)
         log.debug("Rootcap saved to file: %s", self.rootcap_path)
         return self.rootcap
@@ -654,7 +655,7 @@ class Tahoe():
         yield self.await_ready()
         resp = yield treq.get('{}uri/{}'.format(self.nodeurl, cap))
         if resp.code == 200:
-            with open(local_path, 'wb') as f:
+            with atomic_write(local_path, mode='wb', overwrite=True) as f:
                 yield treq.collect(resp, f.write)
             log.debug("Successfully downloaded %s", local_path)
         else:
@@ -750,7 +751,7 @@ class Tahoe():
             'upload_dircap': upload_dircap,
             'poll_interval': poll_interval,
         }
-        with open(yaml_path, 'w') as f:
+        with atomic_write(yaml_path, mode='w', overwrite=True) as f:
             f.write(yaml.safe_dump({'magic-folders': folders_data}))
         self.add_alias(alias, admin_dircap)
 

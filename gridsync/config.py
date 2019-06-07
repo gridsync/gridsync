@@ -3,6 +3,8 @@
 from collections import defaultdict
 from configparser import RawConfigParser, NoOptionError, NoSectionError
 
+from atomicwrites import atomic_write
+
 
 class Config():
     def __init__(self, filename):
@@ -14,7 +16,7 @@ class Config():
         if not config.has_section(section):
             config.add_section(section)
         config.set(section, option, value)
-        with open(self.filename, 'w') as f:
+        with atomic_write(self.filename, mode='w', overwrite=True) as f:
             config.write(f)
 
     def get(self, section, option):
@@ -33,7 +35,7 @@ class Config():
                 config.add_section(section)
             for option, value in d.items():
                 config.set(section, option, value)
-        with open(self.filename, 'w') as f:
+        with atomic_write(self.filename, mode='w', overwrite=True) as f:
             config.write(f)
 
     def load(self):
