@@ -15,6 +15,7 @@ if (sys.version_info.major, sys.version_info.minor) < (3, 5):
 
 
 requirements = [
+    'atomicwrites',
     'autobahn',
     'humanize',
     'hyperlink',
