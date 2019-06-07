@@ -92,6 +92,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(600, 400))
         self.setUnifiedTitleAndToolBarOnMac(True)
+        self.setContextMenuPolicy(Qt.NoContextMenu)
 
         self.shortcut_new = QShortcut(QKeySequence.New, self)
         self.shortcut_new.activated.connect(self.show_welcome_dialog)
