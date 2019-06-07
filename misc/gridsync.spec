@@ -91,6 +91,7 @@ app = BUNDLE(
         'LSBackgroundOnly': True,
         'LSUIElement': True,
         'NSHighResolutionCapable': True,
+        'NSRequiresAquaSystemAppearance': False,
     }
 )
 
