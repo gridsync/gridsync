@@ -130,7 +130,10 @@ class Model(QStandardItemModel):
         if sys.platform == 'darwin':
             # See: https://bugreports.qt.io/browse/QTBUG-12717
             action_bar.setStyleSheet(
-                'background-color: white; border: 0px white')
+                'background-color: {0}; border: 0px {0}'.format(
+                    self.view.palette().base().color().name()
+                )
+            )
         action_bar_action = QAction(self.icon_action, "Action...", self)
         action_bar_action.setStatusTip("Action...")
         action_bar_action.triggered.connect(self.view.on_right_click)
