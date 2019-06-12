@@ -17,8 +17,9 @@ from gridsync import resource, APP_NAME
 from gridsync import settings as global_settings
 from gridsync.invite import InviteReceiver
 from gridsync.errors import UpgradeRequiredError
-from gridsync.gui.invite import InviteCodeWidget, show_failure
+from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
+from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import TahoeConfigForm
 from gridsync.recovery import RecoveryKeyImporter
@@ -48,7 +49,10 @@ class WelcomeWidget(QWidget):
         self.slogan = QLabel("<i>{}</i>".format(
             application_settings.get('description', '')))
         self.slogan.setFont(Font(12))
-        self.slogan.setStyleSheet("color: grey")
+        p = self.palette()
+        dimmer_grey = BlendedColor(
+            p.windowText().color(), p.window().color()).name()
+        self.slogan.setStyleSheet("color: {}".format(dimmer_grey))
         self.slogan.setAlignment(Qt.AlignCenter)
         if logo_icon:
             self.slogan.hide()
@@ -150,7 +154,10 @@ class ProgressBarWidget(QWidget):
         self.progressbar.setValue(0)
 
         self.message = QLabel()
-        self.message.setStyleSheet("color: grey")
+        p = self.palette()
+        dimmer_grey = BlendedColor(
+            p.windowText().color(), p.window().color()).name()
+        self.message.setStyleSheet("color: {}".format(dimmer_grey))
         self.message.setAlignment(Qt.AlignCenter)
 
         self.finish_button = QPushButton("Finish")

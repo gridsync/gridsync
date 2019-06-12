@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir, settings
+from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
 from gridsync.gui.pixmap import CompositePixmap
@@ -215,14 +216,17 @@ class MainWindow(QMainWindow):
         recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.toolbar = self.addToolBar('')
+        p = self.palette()
+        dimmer_grey = BlendedColor(
+            p.windowText().color(), p.window().color(), 0.7).name()
         if sys.platform != 'darwin':
             self.toolbar.setStyleSheet("""
-                QToolBar { border: 0px }
-                QToolButton { color: rgb(50, 50, 50) }
-            """)
+                QToolBar {{ border: 0px }}
+                QToolButton {{ color: {} }}
+            """.format(dimmer_grey))
         else:
             self.toolbar.setStyleSheet(
-                "QToolButton { color: rgb(50, 50, 50) }")
+                "QToolButton {{ color: {} }}".format(dimmer_grey))
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)

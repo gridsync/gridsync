@@ -55,7 +55,10 @@ class HistoryItemWidget(QWidget):
 
         self.details_label = QLabel()
         self.details_label.setFont(Font(10))
-        self.details_label.setStyleSheet('color: grey')
+        palette = self.palette()
+        dimmer_grey = BlendedColor(
+            palette.text().color(), palette.base().color(), 0.6).name()
+        self.details_label.setStyleSheet('color: {}'.format(dimmer_grey))
 
         self.button = QPushButton()
         self.button.setIcon(QIcon(resource('dots-horizontal-triple.png')))
