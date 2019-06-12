@@ -6,7 +6,7 @@ import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QTimer, Qt
-from PyQt5.QtGui import QColor, QCursor, QIcon, QPixmap
+from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QAbstractItemView, QFileIconProvider, QGridLayout, QLabel,
     QListWidgetItem, QListWidget, QMenu, QPushButton, QSizePolicy, QSpacerItem,

@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor
 
 class BlendedColor(QColor):
     def __init__(self, color_a, color_b, pct_a=0.5):
-        super(QColor, self).__init__()
+        super().__init__()
         pct_b = 1.0 - pct_a
         self.setRgb(
             pct_a * color_a.red() + pct_b * color_b.red(),

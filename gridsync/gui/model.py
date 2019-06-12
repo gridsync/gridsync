@@ -17,7 +17,6 @@ from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
 
-
 class Model(QStandardItemModel):
     def __init__(self, view):
         super(Model, self).__init__(0, 5)
