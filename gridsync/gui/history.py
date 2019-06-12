@@ -6,7 +6,7 @@ import time
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QTimer, Qt
-from PyQt5.QtGui import QColor, QCursor, QIcon, QPixmap
+from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction, QAbstractItemView, QFileIconProvider, QGridLayout, QLabel,
     QListWidgetItem, QListWidget, QMenu, QPushButton, QSizePolicy, QSpacerItem,
@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
+from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.status import StatusPanel
 
@@ -54,7 +55,10 @@ class HistoryItemWidget(QWidget):
 
         self.details_label = QLabel()
         self.details_label.setFont(Font(10))
-        self.details_label.setStyleSheet('color: grey')
+        palette = self.palette()
+        dimmer_grey = BlendedColor(
+            palette.text().color(), palette.base().color(), 0.6).name()
+        self.details_label.setStyleSheet('color: {}'.format(dimmer_grey))
 
         self.button = QPushButton()
         self.button.setIcon(QIcon(resource('dots-horizontal-triple.png')))
@@ -118,8 +122,10 @@ class HistoryListWidget(QListWidget):
         self.deduplicate = deduplicate
         self.max_items = max_items
 
-        self.base_color = self.palette().base().color()
-        self.highlighted_color = QColor("#E6F1F7")  # TODO: Get from theme?
+        palette = self.palette()
+        self.base_color = palette.base().color()
+        self.highlighted_color = BlendedColor(
+            self.base_color, palette.highlight().color(), 0.88)  # Was #E6F1F7
         self.highlighted = None
 
         self.action_icon = QIcon(resource('dots-horizontal-triple.png'))

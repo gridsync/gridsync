@@ -130,7 +130,10 @@ class Model(QStandardItemModel):
         if sys.platform == 'darwin':
             # See: https://bugreports.qt.io/browse/QTBUG-12717
             action_bar.setStyleSheet(
-                'background-color: white; border: 0px white')
+                'background-color: {0}; border: 0px {0}'.format(
+                    self.view.palette().base().color().name()
+                )
+            )
         action_bar_action = QAction(self.icon_action, "Action...", self)
         action_bar_action.setStatusTip("Action...")
         action_bar_action.triggered.connect(self.view.on_right_click)
@@ -283,7 +286,6 @@ class Model(QStandardItemModel):
             item.setForeground(QColor('gray'))
 
     def unfade_row(self, folder_name):
-        default_foreground = QStandardItem().foreground()
         folder_item = self.findItems(folder_name)[0]
         row = folder_item.row()
         for i in range(4):
@@ -291,7 +293,7 @@ class Model(QStandardItemModel):
             font = item.font()
             font.setItalic(False)
             item.setFont(font)
-            item.setForeground(default_foreground)
+            item.setForeground(self.view.palette().text())
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):

@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QWidget)
 
 from gridsync import resource
+from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
@@ -39,12 +40,15 @@ class StatusPanel(QWidget):
         )
 
         self.status_label = QLabel()
-        self.status_label.setStyleSheet("color: dimgrey")
+        p = self.palette()
+        dimmer_grey = BlendedColor(
+            p.windowText().color(), p.window().color(), 0.6).name()
+        self.status_label.setStyleSheet("color: {}".format(dimmer_grey))
         self.status_label.setFont(Font(10))
 
         self.on_sync_state_updated(0)
 
-        self.setStyleSheet('QToolButton { color: dimgrey; border: none; }')
+        self.setStyleSheet('QToolButton { border: none }')
         #self.setStyleSheet("""
         #    QToolButton { color: dimgrey; border: none; }
         #    QToolButton:hover {

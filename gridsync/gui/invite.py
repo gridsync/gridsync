@@ -17,6 +17,7 @@ from wormhole.errors import (
 from gridsync import resource, APP_NAME
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
+from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.invite import wordlist, is_valid_code
 from gridsync.tor import get_tor
@@ -131,7 +132,11 @@ class InviteCodeWidget(QWidget):
 
         self.label = QLabel("Enter invite code:")
         self.label.setFont(Font(14))
-        self.label.setStyleSheet("color: grey")
+        p = self.palette()
+        dimmer_grey = BlendedColor(
+            p.windowText().color(), p.window().color()).name()
+        self.label.setStyleSheet("color: {}".format(dimmer_grey))
+
         self.label.setAlignment(Qt.AlignCenter)
 
         self.code_info_text = (
