@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
+from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.status import StatusPanel
 
@@ -118,8 +119,10 @@ class HistoryListWidget(QListWidget):
         self.deduplicate = deduplicate
         self.max_items = max_items
 
-        self.base_color = self.palette().base().color()
-        self.highlighted_color = QColor("#E6F1F7")  # TODO: Get from theme?
+        palette = self.palette()
+        self.base_color = palette.base().color()
+        self.highlighted_color = BlendedColor(
+            self.base_color, palette.highlight().color(), 0.88)  # Was #E6F1F7
         self.highlighted = None
 
         self.action_icon = QIcon(resource('dots-horizontal-triple.png'))
