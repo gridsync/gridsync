@@ -308,11 +308,9 @@ class SetupRunner(QObject):
         folders_data = settings.get('magic-folders')
         if not self.gateway:
             yield self.join_grid(settings)
+            yield self.ensure_recovery(settings)
         elif not folders_data:
             self.grid_already_joined.emit(settings.get('nickname'))
-
-        yield self.ensure_recovery(settings)
-
         if folders_data:
             yield self.join_folders(folders_data)
 
