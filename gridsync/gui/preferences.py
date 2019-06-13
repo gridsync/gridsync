@@ -88,10 +88,10 @@ class NotificationsPane(QWidget):
         self.load_preferences()
 
     def load_preferences(self):
-        if get_preference('notifications', 'connection') == 'false':
-            self.checkbox_connection.setCheckState(Qt.Unchecked)
-        else:
+        if get_preference('notifications', 'connection') == 'true':
             self.checkbox_connection.setCheckState(Qt.Checked)
+        else:
+            self.checkbox_connection.setCheckState(Qt.Unchecked)
         if get_preference('notifications', 'folder') == 'false':
             self.checkbox_folder.setCheckState(Qt.Unchecked)
         else:
