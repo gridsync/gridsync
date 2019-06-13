@@ -45,13 +45,15 @@ class GeneralPane(QWidget):
         else:
             self.checkbox_autostart.setCheckState(Qt.Unchecked)
 
-    def on_checkbox_minimize_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_minimize_changed(state):
         if state:
             set_preference('startup', 'minimize', 'true')
         else:
             set_preference('startup', 'minimize', 'false')
 
-    def on_checkbox_autostart_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_autostart_changed(state):
         if state:
             autostart_enable()
         else:
@@ -101,19 +103,22 @@ class NotificationsPane(QWidget):
         else:
             self.checkbox_invite.setCheckState(Qt.Checked)
 
-    def on_checkbox_connection_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_connection_changed(state):
         if state:
             set_preference('notifications', 'connection', 'true')
         else:
             set_preference('notifications', 'connection', 'false')
 
-    def on_checkbox_folder_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_folder_changed(state):
         if state:
             set_preference('notifications', 'folder', 'true')
         else:
             set_preference('notifications', 'folder', 'false')
 
-    def on_checkbox_invite_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_invite_changed(state):
         if state:
             set_preference('notifications', 'invite', 'true')
         else:
