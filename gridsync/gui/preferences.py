@@ -69,9 +69,9 @@ class NotificationsPane(QWidget):
 
         notifications_layout = QGridLayout()
         notifications_layout.addWidget(notifications_label)
-        notifications_layout.addWidget(self.checkbox_connection)
         notifications_layout.addWidget(self.checkbox_folder)
         notifications_layout.addWidget(self.checkbox_invite)
+        notifications_layout.addWidget(self.checkbox_connection)
         notifications_groupbox.setLayout(notifications_layout)
 
         layout = QGridLayout(self)
