@@ -82,13 +82,13 @@ class Model(QStandardItemModel):
 
     @pyqtSlot()
     def on_connected(self):
-        if get_preference('notifications', 'connection') != 'false':
+        if get_preference('notifications', 'connection') == 'true':
             self.gui.show_message(
                 self.gateway.name, "Connected to {}".format(self.gateway.name))
 
     @pyqtSlot()
     def on_disconnected(self):
-        if get_preference('notifications', 'connection') != 'false':
+        if get_preference('notifications', 'connection') == 'true':
             self.gui.show_message(
                 self.gateway.name,
                 "Disconnected from {}".format(self.gateway.name)

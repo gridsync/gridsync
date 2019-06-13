@@ -45,13 +45,15 @@ class GeneralPane(QWidget):
         else:
             self.checkbox_autostart.setCheckState(Qt.Unchecked)
 
-    def on_checkbox_minimize_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_minimize_changed(state):
         if state:
             set_preference('startup', 'minimize', 'true')
         else:
             set_preference('startup', 'minimize', 'false')
 
-    def on_checkbox_autostart_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_autostart_changed(state):
         if state:
             autostart_enable()
         else:
@@ -69,9 +71,9 @@ class NotificationsPane(QWidget):
 
         notifications_layout = QGridLayout()
         notifications_layout.addWidget(notifications_label)
-        notifications_layout.addWidget(self.checkbox_connection)
         notifications_layout.addWidget(self.checkbox_folder)
         notifications_layout.addWidget(self.checkbox_invite)
+        notifications_layout.addWidget(self.checkbox_connection)
         notifications_groupbox.setLayout(notifications_layout)
 
         layout = QGridLayout(self)
@@ -88,10 +90,10 @@ class NotificationsPane(QWidget):
         self.load_preferences()
 
     def load_preferences(self):
-        if get_preference('notifications', 'connection') == 'false':
-            self.checkbox_connection.setCheckState(Qt.Unchecked)
-        else:
+        if get_preference('notifications', 'connection') == 'true':
             self.checkbox_connection.setCheckState(Qt.Checked)
+        else:
+            self.checkbox_connection.setCheckState(Qt.Unchecked)
         if get_preference('notifications', 'folder') == 'false':
             self.checkbox_folder.setCheckState(Qt.Unchecked)
         else:
@@ -101,19 +103,22 @@ class NotificationsPane(QWidget):
         else:
             self.checkbox_invite.setCheckState(Qt.Checked)
 
-    def on_checkbox_connection_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_connection_changed(state):
         if state:
             set_preference('notifications', 'connection', 'true')
         else:
             set_preference('notifications', 'connection', 'false')
 
-    def on_checkbox_folder_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_folder_changed(state):
         if state:
             set_preference('notifications', 'folder', 'true')
         else:
             set_preference('notifications', 'folder', 'false')
 
-    def on_checkbox_invite_changed(self, state):  # pylint:disable=no-self-use
+    @staticmethod
+    def on_checkbox_invite_changed(state):
         if state:
             set_preference('notifications', 'invite', 'true')
         else:
