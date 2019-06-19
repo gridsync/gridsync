@@ -25,6 +25,7 @@
 - Gridsync will now use atomic writes for all local configuration file updates (Issue #212, PR #214)
 - The default Qt MainWindow toolbar context menu has been disabled, preventing the situation in which a user might accidentally hide the toolbar with no way of re-showing it until the application re-launches (Issue #215, PR #216)
 - `SetupRunner.ensure_recovery` will now only be called when joining new grids, preventing an unnecessary upload from occurring -- and sometimes failing, due to a race-condition  -- when trying to join a grid that was already joined (Issue #220, PR #221)
+- The unused "?"/"What's This" QDialog button (enabled by Qt on Windows by default) has been removed (Issue #222, PR #223)
 
 ## 0.4.2 - 2019-04-06
 ### Added
