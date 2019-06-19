@@ -15,8 +15,6 @@ class PasswordDialog(QDialog):
     def __init__(self, parent=None, help_text='', show_stats=True):
         super(PasswordDialog, self).__init__(parent)
         self.setMinimumWidth(400)
-        self.setWindowFlags(
-            self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
 
         self.label = QLabel("Password:")
         self.label.setFont(Font(14))

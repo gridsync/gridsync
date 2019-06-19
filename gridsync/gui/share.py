@@ -40,8 +40,6 @@ class InviteSenderDialog(QDialog):
         self.use_tor = self.gateway.use_tor
 
         self.setMinimumSize(500, 300)
-        self.setWindowFlags(
-            self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
 
         header_icon = QLabel(self)
         if self.folder_names:
@@ -294,8 +292,6 @@ class InviteReceiverDialog(QDialog):
         self.joined_folders = []
 
         self.setMinimumSize(500, 300)
-        self.setWindowFlags(
-            self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
 
         self.mail_closed_icon = QLabel()
         self.mail_closed_icon.setAlignment(Qt.AlignCenter)

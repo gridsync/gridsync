@@ -21,6 +21,7 @@ else:
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
 
 app = QApplication(sys.argv)
 
