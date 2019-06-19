@@ -110,6 +110,9 @@ class DebugExporter(QDialog):
         self.core = core
         self.parent = parent
 
+        self.setWindowFlags(
+            self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
+
         self.log_loader = LogLoader(self.core)
         self.log_loader_thread = QThread()
         self.log_loader.moveToThread(self.log_loader_thread)
