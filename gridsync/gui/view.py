@@ -169,7 +169,10 @@ class View(QTreeView):
         item = self.model().itemFromIndex(index)
         name = self.model().item(item.row(), 0).text()
         if name in self.gateway.magic_folders:
-            open_path(self.gateway.magic_folders[name]['directory'])
+            try:
+                open_path(self.gateway.magic_folders[name]['directory'])
+            except KeyError:
+                pass
         elif self.gateway.remote_magic_folder_exists(name):
             self.select_download_location([name])
 
