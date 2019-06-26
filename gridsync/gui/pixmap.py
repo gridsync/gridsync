@@ -47,6 +47,9 @@ class BadgedPixmap(QPixmap):
         base_pixmap = QPixmap(pixmap)
         base_size = base_pixmap.size()
         base_max = min(base_size.height(), base_size.width())
+        if not base_max:
+            self.swap(base_pixmap)
+            return
 
         badge_max = base_max * size
         pen_width = badge_max * 0.05
