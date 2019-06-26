@@ -2,11 +2,12 @@
 
 import sys
 
-from PyQt5.QtGui import QIcon, QMovie
+from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import QSystemTrayIcon
 
 from gridsync import resource, settings
 from gridsync.gui.menu import Menu
+from gridsync.gui.pixmap import BadgedPixmap
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -14,8 +15,10 @@ class SystemTrayIcon(QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__()
         self.gui = gui
 
-        self.icon = QIcon(resource(settings['application']['tray_icon']))
-        self.setIcon(self.icon)
+        tray_icon_path = resource(settings['application']['tray_icon'])
+        self.app_pixmap = QPixmap(tray_icon_path)
+        self.app_icon = QIcon(tray_icon_path)
+        self.setIcon(self.app_icon)
 
         self.menu = Menu(self.gui)
         self.setContextMenu(self.menu)
@@ -32,10 +35,18 @@ class SystemTrayIcon(QSystemTrayIcon):
     def update(self):
         if self.gui.core.operations:
             self.animation.setPaused(False)
-            self.setIcon(QIcon(self.animation.currentPixmap()))
+            pixmap = self.animation.currentPixmap()
+            if self.gui.unread_messages:
+                pixmap = BadgedPixmap(pixmap, len(self.gui.unread_messages))
+            self.setIcon(QIcon(pixmap))
         else:
             self.animation.setPaused(True)
-            self.setIcon(self.icon)
+            if self.gui.unread_messages:
+                self.setIcon(QIcon(BadgedPixmap(
+                    self.app_pixmap, len(self.gui.unread_messages)
+                )))
+            else:
+                self.setIcon(self.app_icon)
 
     def on_click(self, value):
         if value == QSystemTrayIcon.Trigger and sys.platform != 'darwin':
