@@ -355,7 +355,10 @@ class View(QTreeView):
         for folder in folders:
             folder_info = self.gateway.magic_folders.get(folder)
             if folder_info:
-                open_path(folder_info['directory'])
+                try:
+                    open_path(folder_info['directory'])
+                except KeyError:
+                    pass
 
     def deselect_local_folders(self):
         selected = self.selectedIndexes()
