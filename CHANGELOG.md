@@ -27,7 +27,7 @@
 - The default Qt MainWindow toolbar context menu has been disabled, preventing the situation in which a user might accidentally hide the toolbar with no way of re-showing it until the application re-launches (Issue #215, PR #216)
 - `SetupRunner.ensure_recovery` will now only be called when joining new grids, preventing an unnecessary upload from occurring -- and sometimes failing, due to a race-condition  -- when trying to join a grid that was already joined (Issue #220, PR #221)
 - The unused "?"/"What's This" QDialog button (enabled by Qt on Windows by default) has been removed (Issue #222, PR #223)
-- Double-clicking a newly-joined folder to open it before the tahoe daemon has finished (re)starting will no longer result in a crash (Issue #224, PR #225)
+- Double-clicking a newly-joined folder to open it before the tahoe daemon has finished (re)starting will no longer result in a crash (Issue #224, PR #225, #229)
 
 ## 0.4.2 - 2019-04-06
 ### Added
