@@ -37,13 +37,15 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.animation.setPaused(False)
             pixmap = self.animation.currentPixmap()
             if self.gui.unread_messages:
-                pixmap = BadgedPixmap(pixmap, len(self.gui.unread_messages))
+                pixmap = BadgedPixmap(
+                    pixmap, len(self.gui.unread_messages), 0.6
+                )
             self.setIcon(QIcon(pixmap))
         else:
             self.animation.setPaused(True)
             if self.gui.unread_messages:
                 self.setIcon(QIcon(BadgedPixmap(
-                    self.app_pixmap, len(self.gui.unread_messages)
+                    self.app_pixmap, len(self.gui.unread_messages), 0.6
                 )))
             else:
                 self.setIcon(self.app_icon)
