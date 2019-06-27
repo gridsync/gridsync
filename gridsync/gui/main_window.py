@@ -282,6 +282,19 @@ class MainWindow(QMainWindow):
             msgbox.setWindowTitle(title)
             msgbox.setText(message)
         msgbox.show()
+        try:
+            self.gui.unread_messages.remove((gateway, title, message))
+        except ValueError:
+            return
+        self.gui.systray.update()
+
+    def _maybe_show_news_message(self, gateway, title, message):
+        self.gui.unread_messages.append((gateway, title, message))
+        self.gui.systray.update()
+        if self.isVisible():
+            self.show_news_message(gateway, title, message)
+        else:
+            self.pending_news_message = (gateway, title, message)
 
     def on_message_received(self, gateway, message):
         title = "New message from {}".format(gateway.name)
@@ -289,10 +302,7 @@ class MainWindow(QMainWindow):
             title,
             strip_html_tags(message.replace('<p>', '\n\n'))
         )
-        if self.isVisible():
-            self.show_news_message(gateway, title, message)
-        else:
-            self.pending_news_message = (gateway, title, message)
+        self._maybe_show_news_message(gateway, title, message)
 
     def on_upgrade_required(self, gateway):
         title = "Upgrade required"
@@ -302,10 +312,7 @@ class MainWindow(QMainWindow):
             "To avoid seeing this warning, please upgrade to the latest "
             "version.".format(gateway.name, APP_NAME)
         )
-        if self.isVisible():
-            self.show_news_message(gateway, title, message)
-        else:
-            self.pending_news_message = (gateway, title, message)
+        self._maybe_show_news_message(gateway, title, message)
 
     def current_view(self):
         try:
