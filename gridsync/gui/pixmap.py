@@ -48,6 +48,9 @@ class BadgedPixmap(QPixmap):
         base_size = base_pixmap.size()
         base_max = min(base_size.height(), base_size.width())
         if not base_max:
+            # Because gridsync.gui.systray.animation.currentPixmap() returns
+            # a blank pixmap when unpausing the animation for the first time.
+            # Returning early to prevents QPainter from spewing warnings.
             self.swap(base_pixmap)
             return
 
