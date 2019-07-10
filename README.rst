@@ -125,10 +125,31 @@ Users of other distributions and operating systems should modify the above steps
 
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
 
-Alternatively, users can build a more portable binary distribution of Gridsync and Tahoe-LAFS (suitable for running on other machines of the same architecture) by installing the above dependencies and typing `make` in the top-level of the source tree. This will create a "frozen" distribution of Gridsync and all of its dependencies (including python and Tahoe-LAFS) using `PyInstaller`_, placing the resultant executable files/installers in the `dist/` subdirectory.
+Alternatively, users can use `PyInstaller`_ to generate a more "portable" binary distribution of Gridsync and Tahoe-LAFS (suitable for running on other machines of the same platform) by installing the required dependencies and typing `make` in the top-level of the source tree. This will create a standalone executable distribution of Gridsync and all of its dependencies (including a "frozen" python interpreter and Tahoe-LAFS), placing the resultant files/installers in the `dist/` subdirectory.
 
 .. _PyInstaller: http://www.pyinstaller.org/
 
+Note, however, that PyInstaller-generated binaries are typically `not backward-compatible`_; a PyInstaller executable that was built on a newer GNU/Linux distribution, for example (i.e., with a more recent version of `glibc`) will not run on older distributions. Accordingly, if you intend to distribute Gridsync binaries for use on a wide range operating system versions, it is recommended that you build the application on as old of a system as is reasonable for a given platform (i.e., one which can build and run Gridsync but which still receives security updates). Presently, CentOS 7, macOS "Sierra" (10.12), and Windows Server 2012 R2 arguably constitute the most suitable candidates for GNU/Linux, macOS, and Windows build systems respectively (insofar as binaries generated on these systems will be forward-compatible with all others in that platform-category that are still supported upstream).
+
+.. _not backward-compatible: https://pyinstaller.readthedocs.io/en/latest/usage.html#platform-specific-notes
+
+To help facilitate the testing, building, and distribution of forward-compatible binaries -- as well as to enable a crude form of "cross-compilation" -- a set of custom-tailored "builder" `Vagrantfiles`_ have been provided inside the Gridsync source tree; users or developers with `Vagrant`_ and `VirtualBox`_ installed[*]_ can automatically provision a complete Gridsync build environment that produces forward-compatible binaries via the following commands:
+
+.. code-block:: shell-session
+
+    make vagrant-linux
+    make vagrant-macos
+    make vagrant-windows
+
+
+These will download and configure a suitable virtual machine for the target platform (from the `public Vagrant Boxes catalog`_), provision it with all required dependencies (such compilers/SDKs, python interpreters, X11 libraries, etc.), copy the Gridsync source code into the target VM, run the Gridsync test suite, and compile a final PyInstaller-generated binary package suitable for distribution (the result of which can be found in the `~/gridsync/dist` directory of the guest VM).
+
+.. _Vagrantfiles: https://github.com/gridsync/gridsync/tree/master/vagrantfiles
+.. _Vagrant: https://www.vagrantup.com/
+.. _VirtualBox: https://www.virtualbox.org/
+.. _public Vagrant Boxes catalog: https://app.vagrantup.com/boxes/search
+
+.. [*] Note that in order to get Vagrant/VirtualBox working properly, users of GNU/Linux may need to add the current user's name to the local "vboxusers" group, while users experiencing issues with Windows guests may need to install some combination of the `winrm`, `winrm-fs`, or `winrm-elevated` Vagrant plugins (via the `vagrant plugin install winrm winrm-fs winrm-elevated` command). For further assistance with installing, configuring, or using Vagrant and/or VirtualBox on your system, please consult the appropriate upstream documentation and/or help forums. In addition, please note that Gridsync project can make no guarantees about the security or safety of public Vagrant "Boxes"; please exercise appropriate caution when relying upon third-party software.
 
 **Development builds:**
 
