@@ -1,0 +1,74 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "gridsync-windows"
+  config.vm.box = "opentable/win-2012r2-standard-amd64-nocm"
+  config.vm.box_url = "https://vagrantcloud.com/opentable/boxes/win-2012r2-standard-amd64-nocm/versions/1.0.0/providers/virtualbox.box"
+  config.vm.box_download_checksum = "36a059004f909a68831416cbfee0c836ce416cd4c4f6805b47ad1b6d0184d0ca"
+  config.vm.box_download_checksum_type = "sha256"
+  #ipfs_cid = "QmdPfN4HhxiHXwVgHYX3yoC6jEFs1hM1z3FjmuLdCogMkd"
+  #config.vm.box_url = [
+  #  "http://127.0.0.1:8080/ipfs/#{ipfs_cid}?filename=virtualbox.box",
+  #  "https://gateway.ipfs.io/ipfs/#{ipfs_cid}?filename=virtualbox.box",
+  #  "https://cloudflare-ipfs.com/ipfs/#{ipfs_cid}?filename=virtualbox.box"
+  #]
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = "2048"
+    vb.cpus = 2
+    # Forward YubiKey to guest VM for signing
+    vb.customize ['modifyvm', :id, '--usb', 'on']
+    vb.customize ['usbfilter', 'add', '0',
+      '--target', :id,
+      '--name', "YubiKey",
+      '--manufacturer', "Yubico",
+      '--vendorid', "0x1050",
+      '--productid', "0x0407",
+      '--product', "Yubico YubiKey OTP+FIDO+CCID"]
+  end
+  config.vm.provision "shell", reboot: true, inline: <<-SHELL
+    # Some CLI applications like `pip` and `curl` cannot verify certificates
+    # until Internet Explorer's "first-launch configuration" has completed, so
+    # temporarily add an IE shortcut to the "Startup" Start Menu to force IE
+    # to run -- and the process to complete -- after the first reboot...
+    cmd /c mklink '%AppData%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\iexplore.lnk' '%ProgramFiles(x86)%\\Internet Explorer\\iexplore.exe'
+    Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    choco install -y --no-progress --require-checksums --execution-timeout 7200 kb2919355
+  SHELL
+  config.vm.provision "shell", reboot: true, inline: <<-SHELL
+    choco install -y --no-progress --require-checksums git
+    choco install -y --no-progress --require-checksums python2
+    choco install -y --no-progress --require-checksums -m python3 --version 3.7.3
+    choco install -y --no-progress --require-checksums -m python3 --version 3.6.8
+    choco install -y --no-progress --require-checksums -m python3 --version 3.5.4
+    choco install -y --no-progress --require-checksums vcpython27
+    choco install -y --no-progress --require-checksums --execution-timeout 7200 vcbuildtools --version 2015.4 -ia "/InstallSelectableItems Win81SDK_CppBuildSKUV1;Win10SDK_VisibleV1"
+    choco install -y --no-progress --require-checksums windows-sdk-10
+    choco install -y --no-progress --require-checksums innosetup
+    choco list --local-only
+    py -2 -m pip install --upgrade setuptools pip
+    py -3 -m pip install --upgrade setuptools pip tox
+    cmd /c del '%AppData%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\iexplore.lnk'
+  SHELL
+  #config.vm.provision "file", source: "GridsyncSource.zip", destination: "~/"
+  config.vm.provision "shell", env: {"CI" => "true"}, inline: <<-SHELL
+    cd ~
+    py -m zipfile -e C:\\vagrant\\GridsyncSource.zip .\\gridsync
+    cd .\\gridsync
+    .\\make.bat test
+    .\\make.bat
+    ls .\\dist
+  SHELL
+  if ENV["BUILDBOT_HOST"]
+    config.vm.provision "shell", inline: "py -2 -m pip install --upgrade buildbot-worker pywin32"
+    config.vm.provision "shell" do |s|
+      s.privileged = false
+      s.inline = "C:\\Python27\\Scripts\\buildbot-worker.exe create-worker C:\\Users\\Vagrant\\buildbot $Args"
+      s.args   = "#{ENV['BUILDBOT_HOST']} #{ENV['BUILDBOT_NAME']} #{ENV['BUILDBOT_PASS']}"
+    end
+    config.vm.provision "shell", reboot: true, inline: <<-SHELL
+      "C:\\Python27\\Scripts\\buildbot-worker.exe start C:\\Users\\vagrant\\buildbot" | Out-File -FilePath "C:\\Users\\vagrant\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\run-buildbot-worker.bat" -Encoding Ascii
+    SHELL
+  end
+end
