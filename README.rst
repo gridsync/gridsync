@@ -133,7 +133,7 @@ Note, however, that PyInstaller-generated binaries are typically `not backward-c
 
 .. _not backward-compatible: https://pyinstaller.readthedocs.io/en/latest/usage.html#platform-specific-notes
 
-To help facilitate the testing, building, and distribution of forward-compatible binaries -- as well as to enable a crude form of "cross-compilation" -- a set of custom-tailored "builder" `Vagrantfiles`_ have been provided inside the Gridsync source tree; users or developers with `Vagrant`_ and `VirtualBox`_ installed[*]_ can automatically provision a complete Gridsync build environment that produces forward-compatible binaries via the following commands:
+To help facilitate the testing, building, and distribution of forward-compatible binaries -- as well as to enable a crude form of "cross-compilation" -- a set of custom-tailored "builder" `Vagrantfiles`_ have been provided inside the Gridsync source tree; users or developers with `Vagrant`_ and `VirtualBox`_ installed [*]_ can automatically provision a complete Gridsync build environment that produces forward-compatible binaries via the following commands:
 
 .. code-block:: shell-session
 
