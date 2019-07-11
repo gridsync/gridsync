@@ -7,6 +7,7 @@
 - The application menu -- normally accessible by right-clicking the system tray icon -- is now also always accessible via a button in the status panel (Issue #201, PR #202)
 - Clicking a desktop notification on Windows will now activate the main window (Issue #209; PR #210)
 - macOS Mojave's "dark mode" is now supported (Issue #213, PR #217)
+- Added support for "cross-compiling" Gridsync binaries via Vagrant/VirtualBox; see `README.rst` (Issue #230, PR #231)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
