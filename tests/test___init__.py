@@ -55,28 +55,30 @@ def test_config_dir_win32(monkeypatch):
     monkeypatch.setenv('APPDATA', 'C:\\Users\\test\\AppData\\Roaming')
     reload(gridsync)
     assert gridsync.config_dir == os.path.join(
-        os.getenv('APPDATA'), 'Gridsync')
+        os.getenv('APPDATA'), gridsync.APP_NAME)
 
 
 def test_config_dir_darwin(monkeypatch):
     monkeypatch.setattr("sys.platform", "darwin")
     reload(gridsync)
     assert gridsync.config_dir == os.path.join(
-        os.path.expanduser('~'), 'Library', 'Application Support', 'Gridsync')
+        os.path.expanduser('~'), 'Library', 'Application Support',
+        gridsync.APP_NAME)
 
 
 def test_config_dir_other(monkeypatch):
     monkeypatch.setattr("sys.platform", "linux")
     reload(gridsync)
     assert gridsync.config_dir == os.path.join(
-        os.path.expanduser('~'), '.config', 'gridsync')
+        os.path.expanduser('~'), '.config', gridsync.APP_NAME.lower())
 
 
 def test_config_dir_xdg_config_home(monkeypatch):
     monkeypatch.setattr("sys.platform", "linux")
     monkeypatch.setenv('XDG_CONFIG_HOME', '/test')
     reload(gridsync)
-    assert gridsync.config_dir == os.path.join('/test', 'gridsync')
+    assert gridsync.config_dir == os.path.join(
+        '/test', gridsync.APP_NAME.lower())
 
 
 def test_resource():
