@@ -152,7 +152,7 @@ frozen-tahoe:
 	esac &&	\
 	python -m pip install packaging && \
 	python -m pip install dis3 && \
-	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
+	python -m pip install --no-use-pep517 pyinstaller==3.5 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \

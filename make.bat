@@ -73,7 +73,7 @@ call python -m pip install pyrsistent==0.14.11
 call python -m pip install .
 call python -m pip install packaging
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
-call python -m pip install --no-use-pep517 pyinstaller==3.4
+call python -m pip install --no-use-pep517 pyinstaller==3.5
 call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
