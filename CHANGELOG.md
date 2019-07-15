@@ -29,6 +29,7 @@
 - `SetupRunner.ensure_recovery` will now only be called when joining new grids, preventing an unnecessary upload from occurring -- and sometimes failing, due to a race-condition  -- when trying to join a grid that was already joined (Issue #220, PR #221)
 - The unused "?"/"What's This" QDialog button (enabled by Qt on Windows by default) has been removed (Issue #222, PR #223)
 - Double-clicking a newly-joined folder to open it before the tahoe daemon has finished (re)starting will no longer result in a crash (Issue #224, PR #225, #229)
+- Modifying the application name via `config.txt` will no longer cause the `config_dir` tests to fail erroneously (Issue #234, PR #235)
 
 ## 0.4.2 - 2019-04-06
 ### Added
