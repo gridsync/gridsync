@@ -139,12 +139,13 @@ gif: pngs
 frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
-	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
+	#git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
+	git clone https://github.com/crwood/tahoe-lafs.git build/tahoe-lafs
 	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout ede9fc7b312a4a1b510e0d17e783de6de699fe9c && \
+	git checkout 88ddd67c10be86524c05edcee5c3a38bdc70b89c && \
 	python setup.py update_version && \
 	python -m pip install . && \
 	case `uname` in \
