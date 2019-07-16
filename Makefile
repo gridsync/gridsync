@@ -144,7 +144,7 @@ frozen-tahoe:
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout 7263ceb1d112c6a90d90dcc6303eb425051fff50 && \
+	git checkout ede9fc7b312a4a1b510e0d17e783de6de699fe9c && \
 	python setup.py update_version && \
 	python -m pip install . && \
 	case `uname` in \
