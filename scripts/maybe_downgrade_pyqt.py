@@ -15,7 +15,7 @@ if sys.platform == 'darwin':
             # __os_activity_create"
             subprocess.call([
                 'python', '-m', 'pip', 'install', 'PyQt5==5.11.3',
-                'PyQt5-sip==4.19.13'])
+                'PyQtChart==5.11.3', 'PyQt5-sip==4.19.13'])
         else:
             # PyQt5 5.9(+?) fails on macOS 10.09 with "Symbol not found:
             # _LSCopyDefaultApplicationURLForURL"
@@ -34,4 +34,4 @@ elif sys.platform == 'linux':
         # FT_Get_Font_Format"
         subprocess.call([
             'python', '-m', 'pip', 'install', 'PyQt5==5.11.3',
-            'PyQt5-sip==4.19.13'])
+            'PyQtChart==5.11.3', 'PyQt5-sip==4.19.13'])
