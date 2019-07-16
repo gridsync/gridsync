@@ -152,7 +152,7 @@ frozen-tahoe:
 	esac &&	\
 	python -m pip install packaging && \
 	python -m pip install dis3 && \
-	python -m pip install --no-use-pep517 pyinstaller==3.4 && \
+	python -m pip install --no-use-pep517 pyinstaller==3.5 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
@@ -174,6 +174,24 @@ dmg:
 	source build/venv-dmg/bin/activate && \
 	python -m pip install dmgbuild && \
 	python misc/call_dmgbuild.py
+
+vagrant-linux:
+	pushd vagrantfiles/linux && \
+	vagrant up ; \
+	popd
+
+vagrant-macos:
+	pushd vagrantfiles/macos && \
+	vagrant up ; \
+	popd
+
+vagrant-windows:
+	rm vagrantfiles/windows/GridsyncSource.zip ; \
+	python3 scripts/make_source_zip.py . vagrantfiles/windows/GridsyncSource.zip && \
+	pushd vagrantfiles/windows && \
+	vagrant up ; \
+	rm GridsyncSource.zip ; \
+	popd
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:

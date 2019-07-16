@@ -16,6 +16,7 @@ class Gui():
         self.preferences_window = PreferencesWindow()
         self.systray = SystemTrayIcon(self)
         self.debug_exporter = DebugExporter(core)
+        self.unread_messages = []
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)

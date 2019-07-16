@@ -3,18 +3,20 @@
 ## Unreleased
 ### Added
 - Basic support for fetching and displaying "newscap" messages; see `docs/proposed/newscaps.md` (Issue #184; PR #192, #211)
+- Notification "badges" will now be displayed over the system tray icon to indicate unread newscap messages (Issue #226, PR #227)
 - The application menu -- normally accessible by right-clicking the system tray icon -- is now also always accessible via a button in the status panel (Issue #201, PR #202)
 - Clicking a desktop notification on Windows will now activate the main window (Issue #209; PR #210)
 - macOS Mojave's "dark mode" is now supported (Issue #213, PR #217)
+- Added support for "cross-compiling" Gridsync binaries via Vagrant/VirtualBox; see `README.rst` (Issue #230, PR #231)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
 - The "remove" folder action and subsequent confirmation dialog have been re-framed/updated to "stop syncing" instead. In addition, removing/stopping a folder will now unlink it from the user's rootcap/Recovery Key by default (i.e., unless the user checks the accompanying checkbox to "keep a backup copy of this folder on $GridName") (Issue #183, PR #190)
 - Various scripts, configurations, and operations relating to the Gridsync CI/testing/build process have been updated and improved, slightly reducing at least one developer's growing frustrations with Travis-CI and buildbot (PR #188)
 - Twisted's `reactor.spawnProcess` will now be used for running `tahoe` subprocesses on Windows, instead of threaded `subprocess.Popen` calls (Issue #176, PR #195)
-- Gridsync binary distributions will now use and ship with Qt version 5.12 (Issue #194, PR #196)
+- Gridsync binary distributions will now use and ship with (Py)Qt version 5.13 (Issue #228, PR #236)
 - Due to ending upstream support and binary incompatibily with Qt 5.12, Debian 8 ("Jessie") and Ubuntu 14.04 ("Trusty Tahr") are no longer supported. Users running Debian 8 or Ubuntu 14.04 will need to upgrade their operating systems or build/install Gridsync from source (via `make`) (PR #196)
-- High-DPI scaling (via Qt5's `AA_EnableHighDpiScaling` attribute) has been enabled on all platforms/environments (except for Qubes-OS and MATE -- see #204). In addition, font- and pixmap-scaling has been improved (Issue #193, #198; PR #199, #203, #204)
+- High-DPI scaling (via Qt5's `AA_EnableHighDpiScaling` attribute) has been enabled on all platforms/environments (except for Qubes-OS and MATE -- see #204). In addition, font- and pixmap-scaling has been improved (Issue #193, #198, #232; PR #199, #203, #204, #233)
 - The "Open Gridsync" menu action will now also un-minimize and re-focus the window in the event that it is already open (Issue #205; PR #206)
 - Desktop notifications for connection/disconnection events are now disabled by default (Issue #218, PR #219)
 
@@ -26,7 +28,8 @@
 - The default Qt MainWindow toolbar context menu has been disabled, preventing the situation in which a user might accidentally hide the toolbar with no way of re-showing it until the application re-launches (Issue #215, PR #216)
 - `SetupRunner.ensure_recovery` will now only be called when joining new grids, preventing an unnecessary upload from occurring -- and sometimes failing, due to a race-condition  -- when trying to join a grid that was already joined (Issue #220, PR #221)
 - The unused "?"/"What's This" QDialog button (enabled by Qt on Windows by default) has been removed (Issue #222, PR #223)
-- Double-clicking a newly-joined folder to open it before the tahoe daemon has finished (re)starting will no longer result in a crash (Issue #224, PR #225)
+- Double-clicking a newly-joined folder to open it before the tahoe daemon has finished (re)starting will no longer result in a crash (Issue #224, PR #225, #229)
+- Modifying the application name via `config.txt` will no longer cause the `config_dir` tests to fail erroneously (Issue #234, PR #235)
 
 ## 0.4.2 - 2019-04-06
 ### Added

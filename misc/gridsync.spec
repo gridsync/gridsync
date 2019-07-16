@@ -70,7 +70,7 @@ exe = EXE(
     strip=False,
     upx=False,
     console=False,
-    icon=settings['build']['win_icon']
+    icon=os.path.abspath(settings['build']['win_icon'])
 )
 coll = COLLECT(
     exe,

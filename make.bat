@@ -38,6 +38,9 @@ if "%1"=="test" call :test
 if "%1"=="frozen-tahoe" call :frozen-tahoe
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="installer" call :installer
+if "%1"=="vagrant-linux" call :vagrant-linux
+if "%1"=="vagrant-macos" call :vagrant-macos
+if "%1"=="vagrant-windows" call :vagrant-windows
 if "%1"=="all" call :all
 if "%1"=="" call :all
 goto :eof
@@ -70,7 +73,7 @@ call python -m pip install pyrsistent==0.14.11
 call python -m pip install .
 call python -m pip install packaging
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
-call python -m pip install --no-use-pep517 pyinstaller==3.4
+call python -m pip install --no-use-pep517 pyinstaller==3.5
 call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
@@ -89,6 +92,25 @@ goto :eof
 call copy misc\InnoSetup5.iss .
 call copy misc\InnoSetup6.iss .
 call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup6.iss || "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\InnoSetup5.iss
+goto :eof
+
+:vagrant-linux
+call pushd .\vagrantfiles\linux
+call vagrant up
+call popd
+goto :eof
+
+:vagrant-macos
+call pushd .\vagrantfiles\macos
+call vagrant up
+call popd
+goto :eof
+
+:vagrant-windows
+call del .\vagrantfiles\GridsyncSource.zip & py -3 .\scripts\make_source_zip.py . .\vagrantfiles\windows\GridsyncSource.zip
+call pushd .\vagrantfiles\windows
+call vagrant up
+call popd
 goto :eof
 
 :all
