@@ -70,8 +70,7 @@ call pushd .\build\tahoe-lafs
 call git checkout d6f0ce91233349759984b40fc721df7eef148f63
 call python setup.py update_version
 call python -m pip install .
-:: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
-call python -m pip install --no-use-pep517 pyinstaller==3.5
+call python -m pip install pyinstaller==3.5
 call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
