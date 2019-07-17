@@ -24,25 +24,13 @@ added_files = [
     ('src/allmydata/web/static/css/*', 'allmydata/web/static/css'),
     ('src/allmydata/web/static/img/*.png', 'allmydata/web/static/img')]
 
-hidden_imports = [
-    'allmydata.client',
-    'allmydata.introducer',
-    'allmydata.stats',
-    'cffi',
-    'characteristic',
-    'Crypto',
-    'packaging.specifiers',
-    'six.moves.html_parser',
-    'yaml',
-    'zfec'
-]
 
 a = Analysis(
     ['static/tahoe.py'],
     pathex=[],
     binaries=None,
     datas=added_files,
-    hiddenimports=hidden_imports,
+    hiddenimports=['cffi', 'characteristic'],
     hookspath=[],
     runtime_hooks=[],
     excludes=['FixTk', 'tcl', 'tk', '_tkinter', 'tkinter', 'Tkinter'],
