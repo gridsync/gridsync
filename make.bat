@@ -69,7 +69,6 @@ call copy .\misc\tahoe.spec .\build\tahoe-lafs\pyinstaller.spec
 call pushd .\build\tahoe-lafs
 call git checkout d6f0ce91233349759984b40fc721df7eef148f63
 call python setup.py update_version
-call python -m pip install pyrsistent==0.14.11
 call python -m pip install .
 :: Adding --no-use-pep517 suggested by https://github.com/pypa/pip/issues/6163
 call python -m pip install --no-use-pep517 pyinstaller==3.5
