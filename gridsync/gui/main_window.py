@@ -95,6 +95,11 @@ class MainWindow(QMainWindow):
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.setContextMenuPolicy(Qt.NoContextMenu)
 
+        if sys.platform == 'darwin':
+            # To disable the broken/buggy "full screen" mode on macOS.
+            # See https://github.com/gridsync/gridsync/issues/241
+            self.setWindowFlags(Qt.Dialog)
+
         self.shortcut_new = QShortcut(QKeySequence.New, self)
         self.shortcut_new.activated.connect(self.show_welcome_dialog)
 
