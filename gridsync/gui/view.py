@@ -554,12 +554,8 @@ class View(QTreeView):
             self.show_drop_label()
             painter = QPainter(self.viewport())
             painter.setRenderHint(QPainter.Antialiasing)
-            #pen = QPen(QColor(128, 128, 128), 6)
-            #pen.setDashPattern([0.6, 2.55])
-            #pen.setDashPattern([1, 2.5])
             pen = QPen(QColor(128, 128, 128), 5)
             pen.setDashPattern([1, 2.91])
-            #pen.setDashOffset(3.5)
             painter.setPen(pen)
             geometry = self.geometry()
             painter.drawRect(
