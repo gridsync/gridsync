@@ -19,6 +19,7 @@
 - High-DPI scaling (via Qt5's `AA_EnableHighDpiScaling` attribute) has been enabled on all platforms/environments (except for Qubes-OS and MATE -- see #204). In addition, font- and pixmap-scaling has been improved (Issue #193, #198, #232; PR #199, #203, #204, #233)
 - The "Open Gridsync" menu action will now also un-minimize and re-focus the window in the event that it is already open (Issue #205; PR #206)
 - Desktop notifications for connection/disconnection events are now disabled by default (Issue #218, PR #219)
+- Binary distributions of Gridsync will now include a newer, pre-release version of Tahoe-LAFS ("1.13.0.post996.dev0") (Issue #237, PR #239)
 
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
