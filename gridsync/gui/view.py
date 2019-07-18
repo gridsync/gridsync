@@ -2,9 +2,11 @@
 
 import logging
 import os
+import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
-from PyQt5.QtGui import QCursor, QIcon, QMovie, QPixmap
+from PyQt5.QtGui import (
+    QColor, QCursor, QIcon, QMovie, QPainter, QPen, QPixmap)
 from PyQt5.QtWidgets import (
     QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
     QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
@@ -96,11 +98,12 @@ class View(QTreeView):
         #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
         self.setIconSize(QSize(24, 24))
 
-        self.drop_outline = QLabel(self)
-        self.drop_outline.setPixmap(QPixmap(resource('drop_zone_outline.png')))
-        self.drop_outline.setScaledContents(True)
-        self.drop_outline.setAcceptDrops(True)
-        self.drop_outline.installEventFilter(self)
+        # XXX Should match the result of subtracting top from left margin from
+        # CentralWidget's folders_views[gateway].layout().getContentsMargins()
+        # but since this object's enclosing widget/layout won't appear in the
+        # folders_views dict until after this __init__() call completes, set
+        # the value "manually" instead.
+        self.dropzone_top_margin = (0 if sys.platform == 'darwin' else 11)
 
         self.drop_icon = QLabel(self)
         self.drop_icon.setPixmap(QPixmap(resource('upload.png')))
@@ -133,7 +136,6 @@ class View(QTreeView):
         self.select_folder_button.clicked.connect(self.select_folder)
 
         layout = QGridLayout(self)
-        layout.addWidget(self.drop_outline, 1, 1, 9, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
         layout.addWidget(self.drop_icon, 2, 2, 3, 1)
         layout.addWidget(self.drop_text, 6, 1, 1, 3)
@@ -151,7 +153,6 @@ class View(QTreeView):
     def show_drop_label(self, _=None):
         if not self.model().rowCount():
             self.setHeaderHidden(True)
-            self.drop_outline.show()
             self.drop_icon.show()
             self.drop_text.show()
             self.drop_subtext.show()
@@ -159,7 +160,6 @@ class View(QTreeView):
 
     def hide_drop_label(self):
         self.setHeaderHidden(False)
-        self.drop_outline.hide()
         self.drop_icon.hide()
         self.drop_text.hide()
         self.drop_subtext.hide()
@@ -548,3 +548,20 @@ class View(QTreeView):
             self.dropEvent(event)
             return True
         return False
+
+    def paintEvent(self, event):
+        if not self.model().rowCount():
+            self.show_drop_label()
+            painter = QPainter(self.viewport())
+            painter.setRenderHint(QPainter.Antialiasing)
+            pen = QPen(QColor(128, 128, 128), 5)
+            pen.setDashPattern([1, 2.91])
+            painter.setPen(pen)
+            geometry = self.geometry()
+            painter.drawRect(
+                geometry.x(),
+                geometry.y() + self.dropzone_top_margin,
+                geometry.width() - 24,
+                geometry.height() - 24
+            )
+        super().paintEvent(event)
