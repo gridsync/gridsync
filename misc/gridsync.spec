@@ -84,7 +84,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name=(app_name + '.app'),
-    icon=settings['build']['mac_icon'],
+    icon=os.path.abspath(settings['build']['mac_icon']),
     bundle_identifier=settings['build']['mac_bundle_identifier'],
     info_plist={
         'CFBundleShortVersionString': version,
