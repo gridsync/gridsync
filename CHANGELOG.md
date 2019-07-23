@@ -20,6 +20,7 @@
 - The "Open Gridsync" menu action will now also un-minimize and re-focus the window in the event that it is already open (Issue #205; PR #206)
 - Desktop notifications for connection/disconnection events are now disabled by default (Issue #218, PR #219)
 - Binary distributions of Gridsync will now include a newer, pre-release version of Tahoe-LAFS ("1.13.0.post996.dev0") (Issue #237, PR #239)
+- Python 3.5 support has been dropped; Gridsync now requires Python version 3.6 or higher (Issue #243, PR #244)
 
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
