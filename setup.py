@@ -7,10 +7,10 @@ import sys
 from setuptools import setup
 
 
-if (sys.version_info.major, sys.version_info.minor) < (3, 5):
+if (sys.version_info.major, sys.version_info.minor) < (3, 6):
     sys.exit(
         "This version of Python ({}.{}) is no longer supported by Gridsync; "
-        "please upgrade to Python 3.5 or higher and try again".format(
+        "please upgrade to Python 3.6 or higher and try again".format(
             sys.version_info.major, sys.version_info.minor))
 
 
