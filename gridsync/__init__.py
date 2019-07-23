@@ -43,9 +43,9 @@ except KeyError:
 
 if sys.platform == 'win32':
     config_dir = os.path.join(os.getenv('APPDATA'), APP_NAME)  # type: ignore
-    autostart_file_path = os.path.join(
+    autostart_file_path = os.path.join(  # type: ignore
         os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs',
-        'Startup', APP_NAME + '.lnk')  # type: ignore
+        'Startup', APP_NAME + '.lnk')
 elif sys.platform == 'darwin':
     config_dir = os.path.join(
         os.path.expanduser('~'), 'Library', 'Application Support', APP_NAME)
