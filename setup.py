@@ -49,7 +49,7 @@ setup(
     url=metadata["url"],
     license=metadata["license"],
     keywords="gridsync tahoe-lafs tahoe lafs allmydata-tahoe magic-wormhole",
-    python_requires=">=3.5, <3.8",
+    python_requires=">=3.6, <3.8",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: MacOS X",
