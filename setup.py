@@ -7,13 +7,6 @@ import sys
 from setuptools import setup
 
 
-if (sys.version_info.major, sys.version_info.minor) < (3, 6):
-    sys.exit(
-        "This version of Python ({}.{}) is no longer supported by Gridsync; "
-        "please upgrade to Python 3.6 or higher and try again".format(
-            sys.version_info.major, sys.version_info.minor))
-
-
 requirements = [
     'atomicwrites',
     'autobahn',
@@ -56,6 +49,7 @@ setup(
     url=metadata["url"],
     license=metadata["license"],
     keywords="gridsync tahoe-lafs tahoe lafs allmydata-tahoe magic-wormhole",
+    python_requires=">=3.5, <3.8",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: MacOS X",
