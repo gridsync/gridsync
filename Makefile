@@ -208,6 +208,20 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
+appimage:
+	mkdir -p build/AppDir/usr/bin
+	curl -L https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -o build/linuxdeploy-x86_64.AppImage
+	echo "5cd6e75f987abfbe60adef89d75bc536c6076653ffa0673e90579ed25cbe19dd  build/linuxdeploy-x86_64.AppImage" | sha256sum --check
+	chmod +x build/linuxdeploy-x86_64.AppImage
+	cp -r dist/Gridsync/* build/AppDir/usr/bin
+	LD_LIBRARY_PATH=build/AppDir/usr/bin VERSION=Linux build/linuxdeploy-x86_64.AppImage \
+		--appdir=build/AppDir \
+		--executable=build/AppDir/usr/bin/gridsync \
+		--desktop-file=Gridsync.desktop \
+		--icon-file=images/gridsync.svg \
+		--output=appimage
+	mv Gridsync-Linux-x86_64.AppImage dist
+
 all:
 	$(MAKE) pyinstaller
 	@case `uname` in \
