@@ -7,10 +7,11 @@ try:
     from configparser import RawConfigParser
 except ImportError:
     from ConfigParser import RawConfigParser
-import subprocess
+import glob
 import hashlib
 import os
 import shutil
+import subprocess
 import sys
 try:
     from urllib.request import urlretrieve
@@ -86,14 +87,19 @@ Icon={1}
 
 os.environ['LD_LIBRARY_PATH'] = appdir_bin
 os.environ['VERSION'] = 'Linux'
-subprocess.call([
+linuxdeploy_args = [
     linuxdeploy_path,
     '--appdir=build/AppDir',
     '--executable={}'.format(os.path.join(appdir_usr, 'bin', name_lower)),
     '--icon-file={}'.format(icon_filepath),
     '--desktop-file={}'.format(desktop_filepath),
     '--output=appimage'
-])
+]
+returncode = subprocess.call(linuxdeploy_args)
+if returncode:
+    # XXX Ugly hack/workaround for "ERROR: Strip call failed: /tmp/.mount_linuxdns8a8k/usr/bin/strip: unable to copy file 'build/AppDir/usr/lib/libpython3.7m.so.1.0'; reason: Permission denied" observed on Travis-CI
+    os.chmod(glob.glob('build/AppDir/usr/lib/libpython*.so.*')[0], 0o755)
+    subprocess.call(linuxdeploy_args)
 
 
 try:
