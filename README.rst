@@ -70,11 +70,11 @@ Downloads for "stable" releases of Gridsync can be found on the project's `GitHu
 
 To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Debian 9+, Ubuntu 16.04 LTS+, CentOS 7+, and Fedora 28+):
 
-1. Download `Gridsync-Linux.tar.gz`_ (and `verify`_ its signature)
-2. Extract the enclosed "Gridsync" directory anywhere (``tar xvf Gridsync-Linux.tar.gz``)
-3. Run the contained ``gridsync`` binary
+1. Download `Gridsync-Linux.AppImage`_ (and `verify`_ its signature)
+2. Make the AppImage executable (``chmod +x Gridsync-Linux.AppImage``)
+3. Run ``Gridsync-Linux.AppImage``
 
-.. _Gridsync-Linux.tar.gz: https://github.com/gridsync/gridsync/releases
+.. _Gridsync-Linux.AppImage: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
 To install and run Gridsync on macOS (64-bit only; supporting macOS 10.12 "Sierra" and above):
