@@ -20,7 +20,7 @@ except ImportError:
 
 
 LINUXDEPLOY_URL = 'https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
-LINUXDEPLOY_HASH = '5cd6e75f987abfbe60adef89d75bc536c6076653ffa0673e90579ed25cbe19dd'
+LINUXDEPLOY_HASH = '3513c4b8ef190f6cf0c2d2665ada478e4c71ca1266f9bc8c2adfe2f0b13a0fbc'
 
 
 appdir_usr = os.path.join('build', 'AppDir', 'usr')
