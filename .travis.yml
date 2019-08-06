@@ -25,6 +25,7 @@ matrix:
       osx_image: xcode8
       env: PYTHON_CONFIGURE_OPTS="--enable-framework"
 install:
+  - env | grep PATH
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / || true; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
