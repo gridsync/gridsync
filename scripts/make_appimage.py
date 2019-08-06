@@ -8,47 +8,10 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 import glob
-import hashlib
 import os
 import shutil
 import subprocess
 import sys
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
-
-
-LINUXDEPLOY_URL = 'https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
-LINUXDEPLOY_HASH = '3513c4b8ef190f6cf0c2d2665ada478e4c71ca1266f9bc8c2adfe2f0b13a0fbc'
-
-
-appdir_usr = os.path.join('build', 'AppDir', 'usr')
-appdir_bin = os.path.join(appdir_usr, 'bin')
-try:
-    os.makedirs(appdir_usr)
-except OSError:
-    pass
-
-
-linuxdeploy_path = os.path.join('build', 'linuxdeploy-x86_64.AppImage')
-urlretrieve(LINUXDEPLOY_URL, linuxdeploy_path)
-
-
-hasher = hashlib.sha256()
-with open(linuxdeploy_path, 'rb') as f:
-    for block in iter(lambda: f.read(4096), b''):
-        hasher.update(block)
-sha256sum = hasher.hexdigest()
-if sha256sum != LINUXDEPLOY_HASH:
-    sys.exit(
-        "Checksum of {} failed!\n"
-        "Expected: {}\n"
-        "Received: {}".format(linuxdeploy_path, LINUXDEPLOY_HASH, sha256sum)
-    )
-
-
-os.chmod(linuxdeploy_path, 0o755)
 
 
 config = RawConfigParser(allow_no_value=True)
@@ -59,12 +22,17 @@ for section in config.sections():
         settings[section] = {}
     for option, value in config.items(section):
         settings[section][option] = value
-
 name = settings['application']['name']
 name_lower = name.lower()
 linux_icon = settings['build']['linux_icon']
 
 
+appdir_usr = os.path.join('build', 'AppDir', 'usr')
+appdir_bin = os.path.join(appdir_usr, 'bin')
+try:
+    os.makedirs(appdir_usr)
+except OSError:
+    pass
 shutil.copytree(os.path.join('dist', name), appdir_bin)
 
 
@@ -88,14 +56,22 @@ Icon={1}
 os.environ['LD_LIBRARY_PATH'] = appdir_bin
 os.environ['VERSION'] = 'Linux'
 linuxdeploy_args = [
-    linuxdeploy_path,
+    'linuxdeploy',
     '--appdir=build/AppDir',
     '--executable={}'.format(os.path.join(appdir_usr, 'bin', name_lower)),
     '--icon-file={}'.format(icon_filepath),
     '--desktop-file={}'.format(desktop_filepath),
     '--output=appimage'
 ]
-returncode = subprocess.call(linuxdeploy_args)
+try:
+    returncode = subprocess.call(linuxdeploy_args)
+except OSError:
+    sys.exit(
+        'ERROR: `linuxdeploy` utility not found. Please ensure that it is '
+        'on your $PATH and executable as `linuxdeploy` and try again.\n'
+        '`linuxdeploy` can be downloaded from https://github.com/linuxdeploy/'
+        'linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
+    )
 if returncode:
     # XXX Ugly hack/workaround for "ERROR: Strip call failed: /tmp/.mount_linuxdns8a8k/usr/bin/strip: unable to copy file 'build/AppDir/usr/lib/libpython3.7m.so.1.0'; reason: Permission denied" observed on Travis-CI
     os.chmod(glob.glob('build/AppDir/usr/lib/libpython*.so.*')[0], 0o755)
