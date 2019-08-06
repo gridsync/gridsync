@@ -54,7 +54,7 @@ install:
   - which python3.6 && python3.6 --version
   - python2 -m pip install --upgrade setuptools pip
   - python3 -m pip install --upgrade setuptools pip tox coveralls
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy-x86_64.AppImage; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -v -L --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy-x86_64.AppImage; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ~/bin/linuxdeploy; fi
   - env | grep PATH
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ls -al ~/bin; fi
