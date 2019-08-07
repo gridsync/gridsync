@@ -8,6 +8,7 @@ tray_icon_sync = gridsync.gif
 mac_bundle_identifier = io.gridsync.Gridsync
 mac_icon = images/gridsync.icns
 win_icon = images/gridsync.ico
+linux_icon = images/gridsync.svg
 
 [debug]
 log_maxlen = 100000

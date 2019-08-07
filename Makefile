@@ -208,11 +208,14 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
+appimage:
+	python3 scripts/make_appimage.py
+
 all:
 	$(MAKE) pyinstaller
 	@case `uname` in \
 		Darwin)	$(MAKE) dmg ;; \
-		*) python3 scripts/make_archive.py ;; \
+		*) $(MAKE) appimage && python3 scripts/make_archive.py ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
