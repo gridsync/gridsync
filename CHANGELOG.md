@@ -8,7 +8,7 @@
 - Clicking a desktop notification on Windows will now activate the main window (Issue #209; PR #210)
 - macOS Mojave's "dark mode" is now supported (Issue #213, PR #217)
 - Added support for "cross-compiling" Gridsync binaries via Vagrant/VirtualBox; see `README.rst` (Issue #230, PR #231)
-- Gridsync [AppImages](https://appimage.org/) are now available for GNU/Linux (Issue #245, PR #246)
+- Gridsync [AppImages](https://appimage.org/) are now available for GNU/Linux (Issue #245, PR #246, #248)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
