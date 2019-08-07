@@ -10,7 +10,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
 
 # These Qt attributes must be set *before* initializing a QApplication...
-if os.environ.get('QREXEC_REMOTE_DOMAIN'):
+if (os.environ.get('QREXEC_REMOTE_DOMAIN')
+        or os.environ.get('QUBES_ENV_SOURCED')):
     # On Qubes-OS, setting AA_EnableHighDpiScaling to 'True', *always* doubles
     # the window-size -- even on lower-resolution (1080p) displays -- but does
     # not do the same for font-sizes.

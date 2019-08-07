@@ -156,10 +156,13 @@ def autostart_enable():
         os.makedirs(os.path.dirname(autostart_file_path))
     except OSError:
         pass
+    appimage_path = os.environ.get('APPIMAGE')
     frozen = getattr(sys, 'frozen', False)
     if frozen and frozen == 'macosx_app':  # py2app
         executable = os.path.join(
             os.path.dirname(os.path.realpath(sys.executable)), APP_NAME)
+    elif appimage_path:
+        executable = appimage_path
     elif frozen:
         executable = os.path.realpath(sys.executable)
     else:

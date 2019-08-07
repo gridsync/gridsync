@@ -183,6 +183,17 @@ def test_autostart_enable(tmpfile, monkeypatch):
     assert autostart_is_enabled()
 
 
+def test_autostart_enable_appimage(tmpfile, monkeypatch):
+    monkeypatch.setattr('sys.platform', 'linux')
+    monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
+    appimage = '/test/gridsync.AppImage'
+    monkeypatch.setattr('os.environ', {'PATH': '/tmp', 'APPIMAGE': appimage})
+    m = Mock()
+    monkeypatch.setattr('gridsync.desktop._autostart_enable_linux', m)
+    autostart_enable()
+    assert m.call_args[0][0] == appimage
+
+
 def test_autostart_enable_frozen(tmpfile, monkeypatch):
     monkeypatch.setattr("sys.frozen", True, raising=False)
     monkeypatch.setattr('gridsync.desktop.autostart_file_path', tmpfile)
