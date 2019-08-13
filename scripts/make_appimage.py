@@ -78,6 +78,30 @@ if returncode:
     subprocess.call(linuxdeploy_args)
 
 
+def deduplicate_libs():
+    appimage = os.path.abspath('{}-Linux-x86_64.AppImage'.format(name))
+    size_before = os.path.getsize(appimage)
+    subprocess.call([appimage, '--appimage-extract'])
+    os.remove(appimage)
+    shutil.rmtree('build/AppDir')
+    shutil.move('squashfs-root', 'build/AppDir')
+    for _, _, files, in os.walk('build/AppDir/usr/lib', followlinks=True):
+        for file in sorted(files):
+            if file.startswith('libpython') or file.startswith('libQt'):
+                continue
+            path = os.path.abspath('build/AppDir/usr/bin/{}'.format(file))
+            print('Removing duplicate library: ', path)
+            try:
+                os.remove(path)
+            except OSError:
+                print('WARNING: Could not remove {}; not found'.format(path))
+    subprocess.call(linuxdeploy_args)
+    size_after = os.path.getsize(appimage)
+    print('Reduced filesize by {} bytes.'.format(size_before - size_after))
+
+deduplicate_libs()
+
+
 try:
     os.mkdir('dist')
 except OSError:
