@@ -54,14 +54,12 @@ Icon={1}
 
 
 os.environ['LD_LIBRARY_PATH'] = appdir_bin
-os.environ['VERSION'] = 'Linux'
 linuxdeploy_args = [
     'linuxdeploy',
     '--appdir=build/AppDir',
     '--executable={}'.format(os.path.join(appdir_usr, 'bin', name_lower)),
     '--icon-file={}'.format(icon_filepath),
     '--desktop-file={}'.format(desktop_filepath),
-    '--output=appimage'
 ]
 try:
     returncode = subprocess.call(linuxdeploy_args)
@@ -79,12 +77,6 @@ if returncode:
 
 
 def deduplicate_libs():
-    appimage = os.path.abspath('{}-Linux-x86_64.AppImage'.format(name))
-    size_before = os.path.getsize(appimage)
-    subprocess.call([appimage, '--appimage-extract'])
-    os.remove(appimage)
-    shutil.rmtree('build/AppDir')
-    shutil.move('squashfs-root', 'build/AppDir')
     for file in sorted(os.listdir('build/AppDir/usr/bin')):
         path = 'build/AppDir/usr/lib/{}'.format(file)
         if os.path.exists(path):
@@ -93,9 +85,7 @@ def deduplicate_libs():
                 os.remove(path)
             except OSError:
                 print('WARNING: Could not remove file {}'.format(path))
-    subprocess.call(['appimagetool', 'build/AppDir', appimage])
-    size_after = os.path.getsize(appimage)
-    print('Reduced filesize by {} bytes.'.format(size_before - size_after))
+    subprocess.call(['appimagetool', 'build/AppDir'])
 
 deduplicate_libs()
 
@@ -105,6 +95,6 @@ try:
 except OSError:
     pass
 shutil.move(
-    '{}-Linux-x86_64.AppImage'.format(name),
+    '{}-x86_64.AppImage'.format(name),
     os.path.join('dist', '{}.AppImage'.format(name))
 )
