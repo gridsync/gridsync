@@ -93,7 +93,7 @@ def deduplicate_libs():
                 os.remove(path)
             except OSError:
                 print('WARNING: Could not remove file {}'.format(path))
-    subprocess.call(linuxdeploy_args)
+    subprocess.call(['appimagetool', 'build/AppDir', appimage])
     size_after = os.path.getsize(appimage)
     print('Reduced filesize by {} bytes.'.format(size_before - size_after))
 
