@@ -77,14 +77,20 @@ if returncode:
 
 
 def deduplicate_libs():
-    for file in sorted(os.listdir('build/AppDir/usr/bin')):
-        path = 'build/AppDir/usr/lib/{}'.format(file)
-        if os.path.exists(path):
-            print('Removing duplicate library:', path)
+    for file in sorted(os.listdir(appdir_bin)):
+        dst = 'build/AppDir/usr/lib/{}'.format(file)
+        if os.path.exists(dst):
             try:
-                os.remove(path)
+                os.remove(dst)
             except OSError:
-                print('WARNING: Could not remove file {}'.format(path))
+                print('WARNING: Could not remove file {}'.format(dst))
+                continue
+            src = '../bin/{}'.format(file)
+            print('Creating symlink: {} -> {}'.format(dst, src))
+            try:
+                os.symlink(src, dst)
+            except OSError:
+                print('WARNING: Could not create symlink for {}'.format(dst))
 
 deduplicate_libs()
 
