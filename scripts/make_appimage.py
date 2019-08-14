@@ -88,7 +88,7 @@ def deduplicate_libs():
     for file in sorted(os.listdir('build/AppDir/usr/bin')):
         path = 'build/AppDir/usr/lib/{}'.format(file)
         if os.path.exists(path):
-            print('Removing duplicate library: ', path)
+            print('Removing duplicate library:', path)
             try:
                 os.remove(path)
             except OSError:
