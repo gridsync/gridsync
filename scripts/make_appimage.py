@@ -79,23 +79,20 @@ if returncode:
     subprocess.call(linuxdeploy_args)
 
 
-def deduplicate_libs():
-    for file in sorted(os.listdir(appdir_bin)):
-        dst = 'build/AppDir/usr/lib/{}'.format(file)
-        if os.path.exists(dst):
-            try:
-                os.remove(dst)
-            except OSError:
-                print('WARNING: Could not remove file {}'.format(dst))
-                continue
-            src = '../bin/{}'.format(file)
-            print('Creating symlink: {} -> {}'.format(dst, src))
-            try:
-                os.symlink(src, dst)
-            except OSError:
-                print('WARNING: Could not create symlink for {}'.format(dst))
-
-deduplicate_libs()
+for file in sorted(os.listdir(appdir_bin)):
+    dst = 'build/AppDir/usr/lib/{}'.format(file)
+    if os.path.exists(dst):
+        try:
+            os.remove(dst)
+        except OSError:
+            print('WARNING: Could not remove file {}'.format(dst))
+            continue
+        src = '../bin/{}'.format(file)
+        print('Creating symlink: {} -> {}'.format(dst, src))
+        try:
+            os.symlink(src, dst)
+        except OSError:
+            print('WARNING: Could not create symlink for {}'.format(dst))
 
 
 try:
