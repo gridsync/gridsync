@@ -33,7 +33,10 @@ try:
     os.makedirs(appdir_usr)
 except OSError:
     pass
-shutil.copytree(os.path.join('dist', name), appdir_bin)
+try:
+    shutil.copytree(os.path.join('dist', name), appdir_bin)
+except OSError:
+    pass
 
 
 _, ext = os.path.splitext(linux_icon)
