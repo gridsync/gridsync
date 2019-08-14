@@ -85,7 +85,6 @@ def deduplicate_libs():
                 os.remove(path)
             except OSError:
                 print('WARNING: Could not remove file {}'.format(path))
-    subprocess.call(['appimagetool', 'build/AppDir'])
 
 deduplicate_libs()
 
@@ -94,7 +93,7 @@ try:
     os.mkdir('dist')
 except OSError:
     pass
-shutil.move(
-    '{}-x86_64.AppImage'.format(name),
-    os.path.join('dist', '{}.AppImage'.format(name))
-)
+
+subprocess.call([
+    'appimagetool', 'build/AppDir', 'dist/{}.AppImage'.format(name)
+])
