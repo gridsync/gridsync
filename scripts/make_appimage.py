@@ -80,6 +80,12 @@ if returncode:
 
 
 for file in sorted(os.listdir(appdir_bin)):
+    # The `linuxdeploy` utility adds a copy of each library to AppDir/usr/lib,
+    # however, the main PyInstaller-generated ("gridsync") executable expects
+    # these libraries to be located in the same directory as the ("gridsync")
+    # executable itself (resulting in *two* copies of each library and thus
+    # wasted disk-space); removing the copies inserted by `linuxdeploy` -- and
+    # and replacing them with symlinks to the originals -- saves disk-space.
     dst = 'build/AppDir/usr/lib/{}'.format(file)
     if os.path.exists(dst):
         try:
