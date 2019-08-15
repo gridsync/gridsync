@@ -41,6 +41,8 @@ Vagrant.configure("2") do |config|
     python3 -m pip install --upgrade setuptools pip tox
     curl -L --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
     chmod +x ~/bin/linuxdeploy
+    curl -L --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+    chmod +x ~/bin/appimagetool
   SHELL
   config.vm.provision "file", source: "../..", destination: "~/gridsync"
   config.vm.provision "shell", privileged: false, inline: <<-SHELL

@@ -33,7 +33,10 @@ try:
     os.makedirs(appdir_usr)
 except OSError:
     pass
-shutil.copytree(os.path.join('dist', name), appdir_bin)
+try:
+    shutil.copytree(os.path.join('dist', name), appdir_bin)
+except OSError:
+    pass
 
 
 _, ext = os.path.splitext(linux_icon)
@@ -54,14 +57,12 @@ Icon={1}
 
 
 os.environ['LD_LIBRARY_PATH'] = appdir_bin
-os.environ['VERSION'] = 'Linux'
 linuxdeploy_args = [
     'linuxdeploy',
     '--appdir=build/AppDir',
     '--executable={}'.format(os.path.join(appdir_usr, 'bin', name_lower)),
     '--icon-file={}'.format(icon_filepath),
     '--desktop-file={}'.format(desktop_filepath),
-    '--output=appimage'
 ]
 try:
     returncode = subprocess.call(linuxdeploy_args)
@@ -78,11 +79,40 @@ if returncode:
     subprocess.call(linuxdeploy_args)
 
 
+for file in sorted(os.listdir(appdir_bin)):
+    # The `linuxdeploy` utility adds a copy of each library to AppDir/usr/lib,
+    # however, the main PyInstaller-generated ("gridsync") executable expects
+    # these libraries to be located in the same directory as the ("gridsync")
+    # executable itself (resulting in *two* copies of each library and thus
+    # wasted disk-space); removing the copies inserted by `linuxdeploy` -- and
+    # and replacing them with symlinks to the originals -- saves disk-space.
+    dst = 'build/AppDir/usr/lib/{}'.format(file)
+    if os.path.exists(dst):
+        try:
+            os.remove(dst)
+        except OSError:
+            print('WARNING: Could not remove file {}'.format(dst))
+            continue
+        src = '../bin/{}'.format(file)
+        print('Creating symlink: {} -> {}'.format(dst, src))
+        try:
+            os.symlink(src, dst)
+        except OSError:
+            print('WARNING: Could not create symlink for {}'.format(dst))
+
+
 try:
     os.mkdir('dist')
 except OSError:
     pass
-shutil.move(
-    '{}-Linux-x86_64.AppImage'.format(name),
-    os.path.join('dist', '{}.AppImage'.format(name))
-)
+try:
+    subprocess.call([
+        'appimagetool', 'build/AppDir', 'dist/{}.AppImage'.format(name)
+    ])
+except OSError:
+    sys.exit(
+        'ERROR: `appimagetool` utility not found. Please ensure that it is '
+        'on your $PATH and executable as `appimagetool` and try again.\n'
+        '`appimagetool` can be downloaded from https://github.com/AppImage/A'
+        'ppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage'
+    )

@@ -215,7 +215,7 @@ all:
 	$(MAKE) pyinstaller
 	@case `uname` in \
 		Darwin)	$(MAKE) dmg ;; \
-		*) $(MAKE) appimage && python3 scripts/make_archive.py ;; \
+		*) $(MAKE) appimage ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
