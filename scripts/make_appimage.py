@@ -105,7 +105,14 @@ try:
     os.mkdir('dist')
 except OSError:
     pass
-
-subprocess.call([
-    'appimagetool', 'build/AppDir', 'dist/{}.AppImage'.format(name)
-])
+try:
+    subprocess.call([
+        'appimagetool', 'build/AppDir', 'dist/{}.AppImage'.format(name)
+    ])
+except OSError:
+    sys.exit(
+        'ERROR: `appimagetool` utility not found. Please ensure that it is '
+        'on your $PATH and executable as `appimagetool` and try again.\n'
+        '`appimagetool` can be downloaded from https://github.com/AppImage/A'
+        'ppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage'
+    )
