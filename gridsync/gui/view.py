@@ -391,8 +391,10 @@ class View(QTreeView):
         return folders
 
     def on_right_click(self, position):
-        if not position:
+        if not position:  # From left-click on "Action" button
             position = self.viewport().mapFromGlobal(QCursor().pos())
+            self.deselect_remote_folders()
+            self.deselect_local_folders()
         cur_item = self.model().itemFromIndex(self.indexAt(position))
         if not cur_item:
             return
