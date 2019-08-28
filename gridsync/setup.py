@@ -313,6 +313,7 @@ class SetupRunner(QObject):
             self.grid_already_joined.emit(settings.get('nickname'))
         if folders_data:
             yield self.join_folders(folders_data)
+            yield self.gateway.monitor.scan_rootcap()
 
         self.update_progress.emit('Done!')
         self.done.emit(self.gateway)
