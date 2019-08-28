@@ -36,6 +36,7 @@
 - The "drop zone" border (visually indicating, by means of a dotted line, the area capable of adding new folders via drag-and-drop) is now rendered programmatically according to the dimensions of the enclosing window, thus preventing the border from appearing disproportionately thick when the MainWindow is enlarged or maximized (Issue #75, PR #240)
 - The poorly-supported-by-Qt macOS "fullscreen" mode has been disabled for the MainWindow (and replaced with a more traditional "maximize" functionality), preventing the situation in which the application window could become stuck in fullscreen mode (Issue #241, PR #242)
 - Left-clicking the "Action" button corresponding to a specific folder will now correctly deselect and exclude any other folders from the subsequent user-selected action (Issue #254, PR #255)
+- Folders joined while connecting to a new grid will now appear immediately in the MainWindow folders view after the setup process completes (Issue #256, PR #257)
 
 ## 0.4.2 - 2019-04-06
 ### Added
