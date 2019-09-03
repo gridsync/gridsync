@@ -22,6 +22,7 @@
 - Desktop notifications for connection/disconnection events are now disabled by default (Issue #218, PR #219)
 - Binary distributions of Gridsync will now include a newer, pre-release version of Tahoe-LAFS ("1.13.0.post996.dev0") (Issue #237, PR #239)
 - Python 3.5 support has been dropped; Gridsync now requires Python version 3.6 or higher (Issue #243, PR #244)
+- Users are no longer required to scroll to the bottom of a debug log in order to export it (Issue #258, PR #259)
 
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
