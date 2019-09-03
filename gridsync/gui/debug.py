@@ -129,7 +129,6 @@ class DebugExporter(QDialog):
         )
 
         self.scrollbar = self.plaintextedit.verticalScrollBar()
-        self.scrollbar.valueChanged.connect(self.maybe_enable_buttons)
 
         self.reload_button = QPushButton("Reload")
         self.reload_button.clicked.connect(self.load)
@@ -185,14 +184,6 @@ class DebugExporter(QDialog):
         layout.addWidget(self.plaintextedit, 1, 1)
         layout.addLayout(bottom_layout, 2, 1)
 
-    def maybe_enable_buttons(self, scrollbar_value):
-        if scrollbar_value == self.scrollbar.maximum():
-            self.copy_button.setEnabled(True)
-            self.export_button.setEnabled(True)
-        else:
-            self.copy_button.setEnabled(False)
-            self.export_button.setEnabled(False)
-
     def on_checkbox_state_changed(self, state):
         scrollbar_position = self.scrollbar.value()
         if state == Qt.Checked:
@@ -216,7 +207,6 @@ class DebugExporter(QDialog):
 
     def on_loaded(self):
         self.on_checkbox_state_changed(self.checkbox.checkState())
-        self.maybe_enable_buttons(self.scrollbar.value())
         self.log_loader_thread.quit()
         self.log_loader_thread.wait()
 
@@ -252,6 +242,3 @@ class DebugExporter(QDialog):
             )
             return
         self.close()
-
-    def resizeEvent(self, _):
-        self.maybe_enable_buttons(self.scrollbar.value())

@@ -63,24 +63,6 @@ def test_log_loader_load_warning_text_in_filtered_content(core):
 
 
 @pytest.mark.parametrize(
-    'scrollbar_value, scrolbar_maximum, is_enabled',
-    [
-        (99, 99, True),
-        (0, 0, True),
-        (50, 99, False),
-    ]
-)
-def test_debug_exporter_maybe_enable_buttons(
-        scrollbar_value, scrolbar_maximum, is_enabled):
-    de = DebugExporter(None)
-    fake_scrollbar = Mock()
-    fake_scrollbar.maximum = Mock(return_value=scrolbar_maximum)
-    de.scrollbar = fake_scrollbar
-    de.maybe_enable_buttons(scrollbar_value)
-    assert de.copy_button.isEnabled() == is_enabled
-
-
-@pytest.mark.parametrize(
     'checkbox_state, expected_content',
     [
         (Qt.Unchecked, 'unfiltered'),
@@ -210,10 +192,3 @@ def test_debug_exporter_export_to_file_failure(monkeypatch, tmpdir):
     monkeypatch.setattr('gridsync.gui.debug.error', fake_error)
     de.export_to_file()
     assert fake_error.call_args[0][2] == error_message
-
-
-def test_debug_exporter_maybe_enable_buttons_on_resizeEvent():
-    de = DebugExporter(None)
-    de.maybe_enable_buttons = Mock()
-    de.resizeEvent(None)
-    assert de.maybe_enable_buttons.call_args[0][0] == de.scrollbar.value()
