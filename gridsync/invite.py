@@ -25,7 +25,7 @@ except OSError:
     pass
 
 
-wordlist = []
+wordlist = []  # type: list
 for word in raw_words.items():
     wordlist.extend(word[1])
 for c in cheatcodes:

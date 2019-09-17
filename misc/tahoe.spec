@@ -25,13 +25,14 @@ added_files = [
     ('src/allmydata/web/static/img/*.png', 'allmydata/web/static/img')]
 
 hidden_imports = [
+    # Required for `tahoe run`/`tahoe daemonize`:
     'allmydata.client',
     'allmydata.introducer',
     'allmydata.stats',
+    # Required always:
     'cffi',
     'characteristic',
-    'Crypto',
-    'packaging.specifiers',
+    # Required previously, but possibly no longer necessary:
     'six.moves.html_parser',
     'yaml',
     'zfec'

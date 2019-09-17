@@ -78,7 +78,7 @@ class StreamedLogs(MultiService):
         """
         :return list[str]: The messages currently in the message buffer.
         """
-        return list(msg.decode("utf-8") for msg in self._buffer)
+        return list(msg.decode("utf-8") for msg in list(self._buffer))
 
     def _create_client_service(self, nodeurl, api_token):
         url = parse(nodeurl)

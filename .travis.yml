@@ -11,7 +11,7 @@ matrix:
     # macOS 10.14
     - os: osx
       osx_image: xcode10.2
-      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework" SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk MACOSX_DEPLOYMENT_TARGET=10.14
     # macOS 10.13
     - os: osx
       osx_image: xcode10.1
@@ -29,6 +29,12 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / || true; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libxkbcommon-x11-0; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ~/bin/linuxdeploy; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then linuxdeploy --version; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ~/bin/appimagetool; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then appimagetool --version; fi
   - rm -rf ~/.pyenv
   - git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   - mkdir -p ~/.cache/pyenv/versions
@@ -41,11 +47,10 @@ install:
   - pyenv install --list
   - pyenv versions
   - pyenv install --skip-existing 2.7.16
-  - pyenv install --skip-existing 3.7.3
-  - pyenv install --skip-existing 3.6.8
-  - pyenv install --skip-existing 3.5.7
+  - pyenv install --skip-existing 3.7.4
+  - pyenv install --skip-existing 3.6.9
   - pyenv rehash
-  - pyenv global 2.7.16 3.7.3 3.6.8 3.5.7
+  - pyenv global 2.7.16 3.7.4 3.6.9
   - pyenv versions
   - which python && python --version
   - which python2 && python2 --version
@@ -53,7 +58,6 @@ install:
   - which python3 && python3 --version
   - which python3.7 && python3.7 --version
   - which python3.6 && python3.6 --version
-  - which python3.5 && python3.5 --version
   - python2 -m pip install --upgrade setuptools pip
   - python3 -m pip install --upgrade setuptools pip tox coveralls
 script:
@@ -61,6 +65,7 @@ script:
   - make all
   - dist/Tahoe-LAFS/tahoe --version-and-path
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync/gridsync --version; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then xvfb-run -a dist/Gridsync.AppImage --version; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then dist/Gridsync.app/Contents/MacOS/Gridsync --version; fi
 after_success:
   - coveralls

@@ -42,9 +42,8 @@ except KeyError:
     APP_NAME = 'Gridsync'
 
 if sys.platform == 'win32':
-    config_dir = os.path.join(
-        os.getenv('APPDATA'), APP_NAME)
-    autostart_file_path = os.path.join(
+    config_dir = os.path.join(os.getenv('APPDATA'), APP_NAME)  # type: ignore
+    autostart_file_path = os.path.join(  # type: ignore
         os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs',
         'Startup', APP_NAME + '.lnk')
 elif sys.platform == 'darwin':

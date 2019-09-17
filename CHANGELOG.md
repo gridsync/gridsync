@@ -8,6 +8,7 @@
 - Clicking a desktop notification on Windows will now activate the main window (Issue #209; PR #210)
 - macOS Mojave's "dark mode" is now supported (Issue #213, PR #217)
 - Added support for "cross-compiling" Gridsync binaries via Vagrant/VirtualBox; see `README.rst` (Issue #230, PR #231)
+- Gridsync [AppImages](https://appimage.org/) are now available for GNU/Linux (Issue #245, PR #246, #248, #253)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
@@ -19,6 +20,9 @@
 - High-DPI scaling (via Qt5's `AA_EnableHighDpiScaling` attribute) has been enabled on all platforms/environments (except for Qubes-OS and MATE -- see #204). In addition, font- and pixmap-scaling has been improved (Issue #193, #198, #232; PR #199, #203, #204, #233)
 - The "Open Gridsync" menu action will now also un-minimize and re-focus the window in the event that it is already open (Issue #205; PR #206)
 - Desktop notifications for connection/disconnection events are now disabled by default (Issue #218, PR #219)
+- Binary distributions of Gridsync will now include a newer, pre-release version of Tahoe-LAFS ("1.13.0.post996.dev0") (Issue #237, PR #239)
+- Python 3.5 support has been dropped; Gridsync now requires Python version 3.6 or higher (Issue #243, PR #244)
+- Users are no longer required to scroll to the bottom of a debug log in order to export it (Issue #258, PR #259)
 
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
@@ -30,6 +34,10 @@
 - The unused "?"/"What's This" QDialog button (enabled by Qt on Windows by default) has been removed (Issue #222, PR #223)
 - Double-clicking a newly-joined folder to open it before the tahoe daemon has finished (re)starting will no longer result in a crash (Issue #224, PR #225, #229)
 - Modifying the application name via `config.txt` will no longer cause the `config_dir` tests to fail erroneously (Issue #234, PR #235)
+- The "drop zone" border (visually indicating, by means of a dotted line, the area capable of adding new folders via drag-and-drop) is now rendered programmatically according to the dimensions of the enclosing window, thus preventing the border from appearing disproportionately thick when the MainWindow is enlarged or maximized (Issue #75, PR #240)
+- The poorly-supported-by-Qt macOS "fullscreen" mode has been disabled for the MainWindow (and replaced with a more traditional "maximize" functionality), preventing the situation in which the application window could become stuck in fullscreen mode (Issue #241, PR #242)
+- Left-clicking the "Action" button corresponding to a specific folder will now correctly deselect and exclude any other folders from the subsequent user-selected action (Issue #254, PR #255)
+- Folders joined while connecting to a new grid will now appear immediately in the MainWindow folders view after the setup process completes (Issue #256, PR #257)
 
 ## 0.4.2 - 2019-04-06
 ### Added

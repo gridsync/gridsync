@@ -41,7 +41,6 @@ Vagrant.configure("2") do |config|
     choco install -y --no-progress --require-checksums python2
     choco install -y --no-progress --require-checksums -m python3 --version 3.7.4
     choco install -y --no-progress --require-checksums -m python3 --version 3.6.8
-    choco install -y --no-progress --require-checksums -m python3 --version 3.5.4
     choco install -y --no-progress --require-checksums vcpython27
     choco install -y --no-progress --require-checksums --execution-timeout 7200 vcbuildtools --version 2015.4 -ia "/InstallSelectableItems Win81SDK_CppBuildSKUV1;Win10SDK_VisibleV1"
     choco install -y --no-progress --require-checksums windows-sdk-10

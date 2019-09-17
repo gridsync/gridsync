@@ -144,15 +144,13 @@ frozen-tahoe:
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout 7263ceb1d112c6a90d90dcc6303eb425051fff50 && \
+	git checkout d6f0ce91233349759984b40fc721df7eef148f63 && \
 	python setup.py update_version && \
 	python -m pip install . && \
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
-	python -m pip install packaging && \
-	python -m pip install dis3 && \
-	python -m pip install --no-use-pep517 pyinstaller==3.5 && \
+	python -m pip install pyinstaller==3.5 && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
@@ -210,11 +208,14 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
+appimage:
+	python3 scripts/make_appimage.py
+
 all:
 	$(MAKE) pyinstaller
 	@case `uname` in \
 		Darwin)	$(MAKE) dmg ;; \
-		*) python3 scripts/make_archive.py ;; \
+		*) $(MAKE) appimage ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 

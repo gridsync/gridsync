@@ -2,7 +2,7 @@
 
 import json
 import os
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 from pytest_twisted import inlineCallbacks
@@ -568,7 +568,7 @@ def test_run_raise_upgrade_required_error():
 @inlineCallbacks
 def test_run_join_grid(monkeypatch):
     monkeypatch.setattr(
-        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: None)
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: Mock())
 
     def fake_join_grid(*_):
         assert True
@@ -587,7 +587,7 @@ def test_run_join_grid(monkeypatch):
 def test_run_join_grid_use_tor(monkeypatch):
     monkeypatch.setattr('gridsync.tor.get_tor', lambda _: 'FakeTorObject')
     monkeypatch.setattr(
-        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: None)
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: Mock())
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.join_grid', lambda x, y: None)
     monkeypatch.setattr(
@@ -612,7 +612,7 @@ def test_run_join_grid_use_tor_raise_tor_error(monkeypatch):
 @inlineCallbacks
 def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     monkeypatch.setattr(
-        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: Mock())
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.join_grid', lambda x, y: None)
     monkeypatch.setattr(
@@ -627,9 +627,24 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
 
 
 @inlineCallbacks
-def test_run_emit_done_signal(monkeypatch, qtbot):
+def test_run_call_scan_rootcap_after_join_folders(monkeypatch):
+    fake_gateway = Mock()
+    fake_gateway.monitor.scan_rootcap = Mock()
     monkeypatch.setattr(
-        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: 'GatewayObj')
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: fake_gateway)
+    monkeypatch.setattr('gridsync.setup.SetupRunner.join_grid', Mock())
+    monkeypatch.setattr('gridsync.setup.SetupRunner.ensure_recovery', Mock())
+    monkeypatch.setattr('gridsync.setup.SetupRunner.join_folders', Mock())
+    sr = SetupRunner([])
+    yield sr.run({'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}})
+    assert fake_gateway.monitor.scan_rootcap.call_count == 1
+
+
+@inlineCallbacks
+def test_run_emit_done_signal(monkeypatch, qtbot):
+    fake_gateway = Mock()
+    monkeypatch.setattr(
+        'gridsync.setup.SetupRunner.get_gateway', lambda x, y, z: fake_gateway)
     monkeypatch.setattr(
         'gridsync.setup.SetupRunner.join_grid', lambda x, y: None)
     monkeypatch.setattr(
@@ -640,4 +655,4 @@ def test_run_emit_done_signal(monkeypatch, qtbot):
     settings = {'nickname': 'TestGrid', 'magic-folders': {'TestFolder': {}}}
     with qtbot.wait_signal(sr.done) as blocker:
         yield sr.run(settings)
-    assert blocker.args == ['GatewayObj']
+    assert blocker.args == [fake_gateway]
