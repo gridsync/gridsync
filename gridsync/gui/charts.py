@@ -5,7 +5,7 @@ from PyQt5.QtCore import QMargins, Qt
 from PyQt5.QtGui import QPainter, QPen
 
 
-class TokenChart(QChart):
+class ZKAPChart(QChart):
     def __init__(self):
         super().__init__()
 
@@ -33,8 +33,8 @@ class TokenChart(QChart):
 
     def update_tooltip(self):
         self.setToolTip(
-            "Storage tokens used: {}\n"
-            "Storage tokens available: {}\n\n"
+            "ZKAPs used: {}\n"
+            "ZKAPs available: {}\n\n"
             "Last purchase: 2019-06-20 12:34:56".format(
                 round(self.slice_used.value()),
                 round(self.slice_available.value())
@@ -42,10 +42,10 @@ class TokenChart(QChart):
         )
 
 
-class TokenChartView(QChartView):
+class ZKAPChartView(QChartView):
     def __init__(self):
         super().__init__()
-        self.chart = TokenChart()
+        self.chart = ZKAPChart()
         self.setMaximumSize(26, 26)
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)

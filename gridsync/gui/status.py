@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QWidget)
 
 from gridsync import resource
-from gridsync.gui.charts import TokenChartView
+from gridsync.gui.charts import ZKAPChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
@@ -83,7 +83,7 @@ class StatusPanel(QWidget):
         preferences_button.setStyleSheet(
             'QToolButton::menu-indicator { image: none }')
 
-        token_chart_view = TokenChartView()
+        zkap_chart_view = ZKAPChartView()
 
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
@@ -94,7 +94,7 @@ class StatusPanel(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.tor_button, 1, 4)
         #layout.addWidget(self.globe_button, 1, 5)
-        layout.addWidget(token_chart_view, 1, 5)
+        layout.addWidget(zkap_chart_view, 1, 5)
         layout.addWidget(preferences_button, 1, 6)
 
         self.gateway.monitor.total_sync_state_updated.connect(
