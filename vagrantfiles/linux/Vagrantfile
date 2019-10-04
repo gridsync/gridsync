@@ -23,10 +23,6 @@ Vagrant.configure("2") do |config|
     sudo yum -y update
     sudo yum -y install make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb gcc-c++
     sudo yum -y groupinstall "GNOME Desktop"
-    sudo systemctl enable gdm
-    sudo sh -c 'echo -e "[daemon]\nAutomaticLogin=vagrant\nAutomaticLoginEnable=True" > /etc/gdm/custom.conf'
-    sudo systemctl set-default graphical.target
-    sudo systemctl isolate graphical.target
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ~/rustup-init
     sh ~/rustup-init -y --default-host x86_64-unknown-linux-gnu --default-toolchain stable
     rm ~/rustup-init
@@ -46,6 +42,10 @@ Vagrant.configure("2") do |config|
     chmod +x ~/bin/linuxdeploy
     curl -L --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
     chmod +x ~/bin/appimagetool
+    sudo systemctl enable gdm
+    sudo sh -c 'echo -e "[daemon]\nAutomaticLogin=vagrant\nAutomaticLoginEnable=True" > /etc/gdm/custom.conf'
+    sudo systemctl set-default graphical.target
+    sudo systemctl isolate graphical.target
   SHELL
   config.vm.provision "file", source: "../..", destination: "~/gridsync"
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
