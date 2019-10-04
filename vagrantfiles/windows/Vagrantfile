@@ -53,6 +53,7 @@ Vagrant.configure("2") do |config|
   SHELL
   #config.vm.provision "file", source: "GridsyncSource.zip", destination: "~/"
   config.vm.provision "shell", env: {"CI" => "true"}, inline: <<-SHELL
+    git config --global core.autocrlf false
     cd ~
     py -m zipfile -e C:\\vagrant\\GridsyncSource.zip .\\gridsync
     cd .\\gridsync
