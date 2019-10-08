@@ -15,6 +15,7 @@ install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "python -m pip install --upgrade setuptools pip tox"
   - "choco install rustup.install --version 1.19.0"
+  - "refreshenv"
 build: off
 before_test:
   - "python --version"
