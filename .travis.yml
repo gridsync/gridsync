@@ -35,6 +35,10 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ~/bin/appimagetool; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then appimagetool --version; fi
+  - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ~/rustup-init
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sh ~/rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sh ~/rustup-init -y --default-host x86_64-unknown-linux-gnu --default-toolchain stable; fi
+  - rm ~/rustup-init
   - rm -rf ~/.pyenv
   - git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   - mkdir -p ~/.cache/pyenv/versions
