@@ -147,6 +147,8 @@ frozen-tahoe:
 	git checkout 3259.frozen-pkg_resources-fix && \
 	python setup.py update_version && \
 	python -m pip install . && \
+	python -m pip install git+https://github.com/LeastAuthority/privacypass && \
+	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer && \
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\

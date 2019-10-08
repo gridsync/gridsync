@@ -70,6 +70,8 @@ call pushd .\build\tahoe-lafs
 call git checkout 3259.frozen-pkg_resources-fix
 call python setup.py update_version
 call python -m pip install .
+call python -m pip install git+https://github.com/LeastAuthority/privacypass
+call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer
 call python -m pip install pyinstaller==3.5
 call python -m pip list
 call set PYTHONHASHSEED=1
