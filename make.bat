@@ -64,10 +64,10 @@ call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
 call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
-call git clone https://github.com/crwood/tahoe-lafs.git .\build\tahoe-lafs
+call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call copy .\misc\tahoe.spec .\build\tahoe-lafs\pyinstaller.spec
 call pushd .\build\tahoe-lafs
-call git checkout 3259.frozen-pkg_resources-fix
+call git checkout 91dd27b0f9f33e7b46a320b05cfb2262640ec992
 call python setup.py update_version
 call python -m pip install .
 call python -m pip install git+https://github.com/LeastAuthority/privacypass
