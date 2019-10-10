@@ -168,10 +168,10 @@ pyinstaller:
 	python3 -m tox -e pyinstaller
 
 dmg:
-	python3 -m virtualenv --clear --python=python2 build/venv-dmg
+	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
-	python -m pip install dmgbuild && \
-	python misc/call_dmgbuild.py
+	python3 -m pip install dmgbuild && \
+	python3 misc/call_dmgbuild.py
 
 vagrant-linux:
 	pushd vagrantfiles/linux && \
