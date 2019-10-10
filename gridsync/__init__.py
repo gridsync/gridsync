@@ -18,7 +18,7 @@ if getattr(sys, 'frozen', False):
     if sys.platform == 'win32' and getattr(sys, '_MEIPASS', False):
         # Workaround for PyInstaller being unable to find Qt5Core.dll on PATH.
         # See https://github.com/pyinstaller/pyinstaller/issues/4293
-        os.environ['PATH'] = sys._MEIPASS + os.pathsep + os.environ['PATH']
+        os.environ['PATH'] = sys._MEIPASS + os.pathsep + os.environ['PATH']  # type: ignore
     try:
         del sys.modules['twisted.internet.reactor']  # PyInstaller workaround
     except KeyError:
@@ -42,10 +42,11 @@ except KeyError:
     APP_NAME = 'Gridsync'
 
 if sys.platform == 'win32':
-    config_dir = os.path.join(os.getenv('APPDATA'), APP_NAME)  # type: ignore
-    autostart_file_path = os.path.join(  # type: ignore
-        os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs',
-        'Startup', APP_NAME + '.lnk')
+    appdata = str(os.getenv('APPDATA'))
+    config_dir = os.path.join(appdata, APP_NAME)
+    autostart_file_path = os.path.join(
+        appdata, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup',
+        APP_NAME + '.lnk')
 elif sys.platform == 'darwin':
     config_dir = os.path.join(
         os.path.expanduser('~'), 'Library', 'Application Support', APP_NAME)
