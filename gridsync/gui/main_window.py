@@ -453,7 +453,7 @@ class MainWindow(QMainWindow):
                 if not status and not mtime:  # "Loading..." and not yet synced
                     folder_loading = True
                     break
-                elif status == 1:  # "Syncing"
+                if status == 1:  # "Syncing"
                     folder_syncing = True
                     break
         msg = QMessageBox(self)

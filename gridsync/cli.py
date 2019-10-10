@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import subprocess
 import sys
 
 from gridsync import APP_NAME
@@ -14,7 +15,6 @@ from gridsync import msg
 
 class TahoeVersion(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        import subprocess
         subprocess.call(['tahoe', '--version-and-path'])
         sys.exit()
 
