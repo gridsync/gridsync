@@ -151,7 +151,7 @@ frozen-tahoe:
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
 	esac &&	\
-	python -m pip install pyinstaller==3.5 && \
+	python -m pip install -r ../../requirements/requirements-pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
