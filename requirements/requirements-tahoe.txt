@@ -1,6 +1,9 @@
 appdirs==1.4.3 \
     --hash=sha256:9e5896d1372858f8dd3344faf4e5014d21849c756c8d5701f78f8a103b372d92 \
     --hash=sha256:d8b24664561d0d34ddfaec54636d502d7cea6e29c3eaf68f3df6180863e2166e
+argh==0.26.2 ; sys_platform != "win32" and sys_platform != "linux2" \
+    --hash=sha256:a9b3aaa1904eeb78e32394cd46c6f37ac0fb4af6dc488daa58971bdc7d7fcaf3 \
+    --hash=sha256:e9535b8c84dc9571a48999094fda7f33e63c3f1b74f3e5f3ac0105a58405bb65
 argparse==1.4.0 \
     --hash=sha256:62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4 \
     --hash=sha256:c31647edb69fd3d465a847ea3157d37bed1f95f19760b11a47aa91c04b666314
@@ -125,6 +128,8 @@ magic-wormhole==0.11.2 \
 Nevow==0.14.4 \
     --hash=sha256:0c6f3d897403216619a6eb8402f1248fbbade7b29c91a70a89092a06bbcb09be \
     --hash=sha256:2299a0d2a0c1312040705599d5d571acfea74df82b968c0b9264f6f45266cf6e
+pathtools==0.1.2 ; sys_platform != "win32" and sys_platform != "linux2" \
+    --hash=sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0
 pyasn1==0.4.7 \
     --hash=sha256:1321d4b2f051410fe7302bb1619903d30b24ba1451d019c11d242d11b2a35444 \
     --hash=sha256:2860a047f666afd23b197a65f33145313511c368ce919b2d9b1853ffd3e9d32d \
