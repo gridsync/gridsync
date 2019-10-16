@@ -146,6 +146,7 @@ frozen-tahoe:
 	pushd build/tahoe-lafs && \
 	git checkout 91dd27b0f9f33e7b46a320b05cfb2262640ec992 && \
 	python setup.py update_version && \
+	python -m pip install -r ../../requirements/requirements-tahoe.txt && \
 	python -m pip install . && \
 	case `uname` in \
 		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
