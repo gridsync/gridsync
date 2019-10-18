@@ -69,6 +69,9 @@ cryptography==2.7 \
     --hash=sha256:e6347742ac8f35ded4a46ff835c60e68c22a536a8ae5c4422966d06946b6d4c6 \
     --hash=sha256:f27d93f0139a3c056172ebb5d4f9056e770fdf0206c2f422ff2ebbad142e09ed \
     --hash=sha256:f57b76e46a58b63d1c6375017f4564a28f19a5ca912691fd2e4261b3414b618d
+distro==1.4.0 ; sys_platform != "darwin" and sys_platform != "win32" \
+    --hash=sha256:362dde65d846d23baee4b5c058c8586f219b5a54be1cf5fc6ff55c4578392f57 \
+    --hash=sha256:eedf82a470ebe7d010f1872c17237c79ab04097948800029994fa458e52fb4b4
 hkdf==0.0.3 \
     --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
 humanize==0.5.1 \
