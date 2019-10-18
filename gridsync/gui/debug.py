@@ -33,7 +33,8 @@ if sys.platform == 'darwin':
 elif sys.platform == 'win32':
     system = 'Windows {}'.format(platform.win32_ver()[0])
 elif sys.platform.startswith('linux'):
-    name, version, _ = platform.dist()  # pylint: disable=deprecated-method
+    import distro
+    name, version, _ = distro.linux_distribution()
     system = 'Linux ({} {})'.format(name, version)
 else:
     system = platform.system()
