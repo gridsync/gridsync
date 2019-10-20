@@ -8,9 +8,8 @@ except ImportError:
 
 import pytest
 from pytest_twisted import inlineCallbacks
+from twisted.internet.testing import MemoryReactorClock
 import yaml
-
-from twisted.test.proto_helpers import MemoryReactorClock
 
 from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
 from gridsync.tahoe import is_valid_furl, get_nodedirs, Tahoe
