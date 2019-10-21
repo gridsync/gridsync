@@ -23,7 +23,8 @@ if sys.platform == 'darwin':
                 'python', '-m', 'pip', 'install', 'SIP==4.19.2',
                 'PyQt5==5.8.2'])
 elif sys.platform == 'linux':
-    version = platform.dist()[1]
+    #version = platform.dist()[1]
+    version = ''
     if version.startswith('jessie') or version.startswith('8.'):
         print("Older Linux distro detected ({}); Downgrading SIP, PyQt5..."
               .format(version))
