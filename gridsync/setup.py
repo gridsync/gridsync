@@ -183,7 +183,7 @@ class SetupRunner(QObject):
         else:
             log.warning("Error fetching service icon: %i", resp.code)
 
-    @inlineCallbacks  # noqa: max-complexity=13 XXX
+    @inlineCallbacks  # noqa: max-complexity=14 XXX
     def join_grid(self, settings):
         nickname = settings['nickname']
         if self.use_tor:
