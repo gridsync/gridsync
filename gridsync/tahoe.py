@@ -267,9 +267,13 @@ class Tahoe():
             nickname = ann.get('nickname')
             if nickname:
                 results[server]['nickname'] = nickname
+            storage_options = ann.get('storage-options')
+            if storage_options:
+                results[server]['storage-options'] = storage_options
         return results
 
-    def add_storage_server(self, server_id, furl, nickname=None):
+    def add_storage_server(self, server_id, furl, nickname=None,
+                           storage_options=None):
         log.debug("Adding storage server: %s...", server_id)
         yaml_data = self._read_servers_yaml()
         if not yaml_data or not yaml_data.get('storage'):
@@ -279,6 +283,9 @@ class Tahoe():
         }
         if nickname:
             yaml_data['storage'][server_id]['ann']['nickname'] = nickname
+        if storage_options:
+            yaml_data['storage'][server_id]['ann']['storage-options'] = \
+                storage_options
         with atomic_write(
                 self.servers_yaml_path, mode='w', overwrite=True) as f:
             f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
@@ -287,9 +294,12 @@ class Tahoe():
     def add_storage_servers(self, storage_servers):
         for server_id, data in storage_servers.items():
             nickname = data.get('nickname')
+            storage_options = data.get('storage-options')
             furl = data.get('anonymous-storage-FURL')
             if furl:
-                self.add_storage_server(server_id, furl, nickname)
+                self.add_storage_server(
+                    server_id, furl, nickname, storage_options
+                )
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
 
