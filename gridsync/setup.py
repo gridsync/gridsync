@@ -292,7 +292,7 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def run(self, settings):
-        if 'version' in settings and int(settings['version']) > 1:
+        if 'version' in settings and int(settings['version']) > 2:
             raise UpgradeRequiredError
 
         if self.use_tor or 'hide-ip' in settings or is_onion_grid(settings):
