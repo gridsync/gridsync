@@ -277,7 +277,7 @@ class Tahoe():
     def _configure_storage_plugins(self, storage_options: List[dict]) -> None:
         for options in storage_options:
             if not isinstance(options, dict):
-                log.warn(
+                log.warning(
                     "Skipping unknown storage plugin option: %s", options
                 )
                 continue
@@ -296,7 +296,7 @@ class Tahoe():
                     options.get("ristretto-issuer-root-url")
                 )
             else:
-                log.warn(
+                log.warning(
                     "Skipping unknown storage plugin option: %s", options
                 )
 
@@ -533,9 +533,9 @@ class Tahoe():
         if tcp and tcp.lower() == 'tor':
             self.use_tor = True
         if self.config_get(
-            "storageclient.plugins.privatestorageio-zkapauthz-v1",
-            "ristretto-issuer-root-url"
-        ):
+                "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                "ristretto-issuer-root-url"
+            ):
             self.zkap_auth_required = True
         if os.path.isfile(self.pidfile):
             yield self.stop()
