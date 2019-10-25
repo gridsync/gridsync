@@ -12,6 +12,7 @@ import sys
 import tempfile
 from collections import defaultdict, OrderedDict
 from io import BytesIO
+from typing import List
 
 from atomicwrites import atomic_write
 import treq
@@ -272,6 +273,32 @@ class Tahoe():
                 results[server]['storage-options'] = storage_options
         return results
 
+    def _configure_storage_plugins(self, storage_options: List[dict]) -> None:
+        for options in storage_options:
+            if not isinstance(options, dict):
+                log.warn(
+                    "Skipping unknown storage plugin option: %s", options
+                )
+                continue
+            name = options.get('name')
+            if name == 'privatestorageio-zkapauthz-v1':
+                # TODO: Append name instead of setting/overriding?
+                self.config_set('client', 'storage.plugins', name)
+                self.config_set(
+                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                    "redeemer",
+                    "ristretto"
+                )
+                self.config_set(
+                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                    "ristretto-issuer-root-url",
+                    options.get("ristretto-issuer-root-url")
+                )
+            else:
+                log.warn(
+                    "Skipping unknown storage plugin option: %s", options
+                )
+
     def add_storage_server(self, server_id, furl, nickname=None,
                            storage_options=None):
         log.debug("Adding storage server: %s...", server_id)
@@ -286,6 +313,7 @@ class Tahoe():
         if storage_options:
             yaml_data['storage'][server_id]['ann']['storage-options'] = \
                 storage_options
+            self._configure_storage_plugins(storage_options)
         with atomic_write(
                 self.servers_yaml_path, mode='w', overwrite=True) as f:
             f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
