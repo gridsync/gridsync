@@ -126,6 +126,7 @@ class Tahoe():
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
+        self.zkap_auth_required = False
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -531,6 +532,11 @@ class Tahoe():
         tcp = self.config_get('connections', 'tcp')
         if tcp and tcp.lower() == 'tor':
             self.use_tor = True
+        if self.config_get(
+            "storageclient.plugins.privatestorageio-zkapauthz-v1",
+            "ristretto-issuer-root-url"
+        ):
+            self.zkap_auth_required = True
         if os.path.isfile(self.pidfile):
             yield self.stop()
         if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
