@@ -535,7 +535,7 @@ class Tahoe():
         if self.config_get(
                 "storageclient.plugins.privatestorageio-zkapauthz-v1",
                 "ristretto-issuer-root-url"
-            ):
+        ):
             self.zkap_auth_required = True
         if os.path.isfile(self.pidfile):
             yield self.stop()
