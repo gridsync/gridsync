@@ -148,9 +148,6 @@ frozen-tahoe:
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/requirements-tahoe.txt && \
 	python -m pip install . && \
-	case `uname` in \
-		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
-	esac &&	\
 	python -m pip install -r ../../requirements/requirements-pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
