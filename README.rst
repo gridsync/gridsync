@@ -83,11 +83,8 @@ To install and run Gridsync on macOS (64-bit only; supporting macOS 10.12 "Sierr
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
 3. Double-click ``Gridsync.app``
 
-Users on older Macs can alternatively try `Gridsync-macOS-Legacy.dmg`_ (which has been tested to work on 2009-era hardware with versions of macOS as old as 10.9).
-
 .. _Gridsync-macOS.dmg: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
-.. _Gridsync-macOS-Legacy.dmg: https://github.com/gridsync/gridsync/releases
 
 To install and run Gridsync on Windows (64-bit only; supporting Windows Server 2012R2, Windows 7 SP1, Windows 8.1, and Windows 10):
 
