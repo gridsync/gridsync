@@ -24,6 +24,9 @@
 - Python 3.5 support has been dropped; Gridsync now requires Python version 3.6 or higher (Issue #243, PR #244)
 - Users are no longer required to scroll to the bottom of a debug log in order to export it (Issue #258, PR #259)
 
+### Removed
+- Due to changes in minimum system requirements for numerous dependencies, macOS "Legacy" builds (targeting macOS 10.9 or higher) will no longer be provided (Issue #256, PR #266)
+
 ### Fixed
 - "Cheat codes" that correspond to non-existent configuration files are now rejected as invalid (Issue #185; PR #186)
 - `libstdc++` has been excluded from Linux PyInstaller bundles, preventing a crash that coincided with opening a native file-chooser dialog on ArchLinux (Issue #189, PR #191)
