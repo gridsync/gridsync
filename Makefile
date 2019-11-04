@@ -148,9 +148,6 @@ frozen-tahoe:
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/requirements-tahoe.txt && \
 	python -m pip install . && \
-	case `uname` in \
-		Darwin) python ../../scripts/maybe_rebuild_libsodium.py ;; \
-	esac &&	\
 	python -m pip install -r ../../requirements/requirements-pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
@@ -223,14 +220,12 @@ all:
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.tar.gz
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS.dmg
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS-Legacy.dmg
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows-setup.exe
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows.zip
 
 gpg-verify:
 	gpg2 --verify release/Gridsync-Linux.tar.gz{.asc,}
 	gpg2 --verify release/Gridsync-macOS.dmg{.asc,}
-	gpg2 --verify release/Gridsync-macOS-Legacy.dmg{.asc,}
 	gpg2 --verify release/Gridsync-Windows-setup.exe{.asc,}
 	gpg2 --verify release/Gridsync-Windows.zip{.asc,}
 

@@ -20,10 +20,6 @@ matrix:
     - os: osx
       osx_image: xcode9.2
       env: PYTHON_CONFIGURE_OPTS="--enable-framework"
-    # macOS 10.11
-    - os: osx
-      osx_image: xcode8
-      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
 install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / || true; fi
