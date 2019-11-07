@@ -23,7 +23,7 @@ matrix:
 install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / || true; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install rustup-init; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install --verbose rustup-init; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libxkbcommon-x11-0; fi
