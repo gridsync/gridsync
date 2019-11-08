@@ -147,11 +147,11 @@ frozen-tahoe:
 	git checkout origin/integration/storage-economics && \
 	git merge master --no-commit --no-ff && \
 	python setup.py update_version && \
-	python -m pip install -r ../../requirements/requirements-tahoe.txt && \
+	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
 	python -m pip install git+https://github.com/LeastAuthority/privacypass && \
 	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer && \
-	python -m pip install -r ../../requirements/requirements-pyinstaller.txt && \
+	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \

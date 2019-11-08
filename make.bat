@@ -72,11 +72,11 @@ call git config user.name "nobody"
 call git config user.email "nobody"
 call git merge master --no-commit --no-ff
 call python setup.py update_version
-call python -m pip install -r ..\..\requirements\requirements-tahoe.txt
+call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install .
 call python -m pip install git+https://github.com/LeastAuthority/privacypass
 call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer
-call python -m pip install -r ..\..\requirements\requirements-pyinstaller.txt
+call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
