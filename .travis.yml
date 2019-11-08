@@ -35,7 +35,7 @@ install:
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then travis_wait 40 brew install rustup-init; fi
   #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install curl; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ~/rustup-init; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --proto '=https' -sSf https://sh.rustup.rs > ~/rustup-init; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sh ~/rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libxkbcommon-x11-0; fi
