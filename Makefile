@@ -146,9 +146,9 @@ frozen-tahoe:
 	pushd build/tahoe-lafs && \
 	git checkout 91dd27b0f9f33e7b46a320b05cfb2262640ec992 && \
 	python setup.py update_version && \
-	python -m pip install -r ../../requirements/requirements-tahoe.txt && \
+	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
-	python -m pip install -r ../../requirements/requirements-pyinstaller.txt && \
+	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
