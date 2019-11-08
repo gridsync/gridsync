@@ -12,8 +12,6 @@ environment:
 matrix:
   fast_finish: true
 install:
-  - "ls c:\\"
-  - "choco install -y --no-progress --require-checksums -m python3 --version 3.8.0"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "python -m pip install --upgrade setuptools pip tox"
 build: off
