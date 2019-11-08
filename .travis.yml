@@ -20,22 +20,9 @@ matrix:
     - os: osx
       osx_image: xcode9.2
       env: PYTHON_CONFIGURE_OPTS="--enable-framework"
-    - os: osx
-      osx_image: xcode9.1
-      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
-    - os: osx
-      osx_image: xcode9
-      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
-    - os: osx
-      osx_image: xcode8.3
-      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
 install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target / || true; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then travis_wait 40 brew install rustup-init; fi
-  #- if [ "${TRAVIS_OS_NAME}" = "osx" ]; then rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then curl --proto '=https' -sSf https://sh.rustup.rs > ~/rustup-init; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sh ~/rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libxkbcommon-x11-0; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage; fi
@@ -44,9 +31,10 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ~/bin/appimagetool; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then appimagetool --version; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ~/rustup-init; fi
+  - curl --proto '=https' -sSf https://sh.rustup.rs > ~/rustup-init
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sh ~/rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sh ~/rustup-init -y --default-host x86_64-unknown-linux-gnu --default-toolchain stable; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then rm ~/rustup-init; fi
+  - rm ~/rustup-init
   - rm -rf ~/.pyenv
   - git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   - mkdir -p ~/.cache/pyenv/versions
