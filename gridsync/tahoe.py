@@ -12,6 +12,7 @@ import sys
 import tempfile
 from collections import defaultdict, OrderedDict
 from io import BytesIO
+from pathlib import Path
 from typing import List
 
 from atomicwrites import atomic_write
@@ -127,6 +128,7 @@ class Tahoe():
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
         self.zkap_auth_required = False
+        self.zkap_name: str = ""
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -524,6 +526,16 @@ class Tahoe():
                 messages.append(json.dumps(json.loads(line), sort_keys=True))
         return '\n'.join(messages)
 
+    def load_zkap_name(self) -> None:
+        try:
+            with open(Path(self.nodedir, 'private', 'settings.json')) as f:
+                settings = json.loads(f.read())
+                self.zkap_name = settings.get(
+                    'zkap_name', 'Zero-Knowledge Access Pass'
+                )
+        except OSError:
+            pass
+
     @inlineCallbacks
     def start(self):
         log.debug('Starting "%s" tahoe client...', self.name)
@@ -537,6 +549,7 @@ class Tahoe():
                 "ristretto-issuer-root-url"
         ):
             self.zkap_auth_required = True
+            self.load_zkap_name()
         if os.path.isfile(self.pidfile):
             yield self.stop()
         if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
