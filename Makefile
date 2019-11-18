@@ -144,8 +144,7 @@ frozen-tahoe:
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout origin/integration/storage-economics && \
-	git merge master --no-commit --no-ff && \
+	git checkout 74d56a8b466c7151735903d60038fc5d077fea8b && \
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \

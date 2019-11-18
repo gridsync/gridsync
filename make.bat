@@ -67,10 +67,7 @@ call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call copy .\misc\tahoe.spec .\build\tahoe-lafs\pyinstaller.spec
 call pushd .\build\tahoe-lafs
-call git checkout origin/integration/storage-economics
-call git config user.name "nobody"
-call git config user.email "nobody"
-call git merge master --no-commit --no-ff
+call git checkout 74d56a8b466c7151735903d60038fc5d077fea8b
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install .
