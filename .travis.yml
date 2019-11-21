@@ -1,7 +1,7 @@
-cache:
-  directories:
-    - $HOME/.cache/pip
-    - $HOME/.cache/pyenv
+#cache:
+#  directories:
+#    - $HOME/.cache/pip
+#    - $HOME/.cache/pyenv
 matrix:
   include:
     - os: linux
