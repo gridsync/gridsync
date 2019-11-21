@@ -35,7 +35,6 @@ install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ~/bin/appimagetool; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then appimagetool --version; fi
-  - rm -rf ~/.cache
   - rm -rf ~/.pyenv
   - git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   - mkdir -p ~/.cache/pyenv/versions
@@ -47,7 +46,7 @@ install:
   - pyenv --version
   - pyenv install --list
   - pyenv versions
-  - pyenv install --skip-existing 2.7.16
+  - pyenv install --force 2.7.16
   - pyenv install --skip-existing 3.7.4
   - pyenv install --skip-existing 3.6.9
   - pyenv rehash
