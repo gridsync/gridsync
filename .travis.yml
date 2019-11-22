@@ -52,7 +52,7 @@ install:
   - pyenv --version
   - pyenv install --list
   - pyenv versions
-  - pyenv install --verbose --force 2.7.16
+  - pyenv install --skip-existing 2.7.16
   - pyenv install --skip-existing 3.7.4
   - pyenv install --skip-existing 3.6.9
   - pyenv rehash
