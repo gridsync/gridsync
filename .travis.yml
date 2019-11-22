@@ -15,7 +15,22 @@ matrix:
     # macOS 10.14
     - os: osx
       osx_image: xcode11.2
-      env: PYTHON_CONFIGURE_OPTS="--enable-framework" MACOSX_DEPLOYMENT_TARGET=10.14
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    - os: osx
+      osx_image: xcode11.2
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework" SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk MACOSX_DEPLOYMENT_TARGET=10.14
+    - os: osx
+      osx_image: xcode11.1
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    - os: osx
+      osx_image: xcode11.1
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework" SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk MACOSX_DEPLOYMENT_TARGET=10.14
+    - os: osx
+      osx_image: xcode11
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
+    - os: osx
+      osx_image: xcode11
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework" SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk MACOSX_DEPLOYMENT_TARGET=10.14
     - os: osx
       osx_image: xcode10.3
       env: PYTHON_CONFIGURE_OPTS="--enable-framework" SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk MACOSX_DEPLOYMENT_TARGET=10.14
