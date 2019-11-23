@@ -50,7 +50,7 @@ install:
   - pyenv install --skip-existing 3.7.4
   - pyenv install --skip-existing 3.6.9
   - pyenv rehash
-  - pyenv global 2.7.16 3.8.0 3.7.4 3.6.9
+  - pyenv global 2.7.16 3.7.4 3.8.0 3.6.9
   - pyenv versions
   - which python && python --version
   - which python2 && python2 --version
