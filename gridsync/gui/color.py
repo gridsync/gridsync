@@ -8,8 +8,8 @@ class BlendedColor(QColor):
         super().__init__()
         pct_b = 1.0 - pct_a
         self.setRgb(
-            pct_a * color_a.red() + pct_b * color_b.red(),
-            pct_a * color_a.green() + pct_b * color_b.green(),
-            pct_a * color_a.blue() + pct_b * color_b.blue(),
-            pct_a * color_a.alpha() + pct_b * color_b.alpha()
+            int(pct_a * color_a.red() + pct_b * color_b.red()),
+            int(pct_a * color_a.green() + pct_b * color_b.green()),
+            int(pct_a * color_a.blue() + pct_b * color_b.blue()),
+            int(pct_a * color_a.alpha() + pct_b * color_b.alpha())
         )
