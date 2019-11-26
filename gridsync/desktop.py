@@ -129,7 +129,7 @@ Terminal=false
             )
         )
 
-
+# pylint: disable=line-too-long
 def _autostart_enable_mac(executable):
     with atomic_write(autostart_file_path, mode="w", overwrite=True) as f:
         f.write(
