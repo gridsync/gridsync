@@ -198,8 +198,8 @@ pyOpenSSL==19.1.0 \
 pypiwin32==223 ; sys_platform == "win32" \
     --hash=sha256:67adf399debc1d5d14dffc1ab5acacb800da569754fafdc576b2a039485aa775 \
     --hash=sha256:71be40c1fbd28594214ecaecb58e7aa8b708eabfa0125c8a109ebd51edbd776a
-pyrsistent==0.15.5 \
-    --hash=sha256:eb6545dbeb1aa69ab1fb4809bfbf5a8705e44d92ef8fc7c2361682a47c46c778
+pyrsistent==0.15.6 \
+    --hash=sha256:f3b280d030afb652f79d67c5586157c5c1355c9a58dfc7940566e28d28f3df1b
 pyutil==3.3.0 \
     --hash=sha256:8c4d4bf668c559186389bb9bce99e4b1b871c09ba252a756ccaacd2b8f401848
 pywin32==227 ; sys_platform == "win32" \
