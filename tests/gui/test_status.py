@@ -14,21 +14,22 @@ def test_status_panel_hide_tor_button():
     assert sp.tor_button.isHidden() is True
 
 
-@pytest.mark.parametrize("state,text", [
-    [0, "Connecting..."],
-    [1, "Syncing"],
-    [2, "Up to date"]
-])
+@pytest.mark.parametrize(
+    "state,text", [[0, "Connecting..."], [1, "Syncing"], [2, "Up to date"]]
+)
 def test_on_sync_state_updated(state, text):
     sp = StatusPanel(MagicMock(), MagicMock())
     sp.on_sync_state_updated(state)
     assert sp.status_label.text() == text
 
 
-@pytest.mark.parametrize("num_connected,num_known,available_space,tooltip", [
-    [1, 2, 3, "Connected to 1 of 2 storage nodes\n3 available"],
-    [1, 2, None, "Connected to 1 of 2 storage nodes"],
-])
+@pytest.mark.parametrize(
+    "num_connected,num_known,available_space,tooltip",
+    [
+        [1, 2, 3, "Connected to 1 of 2 storage nodes\n3 available"],
+        [1, 2, None, "Connected to 1 of 2 storage nodes"],
+    ],
+)
 def test__update_grid_info(num_connected, num_known, available_space, tooltip):
     sp = StatusPanel(MagicMock(), MagicMock())
     sp.num_connected = num_connected

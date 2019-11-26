@@ -12,14 +12,14 @@ except ImportError:  # win32
 from gridsync.errors import FilesystemLockError
 
 
-class FilesystemLock():
+class FilesystemLock:
     def __init__(self, filepath):
         self.filepath = filepath
         self.fd = None
 
     def acquire(self):
         logging.debug("Acquiring lock: %s ...", self.filepath)
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             try:
                 os.remove(self.filepath)
             except OSError:
@@ -30,17 +30,21 @@ class FilesystemLock():
                 if error.errno == 17:  # File exists
                     raise FilesystemLockError(
                         "Could not acquire lock on {}: {}".format(
-                            self.filepath, str(error)))
+                            self.filepath, str(error)
+                        )
+                    )
                 raise
         else:
-            fd = open(self.filepath, 'w')
+            fd = open(self.filepath, "w")
             fd.flush()
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except OSError as error:
                 raise FilesystemLockError(
                     "Could not acquire lock on {}: {}".format(
-                        self.filepath, str(error)))
+                        self.filepath, str(error)
+                    )
+                )
         self.fd = fd
         logging.debug("Acquired lock: %s", self.fd)
 
@@ -48,7 +52,7 @@ class FilesystemLock():
         logging.debug("Releasing lock: %s ...", self.filepath)
         if not self.fd:
             logging.warning("No file descriptor found")
-        elif sys.platform == 'win32':
+        elif sys.platform == "win32":
             os.close(self.fd)
         else:
             fcntl.flock(self.fd, fcntl.LOCK_UN)

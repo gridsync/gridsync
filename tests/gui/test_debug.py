@@ -7,7 +7,12 @@ import pytest
 from PyQt5.QtCore import Qt
 
 from gridsync.gui.debug import (
-    system, header, warning_text, LogLoader, DebugExporter)
+    system,
+    header,
+    warning_text,
+    LogLoader,
+    DebugExporter,
+)
 
 
 def test_system_module_variable_is_not_none():
@@ -25,14 +30,14 @@ def test_warning_text_module_variable_is_not_none():
 @pytest.fixture
 def core():
     fake_core = Mock()
-    fake_core.executable = '/test/tahoe'
-    fake_core.tahoe_version = '9.999'
-    fake_core.log_deque = deque(['debug msg 1', '/test/tahoe', 'debug msg 3'])
+    fake_core.executable = "/test/tahoe"
+    fake_core.tahoe_version = "9.999"
+    fake_core.log_deque = deque(["debug msg 1", "/test/tahoe", "debug msg 3"])
     fake_gateway = Mock()
-    fake_gateway.name = 'TestGridOne'
-    fake_gateway.newscap = 'URI:NEWSCAP'
+    fake_gateway.name = "TestGridOne"
+    fake_gateway.newscap = "URI:NEWSCAP"
     fake_gateway.magic_folders = {}
-    fake_gateway.get_log = Mock(return_value='tahoe msg 1')
+    fake_gateway.get_log = Mock(return_value="tahoe msg 1")
     fake_gateway.get_settings = Mock(return_value={})
     fake_core.gui.main_window.gateways = [fake_gateway]
     return fake_core
@@ -63,18 +68,19 @@ def test_log_loader_load_warning_text_in_filtered_content(core):
 
 
 @pytest.mark.parametrize(
-    'checkbox_state, expected_content',
+    "checkbox_state, expected_content",
     [
-        (Qt.Unchecked, 'unfiltered'),
-        (Qt.PartiallyChecked, 'unfiltered'),
-        (Qt.Checked, 'filtered'),
-    ]
+        (Qt.Unchecked, "unfiltered"),
+        (Qt.PartiallyChecked, "unfiltered"),
+        (Qt.Checked, "filtered"),
+    ],
 )
 def test_debug_exporter_on_checkbox_state_changed_toggle_content(
-        checkbox_state, expected_content):
+    checkbox_state, expected_content
+):
     de = DebugExporter(None)
-    de.log_loader.content = 'unfiltered'
-    de.log_loader.filtered_content = 'filtered'
+    de.log_loader.content = "unfiltered"
+    de.log_loader.filtered_content = "filtered"
     de.on_checkbox_state_changed(checkbox_state)
     assert de.plaintextedit.toPlainText() == expected_content
 
@@ -93,7 +99,7 @@ def test_debug_exporter_on_checkbox_state_changed_keep_scrollbar_position():
 def test_debug_exporter_on_info_button_clicked(monkeypatch):
     de = DebugExporter(None)
     fake_msgbox = Mock()
-    monkeypatch.setattr('gridsync.gui.debug.QMessageBox', fake_msgbox)
+    monkeypatch.setattr("gridsync.gui.debug.QMessageBox", fake_msgbox)
     de.on_filter_info_button_clicked()
     assert fake_msgbox.called
 
@@ -141,13 +147,14 @@ def test_debug_exporter_load_return_early_thread_running(core, qtbot):
 
 def test_debug_exporter_copy_to_clipboard(monkeypatch):
     de = DebugExporter(None)
-    de.plaintextedit.setPlainText('TESTING123')
+    de.plaintextedit.setPlainText("TESTING123")
     fake_set_clipboard_text = Mock()
     monkeypatch.setattr(
-        'gridsync.gui.debug.set_clipboard_text', fake_set_clipboard_text)
-    monkeypatch.setattr('gridsync.gui.debug.get_clipboard_modes', lambda: [1])
+        "gridsync.gui.debug.set_clipboard_text", fake_set_clipboard_text
+    )
+    monkeypatch.setattr("gridsync.gui.debug.get_clipboard_modes", lambda: [1])
     de.copy_to_clipboard()
-    assert fake_set_clipboard_text.call_args[0] == ('TESTING123', 1)
+    assert fake_set_clipboard_text.call_args[0] == ("TESTING123", 1)
 
 
 def test_debug_exporter_export_to_file_no_dest_return(monkeypatch, tmpdir):
@@ -155,8 +162,8 @@ def test_debug_exporter_export_to_file_no_dest_return(monkeypatch, tmpdir):
     de.close = Mock()
     fake_get_save_file_name = Mock(return_value=(None, None))
     monkeypatch.setattr(
-        'gridsync.gui.debug.QFileDialog.getSaveFileName',
-        fake_get_save_file_name
+        "gridsync.gui.debug.QFileDialog.getSaveFileName",
+        fake_get_save_file_name,
     )
     de.export_to_file()
     assert de.close.call_count == 0
@@ -164,13 +171,13 @@ def test_debug_exporter_export_to_file_no_dest_return(monkeypatch, tmpdir):
 
 def test_debug_exporter_export_to_file_success(monkeypatch, tmpdir):
     de = DebugExporter(None)
-    expected_content = 'EXPECTED_CONTENT'
+    expected_content = "EXPECTED_CONTENT"
     de.plaintextedit.setPlainText(expected_content)
     dest = str(tmpdir.join("log.txt"))
     fake_get_save_file_name = Mock(return_value=(dest, None))
     monkeypatch.setattr(
-        'gridsync.gui.debug.QFileDialog.getSaveFileName',
-        fake_get_save_file_name
+        "gridsync.gui.debug.QFileDialog.getSaveFileName",
+        fake_get_save_file_name,
     )
     de.export_to_file()
     with open(dest) as f:
@@ -179,16 +186,18 @@ def test_debug_exporter_export_to_file_success(monkeypatch, tmpdir):
 
 def test_debug_exporter_export_to_file_failure(monkeypatch, tmpdir):
     de = DebugExporter(None)
-    de.plaintextedit.setPlainText('TEST_CONTENT')
+    de.plaintextedit.setPlainText("TEST_CONTENT")
     dest = str(tmpdir.join("log.txt"))
     fake_getSaveFileName = Mock(return_value=(dest, None))
     monkeypatch.setattr(
-        'gridsync.gui.debug.QFileDialog.getSaveFileName', fake_getSaveFileName)
-    error_message = 'Something Bad Happened'
+        "gridsync.gui.debug.QFileDialog.getSaveFileName", fake_getSaveFileName
+    )
+    error_message = "Something Bad Happened"
     fake_to_plain_text = Mock(side_effect=OSError(error_message))
     monkeypatch.setattr(
-        'gridsync.gui.debug.QPlainTextEdit.toPlainText', fake_to_plain_text)
+        "gridsync.gui.debug.QPlainTextEdit.toPlainText", fake_to_plain_text
+    )
     fake_error = Mock()
-    monkeypatch.setattr('gridsync.gui.debug.error', fake_error)
+    monkeypatch.setattr("gridsync.gui.debug.error", fake_error)
     de.export_to_file()
     assert fake_error.call_args[0][2] == error_message

@@ -11,5 +11,5 @@ class BlendedColor(QColor):
             int(pct_a * color_a.red() + pct_b * color_b.red()),
             int(pct_a * color_a.green() + pct_b * color_b.green()),
             int(pct_a * color_a.blue() + pct_b * color_b.blue()),
-            int(pct_a * color_a.alpha() + pct_b * color_b.alpha())
+            int(pct_a * color_a.alpha() + pct_b * color_b.alpha()),
         )

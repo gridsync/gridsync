@@ -10,9 +10,11 @@ class Pixmap(QPixmap):
     def __init__(self, resource_filename, size=None):
         super().__init__(resource(resource_filename))
         if size:
-            self.swap(self.scaled(
-                size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation
-            ))
+            self.swap(
+                self.scaled(
+                    size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
+            )
 
 
 class CompositePixmap(QPixmap):
@@ -60,7 +62,7 @@ class BadgedPixmap(QPixmap):
             base_max * max(corner[0] - size, 0) + pen_width,
             base_max * max(corner[1] - size, 0) + pen_width,
             badge_max - pen_width,
-            badge_max - pen_width
+            badge_max - pen_width,
         )
 
         painter = QPainter(base_pixmap)

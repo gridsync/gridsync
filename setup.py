@@ -8,30 +8,31 @@ from setuptools import setup
 
 
 requirements = [
-    'atomicwrites',
-    'autobahn',
+    "atomicwrites",
+    "autobahn",
     'distro ; sys_platform != "darwin" and sys_platform != "win32"',
-    'humanize',
-    'hyperlink',
-    'magic-wormhole',
-    'PyNaCl >= 1.2.0',  # 1.2.0 adds Argon2id KDF
-    'PyQt5',
-    'pyyaml',
-    'qt5reactor',
-    'treq',
-    'twisted[tls]',
-    'txtorcon',
-    'zxcvbn',
+    "humanize",
+    "hyperlink",
+    "magic-wormhole",
+    "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
+    "PyQt5",
+    "pyyaml",
+    "qt5reactor",
+    "treq",
+    "twisted[tls]",
+    "txtorcon",
+    "zxcvbn",
 ]
 
-if sys.platform.startswith('linux') and (struct.calcsize('P') * 8) == 32:
+if sys.platform.startswith("linux") and (struct.calcsize("P") * 8) == 32:
     try:
         import PyQt5  # noqa; F401 (imported but unused)
     except ImportError:
         sys.exit(
             "PyQt5 wheels are not available for 32-bit GNU/Linux. Please "
-            "manually install PyQt5 into this environment and try again.")
-    requirements.remove('PyQt5')
+            "manually install PyQt5 into this environment and try again."
+        )
+    requirements.remove("PyQt5")
 
 
 module_file = open("gridsync/__init__.py").read()
@@ -45,7 +46,7 @@ setup(
     name="gridsync",
     version=version,
     description="Synchronize local directories with Tahoe-LAFS storage grids.",
-    long_description=open('README.rst').read(),
+    long_description=open("README.rst").read(),
     author=metadata["author"],
     url=metadata["url"],
     license=metadata["license"],
@@ -92,12 +93,8 @@ setup(
         "Topic :: System :: Recovery Tools",
         "Topic :: Utilities",
     ],
-    packages=['gridsync', 'gridsync.gui'],
-    package_data={
-        'gridsync': ['resources/*', 'resources/providers/*']
-    },
-    entry_points={
-        'console_scripts': ['gridsync=gridsync.cli:main'],
-    },
+    packages=["gridsync", "gridsync.gui"],
+    package_data={"gridsync": ["resources/*", "resources/providers/*"]},
+    entry_points={"console_scripts": ["gridsync=gridsync.cli:main"],},
     install_requires=requirements,
 )

@@ -8,7 +8,7 @@ from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.systray import SystemTrayIcon
 
 
-class Gui():
+class Gui:
     def __init__(self, core):
         self.core = core
         self.welcome_dialog = WelcomeDialog(self)
