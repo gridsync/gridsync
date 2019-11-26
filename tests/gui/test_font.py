@@ -6,7 +6,7 @@ from gridsync.gui.font import Font
 
 
 @pytest.mark.parametrize(
-    "platform,expected", [("darwin", 16), ("linux", 12), ("win32", 12),]
+    "platform,expected", [("darwin", 16), ("linux", 12), ("win32", 12)]
 )
 def test_font_default(platform, expected, monkeypatch):
     monkeypatch.setattr("sys.platform", platform)

@@ -124,7 +124,7 @@ def test_tahoe_set_streamedlogs_maxlen_from_config_txt(
 
 def test_tahoe_load_newscap_from_global_settings(tahoe, monkeypatch):
     global_settings = {
-        "news:{}".format(tahoe.name): {"newscap": "URI:NewscapFromSettings",}
+        "news:{}".format(tahoe.name): {"newscap": "URI:NewscapFromSettings"}
     }
     monkeypatch.setattr("gridsync.tahoe.global_settings", global_settings)
     tahoe.load_newscap()
@@ -860,7 +860,7 @@ def test__create_magic_folder_add_alias(monkeypatch, tmpdir_factory):
 
 
 @pytest.mark.parametrize(
-    "exception_raised,num_calls", [(None, 1), (Exception, 2), (TahoeError, 2),]
+    "exception_raised,num_calls", [(None, 1), (Exception, 2), (TahoeError, 2)]
 )
 @inlineCallbacks
 def test_create_magic_folder_call__create_magic_folder(
@@ -885,7 +885,7 @@ def test_create_magic_folder_call__create_magic_folder(
 
 
 @pytest.mark.parametrize(
-    "admin_dircap,num_add_alias_calls", [(None, 0), ("URI:TEST", 1),]
+    "admin_dircap,num_add_alias_calls", [(None, 0), ("URI:TEST", 1)]
 )
 @inlineCallbacks
 def test_create_magic_folder_call_command_magic_folder_join_and_create_alias(
