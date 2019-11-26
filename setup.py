@@ -36,10 +36,10 @@ if sys.platform.startswith("linux") and (struct.calcsize("P") * 8) == 32:
 
 
 module_file = open("gridsync/__init__.py").read()
-metadata = dict(re.findall(r"__([a-z]+)__\s*=\s*'([^']+)'", module_file))
+metadata = dict(re.findall(r"__([a-z]+)__\s*=\s*\"([^\"]+)\"", module_file))
 
 version_file = open("gridsync/_version.py").read()
-version = re.findall(r"__version__\s*=\s*'([^']+)'", version_file)[0]
+version = re.findall(r"__version__\s*=\s*\"([^\"]+)\"", version_file)[0]
 
 
 setup(
