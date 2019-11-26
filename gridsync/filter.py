@@ -114,9 +114,9 @@ def apply_filter(dictionary, key, tag, identifier=None):
         dictionary[key] = get_mask(value, tag, identifier=identifier)
 
 
-def _apply_filter_by_action_type(
+def _apply_filter_by_action_type(  # noqa: max-complexity=30
     msg, action_type, identifier=None
-):  # noqa: max-complexity
+):
     if action_type == "dirnode:add-file":
         apply_filter(msg, "name", "Path")
 
