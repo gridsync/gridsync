@@ -15,7 +15,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__()
         self.gui = gui
 
-        tray_icon_path = resource(settings['application']['tray_icon'])
+        tray_icon_path = resource(settings["application"]["tray_icon"])
         self.app_pixmap = QPixmap(tray_icon_path)
         self.app_icon = QIcon(tray_icon_path)
         self.setIcon(self.app_icon)
@@ -28,7 +28,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.animation = QMovie()
         self.animation.setFileName(
-            resource(settings['application']['tray_icon_sync']))
+            resource(settings["application"]["tray_icon_sync"])
+        )
         self.animation.updated.connect(self.update)
         self.animation.setCacheMode(True)
 
@@ -44,12 +45,16 @@ class SystemTrayIcon(QSystemTrayIcon):
         else:
             self.animation.setPaused(True)
             if self.gui.unread_messages:
-                self.setIcon(QIcon(BadgedPixmap(
-                    self.app_pixmap, len(self.gui.unread_messages), 0.6
-                )))
+                self.setIcon(
+                    QIcon(
+                        BadgedPixmap(
+                            self.app_pixmap, len(self.gui.unread_messages), 0.6
+                        )
+                    )
+                )
             else:
                 self.setIcon(self.app_icon)
 
     def on_click(self, value):
-        if value == QSystemTrayIcon.Trigger and sys.platform != 'darwin':
+        if value == QSystemTrayIcon.Trigger and sys.platform != "darwin":
             self.gui.show_main_window()

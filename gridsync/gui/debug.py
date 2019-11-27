@@ -28,14 +28,15 @@ from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import get_filters, apply_filters, get_mask
 
 
-if sys.platform == 'darwin':
-    system = 'macOS {}'.format(platform.mac_ver()[0])
-elif sys.platform == 'win32':
-    system = 'Windows {}'.format(platform.win32_ver()[0])
-elif sys.platform.startswith('linux'):
+if sys.platform == "darwin":
+    system = "macOS {}".format(platform.mac_ver()[0])
+elif sys.platform == "win32":
+    system = "Windows {}".format(platform.win32_ver()[0])
+elif sys.platform.startswith("linux"):
     import distro  # pylint: disable=import-error
+
     name, version, _ = distro.linux_distribution()
-    system = 'Linux ({} {})'.format(name, version)
+    system = "Linux ({} {})".format(name, version)
 else:
     system = platform.system()
 
@@ -48,7 +49,7 @@ Frozen:       {}
     __version__,
     system,
     platform.python_version(),
-    getattr(sys, 'frozen', False)
+    getattr(sys, "frozen", False),
 )
 
 
@@ -70,8 +71,8 @@ class LogLoader(QObject):
     def __init__(self, core):
         super().__init__()
         self.core = core
-        self.content = ''
-        self.filtered_content = ''
+        self.content = ""
+        self.filtered_content = ""
 
     def load(self):
         start_time = time.time()
@@ -81,24 +82,25 @@ class LogLoader(QObject):
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
-            + '\n'.join(self.core.log_deque)
+            + "\n".join(self.core.log_deque)
             + "\n----- End of {} debug log -----\n".format(APP_NAME)
         )
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
-            gateway_mask = get_mask(gateway.name, 'GatewayName', gateway_id)
+            gateway_mask = get_mask(gateway.name, "GatewayName", gateway_id)
             self.content = self.content + (
-                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
-                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
-                    gateway.name, gateway.get_log())
+                "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
+                "\n----- End of Tahoe-LAFS log for {0} -----\n".format(
+                    gateway.name, gateway.get_log()
+                )
             )
             self.filtered_content = self.filtered_content + (
-                '\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}'
-                '\n----- End of Tahoe-LAFS log for {0} -----\n'.format(
+                "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
+                "\n----- End of Tahoe-LAFS log for {0} -----\n".format(
                     gateway_mask,
-                    gateway.get_log(apply_filter=True, identifier=gateway_id)
+                    gateway.get_log(apply_filter=True, identifier=gateway_id),
                 )
             )
         self.done.emit()
@@ -135,7 +137,8 @@ class DebugExporter(QDialog):
         self.reload_button.clicked.connect(self.load)
 
         self.checkbox = QCheckBox(
-            "Conceal potentially-identifying information", self)
+            "Conceal potentially-identifying information", self
+        )
         self.checkbox.setCheckState(Qt.Checked)
         self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
 
@@ -149,14 +152,15 @@ class DebugExporter(QDialog):
         self.filter_info_button.setToolTip(self.filter_info_text)
         self.filter_info_button.setFlat(True)
         self.filter_info_button.setFocusPolicy(Qt.NoFocus)
-        self.filter_info_button.setIcon(QIcon(resource('question')))
+        self.filter_info_button.setIcon(QIcon(resource("question")))
         self.filter_info_button.setIconSize(QSize(13, 13))
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             self.filter_info_button.setFixedSize(16, 16)
         else:
             self.filter_info_button.setFixedSize(13, 13)
         self.filter_info_button.clicked.connect(
-            self.on_filter_info_button_clicked)
+            self.on_filter_info_button_clicked
+        )
 
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
@@ -178,7 +182,8 @@ class DebugExporter(QDialog):
         bottom_layout = QGridLayout()
         bottom_layout.addLayout(checkbox_layout, 1, 1)
         bottom_layout.addItem(
-            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2
+        )
         bottom_layout.addLayout(buttons_layout, 1, 3)
 
         layout = QGridLayout(self)
@@ -198,7 +203,7 @@ class DebugExporter(QDialog):
     def on_filter_info_button_clicked(self):
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Information)
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             msgbox.setText("About Log Filtering")
             msgbox.setInformativeText(self.filter_info_text)
         else:
@@ -227,19 +232,18 @@ class DebugExporter(QDialog):
             self,
             "Select a destination",
             os.path.join(
-                os.path.expanduser('~'),
-                APP_NAME + ' Debug Information.txt'))
+                os.path.expanduser("~"), APP_NAME + " Debug Information.txt"
+            ),
+        )
         if not dest:
             return
         try:
-            with atomic_write(dest, mode='w', overwrite=True) as f:
+            with atomic_write(dest, mode="w", overwrite=True) as f:
                 f.write(self.plaintextedit.toPlainText())
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
-                self,
-                "Error exporting debug information",
-                str(e),
+                self, "Error exporting debug information", str(e),
             )
             return
         self.close()

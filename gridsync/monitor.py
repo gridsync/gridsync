@@ -51,8 +51,8 @@ class MagicFolderChecker(QObject):
     def notify_updated_files(self):
         changes = defaultdict(list)
         for item in self.updated_files:
-            changes[item['member']].insert(
-                int(item['mtime']), (item['action'], item['path'])
+            changes[item["member"]].insert(
+                int(item["mtime"]), (item["action"], item["path"])
             )
         self.updated_files = []
         for author, change in changes.items():
@@ -72,17 +72,17 @@ class MagicFolderChecker(QObject):
         bytes_transferred = 0
         bytes_total = 0
         for task in status:
-            if task['queued_at'] >= self.sync_time_started:
-                size = task['size']
+            if task["queued_at"] >= self.sync_time_started:
+                size = task["size"]
                 if not size:
                     continue
-                if task['status'] in ('queued', 'started', 'success'):
+                if task["status"] in ("queued", "started", "success"):
                     bytes_total += size
-                if task['status'] in ('started', 'success'):
+                if task["status"] in ("started", "success"):
                     # A (temporary?) workaround for Tahoe-LAFS ticket #2954
                     # whereby 'percent_done' will sometimes exceed 100%
                     # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2954
-                    percent_done = min(100, task['percent_done'])
+                    percent_done = min(100, task["percent_done"])
                     bytes_transferred += size * percent_done / 100
         if bytes_transferred and bytes_total:
             self.transfer_progress_updated.emit(bytes_transferred, bytes_total)
@@ -94,29 +94,33 @@ class MagicFolderChecker(QObject):
             self.transfer_seconds_remaining_updated.emit(seconds_remaining)
             logging.debug(
                 "%s: %s / %s (%s%%); %s seconds remaining",
-                self.name, bytes_transferred, bytes_total,
-                int(bytes_transferred / bytes_total * 100), seconds_remaining)
+                self.name,
+                bytes_transferred,
+                bytes_total,
+                int(bytes_transferred / bytes_total * 100),
+                seconds_remaining,
+            )
 
     def parse_status(self, status_data):
         state = 0
-        kind = ''
-        filepath = ''
+        kind = ""
+        filepath = ""
         failures = []
         if status_data is not None:
             for task in status_data:
-                status = task['status']
-                path = task['path']
-                queued_at = task['queued_at']
-                if status in ('queued', 'started'):
+                status = task["status"]
+                path = task["path"]
+                queued_at = task["queued_at"]
+                if status in ("queued", "started"):
                     if not self.sync_time_started:
                         self.sync_time_started = queued_at
                     elif queued_at < self.sync_time_started:
                         self.sync_time_started = queued_at
-                    if not path.endswith('/'):
+                    if not path.endswith("/"):
                         state = 1  # "Syncing"
-                        kind = task['kind']
+                        kind = task["kind"]
                         filepath = path
-                elif status == 'failure':
+                elif status == "failure":
                     failures.append(task)
                 self.operations["{}@{}".format(path, queued_at)] = task
             if not state:
@@ -132,15 +136,20 @@ class MagicFolderChecker(QObject):
                 logging.debug("Sync started (%s)", self.name)
                 self.sync_started.emit()
             elif self.state == 1:  # Sync started earlier; still going
-                logging.debug('Sync in progress (%sing "%s" in "%s")...', kind,
-                              trunchash(filepath), self.name)
+                logging.debug(
+                    'Sync in progress (%sing "%s" in "%s")...',
+                    kind,
+                    trunchash(filepath),
+                    self.name,
+                )
                 # TODO: Emit uploading/downloading signal?
             self.emit_transfer_signals(self.operations.values())
             remote_scan_needed = True
         elif state == 2:
             if self.state == 1:  # Sync just finished
                 logging.debug(
-                    "Sync complete (%s); doing final scan...", self.name)
+                    "Sync complete (%s); doing final scan...", self.name
+                )
                 remote_scan_needed = True
                 state = 99
             elif self.state == 99:  # Final scan just finished
@@ -157,30 +166,31 @@ class MagicFolderChecker(QObject):
     def compare_states(self, current, previous):
         for mtime, data in current.items():
             if mtime not in previous:
-                if data['deleted']:
-                    data['action'] = 'deleted'
+                if data["deleted"]:
+                    data["action"] = "deleted"
                 else:
-                    path = data['path']
+                    path = data["path"]
                     prev_entry = None
                     for prev_data in previous.values():
-                        if prev_data['path'] == path:
+                        if prev_data["path"] == path:
                             prev_entry = prev_data
                     if prev_entry:
-                        if prev_entry['deleted']:
-                            data['action'] = 'restored'
+                        if prev_entry["deleted"]:
+                            data["action"] = "restored"
                         else:
-                            data['action'] = 'updated'
-                    elif path.endswith('/'):
-                        data['action'] = 'created'
+                            data["action"] = "updated"
+                    elif path.endswith("/"):
+                        data["action"] = "created"
                     else:
-                        data['action'] = 'added'
+                        data["action"] = "added"
                 self.file_updated.emit(data)
                 self.updated_files.append(data)
 
     @inlineCallbacks
     def do_remote_scan(self, members=None):
         members, size, t, history = yield self.gateway.get_magic_folder_state(
-            self.name, members)
+            self.name, members
+        )
         if members:
             members = sorted(members)
             if members != self.members:
@@ -253,6 +263,7 @@ class Monitor(QObject):
 
     :ivar bool _started: Whether or not ``start`` has already been called.
     """
+
     _started = False
 
     connected = pyqtSignal()
@@ -303,22 +314,27 @@ class Monitor(QObject):
         mfc.sync_finished.connect(lambda: self.sync_finished.emit(name))
 
         mfc.transfer_progress_updated.connect(
-            lambda x, y: self.transfer_progress_updated.emit(name, x, y))
+            lambda x, y: self.transfer_progress_updated.emit(name, x, y)
+        )
         mfc.transfer_speed_updated.connect(
-            lambda x: self.transfer_speed_updated.emit(name, x))
+            lambda x: self.transfer_speed_updated.emit(name, x)
+        )
         mfc.transfer_seconds_remaining_updated.connect(
-            lambda x: self.transfer_seconds_remaining_updated.emit(name, x))
+            lambda x: self.transfer_seconds_remaining_updated.emit(name, x)
+        )
 
         mfc.status_updated.connect(lambda x: self.status_updated.emit(name, x))
         mfc.mtime_updated.connect(lambda x: self.mtime_updated.emit(name, x))
         mfc.size_updated.connect(lambda x: self.size_updated.emit(name, x))
 
         mfc.members_updated.connect(
-            lambda x: self.members_updated.emit(name, x))
+            lambda x: self.members_updated.emit(name, x)
+        )
 
         mfc.file_updated.connect(lambda x: self.file_updated.emit(name, x))
         mfc.files_updated.connect(
-            lambda x, y, z: self.files_updated.emit(name, x, y, z))
+            lambda x, y, z: self.files_updated.emit(name, x, y, z)
+        )
 
         self.magic_folder_checkers[name] = mfc
 
@@ -332,10 +348,11 @@ class Monitor(QObject):
         for name, caps in folders.items():
             if name not in self.gateway.magic_folders.keys():
                 logging.debug(
-                    "Found new folder '%s' in rootcap; adding...", name)
+                    "Found new folder '%s' in rootcap; adding...", name
+                )
                 self.add_magic_folder_checker(name, remote=True)
                 self.remote_folder_added.emit(name, overlay_file)
-                c = yield self.gateway.get_json(caps['collective_dircap'])
+                c = yield self.gateway.get_json(caps["collective_dircap"])
                 members = yield self.gateway.get_magic_folder_members(name, c)
                 yield self.magic_folder_checkers[name].do_remote_scan(members)
 

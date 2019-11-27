@@ -5,9 +5,22 @@ import os
 
 from PyQt5.QtCore import QPropertyAnimation, QThread
 from PyQt5.QtWidgets import (
-    QComboBox, QDialogButtonBox, QFileDialog, QFormLayout, QGridLayout,
-    QGroupBox, QLabel, QLineEdit, QPlainTextEdit, QProgressDialog, QPushButton,
-    QSizePolicy, QSpacerItem, QSpinBox, QWidget)
+    QComboBox,
+    QDialogButtonBox,
+    QFileDialog,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QLineEdit,
+    QPlainTextEdit,
+    QProgressDialog,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QWidget,
+)
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -108,7 +121,7 @@ class RestoreSelector(QWidget):
 
     def select_file(self):
         dialog = QFileDialog(self, "Select a Recovery Key")
-        dialog.setDirectory(os.path.expanduser('~'))
+        dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_():
             selected_file = dialog.selectedFiles()[0]
@@ -146,13 +159,14 @@ class TahoeConfigForm(QWidget):
         restore_selector_gbox_layout.addWidget(self.restore_selector)
 
         self.buttonbox = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
 
         layout = QGridLayout(self)
         layout.addWidget(connection_settings_gbox)
         layout.addWidget(encoding_parameters_gbox)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
-        #layout.addWidget(restore_selector_gbox)  # TODO: Remove related code
+        # layout.addWidget(restore_selector_gbox)  # TODO: Remove related code
         layout.addWidget(self.buttonbox)
 
     def set_name(self, name):
@@ -187,8 +201,8 @@ class TahoeConfigForm(QWidget):
         return self.encoding_parameters.happy_spinbox.value()
 
     def reset(self):
-        self.set_name('')
-        self.set_introducer('')
+        self.set_name("")
+        self.set_introducer("")
         self.set_shares_total(1)
         self.set_shares_needed(1)
         self.set_shares_happy(1)
@@ -196,30 +210,30 @@ class TahoeConfigForm(QWidget):
 
     def get_settings(self):
         settings = {
-            'nickname': self.get_name(),
-            'introducer': self.get_introducer(),
-            'shares-total': self.get_shares_total(),
-            'shares-needed': self.get_shares_needed(),
-            'shares-happy': self.get_shares_happy(),
-            'rootcap': self.rootcap  # Maybe this should be user-settable?
+            "nickname": self.get_name(),
+            "introducer": self.get_introducer(),
+            "shares-total": self.get_shares_total(),
+            "shares-needed": self.get_shares_needed(),
+            "shares-happy": self.get_shares_happy(),
+            "rootcap": self.rootcap,  # Maybe this should be user-settable?
         }
         if self.connection_settings.mode_combobox.currentIndex() == 1:
-            settings['hide-ip'] = True
+            settings["hide-ip"] = True
         return settings
 
     def load_settings(self, settings_dict):
         for key, value in settings_dict.items():
-            if key == 'nickname':
+            if key == "nickname":
                 self.set_name(value)
-            elif key == 'introducer':
+            elif key == "introducer":
                 self.set_introducer(value)
-            elif key == 'shares-total':
+            elif key == "shares-total":
                 self.set_shares_total(value)
-            elif key == 'shares-needed':
+            elif key == "shares-needed":
                 self.set_shares_total(value)
-            elif key == 'shares-happy':
+            elif key == "shares-happy":
                 self.set_shares_total(value)
-            elif key == 'rootcap':
+            elif key == "rootcap":
                 self.rootcap = value
 
     def on_decryption_failed(self, msg):
@@ -229,13 +243,13 @@ class TahoeConfigForm(QWidget):
 
     def on_decryption_succeeded(self, plaintext):
         self.crypter_thread.quit()
-        self.load_settings(json.loads(plaintext.decode('utf-8')))
+        self.load_settings(json.loads(plaintext.decode("utf-8")))
         self.crypter_thread.wait()
 
     def decrypt_content(self, data, password):
         self.progress = QProgressDialog("Trying to decrypt...", None, 0, 100)
         self.progress.show()
-        self.animation = QPropertyAnimation(self.progress, b'value')
+        self.animation = QPropertyAnimation(self.progress, b"value")
         self.animation.setDuration(5000)  # XXX
         self.animation.setStartValue(0)
         self.animation.setEndValue(99)
@@ -254,14 +268,14 @@ class TahoeConfigForm(QWidget):
 
     def parse_content(self, content):
         try:
-            settings = json.loads(content.decode('utf-8'))
+            settings = json.loads(content.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError):
             password, ok = PasswordDialog.get_password(
                 self,
                 "Decryption passphrase (required):",
                 "This Recovery Key is protected by a passphrase. Enter the "
                 "correct passphrase to decrypt it.",
-                show_stats=False
+                show_stats=False,
             )
             if ok:
                 self.decrypt_content(content, password)
@@ -270,7 +284,7 @@ class TahoeConfigForm(QWidget):
 
     def load_from_file(self, path):
         try:
-            with open(path, 'rb') as f:
+            with open(path, "rb") as f:
                 content = f.read()
         except Exception as e:  # pylint: disable=broad-except
             error(self, type(e).__name__, str(e))

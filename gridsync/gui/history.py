@@ -8,9 +8,19 @@ from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QTimer, Qt
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWidgets import (
-    QAction, QAbstractItemView, QFileIconProvider, QGridLayout, QLabel,
-    QListWidgetItem, QListWidget, QMenu, QPushButton, QSizePolicy, QSpacerItem,
-    QWidget)
+    QAction,
+    QAbstractItemView,
+    QFileIconProvider,
+    QGridLayout,
+    QLabel,
+    QListWidgetItem,
+    QListWidget,
+    QMenu,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QWidget,
+)
 
 from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
@@ -26,10 +36,10 @@ class HistoryItemWidget(QWidget):
         self.data = data
         self.parent = parent
 
-        self.path = data['path']
-        self.size = data['size']
-        self.action = data['action']
-        self.mtime = data['mtime']
+        self.path = data["path"]
+        self.size = data["size"]
+        self.action = data["action"]
+        self.mtime = data["mtime"]
         self._thumbnail_loaded = False
 
         self.setAutoFillBackground(True)
@@ -57,12 +67,13 @@ class HistoryItemWidget(QWidget):
         self.details_label.setFont(Font(10))
         palette = self.palette()
         dimmer_grey = BlendedColor(
-            palette.text().color(), palette.base().color(), 0.6).name()
-        self.details_label.setStyleSheet('color: {}'.format(dimmer_grey))
+            palette.text().color(), palette.base().color(), 0.6
+        ).name()
+        self.details_label.setStyleSheet("color: {}".format(dimmer_grey))
 
         self.button = QPushButton()
-        self.button.setIcon(QIcon(resource('dots-horizontal-triple.png')))
-        self.button.setStyleSheet('border: none;')
+        self.button.setIcon(QIcon(resource("dots-horizontal-triple.png")))
+        self.button.setStyleSheet("border: none;")
         self.button.clicked.connect(self.parent.on_right_click)
         self.button.hide()
 
@@ -87,9 +98,11 @@ class HistoryItemWidget(QWidget):
     def _do_load_thumbnail(self):
         pixmap = QPixmap(self.path)
         if not pixmap.isNull():
-            self.icon.setPixmap(pixmap.scaled(
-                48, 48, Qt.IgnoreAspectRatio, Qt.SmoothTransformation
-            ))
+            self.icon.setPixmap(
+                pixmap.scaled(
+                    48, 48, Qt.IgnoreAspectRatio, Qt.SmoothTransformation
+                )
+            )
 
     def load_thumbnail(self):
         if self.isVisible() and not self._thumbnail_loaded:
@@ -125,17 +138,18 @@ class HistoryListWidget(QListWidget):
         palette = self.palette()
         self.base_color = palette.base().color()
         self.highlighted_color = BlendedColor(
-            self.base_color, palette.highlight().color(), 0.88)  # Was #E6F1F7
+            self.base_color, palette.highlight().color(), 0.88
+        )  # Was #E6F1F7
         self.highlighted = None
 
-        self.action_icon = QIcon(resource('dots-horizontal-triple.png'))
+        self.action_icon = QIcon(resource("dots-horizontal-triple.png"))
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setFocusPolicy(Qt.NoFocus)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        # self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setSelectionMode(QAbstractItemView.NoSelection)
-        #self.setStyleSheet("QListWidget::item:hover { background: #E6F1F7 }")
+        # self.setStyleSheet("QListWidget::item:hover { background: #E6F1F7 }")
         self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
 
         self.sb = self.verticalScrollBar()
@@ -165,7 +179,8 @@ class HistoryListWidget(QListWidget):
         menu.addAction(open_file_action)
         open_folder_action = QAction("Open enclosing folder")
         open_folder_action.triggered.connect(
-            lambda: self.on_double_click(item))
+            lambda: self.on_double_click(item)
+        )
         menu.addAction(open_folder_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
@@ -174,8 +189,11 @@ class HistoryListWidget(QListWidget):
         if self.deduplicate:
             for i in range(self.count()):
                 widget = self.itemWidget(self.item(i))
-                if widget and widget.data['path'] == data['path'] and \
-                        widget.data['member'] == data['member']:
+                if (
+                    widget
+                    and widget.data["path"] == data["path"]
+                    and widget.data["member"] == data["member"]
+                ):
                     duplicate = i
                     break
         if duplicate is not None:
@@ -183,9 +201,10 @@ class HistoryListWidget(QListWidget):
         else:
             self.takeItem(self.max_items)
             item = QListWidgetItem()
-        self.insertItem(0 - int(data['mtime']), item)  # Newest on top
+        self.insertItem(0 - int(data["mtime"]), item)  # Newest on top
         custom_widget = HistoryItemWidget(
-            self.gateway, folder_name, data, self)
+            self.gateway, folder_name, data, self
+        )
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
 

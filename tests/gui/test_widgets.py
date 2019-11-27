@@ -33,5 +33,5 @@ def test_increment_shares_total_with_shares_happy():
 
 def test_tahoe_config_form_get_settings():
     widget = TahoeConfigForm()
-    widget.connection_settings.introducer_text_edit.setPlainText('test')
-    assert widget.get_settings()['introducer'] == 'test'
+    widget.connection_settings.introducer_text_edit.setPlainText("test")
+    assert widget.get_settings()["introducer"] == "test"

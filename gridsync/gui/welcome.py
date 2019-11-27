@@ -6,12 +6,25 @@ import sys
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
-    QGridLayout, QLabel, QPushButton, QMessageBox, QProgressBar, QShortcut,
-    QSizePolicy, QSpacerItem, QStackedWidget, QToolButton, QWidget)
+    QGridLayout,
+    QLabel,
+    QPushButton,
+    QMessageBox,
+    QProgressBar,
+    QShortcut,
+    QSizePolicy,
+    QSpacerItem,
+    QStackedWidget,
+    QToolButton,
+    QWidget,
+)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError
 from wormhole.errors import (
-    ServerConnectionError, WelcomeError, WrongPasswordError)
+    ServerConnectionError,
+    WelcomeError,
+    WrongPasswordError,
+)
 
 from gridsync import resource, APP_NAME
 from gridsync import settings as global_settings
@@ -33,25 +46,27 @@ class WelcomeWidget(QWidget):
         super(WelcomeWidget, self).__init__()
         self.parent = parent
 
-        application_settings = global_settings['application']
-        logo_icon = application_settings.get('logo_icon')
+        application_settings = global_settings["application"]
+        logo_icon = application_settings.get("logo_icon")
         if logo_icon:
             icon_file = logo_icon
             icon_size = 288
         else:
-            icon_file = application_settings.get('tray_icon')
+            icon_file = application_settings.get("tray_icon")
             icon_size = 220
 
         self.icon = QLabel()
         self.icon.setPixmap(Pixmap(icon_file, icon_size))
         self.icon.setAlignment(Qt.AlignCenter)
 
-        self.slogan = QLabel("<i>{}</i>".format(
-            application_settings.get('description', '')))
+        self.slogan = QLabel(
+            "<i>{}</i>".format(application_settings.get("description", ""))
+        )
         self.slogan.setFont(Font(12))
         p = self.palette()
         dimmer_grey = BlendedColor(
-            p.windowText().color(), p.window().color()).name()
+            p.windowText().color(), p.window().color()
+        ).name()
         self.slogan.setStyleSheet("color: {}".format(dimmer_grey))
         self.slogan.setAlignment(Qt.AlignCenter)
         if logo_icon:
@@ -76,8 +91,8 @@ class WelcomeWidget(QWidget):
         self.configure_link.setAlignment(Qt.AlignCenter)
 
         self.preferences_button = QPushButton()
-        self.preferences_button.setIcon(QIcon(resource('preferences.png')))
-        self.preferences_button.setStyleSheet('border: 0px; padding: 0px;')
+        self.preferences_button.setIcon(QIcon(resource("preferences.png")))
+        self.preferences_button.setStyleSheet("border: 0px; padding: 0px;")
         self.preferences_button.setToolTip("Preferences...")
         self.preferences_button.setFocusPolicy(Qt.NoFocus)
 
@@ -115,7 +130,7 @@ class WelcomeWidget(QWidget):
         reactor.callLater(3, self.message.hide)
 
     def reset(self):
-        self.lineedit.setText('')
+        self.lineedit.setText("")
 
 
 class ProgressBarWidget(QWidget):
@@ -123,29 +138,30 @@ class ProgressBarWidget(QWidget):
         super(ProgressBarWidget, self).__init__()
 
         self.icon_server = QLabel()
-        self.icon_server.setPixmap(Pixmap('cloud.png', 220))
+        self.icon_server.setPixmap(Pixmap("cloud.png", 220))
         self.icon_server.setAlignment(Qt.AlignCenter)
 
         self.icon_overlay = QLabel()
-        self.icon_overlay.setPixmap(Pixmap('pixel.png', 75))
+        self.icon_overlay.setPixmap(Pixmap("pixel.png", 75))
         self.icon_overlay.setAlignment(Qt.AlignHCenter)
 
         self.icon_connection = QLabel()
-        self.icon_connection.setPixmap(Pixmap('wifi.png', 128))
+        self.icon_connection.setPixmap(Pixmap("wifi.png", 128))
         self.icon_connection.setAlignment(Qt.AlignCenter)
 
         self.icon_client = QLabel()
-        self.icon_client.setPixmap(Pixmap('laptop-with-icon.png', 128))
+        self.icon_client.setPixmap(Pixmap("laptop-with-icon.png", 128))
         self.icon_client.setAlignment(Qt.AlignCenter)
 
         self.checkmark = QLabel()
-        self.checkmark.setPixmap(Pixmap('pixel.png', 32))
+        self.checkmark.setPixmap(Pixmap("pixel.png", 32))
         self.checkmark.setAlignment(Qt.AlignCenter)
 
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
-            "This connection is being routed through the Tor network.")
-        self.tor_label.setPixmap(Pixmap('tor-onion.png', 24))
+            "This connection is being routed through the Tor network."
+        )
+        self.tor_label.setPixmap(Pixmap("tor-onion.png", 24))
         self.tor_label.hide()
 
         self.progressbar = QProgressBar()
@@ -156,7 +172,8 @@ class ProgressBarWidget(QWidget):
         self.message = QLabel()
         p = self.palette()
         dimmer_grey = BlendedColor(
-            p.windowText().color(), p.window().color()).name()
+            p.windowText().color(), p.window().color()
+        ).name()
         self.message.setStyleSheet("color: {}".format(dimmer_grey))
         self.message.setAlignment(Qt.AlignCenter)
 
@@ -164,8 +181,8 @@ class ProgressBarWidget(QWidget):
         self.finish_button.hide()
 
         self.cancel_button = QToolButton()
-        self.cancel_button.setIcon(QIcon(resource('close.png')))
-        self.cancel_button.setStyleSheet('border: 0px; padding: 0px;')
+        self.cancel_button.setIcon(QIcon(resource("close.png")))
+        self.cancel_button.setStyleSheet("border: 0px; padding: 0px;")
 
         layout = QGridLayout(self)
         layout.addWidget(self.cancel_button, 0, 5)
@@ -189,23 +206,23 @@ class ProgressBarWidget(QWidget):
         self.progressbar.setValue(step)
         self.message.setText(message)
         if step == 2:  # "Connecting to <nickname>..."
-            self.icon_connection.setPixmap(Pixmap('lines_dotted.png', 128))
-            self.icon_server.setPixmap(Pixmap('cloud_storage.png', 220))
+            self.icon_connection.setPixmap(Pixmap("lines_dotted.png", 128))
+            self.icon_server.setPixmap(Pixmap("cloud_storage.png", 220))
         elif step == 5:  # After await_ready()
-            self.icon_connection.setPixmap(Pixmap('lines_solid.png', 128))
+            self.icon_connection.setPixmap(Pixmap("lines_solid.png", 128))
         elif step == self.progressbar.maximum():  # "Done!"
-            self.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
+            self.checkmark.setPixmap(Pixmap("green_checkmark.png", 32))
 
     def is_complete(self):
         return self.progressbar.value() == self.progressbar.maximum()
 
     def reset(self):
         self.progressbar.setValue(0)
-        self.message.setText('')
+        self.message.setText("")
         self.finish_button.hide()
-        self.checkmark.setPixmap(Pixmap('pixel.png', 32))
+        self.checkmark.setPixmap(Pixmap("pixel.png", 32))
         self.tor_label.hide()
-        self.progressbar.setStyleSheet('')
+        self.progressbar.setStyleSheet("")
 
 
 class WelcomeDialog(QStackedWidget):
@@ -248,12 +265,13 @@ class WelcomeDialog(QStackedWidget):
 
         self.lineedit.go.connect(self.go)
         self.lineedit.error.connect(self.show_error)
-        self.restore_link.linkActivated.connect(
-            self.on_restore_link_activated)
+        self.restore_link.linkActivated.connect(self.on_restore_link_activated)
         self.configure_link.linkActivated.connect(
-            self.on_configure_link_activated)
+            self.on_configure_link_activated
+        )
         self.preferences_button.clicked.connect(
-            self.gui.show_preferences_window)
+            self.gui.show_preferences_window
+        )
 
         self.cancel_button.clicked.connect(self.cancel_button_clicked)
         self.finish_button.clicked.connect(self.finish_button_clicked)
@@ -303,7 +321,7 @@ class WelcomeDialog(QStackedWidget):
     def on_done(self, gateway):
         self.gateway = gateway
         self.progressbar.setValue(self.progressbar.maximum())
-        self.page_2.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
+        self.page_2.checkmark.setPixmap(Pixmap("green_checkmark.png", 32))
         self.finish_button.show()
         self.finish_button_clicked()  # TODO: Cleanup
 
@@ -311,7 +329,7 @@ class WelcomeDialog(QStackedWidget):
         QMessageBox.information(
             self,
             "Already connected",
-            'You are already connected to "{}"'.format(grid_name)
+            'You are already connected to "{}"'.format(grid_name),
         )
         self.close()
 
@@ -319,7 +337,8 @@ class WelcomeDialog(QStackedWidget):
         self.show()
         self.raise_()
         settings = validate_settings(
-            settings, self.known_gateways, self, from_wormhole)
+            settings, self.known_gateways, self, from_wormhole
+        )
         self.setup_runner = SetupRunner(self.known_gateways, self.use_tor)
         steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.progressbar.setMaximum(steps)
@@ -334,15 +353,17 @@ class WelcomeDialog(QStackedWidget):
         d.addErrback(self.handle_failure)
 
     def on_import_done(self, settings):
-        if settings.get('hide-ip') or self.tor_checkbox.isChecked():
+        if settings.get("hide-ip") or self.tor_checkbox.isChecked():
             self.use_tor = True
             self.page_2.tor_label.show()
             self.progressbar.setStyleSheet(
-                'QProgressBar::chunk {{ background-color: {}; }}'.format(
-                    TOR_PURPLE))
+                "QProgressBar::chunk {{ background-color: {}; }}".format(
+                    TOR_PURPLE
+                )
+            )
         self.setCurrentIndex(1)
         self.progressbar.setValue(1)
-        self.update_progress('Verifying invitation code...')
+        self.update_progress("Verifying invitation code...")
         self.prompt_to_export = False
         self.verify_settings(settings, from_wormhole=False)
 
@@ -356,11 +377,13 @@ class WelcomeDialog(QStackedWidget):
             self.use_tor = True
             self.page_2.tor_label.show()
             self.progressbar.setStyleSheet(
-                'QProgressBar::chunk {{ background-color: {}; }}'.format(
-                    TOR_PURPLE))
+                "QProgressBar::chunk {{ background-color: {}; }}".format(
+                    TOR_PURPLE
+                )
+            )
         self.setCurrentIndex(1)
         self.progressbar.setValue(1)
-        self.update_progress('Verifying invitation code...')
+        self.update_progress("Verifying invitation code...")
         invite_receiver = InviteReceiver(self.known_gateways, self.use_tor)
         invite_receiver.grid_already_joined.connect(self.on_already_joined)
         invite_receiver.update_progress.connect(self.update_progress)
@@ -382,7 +405,8 @@ class WelcomeDialog(QStackedWidget):
         msgbox.setWindowTitle("Cancel setup?")
         msgbox.setText("Are you sure you wish to cancel the setup process?")
         msgbox.setInformativeText(
-            "If you cancel, you may need to obtain a new invite code.")
+            "If you cancel, you may need to obtain a new invite code."
+        )
         msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msgbox.setDefaultButton(QMessageBox.No)
         if msgbox.exec_() == QMessageBox.Yes:
@@ -394,13 +418,13 @@ class WelcomeDialog(QStackedWidget):
         msg.setIcon(QMessageBox.Warning)
         msg.setWindowTitle(APP_NAME)
         msg.setStandardButtons(QMessageBox.Ok)
-        if not settings['nickname']:
+        if not settings["nickname"]:
             msg.setText("Please enter a name.")
             msg.exec_()
-        elif not settings['introducer']:
+        elif not settings["introducer"]:
             msg.setText("Please enter an Introducer fURL.")
             msg.exec_()
-        elif not is_valid_furl(settings['introducer']):
+        elif not is_valid_furl(settings["introducer"]):
             msg.setText("Please enter a valid Introducer fURL.")
             msg.exec_()
         else:
@@ -431,7 +455,7 @@ class WelcomeDialog(QStackedWidget):
             "gridsync/gridsync/blob/master/docs/recovery-keys.md>More "
             "information...</a>".format(gateway.name)
         )
-        #msg.setText(
+        # msg.setText(
         #    "Before uploading any folders to {}, it is <b>strongly "
         #    "recommended</b> that you <i>export a Recovery Key</i> and store "
         #    "it in a safe and secure location (such as an encrypted USB drive)"
@@ -439,7 +463,7 @@ class WelcomeDialog(QStackedWidget):
         #    "access to any of the folders you've uploaded to {} in the event "
         #    "that something goes wrong (e.g., hardware failure, accidental "
         #    "data-loss).".format(gateway.name, gateway.name))
-        #msg.setDetailedText(
+        # msg.setDetailedText(
         #    "A 'Recovery Key' is a small file that contains enough information"
         #    " to re-establish a connection with your storage provider and "
         #    "restore your previously-uploaded folders. Because access to this "
@@ -475,10 +499,11 @@ class WelcomeDialog(QStackedWidget):
             msgbox.setWindowTitle("Exit setup?")
             msgbox.setText("Are you sure you wish to exit?")
             msgbox.setInformativeText(
-                "{} has not yet been configured.".format(APP_NAME))
+                "{} has not yet been configured.".format(APP_NAME)
+            )
             msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             if msgbox.exec_() == QMessageBox.Yes:
-                if sys.platform == 'win32':
+                if sys.platform == "win32":
                     self.gui.systray.hide()
                 QCoreApplication.instance().quit()

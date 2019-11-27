@@ -4,8 +4,14 @@ from humanize import naturalsize
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import (
-    QAction, QGridLayout, QLabel, QSizePolicy, QSpacerItem, QToolButton,
-    QWidget)
+    QAction,
+    QGridLayout,
+    QLabel,
+    QSizePolicy,
+    QSpacerItem,
+    QToolButton,
+    QWidget,
+)
 
 from gridsync import resource
 from gridsync.gui.color import BlendedColor
@@ -25,11 +31,11 @@ class StatusPanel(QWidget):
         self.available_space = 0
 
         self.checkmark_icon = QLabel()
-        self.checkmark_icon.setPixmap(Pixmap('checkmark.png', 20))
+        self.checkmark_icon.setPixmap(Pixmap("checkmark.png", 20))
 
         self.syncing_icon = QLabel()
 
-        self.sync_movie = QMovie(resource('sync.gif'))
+        self.sync_movie = QMovie(resource("sync.gif"))
         self.sync_movie.setCacheMode(True)
         self.sync_movie.updated.connect(
             lambda: self.syncing_icon.setPixmap(
@@ -42,27 +48,28 @@ class StatusPanel(QWidget):
         self.status_label = QLabel()
         p = self.palette()
         dimmer_grey = BlendedColor(
-            p.windowText().color(), p.window().color(), 0.6).name()
+            p.windowText().color(), p.window().color(), 0.6
+        ).name()
         self.status_label.setStyleSheet("color: {}".format(dimmer_grey))
         self.status_label.setFont(Font(10))
 
         self.on_sync_state_updated(0)
 
-        self.setStyleSheet('QToolButton { border: none }')
-        #self.setStyleSheet("""
+        self.setStyleSheet("QToolButton { border: none }")
+        # self.setStyleSheet("""
         #    QToolButton { color: dimgrey; border: none; }
         #    QToolButton:hover {
         #        background-color: #FAFAFA;
         #        border: 1px solid grey;
         #        border-radius: 2px;
         #    }
-        #""")
+        # """)
 
         self.tor_button = QToolButton()
         self.tor_button.setIconSize(QSize(20, 20))
         self.tor_action = QAction(
-            QIcon(resource('tor-onion.png')),
-            "This connection is being routed through the Tor network"
+            QIcon(resource("tor-onion.png")),
+            "This connection is being routed through the Tor network",
         )
         self.tor_button.setDefaultAction(self.tor_action)
         if not self.gateway.use_tor:
@@ -70,16 +77,17 @@ class StatusPanel(QWidget):
 
         self.globe_button = QToolButton()
         self.globe_button.setIconSize(QSize(20, 20))
-        self.globe_action = QAction(QIcon(resource('globe.png')), '')
+        self.globe_action = QAction(QIcon(resource("globe.png")), "")
         self.globe_button.setDefaultAction(self.globe_action)
 
         preferences_button = QToolButton(self)
-        preferences_button.setIcon(QIcon(resource('preferences.png')))
+        preferences_button.setIcon(QIcon(resource("preferences.png")))
         preferences_button.setIconSize(QSize(20, 20))
         preferences_button.setMenu(Menu(self.gui, show_open_action=False))
         preferences_button.setPopupMode(2)
         preferences_button.setStyleSheet(
-            'QToolButton::menu-indicator { image: none }')
+            "QToolButton::menu-indicator { image: none }"
+        )
 
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()

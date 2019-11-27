@@ -7,8 +7,19 @@ import sys
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
-    QAction, QComboBox, QFileIconProvider, QGridLayout, QMainWindow, QMenu,
-    QMessageBox, QShortcut, QSizePolicy, QStackedWidget, QToolButton, QWidget)
+    QAction,
+    QComboBox,
+    QFileIconProvider,
+    QGridLayout,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QShortcut,
+    QSizePolicy,
+    QStackedWidget,
+    QToolButton,
+    QWidget,
+)
 from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir, settings
@@ -44,9 +55,9 @@ class ComboBox(QComboBox):
 
     def add_gateway(self, gateway):
         basename = os.path.basename(os.path.normpath(gateway.nodedir))
-        icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
+        icon = QIcon(os.path.join(gateway.nodedir, "icon"))
         if not icon.availableSizes():
-            icon = QIcon(resource('tahoe-lafs.png'))
+            icon = QIcon(resource("tahoe-lafs.png"))
         self.insertItem(0, icon, basename, gateway)
         self.setCurrentIndex(0)
         self.current_index = 0
@@ -64,7 +75,7 @@ class CentralWidget(QStackedWidget):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             # XXX: For some reason, getContentsMargins returns 20 px on macOS..
             layout.setContentsMargins(11, 11, 11, 0)
         else:
@@ -95,7 +106,7 @@ class MainWindow(QMainWindow):
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.setContextMenuPolicy(Qt.NoContextMenu)
 
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             # To disable the broken/buggy "full screen" mode on macOS.
             # See https://github.com/gridsync/gridsync/issues/241
             self.setWindowFlags(Qt.Dialog)
@@ -108,7 +119,8 @@ class MainWindow(QMainWindow):
 
         self.shortcut_preferences = QShortcut(QKeySequence.Preferences, self)
         self.shortcut_preferences.activated.connect(
-            self.gui.show_preferences_window)
+            self.gui.show_preferences_window
+        )
 
         self.shortcut_close = QShortcut(QKeySequence.Close, self)
         self.shortcut_close.activated.connect(self.close)
@@ -123,7 +135,8 @@ class MainWindow(QMainWindow):
 
         folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
         folder_icon_composite = CompositePixmap(
-            folder_icon_default.pixmap(256, 256), resource('green-plus.png'))
+            folder_icon_default.pixmap(256, 256), resource("green-plus.png")
+        )
         folder_icon = QIcon(folder_icon_composite)
 
         folder_action = QAction(folder_icon, "Add Folder", self)
@@ -132,28 +145,32 @@ class MainWindow(QMainWindow):
         folder_action.triggered.connect(self.select_folder)
 
         grid_invites_enabled = True
-        features_settings = settings.get('features')
+        features_settings = settings.get("features")
         if features_settings:
-            grid_invites = features_settings.get('grid_invites')
-            if grid_invites and grid_invites.lower() == 'false':
+            grid_invites = features_settings.get("grid_invites")
+            if grid_invites and grid_invites.lower() == "false":
                 grid_invites_enabled = False
 
         if grid_invites_enabled:
             invites_action = QAction(
-                QIcon(resource('invite.png')), "Invites", self)
+                QIcon(resource("invite.png")), "Invites", self
+            )
             invites_action.setToolTip("Enter or Create an Invite Code")
             invites_action.setFont(font)
 
             enter_invite_action = QAction(
-                QIcon(), "Enter Invite Code...", self)
+                QIcon(), "Enter Invite Code...", self
+            )
             enter_invite_action.setToolTip("Enter an Invite Code...")
             enter_invite_action.triggered.connect(self.open_invite_receiver)
 
             create_invite_action = QAction(
-                QIcon(), "Create Invite Code...", self)
+                QIcon(), "Create Invite Code...", self
+            )
             create_invite_action.setToolTip("Create on Invite Code...")
             create_invite_action.triggered.connect(
-                self.open_invite_sender_dialog)
+                self.open_invite_sender_dialog
+            )
 
             invites_menu = QMenu(self)
             invites_menu.addAction(enter_invite_action)
@@ -164,12 +181,14 @@ class MainWindow(QMainWindow):
             invites_button.setMenu(invites_menu)
             invites_button.setPopupMode(2)
             invites_button.setStyleSheet(
-                'QToolButton::menu-indicator { image: none }')
+                "QToolButton::menu-indicator { image: none }"
+            )
             invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         else:
             invite_action = QAction(
-                QIcon(resource('invite.png')), "Enter Code", self)
+                QIcon(resource("invite.png")), "Enter Code", self
+            )
             invite_action.setToolTip("Enter an Invite Code...")
             invite_action.setFont(font)
             invite_action.triggered.connect(self.open_invite_receiver)
@@ -183,8 +202,7 @@ class MainWindow(QMainWindow):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        history_action = QAction(
-            QIcon(resource('time.png')), 'History', self)
+        history_action = QAction(QIcon(resource("time.png")), "History", self)
         history_action.setToolTip("Show/Hide History")
         history_action.setFont(font)
         history_action.triggered.connect(self.on_history_button_clicked)
@@ -194,8 +212,7 @@ class MainWindow(QMainWindow):
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        recovery_action = QAction(
-            QIcon(resource('key.png')), "Recovery", self)
+        recovery_action = QAction(QIcon(resource("key.png")), "Recovery", self)
         recovery_action.setToolTip("Import or Export a Recovery Key")
         recovery_action.setFont(font)
 
@@ -217,21 +234,28 @@ class MainWindow(QMainWindow):
         recovery_button.setMenu(recovery_menu)
         recovery_button.setPopupMode(2)
         recovery_button.setStyleSheet(
-            'QToolButton::menu-indicator { image: none }')
+            "QToolButton::menu-indicator { image: none }"
+        )
         recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        self.toolbar = self.addToolBar('')
+        self.toolbar = self.addToolBar("")
         p = self.palette()
         dimmer_grey = BlendedColor(
-            p.windowText().color(), p.window().color(), 0.7).name()
-        if sys.platform != 'darwin':
-            self.toolbar.setStyleSheet("""
+            p.windowText().color(), p.window().color(), 0.7
+        ).name()
+        if sys.platform != "darwin":
+            self.toolbar.setStyleSheet(
+                """
                 QToolBar {{ border: 0px }}
                 QToolButton {{ color: {} }}
-            """.format(dimmer_grey))
+            """.format(
+                    dimmer_grey
+                )
+            )
         else:
             self.toolbar.setStyleSheet(
-                "QToolButton {{ color: {} }}".format(dimmer_grey))
+                "QToolButton {{ color: {} }}".format(dimmer_grey)
+            )
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
@@ -246,7 +270,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(self.history_button)
         self.toolbar.addWidget(recovery_button)
 
-        if sys.platform != 'win32':  # Text is getting clipped on Windows 10
+        if sys.platform != "win32":  # Text is getting clipped on Windows 10
             for action in self.toolbar.actions():
                 widget = self.toolbar.widgetForAction(action)
                 if isinstance(widget, QToolButton):
@@ -265,22 +289,25 @@ class MainWindow(QMainWindow):
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
                 gateway.newscap_checker.message_received.connect(
-                    self.on_message_received)
+                    self.on_message_received
+                )
                 gateway.newscap_checker.upgrade_required.connect(
-                    self.on_upgrade_required)
+                    self.on_upgrade_required
+                )
 
     def show_news_message(self, gateway, title, message):
         msgbox = QMessageBox(self)
         msgbox.setWindowModality(Qt.WindowModal)
-        icon_filepath = os.path.join(gateway.nodedir, 'icon')
+        icon_filepath = os.path.join(gateway.nodedir, "icon")
         if os.path.exists(icon_filepath):
             msgbox.setIconPixmap(QIcon(icon_filepath).pixmap(64, 64))
-        elif os.path.exists(resource('tahoe-lafs.png')):
+        elif os.path.exists(resource("tahoe-lafs.png")):
             msgbox.setIconPixmap(
-                QIcon(resource('tahoe-lafs.png')).pixmap(64, 64))
+                QIcon(resource("tahoe-lafs.png")).pixmap(64, 64)
+            )
         else:
             msgbox.setIcon(QMessageBox.Information)
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             msgbox.setText(title)
             msgbox.setInformativeText(message)
         else:
@@ -304,8 +331,7 @@ class MainWindow(QMainWindow):
     def on_message_received(self, gateway, message):
         title = "New message from {}".format(gateway.name)
         self.gui.show_message(
-            title,
-            strip_html_tags(message.replace('<p>', '\n\n'))
+            title, strip_html_tags(message.replace("<p>", "\n\n"))
         )
         self._maybe_show_news_message(gateway, title, message)
 
@@ -382,13 +408,15 @@ class MainWindow(QMainWindow):
             info(
                 self,
                 "Export successful",
-                "Recovery Key successfully exported to {}".format(path))
+                "Recovery Key successfully exported to {}".format(path),
+            )
         else:
             logging.error("Error exporting Recovery Key; file not found.")
             error(
                 self,
                 "Error exporting Recovery Key",
-                "Destination file not found after export: {}".format(path))
+                "Destination file not found after export: {}".format(path),
+            )
 
     def export_recovery_key(self, gateway=None):
         self.show_folders_view()
@@ -414,7 +442,7 @@ class MainWindow(QMainWindow):
     def on_invite_received(self, gateway):
         self.populate([gateway])
         for view in self.central_widget.views:
-            view.model().monitor.scan_rootcap('star.png')
+            view.model().monitor.scan_rootcap("star.png")
 
     def on_invite_closed(self, obj):
         try:
@@ -435,11 +463,13 @@ class MainWindow(QMainWindow):
             view = self.current_view()
             if view:
                 invite_sender_dialog = InviteSenderDialog(
-                    gateway, self.gui, view.get_selected_folders())
+                    gateway, self.gui, view.get_selected_folders()
+                )
             else:
                 invite_sender_dialog = InviteSenderDialog(gateway, self.gui)
             invite_sender_dialog.closed.connect(
-                self.active_invite_sender_dialogs.remove)
+                self.active_invite_sender_dialogs.remove
+            )
             invite_sender_dialog.show()
             self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
@@ -461,29 +491,33 @@ class MainWindow(QMainWindow):
             msg.setIcon(QMessageBox.Warning)
             informative_text = (
                 "One or more folders have not finished loading. If these "
-                "folders were recently added, you may need to add them again.")
+                "folders were recently added, you may need to add them again."
+            )
         elif folder_syncing:
             msg.setIcon(QMessageBox.Warning)
             informative_text = (
                 "One or more folders are currently syncing. If you quit, any "
                 "pending upload or download operations will be cancelled "
-                "until you launch {} again.".format(APP_NAME))
+                "until you launch {} again.".format(APP_NAME)
+            )
         else:
             msg.setIcon(QMessageBox.Question)
             informative_text = (
                 "If you quit, {} will stop synchronizing your folders until "
-                "you launch it again.".format(APP_NAME))
-        if sys.platform == 'darwin':
+                "you launch it again.".format(APP_NAME)
+            )
+        if sys.platform == "darwin":
             msg.setText("Are you sure you wish to quit?")
             msg.setInformativeText(informative_text)
         else:
             msg.setWindowTitle("Exit {}?".format(APP_NAME))
             msg.setText(
-                "Are you sure you wish to quit? {}".format(informative_text))
+                "Are you sure you wish to quit? {}".format(informative_text)
+            )
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setDefaultButton(QMessageBox.No)
         if msg.exec_() == QMessageBox.Yes:
-            if sys.platform == 'win32':
+            if sys.platform == "win32":
                 self.gui.systray.hide()
             reactor.stop()
 
@@ -491,16 +525,17 @@ class MainWindow(QMainWindow):
         key = event.key()
         if key in (Qt.Key_Backspace, Qt.Key_Delete):
             view = self.current_view()
-            selected = (view.selectedIndexes() if view else None)
+            selected = view.selectedIndexes() if view else None
             if selected:
                 view.confirm_stop_syncing(view.get_selected_folders())
         if key == Qt.Key_Escape:
             view = self.current_view()
-            selected = (view.selectedIndexes() if view else None)
+            selected = view.selectedIndexes() if view else None
             if selected:
                 for index in selected:
                     view.selectionModel().select(
-                        index, QItemSelectionModel.Deselect)
+                        index, QItemSelectionModel.Deselect
+                    )
             elif self.gui.systray.isSystemTrayAvailable():
                 self.hide()
 
@@ -516,4 +551,5 @@ class MainWindow(QMainWindow):
             gateway, title, message = self.pending_news_message
             self.pending_news_message = ()
             QTimer.singleShot(
-                0, lambda: self.show_news_message(gateway, title, message))
+                0, lambda: self.show_news_message(gateway, title, message)
+            )

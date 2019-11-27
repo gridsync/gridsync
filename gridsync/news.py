@@ -26,18 +26,19 @@ class NewscapChecker(QObject):
         self._started = False
         self.check_delay_min = 30
         self.check_delay_max = 60 * 60 * 24  # 24 hours
-        newscap_settings = settings.get('news:{}'.format(self.gateway.name))
+        newscap_settings = settings.get("news:{}".format(self.gateway.name))
         if newscap_settings:
-            check_delay_min = newscap_settings.get('check_delay_min')
+            check_delay_min = newscap_settings.get("check_delay_min")
             if check_delay_min:
                 self.check_delay_min = int(check_delay_min)
-            check_delay_max = newscap_settings.get('check_delay_max')
+            check_delay_max = newscap_settings.get("check_delay_max")
             if check_delay_max:
                 self.check_delay_max = int(check_delay_max)
         if self.check_delay_max < self.check_delay_min:
             self.check_delay_max = self.check_delay_min
         self._last_checked_path = os.path.join(
-            self.gateway.nodedir, 'private', 'newscap.last_checked')
+            self.gateway.nodedir, "private", "newscap.last_checked"
+        )
 
     @inlineCallbacks
     def _download_messages(self, downloads):
@@ -54,32 +55,33 @@ class NewscapChecker(QObject):
 
     @inlineCallbacks
     def _check_v1(self):
-        content = yield self.gateway.get_json(self.gateway.newscap + '/v1')
+        content = yield self.gateway.get_json(self.gateway.newscap + "/v1")
         if not content:
             return
 
         try:
-            children = content[1]['children']
+            children = content[1]["children"]
         except (IndexError, KeyError) as e:
             logging.warning("%s: '%s'", type(e).__name__, str(e))
             return
 
         messages_dirpath = os.path.join(
-            self.gateway.nodedir, 'private', 'newscap_messages')
+            self.gateway.nodedir, "private", "newscap_messages"
+        )
         if not os.path.isdir(messages_dirpath):
             os.makedirs(messages_dirpath)
 
         downloads = []
         for file, data in children.items():
             kind = data[0]
-            if kind != 'filenode':
+            if kind != "filenode":
                 logging.warning("'%s' is a '%s', not a filenode", file, kind)
                 continue
-            if sys.platform == 'win32':
-                file = file.replace(':', '_')
+            if sys.platform == "win32":
+                file = file.replace(":", "_")
             local_filepath = os.path.join(messages_dirpath, file)
             if not os.path.exists(local_filepath):
-                downloads.append((local_filepath, data[1]['ro_uri']))
+                downloads.append((local_filepath, data[1]["ro_uri"]))
         if downloads:
             yield self._download_messages(downloads)
 
@@ -93,22 +95,23 @@ class NewscapChecker(QObject):
         if not content:
             return
         try:
-            children = content[1]['children']
+            children = content[1]["children"]
         except (IndexError, KeyError) as e:
             logging.warning("%s: '%s'", type(e).__name__, str(e))
             return
-        if 'v2' in children:
+        if "v2" in children:
             self.upgrade_required.emit(self.gateway)
-        v1_data = children.get('v1')
+        v1_data = children.get("v1")
         if v1_data:
-            if v1_data[0] == 'dirnode':
+            if v1_data[0] == "dirnode":
                 yield self._check_v1()
             else:
                 logging.warning("'v1' is not a dirnode")
         else:
             logging.warning("No 'v1' object found in newscap")
         with atomic_write(
-                self._last_checked_path, mode='w', overwrite=True) as f:
+            self._last_checked_path, mode="w", overwrite=True
+        ) as f:
             f.write(str(int(time.time())))
 
     def _schedule_delayed_check(self, delay=None):
