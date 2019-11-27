@@ -567,7 +567,7 @@ def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
 def test_run_raise_upgrade_required_error():
     sr = SetupRunner([])
     with pytest.raises(UpgradeRequiredError):
-        yield sr.run({'version': 3})
+        yield sr.run({"version": 3})
 
 
 @inlineCallbacks
