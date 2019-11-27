@@ -8,8 +8,19 @@ import sys
 from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QTimer
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
-    QDialog, QFileIconProvider, QGridLayout, QGroupBox, QLabel, QMessageBox,
-    QProgressBar, QPushButton, QSizePolicy, QSpacerItem, QToolButton, QWidget)
+    QDialog,
+    QFileIconProvider,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QToolButton,
+    QWidget,
+)
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError
 import wormhole.errors
@@ -34,7 +45,7 @@ class InviteSenderDialog(QDialog):
         self.gateway = gateway
         self.gui = gui
         self.folder_names = folder_names
-        self.folder_names_humanized = humanized_list(folder_names, 'folders')
+        self.folder_names_humanized = humanized_list(folder_names, "folders")
         self.settings = {}
         self.pending_invites = []
         self.use_tor = self.gateway.use_tor
@@ -43,12 +54,17 @@ class InviteSenderDialog(QDialog):
 
         header_icon = QLabel(self)
         if self.folder_names:
-            icon = QFileIconProvider().icon(QFileInfo(
-                self.gateway.get_magic_folder_directory(self.folder_names[0])))
+            icon = QFileIconProvider().icon(
+                QFileInfo(
+                    self.gateway.get_magic_folder_directory(
+                        self.folder_names[0]
+                    )
+                )
+            )
         else:
-            icon = QIcon(os.path.join(gateway.nodedir, 'icon'))
+            icon = QIcon(os.path.join(gateway.nodedir, "icon"))
             if not icon.availableSizes():
-                icon = QIcon(resource('tahoe-lafs.png'))
+                icon = QIcon(resource("tahoe-lafs.png"))
         header_icon.setPixmap(icon.pixmap(50, 50))
 
         header_text = QLabel(self)
@@ -61,11 +77,13 @@ class InviteSenderDialog(QDialog):
 
         header_layout = QGridLayout()
         header_layout.addItem(
-            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1
+        )
         header_layout.addWidget(header_icon, 1, 2)
         header_layout.addWidget(header_text, 1, 3)
         header_layout.addItem(
-            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4
+        )
 
         self.subtext_label = QLabel(self)
         self.subtext_label.setFont(Font(10))
@@ -82,7 +100,8 @@ class InviteSenderDialog(QDialog):
 
         self.noise_timer = QTimer()
         self.noise_timer.timeout.connect(
-            lambda: self.noise_label.setText(b58encode(os.urandom(16))))
+            lambda: self.noise_label.setText(b58encode(os.urandom(16)))
+        )
         self.noise_timer.start(75)
 
         self.code_label = QLabel()
@@ -96,12 +115,12 @@ class InviteSenderDialog(QDialog):
 
         self.box = QGroupBox()
         self.box.setAlignment(Qt.AlignCenter)
-        self.box.setStyleSheet('QGroupBox {font-size: 16px}')
+        self.box.setStyleSheet("QGroupBox {font-size: 16px}")
 
         self.copy_button = QToolButton()
-        self.copy_button.setIcon(QIcon(resource('copy.png')))
+        self.copy_button.setIcon(QIcon(resource("copy.png")))
         self.copy_button.setToolTip("Copy to clipboard")
-        self.copy_button.setStyleSheet('border: 0px; padding: 0px;')
+        self.copy_button.setStyleSheet("border: 0px; padding: 0px;")
         self.copy_button.hide()
 
         box_layout = QGridLayout(self.box)
@@ -115,14 +134,15 @@ class InviteSenderDialog(QDialog):
         self.close_button.setAutoDefault(False)
 
         self.checkmark = QLabel()
-        self.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
+        self.checkmark.setPixmap(Pixmap("green_checkmark.png", 32))
         self.checkmark.setAlignment(Qt.AlignCenter)
         self.checkmark.hide()
 
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
-            "This connection is being routed through the Tor network.")
-        self.tor_label.setPixmap(Pixmap('tor-onion.png', 24))
+            "This connection is being routed through the Tor network."
+        )
+        self.tor_label.setPixmap(Pixmap("tor-onion.png", 24))
         self.tor_label.hide()
 
         self.progress_bar = QProgressBar()
@@ -142,7 +162,8 @@ class InviteSenderDialog(QDialog):
         layout.addWidget(self.box_title, 3, 2, 1, 3)
         layout.addWidget(self.checkmark, 3, 3)
         layout.addWidget(
-            self.tor_label, 4, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
+            self.tor_label, 4, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter
+        )
         layout.addWidget(self.box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addWidget(self.subtext_label, 5, 2, 1, 3)
@@ -159,13 +180,15 @@ class InviteSenderDialog(QDialog):
         if self.use_tor:
             self.tor_label.show()
             self.progress_bar.setStyleSheet(
-                'QProgressBar::chunk {{ background-color: {}; }}'.format(
-                    TOR_PURPLE))
+                "QProgressBar::chunk {{ background-color: {}; }}".format(
+                    TOR_PURPLE
+                )
+            )
 
         self.go()  # XXX
 
     def set_box_title(self, text):
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             self.box_title.setText(text)
             self.box_title.show()
         else:
@@ -176,7 +199,8 @@ class InviteSenderDialog(QDialog):
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
         self.subtext_label.setText(
-            "Copied '{}' to clipboard!\n\n".format(code))
+            "Copied '{}' to clipboard!\n\n".format(code)
+        )
 
     def on_got_code(self, code):
         self.noise_timer.stop()
@@ -188,19 +212,23 @@ class InviteSenderDialog(QDialog):
         if self.folder_names:
             if len(self.folder_names) == 1:
                 abilities = 'download "{}" and modify its contents'.format(
-                    self.folder_names[0])
+                    self.folder_names[0]
+                )
             else:
-                abilities = 'download {} and modify their contents'.format(
-                    self.folder_names_humanized)
+                abilities = "download {} and modify their contents".format(
+                    self.folder_names_humanized
+                )
         else:
             abilities = 'connect to "{}" and upload new folders'.format(
-                self.gateway.name)
+                self.gateway.name
+            )
         self.subtext_label.setText(
             "Entering this code on another device will allow it to {}.\n"
-            "This code can only be used once.".format(abilities))
+            "This code can only be used once.".format(abilities)
+        )
 
     def on_got_introduction(self):
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             self.box_title.hide()
         self.box.hide()
         self.progress_bar.show()
@@ -218,9 +246,12 @@ class InviteSenderDialog(QDialog):
         else:
             target = self.gateway.name
         text = "Your invitation to {} was accepted".format(target)
-        self.subtext_label.setText("Invite successful!\n {} at {}".format(
-            text, datetime.now().strftime('%H:%M')))
-        if get_preference('notifications', 'invite') != 'false':
+        self.subtext_label.setText(
+            "Invite successful!\n {} at {}".format(
+                text, datetime.now().strftime("%H:%M")
+            )
+        )
+        if get_preference("notifications", "invite") != "false":
             self.gui.show_message("Invite successful", text)
 
         if self.folder_names:
@@ -249,7 +280,8 @@ class InviteSenderDialog(QDialog):
         self.invite_sender.got_introduction.connect(self.on_got_introduction)
         self.invite_sender.send_completed.connect(self.on_send_completed)
         self.invite_sender.send(self.gateway, self.folder_names).addErrback(
-            self.handle_failure)
+            self.handle_failure
+        )
 
     def closeEvent(self, event):
         if self.code_label.text() and self.progress_bar.value() < 2:
@@ -257,11 +289,15 @@ class InviteSenderDialog(QDialog):
             msg.setIcon(QMessageBox.Question)
             msg.setWindowTitle("Cancel invitation?")
             msg.setText(
-                'Are you sure you wish to cancel the invitation to "{}"?'
-                .format(self.gateway.name))
+                'Are you sure you wish to cancel the invitation to "{}"?'.format(
+                    self.gateway.name
+                )
+            )
             msg.setInformativeText(
                 'The invite code "{}" will no longer be valid.'.format(
-                    self.code_label.text()))
+                    self.code_label.text()
+                )
+            )
             msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             msg.setDefaultButton(QMessageBox.No)
             if msg.exec_() == QMessageBox.Yes:
@@ -296,12 +332,12 @@ class InviteReceiverDialog(QDialog):
         self.mail_closed_icon = QLabel()
         self.mail_closed_icon.setAlignment(Qt.AlignCenter)
         self.mail_closed_icon.setPixmap(
-            Pixmap('mail-envelope-closed.png', 128)
+            Pixmap("mail-envelope-closed.png", 128)
         )
 
         self.mail_open_icon = QLabel()
         self.mail_open_icon.setAlignment(Qt.AlignCenter)
-        self.mail_open_icon.setPixmap(Pixmap('mail-envelope-open.png', 128))
+        self.mail_open_icon.setPixmap(Pixmap("mail-envelope-open.png", 128))
 
         self.folder_icon = QLabel()
         icon = QFileIconProvider().icon(QFileInfo(config_dir))
@@ -313,19 +349,20 @@ class InviteReceiverDialog(QDialog):
 
         self.tor_label = QLabel()
         self.tor_label.setToolTip(
-            "This connection is being routed through the Tor network.")
-        self.tor_label.setPixmap(Pixmap('tor-onion.png', 24))
+            "This connection is being routed through the Tor network."
+        )
+        self.tor_label.setPixmap(Pixmap("tor-onion.png", 24))
 
         self.checkmark = QLabel()
         self.checkmark.setAlignment(Qt.AlignCenter)
-        self.checkmark.setPixmap(Pixmap('green_checkmark.png', 32))
+        self.checkmark.setPixmap(Pixmap("green_checkmark.png", 32))
 
         self.progressbar = QProgressBar(self)
         self.progressbar.setValue(0)
         self.progressbar.setMaximum(6)  # XXX
         self.progressbar.setTextVisible(False)
 
-        self.message_label = QLabel(' ')
+        self.message_label = QLabel(" ")
         self.message_label.setStyleSheet("color: grey")
         self.message_label.setAlignment(Qt.AlignCenter)
 
@@ -349,7 +386,8 @@ class InviteReceiverDialog(QDialog):
         layout.addWidget(self.invite_code_widget, 2, 2, 1, 3)
         layout.addWidget(self.checkmark, 2, 3, 1, 1)
         layout.addWidget(
-            self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
+            self.tor_label, 3, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter
+        )
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
         layout.addWidget(self.message_label, 5, 1, 1, 5)
         layout.addWidget(self.error_label, 5, 2, 1, 3)
@@ -363,12 +401,12 @@ class InviteReceiverDialog(QDialog):
         self.folder_icon.hide()
         self.mail_closed_icon.show()
         self.progressbar.hide()
-        self.error_label.setText('')
+        self.error_label.setText("")
         self.error_label.hide()
         self.close_button.hide()
         self.tor_label.hide()
         self.checkmark.hide()
-        self.progressbar.setStyleSheet('')
+        self.progressbar.setStyleSheet("")
 
     def show_error(self, text):
         self.error_label.setText(text)
@@ -405,19 +443,21 @@ class InviteReceiverDialog(QDialog):
             target = self.joined_folders[0]
             self.message_label.setText(
                 'Successfully joined folder "{0}"!\n"{0}" is now available '
-                'for download'.format(target))
+                "for download".format(target)
+            )
         elif self.joined_folders:
-            target = humanized_list(self.joined_folders, 'folders')
+            target = humanized_list(self.joined_folders, "folders")
             self.message_label.setText(
-                'Successfully joined {0}!\n{0} are now available for '
-                'download'.format(target))
+                "Successfully joined {0}!\n{0} are now available for "
+                "download".format(target)
+            )
         self.close()  # TODO: Cleanup
 
     def on_grid_already_joined(self, grid_name):
         QMessageBox.information(
             self,
             "Already connected",
-            'You are already connected to "{}"'.format(grid_name)
+            'You are already connected to "{}"'.format(grid_name),
         )
         self.close()
 
@@ -442,8 +482,10 @@ class InviteReceiverDialog(QDialog):
             use_tor = True
             self.tor_label.show()
             self.progressbar.setStyleSheet(
-                'QProgressBar::chunk {{ background-color: {}; }}'.format(
-                    TOR_PURPLE))
+                "QProgressBar::chunk {{ background-color: {}; }}".format(
+                    TOR_PURPLE
+                )
+            )
         else:
             use_tor = False
         self.update_progress("Verifying invitation...")  # 1
@@ -451,7 +493,8 @@ class InviteReceiverDialog(QDialog):
         self.invite_receiver.got_welcome.connect(self.got_welcome)
         self.invite_receiver.got_message.connect(self.got_message)
         self.invite_receiver.grid_already_joined.connect(
-            self.on_grid_already_joined)
+            self.on_grid_already_joined
+        )
         self.invite_receiver.update_progress.connect(self.update_progress)
         self.invite_receiver.got_icon.connect(self.on_got_icon)
         self.invite_receiver.joined_folders.connect(self.set_joined_folders)

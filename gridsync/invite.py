@@ -6,6 +6,7 @@ import os
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtCore import QObject
 from twisted.internet.defer import DeferredList, inlineCallbacks
+
 try:
     from wormhole.wordlist import raw_words
 except ImportError:  # TODO: Switch to new magic-wormhole completion API?
@@ -19,8 +20,8 @@ from gridsync.wormhole_ import Wormhole
 
 cheatcodes = []
 try:
-    for file in os.listdir(os.path.join(pkgdir, 'resources', 'providers')):
-        cheatcodes.append(file.split('.')[0].lower())
+    for file in os.listdir(os.path.join(pkgdir, "resources", "providers")):
+        cheatcodes.append(file.split(".")[0].lower())
 except OSError:
     pass
 
@@ -29,12 +30,12 @@ wordlist = []  # type: list
 for word in raw_words.items():
     wordlist.extend(word[1])
 for c in cheatcodes:
-    wordlist.extend(c.split('-'))
+    wordlist.extend(c.split("-"))
 wordlist = sorted([word.lower() for word in wordlist])
 
 
 def load_settings_from_cheatcode(cheatcode):
-    path = os.path.join(pkgdir, 'resources', 'providers', cheatcode + '.json')
+    path = os.path.join(pkgdir, "resources", "providers", cheatcode + ".json")
     try:
         with open(path) as f:
             return json.loads(f.read())
@@ -43,7 +44,7 @@ def load_settings_from_cheatcode(cheatcode):
 
 
 def is_valid_code(code):
-    words = code.split('-')
+    words = code.split("-")
     if len(words) != 3:
         return False
     if not words[0].isdigit():
@@ -52,7 +53,7 @@ def is_valid_code(code):
         return False
     if not words[2] in wordlist:
         return False
-    if words[0] == '0' and '-'.join(words[1:3]) not in cheatcodes:
+    if words[0] == "0" and "-".join(words[1:3]) not in cheatcodes:
         return False
     return True
 
@@ -61,7 +62,7 @@ class InviteReceiver(QObject):
 
     # Wormhole
     got_welcome = Signal(dict)
-    #got_code = Signal(str)
+    # got_code = Signal(str)
     got_introduction = Signal()
     got_message = Signal(dict)
     closed = Signal()
@@ -81,7 +82,8 @@ class InviteReceiver(QObject):
 
         self.setup_runner = SetupRunner(known_gateways, use_tor)
         self.setup_runner.grid_already_joined.connect(
-            self.grid_already_joined.emit)
+            self.grid_already_joined.emit
+        )
         self.setup_runner.update_progress.connect(self.update_progress.emit)
         self.setup_runner.got_icon.connect(self.got_icon.emit)
         self.setup_runner.client_started.connect(self.client_started.emit)
@@ -100,7 +102,8 @@ class InviteReceiver(QObject):
     @inlineCallbacks
     def _run_setup(self, settings, from_wormhole):
         settings = validate_settings(
-            settings, self.known_gateways, None, from_wormhole)
+            settings, self.known_gateways, None, from_wormhole
+        )
         yield self.setup_runner.run(settings)
 
     @inlineCallbacks
@@ -108,7 +111,7 @@ class InviteReceiver(QObject):
         # TODO: Calculate/emit total steps
         if settings:
             yield self._run_setup(settings, from_wormhole=False)
-        elif code.split('-')[0] == '0':
+        elif code.split("-")[0] == "0":
             settings = load_settings_from_cheatcode(code[2:])
             if settings:
                 yield self._run_setup(settings, from_wormhole=False)
@@ -165,7 +168,7 @@ class InviteSender(QObject):
         for success, result in results:
             if success:
                 folder, member_id, code = result
-                folders_data[folder] = {'code': code}
+                folders_data[folder] = {"code": code}
                 self._pending_invites.append((folder, member_id))
             else:  # Failure
                 raise result.type(result.value)
@@ -177,6 +180,6 @@ class InviteSender(QObject):
         if folders:
             self._gateway = gateway
             folders_data = yield self._get_folder_invites(gateway, folders)
-            settings['magic-folders'] = folders_data
+            settings["magic-folders"] = folders_data
         self.created_invite.emit()
         yield self.wormhole.send(settings)

@@ -17,8 +17,8 @@ from gridsync import settings
 from gridsync.errors import UpgradeRequiredError, TorError
 
 
-APPID = settings['wormhole']['appid']
-RELAY = settings['wormhole']['relay']
+APPID = settings["wormhole"]["appid"]
+RELAY = settings["wormhole"]["relay"]
 
 
 class Wormhole(QObject):
@@ -70,27 +70,28 @@ class Wormhole(QObject):
         logging.debug("Using code: %s (APPID is '%s')", code, APPID)
 
         client_intro = {"abilities": {"client-v1": {}}}
-        self._wormhole.send_message(json.dumps(client_intro).encode('utf-8'))
+        self._wormhole.send_message(json.dumps(client_intro).encode("utf-8"))
 
         data = yield self._wormhole.get_message()
-        data = json.loads(data.decode('utf-8'))
-        offer = data.get('offer', None)
+        data = json.loads(data.decode("utf-8"))
+        offer = data.get("offer", None)
         if offer:
             logging.warning(
                 "The message-sender appears to be using the older, "
-                "'xfer_util'-based version of the invite protocol.")
+                "'xfer_util'-based version of the invite protocol."
+            )
             msg = None
-            if 'message' in offer:
-                msg = json.loads(offer['message'])
-                ack = {'answer': {'message_ack': 'ok'}}
-                self._wormhole.send_message(json.dumps(ack).encode('utf-8'))
+            if "message" in offer:
+                msg = json.loads(offer["message"])
+                ack = {"answer": {"message_ack": "ok"}}
+                self._wormhole.send_message(json.dumps(ack).encode("utf-8"))
             else:
                 raise Exception("Unknown offer type: {}".format(offer.keys()))
         else:
             logging.debug("Received server introduction: %s", data)
-            if 'abilities' not in data:
+            if "abilities" not in data:
                 raise UpgradeRequiredError
-            if 'server-v1' not in data['abilities']:
+            if "server-v1" not in data["abilities"]:
                 raise UpgradeRequiredError
             self.got_introduction.emit()
 
@@ -115,19 +116,19 @@ class Wormhole(QObject):
         logging.debug("Using code: %s (APPID is '%s')", code, APPID)
 
         server_intro = {"abilities": {"server-v1": {}}}
-        self._wormhole.send_message(json.dumps(server_intro).encode('utf-8'))
+        self._wormhole.send_message(json.dumps(server_intro).encode("utf-8"))
 
         data = yield self._wormhole.get_message()
-        data = json.loads(data.decode('utf-8'))
+        data = json.loads(data.decode("utf-8"))
         logging.debug("Received client introduction: %s", data)
-        if 'abilities' not in data:
+        if "abilities" not in data:
             raise UpgradeRequiredError
-        if 'client-v1' not in data['abilities']:
+        if "client-v1" not in data["abilities"]:
             raise UpgradeRequiredError
         self.got_introduction.emit()
 
         logging.debug("Sending wormhole message...")
-        self._wormhole.send_message(json.dumps(msg).encode('utf-8'))
+        self._wormhole.send_message(json.dumps(msg).encode("utf-8"))
         yield self.close()
         self.send_completed.emit()
 

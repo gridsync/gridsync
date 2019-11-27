@@ -35,7 +35,7 @@ class RecoveryKeyExporter(QObject):
     def _on_encryption_succeeded(self, ciphertext):
         self.crypter_thread.quit()
         if self.filepath:
-            with atomic_write(self.filepath, mode='wb', overwrite=True) as f:
+            with atomic_write(self.filepath, mode="wb", overwrite=True) as f:
                 f.write(ciphertext)
             self.done.emit(self.filepath)
             self.filepath = None
@@ -46,11 +46,11 @@ class RecoveryKeyExporter(QObject):
     def _export_encrypted_recovery(self, gateway, password):
         settings = gateway.get_settings(include_rootcap=True)
         if gateway.use_tor:
-            settings['hide-ip'] = True
+            settings["hide-ip"] = True
         data = json.dumps(settings)
         self.progress = QProgressDialog("Encrypting...", None, 0, 100)
         self.progress.show()
-        self.animation = QPropertyAnimation(self.progress, b'value')
+        self.animation = QPropertyAnimation(self.progress, b"value")
         self.animation.setDuration(6000)  # XXX
         self.animation.setStartValue(0)
         self.animation.setEndValue(99)
@@ -67,13 +67,17 @@ class RecoveryKeyExporter(QObject):
         self.crypter_thread.started.connect(self.crypter.encrypt)
         self.crypter_thread.start()
         dest, _ = QFileDialog.getSaveFileName(
-            self.parent, "Select a destination", os.path.join(
-                os.path.expanduser('~'),
-                gateway.name + ' Recovery Key.json.encrypted'))
+            self.parent,
+            "Select a destination",
+            os.path.join(
+                os.path.expanduser("~"),
+                gateway.name + " Recovery Key.json.encrypted",
+            ),
+        )
         if not dest:
             return
         if self.ciphertext:
-            with atomic_write(dest, mode='wb', overwrite=True) as f:
+            with atomic_write(dest, mode="wb", overwrite=True) as f:
                 f.write(self.ciphertext)
             self.done.emit(dest)
             self.ciphertext = None
@@ -85,8 +89,9 @@ class RecoveryKeyExporter(QObject):
             self.parent,
             "Select a destination",
             os.path.join(
-                os.path.expanduser('~'),
-                gateway.name + ' Recovery Key.json'))
+                os.path.expanduser("~"), gateway.name + " Recovery Key.json"
+            ),
+        )
         if not dest:
             return
         try:
@@ -101,7 +106,7 @@ class RecoveryKeyExporter(QObject):
             self.parent,
             "Encryption passphrase (optional):",
             "A long passphrase will help keep your files safe in the event "
-            "that your Recovery Key is ever compromised."
+            "that your Recovery Key is ever compromised.",
         )
         if ok and password:
             self._export_encrypted_recovery(gateway, password)
@@ -131,7 +136,7 @@ class RecoveryKeyImporter(QObject):
             self.parent,
             "Decryption Error",
             msg,
-            QMessageBox.Abort | QMessageBox.Retry
+            QMessageBox.Abort | QMessageBox.Retry,
         )
         self.crypter_thread.wait()
         if reply == QMessageBox.Retry:
@@ -141,7 +146,7 @@ class RecoveryKeyImporter(QObject):
         logging.debug("Decryption of %s succeeded", self.filepath)
         self.crypter_thread.quit()
         try:
-            settings = json.loads(plaintext.decode('utf-8'))
+            settings = json.loads(plaintext.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError) as e:
             error(self, type(e).__name__, str(e))
             return
@@ -154,10 +159,10 @@ class RecoveryKeyImporter(QObject):
             "Trying to decrypt {}...".format(os.path.basename(self.filepath)),
             None,
             0,
-            100
+            100,
         )
         self.progress.show()
-        self.animation = QPropertyAnimation(self.progress, b'value')
+        self.animation = QPropertyAnimation(self.progress, b"value")
         self.animation.setDuration(6000)  # XXX
         self.animation.setStartValue(0)
         self.animation.setEndValue(99)
@@ -176,16 +181,17 @@ class RecoveryKeyImporter(QObject):
 
     def _parse_content(self, content):
         try:
-            settings = json.loads(content.decode('utf-8'))
+            settings = json.loads(content.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError):
             logging.debug(
-                "JSON decoding failed; %s is likely encrypted", self.filepath)
+                "JSON decoding failed; %s is likely encrypted", self.filepath
+            )
             password, ok = PasswordDialog.get_password(
                 self.parent,
                 "Decryption passphrase (required):",
                 "This Recovery Key is protected by a passphrase. Enter the "
                 "correct passphrase to decrypt it.",
-                show_stats=False
+                show_stats=False,
             )
             if ok:
                 self._decrypt_content(content, password)
@@ -195,7 +201,7 @@ class RecoveryKeyImporter(QObject):
     def _load_from_file(self, path):
         logging.debug("Loading %s...", self.filepath)
         try:
-            with open(path, 'rb') as f:
+            with open(path, "rb") as f:
                 content = f.read()
         except Exception as e:  # pylint: disable=broad-except
             error(self, type(e).__name__, str(e))
@@ -204,7 +210,7 @@ class RecoveryKeyImporter(QObject):
 
     def _select_file(self):
         dialog = QFileDialog(self.parent, "Select a Recovery Key")
-        dialog.setDirectory(os.path.expanduser('~'))
+        dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_():
             return dialog.selectedFiles()[0]

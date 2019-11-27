@@ -26,7 +26,7 @@ class Model(QStandardItemModel):
         self.monitor = self.gateway.monitor
         self.status_dict = {}
         self.members_dict = {}
-        self.grid_status = ''
+        self.grid_status = ""
         self.available_space = 0
         self.setHeaderData(0, Qt.Horizontal, "Name")
         self.setHeaderData(1, Qt.Horizontal, "Status")
@@ -35,14 +35,15 @@ class Model(QStandardItemModel):
         self.setHeaderData(4, Qt.Horizontal, "")
 
         self.icon_blank = QIcon()
-        self.icon_up_to_date = QIcon(resource('checkmark.png'))
-        self.icon_user = QIcon(resource('user.png'))
+        self.icon_up_to_date = QIcon(resource("checkmark.png"))
+        self.icon_user = QIcon(resource("user.png"))
         self.icon_folder = QFileIconProvider().icon(QFileInfo(config_dir))
         composite_pixmap = CompositePixmap(
-            self.icon_folder.pixmap(256, 256), overlay=None, grayout=True)
+            self.icon_folder.pixmap(256, 256), overlay=None, grayout=True
+        )
         self.icon_folder_gray = QIcon(composite_pixmap)
-        self.icon_cloud = QIcon(resource('cloud-icon.png'))
-        self.icon_action = QIcon(resource('dots-horizontal-triple.png'))
+        self.icon_cloud = QIcon(resource("cloud-icon.png"))
+        self.icon_action = QIcon(resource("dots-horizontal-triple.png"))
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
@@ -58,7 +59,8 @@ class Model(QStandardItemModel):
         self.monitor.check_finished.connect(self.update_natural_times)
         self.monitor.remote_folder_added.connect(self.add_remote_folder)
         self.monitor.transfer_progress_updated.connect(
-            self.set_transfer_progress)
+            self.set_transfer_progress
+        )
 
     def on_space_updated(self, size):
         self.available_space = size
@@ -69,40 +71,41 @@ class Model(QStandardItemModel):
             self.grid_status = "Connecting ({}/{} nodes){}".format(
                 num_connected,
                 num_happy,
-                (" via Tor..." if self.gateway.use_tor else "...")
+                (" via Tor..." if self.gateway.use_tor else "..."),
             )
         elif num_connected >= num_happy:
             self.grid_status = "Connected to {} {}{} {} available".format(
                 num_connected,
-                'storage ' + ('node' if num_connected == 1 else 'nodes'),
+                "storage " + ("node" if num_connected == 1 else "nodes"),
                 (" via Tor;" if self.gateway.use_tor else ";"),
-                naturalsize(self.available_space)
+                naturalsize(self.available_space),
             )
         self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
 
     @pyqtSlot()
     def on_connected(self):
-        if get_preference('notifications', 'connection') == 'true':
+        if get_preference("notifications", "connection") == "true":
             self.gui.show_message(
-                self.gateway.name, "Connected to {}".format(self.gateway.name))
+                self.gateway.name, "Connected to {}".format(self.gateway.name)
+            )
 
     @pyqtSlot()
     def on_disconnected(self):
-        if get_preference('notifications', 'connection') == 'true':
+        if get_preference("notifications", "connection") == "true":
             self.gui.show_message(
                 self.gateway.name,
-                "Disconnected from {}".format(self.gateway.name)
+                "Disconnected from {}".format(self.gateway.name),
             )
 
     @pyqtSlot(str, list, str, str)
     def on_updated_files(self, folder_name, files_list, action, author):
-        if get_preference('notifications', 'folder') != 'false':
+        if get_preference("notifications", "folder") != "false":
             self.gui.show_message(
                 folder_name + " folder updated",
                 "{} {}".format(
                     author + " " + action if author else action.capitalize(),
-                    humanized_list(files_list)
-                )
+                    humanized_list(files_list),
+                ),
             )
 
     def data(self, index, role):
@@ -115,7 +118,8 @@ class Model(QStandardItemModel):
         basename = os.path.basename(os.path.normpath(path))
         if self.findItems(basename):
             logging.warning(
-                "Tried to add a folder (%s) that already exists", basename)
+                "Tried to add a folder (%s) that already exists", basename
+            )
             return
         composite_pixmap = CompositePixmap(self.icon_folder.pixmap(256, 256))
         name = QStandardItem(QIcon(composite_pixmap), basename)
@@ -127,10 +131,10 @@ class Model(QStandardItemModel):
         self.appendRow([name, status, mtime, size, action])
         action_bar = QToolBar()
         action_bar.setIconSize(QSize(16, 16))
-        if sys.platform == 'darwin':
+        if sys.platform == "darwin":
             # See: https://bugreports.qt.io/browse/QTBUG-12717
             action_bar.setStyleSheet(
-                'background-color: {0}; border: 0px {0}'.format(
+                "background-color: {0}; border: 0px {0}".format(
                     self.view.palette().base().color().name()
                 )
             )
@@ -150,7 +154,7 @@ class Model(QStandardItemModel):
 
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
-            self.add_folder(magic_folder['directory'])
+            self.add_folder(magic_folder["directory"])
 
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
         items = self.findItems(folder_name)
@@ -168,27 +172,33 @@ class Model(QStandardItemModel):
 
     def set_status_private(self, folder_name):
         self.update_folder_icon(
-            folder_name, self.gateway.get_magic_folder_directory(folder_name))
+            folder_name, self.gateway.get_magic_folder_directory(folder_name)
+        )
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
                 "{}\n\nThis folder is private; only you can view and\nmodify "
                 "its contents.".format(
                     self.gateway.get_magic_folder_directory(folder_name)
-                    or folder_name + " (Stored remotely)"))
+                    or folder_name + " (Stored remotely)"
+                )
+            )
 
     def set_status_shared(self, folder_name):
         self.update_folder_icon(
             folder_name,
             self.gateway.get_magic_folder_directory(folder_name),
-            'laptop.png')
+            "laptop.png",
+        )
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
                 "{}\n\nAt least one other device can view and modify\n"
                 "this folder's contents.".format(
                     self.gateway.get_magic_folder_directory(folder_name)
-                    or folder_name + " (Stored remotely)"))
+                    or folder_name + " (Stored remotely)"
+                )
+            )
 
     def update_overlay(self, folder_name):
         members = self.members_dict.get(folder_name)
@@ -216,14 +226,16 @@ class Model(QStandardItemModel):
             item.setText("Syncing")
             item.setToolTip(
                 "This folder is syncing. New files are being uploaded or "
-                "downloaded.")
+                "downloaded."
+            )
         elif status == 2:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
             item.setToolTip(
-                'This folder is up to date. The contents of this folder on\n'
-                'your computer matches the contents of the folder on the\n'
-                '"{}" grid.'.format(self.gateway.name))
+                "This folder is up to date. The contents of this folder on\n"
+                "your computer matches the contents of the folder on the\n"
+                '"{}" grid.'.format(self.gateway.name)
+            )
             self.update_overlay(name)
             self.unfade_row(name)
         elif status == 3:
@@ -232,12 +244,12 @@ class Model(QStandardItemModel):
             item.setToolTip(
                 'This folder is stored remotely on the "{}" grid.\n'
                 'Right-click and select "Download" to sync it with your '
-                'local computer.'.format(self.gateway.name))
+                "local computer.".format(self.gateway.name)
+            )
         elif status == 99:
             item.setIcon(self.icon_blank)
             item.setText("Scanning")
-            item.setToolTip(
-                "This folder is being scanned for changes.")
+            item.setToolTip("This folder is being scanned for changes.")
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
@@ -283,7 +295,7 @@ class Model(QStandardItemModel):
             font = item.font()
             font.setItalic(True)
             item.setFont(font)
-            item.setForeground(QColor('gray'))
+            item.setForeground(QColor("gray"))
 
     def unfade_row(self, folder_name):
         folder_item = self.findItems(folder_name)[0]
@@ -316,7 +328,8 @@ class Model(QStandardItemModel):
             item = self.item(items[0].row(), 2)
             item.setData(mtime, Qt.UserRole)
             item.setText(
-                naturaltime(datetime.now() - datetime.fromtimestamp(mtime)))
+                naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
+            )
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
     @pyqtSlot(str, object)
@@ -334,7 +347,8 @@ class Model(QStandardItemModel):
             data = item.data(Qt.UserRole)
             if data:
                 item.setText(
-                    naturaltime(datetime.now() - datetime.fromtimestamp(data)))
+                    naturaltime(datetime.now() - datetime.fromtimestamp(data))
+                )
 
     @pyqtSlot(str, str)
     def add_remote_folder(self, folder_name, overlay_file=None):

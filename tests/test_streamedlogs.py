@@ -8,7 +8,6 @@ from pytest_twisted import inlineCallbacks
 from autobahn.twisted.websocket import (
     WebSocketServerFactory,
     WebSocketServerProtocol,
-
 )
 
 from twisted.internet.defer import Deferred
@@ -42,10 +41,13 @@ def test_connect_to_nodeurl(reactor, tahoe):
 
 def fake_log_server(protocol):
     from twisted.internet import reactor
+
     while True:
         port_number = randrange(10000, 60000)
         # Why do you make me know the port number in advance, Autobahn?
-        factory = WebSocketServerFactory(u"ws://127.0.0.1:{}".format(port_number))
+        factory = WebSocketServerFactory(
+            "ws://127.0.0.1:{}".format(port_number)
+        )
         factory.protocol = protocol
 
         try:
@@ -65,8 +67,7 @@ class FakeLogServerProtocol(WebSocketServerProtocol):
 
     def onOpen(self):
         self.sendMessage(
-            self.FAKE_MESSAGE.encode("utf-8"),
-            isBinary=False,
+            self.FAKE_MESSAGE.encode("utf-8"), isBinary=False,
         )
 
 
@@ -74,6 +75,7 @@ def twlog():
     from sys import stdout
     from twisted.logger import globalLogBeginner
     from twisted.logger import textFileLogObserver
+
     globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
 
 
@@ -104,7 +106,9 @@ def test_collect_eliot_logs(reactor, tahoe):
     """
     from twisted.internet import reactor as real_reactor
 
-    yield connect_to_log_endpoint(reactor, tahoe, real_reactor, FakeLogServerProtocol)
+    yield connect_to_log_endpoint(
+        reactor, tahoe, real_reactor, FakeLogServerProtocol
+    )
 
     # Arbitrarily give it about a second to deliver the message.  All the I/O
     # is loopback and the data is small.  One second should be plenty of time.
@@ -126,22 +130,17 @@ def test_bounded_streamed_log_buffer(reactor, tahoe):
     maxlen = 3
     streamedlogs = StreamedLogs(reactor, maxlen=maxlen)
     for i in range(maxlen + 1):
-        streamedlogs.add_message(u"{}".format(i).encode("ascii"))
+        streamedlogs.add_message("{}".format(i).encode("ascii"))
 
     actual = streamedlogs.get_streamed_log_messages()
-    expected = list(
-        u"{}".format(i)
-        for i
-        in range(1, maxlen + 1)
-    )
+    expected = list("{}".format(i) for i in range(1, maxlen + 1))
     assert actual == expected
 
 
 class BinaryMessageServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
         self.sendMessage(
-            b"this is a binary message",
-            isBinary=True,
+            b"this is a binary message", isBinary=True,
         )
         self.transport.loseConnection()
 
@@ -153,10 +152,7 @@ def test_binary_messages_dropped(reactor, tahoe):
     server = BinaryMessageServerProtocol()
 
     client = yield connect_to_log_endpoint(
-        reactor,
-        tahoe,
-        real_reactor,
-        lambda: server,
+        reactor, tahoe, real_reactor, lambda: server,
     )
     # client is a _WrappingProtocol because the implementation uses
     # TCP4ClientEndpoint which puts a _WrappingFactory into the reactor.  Then
@@ -196,7 +192,9 @@ def test_reconnect_to_websocket(reactor, tahoe):
     # instead of a Mock reactor.
     from twisted.internet import reactor as real_reactor
 
-    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor, FakeLogServerProtocol)
+    client_protocol = yield connect_to_log_endpoint(
+        reactor, tahoe, real_reactor, FakeLogServerProtocol
+    )
     client_protocol.transport.abortConnection()
 
     # Let the reactor process the disconnect.
@@ -218,7 +216,9 @@ def test_stop(reactor, tahoe):
     """
     from twisted.internet import reactor as real_reactor
 
-    client_protocol = yield connect_to_log_endpoint(reactor, tahoe, real_reactor, FakeLogServerProtocol)
+    client_protocol = yield connect_to_log_endpoint(
+        reactor, tahoe, real_reactor, FakeLogServerProtocol
+    )
     tahoe.streamedlogs.stop()
     client_protocol.transport.abortConnection()
 
@@ -245,10 +245,7 @@ def test_path(reactor, tahoe):
             path.callback(request.path)
 
     yield connect_to_log_endpoint(
-        reactor,
-        tahoe,
-        real_reactor,
-        PathCheckingProtocol,
+        reactor, tahoe, real_reactor, PathCheckingProtocol,
     )
     p = yield path
     assert p == "/private/logs/v1"
@@ -272,10 +269,7 @@ def test_authentication(reactor, tahoe):
             headers.callback(request.headers)
 
     yield connect_to_log_endpoint(
-        reactor,
-        tahoe,
-        real_reactor,
-        AuthorizationCheckingProtocol,
+        reactor, tahoe, real_reactor, AuthorizationCheckingProtocol,
     )
     h = yield headers
     assert h.get("authorization", None) == "tahoe-lafs {}".format(api_token), h

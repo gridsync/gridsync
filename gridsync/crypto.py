@@ -20,14 +20,14 @@ class VersionError(CryptoError):
 
 
 def encrypt(message, password):
-    version = b'1'
+    version = b"1"
     salt = random(argon2id.SALTBYTES)  # 16
     key = argon2id.kdf(
         SecretBox.KEY_SIZE,  # 32
         password,
         salt,
         opslimit=argon2id.OPSLIMIT_SENSITIVE,  # 4
-        memlimit=argon2id.MEMLIMIT_SENSITIVE   # 1073741824
+        memlimit=argon2id.MEMLIMIT_SENSITIVE,  # 1073741824
     )
     box = SecretBox(key)
     encrypted = box.encrypt(message)
@@ -37,15 +37,15 @@ def encrypt(message, password):
 def decrypt(ciphertext, password):
     version = ciphertext[:1]
     ciphertext = b58decode(ciphertext[1:].decode())
-    if version == b'1':
-        salt = ciphertext[:argon2id.SALTBYTES]  # 16
-        encrypted = ciphertext[argon2id.SALTBYTES:]
+    if version == b"1":
+        salt = ciphertext[: argon2id.SALTBYTES]  # 16
+        encrypted = ciphertext[argon2id.SALTBYTES :]
         key = argon2id.kdf(
             SecretBox.KEY_SIZE,  # 32
             password,
             salt,
             opslimit=argon2id.OPSLIMIT_SENSITIVE,  # 4
-            memlimit=argon2id.MEMLIMIT_SENSITIVE   # 1073741824
+            memlimit=argon2id.MEMLIMIT_SENSITIVE,  # 1073741824
         )
     else:
         raise VersionError("Invalid version byte; received {}".format(version))

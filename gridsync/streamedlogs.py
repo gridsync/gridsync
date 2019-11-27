@@ -20,7 +20,9 @@ from autobahn.twisted.websocket import (
 )
 
 
-class TahoeLogReader(WebSocketClientProtocol):  # pylint: disable=too-many-ancestors
+class TahoeLogReader(
+    WebSocketClientProtocol
+):  # pylint: disable=too-many-ancestors
     def onMessage(self, payload, isBinary):
         if isBinary:
             logging.warning(
@@ -38,6 +40,7 @@ class StreamedLogs(MultiService):
 
     :ivar deque _buffer: Bounded storage for the streamed messages.
     """
+
     _started = False
 
     def __init__(self, reactor, maxlen=None):
@@ -62,7 +65,9 @@ class StreamedLogs(MultiService):
         :param str api_token: The secret Tahoe-LAFS API token.
         """
         if not self.running:
-            self._client_service = self._create_client_service(nodeurl, api_token)
+            self._client_service = self._create_client_service(
+                nodeurl, api_token
+            )
             self._client_service.setServiceParent(self)
             return super().startService()
         return None
@@ -87,8 +92,8 @@ class StreamedLogs(MultiService):
         factory = WebSocketClientFactory(
             url=wsurl.to_uri().to_text(),
             headers={
-                "Authorization": "{} {}".format('tahoe-lafs', api_token),
-            }
+                "Authorization": "{} {}".format("tahoe-lafs", api_token),
+            },
         )
         factory.protocol = TahoeLogReader
         factory.streamedlogs = self

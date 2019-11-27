@@ -5,12 +5,23 @@ import os
 import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
-from PyQt5.QtGui import (
-    QColor, QCursor, QIcon, QMovie, QPainter, QPen, QPixmap)
+from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen, QPixmap
 from PyQt5.QtWidgets import (
-    QAbstractItemView, QAction, QCheckBox, QFileDialog, QGridLayout,
-    QHeaderView, QLabel, QMenu, QMessageBox, QPushButton, QSizePolicy,
-    QSpacerItem, QStyledItemDelegate, QTreeView)
+    QAbstractItemView,
+    QAction,
+    QCheckBox,
+    QFileDialog,
+    QGridLayout,
+    QHeaderView,
+    QLabel,
+    QMenu,
+    QMessageBox,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QStyledItemDelegate,
+    QTreeView,
+)
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
@@ -26,10 +37,10 @@ class Delegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super(Delegate, self).__init__(parent=None)
         self.parent = parent
-        self.waiting_movie = QMovie(resource('waiting.gif'))
+        self.waiting_movie = QMovie(resource("waiting.gif"))
         self.waiting_movie.setCacheMode(True)
         self.waiting_movie.frameChanged.connect(self.on_frame_changed)
-        self.sync_movie = QMovie(resource('sync.gif'))
+        self.sync_movie = QMovie(resource("sync.gif"))
         self.sync_movie.setCacheMode(True)
         self.sync_movie.frameChanged.connect(self.on_frame_changed)
 
@@ -75,27 +86,27 @@ class View(QTreeView):
         self.setItemDelegate(Delegate(self))
 
         self.setAcceptDrops(True)
-        #self.setColumnWidth(0, 150)
-        #self.setColumnWidth(1, 100)
+        # self.setColumnWidth(0, 150)
+        # self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 115)
         self.setColumnWidth(3, 70)
         self.setColumnWidth(4, 10)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setHeaderHidden(True)
-        #self.setRootIsDecorated(False)
+        # self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setFocusPolicy(Qt.NoFocus)
-        #font = QFont()
-        #font.setPointSize(12)
-        #self.header().setFont(font)
-        #self.header().setDefaultAlignment(Qt.AlignCenter)
+        # font = QFont()
+        # font.setPointSize(12)
+        # self.header().setFont(font)
+        # self.header().setDefaultAlignment(Qt.AlignCenter)
         self.header().setStretchLastSection(False)
         self.header().setSectionResizeMode(0, QHeaderView.Stretch)
         self.header().setSectionResizeMode(1, QHeaderView.Stretch)
-        #self.header().setSectionResizeMode(2, QHeaderView.Stretch)
-        #self.header().setSectionResizeMode(3, QHeaderView.Stretch)
+        # self.header().setSectionResizeMode(2, QHeaderView.Stretch)
+        # self.header().setSectionResizeMode(3, QHeaderView.Stretch)
         self.setIconSize(QSize(24, 24))
 
         # XXX Should match the result of subtracting top from left margin from
@@ -103,10 +114,10 @@ class View(QTreeView):
         # but since this object's enclosing widget/layout won't appear in the
         # folders_views dict until after this __init__() call completes, set
         # the value "manually" instead.
-        self.dropzone_top_margin = (0 if sys.platform == 'darwin' else 11)
+        self.dropzone_top_margin = 0 if sys.platform == "darwin" else 11
 
         self.drop_icon = QLabel(self)
-        self.drop_icon.setPixmap(QPixmap(resource('upload.png')))
+        self.drop_icon.setPixmap(QPixmap(resource("upload.png")))
         self.drop_icon.setAlignment(Qt.AlignCenter)
         self.drop_icon.setAcceptDrops(True)
         self.drop_icon.installEventFilter(self)
@@ -114,7 +125,7 @@ class View(QTreeView):
         self.drop_text = QLabel(self)
         self.drop_text.setText("Drag and drop folders here")
         self.drop_text.setFont(Font(14))
-        self.drop_text.setStyleSheet('color: grey')
+        self.drop_text.setStyleSheet("color: grey")
         self.drop_text.setAlignment(Qt.AlignCenter)
         self.drop_text.setAcceptDrops(True)
         self.drop_text.installEventFilter(self)
@@ -122,9 +133,10 @@ class View(QTreeView):
 
         self.drop_subtext = QLabel(self)
         self.drop_subtext.setText(
-            "Added folders will sync with {}".format(self.gateway.name))
+            "Added folders will sync with {}".format(self.gateway.name)
+        )
         self.drop_subtext.setFont(Font(10))
-        self.drop_subtext.setStyleSheet('color: grey')
+        self.drop_subtext.setStyleSheet("color: grey")
         self.drop_subtext.setAlignment(Qt.AlignCenter)
         self.drop_subtext.setAcceptDrops(True)
         self.drop_subtext.installEventFilter(self)
@@ -170,7 +182,7 @@ class View(QTreeView):
         name = self.model().item(item.row(), 0).text()
         if name in self.gateway.magic_folders:
             try:
-                open_path(self.gateway.magic_folders[name]['directory'])
+                open_path(self.gateway.magic_folders[name]["directory"])
             except KeyError:
                 pass
         elif self.gateway.remote_magic_folder_exists(name):
@@ -210,16 +222,18 @@ class View(QTreeView):
                 self,
                 'Error downloading folder "{}"'.format(folder_name),
                 'An exception was raised when downloading the "{}" folder:\n\n'
-                '{}: {}'.format(folder_name, type(e).__name__, str(e))
+                "{}: {}".format(folder_name, type(e).__name__, str(e)),
             )
             return
         self._restart_required = True
         logging.debug(
-            'Successfully joined folder "%s"; scheduled restart', folder_name)
+            'Successfully joined folder "%s"; scheduled restart', folder_name
+        )
 
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
-            self, "Select a download destination", os.path.expanduser('~'))
+            self, "Select a download destination", os.path.expanduser("~")
+        )
         if not dest:
             return
         tasks = []
@@ -230,11 +244,7 @@ class View(QTreeView):
 
     def show_failure(self, failure):
         logging.error("%s: %s", str(failure.type.__name__), str(failure.value))
-        error(
-            self,
-            str(failure.type.__name__),
-            str(failure.value)
-        )
+        error(self, str(failure.type.__name__), str(failure.value))
 
     @inlineCallbacks
     def unlink_folder(self, folder_name):
@@ -246,33 +256,39 @@ class View(QTreeView):
                 self,
                 'Error unlinking folder "{}"'.format(folder_name),
                 'An exception was raised when unlinking the "{}" folder:\n\n'
-                '{}: {}\n\nPlease try again later.'.format(
+                "{}: {}\n\nPlease try again later.".format(
                     folder_name, type(e).__name__, str(e)
-                )
+                ),
             )
             return
         self.model().remove_folder(folder_name)
         self._rescan_required = True
         logging.debug(
-            'Successfully unlinked folder "%s"; scheduled rescan', folder_name)
+            'Successfully unlinked folder "%s"; scheduled rescan', folder_name
+        )
 
     def confirm_unlink(self, folders):
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
         humanized_folders = humanized_list(folders, "folders")
         msgbox.setWindowTitle(
-            "Permanently remove {}?".format(humanized_folders))
+            "Permanently remove {}?".format(humanized_folders)
+        )
         if len(folders) == 1:
             msgbox.setText(
                 'Are you sure you wish to <b>permanently</b> remove the "{}" '
-                'folder?'.format(folders[0]))
+                "folder?".format(folders[0])
+            )
         else:
             msgbox.setText(
-                "Are you sure you wish to <b>permanently</b> remove {}?"
-                .format(humanized_folders))
+                "Are you sure you wish to <b>permanently</b> remove {}?".format(
+                    humanized_folders
+                )
+            )
         msgbox.setInformativeText(
             "Permanently removed folders cannot be restored with your "
-            "Recovery Key.")
+            "Recovery Key."
+        )
         msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msgbox.setDefaultButton(QMessageBox.No)
         if msgbox.exec_() == QMessageBox.Yes:
@@ -292,15 +308,16 @@ class View(QTreeView):
                 self,
                 'Error removing folder "{}"'.format(folder_name),
                 'An exception was raised when removing the "{}" folder:\n\n'
-                '{}: {}\n\nPlease try again later.'.format(
+                "{}: {}\n\nPlease try again later.".format(
                     folder_name, type(e).__name__, str(e)
-                )
+                ),
             )
             return
         self.model().remove_folder(folder_name)
         self._restart_required = True
         logging.debug(
-            'Successfully removed folder "%s"; scheduled restart', folder_name)
+            'Successfully removed folder "%s"; scheduled restart', folder_name
+        )
         if unlink:
             yield self.unlink_folder(folder_name)
 
@@ -311,30 +328,38 @@ class View(QTreeView):
         msgbox.setWindowTitle("Stop syncing {}?".format(humanized_folders))
         if len(folders) == 1:
             msgbox.setText(
-                'Are you sure you wish to stop syncing the "{}" folder?'
-                .format(folders[0])
+                'Are you sure you wish to stop syncing the "{}" folder?'.format(
+                    folders[0]
+                )
             )
             msgbox.setInformativeText(
                 "This folder will remain on your computer but it will no "
                 "longer synchronize automatically with {}.".format(
-                    self.gateway.name)
+                    self.gateway.name
+                )
             )
             checkbox = QCheckBox(
                 "Keep a backup copy of this folder on {}".format(
-                    self.gateway.name))
+                    self.gateway.name
+                )
+            )
         else:
             msgbox.setText(
                 "Are you sure you wish to stop syncing {}?".format(
-                    humanized_folders)
+                    humanized_folders
+                )
             )
             msgbox.setInformativeText(
                 "These folders will remain on your computer but they will no "
                 "longer synchronize automatically with {}.".format(
-                    self.gateway.name)
+                    self.gateway.name
+                )
             )
             checkbox = QCheckBox(
                 "Keep backup copies of these folders on {}".format(
-                    self.gateway.name))
+                    self.gateway.name
+                )
+            )
         checkbox.setCheckState(Qt.Unchecked)
         msgbox.setCheckBox(checkbox)
         msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -356,7 +381,7 @@ class View(QTreeView):
             folder_info = self.gateway.magic_folders.get(folder)
             if folder_info:
                 try:
-                    open_path(folder_info['directory'])
+                    open_path(folder_info["directory"])
                 except KeyError:
                     pass
 
@@ -368,7 +393,8 @@ class View(QTreeView):
                 folder = self.model().item(item.row(), 0).text()
                 if self.gateway.magic_folders.get(folder):
                     self.selectionModel().select(
-                        index, QItemSelectionModel.Deselect)
+                        index, QItemSelectionModel.Deselect
+                    )
 
     def deselect_remote_folders(self):
         selected = self.selectedIndexes()
@@ -378,7 +404,8 @@ class View(QTreeView):
                 folder = self.model().item(item.row(), 0).text()
                 if not self.gateway.magic_folders.get(folder):
                     self.selectionModel().select(
-                        index, QItemSelectionModel.Deselect)
+                        index, QItemSelectionModel.Deselect
+                    )
 
     def get_selected_folders(self):
         folders = []
@@ -414,26 +441,30 @@ class View(QTreeView):
         menu = QMenu()
         if selection_is_remote:
             download_action = QAction(
-                QIcon(resource('download.png')), "Download...")
+                QIcon(resource("download.png")), "Download..."
+            )
             download_action.triggered.connect(
-                lambda: self.select_download_location(selected))
+                lambda: self.select_download_location(selected)
+            )
             menu.addAction(download_action)
             menu.addSeparator()
         open_action = QAction(self.model().icon_folder_gray, "Open")
-        open_action.triggered.connect(
-            lambda: self.open_folders(selected))
+        open_action.triggered.connect(lambda: self.open_folders(selected))
 
         share_menu = QMenu()
-        share_menu.setIcon(QIcon(resource('laptop.png')))
+        share_menu.setIcon(QIcon(resource("laptop.png")))
         share_menu.setTitle("Sync with device")  # XXX Rephrase?
         invite_action = QAction(
-            QIcon(resource('invite.png')), "Create Invite Code...")
+            QIcon(resource("invite.png")), "Create Invite Code..."
+        )
         invite_action.triggered.connect(
-            lambda: self.open_invite_sender_dialog(selected))
+            lambda: self.open_invite_sender_dialog(selected)
+        )
         share_menu.addAction(invite_action)
 
         remove_action = QAction(
-            QIcon(resource('close.png')), "Remove from Recovery Key...")
+            QIcon(resource("close.png")), "Remove from Recovery Key..."
+        )
         menu.addAction(open_action)
         menu.addMenu(share_menu)
         menu.addSeparator()
@@ -442,16 +473,19 @@ class View(QTreeView):
             open_action.setEnabled(False)
             share_menu.setEnabled(False)
             remove_action.triggered.connect(
-                lambda: self.confirm_unlink(selected))
+                lambda: self.confirm_unlink(selected)
+            )
         else:
             for folder in selected:
-                if not self.gateway.magic_folders[folder]['admin_dircap']:
+                if not self.gateway.magic_folders[folder]["admin_dircap"]:
                     share_menu.setEnabled(False)
                     share_menu.setTitle(
-                        "Sync with device (disabled; no admin access)")
-            remove_action.setText('Stop syncing...')
+                        "Sync with device (disabled; no admin access)"
+                    )
+            remove_action.setText("Stop syncing...")
             remove_action.triggered.connect(
-                lambda: self.confirm_stop_syncing(selected))
+                lambda: self.confirm_stop_syncing(selected)
+            )
         menu.exec_(self.viewport().mapToGlobal(position))
 
     @inlineCallbacks
@@ -467,15 +501,16 @@ class View(QTreeView):
                 self,
                 'Error adding folder "{}"'.format(folder_name),
                 'An exception was raised when adding the "{}" folder:\n\n'
-                '{}: {}\n\nPlease try again later.'.format(
+                "{}: {}\n\nPlease try again later.".format(
                     folder_name, type(e).__name__, str(e)
-                )
+                ),
             )
             self.model().remove_folder(folder_name)
             return
         self._restart_required = True
         logging.debug(
-            'Successfully added folder "%s"; scheduled restart', folder_name)
+            'Successfully added folder "%s"; scheduled restart', folder_name
+        )
 
     def add_folders(self, paths):
         paths_to_add = []
@@ -486,15 +521,16 @@ class View(QTreeView):
                     self,
                     'Cannot add "{}".'.format(basename),
                     "{} currently only supports uploading and syncing folders,"
-                    " and not individual files.".format(APP_NAME)
+                    " and not individual files.".format(APP_NAME),
                 )
             elif self.gateway.magic_folder_exists(basename):
                 error(
                     self,
                     "Folder already exists",
                     'You already belong to a folder named "{}" on {}. Please '
-                    'rename it and try again.'.format(basename,
-                                                      self.gateway.name)
+                    "rename it and try again.".format(
+                        basename, self.gateway.name
+                    ),
                 )
             else:
                 paths_to_add.append(path)
@@ -508,7 +544,7 @@ class View(QTreeView):
 
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")
-        dialog.setDirectory(os.path.expanduser('~'))
+        dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.Directory)
         dialog.setOption(QFileDialog.ShowDirsOnly)
         if dialog.exec_():
@@ -564,6 +600,6 @@ class View(QTreeView):
                 geometry.x(),
                 geometry.y() + self.dropzone_top_margin,
                 geometry.width() - 24,
-                geometry.height() - 24
+                geometry.height() - 24,
             )
         super().paintEvent(event)
