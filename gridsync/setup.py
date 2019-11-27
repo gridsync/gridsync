@@ -23,14 +23,14 @@ from gridsync.tor import tor_required, get_tor, get_tor_with_prompt
 
 def is_onion_grid(settings):
     furls = []
-    introducer = settings.get('introducer')
+    introducer = settings.get("introducer")
     if introducer:
         furls.append(introducer)
-    servers = settings.get('storage')
+    servers = settings.get("storage")
     if servers:
         for data in servers.values():
-            if 'anonymous-storage-FURL' in data:
-                furls.append(data.get('anonymous-storage-FURL'))
+            if "anonymous-storage-FURL" in data:
+                furls.append(data.get("anonymous-storage-FURL"))
     for furl in furls:
         if tor_required(furl):
             return True
@@ -41,28 +41,31 @@ def prompt_for_grid_name(grid_name, parent=None):
     title = "{} - Choose a name".format(APP_NAME)
     label = "Please choose a name for this connection:"
     if grid_name:
-        label = ('{} is already connected to "{}".\n\n'
-                 'Please choose a different name for this connection'.format(
-                     APP_NAME, grid_name))
+        label = (
+            '{} is already connected to "{}".\n\n'
+            "Please choose a different name for this connection".format(
+                APP_NAME, grid_name
+            )
+        )
     return QInputDialog.getText(parent, title, label, 0, grid_name)
 
 
 def validate_grid(settings, parent=None):
-    nickname = settings.get('nickname')
+    nickname = settings.get("nickname")
     while not nickname:
         nickname, _ = prompt_for_grid_name(nickname, parent)
     nodedir = os.path.join(config_dir, nickname)
     if os.path.isdir(nodedir):
         conflicting_introducer = False
-        introducer = settings.get('introducer')
+        introducer = settings.get("introducer")
         if introducer:
-            config = Config(os.path.join(nodedir, 'tahoe.cfg'))
-            existing_introducer = config.get('client', 'introducer.furl')
+            config = Config(os.path.join(nodedir, "tahoe.cfg"))
+            existing_introducer = config.get("client", "introducer.furl")
             if introducer != existing_introducer:
                 conflicting_introducer = True
 
         conflicting_servers = False
-        servers = settings.get('storage')
+        servers = settings.get("storage")
         if servers:
             existing_servers = Tahoe(nodedir).get_storage_servers()
             if servers != existing_servers:
@@ -71,7 +74,7 @@ def validate_grid(settings, parent=None):
         if conflicting_introducer or conflicting_servers:
             while os.path.isdir(os.path.join(config_dir, nickname)):
                 nickname, _ = prompt_for_grid_name(nickname, parent)
-    settings['nickname'] = nickname
+    settings["nickname"] = nickname
     return settings
 
 
@@ -80,10 +83,9 @@ def prompt_for_folder_name(folder_name, grid_name, parent=None):
         parent,
         "Folder already exists",
         'You already belong to a folder named "{}" on\n'
-        '{}; Please choose a different name.'.format(
-            folder_name, grid_name),
+        "{}; Please choose a different name.".format(folder_name, grid_name),
         0,
-        folder_name
+        folder_name,
     )
 
 
@@ -91,31 +93,33 @@ def validate_folders(settings, known_gateways, parent=None):
     gateway = None
     if known_gateways:
         for gw in known_gateways:
-            if gw.name == settings['nickname']:
+            if gw.name == settings["nickname"]:
                 gateway = gw
     if not gateway:
         return settings
-    for folder, data in settings['magic-folders'].copy().items():
+    for folder, data in settings["magic-folders"].copy().items():
         target = folder
         while gateway.magic_folder_exists(target):
             target, ok = prompt_for_folder_name(target, gateway.name, parent)
             if not ok:  # User clicked "Cancel"; skip this folder
-                del settings['magic-folders'][folder]
+                del settings["magic-folders"][folder]
                 continue
             if not target:
                 target = folder
-            elif not gateway.magic_folder_exists(target) and \
-                    target not in settings['magic-folders']:
-                settings['magic-folders'][target] = data
-                del settings['magic-folders'][folder]
+            elif (
+                not gateway.magic_folder_exists(target)
+                and target not in settings["magic-folders"]
+            ):
+                settings["magic-folders"][target] = data
+                del settings["magic-folders"][folder]
     return settings
 
 
 def validate_settings(settings, known_gateways, parent, from_wormhole=True):
-    if from_wormhole and 'rootcap' in settings:
-        del settings['rootcap']
+    if from_wormhole and "rootcap" in settings:
+        del settings["rootcap"]
     settings = validate_grid(settings, parent)
-    if 'magic-folders' in settings:
+    if "magic-folders" in settings:
         settings = validate_folders(settings, known_gateways, parent)
     return settings
 
@@ -139,7 +143,7 @@ class SetupRunner(QObject):
         if not self.known_gateways:
             return None
         for gateway in self.known_gateways:
-            target_introducer = gateway.config_get('client', 'introducer.furl')
+            target_introducer = gateway.config_get("client", "introducer.furl")
             if introducer and introducer == target_introducer:
                 return gateway
             target_servers = gateway.get_storage_servers()
@@ -150,15 +154,16 @@ class SetupRunner(QObject):
     def calculate_total_steps(self, settings):
         steps = 1  # done
         if not self.get_gateway(
-                settings.get('introducer'), settings.get('storage')):
+            settings.get("introducer"), settings.get("storage")
+        ):
             steps += 4  # create, start, await_ready, rootcap
-        folders = settings.get('magic-folders')
+        folders = settings.get("magic-folders")
         if folders:
             steps += len(folders)  # join
         return steps
 
     def decode_icon(self, s, dest):
-        with atomic_write(dest, mode='wb', overwrite=True) as f:
+        with atomic_write(dest, mode="wb", overwrite=True) as f:
             try:
                 f.write(base64.b64decode(s))
             except (Error, TypeError):
@@ -177,7 +182,7 @@ class SetupRunner(QObject):
         if resp.code == 200:
             content = yield treq.content(resp)
             log.debug("Received %i bytes", len(content))
-            with atomic_write(dest, mode='wb', overwrite=True) as f:
+            with atomic_write(dest, mode="wb", overwrite=True) as f:
                 f.write(content)
             self.got_icon.emit(dest)
         else:
@@ -185,7 +190,7 @@ class SetupRunner(QObject):
 
     @inlineCallbacks  # noqa: max-complexity=14 XXX
     def join_grid(self, settings):  # noqa: max-complexity=14 XXX
-        nickname = settings['nickname']
+        nickname = settings["nickname"]
         if self.use_tor:
             msg = "Connecting to {} via Tor...".format(nickname)
         else:
@@ -193,25 +198,25 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
 
         icon_path = None
-        if nickname == 'Least Authority S4':
-            icon_path = resource('leastauthority.com.icon')
+        if nickname == "Least Authority S4":
+            icon_path = resource("leastauthority.com.icon")
             self.got_icon.emit(icon_path)
-        elif 'icon_base64' in settings:
-            icon_path = os.path.join(config_dir, '.icon.tmp')
-            self.decode_icon(settings['icon_base64'], icon_path)
-        elif 'icon_url' in settings:
+        elif "icon_base64" in settings:
+            icon_path = os.path.join(config_dir, ".icon.tmp")
+            self.decode_icon(settings["icon_base64"], icon_path)
+        elif "icon_url" in settings:
             # A temporary(?) measure to get around the performance issues
             # observed when transferring a base64-encoded icon through Least
             # Authority's wormhole server. Hopefully this will go away.. See:
             # https://github.com/LeastAuthority/leastauthority.com/issues/539
-            log.debug("Fetching service icon from %s...", settings['icon_url'])
-            icon_path = os.path.join(config_dir, '.icon.tmp')
+            log.debug("Fetching service icon from %s...", settings["icon_url"])
+            icon_path = os.path.join(config_dir, ".icon.tmp")
             try:
                 # It's probably not worth cancelling or holding-up the setup
                 # process if fetching/writing the icon fails (particularly
                 # if doing so would require the user to get a new invite code)
                 # so just log a warning for now if something goes wrong...
-                yield self.fetch_icon(settings['icon_url'], icon_path)
+                yield self.fetch_icon(settings["icon_url"], icon_path)
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
 
@@ -220,24 +225,26 @@ class SetupRunner(QObject):
         self.gateway = Tahoe(nodedir, executable=executable)
         yield self.gateway.create_client(**settings)
 
-        newscap = settings.get('newscap')
+        newscap = settings.get("newscap")
         if newscap:
             with atomic_write(
-                    os.path.join(nodedir, 'private', 'newscap'),
-                    mode='w', overwrite=True) as f:
+                os.path.join(nodedir, "private", "newscap"),
+                mode="w",
+                overwrite=True,
+            ) as f:
                 f.write(newscap)
 
         if icon_path:
             try:
-                shutil.copy(icon_path, os.path.join(nodedir, 'icon'))
+                shutil.copy(icon_path, os.path.join(nodedir, "icon"))
             except OSError as err:
                 log.warning("Error copying icon file: %s", str(err))
-        if 'icon_url' in settings:
+        if "icon_url" in settings:
             try:
                 with atomic_write(
-                        os.path.join(nodedir, 'icon.url'),
-                        mode='w', overwrite=True) as f:
-                    f.write(settings['icon_url'])
+                    os.path.join(nodedir, "icon.url"), mode="w", overwrite=True
+                ) as f:
+                    f.write(settings["icon_url"])
             except OSError as err:
                 log.warning("Error writing icon url to file: %s", str(err))
 
@@ -250,41 +257,42 @@ class SetupRunner(QObject):
     @inlineCallbacks
     def ensure_recovery(self, settings):
         settings_path = os.path.join(
-            self.gateway.nodedir, 'private', 'settings.json')
-        if settings.get('rootcap'):
-            self.update_progress.emit('Loading Recovery Key...')
+            self.gateway.nodedir, "private", "settings.json"
+        )
+        if settings.get("rootcap"):
+            self.update_progress.emit("Loading Recovery Key...")
             with atomic_write(
-                    self.gateway.rootcap_path, mode='w', overwrite=True) as f:
-                f.write(settings['rootcap'])
-            with atomic_write(settings_path, mode='w', overwrite=True) as f:
+                self.gateway.rootcap_path, mode="w", overwrite=True
+            ) as f:
+                f.write(settings["rootcap"])
+            with atomic_write(settings_path, mode="w", overwrite=True) as f:
                 f.write(json.dumps(settings))
         else:
-            self.update_progress.emit('Generating Recovery Key...')
+            self.update_progress.emit("Generating Recovery Key...")
             try:
-                settings['rootcap'] = yield self.gateway.create_rootcap()
+                settings["rootcap"] = yield self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
-            with atomic_write(settings_path, mode='w', overwrite=True) as f:
+            with atomic_write(settings_path, mode="w", overwrite=True) as f:
                 f.write(json.dumps(settings))
             settings_cap = yield self.gateway.upload(settings_path)
             yield self.gateway.link(
-                self.gateway.rootcap, 'settings.json', settings_cap)
+                self.gateway.rootcap, "settings.json", settings_cap
+            )
 
     @inlineCallbacks
     def join_folders(self, folders_data):
         folders = []
         for folder, data in folders_data.items():
             self.update_progress.emit('Joining folder "{}"...'.format(folder))
-            collective, personal = data['code'].split('+')
+            collective, personal = data["code"].split("+")
             yield self.gateway.link(
                 self.gateway.get_rootcap(),
-                folder + ' (collective)',
-                collective
+                folder + " (collective)",
+                collective,
             )
             yield self.gateway.link(
-                self.gateway.get_rootcap(),
-                folder + ' (personal)',
-                personal
+                self.gateway.get_rootcap(), folder + " (personal)", personal
             )
             folders.append(folder)
         if folders:
@@ -292,28 +300,28 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def run(self, settings):
-        if 'version' in settings and int(settings['version']) > 2:
+        if "version" in settings and int(settings["version"]) > 2:
             raise UpgradeRequiredError
 
-        if self.use_tor or 'hide-ip' in settings or is_onion_grid(settings):
-            settings['hide-ip'] = True
+        if self.use_tor or "hide-ip" in settings or is_onion_grid(settings):
+            settings["hide-ip"] = True
             self.use_tor = True
             tor = yield get_tor_with_prompt(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
 
         self.gateway = self.get_gateway(
-            settings.get('introducer'), settings.get('storage')
+            settings.get("introducer"), settings.get("storage")
         )
-        folders_data = settings.get('magic-folders')
+        folders_data = settings.get("magic-folders")
         if not self.gateway:
             yield self.join_grid(settings)
             yield self.ensure_recovery(settings)
         elif not folders_data:
-            self.grid_already_joined.emit(settings.get('nickname'))
+            self.grid_already_joined.emit(settings.get("nickname"))
         if folders_data:
             yield self.join_folders(folders_data)
             yield self.gateway.monitor.scan_rootcap()
 
-        self.update_progress.emit('Done!')
+        self.update_progress.emit("Done!")
         self.done.emit(self.gateway)

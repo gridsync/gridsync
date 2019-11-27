@@ -12,8 +12,8 @@ class ZKAPChart(QChart):
         series = QPieSeries()
         series.setPieSize(0.9)
         series.setHoleSize(0.6)
-        series.append('', 123456)
-        series.append('', 500000)
+        series.append("", 123456)
+        series.append("", 500000)
 
         self.slice_used = series.slices()[0]
         self.slice_used.setPen(QPen(Qt.red, 0))
@@ -37,7 +37,7 @@ class ZKAPChart(QChart):
             "ZKAPs available: {}\n\n"
             "Last purchase: 2019-06-20 12:34:56".format(
                 round(self.slice_used.value()),
-                round(self.slice_available.value())
+                round(self.slice_available.value()),
             )
         )
 
