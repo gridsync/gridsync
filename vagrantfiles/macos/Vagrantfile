@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
     #rm -rf ~vagrant/Library/Keychains/login.keychain*
   SHELL
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/6b445df044f0a68d5db5798c9f2747df20704f35/install)"
     brew -v analytics off
     brew install openssl readline sqlite3 xz zlib pyenv rustup-init
     brew cask install opensc
