@@ -1,0 +1,85 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "gridsync-macos-10.13"
+  config.vm.box = "monsenso/macos-10.13"
+  #config.vm.box_url = "https://vagrantcloud.com/jhcook/boxes/macos-sierra/versions/10.12.6/providers/virtualbox.box"
+  #config.vm.box_download_checksum = "6716006846b256acefc18c3d76d794f2253ac156d55e464742f87148828b88ed"
+  #config.vm.box_download_checksum_type = "sha256"
+  #ipfs_cid = "QmZ4rhc34esunzbWhauiDiiozhamjK81zXotpQpB6199oa"
+  #config.vm.box_url = [
+  #  "http://127.0.0.1:8080/ipfs/#{ipfs_cid}?filename=virtualbox.box",
+  #  "https://gateway.ipfs.io/ipfs/#{ipfs_cid}?filename=virtualbox.box",
+  #  "https://cloudflare-ipfs.com/ipfs/#{ipfs_cid}?filename=virtualbox.box"
+  #]
+  # "BSD-based guests do not support the VirtualBox filesystem at this time."
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = "2048"
+    vb.cpus = 2
+    # Disable USB 2.0; needed to run without proprietary Oracle Extension Pack
+    vb.customize ["modifyvm", :id, "--usbehci", "off"]
+    # Forward YubiKey to guest VM for signing
+    vb.customize ["modifyvm", :id, "--usb", "on"]
+    vb.customize ['usbfilter', 'add', '0',
+      '--target', :id,
+      '--name', "YubiKey",
+      '--manufacturer', "Yubico",
+      '--vendorid', "0x1050",
+      '--productid', "0x0407",
+      '--product', "Yubico YubiKey OTP+FIDO+CCID"]
+  end
+  config.vm.provision "shell", inline: <<-SHELL
+    # Instantiating a QApplication without first logging in will fail (with the
+    # error message "_RegisterApplication(), FAILED TO establish the default
+    # connection to the WindowServer, _CGSDefaultConnection() is NULL."), so
+    # wait for the login screen to load and enter the default vagrant password.
+    sleep 10
+    osascript -e 'tell application "System Events" to key code 126'
+    sleep 1
+    osascript -e 'tell application "System Events" to keystroke return'
+    sleep 1
+    osascript -e 'tell application "System Events" to keystroke "vagrant"'
+    sleep 1
+    osascript -e 'tell application "System Events" to keystroke return'
+    # Add the "vagrant" password to to /etc/kcpassword and enable auto-login.
+    # Encoding hack courtesy of https://github.com/timsutton/osx-vm-templates
+    #echo '\x0b\xc3\xa85Q\xc2\xb3\xc3\x92\xc2\xa9\xc3\xaa\xc2\xa3\xc2\xb9\x1f' > /etc/kcpassword
+    #chmod 600 /etc/kcpassword
+    #sudo defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser "vagrant"
+    #rm -rf ~vagrant/Library/Keychains/login.keychain*
+  SHELL
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/6b445df044f0a68d5db5798c9f2747df20704f35/install)"
+    brew -v analytics off
+    brew install openssl readline sqlite3 xz zlib pyenv rustup-init
+    brew cask install opensc
+    echo 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
+    rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable
+    source ~/.bash_profile
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 2.7.16
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.8.0
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.7.4
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.9
+    pyenv rehash
+    pyenv global 2.7.16 3.7.4 3.8.0 3.6.9
+    python2 -m pip install --upgrade setuptools pip
+    python3 -m pip install --upgrade setuptools pip tox
+  SHELL
+  config.vm.provision "file", source: "../..", destination: "~/gridsync"
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    cd ~/gridsync && CI=true make test && make
+    ls -al ~/gridsync/dist
+  SHELL
+  if ENV["BUILDBOT_HOST"]
+    config.vm.provision "shell", privileged: false, inline: "python2 -m pip install buildbot-worker"
+    config.vm.provision "shell" do |s|
+      s.privileged = false
+      s.inline = "buildbot-worker create-worker ~/buildbot $1 $2 $3"
+      s.args   = "#{ENV['BUILDBOT_HOST']} #{ENV['BUILDBOT_NAME']} #{ENV['BUILDBOT_PASS']}"
+    end
+    config.vm.provision "shell", privileged: false, inline: "buildbot-worker restart ~/buildbot"
+  end
+end
