@@ -40,8 +40,9 @@ module_file = open("gridsync/__init__.py").read()
 metadata = dict(re.findall(r"__([a-z]+)__\s*=\s*\"([^\"]+)\"", module_file))
 
 version_file = open("gridsync/_version.py").read()
-version = re.findall(r"__version__\s*=\s*\"([^\"]+)\"", version_file)[0]
-
+version_dict = {}
+exec(version_file, version_dict)
+version = version_dict["__version__"]
 
 setup(
     name="gridsync",
