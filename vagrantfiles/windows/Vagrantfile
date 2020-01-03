@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", reboot: true, inline: <<-SHELL
     choco install -y --no-progress --require-checksums git
     choco install -y --no-progress --require-checksums python2
-    choco install -y --no-progress --require-checksums -m python3 --version 3.8.0
+    choco install -y --no-progress --require-checksums -m python3 --version 3.8.1
     choco install -y --no-progress --require-checksums -m python3 --version 3.7.4
     choco install -y --no-progress --require-checksums -m python3 --version 3.6.8
     choco install -y --no-progress --require-checksums vcpython27

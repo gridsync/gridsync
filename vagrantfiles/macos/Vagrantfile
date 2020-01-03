@@ -59,12 +59,12 @@ Vagrant.configure("2") do |config|
     echo 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
     rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable
     source ~/.bash_profile
-    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 2.7.16
-    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.8.0
-    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.7.4
-    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.9
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 2.7.17
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.8.1
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.7.6
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.10
     pyenv rehash
-    pyenv global 2.7.16 3.7.4 3.8.0 3.6.9
+    pyenv global 2.7.17 3.7.6 3.8.1 3.6.10
     python2 -m pip install --upgrade setuptools pip
     python3 -m pip install --upgrade setuptools pip tox
   SHELL
