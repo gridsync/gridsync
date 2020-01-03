@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import base64
 import errno
 import hashlib
 import json
@@ -13,7 +14,7 @@ import tempfile
 from collections import defaultdict, OrderedDict
 from io import BytesIO
 from pathlib import Path
-from typing import List
+from typing import Dict, List, Optional
 
 from atomicwrites import atomic_write
 import treq
@@ -1133,6 +1134,52 @@ class Tahoe:
         history_od = OrderedDict(sorted(history_dict.items()))
         latest_mtime = next(reversed(history_od), 0)
         return members, total_size, latest_mtime, history_od
+
+    @inlineCallbacks
+    def add_voucher(self, voucher: Optional[str] = None) -> str:
+        if not voucher:
+            voucher = base64.urlsafe_b64encode(os.urandom(33)).decode("utf-8")
+        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
+        resp = yield treq.put(
+            url + "/voucher", json.dumps({"voucher": voucher}).encode()
+        )
+        if resp.code == 200:
+            return voucher
+        raise TahoeWebError(f"Error adding voucher: {resp.code}")
+
+    @inlineCallbacks
+    def get_voucher(self, voucher: str) -> Dict:
+        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
+        resp = yield treq.get(url + "/voucher/" + voucher)
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content
+        raise TahoeWebError(f"Error getting voucher: {resp.code}")
+
+    @inlineCallbacks
+    def get_vouchers(self) -> List[Dict]:
+        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
+        resp = yield treq.get(url + "/voucher")
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content.get("vouchers")
+        raise TahoeWebError(f"Error getting vouchers: {resp.code}")
+
+    @inlineCallbacks
+    def get_zkaps(
+        self, limit: Optional[int] = None, position: Optional[str] = None,
+    ) -> Dict:
+        params = {}
+        if limit:
+            params["limit"] = limit
+        if position:
+            params["position"] = position
+        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
+        resp = yield treq.get(url + "/unblinded-token", params=params)
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content
+        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
 
 
 @inlineCallbacks
