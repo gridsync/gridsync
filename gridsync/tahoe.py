@@ -137,7 +137,7 @@ class Tahoe:
         self.newscap_checker = NewscapChecker(self)
         self.zkap_auth_required = False
         self.zkap_name: str = ""
-        self.zkap_payment_url: str = ""
+        self.zkap_payment_url_root: str = ""
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -553,7 +553,9 @@ class Tahoe:
                 self.zkap_name = settings.get(
                     "zkap_name", "Zero-Knowledge Access Pass"
                 )
-                self.zkap_payment_url = settings.get("zkap_payment_url")
+                self.zkap_payment_url_root = settings.get(
+                    "zkap_payment_url_root"
+                )
         except OSError:
             pass
 
