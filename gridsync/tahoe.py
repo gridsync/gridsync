@@ -1139,7 +1139,7 @@ class Tahoe:
         latest_mtime = next(reversed(history_od), 0)
         return members, total_size, latest_mtime, history_od
 
-    @inlineCallbacks
+    @inlineCallbacks  # type: ignore
     def add_voucher(self, voucher: Optional[str] = None) -> str:
         if not voucher:
             voucher = base64.urlsafe_b64encode(os.urandom(33)).decode("utf-8")
@@ -1151,7 +1151,7 @@ class Tahoe:
             return voucher
         raise TahoeWebError(f"Error adding voucher: {resp.code}")
 
-    @inlineCallbacks
+    @inlineCallbacks  # type: ignore
     def get_voucher(self, voucher: str) -> Dict:
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.get(url + "/voucher/" + voucher)
@@ -1160,7 +1160,7 @@ class Tahoe:
             return content
         raise TahoeWebError(f"Error getting voucher: {resp.code}")
 
-    @inlineCallbacks
+    @inlineCallbacks  # type: ignore
     def get_vouchers(self) -> List[Dict]:
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.get(url + "/voucher")
@@ -1169,7 +1169,7 @@ class Tahoe:
             return content.get("vouchers")
         raise TahoeWebError(f"Error getting vouchers: {resp.code}")
 
-    @inlineCallbacks
+    @inlineCallbacks  # type: ignore
     def get_zkaps(
         self, limit: Optional[int] = None, position: Optional[str] = None,
     ) -> Dict:
@@ -1177,7 +1177,7 @@ class Tahoe:
         if limit:
             params["limit"] = limit
         if position:
-            params["position"] = position
+            params["position"] = position  # type: ignore
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.get(url + "/unblinded-token", params=params)
         if resp.code == 200:
