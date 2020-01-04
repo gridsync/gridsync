@@ -137,6 +137,7 @@ class Tahoe:
         self.newscap_checker = NewscapChecker(self)
         self.zkap_auth_required = False
         self.zkap_name: str = ""
+        self.zkap_payment_url: str = ""
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -545,13 +546,14 @@ class Tahoe:
                 messages.append(json.dumps(json.loads(line), sort_keys=True))
         return "\n".join(messages)
 
-    def load_zkap_name(self) -> None:
+    def load_zkap_settings(self) -> None:
         try:
             with open(Path(self.nodedir, "private", "settings.json")) as f:
                 settings = json.loads(f.read())
                 self.zkap_name = settings.get(
                     "zkap_name", "Zero-Knowledge Access Pass"
                 )
+                self.zkap_payment_url = settings.get("zkap_payment_url")
         except OSError:
             pass
 
@@ -568,7 +570,7 @@ class Tahoe:
             "ristretto-issuer-root-url",
         ):
             self.zkap_auth_required = True
-            self.load_zkap_name()
+            self.load_zkap_settings()
         if os.path.isfile(self.pidfile):
             yield self.stop()
         if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
