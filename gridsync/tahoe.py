@@ -1185,6 +1185,15 @@ class Tahoe:
             return content
         raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
 
+    def zkap_payment_url(self, voucher: str) -> str:
+        if not self.zkap_payment_url_root:
+            return ""
+        return "{}?voucher={}&checksum={}".format(
+            self.zkap_payment_url_root,
+            voucher,
+            hashlib.sha256(voucher.encode()).hexdigest(),
+        )
+
 
 @inlineCallbacks
 def select_executable():
