@@ -9,6 +9,7 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
 from gridsync.crypto import trunchash
+from gridsync.errors import TahoeWebError
 
 
 class MagicFolderChecker(QObject):
@@ -258,6 +259,45 @@ class GridChecker(QObject):
             self.num_happy = num_happy
 
 
+class ZKAPChecker(QObject):
+
+    zkaps_updated = pyqtSignal(int, int)  # remaining, total
+
+    def __init__(self, gateway):
+        super().__init__()
+        self.gateway = gateway
+
+        self.zkaps_remaining: int = 0
+        self.zkaps_total: int = 0
+        # TODO: monthly consumption-rate
+
+    @inlineCallbacks
+    def do_check(self):
+        if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
+            return
+        try:
+            vouchers = yield self.gateway.get_vouchers()
+        except TahoeWebError:
+            return  # XXX
+        if not vouchers:
+            return
+        total = 0
+        for voucher in vouchers:
+            state = voucher.get("state")
+            if state.get("name") == "redeemed":
+                total += state.get("token-count")
+        try:
+            zkaps = yield self.gateway.get_zkaps(limit=1)
+        except TahoeWebError:
+            return  # XXX
+        remaining = zkaps.get("total")
+        if remaining != self.zkaps_remaining or total != self.zkaps_total:
+            self.zkaps_remaining = remaining
+            self.zkaps_total = total
+            self.zkaps_updated.emit(remaining, total)
+        print(f"ZKAPs remaining: {remaining}; total: {total}")  # XXX
+
+
 class Monitor(QObject):
     """
 
@@ -293,6 +333,8 @@ class Monitor(QObject):
 
     check_finished = pyqtSignal()
 
+    zkaps_updated = pyqtSignal(int, int)
+
     def __init__(self, gateway):
         super(Monitor, self).__init__()
         self.gateway = gateway
@@ -304,6 +346,10 @@ class Monitor(QObject):
         self.grid_checker.disconnected.connect(self.connected.emit)
         self.grid_checker.nodes_updated.connect(self.nodes_updated.emit)
         self.grid_checker.space_updated.connect(self.space_updated.emit)
+
+        self.zkap_checker = ZKAPChecker(self.gateway)
+        self.zkap_checker.zkaps_updated.connect(self.zkaps_updated.emit)
+
         self.magic_folder_checkers = {}
         self.total_sync_state = 0
 
@@ -358,6 +404,7 @@ class Monitor(QObject):
 
     @inlineCallbacks
     def do_checks(self):
+        yield self.zkap_checker.do_check()
         yield self.grid_checker.do_check()
         for folder in list(self.gateway.magic_folders.keys()):
             if folder not in self.magic_folder_checkers:
