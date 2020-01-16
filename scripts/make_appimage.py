@@ -101,6 +101,15 @@ for file in sorted(os.listdir(appdir_bin)):
             print('WARNING: Could not create symlink for {}'.format(dst))
 
 
+os.remove('build/AppDir/AppRun')
+with open('build/AppDir/AppRun', 'w') as f:
+    f.write('''#!/bin/sh
+exec "$(dirname "$(readlink -e "$0")")/usr/bin/{}" "$@"
+'''.format(name_lower)
+    )
+os.chmod('build/AppDir/AppRun', 0o755)
+
+
 try:
     os.mkdir('dist')
 except OSError:
