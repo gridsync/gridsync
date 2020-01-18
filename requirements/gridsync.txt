@@ -160,17 +160,21 @@ PyNaCl==1.3.0 \
 pyOpenSSL==19.1.0 \
     --hash=sha256:621880965a720b8ece2f1b2f54ea2071966ab00e2970ad2ce11d596102063504 \
     --hash=sha256:9a24494b2602aaf402be5c9e30a0b82d4a5c67528fe8fb475e3f3bc00dd69507
+# Qt 5.14 drops support for macOS 10.12, while 5.13.2 and up breaks dark mode, so
+# pin to 5.13.1 until dark mode is fixed -- or until a more compelling reason to
+# upgrade comes along (such for compatibility with forthcoming versions of macOS).
 # See https://github.com/gridsync/gridsync/issues/267
 PyQt5==5.13.1 ; sys_platform == "darwin" \
     --hash=sha256:6420d8c9de8746917bd2afe24f29b3722aabde36d1e9f8c34354f5b7fb7b987d \
     --hash=sha256:73f982b60819cc6d7cb0007b8b0cd11073e2546d74e0463726149e6a9d087caa \
     --hash=sha256:8e6125f110133069e8f4a085022cfc6b4a0af5b3c9009999a749007c299e965d \
     --hash=sha256:f8e76070782e68ba200eb2b67babf89ac629df5e36d2f4c680ef34ae40c8f964
-PyQt5==5.13.2 ; sys_platform != "darwin" \
-    --hash=sha256:14737bb4673868d15fa91dad79fe293d7a93d76c56d01b3757b350b8dcb32b2d \
-    --hash=sha256:1936c321301f678d4e6703d52860e1955e5c4964e6fd00a1f86725ce5c29083c \
-    --hash=sha256:3f79de6e9f29e858516cc36ffc2b992e262af841f3799246aec282b76a3eccdf \
-    --hash=sha256:509daab1c5aca22e3cf9508128abf38e6e5ae311d7426b21f4189ffd66b196e9
+PyQt5==5.14.1 ; sys_platform != "darwin" \
+    --hash=sha256:2b79209aa6e4688f6ac46e6d2694236dcf91db5f3a87270150d0f82082e3d360 \
+    --hash=sha256:2f230f2dbd767099de7a0cb915abdf0cbc3256a0b5bb910eb09b99117db7a65b \
+    --hash=sha256:3d6e315e6e2d6489a2e1e0148d00e784e277c6590c189227d6060f15b9be690a \
+    --hash=sha256:812233bd155735377e2e9c7eea7a28815f357440334db51788d941e2a8b62f64 \
+    --hash=sha256:be10fa95e6bdc9cad616ebf368c51b3f5748138b2b3a600cf7c4f80b78cb9852
 PyQt5-sip==12.7.0 \
     --hash=sha256:02d94786bada670ab17a2b62ce95b3cf8e3b40c99d36007593a6334d551840bb \
     --hash=sha256:06bc66b50556fb949f14875a4c224423dbf03f972497ccb883fb19b7b7c3b346 \
