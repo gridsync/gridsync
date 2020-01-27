@@ -140,7 +140,6 @@ frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
 	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
-	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
@@ -150,6 +149,7 @@ frozen-tahoe:
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
+	cp ../../misc/tahoe.spec pyinstaller.spec && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
