@@ -19,8 +19,9 @@ Vagrant.configure("2") do |config|
     vb.gui = true
     vb.memory = "2048"
     vb.cpus = 2
-    # Disable USB 2.0; needed to run without proprietary Oracle Extension Pack
+    # Disable USB 2.0 & 3.0; needed to run without proprietary Oracle Extension Pack
     vb.customize ["modifyvm", :id, "--usbehci", "off"]
+    vb.customize ["modifyvm", :id, "--usbxhci", "off"]
     # Forward YubiKey to guest VM for signing
     vb.customize ["modifyvm", :id, "--usb", "on"]
     vb.customize ['usbfilter', 'add', '0',
