@@ -32,26 +32,6 @@ Vagrant.configure("2") do |config|
       '--productid', "0x0407",
       '--product', "Yubico YubiKey OTP+FIDO+CCID"]
   end
-  config.vm.provision "shell", inline: <<-SHELL
-    # Instantiating a QApplication without first logging in will fail (with the
-    # error message "_RegisterApplication(), FAILED TO establish the default
-    # connection to the WindowServer, _CGSDefaultConnection() is NULL."), so
-    # wait for the login screen to load and enter the default vagrant password.
-    sleep 10
-    osascript -e 'tell application "System Events" to key code 126'
-    sleep 1
-    osascript -e 'tell application "System Events" to keystroke return'
-    sleep 1
-    osascript -e 'tell application "System Events" to keystroke "vagrant"'
-    sleep 1
-    osascript -e 'tell application "System Events" to keystroke return'
-    # Add the "vagrant" password to to /etc/kcpassword and enable auto-login.
-    # Encoding hack courtesy of https://github.com/timsutton/osx-vm-templates
-    #echo '\x0b\xc3\xa85Q\xc2\xb3\xc3\x92\xc2\xa9\xc3\xaa\xc2\xa3\xc2\xb9\x1f' > /etc/kcpassword
-    #chmod 600 /etc/kcpassword
-    #sudo defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser "vagrant"
-    #rm -rf ~vagrant/Library/Keychains/login.keychain*
-  SHELL
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     brew -v analytics off
