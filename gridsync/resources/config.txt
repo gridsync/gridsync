@@ -17,6 +17,9 @@ log_maxlen = 100000
 docs_url = docs.gridsync.io
 issues_url = https://github.com/gridsync/gridsync/issues
 
+[sign]
+mac_developer_id = Christopher Wood
+
 [wormhole]
 appid = tahoe-lafs.org/invite
 relay = ws://wormhole.tahoe-lafs.org:4000/v1
