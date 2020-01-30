@@ -75,13 +75,13 @@ if __name__ == "__main__":
 
     option = sys.argv[1]
     if option == "app":
-        path = "dist/{application_name}.app"
+        path = f"dist/{application_name}.app"
         codesign_app(mac_developer_id, path)
         codesign_verify(path)
         codesign_display(path)
         spctl_assess_app(path)
     elif option == "dmg":
-        path = "dist/{application_name}.dmg"
+        path = f"dist/{application_name}.dmg"
         codesign_app(mac_developer_id, path)
         codesign_verify(path)
         codesign_display(path)
