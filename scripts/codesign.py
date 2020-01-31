@@ -82,7 +82,7 @@ if __name__ == "__main__":
         spctl_assess_app(path)
     elif option == "dmg":
         path = f"dist/{application_name}.dmg"
-        codesign_app(mac_developer_id, path)
+        codesign_dmg(mac_developer_id, path)
         codesign_verify(path)
         codesign_display(path)
         spctl_assess_dmg(path)
