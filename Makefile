@@ -199,6 +199,9 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
+notarize:
+	python3 scripts/notarize.py
+
 appimage:
 	python3 scripts/make_appimage.py
 
