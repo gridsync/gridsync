@@ -52,7 +52,7 @@ def notarization_info(uuid: str, username: str, password: str) -> dict:
         [
             altool,
             "--notarization-info",
-            uuid + "AAAAAAAAAAAAAAAAAA",
+            uuid,
             f"--username={username}",
             f"--password={password}",
         ],
