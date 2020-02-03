@@ -74,6 +74,12 @@ def notarization_info(uuid: str, username: str, password: str) -> dict:
     return results
 
 
+def staple(path: str) -> None:
+    p = run([stapler, "staple", "-v", path], capture_output=True, text=True)
+    if p.returncode:
+        raise SubprocessError(p.stdout.strip())
+
+
 if __name__ == "__main__":
     config = RawConfigParser(allow_no_value=True)
     config.read(Path("gridsync", "resources", "config.txt"))
@@ -113,4 +119,8 @@ if __name__ == "__main__":
         else:
             print(status)
             sleep(20)
+    try:
+        staple(path)
+    except SubprocessError as err:
+        sys.exit(str(err))
     print("Success!")
