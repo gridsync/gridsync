@@ -116,9 +116,6 @@ if __name__ == "__main__":
         for option, value in config.items(section):
             settings[section][option] = value
     application_name = settings["application"]["name"]
-    app_path = f"dist/{application_name}.app"
-    zip_path = f"dist/{application_name}.zip"
-    #path = f"dist/{application_name}.dmg"
     bundle_id = settings["build"]["mac_bundle_identifier"]
 
     username = os.environ.get("NOTARIZATION_USERNAME")  # Apple ID
@@ -126,16 +123,22 @@ if __name__ == "__main__":
         "NOTARIZATION_PASSWORD", "@keychain:gridsync-notarization"
     )
 
-    print(f"Creating ZIP archive...")
-    make_zipfile(app_path, zip_path)
+    option = sys.argv[1]
+    if option == "app":
+        notarize_path = f"dist/{application_name}.zip"
+        staple_path = f"dist/{application_name}.app"
+        print("Creating ZIP archive...")
+        make_zipfile(staple_path, notarize_path)
+    elif option == "dmg":
+        notarize_path = f"dist/{application_name}.dmg"
+        staple_path = f"dist/{application_name}.dmg"
 
     try:
-        notarize(zip_path, bundle_id, username, password)
+        notarize(notarize_path, bundle_id, username, password)
     except SubprocessError as err:
         sys.exit(str(err))
-
     try:
-        staple(app_path)
+        staple(staple_path)
     except SubprocessError as err:
         sys.exit(str(err))
     print("Success!")
