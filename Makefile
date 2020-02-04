@@ -199,8 +199,14 @@ codesign-dmg:
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
 
-notarize:
-	python3 scripts/notarize.py
+notarize-app:
+	python3 scripts/notarize.py app
+
+notarize-dmg:
+	python3 scripts/notarize.py dmg
+
+dist-macos:
+	$(MAKE) codesign-app notarize-app dmg codesign-dmg notarize-dmg
 
 appimage:
 	python3 scripts/make_appimage.py
