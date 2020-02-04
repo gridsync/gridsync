@@ -10,11 +10,16 @@ from time import sleep
 altool = "/Applications/Xcode.app/Contents/Developer/usr/bin/altool"
 stapler = "/Applications/Xcode.app/Contents/Developer/usr/bin/stapler"
 
+# https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
 # https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
 # https://github.com/metabrainz/picard/blob/master/scripts/package/macos-notarize-app.sh
 
 # security unlock-keychain login.keychain
 # altool --store-password-in-keychain-item gridsync-notarization -u $APPLE_ID -p $APP_SPECIFIC_PASSWORD
+
+
+def make_zipfile(src_path: str, dst_path: str) -> None:
+    run(["ditto", "-c", "-k", "--keepParent", src_path, dst_path])
 
 
 def notarize_app(
@@ -90,7 +95,9 @@ if __name__ == "__main__":
         for option, value in config.items(section):
             settings[section][option] = value
     application_name = settings["application"]["name"]
-    path = f"dist/{application_name}.dmg"
+    app_path = f"dist/{application_name}.app"
+    zip_path = f"dist/{application_name}.zip"
+    #path = f"dist/{application_name}.dmg"
     bundle_id = settings["build"]["mac_bundle_identifier"]
 
     username = os.environ.get("NOTARIZATION_USERNAME")  # Apple ID
@@ -98,9 +105,12 @@ if __name__ == "__main__":
         "NOTARIZATION_PASSWORD", "@keychain:gridsync-notarization"
     )
 
-    print(f"Uploading {path} for notarization...")
+    print(f"Creating ZIP archive...")
+    make_zipfile(app_path, zip_path)
+
+    print(f"Uploading {zip_path} for notarization...")
     try:
-        uuid = notarize_app(path, bundle_id, username, password)
+        uuid = notarize_app(zip_path, bundle_id, username, password)
     except SubprocessError as err:
         sys.exit(str(err))
     print(f"UUID is {uuid}")
@@ -120,7 +130,7 @@ if __name__ == "__main__":
             print(status)
             sleep(20)
     try:
-        staple(path)
+        staple(app_path)
     except SubprocessError as err:
         sys.exit(str(err))
     print("Success!")
