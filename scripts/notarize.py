@@ -126,6 +126,9 @@ if __name__ == "__main__":
         if status == "success":
             print(results["Status Message"])
             notarized = True
+        elif status == "invalid":
+            print(status)
+            sys.exit(results["Status Message"])
         else:
             print(status)
             sleep(20)
