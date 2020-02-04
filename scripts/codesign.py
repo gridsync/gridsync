@@ -13,6 +13,7 @@ def codesign_app(developer_id: str, path: str) -> None:
             "--force",
             "--deep",
             f"--sign=Developer ID Application: {developer_id}",
+            "--timestamp",
             "--options=runtime",
             "--entitlements=misc/entitlements.plist",
             path,
@@ -26,6 +27,7 @@ def codesign_dmg(developer_id: str, path: str) -> None:
             "--force",
             "--deep",
             f"--sign=Developer ID Application: {developer_id}",
+            "--timestamp",
             path,
         ]
     )
