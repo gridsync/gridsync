@@ -85,6 +85,27 @@ def staple(path: str) -> None:
         raise SubprocessError(p.stdout.strip())
 
 
+def notarize(path: str, bundle_id: str, username: str, password: str) -> str:
+    print(f"Uploading {path} for notarization...")
+    uuid = notarize_app(path, bundle_id, username, password)
+    print(f"UUID is {uuid}")
+    notarized = False
+    while not notarized:
+        print("Checking status...")
+        results = notarization_info(uuid, username, password)
+        print(results)
+        status = results["Status"]
+        if status == "success":
+            print(results["Status Message"])
+            notarized = True
+        elif status == "invalid":
+            print(status)
+            sys.exit(results["Status Message"])
+        else:
+            print(status)
+            sleep(20)
+
+
 if __name__ == "__main__":
     config = RawConfigParser(allow_no_value=True)
     config.read(Path("gridsync", "resources", "config.txt"))
@@ -108,30 +129,11 @@ if __name__ == "__main__":
     print(f"Creating ZIP archive...")
     make_zipfile(app_path, zip_path)
 
-    print(f"Uploading {zip_path} for notarization...")
     try:
-        uuid = notarize_app(zip_path, bundle_id, username, password)
+        notarize(zip_path, bundle_id, username, password)
     except SubprocessError as err:
         sys.exit(str(err))
-    print(f"UUID is {uuid}")
-    notarized = False
-    while not notarized:
-        print("Checking status...")
-        try:
-            results = notarization_info(uuid, username, password)
-        except SubprocessError as err:
-            sys.exit(str(err))
-        print(results)
-        status = results["Status"]
-        if status == "success":
-            print(results["Status Message"])
-            notarized = True
-        elif status == "invalid":
-            print(status)
-            sys.exit(results["Status Message"])
-        else:
-            print(status)
-            sleep(20)
+
     try:
         staple(app_path)
     except SubprocessError as err:
