@@ -80,9 +80,9 @@ def notarization_info(uuid: str, username: str, password: str) -> dict:
 
 
 def staple(path: str) -> None:
-    p = run([stapler, "staple", "-v", path], capture_output=True, text=True)
+    p = run([stapler, "staple", path])
     if p.returncode:
-        raise SubprocessError(p.stdout.strip())
+        raise SubprocessError(f"Error stapling {path}")
 
 
 def notarize(path: str, bundle_id: str, username: str, password: str) -> str:
