@@ -171,3 +171,5 @@ if __name__ == "__main__":
     except SubprocessError as err:
         sys.exit(str(err))
     print("Success!")
+    sha256_hash = sha256sum(staple_path)
+    print(f"{sha256_hash}  {staple_path}")
