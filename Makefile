@@ -191,20 +191,22 @@ vagrant-windows:
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:
-	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.app
-	codesign --verify --verbose=1 dist/Gridsync.app
-	codesign --display --verbose=4 dist/Gridsync.app
-	spctl -a -t exec -vv dist/Gridsync.app
+	python3 scripts/codesign.py app
 
 codesign-dmg:
-	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.dmg
-	codesign --verify --verbose=1 dist/Gridsync.dmg
-	codesign --display --verbose=4 dist/Gridsync.dmg
-	spctl -a -t open --context context:primary-signature -v dist/Gridsync.dmg
-	shasum -a 256 dist/Gridsync.dmg
+	python3 scripts/codesign.py dmg
 
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
+
+notarize-app:
+	python3 scripts/notarize.py app
+
+notarize-dmg:
+	python3 scripts/notarize.py dmg
+
+dist-macos:
+	$(MAKE) codesign-app notarize-app dmg codesign-dmg notarize-dmg
 
 appimage:
 	python3 scripts/make_appimage.py
