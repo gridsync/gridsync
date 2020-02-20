@@ -140,11 +140,10 @@ frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
 	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
-	cp misc/tahoe.spec build/tahoe-lafs/pyinstaller.spec
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout 5f68190363c86b5b084097c776e893751ac6a784 && \
+	git checkout 09f8fa174bac34e2f1bad66cf9b61534d4df99a8 && \
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
@@ -152,6 +151,7 @@ frozen-tahoe:
 	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
+	cp ../../misc/tahoe.spec pyinstaller.spec && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller pyinstaller.spec && \
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
@@ -193,20 +193,22 @@ vagrant-windows:
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:
-	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.app
-	codesign --verify --verbose=1 dist/Gridsync.app
-	codesign --display --verbose=4 dist/Gridsync.app
-	spctl -a -t exec -vv dist/Gridsync.app
+	python3 scripts/codesign.py app
 
 codesign-dmg:
-	codesign --force --deep -s "Developer ID Application: Christopher Wood" dist/Gridsync.dmg
-	codesign --verify --verbose=1 dist/Gridsync.dmg
-	codesign --display --verbose=4 dist/Gridsync.dmg
-	spctl -a -t open --context context:primary-signature -v dist/Gridsync.dmg
-	shasum -a 256 dist/Gridsync.dmg
+	python3 scripts/codesign.py dmg
 
 codesign-all:
 	$(MAKE) codesign-app dmg codesign-dmg
+
+notarize-app:
+	python3 scripts/notarize.py app
+
+notarize-dmg:
+	python3 scripts/notarize.py dmg
+
+dist-macos:
+	$(MAKE) codesign-app notarize-app dmg codesign-dmg notarize-dmg
 
 appimage:
 	python3 scripts/make_appimage.py

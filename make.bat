@@ -65,9 +65,8 @@ call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
-call copy .\misc\tahoe.spec .\build\tahoe-lafs\pyinstaller.spec
 call pushd .\build\tahoe-lafs
-call git checkout 0e82782b6166216c9e419d00cf6d0c325d86f6be
+call git checkout 09f8fa174bac34e2f1bad66cf9b61534d4df99a8
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install .
@@ -75,6 +74,7 @@ call python -m pip install git+https://github.com/LeastAuthority/privacypass
 call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
+call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
 call set PYTHONHASHSEED=

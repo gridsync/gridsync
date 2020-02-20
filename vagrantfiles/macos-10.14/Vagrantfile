@@ -2,8 +2,8 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.define "gridsync-macos-10.13"
-  config.vm.box = "monsenso/macos-10.13"
+  config.vm.define "gridsync-macos-10.14"
+  config.vm.box = "yzgyyang/macOS-10.14"
   #config.vm.box_url = "https://vagrantcloud.com/jhcook/boxes/macos-sierra/versions/10.12.6/providers/virtualbox.box"
   #config.vm.box_download_checksum = "6716006846b256acefc18c3d76d794f2253ac156d55e464742f87148828b88ed"
   #config.vm.box_download_checksum_type = "sha256"
@@ -19,8 +19,9 @@ Vagrant.configure("2") do |config|
     vb.gui = true
     vb.memory = "2048"
     vb.cpus = 2
-    # Disable USB 2.0; needed to run without proprietary Oracle Extension Pack
+    # Disable USB 2.0 & 3.0; needed to run without proprietary Oracle Extension Pack
     vb.customize ["modifyvm", :id, "--usbehci", "off"]
+    vb.customize ["modifyvm", :id, "--usbxhci", "off"]
     # Forward YubiKey to guest VM for signing
     vb.customize ["modifyvm", :id, "--usb", "on"]
     vb.customize ['usbfilter', 'add', '0',
@@ -31,26 +32,6 @@ Vagrant.configure("2") do |config|
       '--productid', "0x0407",
       '--product', "Yubico YubiKey OTP+FIDO+CCID"]
   end
-  config.vm.provision "shell", inline: <<-SHELL
-    # Instantiating a QApplication without first logging in will fail (with the
-    # error message "_RegisterApplication(), FAILED TO establish the default
-    # connection to the WindowServer, _CGSDefaultConnection() is NULL."), so
-    # wait for the login screen to load and enter the default vagrant password.
-    sleep 10
-    osascript -e 'tell application "System Events" to key code 126'
-    sleep 1
-    osascript -e 'tell application "System Events" to keystroke return'
-    sleep 1
-    osascript -e 'tell application "System Events" to keystroke "vagrant"'
-    sleep 1
-    osascript -e 'tell application "System Events" to keystroke return'
-    # Add the "vagrant" password to to /etc/kcpassword and enable auto-login.
-    # Encoding hack courtesy of https://github.com/timsutton/osx-vm-templates
-    #echo '\x0b\xc3\xa85Q\xc2\xb3\xc3\x92\xc2\xa9\xc3\xaa\xc2\xa3\xc2\xb9\x1f' > /etc/kcpassword
-    #chmod 600 /etc/kcpassword
-    #sudo defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser "vagrant"
-    #rm -rf ~vagrant/Library/Keychains/login.keychain*
-  SHELL
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     brew -v analytics off

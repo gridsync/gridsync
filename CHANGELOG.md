@@ -9,13 +9,14 @@
 - macOS Mojave's "dark mode" is now supported (Issue #213, PR #217)
 - Added support for "cross-compiling" Gridsync binaries via Vagrant/VirtualBox; see `README.rst` (Issue #230, PR #231)
 - Gridsync [AppImages](https://appimage.org/) are now available for GNU/Linux (Issue #245, PR #246, #248, #253)
+- macOS builds have been [notarized](https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution) (Issue #261, PR #278)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
 - The "remove" folder action and subsequent confirmation dialog have been re-framed/updated to "stop syncing" instead. In addition, removing/stopping a folder will now unlink it from the user's rootcap/Recovery Key by default (i.e., unless the user checks the accompanying checkbox to "keep a backup copy of this folder on $GridName") (Issue #183, PR #190)
 - Various scripts, configurations, and operations relating to the Gridsync CI/testing/build process have been updated and improved, slightly reducing at least one developer's growing frustrations with Travis-CI and buildbot (PR #188)
 - Twisted's `reactor.spawnProcess` will now be used for running `tahoe` subprocesses on Windows, instead of threaded `subprocess.Popen` calls (Issue #176, PR #195)
-- Gridsync binary distributions will now use and ship with (Py)Qt version 5.13 (Issue #228, PR #236)
+- GNU/Linux and Windows binary distributions will now use and ship with (Py)Qt version 5.14 (Issue #276, PR #277), while macOS will ship with 5.13 (Issue #267)
 - Due to ending upstream support and binary incompatibily with Qt 5.12, Debian 8 ("Jessie") and Ubuntu 14.04 ("Trusty Tahr") are no longer supported. Users running Debian 8 or Ubuntu 14.04 will need to upgrade their operating systems or build/install Gridsync from source (via `make`) (PR #196)
 - High-DPI scaling (via Qt5's `AA_EnableHighDpiScaling` attribute) has been enabled on all platforms/environments (except for Qubes-OS and MATE -- see #204). In addition, font- and pixmap-scaling has been improved (Issue #193, #198, #232; PR #199, #203, #204, #233)
 - The "Open Gridsync" menu action will now also un-minimize and re-focus the window in the event that it is already open (Issue #205; PR #206)
