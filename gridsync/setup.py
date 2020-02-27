@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import base64
-import json
 import logging as log
 import os
 import shutil
