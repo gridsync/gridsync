@@ -219,9 +219,9 @@ pywin32==227 ; sys_platform == "win32" \
     --hash=sha256:f27cec5e7f588c3d1051651830ecc00294f90728d19c3bf6916e6dba93ea357c \
     --hash=sha256:f4c5be1a293bae0076d93c88f37ee8da68136744588bc5e2be2f299a34ceb7aa
 # Required by ZKAPAuthorizer
-requests==2.22.0 \
-    --hash=sha256:11e007a8a2aa0323f5a921e9e6a2d7e4e67d9877e85773fba9ba6419025cbeb4 \
-    --hash=sha256:9cf5292fcd0f598c671cfc1e0d7d1a7f13bb8085e9a590f48c010551dc6c4b31
+requests==2.23.0 \
+    --hash=sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee \
+    --hash=sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6
 PyYAML==5.3 \
     --hash=sha256:059b2ee3194d718896c0ad077dd8c043e5e909d9180f387ce42012662a4946d6 \
     --hash=sha256:1cf708e2ac57f3aabc87405f04b86354f66799c8e62c28c5fc5f88b5521b2dbf \
@@ -277,9 +277,9 @@ txtorcon==19.1.0 \
     --hash=sha256:25d8e52c3eac45bb90ff958ca7cdd7674fb3284e3a50826a58ab7b9578b15ea5 \
     --hash=sha256:e93aef50f339b537ed969a4d83a704a2870658bb49cdfa95495ba5a740548d32
 # Required by ZKAPAuthorizer
-urllib3==1.25.7 \
-    --hash=sha256:a8a318824cc77d1fd4b2bec2ded92646630d7fe8619497b142c84a9e6f5a7293 \
-    --hash=sha256:f3c5fd51747d450d4dcf6f923c81f78f811aab8205fda64b0aba34a4e48b0745
+urllib3==1.25.8 \
+    --hash=sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc \
+    --hash=sha256:87716c2d2a7121198ebcb7ce7cccf6ce5e9ba539041cfbaeecfb641dc0bf6acc
 watchdog==0.9.0 ; sys_platform != "win32" and sys_platform != "linux2" \
     --hash=sha256:965f658d0732de3188211932aeb0bb457587f04f63ab4c1e33eab878e9de961d
 zfec==1.5.3 \
