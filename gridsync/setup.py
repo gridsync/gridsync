@@ -225,6 +225,13 @@ class SetupRunner(QObject):
         self.gateway = Tahoe(nodedir, executable=executable)
         yield self.gateway.create_client(**settings)
 
+        with atomic_write(
+            os.path.join(nodedir, "private", "settings.json"),
+            mode="w",
+            overwrite=True,
+        ) as f:
+            f.write(json.dumps(settings))
+
         newscap = settings.get("newscap")
         if newscap:
             with atomic_write(
@@ -256,17 +263,12 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def ensure_recovery(self, settings):
-        settings_path = os.path.join(
-            self.gateway.nodedir, "private", "settings.json"
-        )
         if settings.get("rootcap"):
             self.update_progress.emit("Loading Recovery Key...")
             with atomic_write(
                 self.gateway.rootcap_path, mode="w", overwrite=True
             ) as f:
                 f.write(settings["rootcap"])
-            with atomic_write(settings_path, mode="w", overwrite=True) as f:
-                f.write(json.dumps(settings))
         else:
             self.update_progress.emit("Generating Recovery Key...")
             try:
@@ -275,7 +277,9 @@ class SetupRunner(QObject):
                 pass
             with atomic_write(settings_path, mode="w", overwrite=True) as f:
                 f.write(json.dumps(settings))
-            settings_cap = yield self.gateway.upload(settings_path)
+            settings_cap = yield self.gateway.upload(
+                os.path.join(self.gateway.nodedir, "private", "settings.json")
+            )
             yield self.gateway.link(
                 self.gateway.rootcap, "settings.json", settings_cap
             )
