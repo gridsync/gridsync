@@ -138,6 +138,7 @@ class Tahoe:
         self.zkap_auth_required = False
         self.zkap_name: str = ""
         self.zkap_payment_url_root: str = ""
+        self.settings: dict = {}
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -166,6 +167,36 @@ class Tahoe:
 
     def config_get(self, section, option):
         return self.config.get(section, option)
+
+    def save_settings(self, settings: dict) -> None:
+        with atomic_write(
+            Path(self.nodedir, "private", "settings.json"), overwrite=True
+        ) as f:
+            f.write(json.dumps(settings))
+
+        rootcap = settings.get("newscap")
+        if rootcap:
+            with atomic_write(
+                Path(self.nodedir, "private", "rootcap"), overwrite=True
+            ) as f:
+                f.write(rootcap)
+
+        newscap = settings.get("newscap")
+        if newscap:
+            with atomic_write(
+                Path(self.nodedir, "private", "newscap"), overwrite=True
+            ) as f:
+                f.write(newscap)
+
+    def load_settings(self) -> None:
+        with open(Path(self.nodedir, "private", "settings.json")) as f:
+            self.settings = json.loads(f.read())
+            self.zkap_name = self.settings.get(
+                "zkap_name", "Zero-Knowledge Access Pass"
+            )
+            self.zkap_payment_url_root = self.settings.get(
+                "zkap_payment_url_root"
+            )
 
     def get_settings(self, include_rootcap=False):
         settings = {
@@ -546,19 +577,6 @@ class Tahoe:
                 messages.append(json.dumps(json.loads(line), sort_keys=True))
         return "\n".join(messages)
 
-    def load_zkap_settings(self) -> None:
-        try:
-            with open(Path(self.nodedir, "private", "settings.json")) as f:
-                settings = json.loads(f.read())
-                self.zkap_name = settings.get(
-                    "zkap_name", "Zero-Knowledge Access Pass"
-                )
-                self.zkap_payment_url_root = settings.get(
-                    "zkap_payment_url_root"
-                )
-        except OSError:
-            pass
-
     @inlineCallbacks
     def start(self):
         log.debug('Starting "%s" tahoe client...', self.name)
@@ -572,7 +590,7 @@ class Tahoe:
             "ristretto-issuer-root-url",
         ):
             self.zkap_auth_required = True
-            self.load_zkap_settings()
+
         if os.path.isfile(self.pidfile):
             yield self.stop()
         if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
@@ -582,6 +600,9 @@ class Tahoe:
         if sys.platform == "win32" and pid.isdigit():
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
                 f.write(pid)
+
+        self.load_settings()
+
         with open(os.path.join(self.nodedir, "node.url")) as f:
             self.set_nodeurl(f.read().strip())
         token_file = os.path.join(self.nodedir, "private", "api_auth_token")

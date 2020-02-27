@@ -225,21 +225,7 @@ class SetupRunner(QObject):
         self.gateway = Tahoe(nodedir, executable=executable)
         yield self.gateway.create_client(**settings)
 
-        with atomic_write(
-            os.path.join(nodedir, "private", "settings.json"),
-            mode="w",
-            overwrite=True,
-        ) as f:
-            f.write(json.dumps(settings))
-
-        newscap = settings.get("newscap")
-        if newscap:
-            with atomic_write(
-                os.path.join(nodedir, "private", "newscap"),
-                mode="w",
-                overwrite=True,
-            ) as f:
-                f.write(newscap)
+        self.gateway.save_settings(settings)
 
         if icon_path:
             try:
@@ -265,18 +251,14 @@ class SetupRunner(QObject):
     def ensure_recovery(self, settings):
         if settings.get("rootcap"):
             self.update_progress.emit("Loading Recovery Key...")
-            with atomic_write(
-                self.gateway.rootcap_path, mode="w", overwrite=True
-            ) as f:
-                f.write(settings["rootcap"])
+            self.gateway.save_settings(settings)  # XXX Unnecessary?
         else:
             self.update_progress.emit("Generating Recovery Key...")
             try:
                 settings["rootcap"] = yield self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
-            with atomic_write(settings_path, mode="w", overwrite=True) as f:
-                f.write(json.dumps(settings))
+            self.gateway.save_settings(settings)
             settings_cap = yield self.gateway.upload(
                 os.path.join(self.gateway.nodedir, "private", "settings.json")
             )
