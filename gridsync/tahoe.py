@@ -170,21 +170,21 @@ class Tahoe:
 
     def save_settings(self, settings: dict) -> None:
         with atomic_write(
-            Path(self.nodedir, "private", "settings.json"), overwrite=True
+            str(Path(self.nodedir, "private", "settings.json")), overwrite=True
         ) as f:
             f.write(json.dumps(settings))
 
         rootcap = settings.get("newscap")
         if rootcap:
             with atomic_write(
-                Path(self.nodedir, "private", "rootcap"), overwrite=True
+                str(Path(self.nodedir, "private", "rootcap")), overwrite=True
             ) as f:
                 f.write(rootcap)
 
         newscap = settings.get("newscap")
         if newscap:
             with atomic_write(
-                Path(self.nodedir, "private", "newscap"), overwrite=True
+                str(Path(self.nodedir, "private", "newscap")), overwrite=True
             ) as f:
                 f.write(newscap)
 
@@ -195,7 +195,7 @@ class Tahoe:
                 "zkap_name", "Zero-Knowledge Access Pass"
             )
             self.zkap_payment_url_root = self.settings.get(
-                "zkap_payment_url_root"
+                "zkap_payment_url_root", ""
             )
 
     def get_settings(self, include_rootcap=False):
@@ -601,7 +601,10 @@ class Tahoe:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
                 f.write(pid)
 
-        self.load_settings()
+        try:
+            self.load_settings()
+        except FileNotFoundError:
+            pass
 
         with open(os.path.join(self.nodedir, "node.url")) as f:
             self.set_nodeurl(f.read().strip())
