@@ -617,6 +617,9 @@ class Tahoe:
         self.load_newscap()
         self.newscap_checker.start()
         self.state = Tahoe.STARTED
+
+        yield self.scan_storage_plugins()
+
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
         )
@@ -1217,6 +1220,30 @@ class Tahoe:
             voucher,
             hashlib.sha256(voucher.encode()).hexdigest(),
         )
+
+    @inlineCallbacks
+    def get_zkapauthz_version(self):
+        resp = yield treq.get(
+            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+            "/version"
+        )
+        version = ""
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            version = content.get("version", "")
+        return version
+
+    @inlineCallbacks
+    def scan_storage_plugins(self):
+        plugins = []
+        log.debug("Scanning for known storage plugins...")
+        version = yield self.get_zkapauthz_version()
+        if version:
+            plugins.append(("ZKAPAuthorizer", version))
+        if plugins:
+            log.debug("Found storage plugins: %s", plugins)
+        else:
+            log.debug("No storage plugins found")
 
 
 @inlineCallbacks
