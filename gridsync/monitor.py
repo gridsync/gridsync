@@ -295,7 +295,9 @@ class ZKAPChecker(QObject):
             self.zkaps_remaining = remaining
             self.zkaps_total = total
             self.zkaps_updated.emit(remaining, total)
-        print(f"ZKAPs remaining: {remaining}; total: {total}")  # XXX
+            logging.debug(
+                "ZKAPs updated: remaining: %s; total: %s", remaining, total
+            )
 
 
 class Monitor(QObject):
