@@ -33,6 +33,7 @@ hidden_imports = [
     'cffi',
     'privacypass',
     '_zkapauthorizer',
+    'twisted.plugins.zkapauthorizer',
     # Required previously, but possibly no longer necessary:
     'six.moves.html_parser',
     'yaml',
