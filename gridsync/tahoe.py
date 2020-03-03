@@ -136,7 +136,9 @@ class Tahoe:
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
         self.zkap_auth_required = False
-        self.zkap_name: str = ""
+        self.zkap_name: str = "Zero-Knowledge Access Pass"
+        self.zkap_name_abbrev: str = "ZKAP"
+        self.zkap_name_plural: str = "Zero-Knowledge Access Passes"
         self.zkap_payment_url_root: str = ""
         self.settings: dict = {}
 
@@ -191,9 +193,14 @@ class Tahoe:
     def load_settings(self) -> None:
         with open(Path(self.nodedir, "private", "settings.json")) as f:
             self.settings = json.loads(f.read())
-            self.zkap_name = self.settings.get(
-                "zkap_name", "Zero-Knowledge Access Pass"
-            )
+            zkap_name = self.settings.get("zkap_name", "")
+            if zkap_name:
+                self.zkap_name = zkap_name
+                self.zkap_name_abbrev = "".join(
+                    [c for c in zkap_name if c.isupper()]
+                )
+                suffix = ("es" if zkap_name.endswith("s") else "s")  # XXX
+                self.zkap_name_plural = f"{zkap_name}{suffix}"
             self.zkap_payment_url_root = self.settings.get(
                 "zkap_payment_url_root", ""
             )
