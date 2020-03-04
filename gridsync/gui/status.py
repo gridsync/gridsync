@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from humanize import naturalsize
+from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import (
@@ -14,7 +15,8 @@ from PyQt5.QtWidgets import (
 )
 
 from gridsync import resource
-from gridsync.gui.charts import ZKAPChartView
+
+# from gridsync.gui.charts import ZKAPChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
@@ -93,7 +95,12 @@ class StatusPanel(QWidget):
             "QToolButton::menu-indicator { image: none }"
         )
 
-        zkap_chart_view = ZKAPChartView()
+        # zkap_chart_view = ZKAPChartView()
+
+        self.zkap_button = QToolButton(self)
+        self.zkap_button.setCheckable(True)
+        self.zkap_button.setStyleSheet("color: {}".format(dimmer_grey))
+        self.zkap_button.hide()
 
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
@@ -104,7 +111,8 @@ class StatusPanel(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.tor_button, 1, 4)
         # layout.addWidget(self.globe_button, 1, 5)
-        layout.addWidget(zkap_chart_view, 1, 5)
+        # layout.addWidget(zkap_chart_view, 1, 5)
+        layout.addWidget(self.zkap_button, 1, 5)
         layout.addWidget(preferences_button, 1, 6)
 
         self.gateway.monitor.total_sync_state_updated.connect(
@@ -112,6 +120,7 @@ class StatusPanel(QWidget):
         )
         self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
+        self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
 
     def on_sync_state_updated(self, state):
         if state == 0:
@@ -155,3 +164,10 @@ class StatusPanel(QWidget):
         self.num_connected = connected
         self.num_known = known
         self._update_grid_info_tooltip()
+
+    @Slot(int, int)
+    def on_zkaps_updated(self, remaining: int, total: int) -> None:
+        self.zkap_button.setText(
+            f"{self.gateway.zkap_name_abbrev}s: {remaining}/{total}"
+        )
+        self.zkap_button.show()
