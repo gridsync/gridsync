@@ -11,7 +11,7 @@ from PyQt5.QtCore import QMargins, Qt
 from PyQt5.QtGui import QColor, QPainter, QPen
 
 
-class ZKAPChart(QChart):
+class ZKAPPieChart(QChart):
     def __init__(self):
         super().__init__()
 
