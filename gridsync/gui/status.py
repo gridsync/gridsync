@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 
-from gridsync.gui.charts import ZKAPCompactPieChartView
+# from gridsync.gui.charts import ZKAPCompactPieChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
