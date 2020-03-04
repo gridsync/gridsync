@@ -31,6 +31,7 @@ from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
+from gridsync.gui.zkap import ZKAPInfoPane
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.util import strip_html_tags
@@ -70,6 +71,11 @@ class CentralWidget(QStackedWidget):
         self.views = []
         self.folders_views = {}
         self.history_views = {}
+        self.zkap_views = {}
+        self.status_panels = []
+
+        # XXX/TODO: There are too many StatusPanel instances here,
+        # resulting in spaghetti.. Clean this up.
 
     def add_folders_view(self, gateway):
         view = View(self.gui, gateway)
@@ -82,7 +88,10 @@ class CentralWidget(QStackedWidget):
             left, _, right, _ = layout.getContentsMargins()
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
-        layout.addWidget(StatusPanel(gateway, self.gui))
+        status_panel = StatusPanel(gateway, self.gui)
+        status_panel.zkap_button.clicked.connect(self.on_zkap_button_clicked)
+        self.status_panels.append(status_panel)
+        layout.addWidget(status_panel)
         self.addWidget(widget)
         self.views.append(view)
         self.folders_views[gateway] = widget
@@ -91,6 +100,44 @@ class CentralWidget(QStackedWidget):
         view = HistoryView(gateway, self.gui)
         self.addWidget(view)
         self.history_views[gateway] = view
+
+    def add_zkap_view(self, gateway):
+        view = ZKAPInfoPane(gateway)
+        widget = QWidget()
+        layout = QGridLayout(widget)
+        if sys.platform == "darwin":
+            # XXX: For some reason, getContentsMargins returns 20 px on macOS..
+            layout.setContentsMargins(11, 11, 11, 0)
+        else:
+            left, _, right, _ = layout.getContentsMargins()
+            layout.setContentsMargins(left, 0, right, 0)
+        layout.addWidget(view)
+        status_panel = StatusPanel(gateway, self.gui)
+        status_panel.zkap_button.clicked.connect(self.on_zkap_button_clicked)
+        self.status_panels.append(status_panel)
+        layout.addWidget(status_panel)
+        self.addWidget(widget)
+        self.zkap_views[gateway] = widget
+
+    def on_zkap_button_clicked(self, checked):
+        if checked:
+            for panel in self.status_panels:  # XXX
+                panel.zkap_button.setChecked(True)
+            self.gui.main_window.history_button.setChecked(False)  # XXX
+            try:
+                self.setCurrentWidget(
+                    self.zkap_views[
+                        self.gui.main_window.combo_box.currentData()
+                    ]
+                )
+            except KeyError:
+                pass
+        else:
+            for panel in self.status_panels:  # XXX
+                panel.zkap_button.setChecked(False)
+            self.gui.main_window.history_button.setChecked(False)  # XXX
+            self.gui.main_window.show_folders_view()  # XXX
+        self.gui.main_window.set_current_grid_status()  # XXX
 
 
 class MainWindow(QMainWindow):
@@ -286,6 +333,7 @@ class MainWindow(QMainWindow):
             if gateway not in self.gateways:
                 self.central_widget.add_folders_view(gateway)
                 self.central_widget.add_history_view(gateway)
+                self.central_widget.add_zkap_view(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
                 gateway.newscap_checker.message_received.connect(
@@ -435,6 +483,8 @@ class MainWindow(QMainWindow):
         if not self.history_button.isChecked():
             self.history_button.setChecked(True)
             self.show_history_view()
+            for panel in self.central_widget.status_panels:  # XXX
+                panel.zkap_button.setChecked(False)
         else:
             self.history_button.setChecked(False)
             self.show_folders_view()
