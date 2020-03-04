@@ -108,17 +108,3 @@ class ZKAPBarChartView(QChartView):
         self.chart = ZKAPBarChart()
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
-
-
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication, QMainWindow
-
-    app = QApplication(sys.argv)
-    chart = ZKAPBarChart()
-    view = QChartView(chart)
-    view.setRenderHint(QPainter.Antialiasing)
-    window = QMainWindow()
-    window.setCentralWidget(view)
-    window.show()
-    sys.exit(app.exec_())
