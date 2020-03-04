@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 
-# from gridsync.gui.charts import ZKAPChartView
+from gridsync.gui.charts import ZKAPCompactPieChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
@@ -95,7 +95,7 @@ class StatusPanel(QWidget):
             "QToolButton::menu-indicator { image: none }"
         )
 
-        # zkap_chart_view = ZKAPChartView()
+        # zkap_chart_view = ZKAPCompactPieChartView()
 
         self.zkap_button = QToolButton(self)
         self.zkap_button.setCheckable(True)
