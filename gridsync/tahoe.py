@@ -199,7 +199,7 @@ class Tahoe:
                 self.zkap_name_abbrev = "".join(
                     [c for c in zkap_name if c.isupper()]
                 )
-                suffix = ("es" if zkap_name.endswith("s") else "s")  # XXX
+                suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
                 self.zkap_name_plural = f"{zkap_name}{suffix}"
             self.zkap_payment_url_root = self.settings.get(
                 "zkap_payment_url_root", ""
