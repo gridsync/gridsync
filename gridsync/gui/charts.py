@@ -93,11 +93,10 @@ class ZKAPBarChart(QChart):
         self.setToolTip("")  # XXX
 
 
-class ZKAPChartView(QChartView):
+class ZKAPBarChartView(QChartView):
     def __init__(self):
         super().__init__()
         self.chart = ZKAPBarChart()
-        self.setMaximumSize(26, 26)
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
 
