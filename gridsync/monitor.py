@@ -6,6 +6,7 @@ import time
 
 from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
 from gridsync.crypto import trunchash
@@ -277,7 +278,7 @@ class ZKAPChecker(QObject):
             return
         try:
             vouchers = yield self.gateway.get_vouchers()
-        except TahoeWebError:
+        except ConnectError, TahoeWebError:
             return  # XXX
         if not vouchers:
             return
@@ -288,7 +289,7 @@ class ZKAPChecker(QObject):
                 total += state.get("token-count")
         try:
             zkaps = yield self.gateway.get_zkaps(limit=1)
-        except TahoeWebError:
+        except ConnectError, TahoeWebError:
             return  # XXX
         remaining = zkaps.get("total")
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
