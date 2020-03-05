@@ -1,16 +1,18 @@
+import os
 import webbrowser
 
 import treq
 from twisted.internet.task import react
 from twisted.internet.defer import inlineCallbacks
 
+from gridsync import config_dir
 from gridsync.tahoe import Tahoe
 
 
 @react
 @inlineCallbacks
 def main(reactor):
-    t = Tahoe("/home/user/.config/gridsync/ZKAP Test Grid")
+    t = Tahoe(os.path.join(config_dir, "PrivateStorage Staging"))
     yield t.start()
     yield t.await_ready()
     new = yield t.add_voucher(None)
