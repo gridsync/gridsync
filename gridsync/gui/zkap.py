@@ -9,6 +9,7 @@ from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import (
     QFormLayout,
     QGridLayout,
+    QGroupBox,
     QLabel,
     QPushButton,
     QSizePolicy,
@@ -26,6 +27,8 @@ class ZKAPInfoPane(QWidget):
         super().__init__()
 
         self.gateway = gateway
+
+        self.groupbox = QGroupBox()
 
         title = QLabel(
             f"{gateway.zkap_name_plural} ({gateway.zkap_name_abbrev}s)"
@@ -86,7 +89,7 @@ class ZKAPInfoPane(QWidget):
 
         voucher_link = QLabel("<a href>I have a voucher code</a>")
 
-        layout = QGridLayout(self)
+        layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(title, 20, 0)
         # layout.addWidget(subtext, 30, 0)
@@ -99,6 +102,11 @@ class ZKAPInfoPane(QWidget):
         # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 100, 0)
         layout.addWidget(voucher_link, 120, 0, 1, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 999, 0)
+
+        self.groupbox.setLayout(layout)
+
+        main_layout = QGridLayout(self)
+        main_layout.addWidget(self.groupbox)
 
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX
