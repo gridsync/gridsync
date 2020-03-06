@@ -54,6 +54,8 @@ class ZKAPInfoPane(QWidget):
         )
         self.text_label.setWordWrap(True)
 
+        self.spacer = QSpacerItem(0, 0, 0, QSizePolicy.Expanding)
+
         self.chart_view = ZKAPBarChartView()
         self.chart_view.setFixedHeight(128)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
@@ -97,7 +99,7 @@ class ZKAPInfoPane(QWidget):
         # layout.addWidget(subtext, 30, 0)
         layout.addWidget(self.text_label, 40, 0)
         # layout.addWidget(QLabel(" "), 50, 0)
-        # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 60, 0)
+        layout.addItem(self.spacer, 60, 0)
         layout.addLayout(form_layout, 70, 0)
         layout.addWidget(self.chart_view, 80, 0)
         layout.addWidget(button, 90, 0, 1, 1, Qt.AlignCenter)
