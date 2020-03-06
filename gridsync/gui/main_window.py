@@ -150,7 +150,8 @@ class MainWindow(QMainWindow):
         self.recovery_key_exporter = None
 
         self.setWindowTitle(APP_NAME)
-        self.setMinimumSize(QSize(600, 400))
+        # self.setMinimumSize(QSize(600, 400))
+        self.setMinimumSize(QSize(700, 450))
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.setContextMenuPolicy(Qt.NoContextMenu)
 
