@@ -256,7 +256,9 @@ class MainWindow(QMainWindow):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        self.history_action = QAction(QIcon(resource("time.png")), "History", self)
+        self.history_action = QAction(
+            QIcon(resource("time.png")), "History", self
+        )
         self.history_action.setEnabled(False)
         self.history_action.setToolTip("Show/Hide History")
         self.history_action.setFont(font)
