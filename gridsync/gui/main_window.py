@@ -38,8 +38,10 @@ from gridsync.util import strip_html_tags
 
 
 class ComboBox(QComboBox):
-    def __init__(self):
+    def __init__(self, parent):
         super(ComboBox, self).__init__()
+        self.parent = parent
+
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.setFont(Font(10))
         self.current_index = 0
@@ -53,6 +55,17 @@ class ComboBox(QComboBox):
             self.setCurrentIndex(self.current_index)
         else:
             self.current_index = index
+        gateway = self.currentData()
+        logging.debug("Selected %s", gateway.name)
+        if (
+            gateway.zkap_auth_required
+            and not gateway.monitor.zkap_checker.zkaps_remaining
+        ):
+            self.parent.folder_action.setEnabled(False)
+            self.parent.history_action.setEnabled(False)
+        else:
+            self.parent.folder_action.setEnabled(True)
+            self.parent.history_action.setEnabled(True)
 
     def add_gateway(self, gateway):
         basename = os.path.basename(os.path.normpath(gateway.nodedir))
@@ -188,7 +201,7 @@ class MainWindow(QMainWindow):
         folder_icon = QIcon(folder_icon_composite)
 
         self.folder_action = QAction(folder_icon, "Add Folder", self)
-        self.folder_action.setDisabled(True)
+        self.folder_action.setEnabled(False)
         self.folder_action.setToolTip("Add a Folder...")
         self.folder_action.setFont(font)
         self.folder_action.triggered.connect(self.select_folder)
@@ -245,14 +258,14 @@ class MainWindow(QMainWindow):
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        self.combo_box = ComboBox()
+        self.combo_box = ComboBox(self)
         self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
 
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         self.history_action = QAction(QIcon(resource("time.png")), "History", self)
-        self.history_action.setDisabled(True)
+        self.history_action.setEnabled(False)
         self.history_action.setToolTip("Show/Hide History")
         self.history_action.setFont(font)
         self.history_action.triggered.connect(self.on_history_button_clicked)
