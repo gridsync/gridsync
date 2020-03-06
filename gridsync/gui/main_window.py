@@ -187,10 +187,11 @@ class MainWindow(QMainWindow):
         )
         folder_icon = QIcon(folder_icon_composite)
 
-        folder_action = QAction(folder_icon, "Add Folder", self)
-        folder_action.setToolTip("Add a Folder...")
-        folder_action.setFont(font)
-        folder_action.triggered.connect(self.select_folder)
+        self.folder_action = QAction(folder_icon, "Add Folder", self)
+        self.folder_action.setDisabled(True)
+        self.folder_action.setToolTip("Add a Folder...")
+        self.folder_action.setFont(font)
+        self.folder_action.triggered.connect(self.select_folder)
 
         grid_invites_enabled = True
         features_settings = settings.get("features")
@@ -250,13 +251,14 @@ class MainWindow(QMainWindow):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        history_action = QAction(QIcon(resource("time.png")), "History", self)
-        history_action.setToolTip("Show/Hide History")
-        history_action.setFont(font)
-        history_action.triggered.connect(self.on_history_button_clicked)
+        self.history_action = QAction(QIcon(resource("time.png")), "History", self)
+        self.history_action.setDisabled(True)
+        self.history_action.setToolTip("Show/Hide History")
+        self.history_action.setFont(font)
+        self.history_action.triggered.connect(self.on_history_button_clicked)
 
         self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(history_action)
+        self.history_button.setDefaultAction(self.history_action)
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
@@ -307,7 +309,7 @@ class MainWindow(QMainWindow):
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
-        self.toolbar.addAction(folder_action)
+        self.toolbar.addAction(self.folder_action)
         if grid_invites_enabled:
             self.toolbar.addWidget(invites_button)
         else:
