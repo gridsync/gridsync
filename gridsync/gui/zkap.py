@@ -60,21 +60,21 @@ class ZKAPInfoPane(QWidget):
         form_layout = QFormLayout()
 
         self.refill_label = QLabel("Last Refill")
-        self.refill_field = QLabel("0")
+        self.refill_field = QLabel("Not available")
         self.refill_field.setAlignment(Qt.AlignRight)
 
         self.usage_label = QLabel(
             f"{gateway.zkap_name_abbrev} usage (since last refill)"
         )
-        self.usage_field = QLabel("0")
+        self.usage_field = QLabel("Not available")
         self.usage_field.setAlignment(Qt.AlignRight)
 
         self.expiration_label = QLabel("Next Expiration (at current usage)")
-        self.expiration_field = QLabel("0")
+        self.expiration_field = QLabel("Not available")
         self.expiration_field.setAlignment(Qt.AlignRight)
 
         self.stored_label = QLabel("Total Current Amount Stored")
-        self.stored_field = QLabel("0")
+        self.stored_field = QLabel("Not available")
         self.stored_field.setAlignment(Qt.AlignRight)
 
         form_layout.addRow(self.refill_label, self.refill_field)
