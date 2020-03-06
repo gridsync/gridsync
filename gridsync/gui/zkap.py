@@ -163,3 +163,4 @@ class ZKAPInfoPane(QWidget):
         used = total - remaining
         cost = used  # XXX
         self.chart_view.chart.update(used, cost, remaining)
+        self.usage_field.setText(str(used))
