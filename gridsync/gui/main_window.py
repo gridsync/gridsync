@@ -57,15 +57,7 @@ class ComboBox(QComboBox):
             self.current_index = index
         gateway = self.currentData()
         logging.debug("Selected %s", gateway.name)
-        if (
-            gateway.zkap_auth_required
-            and not gateway.monitor.zkap_checker.zkaps_remaining
-        ):
-            self.parent.folder_action.setEnabled(False)
-            self.parent.history_action.setEnabled(False)
-        else:
-            self.parent.folder_action.setEnabled(True)
-            self.parent.history_action.setEnabled(True)
+        self.parent.maybe_enable_actions()
 
     def add_gateway(self, gateway):
         basename = os.path.basename(os.path.normpath(gateway.nodedir))
@@ -344,6 +336,18 @@ class MainWindow(QMainWindow):
 
         self.pending_news_message = ()
 
+    def maybe_enable_actions(self):
+        gateway = self.combo_box.currentData()
+        if (
+            gateway.zkap_auth_required
+            and not gateway.monitor.zkap_checker.zkaps_remaining
+        ):
+            self.parent.folder_action.setEnabled(False)
+            self.parent.history_action.setEnabled(False)
+        else:
+            self.parent.folder_action.setEnabled(True)
+            self.parent.history_action.setEnabled(True)
+
     def populate(self, gateways):
         for gateway in gateways:
             if gateway not in self.gateways:
@@ -358,6 +362,8 @@ class MainWindow(QMainWindow):
                 gateway.newscap_checker.upgrade_required.connect(
                     self.on_upgrade_required
                 )
+        if gateways:
+            self.maybe_enable_actions()
 
     def show_news_message(self, gateway, title, message):
         msgbox = QMessageBox(self)
