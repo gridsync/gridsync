@@ -113,6 +113,26 @@ class ZKAPInfoPane(QWidget):
             self.on_zkaps_redeemed_time
         )
 
+    def _show_table(self):
+        self.refill_label.show()
+        self.refill_field.show()
+        self.usage_label.show()
+        self.usage_field.show()
+        self.expiration_label.show()
+        self.expiration_field.show()
+        self.stored_label.show()
+        self.stored_field.show()
+
+    def _hide_table(self):
+        self.refill_label.hide()
+        self.refill_field.hide()
+        self.usage_label.hide()
+        self.usage_field.hide()
+        self.expiration_label.hide()
+        self.expiration_field.hide()
+        self.stored_label.hide()
+        self.stored_field.hide()
+
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX
         voucher = yield self.gateway.add_voucher()
