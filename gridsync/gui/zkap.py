@@ -53,9 +53,9 @@ class ZKAPInfoPane(QWidget):
         )
         self.text_label.setWordWrap(True)
 
-        view = ZKAPBarChartView()
-        view.setFixedHeight(128)
-        view.setRenderHint(QPainter.Antialiasing)
+        self.chart_view = ZKAPBarChartView()
+        self.chart_view.setFixedHeight(128)
+        self.chart_view.setRenderHint(QPainter.Antialiasing)
 
         form_layout = QFormLayout()
 
@@ -98,7 +98,7 @@ class ZKAPInfoPane(QWidget):
         # layout.addWidget(QLabel(" "), 50, 0)
         # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 60, 0)
         layout.addLayout(form_layout, 70, 0)
-        layout.addWidget(view, 80, 0)
+        layout.addWidget(self.chart_view, 80, 0)
         layout.addWidget(button, 90, 0, 1, 1, Qt.AlignCenter)
         # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 100, 0)
         layout.addWidget(voucher_link, 120, 0, 1, 1, Qt.AlignCenter)
@@ -113,6 +113,7 @@ class ZKAPInfoPane(QWidget):
             self.on_zkaps_redeemed_time
         )
 
+        self.chart_view.hide()
         self._hide_table()
 
     def _show_table(self):
@@ -154,3 +155,4 @@ class ZKAPInfoPane(QWidget):
         self.refill_field.setText(timestamp.split("T")[0])  # TODO: humanize
         self.text_label.hide()
         self._show_table()
+        self.chart_view.show()
