@@ -93,7 +93,7 @@ class ZKAPInfoPane(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(title, 20, 0)
         # layout.addWidget(subtext, 30, 0)
-        # layout.addWidget(self.text_label, 40, 0)
+        layout.addWidget(self.text_label, 40, 0)
         # layout.addWidget(QLabel(" "), 50, 0)
         # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 60, 0)
         layout.addLayout(form_layout, 70, 0)
@@ -129,3 +129,4 @@ class ZKAPInfoPane(QWidget):
     @Slot(str)
     def on_zkaps_redeemed_time(self, timestamp):
         self.label_refill.setText(timestamp.split("T")[0])  # TODO: humanize
+        self.text_label.hide()
