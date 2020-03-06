@@ -59,8 +59,8 @@ class ZKAPInfoPane(QWidget):
 
         form_layout = QFormLayout()
 
-        label_refill = QLabel("0")  # XXX
-        label_refill.setAlignment(Qt.AlignRight)
+        self.label_refill = QLabel("0")  # XXX
+        self.label_refill.setAlignment(Qt.AlignRight)
 
         label_usage = QLabel("0")  # XXX
         label_usage.setAlignment(Qt.AlignRight)
@@ -71,7 +71,7 @@ class ZKAPInfoPane(QWidget):
         label_stored = QLabel("0")  # XXX
         label_stored.setAlignment(Qt.AlignRight)
 
-        form_layout.addRow("Last Refill", label_refill)
+        form_layout.addRow("Last Refill", self.label_refill)
         form_layout.addRow(
             f"{gateway.zkap_name_abbrev} usage (since last refill)",
             label_usage,
@@ -108,6 +108,10 @@ class ZKAPInfoPane(QWidget):
         main_layout = QGridLayout(self)
         main_layout.addWidget(self.groupbox)
 
+        self.gateway.monitor.zkaps_redeemed_time.connect(
+            self.on_zkaps_redeemed_time
+        )
+
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX
         voucher = yield self.gateway.add_voucher()
@@ -121,3 +125,7 @@ class ZKAPInfoPane(QWidget):
     @Slot()
     def on_button_clicked(self):
         self._open_zkap_payment_url()
+
+    @Slot(str)
+    def on_zkaps_redeemed_time(self, timestamp):
+        self.label_refill.setText(timestamp.split("T")[0])  # TODO: humanize
