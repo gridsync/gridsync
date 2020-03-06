@@ -342,11 +342,11 @@ class MainWindow(QMainWindow):
             gateway.zkap_auth_required
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
-            self.parent.folder_action.setEnabled(False)
-            self.parent.history_action.setEnabled(False)
+            self.folder_action.setEnabled(False)
+            self.history_action.setEnabled(False)
         else:
-            self.parent.folder_action.setEnabled(True)
-            self.parent.history_action.setEnabled(True)
+            self.folder_action.setEnabled(True)
+            self.history_action.setEnabled(True)
 
     def populate(self, gateways):
         for gateway in gateways:
