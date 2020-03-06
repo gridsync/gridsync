@@ -123,6 +123,7 @@ class CentralWidget(QStackedWidget):
         if checked:
             for panel in self.status_panels:  # XXX
                 panel.zkap_button.setChecked(True)
+                panel.zkap_button.show()
             self.gui.main_window.history_button.setChecked(False)  # XXX
             try:
                 self.setCurrentWidget(
