@@ -263,6 +263,7 @@ class GridChecker(QObject):
 class ZKAPChecker(QObject):
 
     zkaps_updated = pyqtSignal(int, int)  # remaining, total
+    zkaps_redeemed_time = pyqtSignal(str)
 
     def __init__(self, gateway):
         super().__init__()
@@ -270,6 +271,7 @@ class ZKAPChecker(QObject):
 
         self.zkaps_remaining: int = 0
         self.zkaps_total: int = 0
+        self.zkaps_last_redeemed: str = "0"
         # TODO: monthly consumption-rate
 
     @inlineCallbacks
@@ -288,6 +290,11 @@ class ZKAPChecker(QObject):
             state = voucher.get("state")
             if state.get("name") == "redeemed":
                 total += state.get("token-count")
+                finished = state.get("finished")
+                if finished > self.zkaps_last_redeemed:
+                    self.zkaps_last_redeemed = finished
+                    self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
+                self.zkaps_last_redeemed = state.get("finished")
         try:
             zkaps = yield self.gateway.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
