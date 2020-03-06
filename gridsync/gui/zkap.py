@@ -59,27 +59,28 @@ class ZKAPInfoPane(QWidget):
 
         form_layout = QFormLayout()
 
-        self.label_refill = QLabel("0")  # XXX
-        self.label_refill.setAlignment(Qt.AlignRight)
+        self.refill_label = QLabel("Last Refill")
+        self.refill_field = QLabel("0")
+        self.refill_field.setAlignment(Qt.AlignRight)
 
-        label_usage = QLabel("0")  # XXX
-        label_usage.setAlignment(Qt.AlignRight)
-
-        label_expiration = QLabel("0")  # XXX
-        label_expiration.setAlignment(Qt.AlignRight)
-
-        label_stored = QLabel("0")  # XXX
-        label_stored.setAlignment(Qt.AlignRight)
-
-        form_layout.addRow("Last Refill", self.label_refill)
-        form_layout.addRow(
-            f"{gateway.zkap_name_abbrev} usage (since last refill)",
-            label_usage,
+        self.usage_label = QLabel(
+            f"{gateway.zkap_name_abbrev} usage (since last refill)"
         )
-        form_layout.addRow(
-            "Next Expiration (at current usage)", label_expiration
-        )
-        form_layout.addRow("Total Current Amount Stored", label_stored)
+        self.usage_field = QLabel("0")
+        self.usage_field.setAlignment(Qt.AlignRight)
+
+        self.expiration_label = QLabel("Next Expiration (at current usage)")
+        self.expiration_field = QLabel("0")
+        self.expiration_field.setAlignment(Qt.AlignRight)
+
+        self.stored_label = QLabel("Total Current Amount Stored")
+        self.stored_field = QLabel("0")
+        self.stored_field.setAlignment(Qt.AlignRight)
+
+        form_layout.addRow(self.refill_label, self.refill_field)
+        form_layout.addRow(self.usage_label, self.usage_field)
+        form_layout.addRow(self.expiration_label, self.expiration_field)
+        form_layout.addRow(self.stored_label, self.stored_field)
 
         button = QPushButton(f"Purchase {gateway.zkap_name_abbrev}s")
         button.setStyleSheet("background: green; color: white")
@@ -128,5 +129,5 @@ class ZKAPInfoPane(QWidget):
 
     @Slot(str)
     def on_zkaps_redeemed_time(self, timestamp):
-        self.label_refill.setText(timestamp.split("T")[0])  # TODO: humanize
+        self.refill_field.setText(timestamp.split("T")[0])  # TODO: humanize
         self.text_label.hide()
