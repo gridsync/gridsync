@@ -153,3 +153,4 @@ class ZKAPInfoPane(QWidget):
     def on_zkaps_redeemed_time(self, timestamp):
         self.refill_field.setText(timestamp.split("T")[0])  # TODO: humanize
         self.text_label.hide()
+        self._show_table()
