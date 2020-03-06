@@ -345,6 +345,7 @@ class Monitor(QObject):
     check_finished = pyqtSignal()
 
     zkaps_updated = pyqtSignal(int, int)
+    zkaps_redeemed_time = pyqtSignal(str)
 
     def __init__(self, gateway):
         super(Monitor, self).__init__()
@@ -360,6 +361,9 @@ class Monitor(QObject):
 
         self.zkap_checker = ZKAPChecker(self.gateway)
         self.zkap_checker.zkaps_updated.connect(self.zkaps_updated.emit)
+        self.zkap_checker.zkaps_redeemed_time.connect(
+            self.zkaps_redeemed_time.emit
+        )
 
         self.magic_folder_checkers = {}
         self.total_sync_state = 0
