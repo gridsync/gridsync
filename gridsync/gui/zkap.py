@@ -112,6 +112,7 @@ class ZKAPInfoPane(QWidget):
         self.gateway.monitor.zkaps_redeemed_time.connect(
             self.on_zkaps_redeemed_time
         )
+        self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
 
         self.chart_view.hide()
         self._hide_table()
@@ -156,3 +157,9 @@ class ZKAPInfoPane(QWidget):
         self.text_label.hide()
         self._show_table()
         self.chart_view.show()
+
+    @Slot(int, int)
+    def on_zkaps_updated(self, remaining, total):
+        used = total - remaining
+        cost = used  # XXX
+        self.chart_view.chart.update(used, cost, remaining)
