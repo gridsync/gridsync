@@ -482,7 +482,7 @@ class WelcomeDialog(QStackedWidget):
         self.close()
         if self.gateway.zkap_payment_url_root:  # XXX
             self.prompt_to_export = False
-            self.gui.main_window.central_widget.on_zkap_button_clicked(True)
+            self.gui.main_window.show_zkap_view()
         if self.prompt_to_export:
             self.prompt_for_export(self.gateway)
         self.reset()

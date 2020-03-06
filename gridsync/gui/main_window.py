@@ -431,6 +431,18 @@ class MainWindow(QMainWindow):
             pass
         self.set_current_grid_status()
 
+    def show_zkap_view(self):
+        for panel in self.central_widget.status_panels:
+            panel.zkap_button.setChecked(True)
+        self.history_button.setChecked(False)
+        try:
+            self.central_widget.setCurrentWidget(
+                self.central_widget.zkap_views[self.combo_box.currentData()]
+            )
+        except KeyError:
+            pass
+        self.set_current_grid_status()
+
     def show_welcome_dialog(self):
         if self.welcome_dialog:
             self.welcome_dialog.close()
