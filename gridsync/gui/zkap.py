@@ -113,6 +113,8 @@ class ZKAPInfoPane(QWidget):
             self.on_zkaps_redeemed_time
         )
 
+        self._hide_table()
+
     def _show_table(self):
         self.refill_label.show()
         self.refill_field.show()
