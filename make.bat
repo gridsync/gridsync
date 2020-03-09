@@ -80,6 +80,8 @@ call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
 call set PYTHONHASHSEED=
+call mkdir dist\Tahoe-LAFS\privacypass
+call copy ..\venv-tahoe\lib\python2.7\site-packages\privacypass\* dist\Tahoe-LAFS\privacypass\
 call move dist ..\..
 call popd
 call deactivate
