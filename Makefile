@@ -144,6 +144,8 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
 	git checkout master && \
+	cp ../../misc/storage_client.py.patch . && \
+	git apply storage_client.py.patch && \
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
