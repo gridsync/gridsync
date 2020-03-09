@@ -274,7 +274,7 @@ class ZKAPChecker(QObject):
         self.zkaps_last_redeemed: str = "0"
         # TODO: monthly consumption-rate
 
-    @inlineCallbacks
+    @inlineCallbacks  # noqa: max-complexity=11
     def do_check(self):
         if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
             return
