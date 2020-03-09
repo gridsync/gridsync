@@ -283,7 +283,6 @@ class ZKAPChecker(QObject):
         except (ConnectError, TahoeWebError):
             return  # XXX
         if not vouchers:
-            self.zkaps_updated.emit(0, 0)
             return
         total = 0
         for voucher in vouchers:
