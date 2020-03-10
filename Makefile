@@ -160,7 +160,7 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
 	mkdir -p dist/Tahoe-LAFS/privacypass && \
-	cp -R ../venv-tahoe/lib/python2.7/site-packages/privacypass/* dist/Tahoe-LAFS/privacypass && \
+	cp -R ../venv-tahoe/lib/python2.7/site-packages/privacypass/*.so dist/Tahoe-LAFS/privacypass && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
