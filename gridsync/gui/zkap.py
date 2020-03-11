@@ -25,8 +25,11 @@ from gridsync.gui.font import Font
 class ZKAPInfoPane(QWidget):
     def __init__(self, gateway):
         super().__init__()
-
         self.gateway = gateway
+
+        self._zkaps_used: int = 0
+        self._zkaps_cost: int = 0
+        self._zkaps_remaining: int = 0
 
         self.groupbox = QGroupBox()
 
@@ -116,6 +119,9 @@ class ZKAPInfoPane(QWidget):
             self.on_zkaps_redeemed_time
         )
         self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
+        self.gateway.monitor.zkaps_monthly_cost_updated.connect(
+            self.on_zkaps_monthly_cost_updated
+        )
 
         self.chart_view.hide()
         self._hide_table()
@@ -161,9 +167,21 @@ class ZKAPInfoPane(QWidget):
         self._show_table()
         self.chart_view.show()
 
+    def _update_chart(self):
+        self.chart_view.chart.update(
+            self._zkaps_used,
+            self._zkaps_cost,
+            self._zkaps_remaining,
+        )
+
     @Slot(int, int)
     def on_zkaps_updated(self, remaining, total):
-        used = total - remaining
-        cost = used  # XXX
-        self.chart_view.chart.update(used, cost, remaining)
+        self._zkaps_used = total - remaining
+        self._zkaps_remaining = remaining
+        self._update_chart()
         self.usage_field.setText(str(used))
+
+    @Slot(int)
+    def on_zkaps_monthly_cost_updated(self, cost):
+        self._zkaps_cost = cost
+        self._update_chart()
