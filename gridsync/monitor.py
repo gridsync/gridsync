@@ -264,6 +264,7 @@ class ZKAPChecker(QObject):
 
     zkaps_updated = pyqtSignal(int, int)  # remaining, total
     zkaps_redeemed_time = pyqtSignal(str)
+    zkaps_monthly_cost_updated = pyqtSignal(int)
 
     def __init__(self, gateway):
         super().__init__()
@@ -272,7 +273,7 @@ class ZKAPChecker(QObject):
         self.zkaps_remaining: int = 0
         self.zkaps_total: int = 0
         self.zkaps_last_redeemed: str = "0"
-        # TODO: monthly consumption-rate
+        self.zkaps_monthly_cost: int = 0
 
     @inlineCallbacks  # noqa: max-complexity=11
     def do_check(self):  # noqa: max-complexity=11
@@ -282,6 +283,7 @@ class ZKAPChecker(QObject):
             vouchers = yield self.gateway.get_vouchers()
         except (ConnectError, TahoeWebError):
             return  # XXX
+        #print(vouchers)
         if not vouchers:
             return
         total = 0
@@ -298,6 +300,7 @@ class ZKAPChecker(QObject):
             zkaps = yield self.gateway.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
             return  # XXX
+        print(zkaps)
         remaining = zkaps.get("total")
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
             self.zkaps_remaining = remaining
@@ -306,6 +309,19 @@ class ZKAPChecker(QObject):
             logging.debug(
                 "ZKAPs updated: remaining: %s; total: %s", remaining, total
             )
+        spending = zkaps.get("lease-maintenance-spending")
+        if spending:
+            count = spending.get("count")
+        else:
+            # If a lease maintenance crawl hasn't yet happened, we can assume
+            # that the cost to renew (in the first crawl) will be equivalent
+            # to the number of ZKAPs already used/consumed/spent.
+            count = self.zkaps_total - self.zkaps_remaining
+        if count and count != self.zkaps_monthly_cost:
+            print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
+            self.zkaps_monthly_cost_updated.emit(count)
+            self.zkaps_monthly_cost = count
+        print(count)
 
 
 class Monitor(QObject):
@@ -345,6 +361,7 @@ class Monitor(QObject):
 
     zkaps_updated = pyqtSignal(int, int)
     zkaps_redeemed_time = pyqtSignal(str)
+    zkaps_monthly_cost_updated = pyqtSignal(int)
 
     def __init__(self, gateway):
         super(Monitor, self).__init__()
@@ -363,7 +380,10 @@ class Monitor(QObject):
         self.zkap_checker.zkaps_redeemed_time.connect(
             self.zkaps_redeemed_time.emit
         )
-
+        self.zkap_checker.zkaps_monthly_cost_updated.connect(
+            self.zkaps_monthly_cost_updated.emit
+        )
+        
         self.magic_folder_checkers = {}
         self.total_sync_state = 0
 
