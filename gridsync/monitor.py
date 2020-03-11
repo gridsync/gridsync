@@ -283,7 +283,6 @@ class ZKAPChecker(QObject):
             vouchers = yield self.gateway.get_vouchers()
         except (ConnectError, TahoeWebError):
             return  # XXX
-        #print(vouchers)
         if not vouchers:
             return
         total = 0
@@ -300,7 +299,6 @@ class ZKAPChecker(QObject):
             zkaps = yield self.gateway.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
             return  # XXX
-        print(zkaps)
         remaining = zkaps.get("total")
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
             self.zkaps_remaining = remaining
@@ -318,7 +316,6 @@ class ZKAPChecker(QObject):
             # to the number of ZKAPs already used/consumed/spent.
             count = self.zkaps_total - self.zkaps_remaining
         if count and count != self.zkaps_monthly_cost:
-            print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
             self.zkaps_monthly_cost_updated.emit(count)
             self.zkaps_monthly_cost = count
         print(count)
