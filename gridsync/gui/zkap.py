@@ -179,7 +179,7 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_used = total - remaining
         self._zkaps_remaining = remaining
         self._update_chart()
-        self.usage_field.setText(str(used))
+        self.usage_field.setText(str(self._zkaps_used))
 
     @Slot(int)
     def on_zkaps_monthly_cost_updated(self, cost):
