@@ -72,8 +72,8 @@ call git apply storage_client.py.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install .
-call python -m pip install git+https://github.com/LeastAuthority/privacypass
-call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer
+call python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@17ee180eda6dc9ff30d86b9666ee5c0d511434dc
+call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@804b858c167a43e906ec647493883808e4cfe4d8
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
 call copy ..\..\misc\tahoe.spec pyinstaller.spec
