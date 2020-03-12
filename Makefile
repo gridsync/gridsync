@@ -149,8 +149,8 @@ frozen-tahoe:
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
-	python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@17ee180eda6dc9ff30d86b9666ee5c0d511434dc && \
-	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@804b858c167a43e906ec647493883808e4cfe4d8 && \
+	python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto && \
+	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
 	cp ../../misc/tahoe.spec pyinstaller.spec && \
@@ -159,8 +159,8 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
-	mkdir -p dist/Tahoe-LAFS/privacypass && \
-	cp -R ../venv-tahoe/lib/python2.7/site-packages/privacypass/*.so dist/Tahoe-LAFS/privacypass && \
+	mkdir -p dist/Tahoe-LAFS/challenge_bypass_ristretto && \
+	cp -R ../venv-tahoe/lib/python2.7/site-packages/challenge_bypass_ristretto/*.so dist/Tahoe-LAFS/challenge_bypass_ristretto && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
