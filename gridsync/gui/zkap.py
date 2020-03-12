@@ -97,6 +97,7 @@ class ZKAPInfoPane(QWidget):
         self.voucher_link = QLabel("<a href>I have a voucher code</a>")
 
         self.pending_label = QLabel("")
+        self.pending_label.setWordWrap(True)
         self.pending_label.hide()
 
         layout = QGridLayout()
