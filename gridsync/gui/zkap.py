@@ -147,14 +147,15 @@ class ZKAPInfoPane(QWidget):
         self.stored_field.hide()
 
     @inlineCallbacks
-    def _open_zkap_payment_url(self):  # XXX
-        voucher = yield self.gateway.add_voucher()
+    def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
+        voucher = self.gateway.generate_voucher()  # TODO: Cache to disk
         payment_url = self.gateway.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)
         if webbrowser.open(payment_url):
             logging.debug("Browser successfully launched")
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
+        yield self.gateway.add_voucher(voucher)
 
     @Slot()
     def on_button_clicked(self):
