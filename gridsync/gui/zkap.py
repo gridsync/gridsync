@@ -154,9 +154,9 @@ class ZKAPInfoPane(QWidget):
     def _update_pending_label(self, payment_url=""):
         self.pending_label.setText(
             f"A payment to {self.gateway.name} is still pending. To complete "
-            f"payment please visit: {payment_url}\n\nThis page will update "
-            "once payment has been successfully received and processed "
-            "(note that this can take several minutes)."
+            f"payment please visit: <a href>{payment_url}</a><p><p>"
+            "This page will update once payment has been successfully "
+            "received and processed (this can take several minutes)."
         )
 
     @inlineCallbacks
