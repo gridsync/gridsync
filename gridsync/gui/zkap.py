@@ -151,7 +151,7 @@ class ZKAPInfoPane(QWidget):
         self.stored_label.hide()
         self.stored_field.hide()
 
-    def _update_pending_label(self, payment_url=""):
+    def _update_pending_label(self):
         # self.pending_label.setText(
         #     f"A payment to {self.gateway.name} is still pending. To complete "
         #     f"payment please visit: <a href>{payment_url}</a><p><p>"
@@ -174,10 +174,10 @@ class ZKAPInfoPane(QWidget):
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
         yield self.gateway.add_voucher(voucher)
-        self._update_pending_label(payment_url)
-        self.pending_label.show()
-        self.button.hide()
-        self.voucher_link.hide()
+        # self._update_pending_label(payment_url)
+        # self.pending_label.show()
+        # self.button.hide()
+        # self.voucher_link.hide()
 
     @Slot()
     def on_button_clicked(self):
