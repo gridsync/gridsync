@@ -1173,10 +1173,14 @@ class Tahoe:
         latest_mtime = next(reversed(history_od), 0)
         return members, total_size, latest_mtime, history_od
 
+    @staticmethod
+    def generate_voucher() -> str:
+        return base64.urlsafe_b64encode(os.urandom(33)).decode("utf-8")
+
     @inlineCallbacks
     def add_voucher(self, voucher: Optional[str] = None):
         if not voucher:
-            voucher = base64.urlsafe_b64encode(os.urandom(33)).decode("utf-8")
+            voucher = self.generate_voucher()
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.put(
             url + "/voucher", json.dumps({"voucher": voucher}).encode()
