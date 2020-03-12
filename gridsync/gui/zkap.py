@@ -159,9 +159,9 @@ class ZKAPInfoPane(QWidget):
         #     "received and processed (this can take several minutes)."
         # )
         self.pending_label.setText(
-             f"A payment to {self.gateway.name} is still pending. "
-             "This page will update once payment has been successfully "
-             "received and process (this can take several minutes)."
+            f"A payment to {self.gateway.name} is still pending. "
+            "This page will update once payment has been successfully "
+            "received and process (this can take several minutes)."
         )
 
     @inlineCallbacks
@@ -192,9 +192,7 @@ class ZKAPInfoPane(QWidget):
 
     def _update_chart(self):
         self.chart_view.chart.update(
-            self._zkaps_used,
-            self._zkaps_cost,
-            self._zkaps_remaining,
+            self._zkaps_used, self._zkaps_cost, self._zkaps_remaining,
         )
 
     @Slot(int, int)

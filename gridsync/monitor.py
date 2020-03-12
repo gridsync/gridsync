@@ -380,7 +380,7 @@ class Monitor(QObject):
         self.zkap_checker.zkaps_monthly_cost_updated.connect(
             self.zkaps_monthly_cost_updated.emit
         )
-        
+
         self.magic_folder_checkers = {}
         self.total_sync_state = 0
 
