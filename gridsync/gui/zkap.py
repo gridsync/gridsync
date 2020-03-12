@@ -88,13 +88,13 @@ class ZKAPInfoPane(QWidget):
         form_layout.addRow(self.expiration_label, self.expiration_field)
         form_layout.addRow(self.stored_label, self.stored_field)
 
-        button = QPushButton(f"Purchase {gateway.zkap_name_abbrev}s")
-        button.setStyleSheet("background: green; color: white")
-        button.clicked.connect(self.on_button_clicked)
+        self.button = QPushButton(f"Purchase {gateway.zkap_name_abbrev}s")
+        self.button.setStyleSheet("background: green; color: white")
+        self.button.clicked.connect(self.on_button_clicked)
         # button.setFixedSize(150, 40)
-        button.setFixedSize(180, 30)
+        self.button.setFixedSize(180, 30)
 
-        voucher_link = QLabel("<a href>I have a voucher code</a>")
+        self.voucher_link = QLabel("<a href>I have a voucher code</a>")
 
         self.pending_label = QLabel("")
         self.pending_label.hide()
@@ -108,10 +108,10 @@ class ZKAPInfoPane(QWidget):
         layout.addItem(self.spacer, 60, 0)
         layout.addLayout(form_layout, 70, 0)
         layout.addWidget(self.chart_view, 80, 0)
-        layout.addWidget(button, 90, 0, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.pending_label, 100, 0, 1, 1, Qt.AlignCenter)
         # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 100, 0)
-        layout.addWidget(voucher_link, 120, 0, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.voucher_link, 120, 0, 1, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 999, 0)
 
         self.groupbox.setLayout(layout)
@@ -168,6 +168,10 @@ class ZKAPInfoPane(QWidget):
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
         yield self.gateway.add_voucher(voucher)
+        self._update_pending_label(payment_url)
+        self.pending_label.show()
+        self.button.hide()
+        self.voucher_link.hide()
 
     @Slot()
     def on_button_clicked(self):
