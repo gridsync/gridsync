@@ -96,6 +96,9 @@ class ZKAPInfoPane(QWidget):
 
         voucher_link = QLabel("<a href>I have a voucher code</a>")
 
+        self.pending_label = QLabel("")
+        self.pending_label.hide()
+
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(title, 20, 0)
@@ -106,6 +109,7 @@ class ZKAPInfoPane(QWidget):
         layout.addLayout(form_layout, 70, 0)
         layout.addWidget(self.chart_view, 80, 0)
         layout.addWidget(button, 90, 0, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.pending_label, 100, 0, 1, 1, Qt.AlignCenter)
         # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 100, 0)
         layout.addWidget(voucher_link, 120, 0, 1, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 999, 0)
@@ -145,6 +149,14 @@ class ZKAPInfoPane(QWidget):
         self.expiration_field.hide()
         self.stored_label.hide()
         self.stored_field.hide()
+
+    def _update_pending_label(self, payment_url=""):
+        self.pending_label.setText(
+            f"A payment to {self.gateway.name} is still pending. To complete "
+            f"payment please visit: {payment_url}\n\nThis page will update "
+            "once payment has been successfully received and processed "
+            "(note that this can take several minutes)."
+        )
 
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
