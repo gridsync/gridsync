@@ -195,6 +195,7 @@ class ZKAPInfoPane(QWidget):
         self.chart_view.chart.update(
             self._zkaps_used, self._zkaps_cost, self._zkaps_remaining,
         )
+        self.gui.main_window.maybe_enable_actions()
 
     @Slot(int, int)
     def on_zkaps_updated(self, remaining, total):
