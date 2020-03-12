@@ -318,7 +318,6 @@ class ZKAPChecker(QObject):
         if count and count != self.zkaps_monthly_cost:
             self.zkaps_monthly_cost_updated.emit(count)
             self.zkaps_monthly_cost = count
-        print(count)
 
 
 class Monitor(QObject):
