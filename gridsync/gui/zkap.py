@@ -152,11 +152,16 @@ class ZKAPInfoPane(QWidget):
         self.stored_field.hide()
 
     def _update_pending_label(self, payment_url=""):
+        # self.pending_label.setText(
+        #     f"A payment to {self.gateway.name} is still pending. To complete "
+        #     f"payment please visit: <a href>{payment_url}</a><p><p>"
+        #     "This page will update once payment has been successfully "
+        #     "received and processed (this can take several minutes)."
+        # )
         self.pending_label.setText(
-            f"A payment to {self.gateway.name} is still pending. To complete "
-            f"payment please visit: <a href>{payment_url}</a><p><p>"
-            "This page will update once payment has been successfully "
-            "received and processed (this can take several minutes)."
+             f"A payment to {self.gateway.name} is still pending. "
+             "This page will update once payment has been successfully "
+             "received and process (this can take several minutes)."
         )
 
     @inlineCallbacks
