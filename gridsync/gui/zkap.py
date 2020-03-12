@@ -23,9 +23,10 @@ from gridsync.gui.font import Font
 
 
 class ZKAPInfoPane(QWidget):
-    def __init__(self, gateway):
+    def __init__(self, gateway, gui):
         super().__init__()
         self.gateway = gateway
+        self.gui = gui
 
         self._zkaps_used: int = 0
         self._zkaps_cost: int = 0

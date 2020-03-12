@@ -107,7 +107,7 @@ class CentralWidget(QStackedWidget):
         self.history_views[gateway] = view
 
     def add_zkap_view(self, gateway):
-        view = ZKAPInfoPane(gateway)
+        view = ZKAPInfoPane(gateway, self.gui)
         widget = QWidget()
         layout = QGridLayout(widget)
         if sys.platform == "darwin":
