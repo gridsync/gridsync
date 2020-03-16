@@ -3,6 +3,7 @@
 from collections import defaultdict
 import logging
 import time
+from typing import List
 
 from PyQt5.QtCore import pyqtSignal, QObject
 from twisted.internet.defer import inlineCallbacks
@@ -275,19 +276,12 @@ class ZKAPChecker(QObject):
         self.zkaps_last_redeemed: str = "0"
         self.zkaps_monthly_cost: int = 0
 
-    @inlineCallbacks  # noqa: max-complexity=11
-    def do_check(self):  # noqa: max-complexity=11
-        if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
-            return
-        try:
-            vouchers = yield self.gateway.get_vouchers()
-        except (ConnectError, TahoeWebError):
-            return  # XXX
-        if not vouchers:
-            return
+    def _parse_vouchers(self, vouchers: List[dict]) -> int:
         total = 0
         for voucher in vouchers:
             state = voucher.get("state")
+            if not state:
+                continue
             if state.get("name") == "redeemed":
                 total += state.get("token-count")
                 finished = state.get("finished")
@@ -295,6 +289,20 @@ class ZKAPChecker(QObject):
                     self.zkaps_last_redeemed = finished
                     self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
                 self.zkaps_last_redeemed = state.get("finished")
+        return total
+
+    @inlineCallbacks
+    def do_check(self):
+        if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
+            return
+        try:
+            vouchers = yield self.gateway.get_vouchers()
+        except (ConnectError, TahoeWebError):
+            return  # XXX
+        print(vouchers)
+        if not vouchers:
+            return
+        total = self._parse_vouchers(vouchers)
         try:
             zkaps = yield self.gateway.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
