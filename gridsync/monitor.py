@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+from datetime import datetime
 import logging
 import time
 from typing import List
@@ -275,6 +276,14 @@ class ZKAPChecker(QObject):
         self.zkaps_total: int = 0
         self.zkaps_last_redeemed: str = "0"
         self.zkaps_monthly_cost: int = 0
+
+    def consumption_rate(self):
+        zkaps_spent = self.zkaps_total - self.zkaps_remaining
+        last_redeemed = datetime.fromisoformat(self.zkaps_last_redeemed)
+        now = datetime.now()
+        seconds = datetime.timestamp(now) - datetime.timestamp(last_redeemed)
+        consumption_rate = zkaps_spent / seconds
+        return consumption_rate
 
     def _parse_vouchers(self, vouchers: List[dict]) -> int:
         total = 0
