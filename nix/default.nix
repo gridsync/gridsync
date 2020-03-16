@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> { overlays = [ (import ./overlays.nix) ]; } }:
+{ pkgs ? import <nixpkgs> { } }:
 let
   qt5reactor = pkgs.python3Packages.callPackage ./qt5reactor.nix { };
   zxcvbn = pkgs.python3Packages.callPackage ./zxcvbn.nix { };
