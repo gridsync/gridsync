@@ -1,5 +1,7 @@
 { pkgs ? import <nixpkgs> { } }:
 let
+  # Get a number of GridSync dependencies which are either unpackaged in
+  # Nixpkgs or for which the packaged versions are too old.
   qt5reactor = pkgs.python3Packages.callPackage ./qt5reactor.nix { };
   zxcvbn = pkgs.python3Packages.callPackage ./zxcvbn.nix { };
   pytesttwisted = pkgs.python3Packages.callPackage ./pytesttwisted.nix { };
