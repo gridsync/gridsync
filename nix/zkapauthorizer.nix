@@ -1,9 +1,10 @@
 let
   pkgs = import <nixpkgs> {};
 in
-  pkgs.fetchFromGitHub {
-    owner = "PrivateStorageio";
-    repo = "ZKAPAuthorizer";
-    rev = "b2aaa5f82c6d078bc38d0d8ab0e66d7be449caec";
-    sha256 = "0zhnxba3ql8i0jcpbr8vid5rkvrsa7gvvw2465jq5vb10ivwnjkq";
+  pkgs.fetchgit {
+    url = "https://github.com/PrivateStorageio/ZKAPAuthorizer";
+    rev = "45a1ff7908eef5ef5224bd3a7ed12f5cf4fd6a4b";
+    sha256 = "0l7wp0bsg7ha8fkf7z4ilhfbmjnzzjd08znw8mbzja12r4fl7nmg";
+    # ZKAPAuthorizer uses Versioneer which requires a .git at build time.
+    leaveDotGit = true;
   }
