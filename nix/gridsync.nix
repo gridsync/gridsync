@@ -9,6 +9,7 @@
 , magic-wormhole
 , pynacl
 , pyqt5
+, pyqtchart
 , pyyaml
 , qt5reactor
 , treq
@@ -50,6 +51,7 @@ python3Packages.buildPythonApplication rec {
     magic-wormhole
     pynacl
     pyqt5
+    pyqtchart
     pyyaml
     qt5reactor
     treq
