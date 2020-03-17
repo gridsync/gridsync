@@ -107,6 +107,7 @@ class CentralWidget(QStackedWidget):
         self.history_views[gateway] = view
 
     def add_zkap_view(self, gateway):
+        gateway.load_settings()  # To ensure that zkap_name is read/updated
         view = ZKAPInfoPane(gateway, self.gui)
         widget = QWidget()
         layout = QGridLayout(widget)
