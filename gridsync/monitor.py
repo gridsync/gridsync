@@ -267,6 +267,7 @@ class ZKAPChecker(QObject):
     zkaps_updated = pyqtSignal(int, int)  # remaining, total
     zkaps_redeemed_time = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
+    unpaid_vouchers_updated = pyqtSignal(list)
 
     def __init__(self, gateway):
         super().__init__()
@@ -276,6 +277,7 @@ class ZKAPChecker(QObject):
         self.zkaps_total: int = 0
         self.zkaps_last_redeemed: str = "0"
         self.zkaps_renewal_cost: int = 0
+        self.unpaid_vouchers: list = []
 
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
@@ -287,17 +289,26 @@ class ZKAPChecker(QObject):
 
     def _parse_vouchers(self, vouchers: List[dict]) -> int:
         total = 0
+        unpaid_vouchers = self.unpaid_vouchers.copy()
         for voucher in vouchers:
             state = voucher.get("state")
             if not state:
                 continue
-            if state.get("name") == "redeemed":
+            name = state.get("name")
+            if name == "unpaid":
+                number = voucher.get("number")
+                if number and number not in unpaid_vouchers:
+                    unpaid_vouchers.append(number)
+            elif name == "redeemed":
                 total += state.get("token-count")
                 finished = state.get("finished")
                 if finished > self.zkaps_last_redeemed:
                     self.zkaps_last_redeemed = finished
                     self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
                 self.zkaps_last_redeemed = state.get("finished")
+        if unpaid_vouchers != self.unpaid_vouchers:
+            self.unpaid_vouchers = unpaid_vouchers
+            self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
         return total
 
     @inlineCallbacks
@@ -375,6 +386,7 @@ class Monitor(QObject):
     zkaps_updated = pyqtSignal(int, int)
     zkaps_redeemed_time = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
+    unpaid_vouchers_updated = pyqtSignal(list)
 
     def __init__(self, gateway):
         super(Monitor, self).__init__()
@@ -395,6 +407,9 @@ class Monitor(QObject):
         )
         self.zkap_checker.zkaps_renewal_cost_updated.connect(
             self.zkaps_renewal_cost_updated.emit
+        )
+        self.zkap_checker.unpaid_vouchers_updated.connect(
+            self.unpaid_vouchers_updated.emit
         )
 
         self.magic_folder_checkers = {}
