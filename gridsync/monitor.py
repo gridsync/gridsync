@@ -290,6 +290,7 @@ class ZKAPChecker(QObject):
     def _parse_vouchers(self, vouchers: List[dict]) -> int:
         total = 0
         unpaid_vouchers = self.unpaid_vouchers.copy()
+        zkaps_last_redeemed = self.zkaps_last_redeemed
         for voucher in vouchers:
             state = voucher.get("state")
             if not state:
@@ -302,13 +303,14 @@ class ZKAPChecker(QObject):
             elif name == "redeemed":
                 total += state.get("token-count")
                 finished = state.get("finished")
-                if finished > self.zkaps_last_redeemed:
-                    self.zkaps_last_redeemed = finished
-                    self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
-                self.zkaps_last_redeemed = state.get("finished")
+                if finished > zkaps_last_redeemed:
+                    zkaps_last_redeemed = finished
         if unpaid_vouchers != self.unpaid_vouchers:
             self.unpaid_vouchers = unpaid_vouchers
             self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
+        if zkaps_last_redeemed != self.zkaps_last_redeemed:
+            self.zkaps_last_redeemed = zkaps_last_redeemed
+            self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
         return total
 
     @inlineCallbacks
