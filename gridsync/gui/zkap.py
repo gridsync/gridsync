@@ -135,6 +135,9 @@ class ZKAPInfoPane(QWidget):
         self.gateway.monitor.zkaps_renewal_cost_updated.connect(
             self.on_zkaps_renewal_cost_updated
         )
+        self.gateway.monitor.unpaid_vouchers_updated.connect(
+            self.on_unpaid_vouchers_updated
+        )
 
         self.chart_view.hide()
         self._hide_table()
@@ -201,3 +204,10 @@ class ZKAPInfoPane(QWidget):
     def on_zkaps_renewal_cost_updated(self, cost):
         self._zkaps_cost = cost
         self._update_chart()
+
+    @Slot(list)
+    def on_unpaid_vouchers_updated(self, vouchers):
+        if self.isVisible():  # XXX
+            self.button.hide()
+            self.voucher_link.hide()
+            self.pending_label.show()
