@@ -97,8 +97,15 @@ class ZKAPInfoPane(QWidget):
 
         self.voucher_link = QLabel("<a href>I have a voucher code</a>")
 
-        self.pending_label = QLabel("")
-        self.pending_label.setWordWrap(True)
+        self.pending_label = QLabel(
+            f"A payment to {self.gateway.name} is still pending.\nThis page "
+            f"will update once {gateway.zkap_name_abbrev}s have been received"
+            ".\nIt may take several minutes for this process to complete."
+        )
+        self.pending_label.setAlignment(Qt.AlignCenter)
+        font = Font(10)
+        font.setItalic(True)
+        self.pending_label.setFont(font)
         self.pending_label.hide()
 
         layout = QGridLayout()
@@ -152,19 +159,6 @@ class ZKAPInfoPane(QWidget):
         self.stored_label.hide()
         self.stored_field.hide()
 
-    def _update_pending_label(self):
-        # self.pending_label.setText(
-        #     f"A payment to {self.gateway.name} is still pending. To complete "
-        #     f"payment please visit: <a href>{payment_url}</a><p><p>"
-        #     "This page will update once payment has been successfully "
-        #     "received and processed (this can take several minutes)."
-        # )
-        self.pending_label.setText(
-            f"A payment to {self.gateway.name} is still pending. "
-            "This page will update once payment has been successfully "
-            "received and process (this can take several minutes)."
-        )
-
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
         voucher = self.gateway.generate_voucher()  # TODO: Cache to disk
@@ -175,7 +169,6 @@ class ZKAPInfoPane(QWidget):
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
         yield self.gateway.add_voucher(voucher)
-        # self._update_pending_label(payment_url)
         # self.pending_label.show()
         # self.button.hide()
         # self.voucher_link.hide()
