@@ -302,7 +302,7 @@ class ZKAPChecker(QObject):
             if name == "unpaid":
                 if number and number not in unpaid_vouchers:
                     # XXX There is no reliable way of knowing whether the user
-                    # intends to pay for an older voucher -- i.e., one that 
+                    # intends to pay for an older voucher -- i.e., one that
                     # was created before the before the application started --
                     # so ignore those older vouchers for now and only monitor
                     # those vouchers that were created during *this* run.
