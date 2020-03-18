@@ -336,7 +336,6 @@ class ZKAPChecker(QObject):
             vouchers = yield self.gateway.get_vouchers()
         except (ConnectError, TahoeWebError):
             return  # XXX
-        print(vouchers)
         if not vouchers:
             return
         total = self._parse_vouchers(vouchers)
