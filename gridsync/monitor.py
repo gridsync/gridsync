@@ -289,7 +289,9 @@ class ZKAPChecker(QObject):
         consumption_rate = zkaps_spent / seconds
         return consumption_rate
 
-    def _parse_vouchers(self, vouchers: List[dict]) -> int:  # noqa: max-complexity
+    def _parse_vouchers(  # noqa: max-complexity
+        self, vouchers: List[dict]
+    ) -> int:
         total = 0
         unpaid_vouchers = self.unpaid_vouchers.copy()
         zkaps_last_redeemed = self.zkaps_last_redeemed
