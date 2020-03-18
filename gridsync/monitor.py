@@ -306,8 +306,11 @@ class ZKAPChecker(QObject):
                     # was created before the before the application started --
                     # so ignore those older vouchers for now and only monitor
                     # those vouchers that were created during *this* run.
+                    created = voucher.get("created")
+                    if not created:
+                        continue
                     time_created = datetime.timestamp(
-                        datetime.fromisoformat(voucher.get("created"))
+                        datetime.fromisoformat(created)
                     )
                     if time_created > self._time_started:
                         unpaid_vouchers.append(number)
