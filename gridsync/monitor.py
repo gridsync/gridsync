@@ -312,6 +312,9 @@ class ZKAPChecker(QObject):
                     if time_created > self._time_started:
                         unpaid_vouchers.append(number)
             elif name == "redeemed":
+                number = voucher.get("number")
+                if number and number in unpaid_vouchers:
+                    unpaid_vouchers.remove(number)
                 total += state.get("token-count")
                 finished = state.get("finished")
                 if finished > zkaps_last_redeemed:
