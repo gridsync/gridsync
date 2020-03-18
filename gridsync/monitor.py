@@ -289,7 +289,7 @@ class ZKAPChecker(QObject):
         consumption_rate = zkaps_spent / seconds
         return consumption_rate
 
-    def _parse_vouchers(self, vouchers: List[dict]) -> int:
+    def _parse_vouchers(self, vouchers: List[dict]) -> int:  # noqa: max-complexity
         total = 0
         unpaid_vouchers = self.unpaid_vouchers.copy()
         zkaps_last_redeemed = self.zkaps_last_redeemed
@@ -329,8 +329,8 @@ class ZKAPChecker(QObject):
             self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
         return total
 
-    @inlineCallbacks
-    def do_check(self):
+    @inlineCallbacks  # noqa: max-complexity
+    def do_check(self):  # noqa: max-complexity
         if not self._time_started:
             self._time_started = time.time()
         if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
