@@ -298,8 +298,8 @@ class ZKAPChecker(QObject):
             if not state:
                 continue
             name = state.get("name")
+            number = voucher.get("number")
             if name == "unpaid":
-                number = voucher.get("number")
                 if number and number not in unpaid_vouchers:
                     # XXX There is no reliable way of knowing whether the user
                     # intends to pay for an older voucher -- i.e., one that 
@@ -312,7 +312,6 @@ class ZKAPChecker(QObject):
                     if time_created > self._time_started:
                         unpaid_vouchers.append(number)
             elif name == "redeemed":
-                number = voucher.get("number")
                 if number and number in unpaid_vouchers:
                     unpaid_vouchers.remove(number)
                 total += state.get("token-count")
