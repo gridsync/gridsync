@@ -273,6 +273,8 @@ class ZKAPChecker(QObject):
         super().__init__()
         self.gateway = gateway
 
+        self._time_started: int = 0
+
         self.zkaps_remaining: int = 0
         self.zkaps_total: int = 0
         self.zkaps_last_redeemed: str = "0"
@@ -299,7 +301,16 @@ class ZKAPChecker(QObject):
             if name == "unpaid":
                 number = voucher.get("number")
                 if number and number not in unpaid_vouchers:
-                    unpaid_vouchers.append(number)
+                    # XXX There is no reliable way of knowing whether the user
+                    # intends to pay for an older voucher -- i.e., one that 
+                    # was created before the before the application started --
+                    # so ignore those older vouchers for now and only monitor
+                    # those vouchers that were created during *this* run.
+                    time_created = datetime.timestamp(
+                        datetime.fromisoformat(voucher.get("created"))
+                    )
+                    if time_created > self._time_started:
+                        unpaid_vouchers.append(number)
             elif name == "redeemed":
                 total += state.get("token-count")
                 finished = state.get("finished")
@@ -315,6 +326,8 @@ class ZKAPChecker(QObject):
 
     @inlineCallbacks
     def do_check(self):
+        if not self._time_started:
+            self._time_started = time.time()
         if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
             return
         try:
