@@ -11,6 +11,11 @@ from PyQt5.QtCore import QMargins, Qt
 from PyQt5.QtGui import QColor, QPainter, QPen
 
 
+COLOR_USED = "#D42020"
+COLOR_COST = "#EE9A1D"
+COLOR_AVAILABLE = "#29A529"
+
+
 class ZKAPPieChart(QChart):
     def __init__(self):
         super().__init__()
@@ -49,25 +54,27 @@ class ZKAPPieChart(QChart):
 
 
 class ZKAPBarChart(QChart):
-    def __init__(self):
+    def __init__(
+        self, used_color: str, cost_color: str, available_color: str,
+    ):
         super().__init__()
 
         self.set_used = QBarSet("Used")
-        #color_used = QColor("#1F9FDE")
-        color_used = QColor("#D42020")
+        # color_used = QColor("#1F9FDE")
+        color_used = QColor(used_color)
         self.set_used.setPen(QPen(color_used, 0))
         self.set_used.setBrush(color_used)
         self.set_used.insert(0, 0)
 
         self.set_cost = QBarSet("Monthly cost")
-        color_cost = QColor("#EE9A1D")
+        color_cost = QColor(cost_color)
         self.set_cost.setPen(QPen(color_cost, 0))
         self.set_cost.setBrush(color_cost)
         self.set_cost.insert(0, 0)
 
         self.set_available = QBarSet("Available")
-        #color_available = QColor("Light Grey")
-        color_available = QColor("#29A529")
+        # color_available = QColor("Light Grey")
+        color_available = QColor(available_color)
         self.set_available.setPen(QPen(color_available, 0))
         self.set_available.setBrush(color_available)
         self.set_available.insert(0, 0)
@@ -104,8 +111,13 @@ class ZKAPCompactPieChartView(QChartView):
 
 
 class ZKAPBarChartView(QChartView):
-    def __init__(self):
+    def __init__(
+        self,
+        used_color=COLOR_USED,
+        cost_color=COLOR_COST,
+        available_color=COLOR_AVAILABLE,
+    ):
         super().__init__()
-        self.chart = ZKAPBarChart()
+        self.chart = ZKAPBarChart(used_color, cost_color, available_color)
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
