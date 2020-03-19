@@ -20,7 +20,12 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync.gui.charts import ZKAPBarChartView
+from gridsync.gui.charts import (
+    COLOR_AVAILABLE,
+    COLOR_COST,
+    COLOR_USED,
+    ZKAPBarChartView,
+)
 from gridsync.gui.font import Font
 
 
@@ -62,7 +67,11 @@ class ZKAPInfoPane(QWidget):
 
         self.spacer = QSpacerItem(0, 0, 0, QSizePolicy.Expanding)
 
-        self.chart_view = ZKAPBarChartView()
+        self.chart_view = ZKAPBarChartView(
+            self.gateway.settings.get("zkap_color_used", COLOR_USED),
+            self.gateway.settings.get("zkap_color_cost", COLOR_COST),
+            self.gateway.settings.get("zkap_color_available", COLOR_AVAILABLE),
+        )
         self.chart_view.setFixedHeight(128)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
 
