@@ -190,6 +190,8 @@ class ZKAPInfoPane(QWidget):
         self.refill_field.setText(
             naturaltime(datetime.now() - datetime.fromisoformat(timestamp))
         )
+        date = timestamp.split("T")[0]
+        self.refill_field.setToolTip(f"Redeemed: {date}")
         self.text_label.hide()
         self._show_table()
         self.chart_view.show()
@@ -225,4 +227,7 @@ class ZKAPInfoPane(QWidget):
 
     @Slot(int)
     def on_days_remaining_updated(self, days):
+        delta = timedelta(days=days)
         self.expiration_field.setText(naturaldelta(timedelta(days=days)))
+        date = datetime.isoformat(datetime.now() + delta).split("T")[0]
+        self.expiration_field.setToolTip(f"Expires: {date}")
