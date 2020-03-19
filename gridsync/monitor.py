@@ -377,8 +377,6 @@ class ZKAPChecker(QObject):
             self.days_remaining = days_remaining
             self.days_remaining_updated.emit(days_remaining)
 
-        self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
-        self.days_remaining_updated.emit(self.days_remaining)
 
 class Monitor(QObject):
     """
