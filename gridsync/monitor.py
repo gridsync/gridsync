@@ -424,7 +424,7 @@ class Monitor(QObject):
         super(Monitor, self).__init__()
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
-        self.folders_total_size: int = 0
+        self.total_folders_size: int = 0
 
         self.grid_checker = GridChecker(self.gateway)
         self.grid_checker.connected.connect(self.connected.emit)
@@ -525,8 +525,8 @@ class Monitor(QObject):
         if state != self.total_sync_state:
             self.total_sync_state = state
             self.total_sync_state_updated.emit(state)
-        if total_size != self.folders_total_size:
-            self.folders_total_size = total_size
+        if total_size != self.total_folders_size:
+            self.total_folders_size = total_size
         self.check_finished.emit()
 
     def start(self, interval=2):
