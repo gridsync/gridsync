@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 import webbrowser
 
-from humanize import naturaldelta
+from humanize import naturaldelta, naturaltime
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import QPainter
@@ -187,7 +187,9 @@ class ZKAPInfoPane(QWidget):
 
     @Slot(str)
     def on_zkaps_redeemed_time(self, timestamp):
-        self.refill_field.setText(timestamp.split("T")[0])  # TODO: humanize
+        self.refill_field.setText(
+            naturaltime(datetime.now() - datetime.fromisoformat(timestamp))
+        )
         self.text_label.hide()
         self._show_table()
         self.chart_view.show()
