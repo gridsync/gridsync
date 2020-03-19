@@ -98,7 +98,7 @@ class ZKAPInfoPane(QWidget):
         self.voucher_link = QLabel("<a href>I have a voucher code</a>")
 
         self.pending_label = QLabel(
-            f"A payment to {self.gateway.name} is still pending.\nThis page "
+            f"A payment to {self.gateway.name} is still pending.\nThis window "
             f"will update once {gateway.zkap_name_abbrev}s have been received"
             ".\nIt may take several minutes for this process to complete."
         )
