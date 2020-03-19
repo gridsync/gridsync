@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
 import logging
 import webbrowser
 
+from humanize import naturaldelta
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import QPainter
@@ -135,6 +137,9 @@ class ZKAPInfoPane(QWidget):
         self.gateway.monitor.zkaps_renewal_cost_updated.connect(
             self.on_zkaps_renewal_cost_updated
         )
+        self.gateway.monitor.days_remaining_updated.connect(
+            self.on_days_remaining_updated
+        )
         self.gateway.monitor.unpaid_vouchers_updated.connect(
             self.on_unpaid_vouchers_updated
         )
@@ -215,3 +220,7 @@ class ZKAPInfoPane(QWidget):
             self.pending_label.hide()
             self.button.show()
             self.voucher_link.show()
+
+    @Slot(int)
+    def on_days_remaining_updated(self, days):
+        self.expiration_field.setText(naturaldelta(timedelta(days=days)))
