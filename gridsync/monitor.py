@@ -411,6 +411,7 @@ class Monitor(QObject):
     files_updated = pyqtSignal(str, list, str, str)
 
     total_sync_state_updated = pyqtSignal(int)
+    total_folders_size_updated = pyqtSignal(int)
 
     check_finished = pyqtSignal()
 
@@ -527,6 +528,7 @@ class Monitor(QObject):
             self.total_sync_state_updated.emit(state)
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
+            self.total_folders_size_updated.emit(total_size)
         self.check_finished.emit()
 
     def start(self, interval=2):
