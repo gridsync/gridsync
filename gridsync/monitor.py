@@ -201,6 +201,7 @@ class MagicFolderChecker(QObject):
                 self.members = members
                 self.members_updated.emit(members)
             self.size_updated.emit(size)
+            self.size = size
             self.mtime_updated.emit(t)
             self.compare_states(history, self.history)
             self.history = history
@@ -423,6 +424,7 @@ class Monitor(QObject):
         super(Monitor, self).__init__()
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
+        self.folders_total_size: int = 0
 
         self.grid_checker = GridChecker(self.gateway)
         self.grid_checker.connected.connect(self.connected.emit)
@@ -508,10 +510,12 @@ class Monitor(QObject):
             elif self.magic_folder_checkers[folder].remote:
                 self.magic_folder_checkers[folder].remote = False
         states = set()
+        total_size = 0
         for magic_folder_checker in list(self.magic_folder_checkers.values()):
             if not magic_folder_checker.remote:
                 yield magic_folder_checker.do_check()
                 states.add(magic_folder_checker.state)
+            total_size += magic_folder_checker.size
         if 1 in states or 99 in states:  # At least one folder is syncing
             state = 1
         elif 2 in states and len(states) == 1:  # All folders are up to date
@@ -521,6 +525,8 @@ class Monitor(QObject):
         if state != self.total_sync_state:
             self.total_sync_state = state
             self.total_sync_state_updated.emit(state)
+        if total_size != self.folders_total_size:
+            self.folders_total_size = total_size
         self.check_finished.emit()
 
     def start(self, interval=2):
