@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import logging
 import webbrowser
 
-from humanize import naturaldelta, naturaltime
+from humanize import naturaldelta, naturalsize, naturaltime
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import QPainter
@@ -143,6 +143,9 @@ class ZKAPInfoPane(QWidget):
         self.gateway.monitor.unpaid_vouchers_updated.connect(
             self.on_unpaid_vouchers_updated
         )
+        self.gateway.monitor.total_folders_size_updated.connect(
+            self.on_total_folders_size_updated
+        )
 
         self.chart_view.hide()
         self._hide_table()
@@ -231,3 +234,7 @@ class ZKAPInfoPane(QWidget):
         self.expiration_field.setText(naturaldelta(timedelta(days=days)))
         date = datetime.isoformat(datetime.now() + delta).split("T")[0]
         self.expiration_field.setToolTip(f"Expires: {date}")
+
+    @Slot(int)
+    def on_total_folders_size_updated(self, size: int) -> None:
+        self.stored_field.setText(naturalsize(size))
