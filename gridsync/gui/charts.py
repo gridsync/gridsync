@@ -53,7 +53,8 @@ class ZKAPBarChart(QChart):
         super().__init__()
 
         self.set_used = QBarSet("Used")
-        color_used = QColor("#1F9FDE")
+        #color_used = QColor("#1F9FDE")
+        color_used = QColor("#D42020")
         self.set_used.setPen(QPen(color_used, 0))
         self.set_used.setBrush(color_used)
         self.set_used.insert(0, 0)
@@ -65,8 +66,8 @@ class ZKAPBarChart(QChart):
         self.set_cost.insert(0, 0)
 
         self.set_available = QBarSet("Available")
-        color_available = QColor("#99CA54")
-        color_available = QColor("Light Grey")
+        #color_available = QColor("Light Grey")
+        color_available = QColor("#29A529")
         self.set_available.setPen(QPen(color_available, 0))
         self.set_available.setBrush(color_available)
         self.set_available.insert(0, 0)
