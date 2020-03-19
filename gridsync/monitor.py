@@ -267,6 +267,7 @@ class ZKAPChecker(QObject):
     zkaps_updated = pyqtSignal(int, int)  # remaining, total
     zkaps_redeemed_time = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
+    days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
 
     def __init__(self, gateway):
@@ -279,6 +280,7 @@ class ZKAPChecker(QObject):
         self.zkaps_total: int = 0
         self.zkaps_last_redeemed: str = "0"
         self.zkaps_renewal_cost: int = 0
+        self.days_remaining: int = 0
         self.unpaid_vouchers: list = []
 
     def consumption_rate(self):
@@ -368,6 +370,13 @@ class ZKAPChecker(QObject):
             self.zkaps_renewal_cost_updated.emit(count)
             self.zkaps_renewal_cost = count
 
+        # XXX/FIXME: This assumes that leases will be renewed every 31 days.
+        daily_cost = self.zkaps_renewal_cost / 31
+        days_remaining = int(self.zkaps_remaining / daily_cost)
+        if days_remaining != self.days_remaining:
+            self.days_remaining = days_remaining
+            self.days_remaining_updated.emit(days_remaining)
+
 
 class Monitor(QObject):
     """
@@ -407,6 +416,7 @@ class Monitor(QObject):
     zkaps_updated = pyqtSignal(int, int)
     zkaps_redeemed_time = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
+    days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
 
     def __init__(self, gateway):
@@ -428,6 +438,9 @@ class Monitor(QObject):
         )
         self.zkap_checker.zkaps_renewal_cost_updated.connect(
             self.zkaps_renewal_cost_updated.emit
+        )
+        self.zkap_checker.days_remaining_updated.connect(
+            self.days_remaining_updated.emit
         )
         self.zkap_checker.unpaid_vouchers_updated.connect(
             self.unpaid_vouchers_updated.emit
