@@ -153,6 +153,7 @@ class MainWindow(QMainWindow):
         self.gateways = []
         self.welcome_dialog = None
         self.recovery_key_exporter = None
+        self.grid_invites_enabled: bool = True
 
         self.setWindowTitle(APP_NAME)
         # self.setMinimumSize(QSize(600, 400))
@@ -199,54 +200,55 @@ class MainWindow(QMainWindow):
         self.folder_action.setFont(font)
         self.folder_action.triggered.connect(self.select_folder)
 
-        grid_invites_enabled = True
         features_settings = settings.get("features")
         if features_settings:
             grid_invites = features_settings.get("grid_invites")
             if grid_invites and grid_invites.lower() == "false":
-                grid_invites_enabled = False
+                self.grid_invites_enabled = False
 
-        if grid_invites_enabled:
-            invites_action = QAction(
+        if self.grid_invites_enabled:
+            self.invites_action = QAction(
                 QIcon(resource("invite.png")), "Invites", self
             )
-            invites_action.setToolTip("Enter or Create an Invite Code")
-            invites_action.setFont(font)
+            self.invites_action.setToolTip("Enter or Create an Invite Code")
+            self.invites_action.setFont(font)
 
-            enter_invite_action = QAction(
+            self.enter_invite_action = QAction(
                 QIcon(), "Enter Invite Code...", self
             )
-            enter_invite_action.setToolTip("Enter an Invite Code...")
-            enter_invite_action.triggered.connect(self.open_invite_receiver)
+            self.enter_invite_action.setToolTip("Enter an Invite Code...")
+            self.enter_invite_action.triggered.connect(
+                self.open_invite_receiver
+            )
 
-            create_invite_action = QAction(
+            self.create_invite_action = QAction(
                 QIcon(), "Create Invite Code...", self
             )
-            create_invite_action.setToolTip("Create on Invite Code...")
-            create_invite_action.triggered.connect(
+            self.create_invite_action.setToolTip("Create on Invite Code...")
+            self.create_invite_action.triggered.connect(
                 self.open_invite_sender_dialog
             )
 
-            invites_menu = QMenu(self)
-            invites_menu.addAction(enter_invite_action)
-            invites_menu.addAction(create_invite_action)
+            self.invites_menu = QMenu(self)
+            self.invites_menu.addAction(self.enter_invite_action)
+            self.invites_menu.addAction(self.create_invite_action)
 
-            invites_button = QToolButton(self)
-            invites_button.setDefaultAction(invites_action)
-            invites_button.setMenu(invites_menu)
-            invites_button.setPopupMode(2)
-            invites_button.setStyleSheet(
+            self.invites_button = QToolButton(self)
+            self.invites_button.setDefaultAction(self.invites_action)
+            self.invites_button.setMenu(self.invites_menu)
+            self.invites_button.setPopupMode(2)
+            self.invites_button.setStyleSheet(
                 "QToolButton::menu-indicator { image: none }"
             )
-            invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+            self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         else:
-            invite_action = QAction(
+            self.invite_action = QAction(
                 QIcon(resource("invite.png")), "Enter Code", self
             )
-            invite_action.setToolTip("Enter an Invite Code...")
-            invite_action.setFont(font)
-            invite_action.triggered.connect(self.open_invite_receiver)
+            self.invite_action.setToolTip("Enter an Invite Code...")
+            self.invite_action.setFont(font)
+            self.invite_action.triggered.connect(self.open_invite_receiver)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
@@ -287,14 +289,14 @@ class MainWindow(QMainWindow):
         recovery_menu.addAction(import_action)
         recovery_menu.addAction(export_action)
 
-        recovery_button = QToolButton(self)
-        recovery_button.setDefaultAction(recovery_action)
-        recovery_button.setMenu(recovery_menu)
-        recovery_button.setPopupMode(2)
-        recovery_button.setStyleSheet(
+        self.recovery_button = QToolButton(self)
+        self.recovery_button.setDefaultAction(recovery_action)
+        self.recovery_button.setMenu(recovery_menu)
+        self.recovery_button.setPopupMode(2)
+        self.recovery_button.setStyleSheet(
             "QToolButton::menu-indicator { image: none }"
         )
-        recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.toolbar = self.addToolBar("")
         p = self.palette()
@@ -318,15 +320,15 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(self.folder_action)
-        if grid_invites_enabled:
-            self.toolbar.addWidget(invites_button)
+        if self.grid_invites_enabled:
+            self.toolbar.addWidget(self.invites_button)
         else:
-            self.toolbar.addAction(invite_action)
+            self.toolbar.addAction(self.invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
         self.toolbar.addWidget(self.history_button)
-        self.toolbar.addWidget(recovery_button)
+        self.toolbar.addWidget(self.recovery_button)
 
         if sys.platform != "win32":  # Text is getting clipped on Windows 10
             for action in self.toolbar.actions():
@@ -346,10 +348,22 @@ class MainWindow(QMainWindow):
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
             self.folder_action.setEnabled(False)
+            self.invites_button.setEnabled(False)
             self.history_action.setEnabled(False)
+            self.recovery_button.setEnabled(False)
+            if self.grid_invites_enabled:
+                self.invites_button.setEnabled(False)
+            else:
+                self.invite_action.setEnabled(False)
         else:
             self.folder_action.setEnabled(True)
+            self.invites_button.setEnabled(True)
             self.history_action.setEnabled(True)
+            self.recovery_button.setEnabled(True)
+            if self.grid_invites_enabled:
+                self.invites_button.setEnabled(True)
+            else:
+                self.invite_action.setEnabled(True)
 
     def populate(self, gateways):
         for gateway in gateways:
