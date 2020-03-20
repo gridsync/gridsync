@@ -78,9 +78,9 @@ distro==1.4.0 ; sys_platform != "darwin" and sys_platform != "win32" \
     --hash=sha256:eedf82a470ebe7d010f1872c17237c79ab04097948800029994fa458e52fb4b4
 hkdf==0.0.3 \
     --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
-# humanize 1.0.0 breaks PyInstaller: https://github.com/jmoiron/humanize/issues/105
-humanize==0.5.1 \
-    --hash=sha256:a43f57115831ac7c70de098e6ac46ac13be00d69abbf60bdcac251344785bb19
+humanize==2.1.0 \
+    --hash=sha256:c7dc91741bbfc48cfb580e93217ce5100f942e550bf774e69ada53a2cc0740f8 \
+    --hash=sha256:f3276eb7b86d8e34db883f98d9dffd7baac3284f307b3c7505ed24298a3e8c5f
 hyperlink==19.0.0 \
     --hash=sha256:4288e34705da077fada1111a24a0aa08bb1e76699c9ce49876af722441845654 \
     --hash=sha256:ab4a308feb039b04f855a020a6eda3b18ca5a68e6d8f8c899cbe9e653721d04f

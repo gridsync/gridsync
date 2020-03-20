@@ -107,9 +107,9 @@ foolscap==0.13.1 \
     --hash=sha256:e2773b4901430b8852da9d691e91984a5e2118da0448c192d9ec5aa81db91d6b
 hkdf==0.0.3 \
     --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
-# humanize 1.0.0 breaks PyInstaller: https://github.com/jmoiron/humanize/issues/105
-humanize==0.5.1 \
-    --hash=sha256:a43f57115831ac7c70de098e6ac46ac13be00d69abbf60bdcac251344785bb19
+humanize==1.0.0 \
+    --hash=sha256:3478104dcb9e111991ad141b15c9bf9522aa00ccfc5144561d639b3372e1d064 \
+    --hash=sha256:38ace9b66bcaeb7f8186b9dbf0b3448e00148e5b4fbaf726f96c789e52c3e741
 hyperlink==19.0.0 \
     --hash=sha256:4288e34705da077fada1111a24a0aa08bb1e76699c9ce49876af722441845654 \
     --hash=sha256:ab4a308feb039b04f855a020a6eda3b18ca5a68e6d8f8c899cbe9e653721d04f
