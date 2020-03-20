@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from importlib import reload
 import os
 import sys
-
-if sys.version_info >= (3, 4):
-    from importlib import reload
 
 import gridsync
 
