@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import difflib
+from importlib import reload
 import os
 import sys
-
-if sys.version_info >= (3, 4):
-    from importlib import reload
 
 import pytest
 
@@ -35,15 +32,9 @@ def test_append_tahoe_bundle_to_PATH(monkeypatch):
     monkeypatch.setattr("sys.frozen", True, raising=False)
     old_path = os.environ["PATH"]
     reload(gridsync)
-    delta = ""
-    for _, s in enumerate(difflib.ndiff(old_path, os.environ["PATH"])):
-        if s[0] == "+":
-            delta += s[-1]
-    assert (
-        delta.lower()
-        == os.pathsep
-        + os.path.join(os.path.dirname(sys.executable), "Tahoe-LAFS").lower()
-    )
+    modified_path = os.environ["PATH"]
+    tahoe_dir = os.pathsep + os.path.join(gridsync.pkgdir, "Tahoe-LAFS")
+    assert modified_path != old_path and modified_path.endswith(tahoe_dir)
 
 
 def test_frozen_del_reactor(monkeypatch):
