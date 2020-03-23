@@ -270,12 +270,14 @@ class ZKAPChecker(QObject):
     zkaps_renewal_cost_updated = pyqtSignal(int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
+    low_zkaps_warning = pyqtSignal()
 
     def __init__(self, gateway):
         super().__init__()
         self.gateway = gateway
 
         self._time_started: int = 0
+        self._low_zkaps_warning_shown: bool = False
 
         self.zkaps_remaining: int = 0
         self.zkaps_total: int = 0
@@ -334,6 +336,14 @@ class ZKAPChecker(QObject):
             self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
         return total
 
+    def _maybe_emit_low_zkaps_warning(self):
+        if not self._low_zkaps_warning_shown:
+            pct_used = 1 - (self.zkaps_remaining / self.zkaps_total)
+            if pct_used >= 0.9 or self.days_remaining <= 60:
+                self.low_zkaps_warning.emit()
+                self._low_zkaps_warning_shown = True
+
+
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
         if not self._time_started:
@@ -380,6 +390,7 @@ class ZKAPChecker(QObject):
         if days_remaining != self.days_remaining:
             self.days_remaining = days_remaining
             self.days_remaining_updated.emit(days_remaining)
+        self._maybe_emit_low_zkaps_warning()
 
 
 class Monitor(QObject):
@@ -423,6 +434,7 @@ class Monitor(QObject):
     zkaps_renewal_cost_updated = pyqtSignal(int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
+    low_zkaps_warning = pyqtSignal()
 
     def __init__(self, gateway):
         super(Monitor, self).__init__()
@@ -450,6 +462,9 @@ class Monitor(QObject):
         )
         self.zkap_checker.unpaid_vouchers_updated.connect(
             self.unpaid_vouchers_updated.emit
+        )
+        self.zkap_checker.low_zkaps_warning.connect(
+            self.low_zkaps_warning.emit
         )
 
         self.magic_folder_checkers = {}
