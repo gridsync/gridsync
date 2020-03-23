@@ -155,6 +155,9 @@ class ZKAPInfoPane(QWidget):
         self.gateway.monitor.total_folders_size_updated.connect(
             self.on_total_folders_size_updated
         )
+        self.gateway.monitor.low_zkaps_warning.connect(
+            self.on_low_zkaps_warning
+        )
 
         self.chart_view.hide()
         self._hide_table()
@@ -247,3 +250,11 @@ class ZKAPInfoPane(QWidget):
     @Slot(int)
     def on_total_folders_size_updated(self, size: int) -> None:
         self.stored_field.setText(naturalsize(size))
+
+    def on_low_zkaps_warning(self) -> None:
+        self.gui.show_message(
+            f"Warning: Low {self.gateway.zkap_name_abbrev}s",
+            f"The number of {self.gateway.zkap_name_plural} available is "
+            f"low. Please purchase more {self.gateway.zkap_name_abbrev}s "
+            "to prevent data-loss."
+        )
