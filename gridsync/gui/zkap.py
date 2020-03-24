@@ -256,5 +256,5 @@ class ZKAPInfoPane(QWidget):
             f"Warning: Low {self.gateway.zkap_name_abbrev}s",
             f"The number of {self.gateway.zkap_name_plural} available is "
             f"low. Please purchase more {self.gateway.zkap_name_abbrev}s "
-            "to prevent data-loss."
+            "to prevent data-loss.",
         )

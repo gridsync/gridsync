@@ -343,7 +343,6 @@ class ZKAPChecker(QObject):
                 self.low_zkaps_warning.emit()
                 self._low_zkaps_warning_shown = True
 
-
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
         if not self._time_started:
