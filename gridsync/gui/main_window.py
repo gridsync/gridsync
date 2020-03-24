@@ -265,6 +265,7 @@ class MainWindow(QMainWindow):
         self.history_action.setEnabled(False)
         self.history_action.setToolTip("Show/Hide History")
         self.history_action.setFont(font)
+        self.history_action.setCheckable(True)
         self.history_action.triggered.connect(self.on_history_button_clicked)
 
         self.history_button = QToolButton(self)
