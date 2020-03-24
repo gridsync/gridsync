@@ -337,7 +337,7 @@ class ZKAPChecker(QObject):
         return total
 
     def _maybe_emit_low_zkaps_warning(self):
-        if not self._low_zkaps_warning_shown:
+        if self.zkaps_total and not self._low_zkaps_warning_shown:
             pct_used = 1 - (self.zkaps_remaining / self.zkaps_total)
             if pct_used >= 0.9 or self.days_remaining <= 60:
                 self.low_zkaps_warning.emit()
