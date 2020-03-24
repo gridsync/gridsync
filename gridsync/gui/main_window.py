@@ -103,6 +103,9 @@ class CentralWidget(QStackedWidget):
 
     def add_history_view(self, gateway):
         view = HistoryView(gateway, self.gui)
+        view.status_panel.zkap_button.clicked.connect(
+            self.on_zkap_button_clicked
+        )
         self.addWidget(view)
         self.history_views[gateway] = view
 

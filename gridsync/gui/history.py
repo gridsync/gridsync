@@ -233,4 +233,5 @@ class HistoryView(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(HistoryListWidget(gateway, deduplicate, max_items))
-        layout.addWidget(StatusPanel(gateway, gui))
+        self.status_panel = StatusPanel(gateway, gui)
+        layout.addWidget(self.status_panel)
