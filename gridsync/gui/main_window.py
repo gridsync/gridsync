@@ -471,6 +471,8 @@ class MainWindow(QMainWindow):
             )
         except KeyError:
             pass
+        for panel in self.central_widget.status_panels:
+            panel.zkap_button.setChecked(False)
         self.set_current_grid_status()
 
     def show_zkap_view(self):
