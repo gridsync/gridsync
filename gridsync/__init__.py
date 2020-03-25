@@ -9,7 +9,7 @@ from gridsync.config import Config
 __author__ = "Christopher R. Wood"
 __url__ = "https://github.com/gridsync/gridsync"
 __license__ = "GPLv3"
-__version__ = get_versions()['version']
+__version__ = get_versions()["version"]
 
 
 if getattr(sys, "frozen", False):
