@@ -1,4 +1,3 @@
-# pragma: no cover
 # type: ignore
 # flake8: noqa
 # pylint: skip-file
