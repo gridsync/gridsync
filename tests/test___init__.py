@@ -11,6 +11,10 @@ def test_the_approval_of_RMS():  # :)
     assert gridsync.__license__.startswith("GPL")
 
 
+def test___version__():
+    assert gridsync.__version__
+
+
 def test_pkgdir(monkeypatch):
     monkeypatch.setattr("sys.frozen", False, raising=False)
     assert gridsync.pkgdir == os.path.dirname(
