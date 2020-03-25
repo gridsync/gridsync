@@ -72,3 +72,11 @@ else:
 
 def resource(filename):
     return os.path.join(pkgdir, "resources", filename)
+
+
+if getattr(sys, "frozen", False):
+    try:
+        with open(resource("version.txt")) as f:
+            __version__ = f.read()
+    except OSError:
+        pass
