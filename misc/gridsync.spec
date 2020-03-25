@@ -16,6 +16,8 @@ from versioneer import get_versions
 
 version = get_versions()["version"]
 
+# When running frozen, Versioneer returns a version string of "0+unknown"
+# so write the version string from a file that can be read/loaded later.
 with open(os.path.join("gridsync", "resources", "version.txt"), "w") as f:
     f.write(version)
 

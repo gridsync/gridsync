@@ -74,6 +74,8 @@ def resource(filename):
     return os.path.join(pkgdir, "resources", filename)
 
 
+# When running frozen, Versioneer returns a version string of "0+unknown"
+# so load the version string from a file written at freeze-time instead.
 if getattr(sys, "frozen", False):
     try:
         with open(resource("version.txt")) as f:
