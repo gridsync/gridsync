@@ -3,7 +3,7 @@
 import os
 import sys
 
-from gridsync._version import get_versions
+from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
 
 __author__ = "Christopher R. Wood"
