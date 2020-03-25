@@ -5,9 +5,8 @@ import argparse
 import subprocess
 import sys
 
-from gridsync import APP_NAME
+from gridsync import __version__, APP_NAME
 from gridsync import __doc__ as description
-from gridsync._version import __version__
 from gridsync.core import Core
 from gridsync.errors import FilesystemLockError
 from gridsync import msg
