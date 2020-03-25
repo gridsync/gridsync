@@ -12,10 +12,12 @@ import re
 import shutil
 import sys
 
+from versioneer import get_versions
 
-version_file = open("gridsync/_version.py").read()
-version = re.findall(r"__version__\s*=\s*\"([^\"]+)\"", version_file)[0]
+version = get_versions()["version"]
 
+with open(os.path.join("gridsync", "resources", "version.txt"), "w") as f:
+    f.write(version)
 
 
 config = RawConfigParser(allow_no_value=True)
