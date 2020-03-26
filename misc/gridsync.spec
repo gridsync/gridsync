@@ -12,10 +12,7 @@ import re
 import shutil
 import sys
 
-
-version_file = open("gridsync/_version.py").read()
-version = re.findall(r"__version__\s*=\s*\"([^\"]+)\"", version_file)[0]
-
+from versioneer import get_versions
 
 
 config = RawConfigParser(allow_no_value=True)
@@ -30,6 +27,13 @@ for section in config.sections():
         settings[section][option] = value
 print('--------------------------------------------------------------------')
 app_name = settings['application']['name']
+
+
+version = settings['build'].get('version', get_versions()["version"])
+# When running frozen, Versioneer returns a version string of "0+unknown"
+# so write the version string from a file that can be read/loaded later.
+with open(os.path.join("gridsync", "resources", "version.txt"), "w") as f:
+    f.write(version)
 
 
 paths = []
