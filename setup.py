@@ -6,6 +6,8 @@ import sys
 
 from setuptools import setup
 
+import versioneer
+
 
 requirements = [
     "atomicwrites",
@@ -38,14 +40,11 @@ if sys.platform.startswith("linux") and (struct.calcsize("P") * 8) == 32:
 module_file = open("gridsync/__init__.py").read()
 metadata = dict(re.findall(r"__([a-z]+)__\s*=\s*\"([^\"]+)\"", module_file))
 
-version_file = open("gridsync/_version.py").read()
-version_dict = {}
-exec(version_file, version_dict)
-version = version_dict["__version__"]
 
 setup(
     name="gridsync",
-    version=version,
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description="Synchronize local directories with Tahoe-LAFS storage grids.",
     long_description=open("README.rst").read(),
     author=metadata["author"],
