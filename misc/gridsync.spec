@@ -49,6 +49,11 @@ if sys.platform == "win32":
     paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files', 'Windows Kits', '10', 'Redist', 'ucrt', 'DLLs', 'x64'))
 
 
+mac_background_only = settings["build"].get("mac_background_only", False)
+if mac_background_only and mac_background_only.lower() != "false":
+    mac_background_only = True
+
+
 a = Analysis(
     ['../gridsync/cli.py'],
     pathex=paths,
@@ -93,8 +98,8 @@ app = BUNDLE(
     bundle_identifier=settings['build']['mac_bundle_identifier'],
     info_plist={
         'CFBundleShortVersionString': version,
-        'LSBackgroundOnly': True,
-        'LSUIElement': True,
+        'LSBackgroundOnly': mac_background_only,
+        'LSUIElement': mac_background_only,
         'NSHighResolutionCapable': True,
         'NSRequiresAquaSystemAppearance': False,
     }
