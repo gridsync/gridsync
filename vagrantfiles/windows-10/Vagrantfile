@@ -1,0 +1,55 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "gridsync-windows"
+  config.vm.box = "gusztavvargadr/windows-10"
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = "2048"
+    vb.cpus = 2
+    # Forward YubiKey to guest VM for signing
+    vb.customize ['modifyvm', :id, '--usb', 'on']
+    vb.customize ['usbfilter', 'add', '0',
+      '--target', :id,
+      '--name', "YubiKey",
+      '--manufacturer', "Yubico",
+      '--vendorid', "0x1050",
+      '--productid', "0x0407",
+      '--product', "Yubico YubiKey OTP+FIDO+CCID"]
+  end
+  config.vm.provision "shell", inline: <<-SHELL
+    choco install -y --no-progress --require-checksums git
+    choco install -y --no-progress --require-checksums python2
+    choco install -y --no-progress --require-checksums vcpython27
+    choco install -y --no-progress --require-checksums -m python3 --version 3.8.2
+    choco install -y --no-progress --require-checksums -m python3 --version 3.7.7
+    choco install -y --no-progress --require-checksums -m python3 --version 3.6.8
+    choco install -y --no-progress --require-checksums visualcpp-build-tools
+    choco install -y --no-progress --require-checksums innosetup
+    choco install -y --no-progress --require-checksums rust-ms
+    choco list --local-only
+    py -2 -m pip install --upgrade setuptools pip
+    py -3 -m pip install --upgrade setuptools pip tox
+  SHELL
+  config.vm.provision "file", source: "../..", destination: "~/gridsync"
+  config.vm.provision "shell", env: {"CI" => "true"}, inline: <<-SHELL
+    git config --global core.autocrlf false
+    cd ~
+    cd .\\gridsync
+    .\\make.bat test
+    .\\make.bat
+    ls .\\dist
+  SHELL
+  if ENV["BUILDBOT_HOST"]
+    config.vm.provision "shell", inline: "py -2 -m pip install --upgrade buildbot-worker pywin32"
+    config.vm.provision "shell" do |s|
+      s.privileged = false
+      s.inline = "C:\\Python27\\Scripts\\buildbot-worker.exe create-worker C:\\Users\\Vagrant\\buildbot $Args"
+      s.args   = "#{ENV['BUILDBOT_HOST']} #{ENV['BUILDBOT_NAME']} #{ENV['BUILDBOT_PASS']}"
+    end
+    config.vm.provision "shell", inline: <<-SHELL
+      "C:\\Python27\\Scripts\\buildbot-worker.exe restart C:\\Users\\vagrant\\buildbot" | Out-File -FilePath "C:\\Users\\vagrant\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\run-buildbot-worker.bat" -Encoding Ascii
+    SHELL
+  end
+end
