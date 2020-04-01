@@ -47,10 +47,11 @@ if sys.platform == "win32":
     paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files', 'Windows Kits', '10', 'bin', 'x64'))
     paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files', 'Windows Kits', '10', 'Redist', 'ucrt', 'DLLs', 'x86'))
     paths.append(os.path.join(os.path.abspath(os.sep), 'Program Files', 'Windows Kits', '10', 'Redist', 'ucrt', 'DLLs', 'x64'))
-elif sys.platform == "darwin":
-    mac_background_only = settings["build"].get("mac_background_only", False)
-    if mac_background_only and mac_background_only.lower() != "false":
-        mac_background_only = True
+
+
+mac_background_only = settings["build"].get("mac_background_only", False)
+if mac_background_only and mac_background_only.lower() != "false":
+    mac_background_only = True
 
 
 a = Analysis(
