@@ -24,6 +24,7 @@
 - Binary distributions of Gridsync will now include a newer, pre-release version of Tahoe-LAFS ("1.13.0.post996.dev0") (Issue #237, PR #239)
 - Python 3.5 support has been dropped; Gridsync now requires Python version 3.6 or higher (Issue #243, PR #244)
 - Users are no longer required to scroll to the bottom of a debug log in order to export it (Issue #258, PR #259)
+- On macOS, Gridsync will no longer run as an background-only/"agent" app; the application will again be visible in both the Dock and CMD+Tab window-list (Issue #284, PR #285)
 
 ### Removed
 - Due to changes in minimum system requirements for numerous dependencies, macOS "Legacy" builds (targeting macOS 10.9 or higher) will no longer be provided (Issue #256, PR #266)
