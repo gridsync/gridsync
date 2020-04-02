@@ -106,7 +106,7 @@ class ZKAPInfoPane(QWidget):
         # button.setFixedSize(150, 40)
         self.button.setFixedSize(180, 30)
 
-        self.voucher_link = QLabel("<a href>I have a voucher code</a>")
+        # self.voucher_link = QLabel("<a href>I have a voucher code</a>")
 
         self.pending_label = QLabel(
             f"A payment to {self.gateway.name} is still pending.\nThis window "
@@ -131,7 +131,7 @@ class ZKAPInfoPane(QWidget):
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.pending_label, 100, 0, 1, 1, Qt.AlignCenter)
         # layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 100, 0)
-        layout.addWidget(self.voucher_link, 120, 0, 1, 1, Qt.AlignCenter)
+        # layout.addWidget(self.voucher_link, 120, 0, 1, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 999, 0)
 
         self.groupbox.setLayout(layout)
@@ -233,12 +233,12 @@ class ZKAPInfoPane(QWidget):
     def on_unpaid_vouchers_updated(self, vouchers):
         if vouchers:
             self.button.hide()
-            self.voucher_link.hide()
+            # self.voucher_link.hide()
             self.pending_label.show()
         else:
             self.pending_label.hide()
             self.button.show()
-            self.voucher_link.show()
+            # self.voucher_link.show()
 
     @Slot(int)
     def on_days_remaining_updated(self, days):
