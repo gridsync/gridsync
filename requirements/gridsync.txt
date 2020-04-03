@@ -71,7 +71,7 @@ cryptography==2.9 \
     --hash=sha256:d1bf5a1a0d60c7f9a78e448adcb99aa101f3f9588b16708044638881be15d6bc \
     --hash=sha256:ed1d0760c7e46436ec90834d6f10477ff09475c692ed1695329d324b2c5cd547 \
     --hash=sha256:ef9a55013676907df6c9d7dd943eb1770d014f68beaa7e73250fb43c759f4585
-distro==1.5.0 ; sys_platform != "darwin" and sys_platform != "win32" \
+distro==1.5.0; sys_platform != "darwin" and sys_platform != "win32" \
     --hash=sha256:0e58756ae38fbd8fc3020d54badb8eae17c5b9dcbed388b17bb55b8a5928df92 \
     --hash=sha256:df74eed763e18d10d0da624258524ae80486432cd17392d9c3d96f5e83cd2799
 hkdf==0.0.3 \
@@ -154,18 +154,18 @@ pyOpenSSL==19.1.0 \
 # pin to 5.13.1 until dark mode is fixed -- or until a more compelling reason to
 # upgrade comes along (such for compatibility with forthcoming versions of macOS).
 # See https://github.com/gridsync/gridsync/issues/267
-PyQt5==5.13.1 ; sys_platform == "darwin" \
+PyQt5==5.13.1; sys_platform == "darwin" \
     --hash=sha256:6420d8c9de8746917bd2afe24f29b3722aabde36d1e9f8c34354f5b7fb7b987d \
     --hash=sha256:73f982b60819cc6d7cb0007b8b0cd11073e2546d74e0463726149e6a9d087caa \
     --hash=sha256:8e6125f110133069e8f4a085022cfc6b4a0af5b3c9009999a749007c299e965d \
     --hash=sha256:f8e76070782e68ba200eb2b67babf89ac629df5e36d2f4c680ef34ae40c8f964
-PyQt5==5.14.1 ; sys_platform != "darwin" \
+PyQt5==5.14.1; sys_platform != "darwin" \
     --hash=sha256:2d94ec761fb656707050c68b41958e3a9f755bb1df96c064470f4096d2899e32 \
     --hash=sha256:2f230f2dbd767099de7a0cb915abdf0cbc3256a0b5bb910eb09b99117db7a65b \
     --hash=sha256:31b142a868152d60c6323e0527edb692fdf05fd7cb4fe2fe9ce07d1ce560221a \
     --hash=sha256:713b9a201f5e7b2fca8691373e5d5c8c2552a51d87ca9ffbb1461e34e3241211 \
     --hash=sha256:a0bfe9fd718bca4de3e33000347e048f73126b6dc46530eb020b0251a638ee9d
-PyQt5-sip==12.7.0 ; sys_platform == "darwin" \
+PyQt5-sip==12.7.0; sys_platform == "darwin" \
     --hash=sha256:02d94786bada670ab17a2b62ce95b3cf8e3b40c99d36007593a6334d551840bb \
     --hash=sha256:06bc66b50556fb949f14875a4c224423dbf03f972497ccb883fb19b7b7c3b346 \
     --hash=sha256:091fbbe10a7aebadc0e8897a9449cda08d3c3f663460d812eca3001ca1ed3526 \
@@ -183,7 +183,7 @@ PyQt5-sip==12.7.0 ; sys_platform == "darwin" \
     --hash=sha256:da69ba17f6ece9a85617743cb19de689f2d63025bf8001e2facee2ec9bcff18f \
     --hash=sha256:ef3c7a0bf78674b0dda86ff5809d8495019903a096c128e1f160984b37848f73 \
     --hash=sha256:fabff832046643cdb93920ddaa8f77344df90768930fbe6bb33d211c4dcd0b5e
-PyQt5-sip==12.7.1 ; sys_platform != "darwin" \
+PyQt5-sip==12.7.1; sys_platform != "darwin" \
     --hash=sha256:1115728644bbadcde5fc8a16e7918bd31915a42dd6fb36b10d4afb78c582753e \
     --hash=sha256:1f4289276d355b6521dc2cc956189315da6f13adfb6bbab8f25ebd15e3bce1d4 \
     --hash=sha256:288c6dc18a8d6a20981c07b715b5695d9b66880778565f3792bc6e38f14f20fb \
@@ -201,7 +201,7 @@ PyQt5-sip==12.7.1 ; sys_platform != "darwin" \
     --hash=sha256:e6078f5ee7d31c102910d0c277a110e1c2a20a3fc88cd017a39e170120586d3f \
     --hash=sha256:ee1a12f09d5af2304273bfd2f6b43835c1467d5ed501a6c95f5405637fa7750a \
     --hash=sha256:f314f31f5fd39b06897f013f425137e511d45967150eb4e424a363d8138521c6
-pywin32==227 ; sys_platform == "win32" \
+pywin32==227; sys_platform == "win32" \
     --hash=sha256:300a2db938e98c3e7e2093e4491439e62287d0d493fe07cce110db070b54c0be \
     --hash=sha256:31f88a89139cb2adc40f8f0e65ee56a8c585f629974f9e07622ba80199057511 \
     --hash=sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0 \

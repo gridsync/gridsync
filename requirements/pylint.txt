@@ -1,7 +1,7 @@
 astroid==2.3.3 \
     --hash=sha256:71ea07f44df9568a75d0f354c49143a4575d90645e9fead6dfb52c26a85ed13a \
     --hash=sha256:840947ebfa8b58f318d42301cf8c0a20fd794a33b61cc4638e28e9e61ba32f42
-colorama==0.4.1 ; sys_platform == "win32" \
+colorama==0.4.1; sys_platform == "win32" \
     --hash=sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d \
     --hash=sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48
 isort==4.3.21 \

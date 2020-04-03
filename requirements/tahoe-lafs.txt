@@ -1,7 +1,7 @@
 appdirs==1.4.3 \
     --hash=sha256:9e5896d1372858f8dd3344faf4e5014d21849c756c8d5701f78f8a103b372d92 \
     --hash=sha256:d8b24664561d0d34ddfaec54636d502d7cea6e29c3eaf68f3df6180863e2166e
-argh==0.26.2 ; sys_platform != "win32" and sys_platform != "linux2" \
+argh==0.26.2; sys_platform != "win32" and sys_platform != "linux2" \
     --hash=sha256:a9b3aaa1904eeb78e32394cd46c6f37ac0fb4af6dc488daa58971bdc7d7fcaf3 \
     --hash=sha256:e9535b8c84dc9571a48999094fda7f33e63c3f1b74f3e5f3ac0105a58405bb65
 argparse==1.4.0 \
@@ -126,7 +126,7 @@ magic-wormhole==0.11.2 \
 Nevow==0.14.5 \
     --hash=sha256:afb6ba85a5351953578c018fcdb9dfbd62f29a8d46c58bc9652bc000a27223f3 \
     --hash=sha256:ddc55935790e6f4a4d09cdae0ae2b5660d8f123216df6988eb8934532f75be76
-pathtools==0.1.2 ; sys_platform != "win32" and sys_platform != "linux2" \
+pathtools==0.1.2; sys_platform != "win32" and sys_platform != "linux2" \
     --hash=sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0
 pyasn1==0.4.8 \
     --hash=sha256:014c0e9976956a08139dc0712ae195324a75e142284d5f87f1a87ee1b068a359 \
@@ -191,7 +191,7 @@ pyrsistent==0.15.7 \
     --hash=sha256:cdc7b5e3ed77bed61270a47d35434a30617b9becdf2478af76ad2c6ade307280
 pyutil==3.3.0 \
     --hash=sha256:8c4d4bf668c559186389bb9bce99e4b1b871c09ba252a756ccaacd2b8f401848
-pywin32==227 ; sys_platform == "win32" \
+pywin32==227; sys_platform == "win32" \
     --hash=sha256:300a2db938e98c3e7e2093e4491439e62287d0d493fe07cce110db070b54c0be \
     --hash=sha256:31f88a89139cb2adc40f8f0e65ee56a8c585f629974f9e07622ba80199057511 \
     --hash=sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0 \
@@ -258,7 +258,7 @@ txaio==18.8.1 \
 txtorcon==20.0.0 \
     --hash=sha256:122cd081786396f57718adda1c1a5eb01b8e9a4832fcd140918b45c10359377a \
     --hash=sha256:5c1145566a8733105da851b794e7b15cb56cea48693635b55c4bddfb79fe629d
-watchdog==0.9.0 ; sys_platform != "win32" and sys_platform != "linux2" \
+watchdog==0.9.0; sys_platform != "win32" and sys_platform != "linux2" \
     --hash=sha256:965f658d0732de3188211932aeb0bb457587f04f63ab4c1e33eab878e9de961d
 zfec==1.5.3 \
     --hash=sha256:b41bd4b0af9c6b3a78bd6734e1e4511475944164375e6241b53df518a366922b
