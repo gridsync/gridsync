@@ -181,7 +181,8 @@ pyinstaller:
 			popd && \
 			pip list && \
 			export PYTHONHASHSEED=1 && \
-			pyinstaller -y misc/gridsync.spec \
+			pyinstaller -y misc/gridsync.spec && \
+			rm -rf build/pyinstaller \
 		;; \
 		*) \
 			python3 -m tox -e pyinstaller \
