@@ -170,6 +170,7 @@ pyinstaller:
 			pip install -r requirements/gridsync.txt && \
 			pip install -r requirements/pyinstaller.txt && \
 			pip install -e . && \
+			rm -rf build/pyinstaller ; \
 			git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
 			pushd build/pyinstaller && \
 			git checkout develop && \
@@ -181,8 +182,7 @@ pyinstaller:
 			popd && \
 			pip list && \
 			export PYTHONHASHSEED=1 && \
-			pyinstaller -y misc/gridsync.spec && \
-			rm -rf build/pyinstaller \
+			pyinstaller -y misc/gridsync.spec \
 		;; \
 		*) \
 			python3 -m tox -e pyinstaller \
