@@ -3,7 +3,8 @@
 
 Vagrant.configure("2") do |config|
   config.vm.define "gridsync-macos-10.15"
-  config.vm.box = "ramsey/macos-catalina"
+  #config.vm.box = "ramsey/macos-catalina"
+  config.vm.box = "apscommode/macos-10.15"
   #config.vm.box_url = "https://vagrantcloud.com/jhcook/boxes/macos-sierra/versions/10.12.6/providers/virtualbox.box"
   #config.vm.box_download_checksum = "6716006846b256acefc18c3d76d794f2253ac156d55e464742f87148828b88ed"
   #config.vm.box_download_checksum_type = "sha256"
