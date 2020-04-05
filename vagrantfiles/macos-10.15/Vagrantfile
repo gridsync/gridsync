@@ -41,6 +41,7 @@ Vagrant.configure("2") do |config|
     echo 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
     rustup-init -y --default-host x86_64-apple-darwin --default-toolchain stable
     source ~/.bash_profile
+    export MACOSX_DEPLOYMENT_TARGET=10.13
     PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 2.7.17
     PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.8.2
     PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.7.6
