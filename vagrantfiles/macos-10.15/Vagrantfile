@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
       '--product', "Yubico YubiKey OTP+FIDO+CCID"]
   end
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     brew -v analytics off
     brew install openssl readline sqlite3 xz zlib pyenv rustup-init
     brew cask install opensc
