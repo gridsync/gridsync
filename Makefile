@@ -169,7 +169,35 @@ install:
 
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
-	python3 -m tox -e pyinstaller
+	case `uname` in \
+		Darwin) \
+			python3 -m virtualenv --clear --python=python3.7 .tox/pyinstaller && \
+			source .tox/pyinstaller/bin/activate && \
+			pip install -r requirements/gridsync.txt && \
+			pip install -r requirements/pyinstaller.txt && \
+			pip install -e . && \
+			rm -rf build/pyinstaller ; \
+			git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
+			pushd build/pyinstaller && \
+			git checkout 0222ae2ea070e304405ba84a1f455f93e68d86a4 && \
+			pushd bootloader && \
+			export MACOSX_DEPLOYMENT_TARGET=10.13 && \
+			export CFLAGS=-mmacosx-version-min=10.13 && \
+			export CPPFLAGS=-mmacosx-version-min=10.13 && \
+			export LDFLAGS=-mmacosx-version-min=10.13 && \
+			export LINKFLAGS=-mmacosx-version-min=10.13 && \
+			python ./waf all && \
+			popd && \
+			pip install . && \
+			popd && \
+			pip list && \
+			export PYTHONHASHSEED=1 && \
+			pyinstaller -y misc/gridsync.spec \
+		;; \
+		*) \
+			python3 -m tox -e pyinstaller \
+		;; \
+	esac
 
 dmg:
 	python3 -m virtualenv --clear build/venv-dmg
@@ -183,7 +211,7 @@ vagrant-linux:
 	popd
 
 vagrant-macos:
-	pushd vagrantfiles/macos && \
+	pushd vagrantfiles/macos-10.14 && \
 	vagrant up ; \
 	popd
 
