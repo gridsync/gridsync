@@ -205,7 +205,7 @@ vagrant-linux:
 	popd
 
 vagrant-macos:
-	pushd vagrantfiles/macos-10.13 && \
+	pushd vagrantfiles/macos-10.14 && \
 	vagrant up ; \
 	popd
 
