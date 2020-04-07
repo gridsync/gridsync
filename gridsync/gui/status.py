@@ -171,4 +171,10 @@ class StatusPanel(QWidget):
         self.zkap_button.setText(
             f"{self.gateway.zkap_name_abbrev}s: {used}/{total}"
         )
+        if total == 0:
+            # XXX FIXME This quick hack is for user-testing purposes
+            # only and doesn't distinguish between multiple grids;
+            # this will indiscriminately show a/the ZKAP info pane no
+            # matter which grid is actually selected from the ComboBox.
+            self.gui.main_window.central_widget.on_zkap_button_clicked(1)
         self.zkap_button.show()
