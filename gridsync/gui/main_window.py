@@ -361,6 +361,7 @@ class MainWindow(QMainWindow):
         ):
             self.folder_action.setEnabled(False)
             self.invites_button.setEnabled(False)
+            self.combo_box.setEnabled(False)
             self.history_action.setEnabled(False)
             self.recovery_button.setEnabled(False)
             if self.grid_invites_enabled:
@@ -370,6 +371,7 @@ class MainWindow(QMainWindow):
         else:
             self.folder_action.setEnabled(True)
             self.invites_button.setEnabled(True)
+            self.combo_box.setEnabled(True)
             self.history_action.setEnabled(True)
             self.recovery_button.setEnabled(True)
             if self.grid_invites_enabled:
