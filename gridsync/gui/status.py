@@ -176,5 +176,5 @@ class StatusPanel(QWidget):
             # only and doesn't distinguish between multiple grids;
             # this will indiscriminately show a/the ZKAP info pane no
             # matter which grid is actually selected from the ComboBox.
-            self.gui.main_window.central_widget.on_zkap_button_clicked(1)
+            self.gui.main_window.central_widget.on_zkap_button_clicked(True)
         self.zkap_button.show()
