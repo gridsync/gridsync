@@ -167,7 +167,8 @@ class StatusPanel(QWidget):
 
     @Slot(int, int)
     def on_zkaps_updated(self, remaining: int, total: int) -> None:
+        used = total - remaining
         self.zkap_button.setText(
-            f"{self.gateway.zkap_name_abbrev}s: {remaining}/{total}"
+            f"{self.gateway.zkap_name_abbrev}s: {used}/{total}"
         )
         self.zkap_button.show()
