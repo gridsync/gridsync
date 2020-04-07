@@ -142,6 +142,14 @@ class CentralWidget(QStackedWidget):
             except KeyError:
                 pass
         else:
+            gateway = self.gui.main_window.combo_box.currentData()
+            if (
+                gateway.zkap_auth_required
+                and not gateway.monitor.zkap_checker.zkaps_remaining
+            ):  
+                # XXX Prevent ZKAP button from being un-checked if no ZKAPs
+                self.on_zkap_button_clicked(True)
+                return
             for panel in self.status_panels:  # XXX
                 panel.zkap_button.setChecked(False)
             self.gui.main_window.history_button.setChecked(False)  # XXX
