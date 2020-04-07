@@ -146,7 +146,7 @@ class CentralWidget(QStackedWidget):
             if (
                 gateway.zkap_auth_required
                 and not gateway.monitor.zkap_checker.zkaps_remaining
-            ):  
+            ):
                 # XXX Prevent ZKAP button from being un-checked if no ZKAPs
                 self.on_zkap_button_clicked(True)
                 return
