@@ -369,6 +369,8 @@ class ZKAPChecker(QObject):
             logging.debug(
                 "ZKAPs updated: remaining: %s; total: %s", remaining, total
             )
+        elif not remaining or not total:
+            self.zkaps_updated.emit(remaining, total)
         spending = zkaps.get("lease-maintenance-spending")
         if spending:
             count = spending.get("count")
