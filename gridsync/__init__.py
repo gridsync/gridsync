@@ -9,7 +9,6 @@ from gridsync.config import Config
 __author__ = "Christopher R. Wood"
 __url__ = "https://github.com/gridsync/gridsync"
 __license__ = "GPLv3"
-__version__ = get_versions()["version"]
 
 
 if getattr(sys, "frozen", False):
@@ -75,10 +74,13 @@ def resource(filename):
 
 
 # When running frozen, Versioneer returns a version string of "0+unknown"
+# due to the application (typically) being executed out of the source tree
 # so load the version string from a file written at freeze-time instead.
 if getattr(sys, "frozen", False):
     try:
         with open(resource("version.txt")) as f:
             __version__ = f.read()
     except OSError:
-        pass
+        __version__ = "Unknown"
+else:
+    __version__ = get_versions()["version"]
