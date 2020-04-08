@@ -6,7 +6,7 @@
 - Notification "badges" will now be displayed over the system tray icon to indicate unread newscap messages (Issue #226, PR #227)
 - The application menu -- normally accessible by right-clicking the system tray icon -- is now also always accessible via a button in the status panel (Issue #201, PR #202)
 - Clicking a desktop notification on Windows will now activate the main window (Issue #209; PR #210)
-- macOS Mojave's "dark mode" is now supported (Issue #213, PR #217)
+- macOS Mojave's "dark mode" is now supported (Issue #213, PR #217; Issue #267, PR #287)
 - Added support for "cross-compiling" Gridsync binaries via Vagrant/VirtualBox; see `README.rst` (Issue #230, PR #231)
 - Gridsync [AppImages](https://appimage.org/) are now available for GNU/Linux (Issue #245, PR #246, #248, #253)
 - macOS builds have been [notarized](https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution) (Issue #261, PR #278)
@@ -24,6 +24,7 @@
 - Binary distributions of Gridsync will now include a newer, pre-release version of Tahoe-LAFS ("1.13.0.post996.dev0") (Issue #237, PR #239)
 - Python 3.5 support has been dropped; Gridsync now requires Python version 3.6 or higher (Issue #243, PR #244)
 - Users are no longer required to scroll to the bottom of a debug log in order to export it (Issue #258, PR #259)
+- [Versioneer](https://github.com/warner/python-versioneer) will now be used to manage version strings (PR #283; Issue #288, PR #289)
 - On macOS, Gridsync will no longer run as an background-only/"agent" app; the application will again be visible in both the Dock and CMD+Tab window-list (Issue #284, PR #285)
 
 ### Removed
