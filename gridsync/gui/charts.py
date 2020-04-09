@@ -8,7 +8,9 @@ from PyQt5.QtChart import (
     QPieSeries,
 )
 from PyQt5.QtCore import QMargins, Qt
-from PyQt5.QtGui import QColor, QPainter, QPen
+from PyQt5.QtGui import QColor, QPainter, QPalette, QPen
+
+from gridsync.gui.color import is_dark
 
 
 COLOR_USED = "#D42020"
@@ -89,8 +91,16 @@ class ZKAPBarChart(QChart):
         self.setBackgroundVisible(False)
 
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.legend().setAlignment(Qt.AlignBottom)
-        # self.legend().hide()
+        legend = self.legend()
+        palette = self.palette()
+        if is_dark(palette.color(QPalette.Background)):
+            # The legend label text does not seem to be dark mode-aware
+            # and will appear dark grey with macOS dark mode enabled,
+            # making the labels illegible. This may be a bug with
+            # PyQtChart. In any case, override it here..
+            legend.setLabelColor(palette.color(QPalette.Text))
+        legend.setAlignment(Qt.AlignBottom)
+        # legend.hide()
 
         self.update(10, 30, 40)  # XXX
 
