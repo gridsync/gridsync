@@ -93,22 +93,15 @@ call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup6.iss || "C:\Prog
 goto :eof
 
 :vagrant-linux
-call pushd .\vagrantfiles\linux
-call vagrant up
-call popd
+call vagrant up --provision-with desktop,devtools,test,build centos-7
 goto :eof
 
 :vagrant-macos
-call pushd .\vagrantfiles\macos
-call vagrant up
-call popd
+call vagrant up --provision-with devtools,test,build macos-10.14
 goto :eof
 
 :vagrant-windows
-call del .\vagrantfiles\GridsyncSource.zip & py -3 .\scripts\make_source_zip.py . .\vagrantfiles\windows\GridsyncSource.zip
-call pushd .\vagrantfiles\windows
-call vagrant up
-call popd
+call vagrant up --provision-with devtools,test,build windows-10
 goto :eof
 
 :all
