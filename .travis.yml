@@ -23,6 +23,7 @@ matrix:
 install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - rm -rf ~/.pyenv
+  - git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   - mkdir -p ~/.cache/pyenv/versions
   - ln -s ~/.cache/pyenv/versions ~/.pyenv/versions
   - scripts/provision_devtools.sh
