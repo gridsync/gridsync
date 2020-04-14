@@ -200,22 +200,13 @@ dmg:
 	python3 misc/call_dmgbuild.py
 
 vagrant-linux:
-	pushd vagrantfiles/linux && \
-	vagrant up ; \
-	popd
+	vagrant up --provision-with desktop,devtools,test,build centos-7
 
 vagrant-macos:
-	pushd vagrantfiles/macos-10.14 && \
-	vagrant up ; \
-	popd
+	vagrant up --provision-with devtools,test,build macos-10.14
 
 vagrant-windows:
-	rm vagrantfiles/windows/GridsyncSource.zip ; \
-	python3 scripts/make_source_zip.py . vagrantfiles/windows/GridsyncSource.zip && \
-	pushd vagrantfiles/windows && \
-	vagrant up ; \
-	rm GridsyncSource.zip ; \
-	popd
+	vagrant up --provision-with devtools,test,build windows-10
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:
