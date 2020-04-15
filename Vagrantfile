@@ -95,7 +95,7 @@ Vagrant.configure("2") do |config|
     b.vm.hostname = "centos-7"
     b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
     b.vm.provision "desktop", type: "shell", inline: gnome_desktop
-    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
+    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
@@ -109,7 +109,7 @@ Vagrant.configure("2") do |config|
     end
     b.vm.synced_folder ".", "/home/vagrant/vagrant"
     b.vm.provision "desktop", type: "shell", inline: ubuntu_desktop
-    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
+    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
@@ -123,7 +123,7 @@ Vagrant.configure("2") do |config|
     end
     b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
     b.vm.provision "desktop", type: "shell", inline: ubuntu_desktop
-    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
+    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
@@ -141,7 +141,7 @@ Vagrant.configure("2") do |config|
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
     end
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", type: "rsync", rsync__chown: false
-    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
+    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
@@ -159,7 +159,7 @@ Vagrant.configure("2") do |config|
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
     end
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", type: "rsync", rsync__chown: false
-    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
+    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
@@ -178,7 +178,7 @@ Vagrant.configure("2") do |config|
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
     end
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", type: "rsync"
-    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
+    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
@@ -187,7 +187,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "windows-10" do |b|
     b.vm.box = "gusztavvargadr/windows-10"
     b.vm.synced_folder ".", "/Users/vagrant/vagrant"
-    b.vm.provision "devtools", type: "shell", run: "never", path: "scripts/provision_devtools.bat"
+    b.vm.provision "devtools", type: "shell", path: "scripts/provision_devtools.bat"
     b.vm.provision "test", type: "shell", run: "never", inline: test_windows
     b.vm.provision "build", type: "shell", run: "never", inline: make_windows
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.ps1"
