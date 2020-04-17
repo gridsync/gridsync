@@ -750,11 +750,19 @@ class Tahoe:
             raise OSError(
                 "Rootcap file already exists: {}".format(self.rootcap_path)
             )
-        self.rootcap = yield self.mkdir()
-        with atomic_write(self.rootcap_path, mode="w") as f:
-            f.write(self.rootcap)
+        yield self.lock.acquire()
+        rootcap = yield self.mkdir()
+        try:
+            with atomic_write(self.rootcap_path, mode="w") as f:
+                f.write(rootcap)
+        except FileExistsError:
+            log.warning("Rootcap already exists")
+            return self.get_rootcap()
+        finally:
+            yield self.lock.release()
         log.debug("Rootcap saved to file: %s", self.rootcap_path)
-        return self.rootcap
+        self.rootcap = rootcap
+        return rootcap
 
     @inlineCallbacks
     def upload(self, local_path):
