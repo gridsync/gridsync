@@ -140,6 +140,7 @@ class Tahoe:
         self.zkap_name_abbrev: str = "ZKAP"
         self.zkap_name_plural: str = "Zero-Knowledge Access Passes"
         self.zkap_payment_url_root: str = ""
+        self.zkap_dircap: str = ""
         self.settings: dict = {}
 
     @staticmethod
@@ -1240,6 +1241,99 @@ class Tahoe:
             voucher,
             hashlib.sha256(voucher.encode()).hexdigest(),
         )
+
+    @inlineCallbacks
+    def get_zkap_dircap(self):
+        if not self.get_rootcap():
+            yield self.create_rootcap()
+        if self.zkap_dircap:
+            return self.zkap_dircap
+        root_json = yield self.get_json(self.rootcap)
+        try:
+            self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]
+        except KeyError:
+            self.zkap_dircap = yield self.mkdir(self.rootcap, ".zkaps")
+        return self.zkap_dircap
+
+    @inlineCallbacks
+    def get(self, cap: str):
+        yield self.await_ready()
+        resp = yield treq.get("{}uri/{}".format(self.nodeurl, cap))
+        content = yield treq.content(resp)
+        if resp.code == 200:
+            return content
+        raise TahoeWebError(content.decode("utf-8"))
+
+    @inlineCallbacks
+    def update_zkap_checkpoint(self):
+        zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
+        os.makedirs(zkaps_dir, exist_ok=True)
+
+        # The act of updating the checkpoint itself costs at least 1
+        # ZKAP, so use the *second* token as the "checkpoint" (on the
+        # assumption that the first/next token will be spent imminently)
+        zkaps = yield self.get_zkaps(2)
+        checkpoint = zkaps.get("unblinded-tokens")[1]
+        checkpoint_path = os.path.join(zkaps_dir, "checkpoint")
+        with open(checkpoint_path, "w") as f:
+            f.write(checkpoint.strip())
+
+        zkap_dircap = yield self.get_zkap_dircap()
+        checkpoint_filecap = yield self.upload(checkpoint_path)
+        yield self.link(zkap_dircap, "checkpoint", checkpoint_filecap)
+
+    @inlineCallbacks
+    def backup_zkaps(self, timestamp: str):
+        zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
+        os.makedirs(zkaps_dir, exist_ok=True)
+
+        local_backup_filename = timestamp.replace(":", "_") + ".json"
+        local_backup_path = os.path.join(zkaps_dir, local_backup_filename)
+        if os.path.exists(local_backup_path):
+            log.debug("ZKAP backup %s already uploaded", local_backup_filename)
+            return
+
+        temp_path = os.path.join(zkaps_dir, "backup.json.tmp")
+
+        zkaps = yield self.get_zkaps()
+        tokens = zkaps.get("unblinded-tokens")
+
+        # TODO: Include redemption time
+
+        with open(temp_path, "w") as f:
+            f.write(json.dumps(tokens))
+
+        zkap_dircap = yield self.get_zkap_dircap()
+        backup_filecap = yield self.upload(temp_path)
+        yield self.link(zkap_dircap, "backup.json", backup_filecap)
+
+        yield self.update_zkap_checkpoint()
+
+        shutil.move(temp_path, local_backup_path)
+
+    @inlineCallbacks
+    def insert_zkaps(self, zkaps: list):
+        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
+        resp = yield treq.post(
+            url + "/unblinded-token",
+            json.dumps({"unblinded-tokens": zkaps}).encode(),
+        )
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content
+        raise TahoeWebError(f"Error inserting ZKAPs: {resp.code}")
+
+    @inlineCallbacks
+    def restore_zkaps(self):
+        zkap_dircap = yield self.get_zkap_dircap()
+
+        backup = yield self.get(zkap_dircap + "/backup.json")
+        tokens = json.loads(backup.decode())
+
+        checkpoint = yield self.get(zkap_dircap + "/checkpoint")
+        checkpoint = checkpoint.decode()
+
+        yield self.insert_zkaps(tokens[tokens.index(checkpoint):])
 
     @inlineCallbacks
     def get_zkapauthz_version(self):
