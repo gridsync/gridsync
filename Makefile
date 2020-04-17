@@ -143,7 +143,7 @@ frozen-tahoe:
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout master && \
+	git checkout 66cc6e3b764e93f0ec817751783147d55c31b92b && \
 	cp ../../misc/storage_client.py.patch . && \
 	git apply storage_client.py.patch && \
 	python setup.py update_version && \

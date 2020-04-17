@@ -66,7 +66,7 @@ call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
-call git checkout 09f8fa174bac34e2f1bad66cf9b61534d4df99a8
+call git checkout 66cc6e3b764e93f0ec817751783147d55c31b92b
 call copy ..\..\misc\storage_client.py.patch .
 call git apply storage_client.py.patch
 call python setup.py update_version
