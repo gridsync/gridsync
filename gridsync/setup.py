@@ -249,8 +249,10 @@ class SetupRunner(QObject):
     @inlineCallbacks
     def ensure_recovery(self, settings):
         if settings.get("rootcap"):
-            self.update_progress.emit("Loading Recovery Key...")
+            self.update_progress.emit("Restoring from Recovery Key...")
             self.gateway.save_settings(settings)  # XXX Unnecessary?
+        elif settings.get("zkap_name"):
+            self.update_progress.emit("Connecting...")
         else:
             self.update_progress.emit("Generating Recovery Key...")
             try:
@@ -301,7 +303,7 @@ class SetupRunner(QObject):
         folders_data = settings.get("magic-folders")
         if not self.gateway:
             yield self.join_grid(settings)
-            # yield self.ensure_recovery(settings)  # XXX
+            yield self.ensure_recovery(settings)
         elif not folders_data:
             self.grid_already_joined.emit(settings.get("nickname"))
         if folders_data:
