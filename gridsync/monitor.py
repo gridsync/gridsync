@@ -353,15 +353,18 @@ class ZKAPChecker(QObject):
             vouchers = yield self.gateway.get_vouchers()
         except (ConnectError, TahoeWebError):
             return  # XXX
-        if not vouchers:
-            self.zkaps_updated.emit(self.zkaps_remaining, self.zkaps_total)
-            return
+        # if not vouchers:
+        #    self.zkaps_updated.emit(self.zkaps_remaining, self.zkaps_total)
+        #    return
+        # XXX TODO: load last redeem date, total from backup json file
         total = self._parse_vouchers(vouchers)
         try:
             zkaps = yield self.gateway.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
             return  # XXX
         remaining = zkaps.get("total")
+        if remaining and not total:
+            total = remaining
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
             self.zkaps_remaining = remaining
             self.zkaps_total = total
