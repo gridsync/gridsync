@@ -204,6 +204,7 @@ class Tahoe:
             self.zkap_payment_url_root = self.settings.get(
                 "zkap_payment_url_root", ""
             )
+            self.rootcap = self.settings.get("rootcap", "")
 
     def get_settings(self, include_rootcap=False):
         settings = {
