@@ -143,6 +143,8 @@ class Tahoe:
         self.zkap_dircap: str = ""
         self.settings: dict = {}
 
+        self.monitor.zkaps_redeemed_time.connect(self.backup_zkaps)
+
     @staticmethod
     def read_cap_from_file(filepath):
         try:
