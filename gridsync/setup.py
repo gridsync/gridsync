@@ -251,6 +251,8 @@ class SetupRunner(QObject):
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
             self.gateway.save_settings(settings)  # XXX Unnecessary?
+            if settings.get("zkap_name"):
+                yield self.gateway.restore_zkaps()
         elif settings.get("zkap_name"):
             self.update_progress.emit("Connecting...")
         else:
