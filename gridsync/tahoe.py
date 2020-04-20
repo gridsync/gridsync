@@ -1277,7 +1277,7 @@ class Tahoe:
         zkaps = yield self.get_zkaps(2)
         checkpoint = zkaps.get("unblinded-tokens")[1]
         checkpoint_path = os.path.join(zkaps_dir, "checkpoint")
-        with open(checkpoint_path, "w") as f:
+        with atomic_write(checkpoint_path, overwrite=True) as f:
             f.write(checkpoint.strip())
 
         zkap_dircap = yield self.get_zkap_dircap()
@@ -1302,7 +1302,7 @@ class Tahoe:
 
         # TODO: Include redemption time
 
-        with open(temp_path, "w") as f:
+        with atomic_write(temp_path, overwrite=True) as f:
             f.write(json.dumps(zkaps))
 
         zkap_dircap = yield self.get_zkap_dircap()
@@ -1341,10 +1341,14 @@ class Tahoe:
         zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
         os.makedirs(zkaps_dir, exist_ok=True)
 
-        with open(os.path.join(zkaps_dir, "last-redeemed"), "w") as f:
+        with atomic_write(
+            str(Path(zkaps_dir, "last-redeemed")), overwrite=True
+        ) as f:
             f.write(str(backup_decoded.get("last-redeemed")))
 
-        with open(os.path.join(zkaps_dir, "last-total"), "w") as f:
+        with atomic_write(
+            str(Path(zkaps_dir, "last-total")), overwrite=True
+        ) as f:
             f.write(str(backup_decoded.get("total")))
 
     @inlineCallbacks
