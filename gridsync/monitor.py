@@ -368,7 +368,10 @@ class ZKAPChecker(QObject):
     def do_check(self):  # noqa: max-complexity
         if not self._time_started:
             self._time_started = time.time()
-        if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
+        if (
+            self.gateway.zkap_auth_required is not True
+            or not self.gateway.nodeurl
+        ):
             return
         try:
             vouchers = yield self.gateway.get_vouchers()
