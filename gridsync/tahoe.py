@@ -210,12 +210,12 @@ class Tahoe:
             self.rootcap = self.settings.get("rootcap", "")
 
     def get_settings(self, include_rootcap=False):
-        settings = {
-            "nickname": self.name,
-            "shares-needed": self.config_get("client", "shares.needed"),
-            "shares-happy": self.config_get("client", "shares.happy"),
-            "shares-total": self.config_get("client", "shares.total"),
-        }
+        self.load_settings()  # XXX/TODO: These methods can be combined...
+        settings = self.settings
+        settings["nickname"] = self.name
+        settings["shares-needed"] = self.config_get("client", "shares.needed")
+        settings["shares-happy"] = self.config_get("client", "shares.happy")
+        settings["shares-total"] = self.config_get("client", "shares.total")
         introducer = self.config_get("client", "introducer.furl")
         if introducer:
             settings["introducer"] = introducer
