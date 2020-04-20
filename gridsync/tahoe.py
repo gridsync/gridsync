@@ -210,7 +210,10 @@ class Tahoe:
             self.rootcap = self.settings.get("rootcap", "")
 
     def get_settings(self, include_rootcap=False):
-        self.load_settings()  # XXX/TODO: These methods can be combined...
+        try:
+            self.load_settings()  # XXX/TODO: These methods can be combined...
+        except FileNotFoundError:
+            pass
         settings = self.settings
         settings["nickname"] = self.name
         settings["shares-needed"] = self.config_get("client", "shares.needed")
