@@ -3,6 +3,7 @@
 from collections import defaultdict
 from datetime import datetime
 import logging
+from pathlib import Path
 import time
 from typing import List
 
@@ -343,6 +344,35 @@ class ZKAPChecker(QObject):
                 self.low_zkaps_warning.emit()
                 self._low_zkaps_warning_shown = True
 
+    def _maybe_load_last_redeemed(self) -> None:
+        try:
+            with open(
+                Path(
+                    self.gateway.nodedir, "private",
+                    "zkaps",
+                    "last-redeemed",
+                )
+            ) as f:
+                last_redeemed = f.read()
+        except FileNotFoundError:
+            return
+        self.zkaps_last_redeemed = last_redeemed
+        self.zkaps_redeemed_time.emit(last_redeemed)
+
+    def _maybe_load_last_total(self) -> int:
+        try:
+            with open(
+                Path(
+                    self.gateway.nodedir,
+                    "private",
+                    "zkaps",
+                    "last-total",
+                )
+            ) as f:
+                return int(f.read())
+        except FileNotFoundError:
+            return 0
+
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
         if not self._time_started:
@@ -353,10 +383,13 @@ class ZKAPChecker(QObject):
             vouchers = yield self.gateway.get_vouchers()
         except (ConnectError, TahoeWebError):
             return  # XXX
-        # if not vouchers:
-        #    self.zkaps_updated.emit(self.zkaps_remaining, self.zkaps_total)
-        #    return
-        # XXX TODO: load last redeem date, total from backup json file
+        if not vouchers:
+            if self.zkaps_last_redeemed == "0":
+                self._maybe_load_last_redeemed()
+            else:
+                self.zkaps_updated.emit(
+                    self.zkaps_remaining, self.zkaps_total
+                )
         total = self._parse_vouchers(vouchers)
         try:
             zkaps = yield self.gateway.get_zkaps(limit=1)
@@ -364,7 +397,7 @@ class ZKAPChecker(QObject):
             return  # XXX
         remaining = zkaps.get("total")
         if remaining and not total:
-            total = remaining
+            total = self._maybe_load_last_total()
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
             self.zkaps_remaining = remaining
             self.zkaps_total = total
