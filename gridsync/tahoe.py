@@ -1300,8 +1300,6 @@ class Tahoe:
         zkaps = yield self.get_zkaps()
         zkaps["last-redeemed"] = timestamp
 
-        # TODO: Include redemption time
-
         with atomic_write(temp_path, overwrite=True) as f:
             f.write(json.dumps(zkaps))
 
