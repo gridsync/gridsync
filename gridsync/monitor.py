@@ -347,11 +347,7 @@ class ZKAPChecker(QObject):
     def _maybe_load_last_redeemed(self) -> None:
         try:
             with open(
-                Path(
-                    self.gateway.nodedir, "private",
-                    "zkaps",
-                    "last-redeemed",
-                )
+                Path(self.gateway.nodedir, "private", "zkaps", "last-redeemed")
             ) as f:
                 last_redeemed = f.read()
         except FileNotFoundError:
@@ -362,12 +358,7 @@ class ZKAPChecker(QObject):
     def _maybe_load_last_total(self) -> int:
         try:
             with open(
-                Path(
-                    self.gateway.nodedir,
-                    "private",
-                    "zkaps",
-                    "last-total",
-                )
+                Path(self.gateway.nodedir, "private", "zkaps", "last-total")
             ) as f:
                 return int(f.read())
         except FileNotFoundError:
@@ -387,9 +378,7 @@ class ZKAPChecker(QObject):
             if self.zkaps_last_redeemed == "0":
                 self._maybe_load_last_redeemed()
             else:
-                self.zkaps_updated.emit(
-                    self.zkaps_remaining, self.zkaps_total
-                )
+                self.zkaps_updated.emit(self.zkaps_remaining, self.zkaps_total)
         total = self._parse_vouchers(vouchers)
         try:
             zkaps = yield self.gateway.get_zkaps(limit=1)

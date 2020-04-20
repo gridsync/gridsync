@@ -1337,7 +1337,7 @@ class Tahoe:
         checkpoint = yield self.get(zkap_dircap + "/checkpoint")
         checkpoint = checkpoint.decode()
 
-        yield self.insert_zkaps(tokens[tokens.index(checkpoint):])
+        yield self.insert_zkaps(tokens[tokens.index(checkpoint) :])
 
         zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
         os.makedirs(zkaps_dir, exist_ok=True)
