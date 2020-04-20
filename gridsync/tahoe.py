@@ -1298,12 +1298,12 @@ class Tahoe:
         temp_path = os.path.join(zkaps_dir, "backup.json.tmp")
 
         zkaps = yield self.get_zkaps()
-        tokens = zkaps.get("unblinded-tokens")
+        zkaps["last-redeemed"] = timestamp
 
         # TODO: Include redemption time
 
         with open(temp_path, "w") as f:
-            f.write(json.dumps(tokens))
+            f.write(json.dumps(zkaps))
 
         zkap_dircap = yield self.get_zkap_dircap()
         backup_filecap = yield self.upload(temp_path)
@@ -1330,12 +1330,22 @@ class Tahoe:
         zkap_dircap = yield self.get_zkap_dircap()
 
         backup = yield self.get(zkap_dircap + "/backup.json")
-        tokens = json.loads(backup.decode())
+        backup_decoded = json.loads(backup.decode())
+        tokens = backup_decoded.get("unblinded-tokens")
 
         checkpoint = yield self.get(zkap_dircap + "/checkpoint")
         checkpoint = checkpoint.decode()
 
         yield self.insert_zkaps(tokens[tokens.index(checkpoint):])
+
+        zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
+        os.makedirs(zkaps_dir, exist_ok=True)
+
+        with open(os.path.join(zkaps_dir, "last-redeemed"), "w") as f:
+            f.write(str(backup_decoded.get("last-redeemed")))
+
+        with open(os.path.join(zkaps_dir, "last-total"), "w") as f:
+            f.write(str(backup_decoded.get("total")))
 
     @inlineCallbacks
     def get_zkapauthz_version(self):
