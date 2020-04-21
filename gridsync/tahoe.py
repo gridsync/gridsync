@@ -193,28 +193,12 @@ class Tahoe:
             ) as f:
                 f.write(newscap)
 
-    def load_settings(self) -> None:
-        with open(Path(self.nodedir, "private", "settings.json")) as f:
-            self.settings = json.loads(f.read())
-            zkap_name = self.settings.get("zkap_name", "")
-            if zkap_name:
-                self.zkap_name = zkap_name
-                self.zkap_name_abbrev = "".join(
-                    [c for c in zkap_name if c.isupper()]
-                )
-                suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
-                self.zkap_name_plural = f"{zkap_name}{suffix}"
-            self.zkap_payment_url_root = self.settings.get(
-                "zkap_payment_url_root", ""
-            )
-            self.rootcap = self.settings.get("rootcap", "")
-
-    def get_settings(self, include_rootcap=False):
+    def load_settings(self):
         try:
-            self.load_settings()  # XXX/TODO: These methods can be combined...
+            with open(Path(self.nodedir, "private", "settings.json")) as f:
+                settings = json.loads(f.read())
         except FileNotFoundError:
-            pass
-        settings = self.settings
+            settings = {}
         settings["nickname"] = self.name
         settings["shares-needed"] = self.config_get("client", "shares.needed")
         settings["shares-happy"] = self.config_get("client", "shares.happy")
@@ -233,9 +217,33 @@ class Tahoe:
         self.load_newscap()
         if self.newscap:
             settings["newscap"] = self.newscap
-        if include_rootcap and os.path.exists(self.rootcap_path):
-            settings["rootcap"] = self.read_cap_from_file(self.rootcap_path)
+        if os.path.exists(self.rootcap_path):
+            rootcap = self.read_cap_from_file(self.rootcap_path)
+        else:
+            rootcap = settings.get("rootcap", "")
+        settings["rootcap"] = rootcap
+        self.rootcap = rootcap
+        zkap_name = settings.get("zkap_name", "")
+        if zkap_name:
+            self.zkap_name = zkap_name
+            self.zkap_name_abbrev = "".join(
+                [c for c in zkap_name if c.isupper()]
+            )
+            suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
+            self.zkap_name_plural = f"{zkap_name}{suffix}"
+        self.zkap_payment_url_root = settings.get("zkap_payment_url_root", "")
         # TODO: Verify integrity? Support 'icon_base64'?
+        self.settings = settings
+
+    def get_settings(self, include_rootcap=False):
+        self.load_settings()
+        if include_rootcap:
+            return self.settings
+        settings = dict(self.settings)
+        try:
+            del settings["rootcap"]
+        except KeyError:
+            pass
         return settings
 
     def export(self, dest, include_rootcap=False):
