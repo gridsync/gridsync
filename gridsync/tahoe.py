@@ -236,7 +236,8 @@ class Tahoe:
         self.settings = settings
 
     def get_settings(self, include_rootcap=False):
-        self.load_settings()
+        if not self.settings:
+            self.load_settings()
         if include_rootcap:
             return self.settings
         settings = dict(self.settings)
