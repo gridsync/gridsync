@@ -234,13 +234,14 @@ class Tahoe:
     def get_settings(self, include_rootcap=False):
         if not self.settings:
             self.load_settings()
-        if include_rootcap:
-            return self.settings
         settings = dict(self.settings)
-        try:
-            del settings["rootcap"]
-        except KeyError:
-            pass
+        if include_rootcap:
+            settings["rootcap"] = self.get_rootcap()
+        else:
+            try:
+                del settings["rootcap"]
+            except KeyError:
+                pass
         return settings
 
     def export(self, dest, include_rootcap=False):
