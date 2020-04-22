@@ -1306,6 +1306,15 @@ class Tahoe:
         if os.path.exists(local_backup_path):
             log.debug("ZKAP backup %s already uploaded", local_backup_filename)
             return
+        try:
+            with open(os.path.join(zkaps_dir, "last-redeemed")) as f:
+                if timestamp == f.read():
+                    log.debug(
+                        "No ZKAP backup needed for %s; cancelling", timestamp
+                    )
+                    return
+        except OSError:
+            pass
 
         temp_path = os.path.join(zkaps_dir, "backup.json.tmp")
 
