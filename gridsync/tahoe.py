@@ -621,10 +621,7 @@ class Tahoe:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
                 f.write(pid)
 
-        try:
-            self.load_settings()
-        except FileNotFoundError:
-            pass
+        self.load_settings()
 
         with open(os.path.join(self.nodedir, "node.url")) as f:
             self.set_nodeurl(f.read().strip())
