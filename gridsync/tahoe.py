@@ -144,6 +144,7 @@ class Tahoe:
         self.settings: dict = {}
 
         self.monitor.zkaps_redeemed.connect(self.backup_zkaps)
+        self.monitor.sync_finished.connect(self.update_zkap_checkpoint)
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -1273,7 +1274,7 @@ class Tahoe:
         raise TahoeWebError(content.decode("utf-8"))
 
     @inlineCallbacks
-    def update_zkap_checkpoint(self):
+    def update_zkap_checkpoint(self, _=None):
         zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
         os.makedirs(zkaps_dir, exist_ok=True)
 
