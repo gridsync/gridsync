@@ -139,9 +139,7 @@ class ZKAPInfoPane(QWidget):
         main_layout = QGridLayout(self)
         main_layout.addWidget(self.groupbox)
 
-        self.gateway.monitor.zkaps_redeemed.connect(
-            self.on_zkaps_redeemed
-        )
+        self.gateway.monitor.zkaps_redeemed.connect(self.on_zkaps_redeemed)
         self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
         self.gateway.monitor.zkaps_renewal_cost_updated.connect(
             self.on_zkaps_renewal_cost_updated
