@@ -481,9 +481,7 @@ class Monitor(QObject):
 
         self.zkap_checker = ZKAPChecker(self.gateway)
         self.zkap_checker.zkaps_updated.connect(self.zkaps_updated.emit)
-        self.zkap_checker.zkaps_redeemed.connect(
-            self.zkaps_redeemed.emit
-        )
+        self.zkap_checker.zkaps_redeemed.connect(self.zkaps_redeemed.emit)
         self.zkap_checker.zkaps_renewal_cost_updated.connect(
             self.zkaps_renewal_cost_updated.emit
         )
