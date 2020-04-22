@@ -267,7 +267,7 @@ class GridChecker(QObject):
 class ZKAPChecker(QObject):
 
     zkaps_updated = pyqtSignal(int, int)  # remaining, total
-    zkaps_redeemed_time = pyqtSignal(str)
+    zkaps_redeemed = pyqtSignal(str)  # timestamp
     zkaps_renewal_cost_updated = pyqtSignal(int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
@@ -334,7 +334,7 @@ class ZKAPChecker(QObject):
             self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
         if zkaps_last_redeemed != self.zkaps_last_redeemed:
             self.zkaps_last_redeemed = zkaps_last_redeemed
-            self.zkaps_redeemed_time.emit(self.zkaps_last_redeemed)
+            self.zkaps_redeemed.emit(self.zkaps_last_redeemed)
         return total
 
     def _maybe_emit_low_zkaps_warning(self):
@@ -353,7 +353,7 @@ class ZKAPChecker(QObject):
         except FileNotFoundError:
             return
         self.zkaps_last_redeemed = last_redeemed
-        self.zkaps_redeemed_time.emit(last_redeemed)
+        self.zkaps_redeemed.emit(last_redeemed)
 
     def _maybe_load_last_total(self) -> int:
         try:
@@ -460,7 +460,7 @@ class Monitor(QObject):
     check_finished = pyqtSignal()
 
     zkaps_updated = pyqtSignal(int, int)
-    zkaps_redeemed_time = pyqtSignal(str)
+    zkaps_redeemed = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
@@ -481,8 +481,8 @@ class Monitor(QObject):
 
         self.zkap_checker = ZKAPChecker(self.gateway)
         self.zkap_checker.zkaps_updated.connect(self.zkaps_updated.emit)
-        self.zkap_checker.zkaps_redeemed_time.connect(
-            self.zkaps_redeemed_time.emit
+        self.zkap_checker.zkaps_redeemed.connect(
+            self.zkaps_redeemed.emit
         )
         self.zkap_checker.zkaps_renewal_cost_updated.connect(
             self.zkaps_renewal_cost_updated.emit

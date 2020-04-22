@@ -139,8 +139,8 @@ class ZKAPInfoPane(QWidget):
         main_layout = QGridLayout(self)
         main_layout.addWidget(self.groupbox)
 
-        self.gateway.monitor.zkaps_redeemed_time.connect(
-            self.on_zkaps_redeemed_time
+        self.gateway.monitor.zkaps_redeemed.connect(
+            self.on_zkaps_redeemed
         )
         self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
         self.gateway.monitor.zkaps_renewal_cost_updated.connect(
@@ -201,7 +201,7 @@ class ZKAPInfoPane(QWidget):
         self._open_zkap_payment_url()
 
     @Slot(str)
-    def on_zkaps_redeemed_time(self, timestamp):
+    def on_zkaps_redeemed(self, timestamp):
         self.refill_field.setText(
             naturaltime(datetime.now() - datetime.fromisoformat(timestamp))
         )
