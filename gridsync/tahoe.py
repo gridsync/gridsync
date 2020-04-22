@@ -217,12 +217,8 @@ class Tahoe:
         self.load_newscap()
         if self.newscap:
             settings["newscap"] = self.newscap
-        if os.path.exists(self.rootcap_path):
-            rootcap = self.read_cap_from_file(self.rootcap_path)
-        else:
-            rootcap = settings.get("rootcap", "")
-        settings["rootcap"] = rootcap
-        self.rootcap = rootcap
+        if not settings.get("rootcap"):
+            settings["rootcap"] = self.get_rootcap()
         zkap_name = settings.get("zkap_name", "")
         if zkap_name:
             self.zkap_name = zkap_name
