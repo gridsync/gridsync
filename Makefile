@@ -143,7 +143,7 @@ frozen-tahoe:
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
-	git checkout 66cc6e3b764e93f0ec817751783147d55c31b92b && \
+	git checkout tahoe-lafs-1.14.0 && \
 	cp ../../misc/storage_client.py.patch . && \
 	git apply storage_client.py.patch && \
 	python setup.py update_version && \
@@ -205,23 +205,28 @@ dmg:
 	python3 -m pip install dmgbuild && \
 	python3 misc/call_dmgbuild.py
 
-vagrant-linux:
-	pushd vagrantfiles/linux && \
-	vagrant up ; \
-	popd
 
-vagrant-macos:
-	pushd vagrantfiles/macos-10.14 && \
-	vagrant up ; \
-	popd
+vagrant-desktop-linux:
+	vagrant up --no-provision ubuntu-18.04
+	vagrant provision --provision-with desktop ubuntu-18.04
 
-vagrant-windows:
-	rm vagrantfiles/windows/GridsyncSource.zip ; \
-	python3 scripts/make_source_zip.py . vagrantfiles/windows/GridsyncSource.zip && \
-	pushd vagrantfiles/windows && \
-	vagrant up ; \
-	rm GridsyncSource.zip ; \
-	popd
+vagrant-desktop-macos:
+	vagrant up --no-provision macos-10.15
+
+vagrant-desktop-windows:
+	vagrant up --no-provision windows-10
+
+
+vagrant-build-linux:
+	vagrant up centos-7
+	vagrant provision --provision-with test,build centos-7
+
+vagrant-build-macos:
+	vagrant up --provision-with test,build macos-10.14
+
+vagrant-build-windows:
+	vagrant up --provision-with test,build windows-10
+
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:

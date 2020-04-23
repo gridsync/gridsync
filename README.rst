@@ -130,18 +130,18 @@ Note, however, that PyInstaller-generated binaries are typically `not backward-c
 
 .. _not backward-compatible: https://pyinstaller.readthedocs.io/en/latest/usage.html#platform-specific-notes
 
-To help facilitate the testing, building, and distribution of forward-compatible binaries -- as well as to enable a crude form of "cross-compilation" -- a set of custom-tailored "builder" `Vagrantfiles`_ have been provided inside the Gridsync source tree; users or developers with `Vagrant`_ and `VirtualBox`_ installed [*]_ can automatically provision a complete Gridsync build environment that produces forward-compatible binaries via the following commands:
+To help facilitate the testing, building, and distribution of forward-compatible binaries -- as well as to enable a crude form of "cross-compilation" -- a custom `Vagrantfile`_ has been provided inside the Gridsync source tree; users or developers with `Vagrant`_ and `VirtualBox`_ installed [*]_ can automatically provision a complete Gridsync build environment that produces forward-compatible binaries via the following commands:
 
 .. code-block:: shell-session
 
-    make vagrant-linux
-    make vagrant-macos
-    make vagrant-windows
+    make vagrant-build-linux
+    make vagrant-build-macos
+    make vagrant-build-windows
 
 
 These will download and configure a suitable virtual machine for the target platform (from the `public Vagrant Boxes catalog`_), provision it with all required dependencies (such compilers/SDKs, python interpreters, X11 libraries, etc.), copy the Gridsync source code into the target VM, run the Gridsync test suite, and compile a final PyInstaller-generated binary package suitable for distribution (the result of which can be found in the `~/gridsync/dist` directory of the guest VM).
 
-.. _Vagrantfiles: https://github.com/gridsync/gridsync/tree/master/vagrantfiles
+.. _Vagrantfile: https://github.com/gridsync/gridsync/tree/master/Vagrantfile
 .. _Vagrant: https://www.vagrantup.com/
 .. _VirtualBox: https://www.virtualbox.org/
 .. _public Vagrant Boxes catalog: https://app.vagrantup.com/boxes/search
