@@ -38,9 +38,12 @@ if "%1"=="test" call :test
 if "%1"=="frozen-tahoe" call :frozen-tahoe
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="installer" call :installer
-if "%1"=="vagrant-linux" call :vagrant-linux
-if "%1"=="vagrant-macos" call :vagrant-macos
-if "%1"=="vagrant-windows" call :vagrant-windows
+if "%1"=="vagrant-desktop-linux" call :vagrant-desktop-linux
+if "%1"=="vagrant-desktop-macos" call :vagrant-desktop-macos
+if "%1"=="vagrant-desktop-windows" call :vagrant-desktop-windows
+if "%1"=="vagrant-build-linux" call :vagrant-build-linux
+if "%1"=="vagrant-build-macos" call :vagrant-build-macos
+if "%1"=="vagrant-build-windows" call :vagrant-build-windows
 if "%1"=="all" call :all
 if "%1"=="" call :all
 goto :eof
@@ -92,24 +95,34 @@ call copy misc\InnoSetup6.iss .
 call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup6.iss || "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\InnoSetup5.iss
 goto :eof
 
-:vagrant-linux
-call pushd .\vagrantfiles\linux
-call vagrant up
-call popd
+
+:vagrant-desktop-linux
+call vagrant up --no-provision ubuntu-18.04
+call vagrant provision --provision-with desktop ubuntu-18.04
 goto :eof
 
-:vagrant-macos
-call pushd .\vagrantfiles\macos
-call vagrant up
-call popd
+:vagrant-desktop-macos
+call vagrant up --no-provision macos-10.15
 goto :eof
 
-:vagrant-windows
-call del .\vagrantfiles\GridsyncSource.zip & py -3 .\scripts\make_source_zip.py . .\vagrantfiles\windows\GridsyncSource.zip
-call pushd .\vagrantfiles\windows
-call vagrant up
-call popd
+:vagrant-desktop-windows
+call vagrant up --no-provision windows-10
 goto :eof
+
+
+:vagrant-build-linux
+call vagrant up
+call vagrant provision --provision-with test,build centos-7
+goto :eof
+
+:vagrant-build-macos
+call vagrant up --provision-with test,build macos-10.14
+goto :eof
+
+:vagrant-build-windows
+call vagrant up --provision-with test,build windows-10
+goto :eof
+
 
 :all
 call :pyinstaller
