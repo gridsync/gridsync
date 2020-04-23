@@ -69,7 +69,7 @@ call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
-call git checkout 66cc6e3b764e93f0ec817751783147d55c31b92b
+call git checkout tahoe-lafs-1.14.0
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install .
