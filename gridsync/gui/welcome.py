@@ -372,7 +372,7 @@ class WelcomeDialog(QStackedWidget):
         self.recovery_key_importer.done.connect(self.on_import_done)
         self.recovery_key_importer.do_import()
 
-    def go(self, code):
+    def go(self, code, settings=None):
         if self.tor_checkbox.isChecked():
             self.use_tor = True
             self.page_2.tor_label.show()
@@ -392,7 +392,7 @@ class WelcomeDialog(QStackedWidget):
             lambda gateway: self.gui.populate([gateway])
         )
         invite_receiver.done.connect(self.on_done)
-        d = invite_receiver.receive(code)
+        d = invite_receiver.receive(code, settings)
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)
 
