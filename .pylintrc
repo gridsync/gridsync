@@ -17,3 +17,4 @@ disable=
     duplicate-code,
     fixme,
     import-outside-toplevel,
+    unbalanced-tuple-unpacking,
