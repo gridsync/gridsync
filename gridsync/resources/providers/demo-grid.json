@@ -1,6 +1,7 @@
 {
     "nickname": "Demo Grid",
     "icon_url": "https://raw.githubusercontent.com/gridsync/gridsync/master/gridsync/resources/gridsync.png",
+    "color-1": "#009cff",
     "shares-needed": "1",
     "shares-happy": "1",
     "shares-total": "1",
