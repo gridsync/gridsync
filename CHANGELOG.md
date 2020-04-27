@@ -10,6 +10,7 @@
 - Added support for "cross-compiling" Gridsync binaries via Vagrant/VirtualBox; see `README.rst` (Issue #230, PR #231)
 - Gridsync [AppImages](https://appimage.org/) are now available for GNU/Linux (Issue #245, PR #246, #248, #253)
 - macOS builds have been [notarized](https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution) (Issue #261, PR #278)
+- An optional "default" grid-connection/configuration can now be specified via `config.txt`, facilitating custom deployments that omit "invite code"-based configuration (PR #292)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.7 (Issue #175; PR #187)
