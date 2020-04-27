@@ -279,7 +279,7 @@ class MainWindow(QMainWindow):
         self.active_invite_sender_dialogs = []
         self.active_invite_receiver_dialogs = []
 
-        self.pending_news_message = ("", "", "")
+        self.pending_news_message = ()
 
     def populate(self, gateways):
         for gateway in gateways:
@@ -549,7 +549,7 @@ class MainWindow(QMainWindow):
     def showEvent(self, _):
         if self.pending_news_message:
             gateway, title, message = self.pending_news_message
-            self.pending_news_message = ("", "", "")
+            self.pending_news_message = ()
             QTimer.singleShot(
                 0, lambda: self.show_news_message(gateway, title, message)
             )
