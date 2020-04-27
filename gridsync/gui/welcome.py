@@ -28,7 +28,7 @@ from wormhole.errors import (
 
 from gridsync import resource, APP_NAME
 from gridsync import settings as global_settings
-from gridsync.invite import InviteReceiver
+from gridsync.invite import InviteReceiver, load_settings_from_cheatcode
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
@@ -75,6 +75,36 @@ class WelcomeWidget(QWidget):
         self.invite_code_widget = InviteCodeWidget(self)
         self.lineedit = self.invite_code_widget.lineedit
 
+        self.connect_button = QPushButton("Connect")
+
+        try:
+            default_code = global_settings["connection"]["default"]
+        except KeyError:
+            default_code = ""
+        grid_settings = load_settings_from_cheatcode(default_code)
+        if grid_settings:
+            self.invite_code_widget.hide()
+            nickname = grid_settings.get("nickname")
+            if nickname:
+                font = Font(11)
+                self.connect_button.setFont(font)
+                self.connect_button.setFixedHeight(32)
+                self.connect_button.setText(f"Connect to {nickname}")
+                self.connect_button.clicked.connect(
+                    lambda: self.parent.go(default_code, grid_settings)
+                )
+            primary_color = grid_settings.get("color-1")
+            if primary_color:
+                self.connect_button.setStyleSheet(
+                    f"background: {primary_color}; color: white"
+                )
+            else:
+                self.connect_button.setStyleSheet(
+                    "background: green; color: white"
+                )
+        else:
+            self.connect_button.hide()
+
         self.message = QLabel()
         self.message.setStyleSheet("color: red")
         self.message.setAlignment(Qt.AlignCenter)
@@ -117,6 +147,7 @@ class WelcomeWidget(QWidget):
         layout.addWidget(self.slogan, 2, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 3, 1)
         layout.addWidget(self.invite_code_widget, 4, 2, 1, 3)
+        layout.addWidget(self.connect_button, 4, 2, 1, 3)
         layout.addWidget(self.message, 5, 3)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 6, 1)
         layout.addLayout(links_grid, 7, 3)
@@ -372,7 +403,7 @@ class WelcomeDialog(QStackedWidget):
         self.recovery_key_importer.done.connect(self.on_import_done)
         self.recovery_key_importer.do_import()
 
-    def go(self, code):
+    def go(self, code, settings=None):
         if self.tor_checkbox.isChecked():
             self.use_tor = True
             self.page_2.tor_label.show()
@@ -392,7 +423,7 @@ class WelcomeDialog(QStackedWidget):
             lambda gateway: self.gui.populate([gateway])
         )
         invite_receiver.done.connect(self.on_done)
-        d = invite_receiver.receive(code)
+        d = invite_receiver.receive(code, settings)
         d.addErrback(self.handle_failure)
         # reactor.callLater(30, d.cancel)  # XXX
 
