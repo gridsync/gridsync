@@ -22,7 +22,7 @@
 - High-DPI scaling (via Qt5's `AA_EnableHighDpiScaling` attribute) has been enabled on all platforms/environments (except for Qubes-OS and MATE -- see #204). In addition, font- and pixmap-scaling has been improved (Issue #193, #198, #232; PR #199, #203, #204, #233)
 - The "Open Gridsync" menu action will now also un-minimize and re-focus the window in the event that it is already open (Issue #205; PR #206)
 - Desktop notifications for connection/disconnection events are now disabled by default (Issue #218, PR #219)
-- Binary distributions of Gridsync will now include a newer, pre-release version of Tahoe-LAFS ("1.13.0.post996.dev0") (Issue #237, PR #239)
+- Binary distributions of Gridsync will now ship with Tahoe-LAFS version 1.14.0
 - Python 3.5 support has been dropped; Gridsync now requires Python version 3.6 or higher (Issue #243, PR #244)
 - Users are no longer required to scroll to the bottom of a debug log in order to export it (Issue #258, PR #259)
 - [Versioneer](https://github.com/warner/python-versioneer) will now be used to manage version strings (PR #283; Issue #288, PR #289)
