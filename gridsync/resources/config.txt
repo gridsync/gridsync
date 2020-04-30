@@ -13,6 +13,12 @@ linux_icon = images/gridsync.svg
 [debug]
 log_maxlen = 100000
 
+[features]
+grid_invites = true
+invites = true
+multiple_grids = true
+tor = true
+
 [help]
 docs_url = docs.gridsync.io
 issues_url = https://github.com/gridsync/gridsync/issues
