@@ -329,7 +329,7 @@ class MainWindow(QMainWindow):
         self.folders_action.setToolTip("Show Folders")
         self.folders_action.setFont(font)
         self.folders_action.setCheckable(True)
-        #self.folders_action.triggered.connect(self.on_history_button_clicked)
+        self.folders_action.triggered.connect(self.on_folders_button_clicked)
 
         self.folders_button = QToolButton(self)
         self.folders_button.setDefaultAction(self.folders_action)
@@ -344,7 +344,7 @@ class MainWindow(QMainWindow):
         self.zkaps_action.setToolTip("Show Credits")
         self.zkaps_action.setFont(font)
         self.zkaps_action.setCheckable(True)
-        #self.zkaps_action.triggered.connect(self.on_history_button_clicked)
+        self.zkaps_action.triggered.connect(self.on_zkaps_button_clicked)
 
         self.zkaps_button = QToolButton(self)
         self.zkaps_button.setDefaultAction(self.zkaps_action)
@@ -600,15 +600,26 @@ class MainWindow(QMainWindow):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
         self.welcome_dialog.on_restore_link_activated()
 
+    def on_folders_button_clicked(self):
+        self.folders_button.setChecked(True)
+        self.zkaps_button.setChecked(False)
+        self.history_button.setChecked(False)
+        self.show_folders_view()
+        self.maybe_enable_actions()
+
+    def on_zkaps_button_clicked(self):
+        self.folders_button.setChecked(False)
+        self.zkaps_button.setChecked(True)
+        self.history_button.setChecked(False)
+        self.central_widget.on_zkap_button_clicked(True)  # XXX
+        self.maybe_enable_actions()
+
     def on_history_button_clicked(self):
-        if not self.history_button.isChecked():
-            self.history_button.setChecked(True)
-            self.show_history_view()
-            for panel in self.central_widget.status_panels:  # XXX
-                panel.zkap_button.setChecked(False)
-        else:
-            self.history_button.setChecked(False)
-            self.show_folders_view()
+        self.folders_button.setChecked(False)
+        self.zkaps_button.setChecked(False)
+        self.history_button.setChecked(True)
+        self.show_history_view()
+        self.maybe_enable_actions()
 
     def on_invite_received(self, gateway):
         self.populate([gateway])
