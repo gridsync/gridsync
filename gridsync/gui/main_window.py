@@ -322,6 +322,35 @@ class MainWindow(QMainWindow):
         )
         self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
+        self.folders_action = QAction(
+            QIcon(resource("folder-multiple.png")), "Folders", self
+        )
+        self.folders_action.setEnabled(False)
+        self.folders_action.setToolTip("Show Folders")
+        self.folders_action.setFont(font)
+        self.folders_action.setCheckable(True)
+        #self.folders_action.triggered.connect(self.on_history_button_clicked)
+
+        self.folders_button = QToolButton(self)
+        self.folders_button.setDefaultAction(self.folders_action)
+        self.folders_button.setCheckable(True)
+        self.folders_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        # TODO: Get name from zkap_name?
+        self.zkaps_action = QAction(
+            QIcon(resource("circle-multiple-outline.png")), "Credits", self
+        )
+        self.zkaps_action.setEnabled(False)
+        self.zkaps_action.setToolTip("Show Credits")
+        self.zkaps_action.setFont(font)
+        self.zkaps_action.setCheckable(True)
+        #self.zkaps_action.triggered.connect(self.on_history_button_clicked)
+
+        self.zkaps_button = QToolButton(self)
+        self.zkaps_button.setDefaultAction(self.zkaps_action)
+        self.zkaps_button.setCheckable(True)
+        self.zkaps_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
         self.toolbar = self.addToolBar("")
         p = self.palette()
         dimmer_grey = BlendedColor(
@@ -352,6 +381,8 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
+        self.toolbar.addWidget(self.folders_button)
+        self.toolbar.addWidget(self.zkaps_button)
         self.toolbar.addWidget(self.history_button)
 
         if sys.platform != "win32":  # Text is getting clipped on Windows 10
@@ -376,6 +407,8 @@ class MainWindow(QMainWindow):
             self.combo_box.setEnabled(False)
             self.history_action.setEnabled(False)
             self.recovery_button.setEnabled(False)
+            self.folders_button.setEnabled(False)
+            self.zkaps_button.setEnabled(False)
             if self.grid_invites_enabled:
                 self.invites_button.setEnabled(False)
             else:
@@ -389,6 +422,8 @@ class MainWindow(QMainWindow):
             self.combo_box.setEnabled(True)
             self.history_action.setEnabled(True)
             self.recovery_button.setEnabled(True)
+            self.folders_button.setEnabled(True)
+            self.zkaps_button.setEnabled(True)
             if self.grid_invites_enabled:
                 self.invites_button.setEnabled(True)
             else:
