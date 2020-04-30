@@ -92,7 +92,6 @@ class CentralWidget(QStackedWidget):
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
         status_panel = StatusPanel(gateway, self.gui)
-        status_panel.zkap_button.clicked.connect(self.on_zkap_button_clicked)
         self.status_panels.append(status_panel)
         layout.addWidget(status_panel)
         self.addWidget(widget)
@@ -101,9 +100,6 @@ class CentralWidget(QStackedWidget):
 
     def add_history_view(self, gateway):
         view = HistoryView(gateway, self.gui)
-        view.status_panel.zkap_button.clicked.connect(
-            self.on_zkap_button_clicked
-        )
         self.addWidget(view)
         self.history_views[gateway] = view
 
