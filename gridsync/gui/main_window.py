@@ -75,7 +75,6 @@ class CentralWidget(QStackedWidget):
         self.folders_views = {}
         self.history_views = {}
         self.zkap_views = {}
-        #self.status_panels = []
 
         # XXX/TODO: There are too many StatusPanel instances here,
         # resulting in spaghetti.. Clean this up.
@@ -91,8 +90,6 @@ class CentralWidget(QStackedWidget):
             left, _, right, _ = layout.getContentsMargins()
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
-        #status_panel = StatusPanel(gateway, self.gui)
-        #self.status_panels.append(status_panel)
         layout.addWidget(StatusPanel(gateway, self.gui))
         self.addWidget(widget)
         self.views.append(view)
@@ -115,8 +112,6 @@ class CentralWidget(QStackedWidget):
             left, _, right, _ = layout.getContentsMargins()
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
-        #status_panel = StatusPanel(gateway, self.gui)
-        #self.status_panels.append(status_panel)
         layout.addWidget(StatusPanel(gateway, self.gui))
         self.addWidget(widget)
         self.zkap_views[gateway] = widget
