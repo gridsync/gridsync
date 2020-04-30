@@ -98,7 +98,6 @@ class StatusPanel(QWidget):
         # zkap_chart_view = ZKAPCompactPieChartView()
 
         self.zkap_button = QToolButton(self)
-        self.zkap_button.setCheckable(True)
         self.zkap_button.setStyleSheet(
             f"QToolButton {{ border: none; color: {dimmer_grey}}}"
         )
