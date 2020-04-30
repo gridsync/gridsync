@@ -265,7 +265,7 @@ class MainWindow(QMainWindow):
             self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         elif invites_enabled:
-            invite_action = QAction(
+            self.invite_action = QAction(
                 QIcon(resource("invite.png")), "Enter Code", self
             )
             self.invite_action.setToolTip("Enter an Invite Code...")
@@ -348,7 +348,7 @@ class MainWindow(QMainWindow):
         if grid_invites_enabled:
             self.toolbar.addWidget(self.invites_button)
         elif invites_enabled:
-            self.toolbar.addAction(invite_action)
+            self.toolbar.addAction(self.invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
@@ -373,24 +373,30 @@ class MainWindow(QMainWindow):
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
             self.folder_action.setEnabled(False)
-            self.invites_button.setEnabled(False)
+            # self.invites_button.setEnabled(False)
             self.combo_box.setEnabled(False)
             self.history_action.setEnabled(False)
             self.recovery_button.setEnabled(False)
             if self.grid_invites_enabled:
                 self.invites_button.setEnabled(False)
             else:
-                self.invite_action.setEnabled(False)
+                try:
+                    self.invite_action.setEnabled(False)
+                except AttributeError:
+                    pass
         else:
             self.folder_action.setEnabled(True)
-            self.invites_button.setEnabled(True)
+            # self.invites_button.setEnabled(True)
             self.combo_box.setEnabled(True)
             self.history_action.setEnabled(True)
             self.recovery_button.setEnabled(True)
             if self.grid_invites_enabled:
                 self.invites_button.setEnabled(True)
             else:
-                self.invite_action.setEnabled(True)
+                try:
+                    self.invite_action.setEnabled(True)
+                except AttributeError:
+                    pass
 
     def populate(self, gateways):
         for gateway in gateways:
