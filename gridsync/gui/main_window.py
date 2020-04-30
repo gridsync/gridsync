@@ -91,9 +91,9 @@ class CentralWidget(QStackedWidget):
             left, _, right, _ = layout.getContentsMargins()
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
-        status_panel = StatusPanel(gateway, self.gui)
+        #status_panel = StatusPanel(gateway, self.gui)
         #self.status_panels.append(status_panel)
-        layout.addWidget(status_panel)
+        layout.addWidget(StatusPanel(gateway, self.gui))
         self.addWidget(widget)
         self.views.append(view)
         self.folders_views[gateway] = widget
@@ -115,9 +115,9 @@ class CentralWidget(QStackedWidget):
             left, _, right, _ = layout.getContentsMargins()
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
-        status_panel = StatusPanel(gateway, self.gui)
+        #status_panel = StatusPanel(gateway, self.gui)
         #self.status_panels.append(status_panel)
-        layout.addWidget(status_panel)
+        layout.addWidget(StatusPanel(gateway, self.gui))
         self.addWidget(widget)
         self.zkap_views[gateway] = widget
 
