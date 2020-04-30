@@ -164,7 +164,10 @@ class MainWindow(QMainWindow):
         self.gateways = []
         self.welcome_dialog = None
         self.recovery_key_exporter = None
+
         self.grid_invites_enabled: bool = True
+        self.invites_enabled: bool = True
+        self.multiple_grids_enabled: bool = True
 
         self.setWindowTitle(APP_NAME)
         # self.setMinimumSize(QSize(600, 400))
@@ -177,23 +180,19 @@ class MainWindow(QMainWindow):
             # See https://github.com/gridsync/gridsync/issues/241
             self.setWindowFlags(Qt.Dialog)
 
-        grid_invites_enabled = True
-        invites_enabled = True
-        multiple_grids_enabled = True
         features_settings = settings.get("features")
         if features_settings:
             grid_invites = features_settings.get("grid_invites")
             if grid_invites and grid_invites.lower() == "false":
-                grid_invites_enabled = False
-                self.grid_invites_enabled = False  # XXX
+                self.grid_invites_enabled = False
             invites = features_settings.get("invites")
             if invites and invites.lower() == "false":
-                invites_enabled = False
+                self.invites_enabled = False
             multiple_grids = features_settings.get("multiple_grids")
             if multiple_grids and multiple_grids.lower() == "false":
-                multiple_grids_enabled = False
+                self.multiple_grids_enabled = False
 
-        if multiple_grids_enabled:
+        if self.multiple_grids_enabled:
             self.shortcut_new = QShortcut(QKeySequence.New, self)
             self.shortcut_new.activated.connect(self.show_welcome_dialog)
 
@@ -228,7 +227,7 @@ class MainWindow(QMainWindow):
         self.folder_action.setFont(font)
         self.folder_action.triggered.connect(self.select_folder)
 
-        if grid_invites_enabled:
+        if self.grid_invites_enabled:
             self.invites_action = QAction(
                 QIcon(resource("invite.png")), "Invites", self
             )
@@ -264,7 +263,7 @@ class MainWindow(QMainWindow):
             )
             self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        elif invites_enabled:
+        elif self.invites_enabled:
             self.invite_action = QAction(
                 QIcon(resource("invite.png")), "Enter Code", self
             )
@@ -277,7 +276,7 @@ class MainWindow(QMainWindow):
 
         self.combo_box = ComboBox(self)
         self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
-        if not multiple_grids_enabled:
+        if not self.multiple_grids_enabled:
             self.combo_box.hide()
 
         spacer_right = QWidget()
@@ -346,9 +345,9 @@ class MainWindow(QMainWindow):
         self.toolbar.setMovable(False)
         self.toolbar.addAction(self.folder_action)
         self.toolbar.addWidget(self.recovery_button)
-        if grid_invites_enabled:
+        if self.grid_invites_enabled:
             self.toolbar.addWidget(self.invites_button)
-        elif invites_enabled:
+        elif self.invites_enabled:
             self.toolbar.addAction(self.invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
@@ -532,10 +531,10 @@ class MainWindow(QMainWindow):
             self.show_history_view()
         else:
             self.show_folders_view()
-        # TODO: update title only if multiple_grids_enabled
-        #self.setWindowTitle(
-        #    "{} - {}".format(APP_NAME, self.combo_box.currentData().name)
-        #)
+        if self.multiple_grids_enabled:
+            self.setWindowTitle(
+                "{} - {}".format(APP_NAME, self.combo_box.currentData().name)
+            )
 
     def confirm_export(self, path):
         if os.path.isfile(path):
