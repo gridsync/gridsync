@@ -116,6 +116,7 @@ class CentralWidget(QStackedWidget):
         self.addWidget(widget)
         self.zkap_views[gateway] = widget
 
+
 class MainWindow(QMainWindow):
     def __init__(self, gui):  # noqa: max-complexity
         super(MainWindow, self).__init__()
