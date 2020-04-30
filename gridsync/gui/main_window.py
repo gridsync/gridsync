@@ -120,40 +120,10 @@ class CentralWidget(QStackedWidget):
             layout.setContentsMargins(left, 0, right, 0)
         layout.addWidget(view)
         status_panel = StatusPanel(gateway, self.gui)
-        status_panel.zkap_button.clicked.connect(self.on_zkap_button_clicked)
         self.status_panels.append(status_panel)
         layout.addWidget(status_panel)
         self.addWidget(widget)
         self.zkap_views[gateway] = widget
-
-    def on_zkap_button_clicked(self, checked):
-        if checked:
-            for panel in self.status_panels:  # XXX
-                panel.zkap_button.setChecked(True)
-            self.gui.main_window.history_button.setChecked(False)  # XXX
-            try:
-                self.setCurrentWidget(
-                    self.zkap_views[
-                        self.gui.main_window.combo_box.currentData()
-                    ]
-                )
-            except KeyError:
-                pass
-        else:
-            gateway = self.gui.main_window.combo_box.currentData()
-            if (
-                gateway.zkap_auth_required
-                and not gateway.monitor.zkap_checker.zkaps_remaining
-            ):
-                # XXX Prevent ZKAP button from being un-checked if no ZKAPs
-                self.on_zkap_button_clicked(True)
-                return
-            for panel in self.status_panels:  # XXX
-                panel.zkap_button.setChecked(False)
-            self.gui.main_window.history_button.setChecked(False)  # XXX
-            self.gui.main_window.show_folders_view()  # XXX
-        self.gui.main_window.set_current_grid_status()  # XXX
-
 
 class MainWindow(QMainWindow):
     def __init__(self, gui):  # noqa: max-complexity
@@ -528,13 +498,9 @@ class MainWindow(QMainWindow):
             )
         except KeyError:
             pass
-        for panel in self.central_widget.status_panels:
-            panel.zkap_button.setChecked(False)
         self.set_current_grid_status()
 
     def show_zkap_view(self):
-        for panel in self.central_widget.status_panels:
-            panel.zkap_button.setChecked(True)
         self.history_button.setChecked(False)
         try:
             self.central_widget.setCurrentWidget(
@@ -605,7 +571,7 @@ class MainWindow(QMainWindow):
         self.folders_button.setChecked(False)
         self.zkaps_button.setChecked(True)
         self.history_button.setChecked(False)
-        self.central_widget.on_zkap_button_clicked(True)  # XXX
+        self.show_zkap_view()
         self.maybe_enable_actions()
 
     def on_history_button_clicked(self):
