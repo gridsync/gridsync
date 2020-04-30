@@ -417,7 +417,7 @@ class View(QTreeView):
                     folders.append(item.text())
         return folders
 
-    def on_right_click(self, position):
+    def on_right_click(self, position):  # noqa: max-complexity
         if not position:  # From left-click on "Action" button
             position = self.viewport().mapFromGlobal(QCursor().pos())
             self.deselect_remote_folders()
