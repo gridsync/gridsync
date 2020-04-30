@@ -244,7 +244,7 @@ class MainWindow(QMainWindow):
         self.history_action.setToolTip("Show/Hide History")
         self.history_action.setFont(font)
         self.history_action.setCheckable(True)
-        self.history_action.triggered.connect(self.on_history_button_clicked)
+        self.history_action.triggered.connect(self.show_history_view)
 
         self.history_button = QToolButton(self)
         self.history_button.setDefaultAction(self.history_action)
@@ -284,7 +284,7 @@ class MainWindow(QMainWindow):
         self.folders_action.setToolTip("Show Folders")
         self.folders_action.setFont(font)
         self.folders_action.setCheckable(True)
-        self.folders_action.triggered.connect(self.on_folders_button_clicked)
+        self.folders_action.triggered.connect(self.show_folders_view)
 
         self.folders_button = QToolButton(self)
         self.folders_button.setDefaultAction(self.folders_action)
@@ -299,7 +299,7 @@ class MainWindow(QMainWindow):
         self.zkaps_action.setToolTip("Show Credits")
         self.zkaps_action.setFont(font)
         self.zkaps_action.setCheckable(True)
-        self.zkaps_action.triggered.connect(self.on_zkaps_button_clicked)
+        self.zkaps_action.triggered.connect(self.show_zkap_view)
 
         self.zkaps_button = QToolButton(self)
         self.zkaps_button.setDefaultAction(self.zkaps_action)
@@ -472,6 +472,7 @@ class MainWindow(QMainWindow):
         if not current_view:
             return
         self.gui.systray.update()
+        self.maybe_enable_actions()
 
     def show_folders_view(self):
         try:
@@ -479,7 +480,10 @@ class MainWindow(QMainWindow):
                 self.central_widget.folders_views[self.combo_box.currentData()]
             )
         except KeyError:
-            pass
+            return
+        self.folders_button.setChecked(True)
+        self.zkaps_button.setChecked(False)
+        self.history_button.setChecked(False)
         self.set_current_grid_status()
 
     def show_history_view(self):
@@ -488,17 +492,22 @@ class MainWindow(QMainWindow):
                 self.central_widget.history_views[self.combo_box.currentData()]
             )
         except KeyError:
-            pass
+            return
+        self.folders_button.setChecked(False)
+        self.zkaps_button.setChecked(False)
+        self.history_button.setChecked(True)
         self.set_current_grid_status()
 
     def show_zkap_view(self):
-        self.history_button.setChecked(False)
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.zkap_views[self.combo_box.currentData()]
             )
         except KeyError:
-            pass
+            return
+        self.folders_button.setChecked(False)
+        self.zkaps_button.setChecked(True)
+        self.history_button.setChecked(False)
         self.set_current_grid_status()
 
     def show_welcome_dialog(self):
@@ -550,27 +559,6 @@ class MainWindow(QMainWindow):
         # XXX Quick hack for user-testing; change later
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
         self.welcome_dialog.on_restore_link_activated()
-
-    def on_folders_button_clicked(self):
-        self.folders_button.setChecked(True)
-        self.zkaps_button.setChecked(False)
-        self.history_button.setChecked(False)
-        self.show_folders_view()
-        self.maybe_enable_actions()
-
-    def on_zkaps_button_clicked(self):
-        self.folders_button.setChecked(False)
-        self.zkaps_button.setChecked(True)
-        self.history_button.setChecked(False)
-        self.show_zkap_view()
-        self.maybe_enable_actions()
-
-    def on_history_button_clicked(self):
-        self.folders_button.setChecked(False)
-        self.zkaps_button.setChecked(False)
-        self.history_button.setChecked(True)
-        self.show_history_view()
-        self.maybe_enable_actions()
 
     def on_invite_received(self, gateway):
         self.populate([gateway])
