@@ -59,9 +59,8 @@ class ZKAPInfoPane(QWidget):
             f"<br><i><a href>{gateway.zkap_name_plural}</a></i> -- or "
             f"<i>{gateway.zkap_name_abbrev}s</i> -- are required to store "
             f"data on the {gateway.name} grid. You currently have <b>0</b> "
-            f"{gateway.zkap_name_abbrev}s. <p>In order to continue, you will "
-            f"need to purchase {gateway.zkap_name_abbrev}s, or generate them "
-            "by redeeming a voucher code."
+            f"{gateway.zkap_name_abbrev}s. In order to continue, you will "
+            f"need to purchase {gateway.zkap_name_abbrev}s."
         )
         self.text_label.setWordWrap(True)
 
