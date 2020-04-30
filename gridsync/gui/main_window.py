@@ -345,6 +345,7 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(self.folder_action)
+        self.toolbar.addWidget(self.recovery_button)
         if grid_invites_enabled:
             self.toolbar.addWidget(self.invites_button)
         elif invites_enabled:
@@ -353,7 +354,6 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)
         self.toolbar.addWidget(self.history_button)
-        self.toolbar.addWidget(self.recovery_button)
 
         if sys.platform != "win32":  # Text is getting clipped on Windows 10
             for action in self.toolbar.actions():
@@ -532,9 +532,10 @@ class MainWindow(QMainWindow):
             self.show_history_view()
         else:
             self.show_folders_view()
-        self.setWindowTitle(
-            "{} - {}".format(APP_NAME, self.combo_box.currentData().name)
-        )
+        # TODO: update title only if multiple_grids_enabled
+        #self.setWindowTitle(
+        #    "{} - {}".format(APP_NAME, self.combo_box.currentData().name)
+        #)
 
     def confirm_export(self, path):
         if os.path.isfile(path):
