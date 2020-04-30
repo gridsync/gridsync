@@ -229,7 +229,7 @@ class MainWindow(QMainWindow):
         self.folder_action.triggered.connect(self.select_folder)
 
         if grid_invites_enabled:
-            invites_action = QAction(
+            self.invites_action = QAction(
                 QIcon(resource("invite.png")), "Invites", self
             )
             self.invites_action.setToolTip("Enter or Create an Invite Code")
@@ -344,9 +344,9 @@ class MainWindow(QMainWindow):
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
-        self.toolbar.addAction(folder_action)
+        self.toolbar.addAction(self.folder_action)
         if grid_invites_enabled:
-            self.toolbar.addWidget(invites_button)
+            self.toolbar.addWidget(self.invites_button)
         elif invites_enabled:
             self.toolbar.addAction(invite_action)
         self.toolbar.addWidget(spacer_left)
