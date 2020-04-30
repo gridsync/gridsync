@@ -158,7 +158,7 @@ class CentralWidget(QStackedWidget):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, gui):
+    def __init__(self, gui):  # noqa: max-complexity
         super(MainWindow, self).__init__()
         self.gui = gui
         self.gateways = []
@@ -177,8 +177,25 @@ class MainWindow(QMainWindow):
             # See https://github.com/gridsync/gridsync/issues/241
             self.setWindowFlags(Qt.Dialog)
 
-        self.shortcut_new = QShortcut(QKeySequence.New, self)
-        self.shortcut_new.activated.connect(self.show_welcome_dialog)
+        grid_invites_enabled = True
+        invites_enabled = True
+        multiple_grids_enabled = True
+        features_settings = settings.get("features")
+        if features_settings:
+            grid_invites = features_settings.get("grid_invites")
+            if grid_invites and grid_invites.lower() == "false":
+                grid_invites_enabled = False
+                self.grid_invites_enabled = False  # XXX
+            invites = features_settings.get("invites")
+            if invites and invites.lower() == "false":
+                invites_enabled = False
+            multiple_grids = features_settings.get("multiple_grids")
+            if multiple_grids and multiple_grids.lower() == "false":
+                multiple_grids_enabled = False
+
+        if multiple_grids_enabled:
+            self.shortcut_new = QShortcut(QKeySequence.New, self)
+            self.shortcut_new.activated.connect(self.show_welcome_dialog)
 
         self.shortcut_open = QShortcut(QKeySequence.Open, self)
         self.shortcut_open.activated.connect(self.select_folder)
@@ -211,14 +228,8 @@ class MainWindow(QMainWindow):
         self.folder_action.setFont(font)
         self.folder_action.triggered.connect(self.select_folder)
 
-        features_settings = settings.get("features")
-        if features_settings:
-            grid_invites = features_settings.get("grid_invites")
-            if grid_invites and grid_invites.lower() == "false":
-                self.grid_invites_enabled = False
-
-        if self.grid_invites_enabled:
-            self.invites_action = QAction(
+        if grid_invites_enabled:
+            invites_action = QAction(
                 QIcon(resource("invite.png")), "Invites", self
             )
             self.invites_action.setToolTip("Enter or Create an Invite Code")
@@ -253,8 +264,8 @@ class MainWindow(QMainWindow):
             )
             self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        else:
-            self.invite_action = QAction(
+        elif invites_enabled:
+            invite_action = QAction(
                 QIcon(resource("invite.png")), "Enter Code", self
             )
             self.invite_action.setToolTip("Enter an Invite Code...")
@@ -266,6 +277,8 @@ class MainWindow(QMainWindow):
 
         self.combo_box = ComboBox(self)
         self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
+        if not multiple_grids_enabled:
+            self.combo_box.hide()
 
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
@@ -331,11 +344,11 @@ class MainWindow(QMainWindow):
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
-        self.toolbar.addAction(self.folder_action)
-        if self.grid_invites_enabled:
-            self.toolbar.addWidget(self.invites_button)
-        else:
-            self.toolbar.addAction(self.invite_action)
+        self.toolbar.addAction(folder_action)
+        if grid_invites_enabled:
+            self.toolbar.addWidget(invites_button)
+        elif invites_enabled:
+            self.toolbar.addAction(invite_action)
         self.toolbar.addWidget(spacer_left)
         self.toolbar.addWidget(self.combo_box)
         self.toolbar.addWidget(spacer_right)

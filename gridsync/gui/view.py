@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
-from gridsync import resource, APP_NAME
+from gridsync import resource, APP_NAME, settings
 from gridsync.desktop import open_path
 from gridsync.gui.font import Font
 from gridsync.gui.model import Model
@@ -417,7 +417,7 @@ class View(QTreeView):
                     folders.append(item.text())
         return folders
 
-    def on_right_click(self, position):
+    def on_right_click(self, position):  # noqa: max-complexity
         if not position:  # From left-click on "Action" button
             position = self.viewport().mapFromGlobal(QCursor().pos())
             self.deselect_remote_folders()
@@ -466,7 +466,13 @@ class View(QTreeView):
             QIcon(resource("close.png")), "Remove from Recovery Key..."
         )
         menu.addAction(open_action)
-        menu.addMenu(share_menu)
+        features_settings = settings.get("features")
+        if features_settings:
+            invites_setting = features_settings.get("invites")
+            if invites_setting and invites_setting.lower() != "false":
+                menu.addMenu(share_menu)
+        else:
+            menu.addMenu(share_menu)
         menu.addSeparator()
         menu.addAction(remove_action)
         if selection_is_remote:
