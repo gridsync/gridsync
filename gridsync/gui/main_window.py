@@ -175,7 +175,7 @@ class MainWindow(QMainWindow):
         font = Font(8)
 
         self.folder_action = QAction(
-            QIcon(resource("folder-plus.png")), "Add Folder", self
+            QIcon(resource("folder-plus-outline.png")), "Add Folder", self
         )
         self.folder_action.setEnabled(False)
         self.folder_action.setToolTip("Add a Folder...")
@@ -238,7 +238,7 @@ class MainWindow(QMainWindow):
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
         self.history_action = QAction(
-            QIcon(resource("time.png")), "History", self
+            QIcon(resource("clock-outline.png")), "History", self
         )
         self.history_action.setEnabled(False)
         self.history_action.setToolTip("Show/Hide History")
@@ -251,7 +251,9 @@ class MainWindow(QMainWindow):
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        recovery_action = QAction(QIcon(resource("key.png")), "Recovery", self)
+        recovery_action = QAction(
+            QIcon(resource("key-outline.png")), "Recovery", self
+        )
         recovery_action.setToolTip("Import or Export a Recovery Key")
         recovery_action.setFont(font)
 
@@ -278,7 +280,7 @@ class MainWindow(QMainWindow):
         self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.folders_action = QAction(
-            QIcon(resource("folder-multiple.png")), "Folders", self
+            QIcon(resource("folder-multiple-outline.png")), "Folders", self
         )
         self.folders_action.setEnabled(False)
         self.folders_action.setToolTip("Show Folders")
