@@ -47,6 +47,15 @@ def test_get_tor_return_none(monkeypatch):
 
 
 @inlineCallbacks
+def test_get_tor_return_none_feature_disabled(monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.tor.settings", {"features": {"tor": "false"}}
+    )
+    tor = yield get_tor(None)
+    assert tor is None
+
+
+@inlineCallbacks
 def test_get_tor_with_prompt_retry(monkeypatch):
     monkeypatch.setattr(
         "gridsync.tor.get_tor", MagicMock(side_effect=[None, "FakeTxtorcon"])
