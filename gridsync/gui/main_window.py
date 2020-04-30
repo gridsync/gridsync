@@ -215,13 +215,15 @@ class MainWindow(QMainWindow):
 
         font = Font(8)
 
-        folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
-        folder_icon_composite = CompositePixmap(
-            folder_icon_default.pixmap(256, 256), resource("green-plus.png")
-        )
-        folder_icon = QIcon(folder_icon_composite)
+        #folder_icon_default = QFileIconProvider().icon(QFileInfo(config_dir))
+        #folder_icon_composite = CompositePixmap(
+        #    folder_icon_default.pixmap(256, 256), resource("green-plus.png")
+        #)
+        #folder_icon = QIcon(folder_icon_composite)a
 
-        self.folder_action = QAction(folder_icon, "Add Folder", self)
+        self.folder_action = QAction(
+            QIcon(resource("folder-plus.png")), "Add Folder", self
+        )
         self.folder_action.setEnabled(False)
         self.folder_action.setToolTip("Add a Folder...")
         self.folder_action.setFont(font)
