@@ -99,7 +99,9 @@ class StatusPanel(QWidget):
 
         self.zkap_button = QToolButton(self)
         self.zkap_button.setCheckable(True)
-        self.zkap_button.setStyleSheet("color: {}".format(dimmer_grey))
+        self.zkap_button.setStyleSheet(
+            f"QToolButton {{ border: none; color: {dimmer_grey}}}"
+        )
         self.zkap_button.hide()
 
         layout = QGridLayout(self)
