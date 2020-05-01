@@ -56,7 +56,7 @@ class ZKAPInfoPane(QWidget):
         subtext.setAlignment(Qt.AlignCenter)
 
         self.text_label = QLabel(
-            f"<br><i><a href>{gateway.zkap_name_plural}</a></i> -- or "
+            f"<br><i>{gateway.zkap_name_plural}</i> -- or "
             f"<i>{gateway.zkap_name_abbrev}s</i> -- are required to store "
             f"data on the {gateway.name} grid. You currently have <b>0</b> "
             f"{gateway.zkap_name_abbrev}s. In order to continue, you will "
