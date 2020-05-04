@@ -322,6 +322,8 @@ class ZKAPChecker(QObject):
                     )
                     if time_created > self._time_started:
                         unpaid_vouchers.append(number)
+            elif name == "redeeming":
+                total += state.get("expected-tokens", 0)
             elif name == "redeemed":
                 if number and number in unpaid_vouchers:
                     unpaid_vouchers.remove(number)
