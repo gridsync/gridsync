@@ -390,6 +390,15 @@ class ZKAPChecker(QObject):
         remaining = zkaps.get("total")
         if remaining and not total:
             total = self._maybe_load_last_total()
+        if not total or remaining > total:
+            # When redeeming tokens in batches, ZKAPs become available
+            # during the "redeeming" state but the *total* number is
+            # not shown until the "redeemed" state. To prevent the
+            # appearance of negative ZKAP balances during this time,
+            # temporarily consider the current number of remaining
+            # ZKAPs to be the total. For more context, see:
+            # https://github.com/PrivateStorageio/ZKAPAuthorizer/issues/124
+            total = remaining
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
             self.zkaps_remaining = remaining
             self.zkaps_total = total
