@@ -526,7 +526,7 @@ class View(QTreeView):
                 error(
                     self,
                     'Cannot add "{}".'.format(basename),
-                    "{} currently only supports uploading and syncing folders,"
+                    "{} only supports uploading and syncing folders,"
                     " and not individual files.".format(APP_NAME),
                 )
             elif self.gateway.magic_folder_exists(basename):
