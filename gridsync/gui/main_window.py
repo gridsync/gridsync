@@ -374,6 +374,17 @@ class MainWindow(QMainWindow):
                     self.invite_action.setEnabled(False)
                 except AttributeError:
                     pass
+            try:
+                self.central_widget.setCurrentWidget(
+                    self.central_widget.zkap_views[
+                        self.combo_box.currentData()
+                    ]
+                )
+            except KeyError:
+                return
+            self.zkaps_button.setChecked(True)
+            self.history_button.setChecked(False)
+            self.folders_button.setChecked(False)
         else:
             self.folder_action.setEnabled(True)
             # self.invites_button.setEnabled(True)
