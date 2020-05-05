@@ -255,3 +255,4 @@ class ZKAPInfoPane(QWidget):
             f"low. Please purchase more {self.gateway.zkap_name_abbrev}s "
             "to prevent data-loss.",
         )
+        self.gui.main_window.show_zkap_view()
