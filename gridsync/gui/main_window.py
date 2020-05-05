@@ -354,7 +354,7 @@ class MainWindow(QMainWindow):
 
         self.pending_news_message = ()
 
-    def maybe_enable_actions(self):
+    def maybe_enable_actions(self):  # noqa: max-complexity
         gateway = self.combo_box.currentData()
         if (
             gateway.zkap_auth_required
