@@ -55,6 +55,8 @@ call rmdir /s /q .\.eggs
 call rmdir /s /q .\.cache
 call rmdir /s /q .\.tox
 call rmdir /s /q .\htmlcov
+call rmdir /s /q .\.pytest_cache
+call rmdir /s /q .\.mypy_cache
 call del .\.coverage
 goto :eof
 

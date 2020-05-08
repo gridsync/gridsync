@@ -9,6 +9,8 @@ clean:
 	rm -rf .cache/
 	rm -rf .tox/
 	rm -rf htmlcov/
+	rm -rf .pytest_cache/
+	rm -rf .mypy_cache/
 	rm -f .coverage
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
@@ -203,12 +205,12 @@ dmg:
 	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	python3 -m pip install dmgbuild && \
-	python3 misc/call_dmgbuild.py
+	python3 scripts/call_dmgbuild.py
 
 
 vagrant-desktop-linux:
-	vagrant up --no-provision ubuntu-18.04
-	vagrant provision --provision-with desktop ubuntu-18.04
+	vagrant up --no-provision ubuntu-20.04
+	vagrant provision --provision-with desktop ubuntu-20.04
 
 vagrant-desktop-macos:
 	vagrant up --no-provision macos-10.15
