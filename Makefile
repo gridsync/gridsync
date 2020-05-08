@@ -199,7 +199,7 @@ dmg:
 	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
 	python3 -m pip install dmgbuild && \
-	python3 misc/call_dmgbuild.py
+	python3 scripts/call_dmgbuild.py
 
 
 vagrant-desktop-linux:
