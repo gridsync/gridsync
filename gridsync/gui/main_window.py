@@ -477,7 +477,6 @@ class MainWindow(QMainWindow):
         return w.layout().itemAt(0).widget()
 
     def select_folder(self):
-        self.show_folders_view()
         view = self.current_view()
         if view:
             view.select_folder()
