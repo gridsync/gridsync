@@ -9,6 +9,8 @@ clean:
 	rm -rf .cache/
 	rm -rf .tox/
 	rm -rf htmlcov/
+	rm -rf .pytest_cache/
+	rm -rf .mypy_cache/
 	rm -f .coverage
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
