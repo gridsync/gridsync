@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import shutil
-import sys
 import tarfile
-import tempfile
 from configparser import RawConfigParser
 
 
