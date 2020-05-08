@@ -203,8 +203,8 @@ dmg:
 
 
 vagrant-desktop-linux:
-	vagrant up --no-provision ubuntu-18.04
-	vagrant provision --provision-with desktop ubuntu-18.04
+	vagrant up --no-provision ubuntu-20.04
+	vagrant provision --provision-with desktop ubuntu-20.04
 
 vagrant-desktop-macos:
 	vagrant up --no-provision macos-10.15
