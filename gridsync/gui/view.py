@@ -141,8 +141,9 @@ class View(QTreeView):
         self.drop_subtext.setAcceptDrops(True)
         self.drop_subtext.installEventFilter(self)
         self.drop_subtext.setSizePolicy(QSizePolicy.Expanding, 0)
+        self.drop_subtext.hide()
 
-        self.select_folder_button = QPushButton("Add Folder...", self)
+        self.select_folder_button = QPushButton("  Add Folder...  ", self)
         self.select_folder_button.setAcceptDrops(True)
         self.select_folder_button.installEventFilter(self)
         self.select_folder_button.clicked.connect(self.select_folder)
