@@ -119,9 +119,7 @@ class View(QTreeView):
         self.dropzone_top_margin = 0 if sys.platform == "darwin" else 11
 
         self.add_folder_icon = ClickableLabel(self)
-        self.add_folder_icon.setPixmap(
-            Pixmap("folder-plus-outline.png", 100)
-        )
+        self.add_folder_icon.setPixmap(Pixmap("folder-plus-outline.png", 100))
         self.add_folder_icon.setAlignment(Qt.AlignCenter)
         self.add_folder_icon.setAcceptDrops(True)
         self.add_folder_icon.installEventFilter(self)
