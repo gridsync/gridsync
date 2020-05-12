@@ -5,7 +5,7 @@ import os
 import sys
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
-from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen, QPixmap
+from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QAction,
@@ -28,6 +28,7 @@ from gridsync import resource, APP_NAME, settings
 from gridsync.desktop import open_path
 from gridsync.gui.font import Font
 from gridsync.gui.model import Model
+from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
 from gridsync.gui.widgets import ClickableLabel
 from gridsync.msg import error
@@ -119,7 +120,7 @@ class View(QTreeView):
 
         self.add_folder_icon = ClickableLabel(self)
         self.add_folder_icon.setPixmap(
-            QPixmap(resource("folder-plus-outline.png")).scaled(100, 100)
+            Pixmap("folder-plus-outline.png", 100)
         )
         self.add_folder_icon.setAlignment(Qt.AlignCenter)
         self.add_folder_icon.setAcceptDrops(True)
