@@ -29,6 +29,7 @@ from gridsync.desktop import open_path
 from gridsync.gui.font import Font
 from gridsync.gui.model import Model
 from gridsync.gui.share import InviteSenderDialog
+from gridsync.gui.widgets import ClickableLabel
 from gridsync.msg import error
 from gridsync.util import humanized_list
 
@@ -116,47 +117,34 @@ class View(QTreeView):
         # the value "manually" instead.
         self.dropzone_top_margin = 0 if sys.platform == "darwin" else 11
 
-        self.drop_icon = QLabel(self)
-        self.drop_icon.setPixmap(QPixmap(resource("upload.png")))
-        self.drop_icon.setAlignment(Qt.AlignCenter)
-        self.drop_icon.setAcceptDrops(True)
-        self.drop_icon.installEventFilter(self)
-
-        self.drop_text = QLabel(self)
-        self.drop_text.setText("Drag and drop folders here")
-        self.drop_text.setFont(Font(14))
-        self.drop_text.setStyleSheet("color: grey")
-        self.drop_text.setAlignment(Qt.AlignCenter)
-        self.drop_text.setAcceptDrops(True)
-        self.drop_text.installEventFilter(self)
-        self.drop_text.setSizePolicy(QSizePolicy.Expanding, 0)
-
-        self.drop_subtext = QLabel(self)
-        self.drop_subtext.setText(
-            "Added folders will sync with {}".format(self.gateway.name)
+        self.add_folder_icon = ClickableLabel(self)
+        self.add_folder_icon.setPixmap(
+            QPixmap(resource("folder-plus-outline.png")).scaled(100, 100)
         )
-        self.drop_subtext.setFont(Font(10))
-        self.drop_subtext.setStyleSheet("color: grey")
-        self.drop_subtext.setAlignment(Qt.AlignCenter)
-        self.drop_subtext.setAcceptDrops(True)
-        self.drop_subtext.installEventFilter(self)
-        self.drop_subtext.setSizePolicy(QSizePolicy.Expanding, 0)
-        self.drop_subtext.hide()
+        self.add_folder_icon.setAlignment(Qt.AlignCenter)
+        self.add_folder_icon.setAcceptDrops(True)
+        self.add_folder_icon.installEventFilter(self)
 
-        self.select_folder_button = QPushButton("  Add Folder...  ", self)
-        self.select_folder_button.setAcceptDrops(True)
-        self.select_folder_button.installEventFilter(self)
-        self.select_folder_button.clicked.connect(self.select_folder)
+        self.add_folder_label = ClickableLabel(self)
+        self.add_folder_label.setText(
+            "Add a folder to sync with\n{}".format(self.gateway.name)
+        )
+        self.add_folder_label.setFont(Font(12))
+        self.add_folder_label.setStyleSheet("color: grey")
+        self.add_folder_label.setAlignment(Qt.AlignCenter)
+        self.add_folder_label.setAcceptDrops(True)
+        self.add_folder_label.installEventFilter(self)
 
         layout = QGridLayout(self)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
-        layout.addWidget(self.drop_icon, 2, 2, 3, 1)
-        layout.addWidget(self.drop_text, 6, 1, 1, 3)
-        layout.addWidget(self.drop_subtext, 7, 1, 1, 3)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 8, 1)
-        layout.addWidget(self.select_folder_button, 8, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 8, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
+        layout.addWidget(self.add_folder_icon, 2, 2)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 3, 1)
+        layout.addWidget(self.add_folder_label, 3, 2)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 3, 3)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 4, 1)
+
+        self.add_folder_icon.clicked.connect(self.select_folder)
+        self.add_folder_label.clicked.connect(self.select_folder)
 
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
@@ -166,17 +154,13 @@ class View(QTreeView):
     def show_drop_label(self, _=None):
         if not self.model().rowCount():
             self.setHeaderHidden(True)
-            self.drop_icon.show()
-            self.drop_text.show()
-            self.drop_subtext.show()
-            self.select_folder_button.show()
+            self.add_folder_icon.show()
+            self.add_folder_label.show()
 
     def hide_drop_label(self):
         self.setHeaderHidden(False)
-        self.drop_icon.hide()
-        self.drop_text.hide()
-        self.drop_subtext.hide()
-        self.select_folder_button.hide()
+        self.add_folder_icon.hide()
+        self.add_folder_label.hide()
 
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
