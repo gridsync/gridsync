@@ -3,6 +3,7 @@
 import json
 import os
 
+from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtCore import QPropertyAnimation, QThread
 from PyQt5.QtWidgets import (
     QComboBox,
@@ -28,6 +29,18 @@ from gridsync.crypto import Crypter
 from gridsync.gui.password import PasswordDialog
 from gridsync.msg import error
 from gridsync.tor import get_tor
+
+
+class ClickableLabel(QLabel):
+
+    clicked = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+        super().mousePressEvent(event)
 
 
 class ConnectionSettings(QWidget):
