@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 import sys
+import webbrowser
 
 from atomicwrites import atomic_write
 from PyQt5.QtCore import QCoreApplication, QMetaType, QUrl, QVariant
@@ -203,3 +204,10 @@ def autostart_disable():
     logging.debug("Deleting autostart file '%s'...", autostart_file_path)
     os.remove(autostart_file_path)
     logging.debug("Deleted autostart file '%s'", autostart_file_path)
+
+
+def get_browser_name() -> str:
+    try:
+        return webbrowser.get().name.replace("-", " ").title()
+    except (AttributeError, webbrowser.Error):
+        return "Browser"
