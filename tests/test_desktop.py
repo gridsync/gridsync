@@ -239,10 +239,8 @@ def test_autostart_disable(tmpfile, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "mocked_name,result", [
-        ("browser1", "Browser1"),
-        ("test-browser", "Test Browser"),
-    ]
+    "mocked_name,result",
+    [("browser1", "Browser1"), ("test-browser", "Test Browser")],
 )
 def test_get_browser_name(monkeypatch, mocked_name, result):
     controller = Mock()
@@ -252,9 +250,7 @@ def test_get_browser_name(monkeypatch, mocked_name, result):
     assert name == result
 
 
-@pytest.mark.parametrize(
-    "side_effect", [AttributeError, webbrowser.Error]
-)
+@pytest.mark.parametrize("side_effect", [AttributeError, webbrowser.Error])
 def test_get_browser_name_fallback_if_errors(monkeypatch, side_effect):
     monkeypatch.setattr(
         "gridsync.desktop.webbrowser.get", Mock(side_effect=side_effect)
