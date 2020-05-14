@@ -7,7 +7,7 @@ import webbrowser
 from humanize import naturaldelta, naturalsize
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QPainter
+from PyQt5.QtGui import QIcon, QPainter
 from PyQt5.QtWidgets import (
     QFormLayout,
     QGridLayout,
@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet.defer import inlineCallbacks
 
+from gridsync import resource
 from gridsync.gui.charts import (
     COLOR_AVAILABLE,
     COLOR_COST,
@@ -101,6 +102,7 @@ class ZKAPInfoPane(QWidget):
 
         self.button = QPushButton(f"Purchase {gateway.zkap_name_abbrev}s")
         self.button.setStyleSheet("background: green; color: white")
+        self.button.setIcon(QIcon(resource("globe-white.png")))
         self.button.clicked.connect(self.on_button_clicked)
         # button.setFixedSize(150, 40)
         self.button.setFixedSize(180, 30)
