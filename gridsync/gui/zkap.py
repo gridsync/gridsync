@@ -100,7 +100,9 @@ class ZKAPInfoPane(QWidget):
         form_layout.addRow(self.expiration_label, self.expiration_field)
         form_layout.addRow(self.stored_label, self.stored_field)
 
-        self.button = QPushButton(f"Purchase {gateway.zkap_name_abbrev}s")
+        self.button = QPushButton(
+            f"Buy {gateway.zkap_name_abbrev}s in browser"
+        )
         self.button.setStyleSheet("background: green; color: white")
         self.button.setIcon(QIcon(resource("globe-white.png")))
         self.button.clicked.connect(self.on_button_clicked)
