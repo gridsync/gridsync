@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync import resource
+from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import (
     COLOR_AVAILABLE,
     COLOR_COST,
@@ -100,8 +101,9 @@ class ZKAPInfoPane(QWidget):
         form_layout.addRow(self.expiration_label, self.expiration_field)
         form_layout.addRow(self.stored_label, self.stored_field)
 
+        browser = get_browser_name()
         self.button = QPushButton(
-            f"Buy {gateway.zkap_name_abbrev}s in browser"
+            f"Buy {gateway.zkap_name_abbrev}s in {browser}"
         )
         self.button.setStyleSheet("background: green; color: white")
         self.button.setIcon(QIcon(resource("globe-white.png")))
