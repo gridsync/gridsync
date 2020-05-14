@@ -240,7 +240,12 @@ def test_autostart_disable(tmpfile, monkeypatch):
 
 @pytest.mark.parametrize(
     "mocked_name,result",
-    [("browser1", "Browser1"), ("test-browser", "Test Browser")],
+    [
+        ("browser1", "Browser1"),
+        ("test-browser", "Test Browser"),
+        ("windows-default", "Browser"),
+        ("default", "Browser"),
+    ],
 )
 def test_get_browser_name(monkeypatch, mocked_name, result):
     controller = Mock()
