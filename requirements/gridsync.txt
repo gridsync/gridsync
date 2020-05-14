@@ -199,9 +199,9 @@ PyYAML==5.3.1 \
     --hash=sha256:b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d \
     --hash=sha256:cc8955cfbfc7a115fa81d85284ee61147059a753344bc51098f3ccd69b0d7e0c \
     --hash=sha256:d13155f591e6fcc1ec3b30685d50bf0711574e2c0dfffd7644babf8b5102ca1a
-qt5reactor==0.6 \
-    --hash=sha256:b375af4ac359035499c98d3bc9a77baed0617a9216121abfa9a344bdf8d9981f \
-    --hash=sha256:e12400d3a50b971e2e58eb9fa5000fa33f3379090b92e0a5f0f8ac680bdbdf71
+qt5reactor==0.6.1 \
+    --hash=sha256:1b3618da2bc8fbff67a3a21d1f5a35020c050af452af475df0adc91707c8fab7 \
+    --hash=sha256:9f02e45ffa891eea98cfba39dccf719dcd515fa73254bb4d53ba936f3d7836f0
 requests==2.23.0 \
     --hash=sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee \
     --hash=sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6
