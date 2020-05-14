@@ -109,7 +109,7 @@ class ZKAPInfoPane(QWidget):
         self.button.setIcon(QIcon(resource("globe-white.png")))
         self.button.clicked.connect(self.on_button_clicked)
         # button.setFixedSize(150, 40)
-        self.button.setFixedSize(180, 30)
+        self.button.setFixedSize(240, 32)
 
         # self.voucher_link = QLabel("<a href>I have a voucher code</a>")
 
