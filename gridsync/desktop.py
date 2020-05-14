@@ -208,6 +208,9 @@ def autostart_disable():
 
 def get_browser_name() -> str:
     try:
-        return webbrowser.get().name.replace("-", " ").title()
+        name = webbrowser.get().name.replace("-", " ").title()
     except (AttributeError, webbrowser.Error):
         return "Browser"
+    if name.endswith("Default"):
+        return "Browser"
+    return name
