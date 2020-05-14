@@ -2,6 +2,7 @@
 
 import os
 from unittest.mock import Mock, MagicMock, call
+import webbrowser
 
 import pytest
 
@@ -17,6 +18,7 @@ from gridsync.desktop import (
     autostart_enable,
     autostart_is_enabled,
     autostart_disable,
+    get_browser_name,
 )
 
 
@@ -234,3 +236,34 @@ def test_autostart_disable(tmpfile, monkeypatch):
         os.utime(tmpfile, None)
     autostart_disable()
     assert not autostart_is_enabled()
+
+
+@pytest.mark.parametrize(
+    "mocked_name,result", [
+        ("browser1", "Browser1"),
+        ("test-browser", "Test Browser"),
+    ]
+)
+def test_get_browser_name(monkeypatch, mocked_name, result):
+    controller = Mock()
+    controller.name = mocked_name
+    monkeypatch.setattr("gridsync.desktop.webbrowser.get", lambda: controller)
+    name = get_browser_name()
+    assert name == result
+
+
+@pytest.mark.parametrize(
+    "side_effect", [AttributeError, webbrowser.Error]
+)
+def test_get_browser_name_fallback_if_errors(monkeypatch, side_effect):
+    monkeypatch.setattr(
+        "gridsync.desktop.webbrowser.get", Mock(side_effect=side_effect)
+    )
+    name = get_browser_name()
+    assert name == "Browser"
+
+
+def test_get_browser_name_fallback_if_get_returns_none(monkeypatch):
+    monkeypatch.setattr("gridsync.desktop.webbrowser.get", lambda: None)
+    name = get_browser_name()
+    assert name == "Browser"
