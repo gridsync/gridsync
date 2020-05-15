@@ -177,9 +177,13 @@ class StatusPanel(QWidget):
     @Slot(int, int)
     def on_zkaps_updated(self, remaining: int, total: int) -> None:
         used = total - remaining
-        self.zkap_button.setText(
-            f"{self.gateway.zkap_name_abbrev}s: {used}/{total}"
+        self.zkap_button.setToolTip(
+            f"{self.gateway.zkap_name}s:\n\nUsed: {used}\n"
+            f"Total: {total}\nAvailable: {remaining}"
         )
+        if remaining and remaining >= 1000:
+            remaining = str(round(remaining / 1000, 1)) + "k"
+        self.zkap_button.setText(f"PSCs: {remaining}")
         if total == 0:
             # XXX FIXME This quick hack is for user-testing purposes
             # only and doesn't distinguish between multiple grids;
