@@ -103,6 +103,10 @@ class StatusPanel(QWidget):
         )
         self.zkap_button.hide()
 
+        self.stored_label = QLabel()
+        self.stored_label.setStyleSheet(f"color: {dimmer_grey}")
+        self.stored_label.hide()
+
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
         layout.setContentsMargins(left, 0, right, bottom - 2)
@@ -114,7 +118,8 @@ class StatusPanel(QWidget):
         # layout.addWidget(self.globe_button, 1, 5)
         # layout.addWidget(zkap_chart_view, 1, 5)
         layout.addWidget(self.zkap_button, 1, 5)
-        layout.addWidget(preferences_button, 1, 6)
+        layout.addWidget(self.stored_label, 1, 6)
+        layout.addWidget(preferences_button, 1, 7)
 
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
@@ -122,6 +127,9 @@ class StatusPanel(QWidget):
         self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
         self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
+        self.gateway.monitor.total_folders_size_updated.connect(
+            self.on_total_folders_size_updated
+        )
 
     def on_sync_state_updated(self, state):
         if state == 0:
@@ -181,3 +189,8 @@ class StatusPanel(QWidget):
         else:
             self.zkap_button.setEnabled(True)
         self.zkap_button.show()
+
+    @Slot(int)
+    def on_total_folders_size_updated(self, size: int) -> None:
+        self.stored_label.setText(f"Stored: {naturalsize(size)}")
+        self.stored_label.show()
