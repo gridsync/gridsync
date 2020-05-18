@@ -121,6 +121,7 @@ class ZKAPInfoPane(QWidget):
         )
         self.button.setStyleSheet("background: green; color: white")
         self.button.setIcon(QIcon(resource("globe-white.png")))
+        self.button.setLayoutDirection(Qt.RightToLeft)
         self.button.clicked.connect(self.on_button_clicked)
         # button.setFixedSize(150, 40)
         self.button.setFixedSize(240, 32)
