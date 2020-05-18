@@ -81,7 +81,7 @@ class ZKAPInfoPane(QWidget):
 
         form_layout = QFormLayout()
 
-        self.remaining_label = QLabel(f"{gateway.zkap_name_abbrev}s remaining")
+        self.remaining_label = QLabel(f"{gateway.zkap_name_abbrev}s available")
         self.remaining_field = QLabel("Not available")
         self.remaining_field.setAlignment(Qt.AlignRight)
 
@@ -89,15 +89,19 @@ class ZKAPInfoPane(QWidget):
         self.stored_field = QLabel("Not available")
         self.stored_field.setAlignment(Qt.AlignRight)
 
-        self.refill_label = QLabel("Last refill")
+        self.refill_label = QLabel("Last purchase")
         self.refill_field = QLabel("Not available")
         self.refill_field.setAlignment(Qt.AlignRight)
 
-        self.used_label = QLabel(f"{gateway.zkap_name_abbrev}s used")
+        self.used_label = QLabel(
+            f"{gateway.zkap_name_abbrev}s used (in total)"
+        )
         self.used_field = QLabel("Not available")
         self.used_field.setAlignment(Qt.AlignRight)
 
-        self.total_label = QLabel(f"{gateway.zkap_name_abbrev}s total")
+        self.total_label = QLabel(
+            f"{gateway.zkap_name_abbrev}s purchased (in total)"
+        )
         self.total_field = QLabel("Not available")
         self.total_field.setAlignment(Qt.AlignRight)
 
