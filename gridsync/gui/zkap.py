@@ -81,8 +81,10 @@ class ZKAPInfoPane(QWidget):
 
         form_layout = QFormLayout()
 
-        self.remaining_label = QLabel(f"{gateway.zkap_name_abbrev}s available")
-        self.remaining_field = QLabel("Not available")
+        self.remaining_label = QLabel(
+            f"<b>{gateway.zkap_name_abbrev}s available</b>"
+        )
+        self.remaining_field = QLabel("<b>Not available</b>")
         self.remaining_field.setAlignment(Qt.AlignRight)
 
         self.stored_label = QLabel("Amount stored")
@@ -253,7 +255,7 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_total = total
         self._update_chart()
         self.used_field.setText(str(self._zkaps_used))
-        self.remaining_field.setText(str(self._zkaps_remaining))
+        self.remaining_field.setText(f"<b>{self._zkaps_remaining}</b>")
         self.total_field.setText(str(self._zkaps_total))
 
     @Slot(int)
