@@ -7,7 +7,7 @@ import webbrowser
 from humanize import naturalsize
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPainter
 from PyQt5.QtWidgets import (
     QFormLayout,
     QGridLayout,
@@ -23,12 +23,12 @@ from twisted.internet.defer import inlineCallbacks
 from gridsync import resource
 from gridsync.desktop import get_browser_name
 
-# from gridsync.gui.charts import (
-#    COLOR_AVAILABLE,
-#    COLOR_COST,
-#    COLOR_USED,
-#    ZKAPBarChartView,
-# )
+from gridsync.gui.charts import (
+    COLOR_AVAILABLE,
+    COLOR_COST,
+    COLOR_USED,
+    ZKAPBarChartView,
+)
 from gridsync.gui.font import Font
 
 
@@ -70,14 +70,14 @@ class ZKAPInfoPane(QWidget):
 
         # self.spacer = QSpacerItem(0, 0, 0, QSizePolicy.Expanding)
 
-        # self.chart_view = ZKAPBarChartView(
-        #    self.gateway.settings.get("zkap_color_used", COLOR_USED),
-        #    self.gateway.settings.get("zkap_color_cost", COLOR_COST),
-        #    self.gateway.settings.get("zkap_color_available", COLOR_AVAILABLE),
-        # )
-        # self.chart_view.setFixedHeight(128)
-        # self.chart_view.setRenderHint(QPainter.Antialiasing)
-        # self.chart_view.hide()
+        self.chart_view = ZKAPBarChartView(
+            self.gateway.settings.get("zkap_color_used", COLOR_USED),
+            self.gateway.settings.get("zkap_color_cost", COLOR_COST),
+            self.gateway.settings.get("zkap_color_available", COLOR_AVAILABLE),
+        )
+        self.chart_view.setFixedHeight(128)
+        self.chart_view.setRenderHint(QPainter.Antialiasing)
+        self.chart_view.hide()
 
         form_layout = QFormLayout()
 
@@ -148,7 +148,7 @@ class ZKAPInfoPane(QWidget):
         # self.spacer = QSpacerItem(0, 0, 0, QSizePolicy.Expanding)
         # layout.addItem(self.spacer, 60, 0)
         layout.addLayout(form_layout, 70, 0)
-        # layout.addWidget(self.chart_view, 80, 0)
+        layout.addWidget(self.chart_view, 75, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.pending_label, 100, 0, 1, 1, Qt.AlignCenter)
@@ -234,12 +234,12 @@ class ZKAPInfoPane(QWidget):
         self.refill_field.setToolTip(f"Redeemed: {date}")
         self.text_label.hide()
         self._show_table()
-        # self.chart_view.show()
+        self.chart_view.show()
 
     def _update_chart(self):
-        # self.chart_view.chart.update(
-        #    self._zkaps_used, self._zkaps_cost, self._zkaps_remaining,
-        # )
+        self.chart_view.chart.update(
+            self._zkaps_used, self._zkaps_cost, self._zkaps_remaining,
+        )
         self.gui.main_window.maybe_enable_actions()
 
     @Slot(int, int)
