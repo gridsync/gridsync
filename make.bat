@@ -78,7 +78,7 @@ call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install .
 call python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@v2020.04.03
-call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@ff95b772eb81755e7a88d23d84d8e2818d131475
+call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@72a15f2f01116f68f94a7b878aceb4fbf3c0617b
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
 call copy ..\..\misc\tahoe.spec pyinstaller.spec
