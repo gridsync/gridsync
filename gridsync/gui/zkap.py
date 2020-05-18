@@ -113,11 +113,11 @@ class ZKAPInfoPane(QWidget):
         # form_layout.addRow(self.used_label, self.used_field)
         # form_layout.addRow(self.expiration_label, self.expiration_field)
         # form_layout.addRow(self.stored_label, self.stored_field)
-        form_layout.addRow(self.remaining_label, self.remaining_field)
         form_layout.addRow(self.stored_label, self.stored_field)
         form_layout.addRow(self.refill_label, self.refill_field)
-        form_layout.addRow(self.used_label, self.used_field)
         form_layout.addRow(self.total_label, self.total_field)
+        form_layout.addRow(self.used_label, self.used_field)
+        form_layout.addRow(self.remaining_label, self.remaining_field)
 
         browser = get_browser_name()
         self.button = QPushButton(
