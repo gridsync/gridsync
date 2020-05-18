@@ -117,7 +117,7 @@ class ZKAPInfoPane(QWidget):
 
         browser = get_browser_name()
         self.button = QPushButton(
-            f"Buy {gateway.zkap_name_abbrev}s in {browser}"
+            f"Buy {gateway.zkap_name_abbrev}s in {browser} "
         )
         self.button.setStyleSheet("background: green; color: white")
         self.button.setIcon(QIcon(resource("globe-white.png")))
