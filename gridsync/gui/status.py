@@ -183,7 +183,7 @@ class StatusPanel(QWidget):
         )
         if remaining and remaining >= 1000:
             remaining = str(round(remaining / 1000, 1)) + "k"  # type: ignore
-        self.zkap_button.setText(f"PSCs: {remaining}")
+        self.zkap_button.setText(f"PSCs available: {remaining}")
         if total == 0:
             # XXX FIXME This quick hack is for user-testing purposes
             # only and doesn't distinguish between multiple grids;
