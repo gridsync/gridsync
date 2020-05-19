@@ -271,10 +271,12 @@ class ZKAPInfoPane(QWidget):
     @Slot(list)
     def on_unpaid_vouchers_updated(self, vouchers):
         if vouchers:
+            self.chart_view.hide()
             self.button.hide()
             # self.voucher_link.hide()
             self.pending_label.show()
         else:
+            self.chart_view.show()
             self.pending_label.hide()
             self.button.show()
             # self.voucher_link.show()
