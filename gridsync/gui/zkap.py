@@ -53,11 +53,14 @@ class ZKAPInfoPane(QWidget):
         title.setFont(font)
         title.setAlignment(Qt.AlignCenter)
 
-        subtext = QLabel(f"1 {gateway.zkap_name_abbrev} = 1 MB for 30 days")
+        self.subtext = QLabel(
+            f"{gateway.zkap_name_abbrev}s will be spent automatically on a "
+            "monthly basis, keeping your data stored."
+        )
         font = Font(10)
         font.setItalic(True)
-        subtext.setFont(font)
-        subtext.setAlignment(Qt.AlignCenter)
+        self.subtext.setFont(font)
+        self.subtext.setAlignment(Qt.AlignCenter)
 
         self.text_label = QLabel(
             f"<br><i>{gateway.zkap_name_plural}</i> -- or "
@@ -148,7 +151,7 @@ class ZKAPInfoPane(QWidget):
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(title, 20, 0)
-        # layout.addWidget(subtext, 30, 0)
+        layout.addWidget(self.subtext, 30, 0)
         layout.addWidget(self.text_label, 40, 0)
         # layout.addWidget(QLabel(" "), 50, 0)
         # self.spacer = QSpacerItem(0, 0, 0, QSizePolicy.Expanding)
@@ -188,6 +191,7 @@ class ZKAPInfoPane(QWidget):
         self._hide_table()
 
     def _show_table(self):
+        self.subtext.show()
         self.remaining_label.show()
         self.remaining_field.show()
         self.stored_label.show()
@@ -202,6 +206,7 @@ class ZKAPInfoPane(QWidget):
         # self.expiration_field.show()
 
     def _hide_table(self):
+        self.subtext.hide()
         self.remaining_label.hide()
         self.remaining_field.hide()
         self.stored_label.hide()
