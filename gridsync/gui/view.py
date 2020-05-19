@@ -524,6 +524,7 @@ class View(QTreeView):
                 paths_to_add.append(path)
         if paths_to_add:
             self.hide_drop_label()
+            self.gui.main_window.show_folders_view()  # XXX
             tasks = []
             for path in paths_to_add:
                 tasks.append(self.add_folder(path))
