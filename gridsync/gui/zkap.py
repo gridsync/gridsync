@@ -286,7 +286,7 @@ class ZKAPInfoPane(QWidget):
     #    date = datetime.isoformat(datetime.now() + delta).split("T")[0]
     #    self.expiration_field.setToolTip(f"Expires: {date}")
 
-    @Slot(int)
+    @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:
         self.stored_field.setText(naturalsize(size))
 

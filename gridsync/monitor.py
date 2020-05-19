@@ -466,7 +466,7 @@ class Monitor(QObject):
     files_updated = pyqtSignal(str, list, str, str)
 
     total_sync_state_updated = pyqtSignal(int)
-    total_folders_size_updated = pyqtSignal(int)
+    total_folders_size_updated = pyqtSignal(object)  # object avoids overflows
 
     check_finished = pyqtSignal()
 

@@ -196,7 +196,7 @@ class StatusPanel(QWidget):
             self.zkap_button.setEnabled(True)
         self.zkap_button.show()
 
-    @Slot(int)
+    @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:
         self.stored_label.setText(f"Stored: {naturalsize(size)}")
         self.stored_label.show()
