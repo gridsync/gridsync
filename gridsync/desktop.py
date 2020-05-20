@@ -210,7 +210,7 @@ def get_browser_name() -> str:
     try:
         name = webbrowser.get().name.replace("-", " ").title()
     except (AttributeError, webbrowser.Error):
-        return "Browser"
+        return "browser"
     if name.endswith("Default") or not name:
-        return "Browser"
+        return "browser"
     return name
