@@ -243,9 +243,9 @@ def test_autostart_disable(tmpfile, monkeypatch):
     [
         ("browser1", "Browser1"),
         ("test-browser", "Test Browser"),
-        ("windows-default", "Browser"),
-        ("default", "Browser"),
-        ("", "Browser"),
+        ("windows-default", "browser"),
+        ("default", "browser"),
+        ("", "browser"),
     ],
 )
 def test_get_browser_name(monkeypatch, mocked_name, result):
@@ -262,10 +262,10 @@ def test_get_browser_name_fallback_if_errors(monkeypatch, side_effect):
         "gridsync.desktop.webbrowser.get", Mock(side_effect=side_effect)
     )
     name = get_browser_name()
-    assert name == "Browser"
+    assert name == "browser"
 
 
 def test_get_browser_name_fallback_if_get_returns_none(monkeypatch):
     monkeypatch.setattr("gridsync.desktop.webbrowser.get", lambda: None)
     name = get_browser_name()
-    assert name == "Browser"
+    assert name == "browser"
