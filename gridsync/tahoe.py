@@ -903,6 +903,14 @@ class Tahoe:
             del self.magic_folders[name]
             yield self.command(["magic-folder", "leave", "-n", name])
             self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
+            if sys.platform == "win32":
+                dbpath = os.path.join(
+                    self.nodedir, "private", f"magicfolder_{name}.sqlite"
+                )
+                try:
+                    os.remove(dbpath)
+                except OSError as err:
+                    log.warning("Unable to remove %s: %s", dbpath, str(err))
 
     @inlineCallbacks
     def get_magic_folder_status(self, name):
