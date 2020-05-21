@@ -12,6 +12,7 @@ import sys
 import tempfile
 from collections import defaultdict, OrderedDict
 from io import BytesIO
+from pathlib import Path
 
 from atomicwrites import atomic_write
 import treq
@@ -383,6 +384,26 @@ class Tahoe:
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
 
+    def _win32_cleanup(self):
+        # XXX A dirty hack to try to remove any stale magic-folder
+        # sqlite databases that could not be removed earlier due to
+        # being in-use by another process (i.e., Tahoe-LAFS).
+        # See https://github.com/gridsync/gridsync/issues/294 and
+        # https://github.com/LeastAuthority/magic-folder/issues/131
+        if not self.magic_folders:
+            self.load_magic_folders()  # XXX
+        for p in Path(self.nodedir, "private").glob("magicfolder_*.sqlite"):
+            folder_name = p.stem[12:]  # len("magicfolder_") -> 12
+            if folder_name not in self.magic_folders:
+                fullpath = p.resolve()
+                log.debug("Trying to remove stale database %s...", fullpath)
+                try:
+                    p.unlink()
+                except OSError as err:
+                    log.warning("Error removing %s: %s", fullpath, str(err))
+                    continue
+                log.debug("Successfully removed %s", fullpath)
+
     def kill(self):
         try:
             with open(self.pidfile, "r") as f:
@@ -396,6 +417,8 @@ class Tahoe:
         except OSError as err:
             if err.errno not in (errno.ESRCH, errno.EINVAL):
                 log.error(err)
+        if sys.platform == "win32":
+            self._win32_cleanup()
 
     @inlineCallbacks
     def stop(self):
@@ -557,6 +580,9 @@ class Tahoe:
         pref = get_preference("notifications", "connection")
         set_preference("notifications", "connection", "false")
         yield self.stop()
+        if sys.platform == "win32":
+            yield deferLater(reactor, 0.1, lambda: None)
+            self._win32_cleanup()
         yield self.start()
         yield self.await_ready()
         yield deferLater(reactor, 1, lambda: None)
