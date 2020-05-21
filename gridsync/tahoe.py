@@ -929,8 +929,6 @@ class Tahoe:
             del self.magic_folders[name]
             yield self.command(["magic-folder", "leave", "-n", name])
             self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
-            if sys.platform == "win32":
-                self._win32_cleanup()
 
     @inlineCallbacks
     def get_magic_folder_status(self, name):
