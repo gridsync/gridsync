@@ -335,7 +335,7 @@ def test__win32_cleanup_remove_inactive_folder_database(tahoe):
     db_path = Path(tahoe.nodedir, "private", "magicfolder_TestFolder.sqlite")
     db_path.touch()
     tahoe._win32_cleanup()
-    assert db_path.exists() == False
+    assert db_path.exists() is False
 
 
 def test__win32_cleanup_preserve_active_folder_database(tahoe):
@@ -343,7 +343,7 @@ def test__win32_cleanup_preserve_active_folder_database(tahoe):
     db_path.touch()
     tahoe.magic_folders["TestFolder"] = {}
     tahoe._win32_cleanup()
-    assert db_path.exists() == True
+    assert db_path.exists() is True
 
 
 def test__win32_cleanup_log_warning_on_unlink_error(tahoe, monkeypatch):
