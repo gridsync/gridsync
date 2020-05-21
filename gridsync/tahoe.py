@@ -397,6 +397,8 @@ class Tahoe:
         except OSError as err:
             if err.errno not in (errno.ESRCH, errno.EINVAL):
                 log.error(err)
+        if sys.platform == "win32":
+            self._win32_cleanup()
 
     def _win32_cleanup(self):
         # XXX A dirty hack to try to remove any stale magic-folder
@@ -417,7 +419,6 @@ class Tahoe:
                     log.warning("Error removing %s: %s", fullpath, str(err))
                     continue
                 log.debug("Successfully removed %s", fullpath)
-
 
     @inlineCallbacks
     def stop(self):
@@ -446,8 +447,6 @@ class Tahoe:
             os.remove(self.pidfile)
         except EnvironmentError:
             pass
-        if sys.platform == "win32":
-            self._win32_cleanup()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
