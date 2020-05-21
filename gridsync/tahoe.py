@@ -384,22 +384,6 @@ class Tahoe:
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
 
-    def kill(self):
-        try:
-            with open(self.pidfile, "r") as f:
-                pid = int(f.read())
-        except (EnvironmentError, ValueError) as err:
-            log.warning("Error loading pid from pidfile: %s", str(err))
-            return
-        log.debug("Trying to kill PID %d...", pid)
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except OSError as err:
-            if err.errno not in (errno.ESRCH, errno.EINVAL):
-                log.error(err)
-        if sys.platform == "win32":
-            self._win32_cleanup()
-
     def _win32_cleanup(self):
         # XXX A dirty hack to try to remove any stale magic-folder
         # sqlite databases that could not be removed earlier due to
@@ -419,6 +403,22 @@ class Tahoe:
                     log.warning("Error removing %s: %s", fullpath, str(err))
                     continue
                 log.debug("Successfully removed %s", fullpath)
+
+    def kill(self):
+        try:
+            with open(self.pidfile, "r") as f:
+                pid = int(f.read())
+        except (EnvironmentError, ValueError) as err:
+            log.warning("Error loading pid from pidfile: %s", str(err))
+            return
+        log.debug("Trying to kill PID %d...", pid)
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError as err:
+            if err.errno not in (errno.ESRCH, errno.EINVAL):
+                log.error(err)
+        if sys.platform == "win32":
+            self._win32_cleanup()
 
     @inlineCallbacks
     def stop(self):
