@@ -46,6 +46,7 @@
 - The poorly-supported-by-Qt macOS "fullscreen" mode has been disabled for the MainWindow (and replaced with a more traditional "maximize" functionality), preventing the situation in which the application window could become stuck in fullscreen mode (Issue #241, PR #242)
 - Left-clicking the "Action" button corresponding to a specific folder will now correctly deselect and exclude any other folders from the subsequent user-selected action (Issue #254, PR #255)
 - Folders joined while connecting to a new grid will now appear immediately in the MainWindow folders view after the setup process completes (Issue #256, PR #257)
+- On Windows, Gridsync will attempt to remove any stale magic-folder sqlite databases on exit/restart, preventing an issue in which previously-joined folders could not be re-downloaded (Issue #294, PR #295)
 
 ## 0.4.2 - 2019-04-06
 ### Added
