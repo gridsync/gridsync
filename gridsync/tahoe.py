@@ -133,7 +133,6 @@ class Tahoe:
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
-        self._removed_folders: set = set()
 
     @staticmethod
     def read_cap_from_file(filepath):
