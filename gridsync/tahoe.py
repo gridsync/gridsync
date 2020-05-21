@@ -580,6 +580,9 @@ class Tahoe:
         pref = get_preference("notifications", "connection")
         set_preference("notifications", "connection", "false")
         yield self.stop()
+        if sys.platform == "win32":
+            yield deferLater(reactor, 1, lambda: None)
+            self._win32_cleanup()
         yield self.start()
         yield self.await_ready()
         yield deferLater(reactor, 1, lambda: None)
