@@ -132,6 +132,7 @@ class Tahoe:
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
+        self._removed_folders: set = set()
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -397,6 +398,27 @@ class Tahoe:
             if err.errno not in (errno.ESRCH, errno.EINVAL):
                 log.error(err)
 
+    def _win32_cleanup(self, folder_name=""):
+        # XXX A dirty hack to try to remove any stale magic-folder
+        # sqlite databases that could not be removed earlier due to
+        # being in-use by another process (i.e., Tahoe-LAFS).
+        # See https://github.com/gridsync/gridsync/issues/294 and
+        # https://github.com/LeastAuthority/magic-folder/issues/131
+        if folder_name:
+            self._removed_folders.add(folder_name)
+        for name in self._removed_folders:
+            if name not in self.magic_folders:
+                dbpath = os.path.join(
+                    self.nodedir, "private", f"magicfolder_{name}.sqlite"
+                )
+                if os.path.exists(dbpath):
+                    log.debug("Trying to remove stale database %s...", dbpath)
+                    try:
+                        os.remove(dbpath)
+                        log.debug("Successfully removed %s", dbpath)
+                    except OSError as err:
+                        log.warning("Error removing %s: %s", dbpath, str(err))
+
     @inlineCallbacks
     def stop(self):
         log.debug('Stopping "%s" tahoe client...', self.name)
@@ -424,6 +446,8 @@ class Tahoe:
             os.remove(self.pidfile)
         except EnvironmentError:
             pass
+        if sys.platform == "win32":
+            self._win32_cleanup()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
@@ -904,13 +928,7 @@ class Tahoe:
             yield self.command(["magic-folder", "leave", "-n", name])
             self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
             if sys.platform == "win32":
-                dbpath = os.path.join(
-                    self.nodedir, "private", f"magicfolder_{name}.sqlite"
-                )
-                try:
-                    os.remove(dbpath)
-                except OSError as err:
-                    log.warning("Unable to remove %s: %s", dbpath, str(err))
+                self._win32_cleanup(name)
 
     @inlineCallbacks
     def get_magic_folder_status(self, name):
