@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from pathlib import Path
 
 try:
     from unittest.mock import Mock, MagicMock
@@ -328,6 +329,31 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     settings = {"nickname": "TestGrid", "storage": storage_servers}
     yield client.create_client(**settings)
     assert client.get_storage_servers() == storage_servers
+
+
+def test__win32_cleanup_remove_inactive_folder_database(tahoe):
+    db_path = Path(tahoe.nodedir, "private", "magicfolder_TestFolder.sqlite")
+    db_path.touch()
+    tahoe._win32_cleanup()
+    assert db_path.exists() is False
+
+
+def test__win32_cleanup_preserve_active_folder_database(tahoe):
+    db_path = Path(tahoe.nodedir, "private", "magicfolder_TestFolder.sqlite")
+    db_path.touch()
+    tahoe.magic_folders["TestFolder"] = {}
+    tahoe._win32_cleanup()
+    assert db_path.exists() is True
+
+
+def test__win32_cleanup_log_warning_on_unlink_error(tahoe, monkeypatch):
+    db_path = Path(tahoe.nodedir, "private", "magicfolder_TestFolder.sqlite")
+    db_path.touch()
+    fake_warning = Mock()
+    monkeypatch.setattr("logging.warning", fake_warning)
+    monkeypatch.setattr("pathlib.Path.unlink", Mock(side_effect=OSError))
+    tahoe._win32_cleanup()
+    assert fake_warning.call_count == 1
 
 
 def write_pidfile(nodedir):
