@@ -158,6 +158,7 @@ class ZKAPInfoPane(QWidget):
         # self.spacer = QSpacerItem(0, 0, 0, QSizePolicy.Expanding)
         # layout.addItem(self.spacer, 60, 0)
         layout.addLayout(form_layout, 70, 0)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 72, 0)
         layout.addWidget(self.chart_view, 75, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
