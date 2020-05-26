@@ -246,6 +246,7 @@ def test_autostart_disable(tmpfile, monkeypatch):
         ("windows-default", "browser"),
         ("default", "browser"),
         ("", "browser"),
+        ("xdg-open", "browser"),
     ],
 )
 def test_get_browser_name(monkeypatch, mocked_name, result):
