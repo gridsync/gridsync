@@ -211,6 +211,6 @@ def get_browser_name() -> str:
         name = webbrowser.get().name.replace("-", " ").title()
     except (AttributeError, webbrowser.Error):
         return "browser"
-    if name.endswith("Default") or not name:
+    if name.endswith("Default") or not name or name.lower() == "xdg open":
         return "browser"
     return name
