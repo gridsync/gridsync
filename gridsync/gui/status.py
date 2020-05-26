@@ -182,11 +182,11 @@ class StatusPanel(QWidget):
         if remaining and remaining >= 1000:
             remaining = str(round(remaining / 1000, 1)) + "k"  # type: ignore
         self.zkap_label.setText(
-            f"{self.gateway.zkap_name_abbrev}s available: {remaining}"
+            f"{self.gateway.zkap_name_abbrev}s available: {remaining} "
         )
         self.zkap_label.show()
 
     @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:
-        self.stored_label.setText(f"Stored: {naturalsize(size)}")
+        self.stored_label.setText(f"Stored: {naturalsize(size)} ")
         self.stored_label.show()
