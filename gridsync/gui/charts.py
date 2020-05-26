@@ -112,12 +112,12 @@ class ZKAPBarChart(QChart):
 
     def update(self, used: int = 0, cost: int = 0, available: int = 0) -> None:
         self.set_used.replace(0, used)
-        self.set_used.setLabel(f"{self.unit_name}s used: {used}")
+        self.set_used.setLabel(f"{self.unit_name}s used ({used})")
         self.set_cost.replace(0, cost)
-        self.set_cost.setLabel(f"Monthly {self.unit_name} cost: {cost}")
+        self.set_cost.setLabel(f"Monthly {self.unit_name} cost ({cost})")
         self.set_available.replace(0, available)
         self.set_available.setLabel(
-            f"{self.unit_name}s available: {available}"
+            f"{self.unit_name}s available ({available})"
         )
         self.setToolTip("")  # XXX
 
