@@ -208,9 +208,9 @@ def autostart_disable():
 
 def get_browser_name() -> str:
     try:
-        name = webbrowser.get().name.replace("-", " ").title()
+        name = webbrowser.get().name
     except (AttributeError, webbrowser.Error):
         return "browser"
-    if name.endswith("Default") or not name or name.lower() == "xdg open":
+    if not name or name.endswith("default") or name == "xdg-open":
         return "browser"
-    return name
+    return name.replace("-", " ").title()
