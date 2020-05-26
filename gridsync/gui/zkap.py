@@ -77,7 +77,7 @@ class ZKAPInfoPane(QWidget):
             self.gateway.settings.get("zkap_color_used", COLOR_USED),
             self.gateway.settings.get("zkap_color_cost", COLOR_COST),
             self.gateway.settings.get("zkap_color_available", COLOR_AVAILABLE),
-            self.gateway.zkap_name_abbrev
+            self.gateway.zkap_name_abbrev,
         )
         self.chart_view.setFixedHeight(128)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
@@ -85,11 +85,11 @@ class ZKAPInfoPane(QWidget):
 
         form_layout = QFormLayout()
 
-        #self.remaining_label = QLabel(
+        # self.remaining_label = QLabel(
         #    f"<b>{gateway.zkap_name_abbrev}s available</b>"
-        #)
-        #self.remaining_field = QLabel("<b>Not available</b>")
-        #self.remaining_field.setAlignment(Qt.AlignRight)
+        # )
+        # self.remaining_field = QLabel("<b>Not available</b>")
+        # self.remaining_field.setAlignment(Qt.AlignRight)
 
         self.stored_label = QLabel("Amount stored")
         self.stored_field = QLabel("Not available")
@@ -99,11 +99,11 @@ class ZKAPInfoPane(QWidget):
         self.refill_field = QLabel("Not available")
         self.refill_field.setAlignment(Qt.AlignRight)
 
-        #self.used_label = QLabel(
+        # self.used_label = QLabel(
         #    f"{gateway.zkap_name_abbrev}s used (in total)"
-        #)
-        #self.used_field = QLabel("Not available")
-        #self.used_field.setAlignment(Qt.AlignRight)
+        # )
+        # self.used_field = QLabel("Not available")
+        # self.used_field.setAlignment(Qt.AlignRight)
 
         self.total_label = QLabel(
             f"{gateway.zkap_name_abbrev}s purchased (in total)"
@@ -122,8 +122,8 @@ class ZKAPInfoPane(QWidget):
         form_layout.addRow(self.stored_label, self.stored_field)
         form_layout.addRow(self.refill_label, self.refill_field)
         form_layout.addRow(self.total_label, self.total_field)
-        #form_layout.addRow(self.used_label, self.used_field)
-        #form_layout.addRow(self.remaining_label, self.remaining_field)
+        # form_layout.addRow(self.used_label, self.used_field)
+        # form_layout.addRow(self.remaining_label, self.remaining_field)
 
         browser = get_browser_name()
         self.button = QPushButton(
@@ -194,14 +194,14 @@ class ZKAPInfoPane(QWidget):
 
     def _show_table(self):
         self.subtext.show()
-        #self.remaining_label.show()
-        #self.remaining_field.show()
+        # self.remaining_label.show()
+        # self.remaining_field.show()
         self.stored_label.show()
         self.stored_field.show()
         self.refill_label.show()
         self.refill_field.show()
-        #self.used_label.show()
-        #self.used_field.show()
+        # self.used_label.show()
+        # self.used_field.show()
         self.total_label.show()
         self.total_field.show()
         # self.expiration_label.show()
@@ -209,14 +209,14 @@ class ZKAPInfoPane(QWidget):
 
     def _hide_table(self):
         self.subtext.hide()
-        #self.remaining_label.hide()
-        #self.remaining_field.hide()
+        # self.remaining_label.hide()
+        # self.remaining_field.hide()
         self.stored_label.hide()
         self.stored_field.hide()
         self.refill_label.hide()
         self.refill_field.hide()
-        #self.used_label.hide()
-        #self.used_field.hide()
+        # self.used_label.hide()
+        # self.used_field.hide()
         self.total_label.hide()
         self.total_field.hide()
         # self.expiration_label.hide()
@@ -261,8 +261,8 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_remaining = remaining
         self._zkaps_total = total
         self._update_chart()
-        #self.used_field.setText(str(self._zkaps_used))
-        #self.remaining_field.setText(f"<b>{self._zkaps_remaining}</b>")
+        # self.used_field.setText(str(self._zkaps_used))
+        # self.remaining_field.setText(f"<b>{self._zkaps_remaining}</b>")
         self.total_field.setText(str(self._zkaps_total))
 
     @Slot(int)
