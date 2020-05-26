@@ -57,9 +57,15 @@ class ZKAPPieChart(QChart):
 
 class ZKAPBarChart(QChart):
     def __init__(
-        self, used_color: str, cost_color: str, available_color: str,
+        self,
+        used_color: str,
+        cost_color: str,
+        available_color: str,
+        unit_name: str,
     ):
         super().__init__()
+
+        self.unit_name = unit_name
 
         self.set_used = QBarSet("Used")
         # color_used = QColor("#1F9FDE")
@@ -106,11 +112,13 @@ class ZKAPBarChart(QChart):
 
     def update(self, used: int = 0, cost: int = 0, available: int = 0) -> None:
         self.set_used.replace(0, used)
-        self.set_used.setLabel(f"Used: {used}")
+        self.set_used.setLabel(f"{self.unit_name}s used: {used}")
         self.set_cost.replace(0, cost)
-        self.set_cost.setLabel(f"Monthly cost: {cost}")
+        self.set_cost.setLabel(f"Monthly {self.unit_name} cost: {cost}")
         self.set_available.replace(0, available)
-        self.set_available.setLabel(f"Available: {available}")
+        self.set_available.setLabel(
+            f"{self.unit_name}s available: {available}"
+        )
         self.setToolTip("")  # XXX
 
 
@@ -129,8 +137,11 @@ class ZKAPBarChartView(QChartView):
         used_color=COLOR_USED,
         cost_color=COLOR_COST,
         available_color=COLOR_AVAILABLE,
+        unit_name="ZKAP",
     ):
         super().__init__()
-        self.chart = ZKAPBarChart(used_color, cost_color, available_color)
+        self.chart = ZKAPBarChart(
+            used_color, cost_color, available_color, unit_name
+        )
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)
