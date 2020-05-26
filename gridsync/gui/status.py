@@ -97,11 +97,9 @@ class StatusPanel(QWidget):
 
         # zkap_chart_view = ZKAPCompactPieChartView()
 
-        self.zkap_button = QToolButton(self)
-        self.zkap_button.setStyleSheet(
-            f"QToolButton {{ border: none; color: {dimmer_grey}}}"
-        )
-        self.zkap_button.hide()
+        self.zkap_label = QLabel()
+        self.zkap_label.setStyleSheet(f"color: {dimmer_grey}")
+        self.zkap_label.hide()
 
         self.stored_label = QLabel()
         self.stored_label.setStyleSheet(f"color: {dimmer_grey}")
@@ -117,7 +115,7 @@ class StatusPanel(QWidget):
         layout.addWidget(self.tor_button, 1, 4)
         # layout.addWidget(self.globe_button, 1, 5)
         # layout.addWidget(zkap_chart_view, 1, 5)
-        layout.addWidget(self.zkap_button, 1, 5)
+        layout.addWidget(self.zkap_label, 1, 5)
         layout.addWidget(self.stored_label, 1, 6)
         layout.addWidget(preferences_button, 1, 7)
 
@@ -177,24 +175,16 @@ class StatusPanel(QWidget):
     @Slot(int, int)
     def on_zkaps_updated(self, remaining: int, total: int) -> None:
         used = total - remaining
-        self.zkap_button.setToolTip(
+        self.zkap_label.setToolTip(
             f"{self.gateway.zkap_name}s:\n\nUsed: {used}\n"
             f"Total: {total}\nAvailable: {remaining}"
         )
         if remaining and remaining >= 1000:
             remaining = str(round(remaining / 1000, 1)) + "k"  # type: ignore
-        self.zkap_button.setText(
+        self.zkap_label.setText(
             f"{self.gateway.zkap_name_abbrev}s available: {remaining}"
         )
-        if total == 0:
-            # XXX FIXME This quick hack is for user-testing purposes
-            # only and doesn't distinguish between multiple grids;
-            # this will indiscriminately show a/the ZKAP info pane no
-            # matter which grid is actually selected from the ComboBox.
-            self.zkap_button.setEnabled(False)
-        else:
-            self.zkap_button.setEnabled(True)
-        self.zkap_button.show()
+        self.zkap_label.show()
 
     @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:
