@@ -142,9 +142,12 @@ class StatusPanel(QWidget):
         self._update_grid_info_tooltip()
 
     def on_nodes_updated(self, connected, known):
-        self.status_label.setText(
-            "Connected to {} of {} storage nodes".format(connected, known)
-        )
+        if connected >= self.gateway.shares_happy:
+            self.status_label.setText(f"Connected to {self.gateway.name}")
+        else:
+            self.status_label.setText(
+                f"Connecting to {self.gateway.name} ({connected}/{known})..."
+            )
         self.num_connected = connected
         self.num_known = known
         self._update_grid_info_tooltip()
