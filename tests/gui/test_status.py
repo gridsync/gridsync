@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 
@@ -45,7 +45,28 @@ def test_on_space_updated_humanize():
     assert sp.available_space == "1.0 kB"
 
 
-def test_on_nodes_updated():
-    sp = StatusPanel(MagicMock(), MagicMock())
+def test_on_nodes_updated_set_num_connected_and_num_known():
+    fake_tahoe = Mock()
+    fake_tahoe.name = "TestGrid"
+    fake_tahoe.shares_happy = 3
+    sp = StatusPanel(fake_tahoe, MagicMock())
     sp.on_nodes_updated(4, 5)
     assert (sp.num_connected, sp.num_known) == (4, 5)
+
+
+def test_on_nodes_updated_grid_name_in_status_label():
+    fake_tahoe = Mock()
+    fake_tahoe.name = "TestGrid"
+    fake_tahoe.shares_happy = 3
+    sp = StatusPanel(fake_tahoe, MagicMock())
+    sp.on_nodes_updated(4, 5)
+    assert sp.status_label.text() == "Connected to TestGrid"
+
+
+def test_on_nodes_updated_node_count_in_status_label_when_connecting():
+    fake_tahoe = Mock()
+    fake_tahoe.name = "TestGrid"
+    fake_tahoe.shares_happy = 5
+    sp = StatusPanel(fake_tahoe, MagicMock())
+    sp.on_nodes_updated(4, 5)
+    assert sp.status_label.text() == "Connecting to TestGrid (4/5)..."
