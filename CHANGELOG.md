@@ -28,6 +28,7 @@
 - Users are no longer required to scroll to the bottom of a debug log in order to export it (Issue #258, PR #259)
 - [Versioneer](https://github.com/warner/python-versioneer) will now be used to manage version strings (PR #283; Issue #288, PR #289)
 - On macOS, Gridsync will no longer run as an background-only/"agent" app; the application will again be visible in both the Dock and CMD+Tab window-list (Issue #284, PR #285)
+- The grid-name will now be displayed in the status panel when "connected" instead of the number of connected/known storage nodes (Issue #296, PR #297)
 
 ### Removed
 - Due to changes in minimum system requirements for numerous dependencies, macOS "Legacy" builds (targeting macOS 10.9 or higher) will no longer be provided (Issue #256, PR #266); Gridsync now requires a minimum macOS version of 10.13 or higher.
