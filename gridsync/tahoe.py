@@ -141,6 +141,7 @@ class Tahoe:
         self.zkap_name_plural: str = "Zero-Knowledge Access Passes"
         self.zkap_payment_url_root: str = ""
         self.zkap_dircap: str = ""
+        self.zkap_batch_size: int = 32768  # XXX Hardcoded in ZKAPAuthorizer
         self.settings: dict = {}
 
         self.monitor.zkaps_redeemed.connect(self.backup_zkaps)
