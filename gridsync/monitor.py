@@ -366,6 +366,29 @@ class ZKAPChecker(QObject):
         except FileNotFoundError:
             return 0
 
+    def emit_zkaps_updated(self, remaining, total):
+        used = total - remaining
+        batches_consumed = 0
+        tokens_to_trim = 0
+
+        batch_size = self.gateway.zkap_batch_size
+        if batch_size:
+            batches_consumed = used // batch_size
+            tokens_to_trim = batches_consumed * batch_size
+            used = used - tokens_to_trim
+            total = total - tokens_to_trim
+            remaining = total - used
+        self.zkaps_updated.emit(remaining, total)
+        logging.debug(
+            "ZKAPs updated: remaining: %i; total: %i "
+            "(batch size: %i, batches consumed: %i; deducted: %i)",
+            remaining,
+            total,
+            batch_size,
+            batches_consumed,
+            tokens_to_trim,
+        )
+
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
         if not self._time_started:
@@ -383,7 +406,7 @@ class ZKAPChecker(QObject):
             if self.zkaps_last_redeemed == "0":
                 self._maybe_load_last_redeemed()
             else:
-                self.zkaps_updated.emit(self.zkaps_remaining, self.zkaps_total)
+                self.emit_zkaps_updated(self.zkaps_remaining, self.zkaps_total)
         total = self._parse_vouchers(vouchers)
         try:
             zkaps = yield self.gateway.get_zkaps(limit=1)
@@ -404,12 +427,9 @@ class ZKAPChecker(QObject):
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
             self.zkaps_remaining = remaining
             self.zkaps_total = total
-            self.zkaps_updated.emit(remaining, total)
-            logging.debug(
-                "ZKAPs updated: remaining: %s; total: %s", remaining, total
-            )
+            self.emit_zkaps_updated(remaining, total)
         elif not remaining or not total:
-            self.zkaps_updated.emit(remaining, total)
+            self.emit_zkaps_updated(remaining, total)
         spending = zkaps.get("lease-maintenance-spending")
         if spending:
             count = spending.get("count")
