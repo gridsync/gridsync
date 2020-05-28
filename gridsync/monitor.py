@@ -266,7 +266,7 @@ class GridChecker(QObject):
 
 class ZKAPChecker(QObject):
 
-    zkaps_updated = pyqtSignal(int, int)  # remaining, total
+    zkaps_updated = pyqtSignal(int, int)  # used, remaining
     zkaps_redeemed = pyqtSignal(str)  # timestamp
     zkaps_renewal_cost_updated = pyqtSignal(int)
     days_remaining_updated = pyqtSignal(int)
@@ -378,7 +378,7 @@ class ZKAPChecker(QObject):
             used = used - tokens_to_trim
             total = total - tokens_to_trim
             remaining = total - used
-        self.zkaps_updated.emit(remaining, total)
+        self.zkaps_updated.emit(used, remaining)
         logging.debug(
             "ZKAPs updated: remaining: %i; total: %i "
             "(batch size: %i, batches consumed: %i; deducted: %i)",
