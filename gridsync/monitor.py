@@ -370,7 +370,6 @@ class ZKAPChecker(QObject):
         used = total - remaining
         batches_consumed = 0
         tokens_to_trim = 0
-
         batch_size = self.gateway.zkap_batch_size
         if batch_size:
             batches_consumed = used // batch_size
