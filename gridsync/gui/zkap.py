@@ -256,10 +256,10 @@ class ZKAPInfoPane(QWidget):
         self.gui.main_window.maybe_enable_actions()
 
     @Slot(int, int)
-    def on_zkaps_updated(self, remaining, total):
-        self._zkaps_used = total - remaining
+    def on_zkaps_updated(self, used, remaining):
+        self._zkaps_used = used
         self._zkaps_remaining = remaining
-        self._zkaps_total = total
+        self._zkaps_total = used + remaining
         self._update_chart()
         # self.used_field.setText(str(self._zkaps_used))
         # self.remaining_field.setText(f"<b>{self._zkaps_remaining}</b>")

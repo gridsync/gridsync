@@ -176,8 +176,8 @@ class StatusPanel(QWidget):
         self._update_grid_info_tooltip()
 
     @Slot(int, int)
-    def on_zkaps_updated(self, remaining: int, total: int) -> None:
-        used = total - remaining
+    def on_zkaps_updated(self, used: int, remaining: int) -> None:
+        total = used + remaining
         self.zkap_label.setToolTip(
             f"{self.gateway.zkap_name}s:\n\nUsed: {used}\n"
             f"Total: {total}\nAvailable: {remaining}"
