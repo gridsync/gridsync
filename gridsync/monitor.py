@@ -380,8 +380,9 @@ class ZKAPChecker(QObject):
             remaining = total - used
         self.zkaps_updated.emit(used, remaining)
         logging.debug(
-            "ZKAPs updated: remaining: %i; total: %i "
+            "ZKAPs updated: used: %i, remaining: %i; total: %i "
             "(batch size: %i, batches consumed: %i; deducted: %i)",
+            used,
             remaining,
             total,
             batch_size,
