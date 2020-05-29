@@ -63,6 +63,7 @@ class ZKAPInfoPane(QWidget):
         font.setItalic(True)
         self.subtext.setFont(font)
         self.subtext.setAlignment(Qt.AlignCenter)
+        self.subtext.hide()
 
         self.text_label = QLabel(
             f"<br><i>{gateway.zkap_name_plural}</i> -- or "
@@ -143,14 +144,6 @@ class ZKAPInfoPane(QWidget):
             self.on_low_zkaps_warning
         )
 
-        self._hide_table()
-
-    def _show_table(self):
-        self.subtext.show()
-
-    def _hide_table(self):
-        self.subtext.hide()
-
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
         voucher = self.gateway.generate_voucher()  # TODO: Cache to disk
@@ -180,7 +173,7 @@ class ZKAPInfoPane(QWidget):
         # TODO: Localize date
         self._last_purchase_date = date
         self.text_label.hide()
-        self._show_table()
+        self.subtext.show()
         self.chart_view.show()
 
     def _update_chart(self):
