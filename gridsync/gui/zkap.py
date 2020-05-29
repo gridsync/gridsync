@@ -56,7 +56,7 @@ class ZKAPInfoPane(QWidget):
 
         self.explainer_label = QLabel(
             f"{gateway.zkap_name_abbrev}s will be spent automatically on a "
-            "monthly basis, keeping your data stored."
+            "monthly basis to keep your data stored."
         )
         font = Font(10)
         font.setItalic(True)
