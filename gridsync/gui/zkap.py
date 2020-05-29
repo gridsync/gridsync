@@ -55,15 +55,15 @@ class ZKAPInfoPane(QWidget):
         title.setFont(font)
         title.setAlignment(Qt.AlignCenter)
 
-        self.subtext = QLabel(
+        self.explainer_label = QLabel(
             f"{gateway.zkap_name_abbrev}s will be spent automatically on a "
             "monthly basis, keeping your data stored."
         )
         font = Font(10)
         font.setItalic(True)
-        self.subtext.setFont(font)
-        self.subtext.setAlignment(Qt.AlignCenter)
-        self.subtext.hide()
+        self.explainer_label.setFont(font)
+        self.explainer_label.setAlignment(Qt.AlignCenter)
+        self.explainer_label.hide()
 
         self.zkaps_required_label = QLabel(
             f"<br><i>{gateway.zkap_name_plural}</i> -- or "
@@ -111,7 +111,7 @@ class ZKAPInfoPane(QWidget):
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(title, 20, 0)
-        layout.addWidget(self.subtext, 30, 0)
+        layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 60, 0)
         layout.addWidget(self.chart_view, 75, 0)
@@ -173,7 +173,7 @@ class ZKAPInfoPane(QWidget):
         # TODO: Localize date
         self._last_purchase_date = date
         self.zkaps_required_label.hide()
-        self.subtext.show()
+        self.explainer_label.show()
         self.chart_view.show()
         self._update_info_label()
 
