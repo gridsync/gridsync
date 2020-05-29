@@ -368,22 +368,26 @@ class ZKAPChecker(QObject):
 
     def emit_zkaps_updated(self, remaining, total):
         used = total - remaining
-        batches_consumed = 0
-        tokens_to_trim = 0
         batch_size = self.gateway.zkap_batch_size
         if batch_size:
             batches_consumed = used // batch_size
             tokens_to_trim = batches_consumed * batch_size
             used = used - tokens_to_trim
-            total = total - tokens_to_trim
-            remaining = total - used
+            total_trimmed = total - tokens_to_trim
+            remaining = total_trimmed - used
+        else:
+            batches_consumed = 0
+            tokens_to_trim = 0
+            total_trimmed = total
         self.zkaps_updated.emit(used, remaining)
         logging.debug(
-            "ZKAPs updated: used: %i, remaining: %i; total: %i "
-            "(batch size: %i, batches consumed: %i; deducted: %i)",
+            "ZKAPs updated: used: %i, remaining: %i; cumulative total: %i, "
+            "trimmed total: %i (batch size: %i, batches consumed: %i; "
+            "tokens deducted: %i)",
             used,
             remaining,
             total,
+            total_trimmed,
             batch_size,
             batches_consumed,
             tokens_to_trim,
