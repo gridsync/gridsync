@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 import webbrowser
 
@@ -168,9 +168,9 @@ class ZKAPInfoPane(QWidget):
 
     @Slot(str)
     def on_zkaps_redeemed(self, timestamp):
-        date = timestamp.split("T")[0]
-        # TODO: Localize date
-        self._last_purchase_date = date
+        self._last_purchase_date = datetime.strftime(
+            datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f"), "%d %b %Y"
+        )
         self.zkaps_required_label.hide()
         self.explainer_label.show()
         self.chart_view.show()
