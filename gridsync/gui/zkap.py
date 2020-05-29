@@ -112,13 +112,13 @@ class ZKAPInfoPane(QWidget):
         layout.addWidget(title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 60, 0)
-        layout.addWidget(self.chart_view, 75, 0)
-        layout.addWidget(self.info_label, 77, 0, Qt.AlignCenter)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
+        layout.addWidget(self.chart_view, 60, 0)
+        layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.pending_label, 100, 0, 1, 1, Qt.AlignCenter)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 999, 0)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
 
         self.groupbox.setLayout(layout)
 
