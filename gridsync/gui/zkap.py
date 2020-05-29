@@ -175,6 +175,7 @@ class ZKAPInfoPane(QWidget):
         self.text_label.hide()
         self.subtext.show()
         self.chart_view.show()
+        self._update_info_label()
 
     def _update_chart(self):
         self.chart_view.chart.update(
