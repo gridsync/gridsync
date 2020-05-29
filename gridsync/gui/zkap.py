@@ -65,14 +65,14 @@ class ZKAPInfoPane(QWidget):
         self.subtext.setAlignment(Qt.AlignCenter)
         self.subtext.hide()
 
-        self.text_label = QLabel(
+        self.zkaps_required_label = QLabel(
             f"<br><i>{gateway.zkap_name_plural}</i> -- or "
             f"<i>{gateway.zkap_name_abbrev}s</i> -- are required to store "
             f"data on the {gateway.name} grid. You currently have <b>0</b> "
             f"{gateway.zkap_name_abbrev}s. In order to continue, you will "
             f"need to purchase {gateway.zkap_name_abbrev}s."
         )
-        self.text_label.setWordWrap(True)
+        self.zkaps_required_label.setWordWrap(True)
 
         self.chart_view = ZKAPBarChartView(
             self.gateway.settings.get("zkap_color_used", COLOR_USED),
@@ -112,7 +112,7 @@ class ZKAPInfoPane(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(title, 20, 0)
         layout.addWidget(self.subtext, 30, 0)
-        layout.addWidget(self.text_label, 40, 0)
+        layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 60, 0)
         layout.addWidget(self.chart_view, 75, 0)
         layout.addWidget(self.info_label, 77, 0, Qt.AlignCenter)
@@ -172,7 +172,7 @@ class ZKAPInfoPane(QWidget):
         date = timestamp.split("T")[0]
         # TODO: Localize date
         self._last_purchase_date = date
-        self.text_label.hide()
+        self.zkaps_required_label.hide()
         self.subtext.show()
         self.chart_view.show()
         self._update_info_label()
