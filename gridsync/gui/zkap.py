@@ -42,6 +42,8 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_cost: int = 0
         self._zkaps_remaining: int = 0
         self._zkaps_total: int = 0
+        self._last_purchase_date: str = "Not available"
+        self._amount_stored: str = "Not available"
 
         self.groupbox = QGroupBox()
 
@@ -83,7 +85,7 @@ class ZKAPInfoPane(QWidget):
         self.chart_view.setRenderHint(QPainter.Antialiasing)
         self.chart_view.hide()
 
-        form_layout = QFormLayout()
+        #form_layout = QFormLayout()
 
         # self.remaining_label = QLabel(
         #    f"<b>{gateway.zkap_name_abbrev}s available</b>"
@@ -91,13 +93,17 @@ class ZKAPInfoPane(QWidget):
         # self.remaining_field = QLabel("<b>Not available</b>")
         # self.remaining_field.setAlignment(Qt.AlignRight)
 
-        self.stored_label = QLabel("Amount stored")
-        self.stored_field = QLabel("Not available")
-        self.stored_field.setAlignment(Qt.AlignRight)
+        #self.stored_label = QLabel("Amount stored")
+        #self.stored_label.setAlignment(Qt.AlignRight)
+        #self.stored_field = QLabel("Not available")
+        #self.stored_field.setAlignment(Qt.AlignRight)
+        #self.stored_field.setAlignment(Qt.AlignLeft)
 
-        self.refill_label = QLabel("Last purchase")
-        self.refill_field = QLabel("Not available")
-        self.refill_field.setAlignment(Qt.AlignRight)
+        #self.refill_label = QLabel("Last purchase")
+        #self.refill_label.setAlignment(Qt.AlignRight)
+        #self.refill_field = QLabel("Not available")
+        #self.refill_field.setAlignment(Qt.AlignRight)
+        #self.refill_field.setAlignment(Qt.AlignLeft)
 
         # self.used_label = QLabel(
         #    f"{gateway.zkap_name_abbrev}s used (in total)"
@@ -105,11 +111,11 @@ class ZKAPInfoPane(QWidget):
         # self.used_field = QLabel("Not available")
         # self.used_field.setAlignment(Qt.AlignRight)
 
-        self.total_label = QLabel(
-            f"{gateway.zkap_name_abbrev}s purchased (in total)"
-        )
-        self.total_field = QLabel("Not available")
-        self.total_field.setAlignment(Qt.AlignRight)
+        #self.total_label = QLabel(
+        #    f"{gateway.zkap_name_abbrev}s purchased (in total)"
+        #)
+        #self.total_field = QLabel("Not available")
+        #self.total_field.setAlignment(Qt.AlignRight)
 
         # self.expiration_label = QLabel("Next Expiration (at current usage)")
         # self.expiration_field = QLabel("Not available")
@@ -119,11 +125,14 @@ class ZKAPInfoPane(QWidget):
         # form_layout.addRow(self.used_label, self.used_field)
         # form_layout.addRow(self.expiration_label, self.expiration_field)
         # form_layout.addRow(self.stored_label, self.stored_field)
-        form_layout.addRow(self.stored_label, self.stored_field)
-        form_layout.addRow(self.refill_label, self.refill_field)
-        form_layout.addRow(self.total_label, self.total_field)
+        #form_layout.addRow(self.stored_label, self.stored_field)
+        #form_layout.addRow(self.refill_label, self.refill_field)
+        #form_layout.addRow(self.total_label, self.total_field)
         # form_layout.addRow(self.used_label, self.used_field)
         # form_layout.addRow(self.remaining_label, self.remaining_field)
+
+        self.info_label = QLabel()
+        self.info_label.setFont(Font(10))
 
         browser = get_browser_name()
         self.button = QPushButton(
@@ -157,9 +166,11 @@ class ZKAPInfoPane(QWidget):
         # layout.addWidget(QLabel(" "), 50, 0)
         # self.spacer = QSpacerItem(0, 0, 0, QSizePolicy.Expanding)
         # layout.addItem(self.spacer, 60, 0)
-        layout.addLayout(form_layout, 70, 0)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 72, 0)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 60, 0)
+        #layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 72, 0)
         layout.addWidget(self.chart_view, 75, 0)
+        layout.addWidget(self.info_label, 77, 0, Qt.AlignCenter)
+        #layout.addLayout(form_layout, 77, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.pending_label, 100, 0, 1, 1, Qt.AlignCenter)
@@ -196,14 +207,14 @@ class ZKAPInfoPane(QWidget):
         self.subtext.show()
         # self.remaining_label.show()
         # self.remaining_field.show()
-        self.stored_label.show()
-        self.stored_field.show()
-        self.refill_label.show()
-        self.refill_field.show()
+        #self.stored_label.show()
+        #self.stored_field.show()
+        #self.refill_label.show()
+        #self.refill_field.show()
         # self.used_label.show()
         # self.used_field.show()
-        self.total_label.show()
-        self.total_field.show()
+        #self.total_label.show()
+        #self.total_field.show()
         # self.expiration_label.show()
         # self.expiration_field.show()
 
@@ -211,14 +222,14 @@ class ZKAPInfoPane(QWidget):
         self.subtext.hide()
         # self.remaining_label.hide()
         # self.remaining_field.hide()
-        self.stored_label.hide()
-        self.stored_field.hide()
-        self.refill_label.hide()
-        self.refill_field.hide()
+        #self.stored_label.hide()
+        #self.stored_field.hide()
+        #self.refill_label.hide()
+        #self.refill_field.hide()
         # self.used_label.hide()
         # self.used_field.hide()
-        self.total_label.hide()
-        self.total_field.hide()
+        #self.total_label.hide()
+        #self.total_field.hide()
         # self.expiration_label.hide()
         # self.expiration_field.hide()
 
@@ -240,11 +251,24 @@ class ZKAPInfoPane(QWidget):
     def on_button_clicked(self):
         self._open_zkap_payment_url()
 
+    def _update_info_label(self):
+        self.info_label.setText(
+            f"Last purchase: {self._last_purchase_date} "
+            f"({self.gateway.zkap_batch_size} "
+            f"{self.gateway.zkap_name_abbrev}s)     "
+            f"Amount stored: {self._amount_stored}"
+        )
+
     @Slot(str)
     def on_zkaps_redeemed(self, timestamp):
         date = timestamp.split("T")[0]
-        self.refill_field.setText(date)
-        self.refill_field.setToolTip(f"Redeemed: {date}")
+        # TODO: Localize date
+        self._last_purchase_date = date
+        #self.refill_field.setText(
+        #    f"{date} ({self.gateway.zkap_batch_size} "
+        #    f"{self.gateway.zkap_name_abbrev}s)"
+        #)
+        #self.refill_field.setToolTip(f"Redeemed: {date}")
         self.text_label.hide()
         self._show_table()
         self.chart_view.show()
@@ -263,7 +287,7 @@ class ZKAPInfoPane(QWidget):
         self._update_chart()
         # self.used_field.setText(str(self._zkaps_used))
         # self.remaining_field.setText(f"<b>{self._zkaps_remaining}</b>")
-        self.total_field.setText(str(self._zkaps_total))
+        #self.total_field.setText(str(self._zkaps_total))
 
     @Slot(int)
     def on_zkaps_renewal_cost_updated(self, cost):
@@ -292,7 +316,9 @@ class ZKAPInfoPane(QWidget):
 
     @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:
-        self.stored_field.setText(naturalsize(size))
+        #self.stored_field.setText(naturalsize(size))
+        self._amount_stored = naturalsize(size)
+        self._update_info_label()
 
     def on_low_zkaps_warning(self) -> None:
         self.gui.show_message(
