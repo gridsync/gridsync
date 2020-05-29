@@ -562,7 +562,6 @@ class MainWindow(QMainWindow):
             )
 
     def export_recovery_key(self, gateway=None):
-        self.show_folders_view()
         if not gateway:
             gateway = self.combo_box.currentData()
         self.recovery_key_exporter = RecoveryKeyExporter(self)
