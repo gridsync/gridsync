@@ -144,8 +144,6 @@ frozen-tahoe:
 	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
-	pip install --upgrade setuptools && \
-	pip install --upgrade pip && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.14.0 && \
 	cp ../../misc/storage_client.py.patch . && \
