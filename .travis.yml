@@ -12,9 +12,13 @@ matrix:
       dist: xenial
       sudo: required
       env: PYTHON_CONFIGURE_OPTS="--enable-shared"
+    # macOS 10.15
+    - os: osx
+      osx_image: xcode11.5
+      env: PYTHON_CONFIGURE_OPTS="--enable-framework"
     # macOS 10.14
     - os: osx
-      osx_image: xcode11.2
+      osx_image: xcode11.3
       env: PYTHON_CONFIGURE_OPTS="--enable-framework"
     # macOS 10.13
     - os: osx
@@ -23,7 +27,7 @@ matrix:
 install:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then sw_vers; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y update; fi
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libxkbcommon-x11-0; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then curl -L --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ~/bin/linuxdeploy; fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then linuxdeploy --version; fi
