@@ -201,6 +201,8 @@ dmg:
 	python3 -m pip install dmgbuild && \
 	python3 scripts/call_dmgbuild.py
 
+check-outdated:
+	python3 scripts/check_outdated.py
 
 vagrant-desktop-linux:
 	vagrant up --no-provision ubuntu-20.04
