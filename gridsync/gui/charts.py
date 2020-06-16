@@ -87,11 +87,17 @@ class ZKAPBarChart(QChart):
         self.set_available.setBrush(color_available)
         self.set_available.insert(0, 0)
 
+        self.set_expected = QBarSet("")
+        color_expected = QColor("Light Grey")
+        self.set_expected.setPen(QPen(color_expected, 0))
+        self.set_expected.setBrush(color_expected)
+        self.set_expected.insert(0, 0)
+
         series = QHorizontalPercentBarSeries()
         series.append(self.set_used)
         # series.append(self.set_cost)
         series.append(self.set_available)
-        series.append(self.set_empty)
+        series.append(self.set_expected)
 
         self.addSeries(series)
         self.setAnimationOptions(QChart.SeriesAnimations)
@@ -107,7 +113,7 @@ class ZKAPBarChart(QChart):
             # PyQtChart. In any case, override it here..
             legend.setLabelColor(palette.color(QPalette.Text))
         legend.setAlignment(Qt.AlignBottom)
-        # legend.hide()
+        legend.markers(series)[-1].setVisible(False)  # Hide set_expected
 
         self.update(10, 30, 40)  # XXX
 
@@ -120,6 +126,10 @@ class ZKAPBarChart(QChart):
         self.set_available.setLabel(
             f"{self.unit_name}s available ({available})"
         )
+        total = used + available
+        batch_size = self.gateway.zkap_batch_size
+        if total <= batch_size:
+            self.set_expected.replace(0, batch_size - total)
         self.setToolTip("")  # XXX
 
 
