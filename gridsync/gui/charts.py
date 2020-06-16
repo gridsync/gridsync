@@ -56,33 +56,33 @@ class ZKAPPieChart(QChart):
 
 
 class ZKAPBarChart(QChart):
-    def __init__(
-        self,
-        used_color: str,
-        cost_color: str,
-        available_color: str,
-        unit_name: str,
-    ):
+    def __init__(self, gateway):
         super().__init__()
+        self.gateway = gateway
 
-        self.unit_name = unit_name
+        self.unit_name = self.gateway.zkap_name_abbrev
 
         self.set_used = QBarSet("Used")
         # color_used = QColor("#1F9FDE")
-        color_used = QColor(used_color)
+        color_used = QColor(
+            self.gateway.settings.get("zkap_color_used", COLOR_USED)
+        )
         self.set_used.setPen(QPen(color_used, 0))
         self.set_used.setBrush(color_used)
         self.set_used.insert(0, 0)
 
         self.set_cost = QBarSet("Monthly cost")
-        color_cost = QColor(cost_color)
+        color_cost = QColor(
+            self.gateway.settings.get("zkap_color_cost", COLOR_COST)
+        )
         self.set_cost.setPen(QPen(color_cost, 0))
         self.set_cost.setBrush(color_cost)
         self.set_cost.insert(0, 0)
 
         self.set_available = QBarSet("Available")
-        # color_available = QColor("Light Grey")
-        color_available = QColor(available_color)
+        color_available = QColor(
+            self.gateway.settings.get("zkap_color_available", COLOR_AVAILABLE)
+        )
         self.set_available.setPen(QPen(color_available, 0))
         self.set_available.setBrush(color_available)
         self.set_available.insert(0, 0)
@@ -91,6 +91,7 @@ class ZKAPBarChart(QChart):
         series.append(self.set_used)
         # series.append(self.set_cost)
         series.append(self.set_available)
+        series.append(self.set_empty)
 
         self.addSeries(series)
         self.setAnimationOptions(QChart.SeriesAnimations)
@@ -132,16 +133,8 @@ class ZKAPCompactPieChartView(QChartView):
 
 
 class ZKAPBarChartView(QChartView):
-    def __init__(
-        self,
-        used_color=COLOR_USED,
-        cost_color=COLOR_COST,
-        available_color=COLOR_AVAILABLE,
-        unit_name="ZKAP",
-    ):
+    def __init__(self, gateway):
         super().__init__()
-        self.chart = ZKAPBarChart(
-            used_color, cost_color, available_color, unit_name
-        )
+        self.chart = ZKAPBarChart(gateway)
         self.setChart(self.chart)
         self.setRenderHint(QPainter.Antialiasing)

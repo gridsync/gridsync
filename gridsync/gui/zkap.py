@@ -73,12 +73,7 @@ class ZKAPInfoPane(QWidget):
         )
         self.zkaps_required_label.setWordWrap(True)
 
-        self.chart_view = ZKAPBarChartView(
-            self.gateway.settings.get("zkap_color_used", COLOR_USED),
-            self.gateway.settings.get("zkap_color_cost", COLOR_COST),
-            self.gateway.settings.get("zkap_color_available", COLOR_AVAILABLE),
-            self.gateway.zkap_name_abbrev,
-        )
+        self.chart_view = ZKAPBarChartView(self.gateway)
         self.chart_view.setFixedHeight(128)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
         self.chart_view.hide()
