@@ -130,6 +130,8 @@ class ZKAPBarChart(QChart):
         batch_size = self.gateway.zkap_batch_size
         if total <= batch_size:
             self.set_expected.replace(0, batch_size - total)
+        else:
+            self.set_expected.replace(0, 0)
         self.setToolTip("")  # XXX
 
 
