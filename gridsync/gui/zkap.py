@@ -21,13 +21,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from gridsync import resource
 from gridsync.desktop import get_browser_name
-
-from gridsync.gui.charts import (
-    COLOR_AVAILABLE,
-    COLOR_COST,
-    COLOR_USED,
-    ZKAPBarChartView,
-)
+from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.font import Font
 
 
