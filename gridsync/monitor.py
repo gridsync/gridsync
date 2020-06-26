@@ -35,7 +35,7 @@ class MagicFolderChecker(QObject):
         self.name = name
         self.remote = remote
 
-        self.state = None
+        self.state = 0
         self.mtime = 0
         self.size = 0
 
