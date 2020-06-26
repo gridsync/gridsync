@@ -301,7 +301,7 @@ class Monitor(QObject):
         self.grid_checker = GridChecker(self.gateway)
         self.grid_checker.connected.connect(self.connected.emit)
         self.grid_checker.connected.connect(self.scan_rootcap)  # XXX
-        self.grid_checker.disconnected.connect(self.connected.emit)
+        self.grid_checker.disconnected.connect(self.disconnected.emit)
         self.grid_checker.nodes_updated.connect(self.nodes_updated.emit)
         self.grid_checker.space_updated.connect(self.space_updated.emit)
         self.magic_folder_checkers = {}
