@@ -29,6 +29,7 @@ from gridsync.desktop import open_path
 from gridsync.gui.font import Font
 from gridsync.gui.model import Model
 from gridsync.gui.share import InviteSenderDialog
+from gridsync.monitor import MagicFolderChecker
 from gridsync.msg import error
 from gridsync.util import humanized_list
 
@@ -46,7 +47,11 @@ class Delegate(QStyledItemDelegate):
 
     def on_frame_changed(self):
         values = self.parent.model().status_dict.values()
-        if 0 in values or 1 in values or 99 in values:
+        if (
+            MagicFolderChecker.LOADING in values
+            or MagicFolderChecker.SYNCING in values
+            or MagicFolderChecker.SCANNING in values
+        ):
             self.parent.viewport().update()
         else:
             self.waiting_movie.setPaused(True)

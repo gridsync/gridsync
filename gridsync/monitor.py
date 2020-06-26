@@ -13,6 +13,11 @@ from gridsync.crypto import trunchash
 
 class MagicFolderChecker(QObject):
 
+    LOADING = 0
+    SYNCING = 1
+    SCANNING = 99
+    UP_TO_DATE = 2
+
     sync_started = pyqtSignal()
     sync_finished = pyqtSignal()
 
@@ -35,7 +40,7 @@ class MagicFolderChecker(QObject):
         self.name = name
         self.remote = remote
 
-        self.state = 0
+        self.state = MagicFolderChecker.LOADING
         self.mtime = 0
         self.size = 0
 
@@ -102,7 +107,7 @@ class MagicFolderChecker(QObject):
             )
 
     def parse_status(self, status_data):
-        state = 0
+        state = MagicFolderChecker.LOADING
         kind = ""
         filepath = ""
         failures = []
@@ -117,25 +122,26 @@ class MagicFolderChecker(QObject):
                     elif queued_at < self.sync_time_started:
                         self.sync_time_started = queued_at
                     if not path.endswith("/"):
-                        state = 1  # "Syncing"
+                        state = MagicFolderChecker.SYNCING
                         kind = task["kind"]
                         filepath = path
                 elif status == "failure":
                     failures.append(task)
                 self.operations["{}@{}".format(path, queued_at)] = task
             if not state:
-                state = 2  # "Up to date"
+                state = MagicFolderChecker.UP_TO_DATE
                 self.sync_time_started = 0
         return state, kind, filepath, failures
 
     def process_status(self, status):
         remote_scan_needed = False
         state, kind, filepath, _ = self.parse_status(status)
-        if state == 1:  # "Syncing"
-            if self.state != 1:  # Sync just started
+        if state == MagicFolderChecker.SYNCING:
+            if self.state != MagicFolderChecker.SYNCING:  # Sync just started
                 logging.debug("Sync started (%s)", self.name)
                 self.sync_started.emit()
-            elif self.state == 1:  # Sync started earlier; still going
+            elif self.state == MagicFolderChecker.SYNCING:
+                # Sync started earlier; still going
                 logging.debug(
                     'Sync in progress (%sing "%s" in "%s")...',
                     kind,
@@ -145,14 +151,15 @@ class MagicFolderChecker(QObject):
                 # TODO: Emit uploading/downloading signal?
             self.emit_transfer_signals(self.operations.values())
             remote_scan_needed = True
-        elif state == 2:
-            if self.state == 1:  # Sync just finished
+        elif state == MagicFolderChecker.UP_TO_DATE:
+            if self.state == MagicFolderChecker.SYNCING:  # Sync just finished
                 logging.debug(
                     "Sync complete (%s); doing final scan...", self.name
                 )
                 remote_scan_needed = True
-                state = 99
-            elif self.state == 99:  # Final scan just finished
+                state = MagicFolderChecker.SCANNING
+            elif self.state == MagicFolderChecker.SCANNING:
+                # Final scan just finished
                 logging.debug("Final scan complete (%s)", self.name)
                 self.sync_finished.emit()
                 self.notify_updated_files()
@@ -369,12 +376,17 @@ class Monitor(QObject):
             if not magic_folder_checker.remote:
                 yield magic_folder_checker.do_check()
                 states.add(magic_folder_checker.state)
-        if 1 in states or 99 in states:  # At least one folder is syncing
-            state = 1
-        elif 2 in states and len(states) == 1:  # All folders are up to date
-            state = 2
+        if (
+            MagicFolderChecker.SYNCING in states
+            or MagicFolderChecker.SCANNING in states
+        ):
+            # At least one folder is syncing
+            state = MagicFolderChecker.SYNCING
+        elif len(states) == 1 and MagicFolderChecker.UP_TO_DATE in states:
+            # All folders are up to date
+            state = MagicFolderChecker.UP_TO_DATE
         else:
-            state = 0
+            state = MagicFolderChecker.LOADING
         if state != self.total_sync_state:
             self.total_sync_state = state
             self.total_sync_state_updated.emit(state)
