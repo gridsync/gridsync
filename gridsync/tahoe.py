@@ -113,7 +113,7 @@ class Tahoe:
         self.config = Config(os.path.join(self.nodedir, "tahoe.cfg"))
         self.pidfile = os.path.join(self.nodedir, "twistd.pid")
         self.nodeurl = None
-        self.shares_happy = None
+        self.shares_happy = 0
         self.name = os.path.basename(self.nodedir)
         self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, "magic-folders")
