@@ -222,7 +222,10 @@ class Model(QStandardItemModel):
         if status == MagicFolderChecker.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
-        elif status == MagicFolderChecker.SYNCING:
+        elif status in (
+            MagicFolderChecker.SYNCING,
+            MagicFolderChecker.SCANNING,
+        ):
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
             item.setToolTip(
@@ -247,10 +250,6 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
-        elif status == MagicFolderChecker.SCANNING:
-            item.setIcon(self.icon_blank)
-            item.setText("Scanning")
-            item.setToolTip("This folder is being scanned for changes.")
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
