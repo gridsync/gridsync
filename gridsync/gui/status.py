@@ -31,22 +31,8 @@ class StatusPanel(QWidget):
         self.num_known = 0
         self.available_space = 0
 
-        self.globe_icon = QLabel(self)
-        self.globe_icon.setPixmap(Pixmap("globe.png", 20))
-
         self.checkmark_icon = QLabel()
         self.checkmark_icon.setPixmap(Pixmap("checkmark.png", 20))
-
-        self.loading_icon = QLabel(self)
-        self.loading_movie = QMovie(resource("waiting.gif"))
-        self.loading_movie.setCacheMode(True)
-        self.loading_movie.updated.connect(
-            lambda: self.loading_icon.setPixmap(
-                self.loading_movie.currentPixmap().scaled(
-                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            )
-        )
 
         self.syncing_icon = QLabel()
 
@@ -107,9 +93,7 @@ class StatusPanel(QWidget):
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
         layout.setContentsMargins(left, 0, right, bottom - 2)
-        layout.addWidget(self.globe_icon, 1, 1)
         layout.addWidget(self.checkmark_icon, 1, 1)
-        layout.addWidget(self.loading_icon, 1, 1)
         layout.addWidget(self.syncing_icon, 1, 1)
         layout.addWidget(self.status_label, 1, 2)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
@@ -126,44 +110,29 @@ class StatusPanel(QWidget):
     def _update_status_label(self):
         text = ""
         if self.state == 0:
-            self.sync_movie.setPaused(True)
-            self.syncing_icon.hide()
-            self.checkmark_icon.hide()
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
                     text = (
                         f"Connecting to {self.gateway.name} ("
                         f"{self.num_connected}/{self.gateway.shares_happy})..."
                     )
-                    self.globe_icon.hide()
-                    self.loading_icon.show()
-                    self.loading_movie.setPaused(False)
                 else:
                     text = f"Connected to {self.gateway.name}"
-                    self.globe_icon.show()
-                    self.loading_icon.hide()
-                    self.loading_movie.setPaused(True)
 
             else:
                 text = f"Connecting to {self.gateway.name}..."
-                self.globe_icon.hide()
-                self.loading_icon.show()
-                self.loading_movie.setPaused(False)
+            self.sync_movie.setPaused(True)
+            self.syncing_icon.hide()
+            self.checkmark_icon.hide()
         elif self.state == 1:
             text = "Syncing"
-            self.loading_movie.setPaused(True)
-            self.loading_icon.hide()
-            self.globe_icon.hide()
             self.checkmark_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
         elif self.state == 2:
             text = "Up to date"
-            self.loading_movie.setPaused(True)
             self.sync_movie.setPaused(True)
-            self.loading_icon.hide()
             self.syncing_icon.hide()
-            self.globe_icon.hide()
             self.checkmark_icon.show()
         self.status_label.setText(text)
         if self.available_space:
