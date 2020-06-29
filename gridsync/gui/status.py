@@ -54,8 +54,6 @@ class StatusPanel(QWidget):
         self.status_label.setStyleSheet("color: {}".format(dimmer_grey))
         self.status_label.setFont(Font(10))
 
-        self.on_sync_state_updated(0)
-
         self.setStyleSheet("QToolButton { border: none }")
         # self.setStyleSheet("""
         #    QToolButton { color: dimgrey; border: none; }
@@ -106,6 +104,8 @@ class StatusPanel(QWidget):
         )
         self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
+
+        self.on_sync_state_updated(0)
 
     def _update_status_label(self):
         if self.state == 0:
