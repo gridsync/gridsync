@@ -108,33 +108,35 @@ class StatusPanel(QWidget):
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
 
     def _update_status_label(self):
-        text = ""
         if self.state == 0:
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
-                    text = (
+                    self.status_label.setText(
                         f"Connecting to {self.gateway.name} ("
                         f"{self.num_connected}/{self.gateway.shares_happy})..."
                     )
                 else:
-                    text = f"Connected to {self.gateway.name}"
+                    self.status_label.setText(
+                        f"Connected to {self.gateway.name}"
+                    )
 
             else:
-                text = f"Connecting to {self.gateway.name}..."
+                self.status_label.setText(
+                    f"Connecting to {self.gateway.name}..."
+                )
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.checkmark_icon.hide()
         elif self.state == 1:
-            text = "Syncing"
+            self.status_label.setText("Syncing")
             self.checkmark_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
         elif self.state == 2:
-            text = "Up to date"
+            self.status_label.setText("Up to date")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.checkmark_icon.show()
-        self.status_label.setText(text)
         if self.available_space:
             self.status_label.setToolTip(
                 "Connected to {} of {} storage nodes\n{} available".format(
