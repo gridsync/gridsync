@@ -62,12 +62,15 @@ class Delegate(QStyledItemDelegate):
         if column == 1:
             pixmap = None
             status = index.data(Qt.UserRole)
-            if not status:  # "Loading..."
+            if status == MagicFolderChecker.LOADING:
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
-            elif status in (1, 99):  # "Syncing", "Scanning"
+            elif status in (
+                MagicFolderChecker.SYNCING,
+                MagicFolderChecker.SCANNING,
+            ):
                 self.sync_movie.setPaused(False)
                 pixmap = self.sync_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
