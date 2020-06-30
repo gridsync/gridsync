@@ -74,11 +74,6 @@ class StatusPanel(QWidget):
         if not self.gateway.use_tor:
             self.tor_button.hide()
 
-        self.globe_button = QToolButton()
-        self.globe_button.setIconSize(QSize(20, 20))
-        self.globe_action = QAction(QIcon(resource("globe.png")), "")
-        self.globe_button.setDefaultAction(self.globe_action)
-
         preferences_button = QToolButton(self)
         preferences_button.setIcon(QIcon(resource("preferences.png")))
         preferences_button.setIconSize(QSize(20, 20))
@@ -96,7 +91,6 @@ class StatusPanel(QWidget):
         layout.addWidget(self.status_label, 1, 2)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.tor_button, 1, 4)
-        layout.addWidget(self.globe_button, 1, 5)
         layout.addWidget(preferences_button, 1, 6)
 
         self.gateway.monitor.total_sync_state_updated.connect(
