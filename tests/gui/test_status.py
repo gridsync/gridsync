@@ -23,15 +23,20 @@ def test_status_panel_hide_tor_button(fake_tahoe):
 
 
 @pytest.mark.parametrize(
-    "state,text",
+    "state,num_connected,shares_happy,text",
     [
-        [0, "Connecting to TestGrid (0/3)..."],
-        [1, "Syncing"],
-        [2, "Up to date"],
+        [0, 0, 0, "Connecting to TestGrid..."],
+        [0, 3, 5, "Connecting to TestGrid (3/5)..."],
+        [1, 5, 5, "Syncing"],
+        [2, 5, 5, "Up to date"],
     ],
 )
-def test_on_sync_state_updated(state, text, fake_tahoe):
+def test_on_sync_state_updated(
+    state, num_connected, shares_happy, text, fake_tahoe
+):
+    fake_tahoe.shares_happy = shares_happy
     sp = StatusPanel(fake_tahoe, MagicMock())
+    sp.num_connected = num_connected
     sp.on_sync_state_updated(state)
     assert sp.status_label.text() == text
 
