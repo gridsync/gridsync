@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 from pytest_twisted import inlineCallbacks
@@ -10,7 +10,10 @@ from gridsync.monitor import MagicFolderChecker, GridChecker, Monitor
 
 @pytest.fixture(scope="function")
 def mfc():
-    return MagicFolderChecker(None, "TestFolder")
+    mock_gateway = Mock()
+    mock_gateway.monitor.grid_checker.is_connected = True
+    checker = MagicFolderChecker(mock_gateway, "TestFolder")
+    return checker
 
 
 def test_magic_folder_checker_name(mfc):
@@ -134,6 +137,7 @@ def test_parse_status_return_values_syncing(mfc):
 
 
 def test_parse_status_state_up_to_date(mfc):
+    mfc.initial_scan_completed = True
     state, _, _, _ = mfc.parse_status({})
     assert state == 2
 
