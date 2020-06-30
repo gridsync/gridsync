@@ -29,6 +29,7 @@
 - [Versioneer](https://github.com/warner/python-versioneer) will now be used to manage version strings (PR #283; Issue #288, PR #289)
 - On macOS, Gridsync will no longer run as an background-only/"agent" app; the application will again be visible in both the Dock and CMD+Tab window-list (Issue #284, PR #285)
 - The grid-name will now be displayed in the status panel when "connected" instead of the number of connected/known storage nodes (Issue #296, PR #297)
+- The number of connected/known storage nodes and total storage space remaining will now always be displayed in the status panel label's tooltip, instead of the (now-removed) "globe" icon/button (Issues #296, #300; PR #301)
 
 ### Removed
 - Due to changes in minimum system requirements for numerous dependencies, macOS "Legacy" builds (targeting macOS 10.9 or higher) will no longer be provided (Issue #256, PR #266); Gridsync now requires a minimum macOS version of 10.13 or higher.
@@ -48,6 +49,8 @@
 - Left-clicking the "Action" button corresponding to a specific folder will now correctly deselect and exclude any other folders from the subsequent user-selected action (Issue #254, PR #255)
 - Folders joined while connecting to a new grid will now appear immediately in the MainWindow folders view after the setup process completes (Issue #256, PR #257)
 - On Windows, Gridsync will attempt to remove any stale magic-folder sqlite databases on exit/restart, preventing an issue in which previously-joined folders could not be re-downloaded (Issue #294, PR #295)
+- Folders will no longer be erroneously shown as being "Up to date" if their corresponding `tahoe` client is not connected to the storage grid or has not completed a remote scan (Issue #300, PR #301).
+- The "Scanning" folder status/phase has been combined with the "Syncing" phase and will no longer be displayed separately (PR #301).
 
 ## 0.4.2 - 2019-04-06
 ### Added
