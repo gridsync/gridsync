@@ -51,7 +51,7 @@ class StatusPanel(QWidget):
         dimmer_grey = BlendedColor(
             p.windowText().color(), p.window().color(), 0.6
         ).name()
-        self.status_label.setStyleSheet("color: {}".format(dimmer_grey))
+        self.status_label.setStyleSheet(f"QLabel {{ color: {dimmer_grey} }}")
         self.status_label.setFont(Font(10))
 
         self.setStyleSheet("QToolButton { border: none }")
