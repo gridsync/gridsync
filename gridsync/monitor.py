@@ -128,9 +128,13 @@ class MagicFolderChecker(QObject):
                 elif status == "failure":
                     failures.append(task)
                 self.operations["{}@{}".format(path, queued_at)] = task
-            if not state:
-                state = MagicFolderChecker.UP_TO_DATE
-                self.sync_time_started = 0
+            if state == MagicFolderChecker.LOADING:
+                if (
+                    self.gateway.monitor.grid_checker.is_connected  # XXX
+                    and self.initial_scan_completed
+                ):
+                    state = MagicFolderChecker.UP_TO_DATE
+                    self.sync_time_started = 0
         return state, kind, filepath, failures
 
     def process_status(self, status):
