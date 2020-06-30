@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import resource, config_dir
 from gridsync.gui.pixmap import CompositePixmap
+from gridsync.monitor import MagicFolderChecker
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
@@ -218,17 +219,20 @@ class Model(QStandardItemModel):
         if not items:
             return
         item = self.item(items[0].row(), 1)
-        if not status:
+        if status == MagicFolderChecker.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
-        elif status == 1:
+        elif status in (
+            MagicFolderChecker.SYNCING,
+            MagicFolderChecker.SCANNING,
+        ):
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
             item.setToolTip(
                 "This folder is syncing. New files are being uploaded or "
                 "downloaded."
             )
-        elif status == 2:
+        elif status == MagicFolderChecker.UP_TO_DATE:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
             item.setToolTip(
@@ -246,10 +250,6 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
-        elif status == 99:
-            item.setIcon(self.icon_blank)
-            item.setText("Scanning")
-            item.setToolTip("This folder is being scanned for changes.")
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 

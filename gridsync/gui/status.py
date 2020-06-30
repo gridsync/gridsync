@@ -26,6 +26,7 @@ class StatusPanel(QWidget):
         self.gateway = gateway
         self.gui = gui
 
+        self.state = 0
         self.num_connected = 0
         self.num_known = 0
         self.available_space = 0
@@ -50,10 +51,8 @@ class StatusPanel(QWidget):
         dimmer_grey = BlendedColor(
             p.windowText().color(), p.window().color(), 0.6
         ).name()
-        self.status_label.setStyleSheet("color: {}".format(dimmer_grey))
+        self.status_label.setStyleSheet(f"QLabel {{ color: {dimmer_grey} }}")
         self.status_label.setFont(Font(10))
-
-        self.on_sync_state_updated(0)
 
         self.setStyleSheet("QToolButton { border: none }")
         # self.setStyleSheet("""
@@ -75,11 +74,6 @@ class StatusPanel(QWidget):
         if not self.gateway.use_tor:
             self.tor_button.hide()
 
-        self.globe_button = QToolButton()
-        self.globe_button.setIconSize(QSize(20, 20))
-        self.globe_action = QAction(QIcon(resource("globe.png")), "")
-        self.globe_button.setDefaultAction(self.globe_action)
-
         preferences_button = QToolButton(self)
         preferences_button.setIcon(QIcon(resource("preferences.png")))
         preferences_button.setIconSize(QSize(20, 20))
@@ -97,7 +91,6 @@ class StatusPanel(QWidget):
         layout.addWidget(self.status_label, 1, 2)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.tor_button, 1, 4)
-        layout.addWidget(self.globe_button, 1, 5)
         layout.addWidget(preferences_button, 1, 6)
 
         self.gateway.monitor.total_sync_state_updated.connect(
@@ -106,48 +99,60 @@ class StatusPanel(QWidget):
         self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
 
-    def on_sync_state_updated(self, state):
-        if state == 0:
-            self.status_label.setText("Connecting...")
+        self.on_sync_state_updated(0)
+
+    def _update_status_label(self):
+        if self.state == 0:
+            if self.gateway.shares_happy:
+                if self.num_connected < self.gateway.shares_happy:
+                    self.status_label.setText(
+                        f"Connecting to {self.gateway.name} ("
+                        f"{self.num_connected}/{self.gateway.shares_happy})..."
+                    )
+                else:
+                    self.status_label.setText(
+                        f"Connected to {self.gateway.name}"
+                    )
+
+            else:
+                self.status_label.setText(
+                    f"Connecting to {self.gateway.name}..."
+                )
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.checkmark_icon.hide()
-        elif state == 1:
+        elif self.state == 1:
             self.status_label.setText("Syncing")
             self.checkmark_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
-        elif state == 2:
+        elif self.state == 2:
             self.status_label.setText("Up to date")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.checkmark_icon.show()
-
-    def _update_grid_info_tooltip(self):
         if self.available_space:
-            self.globe_action.setToolTip(
+            self.status_label.setToolTip(
                 "Connected to {} of {} storage nodes\n{} available".format(
                     self.num_connected, self.num_known, self.available_space
                 )
             )
         else:
-            self.globe_action.setToolTip(
+            self.status_label.setToolTip(
                 "Connected to {} of {} storage nodes".format(
                     self.num_connected, self.num_known
                 )
             )
 
+    def on_sync_state_updated(self, state):
+        self.state = state
+        self._update_status_label()
+
     def on_space_updated(self, space):
         self.available_space = naturalsize(space)
-        self._update_grid_info_tooltip()
+        self._update_status_label()
 
     def on_nodes_updated(self, connected, known):
-        if connected >= self.gateway.shares_happy:
-            self.status_label.setText(f"Connected to {self.gateway.name}")
-        else:
-            self.status_label.setText(
-                f"Connecting to {self.gateway.name} ({connected}/{known})..."
-            )
         self.num_connected = connected
         self.num_known = known
-        self._update_grid_info_tooltip()
+        self._update_status_label()
