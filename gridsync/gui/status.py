@@ -112,7 +112,6 @@ class StatusPanel(QWidget):
         layout.addWidget(self.zkap_label, 1, 5)
         layout.addWidget(self.stored_label, 1, 6)
         layout.addWidget(preferences_button, 1, 7)
-        layout.addWidget(preferences_button, 1, 6)
 
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
