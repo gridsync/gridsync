@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 from pytest_twisted import inlineCallbacks
@@ -10,7 +10,10 @@ from gridsync.monitor import MagicFolderChecker, GridChecker, Monitor
 
 @pytest.fixture(scope="function")
 def mfc():
-    return MagicFolderChecker(None, "TestFolder")
+    mock_gateway = Mock()
+    mock_gateway.monitor.grid_checker.is_connected = True
+    checker = MagicFolderChecker(mock_gateway, "TestFolder")
+    return checker
 
 
 def test_magic_folder_checker_name(mfc):
@@ -134,6 +137,7 @@ def test_parse_status_return_values_syncing(mfc):
 
 
 def test_parse_status_state_up_to_date(mfc):
+    mfc.initial_scan_completed = True
     state, _, _, _ = mfc.parse_status({})
     assert state == 2
 
@@ -162,31 +166,31 @@ def test_process_status_still_syncing_no_emit_status_updated(mfc, qtbot):
 
 
 def test_process_status_emit_status_updated_scanning(mfc, monkeypatch, qtbot):
-    mfc.state = 1
+    mfc.state = mfc.SYNCING
     monkeypatch.setattr(
         "gridsync.monitor.MagicFolderChecker.parse_status",
         lambda x, y: (2, "upload", "file_0", []),
     )
     with qtbot.wait_signal(mfc.status_updated) as blocker:
         mfc.process_status(status_data)
-    assert blocker.args == [99]
+    assert blocker.args == [mfc.SCANNING]
 
 
 def test_process_status_emit_status_updated_up_to_date(
     mfc, monkeypatch, qtbot
 ):
-    mfc.state = 99
+    mfc.state = mfc.SCANNING
     monkeypatch.setattr(
         "gridsync.monitor.MagicFolderChecker.parse_status",
         lambda x, y: (2, "upload", "file_0", []),
     )
     with qtbot.wait_signal(mfc.status_updated) as blocker:
         mfc.process_status(status_data)
-    assert blocker.args == [2]
+    assert blocker.args == [mfc.UP_TO_DATE]
 
 
 def test_process_status_emit_sync_finished(mfc, monkeypatch, qtbot):
-    mfc.state = 99
+    mfc.state = mfc.SCANNING
     monkeypatch.setattr(
         "gridsync.monitor.MagicFolderChecker.parse_status",
         lambda x, y: (2, "upload", "file_0", []),
@@ -196,7 +200,7 @@ def test_process_status_emit_sync_finished(mfc, monkeypatch, qtbot):
 
 
 def test_process_status_emit_sync_started(mfc, monkeypatch, qtbot):
-    mfc.state = 99
+    mfc.state = mfc.SCANNING
     monkeypatch.setattr(
         "gridsync.monitor.MagicFolderChecker.parse_status",
         lambda x, y: (1, "upload", "file_0", []),

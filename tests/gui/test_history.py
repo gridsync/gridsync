@@ -217,5 +217,7 @@ def test_history_list_widget_update_visible_widgets_on_show_event(
 
 
 def test_history_view_init():
-    hv = HistoryView(MagicMock(), MagicMock())
+    mock_gateway = MagicMock()
+    mock_gateway.shares_happy = 1
+    hv = HistoryView(mock_gateway, MagicMock())
     assert hv
