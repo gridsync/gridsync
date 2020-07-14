@@ -39,12 +39,12 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 
 . "$SHELLRC"
 
-pyenv install --skip-existing 2.7.17
-pyenv install --skip-existing 3.8.2
-pyenv install --skip-existing 3.7.7
-pyenv install --skip-existing 3.6.10
+pyenv install --skip-existing 2.7.18
+pyenv install --skip-existing 3.8.4
+pyenv install --skip-existing 3.7.8
+pyenv install --skip-existing 3.6.11
 pyenv rehash
-pyenv global 2.7.17 3.7.7 3.8.2 3.6.10
+pyenv global 2.7.18 3.7.8 3.8.4 3.6.11
 python2 -m pip install --upgrade setuptools pip
 python3 -m pip install --upgrade setuptools pip tox
 
