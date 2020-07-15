@@ -25,6 +25,7 @@ from twisted.internet import reactor
 from gridsync import resource, APP_NAME, config_dir, settings
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
+from gridsync.gui.grid import GridWidget
 from gridsync.gui.history import HistoryView
 from gridsync.gui.pixmap import CompositePixmap
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
@@ -71,7 +72,15 @@ class CentralWidget(QStackedWidget):
         self.folders_views = {}
         self.history_views = {}
 
+        self.grid_widgets = {}
+
+    def add_grid_widget(self, gateway):
+        widget = GridWidget(self.gui, gateway)
+        self.addWidget(widget)
+        self.grid_widgets[gateway] = widget
+
     def add_folders_view(self, gateway):
+        self.add_grid_widget(gateway)  # XXX
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
@@ -102,7 +111,7 @@ class MainWindow(QMainWindow):
         self.recovery_key_exporter = None
 
         self.setWindowTitle(APP_NAME)
-        self.setMinimumSize(QSize(600, 400))
+        self.setMinimumSize(QSize(1000, 700))
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.setContextMenuPolicy(Qt.NoContextMenu)
 
@@ -254,19 +263,22 @@ class MainWindow(QMainWindow):
         dimmer_grey = BlendedColor(
             p.windowText().color(), p.window().color(), 0.7
         ).name()
-        if sys.platform != "darwin":
-            self.toolbar.setStyleSheet(
-                """
-                QToolBar {{ border: 0px }}
-                QToolButton {{ color: {} }}
-            """.format(
-                    dimmer_grey
-                )
-            )
-        else:
-            self.toolbar.setStyleSheet(
-                "QToolButton {{ color: {} }}".format(dimmer_grey)
-            )
+        # if sys.platform != "darwin":
+        #    self.toolbar.setStyleSheet(
+        #        """
+        #        QToolBar {{ border: 0px }}
+        #        QToolButton {{ color: {} }}
+        #    """.format(
+        #            dimmer_grey
+        #        )
+        #    )
+        # else:
+        #    self.toolbar.setStyleSheet(
+        #        "QToolButton {{ color: {} }}".format(dimmer_grey)
+        #    )
+        self.toolbar.setStyleSheet(
+            "QToolButton {{ color: {} }}".format(dimmer_grey)
+        )
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
@@ -375,6 +387,15 @@ class MainWindow(QMainWindow):
             return
         self.gui.systray.update()
 
+    def show_grid_widget(self):
+        try:
+            self.central_widget.setCurrentWidget(
+                self.central_widget.grid_widgets[self.combo_box.currentData()]
+            )
+        except KeyError:
+            pass
+        self.set_current_grid_status()
+
     def show_folders_view(self):
         try:
             self.central_widget.setCurrentWidget(
@@ -383,6 +404,7 @@ class MainWindow(QMainWindow):
         except KeyError:
             pass
         self.set_current_grid_status()
+        self.show_grid_widget()
 
     def show_history_view(self):
         try:
