@@ -140,7 +140,7 @@ class FilesModel(QStandardItemModel):
 
     @Slot(str, object)
     def on_file_updated(self, name, data):
-        file_path = data.get("path", "")
+        file_path = data.get("path", "").rstrip(os.path.sep)
         dirname, basename = os.path.split(file_path)
         if dirname:
             location = f"{self.gateway.name}/{name}/{dirname}"

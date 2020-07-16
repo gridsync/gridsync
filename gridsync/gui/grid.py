@@ -5,12 +5,14 @@ import os
 import sys
 
 from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt, QTimer
+from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
     QFileIconProvider,
     QGridLayout,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -31,7 +33,7 @@ from gridsync.gui.color import BlendedColor
 from gridsync.gui.files_view import FilesView
 from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
-from gridsync.gui.pixmap import CompositePixmap
+from gridsync.gui.pixmap import CompositePixmap, Pixmap
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 
@@ -42,24 +44,75 @@ from gridsync.recovery import RecoveryKeyExporter
 from gridsync.util import strip_html_tags
 
 
-class NavigationBar(QWidget):
-    def __init__(self, gui, gateway):
+class LocationButton(QPushButton):
+    def __init__(self, location, folders_view):
+        super().__init__(os.path.basename(location))
+        self.setFlat(True)
+        self.setStyleSheet("font: 16px")
+        self.setMaximumWidth(
+            self.fontMetrics().boundingRect(self.text()).width() * 1.5  # XXX
+        )
+        self.clicked.connect(lambda: folders_view.update_location(location))
+
+
+class LocationBox(QWidget):
+    def __init__(self, folders_view):
+        super().__init__()
+        self.folders_view = folders_view
+
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+
+        self.on_location_updated(self.folders_view.gateway.name)
+
+    @Slot(str)
+    def on_location_updated(self, location: str) -> None:
+        for i in reversed(range(self.layout.count())):
+            self.layout.itemAt(i).widget().deleteLater()
+        directories = location.split(os.path.sep)
+        len_directories = len(directories)
+        for i, directory in enumerate(directories, start=1):
+            self.layout.addWidget(
+                LocationButton(
+                    os.path.sep.join(directories[:i]), self.folders_view
+                )
+            )
+            if i < len_directories:
+                chevron = QLabel()
+                chevron.setPixmap(Pixmap(resource("chevron-right.png"), 10))
+                self.layout.addWidget(chevron)
+        #self.layout.addWidget(QLabel("v"))
+        #self.layout.addWidget(l)
+
+
+class SearchBox(QLineEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedWidth(240)
+        self.setPlaceholderText("Search")
+        self.setStyleSheet(
+            "QLineEdit { border-radius: 15px; padding: 6px; font: 14px }"
+        )
+        self.addAction(
+            QAction(QIcon(resource("search.png")), "Search", self), 0
+        )
+
+
+class NavigationPanel(QWidget):
+    def __init__(self, gui, gateway, folders_view):
         super().__init__()
         self.gui = gui
         self.gateway = gateway
+        self.folders_view = folders_view
 
-        layout = QGridLayout(self)
+        self.layout = QGridLayout(self)
 
-        self.pb = QPushButton(self.gateway.name)
+        self.nav_button = LocationBox(folders_view)
+        self.lineedit = SearchBox(self)
 
-        self.lineedit = QLineEdit(self)
-        self.lineedit.setStyleSheet(
-            "QLineEdit { border: 2px grey; border-radius: 10px; padding: 5px }"
-        )
-
-        layout.addWidget(self.pb, 1, 1)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 0, 2)
-        layout.addWidget(self.lineedit, 1, 3)
+        self.layout.addWidget(self.nav_button, 1, 1)
+        self.layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 0, 2)
+        self.layout.addWidget(self.lineedit, 1, 3)
 
 
 class GridWidget(QWidget):
@@ -76,9 +129,9 @@ class GridWidget(QWidget):
         left, _, right, _ = layout.getContentsMargins()
         layout.setContentsMargins(0, 0, 0, 0)
 
-        nav_bar = NavigationBar(self.gui, self.gateway)
-
         self.folders_view = FilesView(self.gui, self.gateway)
+
+        nav_bar = NavigationPanel(self.gui, self.gateway, self.folders_view)
 
         history_view = HistoryView(gateway, self.gui)
         history_view.setMaximumWidth(500)  # XXX
@@ -92,8 +145,11 @@ class GridWidget(QWidget):
         layout.addWidget(status_panel, 3, 1, 1, 2)
 
         nav_bar.lineedit.textChanged.connect(self.folders_view.update_location)
-        nav_bar.pb.clicked.connect(
-            lambda: self.folders_view.update_location(self.gateway.name)
+        # nav_bar.pb.clicked.connect(
+        #    lambda: self.folders_view.update_location(self.gateway.name)
+        # )
+        self.folders_view.location_updated.connect(
+            nav_bar.nav_button.on_location_updated
         )
 
     def add_folders_view(self, gateway):

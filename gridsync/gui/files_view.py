@@ -174,14 +174,9 @@ class FilesView(QTableView):
         print("on_double_click", self.location)
         print(self.proxy_model.filterRegExp().pattern())
         location = self.proxy_model.data(index, Qt.UserRole)
-        if location == self.gateway.name:  # "root" directory
-            print("is root")
-            text = self.proxy_model.data(index, Qt.DisplayRole)
-            self.update_location(f"{location}/{text}")
-        else:
-            print("is not root")
-
-        print(self.location)
+        # TODO: Update location if location is a directory, open otherwise
+        text = self.proxy_model.data(index, Qt.DisplayRole)
+        self.update_location(f"{location}/{text}")
 
         model_index = self.proxy_model.mapToSource(index)
         item = self.proxy_model.model.itemFromIndex(model_index)

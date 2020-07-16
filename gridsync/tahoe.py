@@ -1085,10 +1085,10 @@ class Tahoe:
                 except (TypeError, KeyError):
                     continue
                 for filenode, data in children.items():
-                    if filenode.endswith("@_"):
+                    #if filenode.endswith("@_"):
                         # Ignore subdirectories, due to Tahoe-LAFS bug #2924
                         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2924
-                        continue
+                    #    continue
                     try:
                         metadata = self._extract_metadata(data[1])
                     except KeyError:
@@ -1097,6 +1097,8 @@ class Tahoe:
                     metadata["member"] = member
                     history_dict[metadata["mtime"]] = metadata
                     total_size += metadata["size"]
+                    from pprint import pprint
+                    pprint(metadata)
         history_od = OrderedDict(sorted(history_dict.items()))
         latest_mtime = next(reversed(history_od), 0)
         return members, total_size, latest_mtime, history_od

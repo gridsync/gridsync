@@ -185,13 +185,16 @@ class HistoryListWidget(QListWidget):
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_item(self, folder_name, data):
+        path = data.get("path")
+        if path.endswith(os.path.sep):
+            return
         duplicate = None
         if self.deduplicate:
             for i in range(self.count()):
                 widget = self.itemWidget(self.item(i))
                 if (
                     widget
-                    and widget.data["path"] == data["path"]
+                    and widget.data["path"] == path
                     and widget.data["member"] == data["member"]
                 ):
                     duplicate = i
