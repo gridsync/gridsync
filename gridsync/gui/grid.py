@@ -81,8 +81,8 @@ class LocationBox(QWidget):
                 chevron = QLabel()
                 chevron.setPixmap(Pixmap(resource("chevron-right.png"), 10))
                 self.layout.addWidget(chevron)
-        #self.layout.addWidget(QLabel("v"))
-        #self.layout.addWidget(l)
+        # self.layout.addWidget(QLabel("v"))
+        # self.layout.addWidget(l)
 
 
 class SearchBox(QLineEdit):
@@ -133,8 +133,10 @@ class GridWidget(QWidget):
 
         nav_bar = NavigationPanel(self.gui, self.gateway, self.folders_view)
 
-        history_view = HistoryView(gateway, self.gui)
-        history_view.setMaximumWidth(500)  # XXX
+        history_view = HistoryView(
+            gateway, self.gui, deduplicate=False, max_items=100000
+        )
+        history_view.setMaximumWidth(550)  # XXX
         history_view.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
 
         status_panel = StatusPanel(gateway, self.gui)

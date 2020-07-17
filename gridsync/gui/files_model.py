@@ -86,7 +86,7 @@ class FilesModel(QStandardItemModel):
     def add_folder(self, path, status_data=0):
         basename = os.path.basename(os.path.normpath(path))
         # if self.findItems(basename):
-        if self.findItems(basename, Qt.MatchExactly, 1):
+        if self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN):
             logging.warning(
                 "Tried to add a folder (%s) that already exists", basename
             )
@@ -129,14 +129,38 @@ class FilesModel(QStandardItemModel):
         self.set_status(basename, status_data)
 
     @staticmethod
-    def is_image(path: str) -> bool:
-        ext = os.path.splitext(path)[1]
-        if ext.lower() in (".jpg", ".jpeg", ".png", ".gif"):
-            return True
-        return False
+    def _get_file_icon(path: str, size: int = 48) -> QIcon:
+        if os.path.splitext(path)[1].lower() in (
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+        ):
+            pixmap = QPixmap(path)
+            if not pixmap.isNull():
+                return QIcon(
+                    pixmap.scaled(
+                        size,
+                        size,
+                        Qt.IgnoreAspectRatio,
+                        Qt.SmoothTransformation,
+                    )
+                )
+        return QFileIconProvider().icon(QFileInfo(path))
 
-    def _maybe_load_thumbnail(self, item, path):
-        pass
+    @staticmethod
+    def _set_mtime(item: QStandardItem, mtime: int) -> None:
+        item.setText(
+            naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
+        )
+        item.setData(mtime, Qt.UserRole)
+        item.setToolTip(f"Last modified: {time.ctime(mtime)}")
+
+    @staticmethod
+    def _set_size(item: QStandardItem, size: int) -> None:
+        item.setText(naturalsize(size))
+        item.setData(size, Qt.UserRole)
+        item.setToolTip(f"Size: {size} bytes")
 
     @Slot(str, object)
     def on_file_updated(self, name, data):
@@ -147,36 +171,32 @@ class FilesModel(QStandardItemModel):
         else:
             location = f"{self.gateway.name}/{name}"
 
-        folder_directory = self.magic_folders[name].get("directory", "")
-        full_path = os.path.join(folder_directory, file_path)
-        if folder_directory and self.is_image(full_path):
-            pixmap = QPixmap(os.path.join(folder_directory, file_path))
-            if not pixmap.isNull():
-                icon = QIcon(
-                    pixmap.scaled(
-                        48, 48, Qt.IgnoreAspectRatio, Qt.SmoothTransformation
-                    )
-                )
-            else:
-                icon = QFileIconProvider().icon(QFileInfo(full_path))
-        else:
-            icon = QFileIconProvider().icon(QFileInfo(full_path))
-
-        name_item = QStandardItem(icon, basename)
-        name_item.setToolTip(location)
-        name_item.setData(location, Qt.UserRole)
-
-        mtime = data.get("mtime", 0)
-        mtime_item = QStandardItem(
-            naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
+        local_path = os.path.join(
+            self.magic_folders[name].get("directory", ""), file_path
         )
-        mtime_item.setData(mtime, Qt.UserRole)
-        mtime_item.setToolTip(f"Last modified: {time.ctime(mtime)}")
 
-        size = data.get("size", 0)
-        size_item = QStandardItem(naturalsize(size))
-        size_item.setData(size, Qt.UserRole)
-        size_item.setToolTip(f"Size: {size} bytes")
+        items = self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN)
+        for item in items:
+            if item.data(Qt.UserRole) == location:  # file is already in model
+                item.setIcon(self._get_file_icon(local_path))
+                row = item.row()
+                self._set_mtime(
+                    self.item(row, self.MTIME_COLUMN), data.get("mtime", 0),
+                )
+                self._set_size(
+                    self.item(row, self.SIZE_COLUMN), data.get("size", 0),
+                )
+                return
+
+        name_item = QStandardItem(self._get_file_icon(local_path), basename)
+        name_item.setData(location, Qt.UserRole)
+        name_item.setToolTip(local_path)
+
+        mtime_item = QStandardItem()
+        self._set_mtime(mtime_item, data.get("mtime", 0))
+
+        size_item = QStandardItem()
+        self._set_size(size_item, data.get("size", 0))
 
         self.appendRow(
             [
@@ -185,14 +205,13 @@ class FilesModel(QStandardItemModel):
                 mtime_item,
                 size_item,
                 QStandardItem(),
-                # QStandardItem(location),
             ]
         )
 
     def remove_folder(self, folder_name):
         self.on_sync_finished(folder_name)
         # items = self.findItems(folder_name)
-        items = self.findItems(folder_name, Qt.MatchExactly, 1)
+        items = self.findItems(folder_name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
             self.removeRow(items[0].row())
 
@@ -204,7 +223,7 @@ class FilesModel(QStandardItemModel):
             self.magic_folders[name] = data
 
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
-        items = self.findItems(folder_name, Qt.MatchExactly, 1)
+        items = self.findItems(folder_name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
             if folder_path:
                 folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
@@ -221,7 +240,7 @@ class FilesModel(QStandardItemModel):
         self.update_folder_icon(
             folder_name, self.gateway.get_magic_folder_directory(folder_name)
         )
-        items = self.findItems(folder_name, Qt.MatchExactly, 1)
+        items = self.findItems(folder_name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
             items[0].setToolTip(
                 "{}\n\nThis folder is private; only you can view and\nmodify "
@@ -237,7 +256,7 @@ class FilesModel(QStandardItemModel):
             self.gateway.get_magic_folder_directory(folder_name),
             "laptop.png",
         )
-        items = self.findItems(folder_name, Qt.MatchExactly, 1)
+        items = self.findItems(folder_name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
             items[0].setToolTip(
                 "{}\n\nAt least one other device can view and modify\n"
@@ -261,11 +280,11 @@ class FilesModel(QStandardItemModel):
 
     @pyqtSlot(str, int)
     def set_status(self, name, status):
-        items = self.findItems(name, Qt.MatchExactly, 1)
+        items = self.findItems(name, Qt.MatchExactly, self.NAME_COLUMN)
         if not items:
             return
         # item = self.item(items[0].row(), 1)
-        item = self.item(items[0].row(), 0)
+        item = self.item(items[0].row(), self.STATUS_COLUMN)
         if status == MagicFolderChecker.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
@@ -325,7 +344,8 @@ class FilesModel(QStandardItemModel):
             # that it's better to have a couple of seconds of no progress
             # updates than a progress update which is wrong or misleading).
             return
-        item = self.item(items[0].row(), 1)
+        # item = self.item(items[0].row(), 1)
+        item = self.item(items[0].row(), self.STATUS_COLUMN)
         item.setText("Syncing ({}%)".format(percent_done))
 
     def fade_row(self, folder_name, overlay_file=None):
@@ -345,7 +365,9 @@ class FilesModel(QStandardItemModel):
             item.setForeground(QColor("gray"))
 
     def unfade_row(self, folder_name):
-        folder_item = self.findItems(folder_name, Qt.MatchExactly, 1)[0]
+        folder_item = self.findItems(
+            folder_name, Qt.MatchExactly, self.NAME_COLUMN
+        )[0]
         row = folder_item.row()
         for i in range(4):
             item = self.item(row, i)
@@ -370,9 +392,9 @@ class FilesModel(QStandardItemModel):
     def set_mtime(self, name, mtime):
         if not mtime:
             return
-        items = self.findItems(name, Qt.MatchExactly, 1)
+        items = self.findItems(name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
-            item = self.item(items[0].row(), 2)
+            item = self.item(items[0].row(), self.MTIME_COLUMN)
             item.setData(mtime, Qt.UserRole)
             item.setText(
                 naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
@@ -381,16 +403,16 @@ class FilesModel(QStandardItemModel):
 
     @pyqtSlot(str, object)
     def set_size(self, name, size):
-        items = self.findItems(name, Qt.MatchExactly, 1)
+        items = self.findItems(name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
-            item = self.item(items[0].row(), 3)
+            item = self.item(items[0].row(), self.SIZE_COLUMN)
             item.setText(naturalsize(size))
             item.setData(size, Qt.UserRole)
 
     @pyqtSlot()
     def update_natural_times(self):
         for i in range(self.rowCount()):
-            item = self.item(i, 2)
+            item = self.item(i, self.MTIME_COLUMN)
             data = item.data(Qt.UserRole)
             if data:
                 item.setText(
