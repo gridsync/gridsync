@@ -2,46 +2,24 @@
 
 import logging
 import os
-import sys
 
-from PyQt5.QtCore import (
-    QEvent,
-    QItemSelectionModel,
-    QPoint,
-    QSize,
-    QSortFilterProxyModel,
-    Qt,
-)
-from PyQt5.QtCore import pyqtSlot as Slot
+from PyQt5.QtCore import QPoint, QSize, Qt
 from PyQt5.QtCore import pyqtSignal as Signal
-from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen, QPixmap
+from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (
     QAbstractItemView,
-    QAction,
-    QCheckBox,
     QFileDialog,
-    QGridLayout,
     QHeaderView,
-    QLabel,
-    QMenu,
-    QMessageBox,
-    QPushButton,
-    QSizePolicy,
-    QSpacerItem,
     QStyledItemDelegate,
     QTableView,
-    QTreeView,
 )
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
-from gridsync import resource, APP_NAME, settings
-from gridsync.desktop import open_path
+from gridsync import resource, APP_NAME
 from gridsync.gui.font import Font
-from gridsync.gui.files_model import FilesModel, FilesProxyModel
-from gridsync.gui.share import InviteSenderDialog
+from gridsync.gui.files_model import FilesProxyModel
 from gridsync.monitor import MagicFolderChecker
 from gridsync.msg import error
-from gridsync.util import humanized_list
 
 
 class Delegate(QStyledItemDelegate):
@@ -158,7 +136,7 @@ class FilesView(QTableView):
         # self.setIconSize(QSize(24, 24))
 
         self.doubleClicked.connect(self.on_double_click)
-        self.customContextMenuRequested.connect(self.on_right_click)
+        # self.customContextMenuRequested.connect(self.on_right_click)
 
         self.update_location(self.gateway.name)  # start in "root" directory
 
@@ -181,9 +159,6 @@ class FilesView(QTableView):
         model_index = self.proxy_model.mapToSource(index)
         item = self.proxy_model.model.itemFromIndex(model_index)
         print("item:", item)
-
-    def on_right_click(self, position):
-        print("on_right_click")
 
     @inlineCallbacks
     def add_folder(self, path):

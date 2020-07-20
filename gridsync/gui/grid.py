@@ -1,47 +1,26 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import os
-import sys
 
-from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt, QTimer
 from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction,
-    QComboBox,
-    QFileIconProvider,
     QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMainWindow,
-    QMenu,
-    QMessageBox,
     QPushButton,
-    QShortcut,
     QSizePolicy,
     QSpacerItem,
-    QStackedWidget,
-    QToolButton,
     QWidget,
 )
-from twisted.internet import reactor
 
-from gridsync import resource, APP_NAME, config_dir, settings
-from gridsync.gui.color import BlendedColor
+from gridsync import resource
 from gridsync.gui.files_view import FilesView
-from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
-from gridsync.gui.pixmap import CompositePixmap, Pixmap
-from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
+from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.status import StatusPanel
-
-# from gridsync.gui.view import View
-from gridsync.gui.welcome import WelcomeDialog
-from gridsync.msg import error, info
-from gridsync.recovery import RecoveryKeyExporter
-from gridsync.util import strip_html_tags
 
 
 class LocationButton(QPushButton):
@@ -71,7 +50,7 @@ class LocationBox(QWidget):
             self.layout.itemAt(i).widget().deleteLater()
         directories = location.split(os.path.sep)
         len_directories = len(directories)
-        for i, directory in enumerate(directories, start=1):
+        for i, _ in enumerate(directories, start=1):
             self.layout.addWidget(
                 LocationButton(
                     os.path.sep.join(directories[:i]), self.folders_view
@@ -126,7 +105,6 @@ class GridWidget(QWidget):
         self.history_views = {}
 
         layout = QGridLayout(self)
-        left, _, right, _ = layout.getContentsMargins()
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.folders_view = FilesView(self.gui, self.gateway)
@@ -134,7 +112,7 @@ class GridWidget(QWidget):
         nav_bar = NavigationPanel(self.gui, self.gateway, self.folders_view)
 
         history_view = HistoryView(
-            gateway, self.gui, deduplicate=False, max_items=100000
+            gateway, deduplicate=False, max_items=100000
         )
         history_view.setMaximumWidth(550)  # XXX
         history_view.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
@@ -153,25 +131,3 @@ class GridWidget(QWidget):
         self.folders_view.location_updated.connect(
             nav_bar.nav_button.on_location_updated
         )
-
-    def add_folders_view(self, gateway):
-        view = View(self.gui, gateway)
-        widget = QWidget()
-        layout = QGridLayout(widget)
-        if sys.platform == "darwin":
-            # XXX: For some reason, getContentsMargins returns 20 px on macOS..
-            layout.setContentsMargins(11, 11, 11, 0)
-        else:
-            left, _, right, _ = layout.getContentsMargins()
-            layout.setContentsMargins(left, 0, right, 0)
-        layout.addWidget(view)
-        layout.addWidget(StatusPanel(gateway, self.gui))
-        self.addWidget(widget)
-        self.views.append(view)
-        self.folders_views[gateway] = widget
-
-    def add_history_view(self, gateway):
-        view = HistoryView(gateway, self.gui)
-        self.addWidget(view)
-        self.history_views[gateway] = view
-

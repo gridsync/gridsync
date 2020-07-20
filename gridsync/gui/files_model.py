@@ -7,7 +7,7 @@ import sys
 import time
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import pyqtSlot, QFileInfo, QSize, QSortFilterProxyModel, Qt
+from PyQt5.QtCore import QFileInfo, QSize, QSortFilterProxyModel, Qt
 from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import (
     QColor,
@@ -21,8 +21,6 @@ from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar, QLabel
 from gridsync import resource, config_dir
 from gridsync.gui.pixmap import CompositePixmap
 from gridsync.monitor import MagicFolderChecker
-from gridsync.preferences import get_preference
-from gridsync.util import humanized_list
 
 
 class FilesModel(QStandardItemModel):
@@ -273,12 +271,12 @@ class FilesModel(QStandardItemModel):
         else:
             self.set_status_private(folder_name)
 
-    @pyqtSlot(str, list)
+    @Slot(str, list)
     def on_members_updated(self, folder, members):
         self.members_dict[folder] = members
         self.update_overlay(folder)
 
-    @pyqtSlot(str, int)
+    @Slot(str, int)
     def set_status(self, name, status):
         items = self.findItems(name, Qt.MatchExactly, self.NAME_COLUMN)
         if not items:
@@ -319,7 +317,7 @@ class FilesModel(QStandardItemModel):
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
-    @pyqtSlot(str, object, object)
+    @Slot(str, object, object)
     def set_transfer_progress(self, folder_name, transferred, total):
         items = self.findItems(folder_name)
         if not items:
@@ -376,19 +374,19 @@ class FilesModel(QStandardItemModel):
             item.setFont(font)
             item.setForeground(self.view.palette().text())
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_sync_started(self, folder_name):
         self.gui.core.operations.append((self.gateway, folder_name))
         self.gui.systray.update()
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_sync_finished(self, folder_name):
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:
             pass
 
-    @pyqtSlot(str, int)
+    @Slot(str, int)
     def set_mtime(self, name, mtime):
         if not mtime:
             return
@@ -401,7 +399,7 @@ class FilesModel(QStandardItemModel):
             )
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
-    @pyqtSlot(str, object)
+    @Slot(str, object)
     def set_size(self, name, size):
         items = self.findItems(name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
@@ -409,7 +407,7 @@ class FilesModel(QStandardItemModel):
             item.setText(naturalsize(size))
             item.setData(size, Qt.UserRole)
 
-    @pyqtSlot()
+    @Slot()
     def update_natural_times(self):
         for i in range(self.rowCount()):
             item = self.item(i, self.MTIME_COLUMN)
@@ -419,7 +417,7 @@ class FilesModel(QStandardItemModel):
                     naturaltime(datetime.now() - datetime.fromtimestamp(data))
                 )
 
-    @pyqtSlot(str, str)
+    @Slot(str, str)
     def add_remote_folder(self, folder_name, overlay_file=None):
         self.add_folder(folder_name, 3)
         self.fade_row(folder_name, overlay_file)

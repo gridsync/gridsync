@@ -26,7 +26,6 @@ from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.gui.status import StatusPanel
 
 
 class HistoryItemWidget(QWidget):
@@ -231,9 +230,8 @@ class HistoryListWidget(QListWidget):
 
 
 class HistoryView(QWidget):
-    def __init__(self, gateway, gui, deduplicate=True, max_items=30):
+    def __init__(self, gateway, deduplicate=True, max_items=30):
         super(HistoryView, self).__init__()
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(HistoryListWidget(gateway, deduplicate, max_items))
-        # layout.addWidget(StatusPanel(gateway, gui))
