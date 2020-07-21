@@ -54,7 +54,7 @@ class Delegate(QStyledItemDelegate):
             if status == MagicFolderChecker.LOADING:
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(
-                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                    32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
             elif status in (
                 MagicFolderChecker.SYNCING,
@@ -62,7 +62,7 @@ class Delegate(QStyledItemDelegate):
             ):
                 self.sync_movie.setPaused(False)
                 pixmap = self.sync_movie.currentPixmap().scaled(
-                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                    32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
             if pixmap:
                 point = option.rect.topLeft()
