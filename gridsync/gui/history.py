@@ -41,6 +41,12 @@ class HistoryItemWidget(QWidget):
         self.mtime = data["mtime"]
         self._thumbnail_loaded = False
 
+        dirname, basename = os.path.split(self.path)
+        if dirname:
+            self.location = f"{self.gateway.name}/{folder_name}/{dirname}"
+        else:
+            self.location = f"{self.gateway.name}/{folder_name}"
+
         self.setAutoFillBackground(True)
 
         directory = self.gateway.get_magic_folder_directory(folder_name)
@@ -210,6 +216,39 @@ class HistoryListWidget(QListWidget):
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
 
+    def filter_by_location(self, location: str) -> None:
+        for i in range(self.count()):
+            item = self.item(i)
+            widget = self.itemWidget(item)
+            if widget:
+                print(widget.path)
+            if widget and widget.location == location:
+                #widget.show()
+                item.setHidden(False)
+            else:
+                #widget.hide()
+                item.setHidden(True)
+
+    def filter_by_path(self, path: str) -> None:
+        for i in range(self.count()):
+            widget = self.itemWidget(self.item(i))
+            if widget:
+                print(widget.path)
+            if widget and widget.data.get("path") == path:
+                widget.show()
+            else:
+                widget.hide()
+
+    def show_all(self) -> None:
+        for i in range(self.count()):
+            widget = self.itemWidget(self.item(i))
+            if widget:
+                widget.show()
+
+    def on_location_updated(self, location: str) -> None:
+        print('location_updated', location)
+        self.filter_by_location(location)
+
     def update_visible_widgets(self):
         if not self.isVisible():
             return
@@ -227,6 +266,7 @@ class HistoryListWidget(QListWidget):
 
     def showEvent(self, _):
         self.update_visible_widgets()
+        # self.filter_by_path('')
 
 
 class HistoryView(QWidget):
@@ -234,4 +274,7 @@ class HistoryView(QWidget):
         super(HistoryView, self).__init__()
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+
+        self.history_list_widget = HistoryListWidget(gateway, deduplicate, max_items)
+
         layout.addWidget(HistoryListWidget(gateway, deduplicate, max_items))

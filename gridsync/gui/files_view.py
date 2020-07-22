@@ -143,14 +143,14 @@ class FilesView(QTableView):
         self.model().populate()
 
     def update_location(self, location: str) -> None:
-        self.proxy_model.setFilterRegExp(f"^{location}$")
+        self.proxy_model.setFilterRegularExpression(f"^{location}$")
         self.location = location
         self.location_updated.emit(location)
         print("location updated:", location)
 
     def on_double_click(self, index):
         print("on_double_click", self.location)
-        print(self.proxy_model.filterRegExp().pattern())
+        print(self.proxy_model.filterRegularExpression().pattern())
         location = self.proxy_model.data(index, Qt.UserRole)
         # TODO: Update location if location is a directory, open otherwise
         text = self.proxy_model.data(index, Qt.DisplayRole)

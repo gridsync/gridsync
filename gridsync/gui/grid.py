@@ -116,6 +116,11 @@ class GridWidget(QWidget):
         )
         history_view.setMaximumWidth(550)
         history_view.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
+        print('#################################################')
+        w = history_view.layout().itemAt(0).widget()
+        print(w)
+        files_view.location_updated.connect(w.on_location_updated)
+        print('#################################################')
 
         status_panel = StatusPanel(gateway, self.gui)
 
