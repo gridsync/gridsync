@@ -421,13 +421,3 @@ class FilesModel(QStandardItemModel):
     def add_remote_folder(self, folder_name, overlay_file=None):
         self.add_folder(folder_name, 3)
         self.fade_row(folder_name, overlay_file)
-
-
-class FilesProxyModel(QSortFilterProxyModel):
-    def __init__(self, view):
-        super().__init__()
-        self.model = FilesModel(view)
-        self.setSourceModel(self.model)
-
-    def populate(self):
-        self.model.populate()

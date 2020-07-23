@@ -3,7 +3,7 @@
 import logging
 import os
 
-from PyQt5.QtCore import QPoint, QSize, Qt
+from PyQt5.QtCore import QPoint, QSize, QSortFilterProxyModel, Qt
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (
@@ -17,7 +17,7 @@ from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
 from gridsync.gui.font import Font
-from gridsync.gui.files_model import FilesProxyModel
+from gridsync.gui.files_model import FilesModel
 from gridsync.monitor import MagicFolderChecker
 from gridsync.msg import error
 
@@ -34,7 +34,7 @@ class Delegate(QStyledItemDelegate):
         self.sync_movie.frameChanged.connect(self.on_frame_changed)
 
     def on_frame_changed(self):
-        values = self.view.model().model.status_dict.values()
+        values = self.view.source_model.status_dict.values()
         if (
             MagicFolderChecker.LOADING in values
             or MagicFolderChecker.SYNCING in values
@@ -48,7 +48,7 @@ class Delegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         column = index.column()
         # if column == 1:
-        if column == self.view.model().model.STATUS_COLUMN:
+        if column == self.view.source_model.STATUS_COLUMN:
             pixmap = None
             status = index.data(Qt.UserRole)
             if status == MagicFolderChecker.LOADING:
@@ -82,15 +82,15 @@ class FilesView(QTableView):
         self.invite_sender_dialogs = []
         self._rescan_required = False
         self._restart_required = False
-        # self.setModel(FilesModel(self))
         self.location: str = ""
 
-        # self.model = FilesModel(self)
+        self.source_model = FilesModel(self)
 
-        self.proxy_model = FilesProxyModel(self)
+        self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.source_model)
         self.proxy_model.setFilterKeyColumn(1)
         self.proxy_model.setFilterRole(Qt.UserRole)
-        # self.setModel(self.proxy_model)
+
         self.setModel(self.proxy_model)
         self.setItemDelegate(Delegate(self))
         self.setFont(Font(12))
@@ -140,7 +140,7 @@ class FilesView(QTableView):
 
         self.update_location(self.gateway.name)  # start in "root" directory
 
-        self.model().populate()
+        self.source_model.populate()
 
     def update_location(self, location: str) -> None:
         self.proxy_model.setFilterRegularExpression(f"^{location}$")
@@ -157,13 +157,13 @@ class FilesView(QTableView):
         self.update_location(f"{location}/{text}")
 
         model_index = self.proxy_model.mapToSource(index)
-        item = self.proxy_model.model.itemFromIndex(model_index)
+        item = self.source_model.itemFromIndex(model_index)
         print("item:", item)
 
     @inlineCallbacks
     def add_folder(self, path):
         path = os.path.realpath(path)
-        self.model().add_folder(path)
+        self.source_model.add_folder(path)
         folder_name = os.path.basename(path)
         try:
             yield self.gateway.create_magic_folder(path)
@@ -177,7 +177,7 @@ class FilesView(QTableView):
                     folder_name, type(e).__name__, str(e)
                 ),
             )
-            self.model().remove_folder(folder_name)
+            self.source_model.remove_folder(folder_name)
             return
         self._restart_required = True
         logging.debug(
