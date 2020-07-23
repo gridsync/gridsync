@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 from gridsync.gui.files_view import FilesView
-from gridsync.gui.history import HistoryView
+from gridsync.gui.history import HistoryListWidget
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.status import StatusPanel
 
@@ -111,20 +111,21 @@ class GridWidget(QWidget):
 
         navigation_panel = NavigationPanel(self.gui, self.gateway, files_view)
 
-        history_view = HistoryView(
+        history_list_widget = HistoryListWidget(
             gateway, deduplicate=False, max_items=100000
         )
-        history_view.setMaximumWidth(550)
-        history_view.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
-        print('#################################################')
-        w = history_view.layout().itemAt(0).widget()
-        print(w)
-        files_view.location_updated.connect(w.on_location_updated)
-        print('#################################################')
+        history_list_widget.setMaximumWidth(550)
+        history_list_widget.setSizePolicy(
+            QSizePolicy.Maximum, QSizePolicy.Minimum
+        )
 
         status_panel = StatusPanel(gateway, self.gui)
 
         layout.addWidget(navigation_panel, 1, 1, 1, 2)
         layout.addWidget(files_view, 2, 1)
-        layout.addWidget(history_view, 2, 2)
+        layout.addWidget(history_list_widget, 2, 2)
         layout.addWidget(status_panel, 3, 1, 1, 2)
+
+        files_view.location_updated.connect(
+            history_list_widget.on_location_updated
+        )
