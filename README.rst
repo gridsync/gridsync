@@ -39,24 +39,36 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 .. [*] Tahoe-LAFS' "Magic Folder" functionality is not (yet) fully supported on macOS or other BSD-based operating systems and is presently marked as experimental.
 
 
-Screenshots:
-------------
+Screenshots (latest release; running macOS 10.14 with dark mode enabled):
+-------------------------------------------------------------------------
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/welcome.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/02-drag-and-drop.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/connecting.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/03-syncing.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/dropzone.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/04-history.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/passphrase.gif
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/05-invite.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/menu.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/share.png
+Screenshots (previous releases; running GNU/Linux with Xfce 4):
+---------------------------------------------------------------
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/notify.gif
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/welcome.png
 
-.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/history.png
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/connecting.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/dropzone.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/passphrase.gif
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/menu.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/share.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/notify.gif
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/history.png
 
 Installation and running:
 -------------------------
