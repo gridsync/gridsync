@@ -42,9 +42,13 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 Screenshots (latest release; running macOS 10.14 with dark mode enabled):
 -------------------------------------------------------------------------
 
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/02-drag-and-drop.png
+
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/03-syncing.png
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/04-history.png
+
+.. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/05-invite.png
 
 
 Screenshots (previous releases; running GNU/Linux with Xfce 4):
