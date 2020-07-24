@@ -39,16 +39,16 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 .. [*] Tahoe-LAFS' "Magic Folder" functionality is not (yet) fully supported on macOS or other BSD-based operating systems and is presently marked as experimental.
 
 
-Screenshots (latest release):
------------------------------
+Screenshots (latest release; running macOS 10.14 with dark mode enabled):
+-------------------------------------------------------------------------
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/03-syncing.png
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/latest/04-history.png
 
 
-Screenshots (previous releases):
---------------------------------
+Screenshots (previous releases; running GNU/Linux with Xfce 4):
+---------------------------------------------------------------
 
 .. image:: https://raw.githubusercontent.com/gridsync/gridsync/master/images/screenshots/old/welcome.png
 
