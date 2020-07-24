@@ -71,9 +71,32 @@ class SearchBox(QLineEdit):
         self.setStyleSheet(
             "QLineEdit { border-radius: 15px; padding: 6px; font: 14px }"
         )
+
+        self.clear_action = QAction(
+            QIcon(resource("close.png")), "Clear", self
+        )
+
         self.addAction(
             QAction(QIcon(resource("search.png")), "Search", self), 0
         )
+        self.addAction(self.clear_action, 1)
+
+        self.textChanged.connect(self.on_text_changed)
+        self.clear_action.triggered.connect(self.on_clear_action_triggered)
+
+        self.on_text_changed("")
+
+    @Slot(str)
+    def on_text_changed(self, text: str) -> None:
+        if text:
+            self.clear_action.setEnabled(True)
+            self.clear_action.setVisible(True)
+        else:
+            self.clear_action.setEnabled(False)
+            self.clear_action.setVisible(False)
+
+    def on_clear_action_triggered(self):
+        self.setText("")
 
 
 class NavigationPanel(QWidget):

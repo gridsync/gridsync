@@ -41,28 +41,26 @@ class HistoryItemWidget(QWidget):
         self.mtime = data["mtime"]
         self._thumbnail_loaded = False
 
-        dirname, basename = os.path.split(self.path)
+        dirname, self.basename = os.path.split(self.path)
         if dirname:
             self.location = f"{self.gateway.name}/{folder_name}/{dirname}"
         else:
             self.location = f"{self.gateway.name}/{folder_name}"
 
+        self.local_path = os.path.join(
+            self.gateway.get_magic_folder_directory(folder_name), self.path
+        )
+
         self.setAutoFillBackground(True)
-
-        directory = self.gateway.get_magic_folder_directory(folder_name)
-        if directory:
-            self.path = os.path.join(directory, self.path)
-        self.basename = os.path.basename(os.path.normpath(self.path))
-
         self.setToolTip(
             "{}\n\nSize: {}\nModified: {}".format(
-                self.path, naturalsize(self.size), time.ctime(self.mtime)
+                self.local_path, naturalsize(self.size), time.ctime(self.mtime)
             )
         )
 
         self.icon = QLabel()
         self.icon.setPixmap(
-            QFileIconProvider().icon(QFileInfo(self.path)).pixmap(48, 48)
+            QFileIconProvider().icon(QFileInfo(self.local_path)).pixmap(48, 48)
         )
 
         self.basename_label = QLabel(self.basename)
@@ -101,7 +99,7 @@ class HistoryItemWidget(QWidget):
         )
 
     def _do_load_thumbnail(self):
-        pixmap = QPixmap(self.path)
+        pixmap = QPixmap(self.local_path)
         if not pixmap.isNull():
             self.icon.setPixmap(
                 pixmap.scaled(

@@ -7,7 +7,7 @@ import sys
 import time
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, QSize, QSortFilterProxyModel, Qt
+from PyQt5.QtCore import QFileInfo, QSize, Qt
 from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import (
     QColor,
