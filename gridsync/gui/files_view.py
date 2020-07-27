@@ -88,7 +88,7 @@ class FilesView(QTableView):
 
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.source_model)
-        self.proxy_model.setFilterKeyColumn(1)
+        self.proxy_model.setFilterKeyColumn(self.source_model.NAME_COLUMN)
         self.proxy_model.setFilterRole(Qt.UserRole)
 
         self.setModel(self.proxy_model)
