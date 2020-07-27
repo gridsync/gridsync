@@ -41,7 +41,6 @@ class FilesModel(QStandardItemModel):
         self.members_dict = {}
         self.grid_status = ""
         self.available_space = 0
-        self.magic_folders = {}
 
         self.setHeaderData(self.STATUS_COLUMN, Qt.Horizontal, "Status")
         self.setHeaderData(self.NAME_COLUMN, Qt.Horizontal, "Name")
@@ -170,7 +169,7 @@ class FilesModel(QStandardItemModel):
             location = f"{self.gateway.name}/{name}"
 
         local_path = os.path.join(
-            self.magic_folders[name].get("directory", ""), file_path
+            self.gateway.get_magic_folder_directory(name), file_path
         )
 
         items = self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN)
@@ -216,9 +215,6 @@ class FilesModel(QStandardItemModel):
     def populate(self):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
             self.add_folder(magic_folder["directory"])
-        for name, data in self.gateway.load_magic_folders().items():
-            print("#########################", data)  # XXX
-            self.magic_folders[name] = data
 
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
         items = self.findItems(folder_name, Qt.MatchExactly, self.NAME_COLUMN)
