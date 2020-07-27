@@ -131,6 +131,25 @@ class HistoryItemWidget(QWidget):
         self.parent.highlighted = self
 
 
+class HistoryItemMenu(QMenu):
+    def __init__(self, item, parent):
+        super().__init__(parent)
+        print(item)
+        widget = parent.itemWidget(item)
+
+        open_file_action = QAction("Open file", self)
+        open_file_action.triggered.connect(
+            lambda: open_path(widget.local_path)
+        )
+        open_folder_action = QAction("Open enclosing folder", self)
+        open_folder_action.triggered.connect(
+            lambda: open_enclosing_folder(widget.local_path)
+        )
+
+        self.addAction(open_file_action)
+        self.addAction(open_folder_action)
+
+
 class HistoryListWidget(QListWidget):
     def __init__(self, gateway, deduplicate=True, max_items=30):
         super(HistoryListWidget, self).__init__()
@@ -175,16 +194,7 @@ class HistoryListWidget(QListWidget):
         item = self.itemAt(position)
         if not item:
             return
-        widget = self.itemWidget(item)
-        menu = QMenu(self)
-        open_file_action = QAction("Open file")
-        open_file_action.triggered.connect(lambda: open_path(widget.path))
-        menu.addAction(open_file_action)
-        open_folder_action = QAction("Open enclosing folder")
-        open_folder_action.triggered.connect(
-            lambda: self.on_double_click(item)
-        )
-        menu.addAction(open_folder_action)
+        menu = HistoryItemMenu(item, self)
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_item(self, folder_name, data):
