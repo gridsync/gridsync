@@ -114,6 +114,7 @@ class FilesView(QTableView):
         # font.setPointSize(12)
         self.setShowGrid(False)
         self.setIconSize(QSize(32, 32))
+        self.setWordWrap(False)
 
         vertical_header = self.verticalHeader()
         vertical_header.setSectionResizeMode(QHeaderView.Fixed)
