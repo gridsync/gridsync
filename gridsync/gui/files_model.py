@@ -25,8 +25,8 @@ from gridsync.monitor import MagicFolderChecker
 
 class FilesModel(QStandardItemModel):
 
-    STATUS_COLUMN = 0
-    NAME_COLUMN = 1
+    NAME_COLUMN = 0
+    STATUS_COLUMN = 1
     MTIME_COLUMN = 2
     SIZE_COLUMN = 3
     ACTION_COLUMN = 4
@@ -42,8 +42,8 @@ class FilesModel(QStandardItemModel):
         self.grid_status = ""
         self.available_space = 0
 
-        self.setHeaderData(self.STATUS_COLUMN, Qt.Horizontal, "Status")
         self.setHeaderData(self.NAME_COLUMN, Qt.Horizontal, "Name")
+        self.setHeaderData(self.STATUS_COLUMN, Qt.Horizontal, "Status")
         self.setHeaderData(self.MTIME_COLUMN, Qt.Horizontal, "Last modified")
         self.setHeaderData(self.SIZE_COLUMN, Qt.Horizontal, "Size")
         self.setHeaderData(self.ACTION_COLUMN, Qt.Horizontal, "")
@@ -97,8 +97,8 @@ class FilesModel(QStandardItemModel):
         mtime = QStandardItem()
         size = QStandardItem()
         action = QStandardItem()
-        # self.appendRow([name, status, mtime, size, action])
-        self.appendRow([status, name, mtime, size, action])
+        self.appendRow([name, status, mtime, size, action])
+        # self.appendRow([status, name, mtime, size, action])
         action_bar = QToolBar(self.view)
         # action_bar = QToolBar(action)
         # action_bar = QToolBar(self.view.model().model)
@@ -189,19 +189,23 @@ class FilesModel(QStandardItemModel):
         name_item.setData(location, Qt.UserRole)
         name_item.setToolTip(local_path)
 
+        status_item = QStandardItem()
+
         mtime_item = QStandardItem()
         self._set_mtime(mtime_item, data.get("mtime", 0))
 
         size_item = QStandardItem()
         self._set_size(size_item, data.get("size", 0))
 
+        action_item = QStandardItem()
+
         self.appendRow(
             [
-                QStandardItem(),
                 name_item,
+                status_item,
                 mtime_item,
                 size_item,
-                QStandardItem(),
+                action_item,
             ]
         )
 
