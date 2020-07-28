@@ -99,7 +99,7 @@ class FilesView(QTableView):
         self.setColumnWidth(0, 100)
         self.setColumnWidth(1, 150)
         self.setColumnWidth(2, 115)
-        self.setColumnWidth(3, 80)
+        self.setColumnWidth(3, 90)
         self.setColumnWidth(4, 10)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         # self.setHeaderHidden(True)
