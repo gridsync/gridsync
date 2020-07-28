@@ -172,13 +172,7 @@ class FilesModel(QStandardItemModel):
         action_item = QStandardItem()
 
         self.appendRow(
-            [
-                name_item,
-                status_item,
-                mtime_item,
-                size_item,
-                action_item,
-            ]
+            [name_item, status_item, mtime_item, size_item, action_item]
         )
 
     def remove_folder(self, folder_name):
