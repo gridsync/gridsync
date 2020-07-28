@@ -130,9 +130,11 @@ class GridWidget(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        files_view = FilesView(self.gui, self.gateway)
+        self.files_view = FilesView(self.gui, self.gateway)
 
-        navigation_panel = NavigationPanel(self.gui, self.gateway, files_view)
+        navigation_panel = NavigationPanel(
+            self.gui, self.gateway, self.files_view
+        )
 
         history_list_widget = HistoryListWidget(
             gateway, deduplicate=False, max_items=100000
@@ -145,10 +147,10 @@ class GridWidget(QWidget):
         status_panel = StatusPanel(gateway, self.gui)
 
         layout.addWidget(navigation_panel, 1, 1, 1, 2)
-        layout.addWidget(files_view, 2, 1)
+        layout.addWidget(self.files_view, 2, 1)
         layout.addWidget(history_list_widget, 2, 2)
         layout.addWidget(status_panel, 3, 1, 1, 2)
 
-        files_view.location_updated.connect(
+        self.files_view.location_updated.connect(
             history_list_widget.on_location_updated
         )
