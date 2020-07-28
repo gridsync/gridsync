@@ -82,7 +82,6 @@ class FilesModel(QStandardItemModel):
 
     def add_folder(self, path, status_data=0):
         basename = os.path.basename(os.path.normpath(path))
-        # if self.findItems(basename):
         if self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN):
             logging.warning(
                 "Tried to add a folder (%s) that already exists", basename
@@ -90,39 +89,12 @@ class FilesModel(QStandardItemModel):
             return
         composite_pixmap = CompositePixmap(self.icon_folder.pixmap(256, 256))
         name = QStandardItem(QIcon(composite_pixmap), basename)
-        # name.setData(self.gateway.name + ":", Qt.UserRole)
         name.setData(self.gateway.name, Qt.UserRole)
-        # name.setToolTip(path)
         status = QStandardItem()
         mtime = QStandardItem()
         size = QStandardItem()
         action = QStandardItem()
         self.appendRow([name, status, mtime, size, action])
-        # self.appendRow([status, name, mtime, size, action])
-        action_bar = QToolBar(self.view)
-        # action_bar = QToolBar(action)
-        # action_bar = QToolBar(self.view.model().model)
-        action_bar.setIconSize(QSize(16, 16))
-        if sys.platform == "darwin":
-            # See: https://bugreports.qt.io/browse/QTBUG-12717
-            action_bar.setStyleSheet(
-                "background-color: {0}; border: 0px {0}".format(
-                    self.view.palette().base().color().name()
-                )
-            )
-        action_bar_action = QAction(self.icon_action, "Action...", self)
-        action_bar_action.setStatusTip("Action...")
-        # action_bar_action.triggered.connect(self.view.on_right_click)
-        action_bar.addAction(action_bar_action)
-        print("#################################################3")
-        # print(action_bar)
-        # print(action_bar.show())
-        print(action.index())
-        # print(action_bar.isVisible())
-        print("#################################################3")
-        # self.view.setIndexWidget(action.index(), action_bar)
-        self.view.setIndexWidget(action.index(), QLabel("hi"))
-        # self.view.hide_drop_label()
         self.set_status(basename, status_data)
 
     @staticmethod
