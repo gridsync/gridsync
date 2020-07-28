@@ -381,7 +381,7 @@ class MainWindow(QMainWindow):
         #if view:
         #    view.select_folder()
         self.show_grid_widget()
-        self.central_widget.currentWidget().files_view.select_folder()  # XXX
+        self.central_widget.currentWidget().select_folder()  # XXX
 
     def set_current_grid_status(self):
         current_view = self.current_view()

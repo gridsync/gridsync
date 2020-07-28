@@ -8,7 +8,6 @@ from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (
     QAbstractItemView,
-    QFileDialog,
     QHeaderView,
     QStyledItemDelegate,
     QTableView,
@@ -76,9 +75,7 @@ class FilesView(QTableView):
         super().__init__()
         self.gui = gui
         self.gateway = gateway
-        self.invite_sender_dialogs = []
-        self._rescan_required = False
-        self._restart_required = False
+
         self.location: str = ""
 
         self.source_model = FilesModel(self)
@@ -157,73 +154,3 @@ class FilesView(QTableView):
         location = name_item.data(Qt.UserRole)
         text = name_item.text()
         self.update_location(f"{location}/{text}")
-
-    @inlineCallbacks                                                   
-    def maybe_restart_gateway(self, _):
-        if self._restart_required:
-            self._restart_required = False
-            logging.debug("A restart was scheduled; restarting...")
-            yield self.gateway.restart()
-        else: 
-            logging.debug("No restarts were scheduled; not restarting")
-
-    @inlineCallbacks
-    def add_folder(self, path):
-        path = os.path.realpath(path)
-        self.source_model.add_folder(path)
-        folder_name = os.path.basename(path)
-        try:
-            yield self.gateway.create_magic_folder(path)
-        except Exception as e:  # pylint: disable=broad-except
-            logging.error("%s: %s", type(e).__name__, str(e))
-            error(
-                self,
-                'Error adding folder "{}"'.format(folder_name),
-                'An exception was raised when adding the "{}" folder:\n\n'
-                "{}: {}\n\nPlease try again later.".format(
-                    folder_name, type(e).__name__, str(e)
-                ),
-            )
-            self.source_model.remove_folder(folder_name)
-            return
-        self._restart_required = True
-        logging.debug(
-            'Successfully added folder "%s"; scheduled restart', folder_name
-        )
-
-    def add_folders(self, paths):
-        paths_to_add = []
-        for path in paths:
-            basename = os.path.basename(os.path.normpath(path))
-            if not os.path.isdir(path):
-                error(
-                    self,
-                    'Cannot add "{}".'.format(basename),
-                    "{} only supports uploading and syncing folders,"
-                    " and not individual files.".format(APP_NAME),
-                )
-            elif self.gateway.magic_folder_exists(basename):
-                error(
-                    self,
-                    "Folder already exists",
-                    'You already belong to a folder named "{}" on {}. Please '
-                    "rename it and try again.".format(
-                        basename, self.gateway.name
-                    ),
-                )
-            else:
-                paths_to_add.append(path)
-        if paths_to_add:
-            tasks = []
-            for path in paths_to_add:
-                tasks.append(self.add_folder(path))
-            d = DeferredList(tasks)
-            d.addCallback(self.maybe_restart_gateway)
-
-    def select_folder(self):
-        dialog = QFileDialog(self, "Please select a folder")
-        dialog.setDirectory(os.path.expanduser("~"))
-        dialog.setFileMode(QFileDialog.Directory)
-        dialog.setOption(QFileDialog.ShowDirsOnly)
-        if dialog.exec_():
-            self.add_folders(dialog.selectedFiles())
