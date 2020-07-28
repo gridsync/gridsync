@@ -214,7 +214,6 @@ class FilesView(QTableView):
             else:
                 paths_to_add.append(path)
         if paths_to_add:
-            self.hide_drop_label()
             tasks = []
             for path in paths_to_add:
                 tasks.append(self.add_folder(path))
