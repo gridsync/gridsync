@@ -158,6 +158,15 @@ class FilesView(QTableView):
         text = name_item.text()
         self.update_location(f"{location}/{text}")
 
+    @inlineCallbacks                                                   
+    def maybe_restart_gateway(self, _):
+        if self._restart_required:
+            self._restart_required = False
+            logging.debug("A restart was scheduled; restarting...")
+            yield self.gateway.restart()
+        else: 
+            logging.debug("No restarts were scheduled; not restarting")
+
     @inlineCallbacks
     def add_folder(self, path):
         path = os.path.realpath(path)
