@@ -3,11 +3,10 @@
 from datetime import datetime
 import logging
 import os
-import sys
 import time
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, QSize, Qt
+from PyQt5.QtCore import QFileInfo, Qt
 from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import (
     QColor,
@@ -16,7 +15,7 @@ from PyQt5.QtGui import (
     QStandardItem,
     QStandardItemModel,
 )
-from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar, QLabel
+from PyQt5.QtWidgets import QFileIconProvider
 
 from gridsync import resource, config_dir
 from gridsync.gui.pixmap import CompositePixmap

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import logging
-import os
-
 from PyQt5.QtCore import QPoint, QSize, QSortFilterProxyModel, Qt
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtGui import QMovie
@@ -12,13 +9,11 @@ from PyQt5.QtWidgets import (
     QStyledItemDelegate,
     QTableView,
 )
-from twisted.internet.defer import DeferredList, inlineCallbacks
 
-from gridsync import resource, APP_NAME
+from gridsync import resource
 from gridsync.gui.font import Font
 from gridsync.gui.files_model import FilesModel
 from gridsync.monitor import MagicFolderChecker
-from gridsync.msg import error
 
 
 class StatusItemDelegate(QStyledItemDelegate):
