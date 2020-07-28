@@ -150,16 +150,14 @@ class FilesView(QTableView):
         print("location updated:", location)
 
     def on_double_click(self, index):
-        print("on_double_click", self.location)
-        print(self.proxy_model.filterRegularExpression().pattern())
-        location = self.proxy_model.data(index, Qt.UserRole)
+        source_index = self.proxy_model.mapToSource(index)
+        source_item = self.source_model.itemFromIndex(source_index)
+        row = source_item.row()
+        name_item = self.source_model.item(row, self.source_model.NAME_COLUMN)
         # TODO: Update location if location is a directory, open otherwise
-        text = self.proxy_model.data(index, Qt.DisplayRole)
+        location = name_item.data(Qt.UserRole)
+        text = name_item.text()
         self.update_location(f"{location}/{text}")
-
-        model_index = self.proxy_model.mapToSource(index)
-        item = self.source_model.itemFromIndex(model_index)
-        print("item:", item)
 
     @inlineCallbacks
     def add_folder(self, path):
