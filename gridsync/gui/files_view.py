@@ -22,7 +22,7 @@ from gridsync.monitor import MagicFolderChecker
 from gridsync.msg import error
 
 
-class Delegate(QStyledItemDelegate):
+class StatusItemDelegate(QStyledItemDelegate):
     def __init__(self, view):
         super().__init__(view)
         self.view = view
@@ -46,29 +46,26 @@ class Delegate(QStyledItemDelegate):
             self.sync_movie.setPaused(True)
 
     def paint(self, painter, option, index):
-        column = index.column()
-        # if column == 1:
-        if column == self.view.source_model.STATUS_COLUMN:
-            pixmap = None
-            status = index.data(Qt.UserRole)
-            if status == MagicFolderChecker.LOADING:
-                self.waiting_movie.setPaused(False)
-                pixmap = self.waiting_movie.currentPixmap().scaled(
-                    32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            elif status in (
-                MagicFolderChecker.SYNCING,
-                MagicFolderChecker.SCANNING,
-            ):
-                self.sync_movie.setPaused(False)
-                pixmap = self.sync_movie.currentPixmap().scaled(
-                    32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            if pixmap:
-                point = option.rect.topLeft()
-                painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
-                option.rect = option.rect.translated(pixmap.width(), 0)
-        super(Delegate, self).paint(painter, option, index)
+        pixmap = None
+        status = index.data(Qt.UserRole)
+        if status == MagicFolderChecker.LOADING:
+            self.waiting_movie.setPaused(False)
+            pixmap = self.waiting_movie.currentPixmap().scaled(
+                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        elif status in (
+            MagicFolderChecker.SYNCING,
+            MagicFolderChecker.SCANNING,
+        ):
+            self.sync_movie.setPaused(False)
+            pixmap = self.sync_movie.currentPixmap().scaled(
+                32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        if pixmap:
+            point = option.rect.topLeft()
+            painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
+            option.rect = option.rect.translated(pixmap.width(), 0)
+        super().paint(painter, option, index)
 
 
 class FilesView(QTableView):
@@ -92,7 +89,9 @@ class FilesView(QTableView):
         self.proxy_model.setFilterRole(Qt.UserRole)
 
         self.setModel(self.proxy_model)
-        self.setItemDelegate(Delegate(self))
+        self.setItemDelegateForColumn(
+            self.source_model.STATUS_COLUMN, StatusItemDelegate(self)
+        )
         self.setFont(Font(12))
 
         self.setAcceptDrops(True)
