@@ -71,6 +71,7 @@ class StatusItemDelegate(QStyledItemDelegate):
 class FilesView(QTableView):
 
     location_updated = Signal(str)
+    selection_updated = Signal(list)
 
     def __init__(self, gui, gateway):  # pylint: disable=too-many-statements
         super().__init__()
@@ -105,7 +106,7 @@ class FilesView(QTableView):
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.setFocusPolicy(Qt.NoFocus)
+        # self.setFocusPolicy(Qt.NoFocus)
         # font = QFont()
         # font.setPointSize(12)
         self.setShowGrid(False)
@@ -135,6 +136,11 @@ class FilesView(QTableView):
         self.doubleClicked.connect(self.on_double_click)
         # self.customContextMenuRequested.connect(self.on_right_click)
 
+        self.selection_model = self.selectionModel()
+        self.selection_model.selectionChanged.connect(
+            self.on_selection_changed
+        )
+
         self.update_location(self.gateway.name)  # start in "root" directory
 
         self.source_model.populate()
@@ -156,12 +162,29 @@ class FilesView(QTableView):
         )
         print("search filter updated:", text)
 
-    def on_double_click(self, index):
+    def _get_name_item_from_index(self, index):
         source_index = self.proxy_model.mapToSource(index)
         source_item = self.source_model.itemFromIndex(source_index)
         row = source_item.row()
-        name_item = self.source_model.item(row, self.source_model.NAME_COLUMN)
+        return self.source_model.item(row, self.source_model.NAME_COLUMN)
+
+    def on_double_click(self, index):
+        try:
+            name_item = self._get_name_item_from_index(index)
+        except AttributeError:
+            return
         # TODO: Update location if location is a directory, open otherwise
         location = name_item.data(Qt.UserRole)
         text = name_item.text()
         self.update_location(f"{location}/{text}")
+
+    def get_selected(self) -> list:
+        selected = []
+        for index in self.selection_model.selectedRows():
+            item = self._get_name_item_from_index(index)
+            if item:
+                selected.append(item)
+        return selected
+
+    def on_selection_changed(self, _, __):
+        self.selection_updated.emit(self.get_selected())
