@@ -145,7 +145,7 @@ class FilesView(QTableView):
             self.update_location(self.location)
             return
         self.proxy_model.setFilterRole(Qt.DisplayRole)
-        self.proxy_model.setFilterRegularExpression(f"{text}")
+        self.proxy_model.setFilterRegularExpression(text)
         print("search filter updated:", text)
 
     def on_double_click(self, index):
