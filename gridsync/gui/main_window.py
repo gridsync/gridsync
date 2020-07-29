@@ -564,13 +564,16 @@ class MainWindow(QMainWindow):
             if selected:
                 view.confirm_stop_syncing(view.get_selected_folders())
         if key == Qt.Key_Escape:
-            view = self.current_view()
+            # view = self.current_view()
+            self.show_grid_widget()
+            view = self.central_widget.currentWidget().files_view  # XXX
             selected = view.selectedIndexes() if view else None
             if selected:
                 for index in selected:
                     view.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
+                view.update_location(view.location)  # XXX
             elif self.gui.systray.isSystemTrayAvailable():
                 self.hide()
 
