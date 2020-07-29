@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import QPoint, QSize, QSortFilterProxyModel, Qt
+from PyQt5.QtCore import (
+    QPoint,
+    QSize,
+    QRegularExpression,
+    QSortFilterProxyModel,
+    Qt,
+)
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (
@@ -145,7 +151,9 @@ class FilesView(QTableView):
             self.update_location(self.location)
             return
         self.proxy_model.setFilterRole(Qt.DisplayRole)
-        self.proxy_model.setFilterRegularExpression(text)
+        self.proxy_model.setFilterRegularExpression(
+            QRegularExpression(text, QRegularExpression.CaseInsensitiveOption)
+        )
         print("search filter updated:", text)
 
     def on_double_click(self, index):
