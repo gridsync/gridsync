@@ -158,7 +158,10 @@ class GridWidget(QWidget):
         layout.addWidget(status_panel, 3, 1, 1, 2)
 
         self.files_view.location_updated.connect(
-            history_list_widget.on_location_updated
+            history_list_widget.filter_by_location
+        )
+        self.files_view.selection_updated.connect(
+            history_list_widget.filter_by_remote_paths
         )
 
     @inlineCallbacks

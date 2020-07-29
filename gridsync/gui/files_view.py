@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from PyQt5.QtCore import (
     QPoint,
     QSize,
@@ -183,7 +185,11 @@ class FilesView(QTableView):
         for index in self.selection_model.selectedRows():
             item = self._get_name_item_from_index(index)
             if item:
-                selected.append(item)
+                selected.append(
+                    os.path.join(
+                        item.data(Qt.UserRole), item.data(Qt.DisplayRole)
+                    )
+                )
         return selected
 
     def on_selection_changed(self, _, __):

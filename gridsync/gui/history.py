@@ -232,8 +232,21 @@ class HistoryListWidget(QListWidget):
             else:
                 item.setHidden(True)
 
-    def on_location_updated(self, location: str) -> None:
-        self.filter_by_location(location)
+    def filter_by_remote_paths(self, remote_paths: list) -> None:  # XXX
+        items_to_show = []
+        for i in range(self.count()):
+            item = self.item(i)
+            widget = self.itemWidget(item)
+            widget_remote_path = os.path.join(widget.location, widget.basename)
+            for path in remote_paths:
+                if widget_remote_path.startswith(path):
+                    items_to_show.append(item)
+        for i in range(self.count()):
+            item = self.item(i)
+            if item in items_to_show:
+                item.setHidden(False)
+            else:
+                item.setHidden(True)
 
     def update_visible_widgets(self):
         if not self.isVisible():
