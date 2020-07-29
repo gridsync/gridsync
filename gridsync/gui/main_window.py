@@ -202,6 +202,7 @@ class MainWindow(QMainWindow):
                 "QToolButton::menu-indicator { image: none }"
             )
             invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+            invites_button.hide()  # XXX
 
         elif invites_enabled:
             invite_action = QAction(
@@ -210,6 +211,7 @@ class MainWindow(QMainWindow):
             invite_action.setToolTip("Enter an Invite Code...")
             invite_action.setFont(font)
             invite_action.triggered.connect(self.open_invite_receiver)
+            invite_action.hide()  # XXX
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
@@ -231,6 +233,7 @@ class MainWindow(QMainWindow):
         self.history_button.setDefaultAction(history_action)
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.history_button.hide()  # XXX
 
         recovery_action = QAction(QIcon(resource("key.png")), "Recovery", self)
         recovery_action.setToolTip("Import or Export a Recovery Key")
