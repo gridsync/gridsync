@@ -119,7 +119,7 @@ class NavigationPanel(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 0, 2)
         layout.addWidget(self.search_box, 1, 3)
 
-        self.search_box.textChanged.connect(files_view.update_location)
+        self.search_box.textChanged.connect(files_view.update_search_filter)
         files_view.location_updated.connect(
             self.location_box.on_location_updated
         )

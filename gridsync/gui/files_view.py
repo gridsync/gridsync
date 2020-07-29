@@ -78,7 +78,6 @@ class FilesView(QTableView):
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.source_model)
         self.proxy_model.setFilterKeyColumn(self.source_model.NAME_COLUMN)
-        self.proxy_model.setFilterRole(Qt.UserRole)
 
         self.setModel(self.proxy_model)
         self.setItemDelegateForColumn(
@@ -135,10 +134,19 @@ class FilesView(QTableView):
         self.source_model.populate()
 
     def update_location(self, location: str) -> None:
+        self.proxy_model.setFilterRole(Qt.UserRole)
         self.proxy_model.setFilterRegularExpression(f"^{location}$")
         self.location = location
         self.location_updated.emit(location)
         print("location updated:", location)
+
+    def update_search_filter(self, text: str) -> None:
+        if not text:
+            self.update_location(self.location)
+            return
+        self.proxy_model.setFilterRole(Qt.DisplayRole)
+        self.proxy_model.setFilterRegularExpression(f"{text}")
+        print("search filter updated:", text)
 
     def on_double_click(self, index):
         source_index = self.proxy_model.mapToSource(index)
