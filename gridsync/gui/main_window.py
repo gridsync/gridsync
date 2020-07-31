@@ -579,6 +579,15 @@ class MainWindow(QMainWindow):
                 view.update_location(view.location)  # XXX
             elif self.gui.systray.isSystemTrayAvailable():
                 self.hide()
+        if key in (Qt.Key_Enter, Qt.Key_Return):
+            self.show_grid_widget()
+            view = self.central_widget.currentWidget().files_view  # XXX
+            current = view.currentIndex() if view else None
+            if current:
+                item = view._get_name_item_from_index(current)  # XXX
+                location = item.data(Qt.UserRole)
+                text = item.text()
+                view.update_location(f"{location}/{text}")
 
     def closeEvent(self, event):
         if self.gui.systray.isSystemTrayAvailable():
