@@ -17,7 +17,7 @@ requirements = [
     "hyperlink",
     "magic-wormhole",
     "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
-    "PyQt5",
+    "PyQt5 >= 5.12",  # 5.12 adds QRegularExpression to QSortFilterProxyModel
     "pyyaml",
     "qt5reactor",
     "treq",
