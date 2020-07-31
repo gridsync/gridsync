@@ -12,7 +12,6 @@ from PyQt5.QtCore import (
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import (
-    QAbstractItemView,
     QHeaderView,
     QStyledItemDelegate,
     QTableView,
@@ -105,9 +104,9 @@ class FilesView(QTableView):
         # self.setHeaderHidden(True)
         # self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
-        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setEditTriggers(QTableView.NoEditTriggers)
         self.setSelectionBehavior(QTableView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.setSelectionMode(QTableView.ExtendedSelection)
         # self.setFocusPolicy(Qt.NoFocus)
         # font = QFont()
         # font.setPointSize(12)
