@@ -588,6 +588,25 @@ class MainWindow(QMainWindow):
                 location = item.data(Qt.UserRole)
                 text = item.text()
                 view.update_location(f"{location}/{text}")
+        if key == Qt.Key_Up:
+            if sys.platform == "darwin":
+                # From https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
+                # "On macOS, the ControlModifier value corresponds to the
+                # Command keys on the keyboard, and the MetaModifier value
+                # corresponds to the Control keys."
+                modifier = Qt.ControlModifier
+            else:
+                modifier = Qt.AltModifier
+            if event.modifiers() == modifier:
+                self.show_grid_widget()
+                view = self.central_widget.currentWidget().files_view  # XXX
+                current = view.currentIndex() if view else None
+                if current:
+                    item = view._get_name_item_from_index(current)  # XXX
+                    current_location = item.data(Qt.UserRole)
+                    dirname = os.path.dirname(current_location)
+                    if dirname:
+                        view.update_location(dirname)
 
     def closeEvent(self, event):
         if self.gui.systray.isSystemTrayAvailable():

@@ -193,3 +193,7 @@ class FilesView(QTableView):
 
     def on_selection_changed(self, _, __):
         self.selection_updated.emit(self.get_selected())
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        event.ignore()
