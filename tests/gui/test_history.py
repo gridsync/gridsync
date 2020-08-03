@@ -108,7 +108,7 @@ def test_history_list_widget_on_right_click(hlw, monkeypatch):
         "gridsync.gui.history.HistoryListWidget.viewport", MagicMock()
     )
     m = MagicMock()
-    monkeypatch.setattr("gridsync.gui.history.HistoryItemMenu", m)
+    monkeypatch.setattr("gridsync.gui.history.QMenu", m)
     hlw.on_right_click(None)
     assert m.mock_calls
 
