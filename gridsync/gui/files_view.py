@@ -3,6 +3,7 @@
 import os
 
 from PyQt5.QtCore import (
+    QModelIndex,
     QPoint,
     QSize,
     QRegularExpression,
@@ -10,17 +11,45 @@ from PyQt5.QtCore import (
     Qt,
 )
 from PyQt5.QtCore import pyqtSignal as Signal
-from PyQt5.QtGui import QMovie
+from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import (
     QHeaderView,
     QStyledItemDelegate,
     QTableView,
+    QToolButton,
 )
 
 from gridsync import resource
 from gridsync.gui.font import Font
 from gridsync.gui.files_model import FilesModel
 from gridsync.monitor import MagicFolderChecker
+
+
+class ActionItemDelegate(QStyledItemDelegate):
+
+    button_clicked = Signal(QModelIndex)
+
+    def __init__(self, view):
+        super().__init__(view)
+        self.view = view
+        self._button_icon = QIcon(resource("dots-horizontal-triple.png"))
+
+    def createEditor(self, parent, option, index):
+        button = QToolButton(parent)
+        button.setIcon(self._button_icon)
+        button.setIconSize(QSize(20, 20))
+        button.setToolTip("Action...")
+        row = index.row()
+        if (row % 2) == 0:
+            bg = parent.palette().base().color().name()
+        else:
+            bg = parent.palette().alternateBase().color().name()
+        button.setStyleSheet(f"background-color: {bg}; border: 0px {bg}")
+        button.clicked.connect(lambda: self.button_clicked.emit(index))
+        return button
+
+    def paint(self, painter, option, index):
+        self.view.openPersistentEditor(index)
 
 
 class StatusItemDelegate(QStyledItemDelegate):
@@ -91,6 +120,10 @@ class FilesView(QTableView):
         self.setItemDelegateForColumn(
             self.source_model.STATUS_COLUMN, StatusItemDelegate(self)
         )
+        self.action_item_delegate = ActionItemDelegate(self)
+        self.setItemDelegateForColumn(
+            self.source_model.ACTION_COLUMN, self.action_item_delegate
+        )
         self.setFont(Font(12))
 
         self.setAcceptDrops(True)
@@ -141,6 +174,9 @@ class FilesView(QTableView):
         self.selection_model.selectionChanged.connect(
             self.on_selection_changed
         )
+        self.action_item_delegate.button_clicked.connect(
+            self.on_action_button_clicked
+        )
 
         self.update_location(self.gateway.name)  # start in "root" directory
 
@@ -168,6 +204,9 @@ class FilesView(QTableView):
         source_item = self.source_model.itemFromIndex(source_index)
         row = source_item.row()
         return self.source_model.item(row, self.source_model.NAME_COLUMN)
+
+    def on_action_button_clicked(self, index: QModelIndex) -> None:
+        print(index, index.row())  # XXX
 
     def on_double_click(self, index):
         try:
