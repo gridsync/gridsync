@@ -20,8 +20,8 @@ from PyQt5.QtWidgets import (
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
+from gridsync.gui.activity import ActivityListWidget
 from gridsync.gui.files_view import FilesView
-from gridsync.gui.history import HistoryListWidget
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.status import StatusPanel
 from gridsync.msg import error
@@ -142,11 +142,11 @@ class GridWidget(QWidget):
             self.gui, self.gateway, self.files_view
         )
 
-        history_list_widget = HistoryListWidget(
+        activity_list_widget = ActivityListWidget(
             gateway, deduplicate=False, max_items=100000
         )
-        history_list_widget.setMaximumWidth(550)
-        history_list_widget.setSizePolicy(
+        activity_list_widget.setMaximumWidth(550)
+        activity_list_widget.setSizePolicy(
             QSizePolicy.Maximum, QSizePolicy.Minimum
         )
 
@@ -154,14 +154,14 @@ class GridWidget(QWidget):
 
         layout.addWidget(navigation_panel, 1, 1, 1, 2)
         layout.addWidget(self.files_view, 2, 1)
-        layout.addWidget(history_list_widget, 2, 2)
+        layout.addWidget(activity_list_widget, 2, 2)
         layout.addWidget(status_panel, 3, 1, 1, 2)
 
         self.files_view.location_updated.connect(
-            history_list_widget.filter_by_location
+            activity_list_widget.filter_by_location
         )
         self.files_view.selection_updated.connect(
-            history_list_widget.filter_by_remote_paths
+            activity_list_widget.filter_by_remote_paths
         )
 
     @inlineCallbacks
