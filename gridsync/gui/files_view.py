@@ -41,7 +41,6 @@ class ActionItemDelegate(QStyledItemDelegate):
         button.setIcon(self._button_icon)
         button.setIconSize(QSize(20, 20))
         button.setToolTip("Action...")
-        button.setStyleSheet("QToolButton { border: 0px }")
         button.clicked.connect(lambda: self.button_clicked.emit(index))
         return button
 
@@ -114,6 +113,7 @@ class FilesView(QTableView):
         self.proxy_model.setFilterKeyColumn(self.source_model.NAME_COLUMN)
 
         self.setModel(self.proxy_model)
+
         self.setItemDelegateForColumn(
             self.source_model.STATUS_COLUMN, StatusItemDelegate(self)
         )
@@ -121,10 +121,13 @@ class FilesView(QTableView):
         self.setItemDelegateForColumn(
             self.source_model.ACTION_COLUMN, self.action_item_delegate
         )
-        self.setFont(Font(12))
-
-        self.setAcceptDrops(True)
+        # For QToolButtons painted by ActionItemDelegate. A border of
+        # 0px renders the button transparent, matching the "background"
+        # of the button to the (alternating) color of the row.
+        self.setStyleSheet("QToolButton { border: 0px }")
         self.setAlternatingRowColors(True)
+        self.setFont(Font(12))
+        self.setAcceptDrops(True)
         self.setColumnWidth(0, 100)
         self.setColumnWidth(1, 150)
         self.setColumnWidth(2, 115)
