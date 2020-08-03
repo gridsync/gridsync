@@ -101,7 +101,7 @@ class View(QTreeView):
         self.setColumnWidth(4, 10)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setHeaderHidden(True)
-        self.setRootIsDecorated(False)
+        # self.setRootIsDecorated(False)
         self.setSortingEnabled(True)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)

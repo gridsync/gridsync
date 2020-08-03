@@ -26,6 +26,7 @@ from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
+from gridsync.gui.status import StatusPanel
 
 
 class HistoryItemWidget(QWidget):
@@ -41,26 +42,22 @@ class HistoryItemWidget(QWidget):
         self.mtime = data["mtime"]
         self._thumbnail_loaded = False
 
-        dirname, self.basename = os.path.split(self.path)
-        if dirname:
-            self.location = f"{self.gateway.name}/{folder_name}/{dirname}"
-        else:
-            self.location = f"{self.gateway.name}/{folder_name}"
-
-        self.local_path = os.path.join(
-            self.gateway.get_magic_folder_directory(folder_name), self.path
-        )
-
         self.setAutoFillBackground(True)
+
+        directory = self.gateway.get_magic_folder_directory(folder_name)
+        if directory:
+            self.path = os.path.join(directory, self.path)
+        self.basename = os.path.basename(os.path.normpath(self.path))
+
         self.setToolTip(
             "{}\n\nSize: {}\nModified: {}".format(
-                self.local_path, naturalsize(self.size), time.ctime(self.mtime)
+                self.path, naturalsize(self.size), time.ctime(self.mtime)
             )
         )
 
         self.icon = QLabel()
         self.icon.setPixmap(
-            QFileIconProvider().icon(QFileInfo(self.local_path)).pixmap(48, 48)
+            QFileIconProvider().icon(QFileInfo(self.path)).pixmap(48, 48)
         )
 
         self.basename_label = QLabel(self.basename)
@@ -99,7 +96,7 @@ class HistoryItemWidget(QWidget):
         )
 
     def _do_load_thumbnail(self):
-        pixmap = QPixmap(self.local_path)
+        pixmap = QPixmap(self.path)
         if not pixmap.isNull():
             self.icon.setPixmap(
                 pixmap.scaled(
@@ -129,25 +126,6 @@ class HistoryItemWidget(QWidget):
             except RuntimeError:  # Object has been deleted
                 pass
         self.parent.highlighted = self
-
-
-class HistoryItemMenu(QMenu):
-    def __init__(self, item, parent):
-        super().__init__(parent)
-        print(item)
-        widget = parent.itemWidget(item)
-
-        open_file_action = QAction("Open file", self)
-        open_file_action.triggered.connect(
-            lambda: open_path(widget.local_path)
-        )
-        open_folder_action = QAction("Open enclosing folder", self)
-        open_folder_action.triggered.connect(
-            lambda: open_enclosing_folder(widget.local_path)
-        )
-
-        self.addAction(open_file_action)
-        self.addAction(open_folder_action)
 
 
 class HistoryListWidget(QListWidget):
@@ -194,20 +172,26 @@ class HistoryListWidget(QListWidget):
         item = self.itemAt(position)
         if not item:
             return
-        menu = HistoryItemMenu(item, self)
+        widget = self.itemWidget(item)
+        menu = QMenu(self)
+        open_file_action = QAction("Open file")
+        open_file_action.triggered.connect(lambda: open_path(widget.path))
+        menu.addAction(open_file_action)
+        open_folder_action = QAction("Open enclosing folder")
+        open_folder_action.triggered.connect(
+            lambda: self.on_double_click(item)
+        )
+        menu.addAction(open_folder_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
     def add_item(self, folder_name, data):
-        path = data.get("path")
-        if path.endswith(os.path.sep):
-            return
         duplicate = None
         if self.deduplicate:
             for i in range(self.count()):
                 widget = self.itemWidget(self.item(i))
                 if (
                     widget
-                    and widget.data["path"] == path
+                    and widget.data["path"] == data["path"]
                     and widget.data["member"] == data["member"]
                 ):
                     duplicate = i
@@ -223,30 +207,6 @@ class HistoryListWidget(QListWidget):
         )
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
-
-    def filter_by_location(self, location: str) -> None:
-        for i in range(self.count()):
-            item = self.item(i)
-            if self.itemWidget(item).location.startswith(location):
-                item.setHidden(False)
-            else:
-                item.setHidden(True)
-
-    def filter_by_remote_paths(self, remote_paths: list) -> None:  # XXX
-        items_to_show = []
-        for i in range(self.count()):
-            item = self.item(i)
-            widget = self.itemWidget(item)
-            widget_remote_path = os.path.join(widget.location, widget.basename)
-            for path in remote_paths:
-                if widget_remote_path.startswith(path):
-                    items_to_show.append(item)
-        for i in range(self.count()):
-            item = self.item(i)
-            if item in items_to_show:
-                item.setHidden(False)
-            else:
-                item.setHidden(True)
 
     def update_visible_widgets(self):
         if not self.isVisible():
@@ -268,8 +228,9 @@ class HistoryListWidget(QListWidget):
 
 
 class HistoryView(QWidget):
-    def __init__(self, gateway, deduplicate=True, max_items=30):
+    def __init__(self, gateway, gui, deduplicate=True, max_items=30):
         super(HistoryView, self).__init__()
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(HistoryListWidget(gateway, deduplicate, max_items))
+        layout.addWidget(StatusPanel(gateway, gui))
