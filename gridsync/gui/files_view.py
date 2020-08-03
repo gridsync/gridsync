@@ -41,14 +41,7 @@ class ActionItemDelegate(QStyledItemDelegate):
         button.setIcon(self._button_icon)
         button.setIconSize(QSize(20, 20))
         button.setToolTip("Action...")
-        row = index.row()
-        if (row % 2) == 0:
-            bg = parent.palette().base().color().name()
-        else:
-            bg = parent.palette().alternateBase().color().name()
-        button.setStyleSheet(
-            f"QToolButton {{ background-color: {bg}; border: 0px {bg} }}"
-        )
+        button.setStyleSheet("QToolButton { border: 0px }")
         button.clicked.connect(lambda: self.button_clicked.emit(index))
         return button
 
@@ -210,7 +203,7 @@ class FilesView(QTableView):
         return self.source_model.item(row, self.source_model.NAME_COLUMN)
 
     def on_action_button_clicked(self, index: QModelIndex) -> None:
-        print(index, index.row())  # XXX
+        print(self, index, index.row())  # XXX
 
     def on_double_click(self, index):
         try:
