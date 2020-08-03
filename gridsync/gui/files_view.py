@@ -34,7 +34,9 @@ class ActionItemDelegate(QStyledItemDelegate):
         self.view = view
         self._button_icon = QIcon(resource("dots-horizontal-triple.png"))
 
-    def createEditor(self, parent, option, index):
+    def createEditor(
+        self, parent, option, index
+    ):  # pylint: disable=unused-argument
         button = QToolButton(parent)
         button.setIcon(self._button_icon)
         button.setIconSize(QSize(20, 20))
@@ -50,7 +52,7 @@ class ActionItemDelegate(QStyledItemDelegate):
         button.clicked.connect(lambda: self.button_clicked.emit(index))
         return button
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index):  # pylint: disable=unused-argument
         self.view.openPersistentEditor(index)
 
 
