@@ -44,7 +44,9 @@ class ActionItemDelegate(QStyledItemDelegate):
             bg = parent.palette().base().color().name()
         else:
             bg = parent.palette().alternateBase().color().name()
-        button.setStyleSheet(f"background-color: {bg}; border: 0px {bg}")
+        button.setStyleSheet(
+            f"QToolButton {{ background-color: {bg}; border: 0px {bg} }}"
+        )
         button.clicked.connect(lambda: self.button_clicked.emit(index))
         return button
 
