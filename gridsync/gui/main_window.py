@@ -559,7 +559,7 @@ class MainWindow(QMainWindow):
                 self.gui.systray.hide()
             reactor.stop()
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event):  # noqa: max-complexity=14 XXX
         key = event.key()
         if key in (Qt.Key_Backspace, Qt.Key_Delete):
             view = self.current_view()
