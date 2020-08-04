@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
-from gridsync.gui.activity import ActivityListWidget
+from gridsync.gui.activity import ActivityView
 from gridsync.gui.files_view import FilesView
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.status import StatusPanel
@@ -142,26 +142,32 @@ class GridWidget(QWidget):
             self.gui, self.gateway, self.files_view
         )
 
-        activity_list_widget = ActivityListWidget(
-            gateway, deduplicate=False, max_items=100000
-        )
-        activity_list_widget.setMaximumWidth(550)
-        activity_list_widget.setSizePolicy(
-            QSizePolicy.Maximum, QSizePolicy.Minimum
-        )
+        # activity_list_widget = ActivityListWidget(
+        #    gateway, deduplicate=False, max_items=100000
+        # )
+        # activity_list_widget.setMaximumWidth(550)
+        # activity_list_widget.setSizePolicy(
+        #    QSizePolicy.Maximum, QSizePolicy.Minimum
+        # )
+        activity_view = ActivityView(self.gateway)
+        activity_view.setMaximumWidth(250)
+        #activity_view.setMinimumWidth(50)
 
         status_panel = StatusPanel(gateway, self.gui)
 
         layout.addWidget(navigation_panel, 1, 1, 1, 2)
         layout.addWidget(self.files_view, 2, 1)
-        layout.addWidget(activity_list_widget, 2, 2)
+        # layout.addWidget(activity_list_widget, 2, 2)
+        layout.addWidget(activity_view, 2, 2)
         layout.addWidget(status_panel, 3, 1, 1, 2)
 
         self.files_view.location_updated.connect(
-            activity_list_widget.filter_by_location
+            # activity_list_widget.filter_by_location
+            activity_view.filter_by_location
         )
         self.files_view.selection_updated.connect(
-            activity_list_widget.filter_by_remote_paths
+            # activity_list_widget.filter_by_remote_paths
+            activity_view.filter_by_remote_paths
         )
 
     @inlineCallbacks

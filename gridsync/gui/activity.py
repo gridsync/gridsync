@@ -5,20 +5,38 @@ import os
 import time
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, QTimer, Qt
-from PyQt5.QtGui import QCursor, QIcon, QPixmap
+from PyQt5.QtCore import (
+    QFileInfo,
+    QModelIndex,
+    QSize,
+    QSortFilterProxyModel,
+    QTimer,
+    Qt,
+)
+from PyQt5.QtCore import pyqtSignal as Signal
+from PyQt5.QtGui import (
+    QCursor,
+    QIcon,
+    QPixmap,
+    QStandardItem,
+    QStandardItemModel,
+)
 from PyQt5.QtWidgets import (
     QAction,
     QAbstractItemView,
     QFileIconProvider,
     QGridLayout,
     QLabel,
+    QListView,
     QListWidgetItem,
     QListWidget,
     QMenu,
     QPushButton,
     QSizePolicy,
     QSpacerItem,
+    QStyledItemDelegate,
+    QTableView,
+    QToolButton,
     QWidget,
 )
 
@@ -26,6 +44,11 @@ from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
+
+
+DATA_ROLE = Qt.UserRole
+LOCATION_ROLE = Qt.UserRole + 1
+MTIME_ROLE = Qt.UserRole + 2
 
 
 class ActivityItemWidget(QWidget):
@@ -273,3 +296,153 @@ class ActivityView(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(ActivityListWidget(gateway, deduplicate, max_items))
+
+
+class ActivityWidget(QWidget):
+    def __init__(self, index, view, parent):
+        super().__init__(parent)
+        self.index = index
+        self.view = view
+
+        source_index = view.proxy_model.mapToSource(index)
+        source_item = view.source_model.itemFromIndex(source_index)
+        self.item = source_item
+
+        self.icon = QLabel()
+        self.icon.setPixmap(
+            QFileIconProvider().icon(QFileInfo("/home/user/1")).pixmap(48, 48)
+        )
+
+        self.basename_label = QLabel(self.item.text())
+        self.basename_label.setFont(Font(11))
+
+        self.details_label = QLabel("details")
+        self.details_label.setFont(Font(10))
+
+        self._palette = self.palette()
+        dimmer_grey = BlendedColor(
+            self._palette.text().color(), self._palette.base().color(), 0.6
+        ).name()
+        self.details_label.setStyleSheet(f"color: {dimmer_grey}")
+
+        self.button = QPushButton()
+        self.button.setIcon(QIcon(resource("dots-horizontal-triple.png")))
+        self.button.setStyleSheet("border: none;")
+        # self.button.clicked.connect(self.parent.on_right_click)
+        # self.button.hide()
+
+        self.setAutoFillBackground(True)
+
+        layout = QGridLayout(self)
+        layout.addWidget(self.icon, 1, 1, 2, 2)
+        layout.addWidget(self.basename_label, 1, 3)
+        layout.addWidget(self.details_label, 2, 3)
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 4, 4)
+        layout.addWidget(self.button, 1, 5, 2, 2)
+
+        self.leaveEvent(None)
+
+    def enterEvent(self, _):
+        self._palette.setColor(
+            self.backgroundRole(), self.view.highlight_color
+        )
+        self.setPalette(self._palette)
+        self.button.show()
+        print(self.item.text())
+
+    def leaveEvent(self, _):
+        self._palette.setColor(self.backgroundRole(), self.view.base_color)
+        self.setPalette(self._palette)
+        self.button.hide()
+
+
+class ActivityDelegate(QStyledItemDelegate):
+
+    button_clicked = Signal(QModelIndex)
+
+    def __init__(self, view):
+        super().__init__(view)
+        self.view = view
+        self._button_icon = QIcon(resource("dots-horizontal-triple.png"))
+
+    def createEditor(
+        self, parent, option, index
+    ):  # pylint: disable=unused-argument
+        # w = ActivityWidget(parent)
+        w = ActivityWidget(index, self.view, parent)
+        print(w)
+        return w
+
+    def paint(self, painter, option, index):  # pylint: disable=unused-argument
+        self.view.openPersistentEditor(index)
+
+
+class ActivityModel(QStandardItemModel):
+    def __init__(self, gateway, parent=None):
+        super().__init__(parent)
+        self.gateway = gateway
+        self.gateway.monitor.file_updated.connect(self.on_file_updated)
+
+    def add_item(self, folder_name, data):
+        dirname, basename = os.path.split(data.get("path", ""))
+        if dirname:
+            location = f"{self.gateway.name}/{folder_name}/{dirname}"
+        else:
+            location = f"{self.gateway.name}/{folder_name}"
+        item = QStandardItem(basename)
+        item.setData(data, DATA_ROLE)
+        item.setData(location, LOCATION_ROLE)
+        item.setData(str(data.get("mtime", 0)), MTIME_ROLE)
+        self.insertRow(0, [item])
+
+    def on_file_updated(self, folder_name, data):
+        print(folder_name, data)
+        self.add_item(folder_name, data)
+
+
+# class ActivityView(QListView):
+class ActivityView(QTableView):
+    def __init__(self, gateway, parent=None):
+        super().__init__(parent)
+        self.gateway = gateway
+
+        _palette = self.palette()
+        self.base_color = _palette.base().color()
+        self.highlight_color = BlendedColor(
+            self.base_color, _palette.highlight().color(), 0.88
+        )  # Was #E6F1F7
+
+        self.setShowGrid(False)
+
+        horizontal_header = self.horizontalHeader()
+        horizontal_header.setStretchLastSection(True)
+        horizontal_header.hide()
+
+        vertical_header = self.verticalHeader()
+        vertical_header.setDefaultSectionSize(64)
+        vertical_header.hide()
+
+        self.source_model = ActivityModel(gateway, self)
+
+        self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.source_model)
+        self.proxy_model.setFilterKeyColumn(0)
+        self.proxy_model.setFilterRole(LOCATION_ROLE)
+        self.proxy_model.setSortRole(MTIME_ROLE)
+        self.proxy_model.sort(0, Qt.DescendingOrder)  # Latest changes on top
+
+        self.setModel(self.proxy_model)
+
+        # self.proxy_model.setFilterRegularExpression("t")
+
+        self.setItemDelegate(ActivityDelegate(self))
+
+        # self.source_model.add_item("one")
+        # self.source_model.add_item("two")
+        # self.source_model.add_item("three")
+
+    def filter_by_location(self):
+        pass
+
+    def filter_by_remote_paths(self):
+        pass
