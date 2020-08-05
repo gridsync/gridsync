@@ -14,6 +14,7 @@ from PyQt5.QtCore import (
     Qt,
 )
 from PyQt5.QtCore import pyqtSignal as Signal
+from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import (
     QCursor,
     QIcon,
@@ -173,7 +174,8 @@ class ActivityItemMenu(QMenu):
         self.addAction(open_folder_action)
 
 
-class ActivityListWidget(QListWidget):
+# class ActivityListWidget(QListWidget):
+class ActivityView(QListWidget):
     def __init__(self, gateway, deduplicate=True, max_items=30):
         super().__init__()
         self.gateway = gateway
@@ -290,23 +292,13 @@ class ActivityListWidget(QListWidget):
         self.update_visible_widgets()
 
 
-class ActivityView(QWidget):
-    def __init__(self, gateway, deduplicate=True, max_items=30):
-        super().__init__()
-        layout = QGridLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(ActivityListWidget(gateway, deduplicate, max_items))
-
-
 class ActivityWidget(QWidget):
     def __init__(self, index, view, parent):
         super().__init__(parent)
         self.index = index
         self.view = view
 
-        source_index = view.proxy_model.mapToSource(index)
-        source_item = view.source_model.itemFromIndex(source_index)
-        self.item = source_item
+        self.item = self.view.source_item(index)
 
         self.icon = QLabel()
         self.icon.setPixmap(
@@ -368,20 +360,23 @@ class ActivityDelegate(QStyledItemDelegate):
     def createEditor(
         self, parent, option, index
     ):  # pylint: disable=unused-argument
-        # w = ActivityWidget(parent)
-        w = ActivityWidget(index, self.view, parent)
-        print(w)
-        return w
+        widget = ActivityWidget(index, self.view, parent)
+        widget.button.clicked.connect(lambda: self.button_clicked.emit(index))
+        return widget
 
     def paint(self, painter, option, index):  # pylint: disable=unused-argument
         self.view.openPersistentEditor(index)
 
 
 class ActivityModel(QStandardItemModel):
+
+    item_added = Signal(QStandardItem)
+
     def __init__(self, gateway, parent=None):
         super().__init__(parent)
         self.gateway = gateway
         self.gateway.monitor.file_updated.connect(self.on_file_updated)
+        # self.parent = parent
 
     def add_item(self, folder_name, data):
         dirname, basename = os.path.split(data.get("path", ""))
@@ -389,19 +384,24 @@ class ActivityModel(QStandardItemModel):
             location = f"{self.gateway.name}/{folder_name}/{dirname}"
         else:
             location = f"{self.gateway.name}/{folder_name}"
+
         item = QStandardItem(basename)
         item.setData(data, DATA_ROLE)
         item.setData(location, LOCATION_ROLE)
         item.setData(str(data.get("mtime", 0)), MTIME_ROLE)
-        self.insertRow(0, [item])
+        # self.insertRow(0, [item])
+        self.appendRow([item])
+        self.item_added.emit(item)
+        # w = ActivityWidget(item.index(), self.parent, self)
+        # w = QLabel('test')
+        # self.parent.setIndexWidget(item.index(), w)
 
     def on_file_updated(self, folder_name, data):
-        print(folder_name, data)
         self.add_item(folder_name, data)
 
 
 # class ActivityView(QListView):
-class ActivityView(QTableView):
+class ActivityView_(QTableView):
     def __init__(self, gateway, parent=None):
         super().__init__(parent)
         self.gateway = gateway
@@ -437,9 +437,9 @@ class ActivityView(QTableView):
 
         self.setItemDelegate(ActivityDelegate(self))
 
-        # self.source_model.add_item("one")
-        # self.source_model.add_item("two")
-        # self.source_model.add_item("three")
+    def source_item(self, proxy_model_index: QModelIndex) -> QStandardItem:
+        source_index = self.proxy_model.mapToSource(proxy_model_index)
+        return self.source_model.itemFromIndex(source_index)
 
     def filter_by_location(self):
         pass
