@@ -30,12 +30,9 @@ class FilesModel(QStandardItemModel):
     SIZE_COLUMN = 3
     ACTION_COLUMN = 4
 
-    def __init__(self, view):
+    def __init__(self, gateway):
         super().__init__(0, 5)
-        self.view = view
-        self.gui = self.view.gui
-        self.gateway = self.view.gateway
-        self.monitor = self.gateway.monitor
+        self.gateway = gateway
         self.status_dict = {}
         self.members_dict = {}
         self.grid_status = ""
@@ -58,16 +55,12 @@ class FilesModel(QStandardItemModel):
         self.icon_cloud = QIcon(resource("cloud-icon.png"))
         self.icon_action = QIcon(resource("dots-horizontal-triple.png"))
 
-        # self.monitor.connected.connect(self.on_connected)
-        # self.monitor.disconnected.connect(self.on_disconnected)
-        # self.monitor.nodes_updated.connect(self.on_nodes_updated)
+        self.monitor = self.gateway.monitor
         self.monitor.space_updated.connect(self.on_space_updated)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
         self.monitor.members_updated.connect(self.on_members_updated)
-        self.monitor.sync_started.connect(self.on_sync_started)
-        self.monitor.sync_finished.connect(self.on_sync_finished)
         # self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
         self.monitor.remote_folder_added.connect(self.add_remote_folder)
@@ -337,19 +330,7 @@ class FilesModel(QStandardItemModel):
             font = item.font()
             font.setItalic(False)
             item.setFont(font)
-            item.setForeground(self.view.palette().text())
-
-    @Slot(str)
-    def on_sync_started(self, folder_name):
-        self.gui.core.operations.append((self.gateway, folder_name))
-        self.gui.systray.update()
-
-    @Slot(str)
-    def on_sync_finished(self, folder_name):
-        try:
-            self.gui.core.operations.remove((self.gateway, folder_name))
-        except ValueError:
-            pass
+            # item.setForeground(self.view.palette().text())
 
     @Slot(str, int)
     def set_mtime(self, name, mtime):

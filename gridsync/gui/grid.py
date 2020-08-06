@@ -21,6 +21,7 @@ from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import resource, APP_NAME
 from gridsync.gui.activity import ActivityView
+from gridsync.gui.files_model import FilesModel
 from gridsync.gui.files_view import FilesView
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.status import StatusPanel
@@ -130,13 +131,16 @@ class GridWidget(QWidget):
         super().__init__()
         self.gui = gui
         self.gateway = gateway
+        self.monitor = self.gateway.monitor
 
         self._restart_required = False
 
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.files_view = FilesView(self.gui, self.gateway)
+        self.files_model = FilesModel(self.gateway)
+
+        self.files_view = FilesView(self.files_model, self)
 
         navigation_panel = NavigationPanel(
             self.gui, self.gateway, self.files_view
@@ -169,6 +173,21 @@ class GridWidget(QWidget):
             # activity_list_widget.filter_by_remote_paths
             activity_view.filter_by_remote_paths
         )
+
+        self.gateway.monitor.sync_started.connect(self.on_sync_started)
+        self.gateway.monitor.sync_finished.connect(self.on_sync_finished)
+
+    @Slot(str)
+    def on_sync_started(self, folder_name):
+        self.gui.core.operations.append((self.gateway, folder_name))
+        self.gui.systray.update()
+
+    @Slot(str)
+    def on_sync_finished(self, folder_name):
+        try:
+            self.gui.core.operations.remove((self.gateway, folder_name))
+        except ValueError:
+            pass
 
     @inlineCallbacks
     def maybe_restart_gateway(self, _):
