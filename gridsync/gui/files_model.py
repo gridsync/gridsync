@@ -35,8 +35,6 @@ class FilesModel(QStandardItemModel):
         self.gateway = gateway
         self.status_dict = {}
         self.members_dict = {}
-        self.grid_status = ""
-        self.available_space = 0
 
         self.setHeaderData(self.NAME_COLUMN, Qt.Horizontal, "Name")
         self.setHeaderData(self.STATUS_COLUMN, Qt.Horizontal, "Status")
@@ -56,7 +54,6 @@ class FilesModel(QStandardItemModel):
         self.icon_action = QIcon(resource("dots-horizontal-triple.png"))
 
         self.monitor = self.gateway.monitor
-        self.monitor.space_updated.connect(self.on_space_updated)
         self.monitor.status_updated.connect(self.set_status)
         self.monitor.mtime_updated.connect(self.set_mtime)
         self.monitor.size_updated.connect(self.set_size)
@@ -68,9 +65,6 @@ class FilesModel(QStandardItemModel):
             self.set_transfer_progress
         )
         self.monitor.file_updated.connect(self.on_file_updated)
-
-    def on_space_updated(self, size):
-        self.available_space = size
 
     def add_folder(self, path, status_data=0):
         basename = os.path.basename(os.path.normpath(path))
@@ -239,7 +233,6 @@ class FilesModel(QStandardItemModel):
         items = self.findItems(name, Qt.MatchExactly, self.NAME_COLUMN)
         if not items:
             return
-        # item = self.item(items[0].row(), 1)
         item = self.item(items[0].row(), self.STATUS_COLUMN)
         if status == MagicFolderChecker.LOADING:
             item.setIcon(self.icon_blank)
@@ -300,7 +293,6 @@ class FilesModel(QStandardItemModel):
             # that it's better to have a couple of seconds of no progress
             # updates than a progress update which is wrong or misleading).
             return
-        # item = self.item(items[0].row(), 1)
         item = self.item(items[0].row(), self.STATUS_COLUMN)
         item.setText("Syncing ({}%)".format(percent_done))
 
