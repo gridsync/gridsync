@@ -99,14 +99,12 @@ class FilesView(QTableView):
     location_updated = Signal(str)
     selection_updated = Signal(list)
 
-    def __init__(self, model, parent=None):  # pylint: disable=too-many-statements
+    def __init__(self, model: FilesModel, parent=None):
         super().__init__(parent)
         self.source_model = model
         self.gateway = model.gateway
 
         self.location: str = ""
-
-        #self.source_model = FilesModel(self)
 
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.source_model)

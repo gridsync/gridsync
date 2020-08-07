@@ -8,13 +8,11 @@ from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import (
     QFileInfo,
     QModelIndex,
-    QSize,
     QSortFilterProxyModel,
     QTimer,
     Qt,
 )
 from PyQt5.QtCore import pyqtSignal as Signal
-from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import (
     QCursor,
     QIcon,
@@ -28,7 +26,6 @@ from PyQt5.QtWidgets import (
     QFileIconProvider,
     QGridLayout,
     QLabel,
-    QListView,
     QListWidgetItem,
     QListWidget,
     QMenu,
@@ -37,7 +34,6 @@ from PyQt5.QtWidgets import (
     QSpacerItem,
     QStyledItemDelegate,
     QTableView,
-    QToolButton,
     QWidget,
 )
 
