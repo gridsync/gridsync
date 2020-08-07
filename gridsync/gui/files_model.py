@@ -33,6 +33,7 @@ class FilesModel(QStandardItemModel):
     def __init__(self, gateway):
         super().__init__(0, 5)
         self.gateway = gateway
+
         self.status_dict = {}
         self.members_dict = {}
 
@@ -53,18 +54,16 @@ class FilesModel(QStandardItemModel):
         self.icon_cloud = QIcon(resource("cloud-icon.png"))
         self.icon_action = QIcon(resource("dots-horizontal-triple.png"))
 
-        self.monitor = self.gateway.monitor
-        self.monitor.status_updated.connect(self.set_status)
-        self.monitor.mtime_updated.connect(self.set_mtime)
-        self.monitor.size_updated.connect(self.set_size)
-        self.monitor.members_updated.connect(self.on_members_updated)
-        # self.monitor.files_updated.connect(self.on_updated_files)
-        self.monitor.check_finished.connect(self.update_natural_times)
-        self.monitor.remote_folder_added.connect(self.add_remote_folder)
-        self.monitor.transfer_progress_updated.connect(
+        gateway.monitor.status_updated.connect(self.set_status)
+        gateway.monitor.mtime_updated.connect(self.set_mtime)
+        gateway.monitor.size_updated.connect(self.set_size)
+        gateway.monitor.members_updated.connect(self.on_members_updated)
+        gateway.monitor.check_finished.connect(self.update_natural_times)
+        gateway.monitor.remote_folder_added.connect(self.add_remote_folder)
+        gateway.monitor.transfer_progress_updated.connect(
             self.set_transfer_progress
         )
-        self.monitor.file_updated.connect(self.on_file_updated)
+        gateway.monitor.file_updated.connect(self.on_file_updated)
 
     def add_folder(self, path, status_data=0):
         basename = os.path.basename(os.path.normpath(path))
@@ -163,7 +162,6 @@ class FilesModel(QStandardItemModel):
 
     def remove_folder(self, folder_name):
         self.on_sync_finished(folder_name)
-        # items = self.findItems(folder_name)
         items = self.findItems(folder_name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
             self.removeRow(items[0].row())
