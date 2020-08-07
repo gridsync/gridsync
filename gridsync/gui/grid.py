@@ -26,6 +26,8 @@ from gridsync.gui.files_view import FilesView
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.status import StatusPanel
 from gridsync.msg import error
+from gridsync.preferences import get_preference
+from gridsync.util import humanized_list
 
 
 class LocationButton(QPushButton):
@@ -163,6 +165,7 @@ class GridWidget(QWidget):
         )
         self.gateway.monitor.sync_started.connect(self.on_sync_started)
         self.gateway.monitor.sync_finished.connect(self.on_sync_finished)
+        self.gateway.monitor.files_updated.connect(self.on_updated_files)
 
     @Slot(str)
     def on_sync_started(self, folder_name):
@@ -175,6 +178,17 @@ class GridWidget(QWidget):
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:
             pass
+
+    @Slot(str, list, str, str)
+    def on_updated_files(self, folder_name, files_list, action, author):
+        if get_preference("notifications", "folder") != "false":
+            self.gui.show_message(
+                folder_name + " folder updated",
+                "{} {}".format(
+                    author + " " + action if author else action.capitalize(),
+                    humanized_list(files_list),
+                ),
+            )
 
     @inlineCallbacks
     def maybe_restart_gateway(self, _):
