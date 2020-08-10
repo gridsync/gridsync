@@ -46,6 +46,7 @@ from gridsync.gui.font import Font
 DATA_ROLE = Qt.UserRole
 LOCATION_ROLE = Qt.UserRole + 1
 MTIME_ROLE = Qt.UserRole + 2
+BASENAME_ROLE = Qt.UserRole + 3
 
 
 class ActivityItemWidget(QWidget):
@@ -301,7 +302,7 @@ class ActivityWidget(QWidget):
             QFileIconProvider().icon(QFileInfo("/home/user/1")).pixmap(48, 48)
         )
 
-        self.basename_label = QLabel(self.item.text())
+        self.basename_label = QLabel(self.item.data(BASENAME_ROLE))
         self.basename_label.setFont(Font(11))
 
         self.details_label = QLabel("details")
@@ -381,10 +382,11 @@ class ActivityModel(QStandardItemModel):
         else:
             location = f"{self.gateway.name}/{folder_name}"
 
-        item = QStandardItem(basename)
+        item = QStandardItem()
         item.setData(data, DATA_ROLE)
         item.setData(location, LOCATION_ROLE)
         item.setData(str(data.get("mtime", 0)), MTIME_ROLE)
+        item.setData(basename, BASENAME_ROLE)
         # self.insertRow(0, [item])
         self.appendRow([item])
         self.item_added.emit(item)
@@ -397,7 +399,7 @@ class ActivityModel(QStandardItemModel):
 
 
 # class ActivityView(QListView):
-class ActivityView_(QTableView):
+class ActivityView(QTableView):
     def __init__(self, gateway, parent=None):
         super().__init__(parent)
         self.gateway = gateway
