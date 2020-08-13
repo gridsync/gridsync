@@ -24,6 +24,7 @@ from twisted.internet import reactor
 
 from gridsync import resource, APP_NAME, config_dir, settings
 from gridsync.gui.color import BlendedColor
+from gridsync.gui.files_model import FilesModel
 from gridsync.gui.font import Font
 from gridsync.gui.grid import GridWidget
 from gridsync.gui.history import HistoryView
@@ -585,9 +586,10 @@ class MainWindow(QMainWindow):
             current = view.currentIndex() if view else None
             if current:
                 item = view._get_name_item_from_index(current)  # XXX
-                location = item.data(Qt.UserRole)
-                text = item.text()
-                view.update_location(f"{location}/{text}")
+                if item:
+                    location = item.data(FilesModel.LOCATION_ROLE)
+                    text = item.text()
+                    view.update_location(f"{location}/{text}")
         if key == Qt.Key_Up:
             if sys.platform == "darwin":
                 # From https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum

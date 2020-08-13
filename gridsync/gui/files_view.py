@@ -200,8 +200,9 @@ class FilesView(QTableView):
     def _get_name_item_from_index(self, index):
         source_index = self.proxy_model.mapToSource(index)
         source_item = self.source_model.itemFromIndex(source_index)
-        row = source_item.row()
-        return self.source_model.item(row, self.source_model.NAME_COLUMN)
+        if source_item:
+            row = source_item.row()
+            return self.source_model.item(row, self.source_model.NAME_COLUMN)
 
     def on_action_button_clicked(self, index: QModelIndex) -> None:
         print(self, index, index.row())  # XXX
