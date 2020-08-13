@@ -25,6 +25,14 @@ from gridsync.gui.files_model import FilesModel
 from gridsync.monitor import MagicFolderChecker
 
 
+DATA_ROLE = Qt.UserRole
+LOCATION_ROLE = Qt.UserRole + 1
+MTIME_ROLE = Qt.UserRole + 2
+BASENAME_ROLE = Qt.UserRole + 3
+SIZE_ROLE = Qt.UserRole + 4
+STATUS_ROLE = Qt.UserRole + 5
+
+
 class ActionItemDelegate(QStyledItemDelegate):
 
     button_clicked = Signal(QModelIndex)
@@ -73,7 +81,7 @@ class StatusItemDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         pixmap = None
-        status = index.data(Qt.UserRole)
+        status = index.data(STATUS_ROLE)
         if status == MagicFolderChecker.LOADING:
             self.waiting_movie.setPaused(False)
             pixmap = self.waiting_movie.currentPixmap().scaled(
@@ -181,7 +189,7 @@ class FilesView(QTableView):
         self.source_model.populate()
 
     def update_location(self, location: str) -> None:
-        self.proxy_model.setFilterRole(Qt.UserRole)
+        self.proxy_model.setFilterRole(LOCATION_ROLE)
         self.proxy_model.setFilterRegularExpression(f"^{location}$")
         self.location = location
         self.location_updated.emit(location)
@@ -212,7 +220,7 @@ class FilesView(QTableView):
         except AttributeError:
             return
         # TODO: Update location if location is a directory, open otherwise
-        location = name_item.data(Qt.UserRole)
+        location = name_item.data(LOCATION_ROLE)
         text = name_item.text()
         self.update_location(f"{location}/{text}")
 
@@ -223,7 +231,7 @@ class FilesView(QTableView):
             if item:
                 selected.append(
                     os.path.join(
-                        item.data(Qt.UserRole), item.data(Qt.DisplayRole)
+                        item.data(LOCATION_ROLE), item.data(Qt.DisplayRole)
                     )
                 )
         return selected

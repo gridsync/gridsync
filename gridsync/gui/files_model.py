@@ -22,6 +22,14 @@ from gridsync.gui.pixmap import CompositePixmap
 from gridsync.monitor import MagicFolderChecker
 
 
+DATA_ROLE = Qt.UserRole
+LOCATION_ROLE = Qt.UserRole + 1
+MTIME_ROLE = Qt.UserRole + 2
+BASENAME_ROLE = Qt.UserRole + 3
+SIZE_ROLE = Qt.UserRole + 4
+STATUS_ROLE = Qt.UserRole + 5
+
+
 class FilesModel(QStandardItemModel):
 
     NAME_COLUMN = 0
@@ -74,7 +82,7 @@ class FilesModel(QStandardItemModel):
             return
         composite_pixmap = CompositePixmap(self.icon_folder.pixmap(256, 256))
         name = QStandardItem(QIcon(composite_pixmap), basename)
-        name.setData(self.gateway.name, Qt.UserRole)
+        name.setData(self.gateway.name, LOCATION_ROLE)
         status = QStandardItem()
         mtime = QStandardItem()
         size = QStandardItem()
@@ -107,13 +115,13 @@ class FilesModel(QStandardItemModel):
         item.setText(
             naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
         )
-        item.setData(mtime, Qt.UserRole)
+        item.setData(mtime, MTIME_ROLE)
         item.setToolTip(f"Last modified: {time.ctime(mtime)}")
 
     @staticmethod
     def _set_size(item: QStandardItem, size: int) -> None:
         item.setText(naturalsize(size))
-        item.setData(size, Qt.UserRole)
+        item.setData(size, SIZE_ROLE)
         item.setToolTip(f"Size: {size} bytes")
 
     @Slot(str, object)
@@ -131,7 +139,7 @@ class FilesModel(QStandardItemModel):
 
         items = self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN)
         for item in items:
-            if item.data(Qt.UserRole) == location:  # file is already in model
+            if item.data(LOCATION_ROLE) == location:  # file is already in model
                 item.setIcon(self._get_file_icon(local_path))
                 row = item.row()
                 self._set_mtime(
@@ -143,7 +151,7 @@ class FilesModel(QStandardItemModel):
                 return
 
         name_item = QStandardItem(self._get_file_icon(local_path), basename)
-        name_item.setData(location, Qt.UserRole)
+        name_item.setData(location, LOCATION_ROLE)
         name_item.setToolTip(local_path)
 
         status_item = QStandardItem()
@@ -263,7 +271,7 @@ class FilesModel(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
-        item.setData(status, Qt.UserRole)
+        item.setData(status, STATUS_ROLE)
         self.status_dict[name] = status
 
     @Slot(str, object, object)
@@ -329,7 +337,7 @@ class FilesModel(QStandardItemModel):
         items = self.findItems(name, Qt.MatchExactly, self.NAME_COLUMN)
         if items:
             item = self.item(items[0].row(), self.MTIME_COLUMN)
-            item.setData(mtime, Qt.UserRole)
+            item.setData(mtime, MTIME_ROLE)
             item.setText(
                 naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
             )
@@ -341,16 +349,16 @@ class FilesModel(QStandardItemModel):
         if items:
             item = self.item(items[0].row(), self.SIZE_COLUMN)
             item.setText(naturalsize(size))
-            item.setData(size, Qt.UserRole)
+            item.setData(size, SIZE_ROLE)
 
     @Slot()
     def update_natural_times(self):
         for i in range(self.rowCount()):
             item = self.item(i, self.MTIME_COLUMN)
-            data = item.data(Qt.UserRole)
-            if data:
+            mtime = item.data(MTIME_ROLE)
+            if mtime:
                 item.setText(
-                    naturaltime(datetime.now() - datetime.fromtimestamp(data))
+                    naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
                 )
 
     @Slot(str, str)
