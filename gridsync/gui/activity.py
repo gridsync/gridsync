@@ -40,13 +40,8 @@ from PyQt5.QtWidgets import (
 from gridsync import resource
 from gridsync.desktop import open_enclosing_folder, open_path
 from gridsync.gui.color import BlendedColor
+from gridsync.gui.files_model import FilesModel
 from gridsync.gui.font import Font
-
-
-DATA_ROLE = Qt.UserRole
-LOCATION_ROLE = Qt.UserRole + 1
-MTIME_ROLE = Qt.UserRole + 2
-BASENAME_ROLE = Qt.UserRole + 3
 
 
 class ActivityItemWidget(QWidget):
@@ -302,7 +297,7 @@ class ActivityWidget(QWidget):
             QFileIconProvider().icon(QFileInfo("/home/user/1")).pixmap(48, 48)
         )
 
-        self.basename_label = QLabel(self.item.data(BASENAME_ROLE))
+        self.basename_label = QLabel(self.item.data(FilesModel.BASENAME_ROLE))
         self.basename_label.setFont(Font(11))
 
         self.details_label = QLabel("details")
@@ -383,10 +378,10 @@ class ActivityModel(QStandardItemModel):
             location = f"{self.gateway.name}/{folder_name}"
 
         item = QStandardItem()
-        item.setData(data, DATA_ROLE)
-        item.setData(location, LOCATION_ROLE)
-        item.setData(str(data.get("mtime", 0)), MTIME_ROLE)
-        item.setData(basename, BASENAME_ROLE)
+        item.setData(data, FilesModel.DATA_ROLE)
+        item.setData(location, FilesModel.LOCATION_ROLE)
+        item.setData(str(data.get("mtime", 0)), FilesModel.MTIME_ROLE)
+        item.setData(basename, FilesModel.BASENAME_ROLE)
         # self.insertRow(0, [item])
         self.appendRow([item])
         self.item_added.emit(item)
@@ -425,8 +420,8 @@ class ActivityView(QTableView):
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.source_model)
         self.proxy_model.setFilterKeyColumn(0)
-        self.proxy_model.setFilterRole(LOCATION_ROLE)
-        self.proxy_model.setSortRole(MTIME_ROLE)
+        self.proxy_model.setFilterRole(FilesModel.LOCATION_ROLE)
+        self.proxy_model.setSortRole(FilesModel.MTIME_ROLE)
         self.proxy_model.sort(0, Qt.DescendingOrder)  # Latest changes on top
 
         self.setModel(self.proxy_model)
