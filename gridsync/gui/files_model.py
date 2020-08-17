@@ -36,6 +36,7 @@ class FilesModel(QStandardItemModel):
     BASENAME_ROLE = Qt.UserRole + 3
     SIZE_ROLE = Qt.UserRole + 4
     STATUS_ROLE = Qt.UserRole + 5
+    LATEST_ROLE = Qt.UserRole + 6
 
     def __init__(self, gateway, parent=None):
         super().__init__(0, 5, parent)
@@ -137,18 +138,20 @@ class FilesModel(QStandardItemModel):
         items = self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN)
         for item in items:
             if item.data(self.LOCATION_ROLE) == location:  # file is already in model
-                item.setIcon(self._get_file_icon(local_path))
-                row = item.row()
-                self._set_mtime(
-                    self.item(row, self.MTIME_COLUMN), data.get("mtime", 0),
-                )
-                self._set_size(
-                    self.item(row, self.SIZE_COLUMN), data.get("size", 0),
-                )
-                return
+                #item.setIcon(self._get_file_icon(local_path))
+                #row = item.row()
+                #self._set_mtime(
+                #    self.item(row, self.MTIME_COLUMN), data.get("mtime", 0),
+                #)
+                #self._set_size(
+                #    self.item(row, self.SIZE_COLUMN), data.get("size", 0),
+                #)
+                #return
+                item.setData("false", self.LATEST_ROLE)
 
         name_item = QStandardItem(self._get_file_icon(local_path), basename)
         name_item.setData(location, self.LOCATION_ROLE)
+        name_item.setData("true", self.LATEST_ROLE)
         name_item.setToolTip(local_path)
 
         status_item = QStandardItem()

@@ -94,6 +94,20 @@ class StatusItemDelegate(QStyledItemDelegate):
         super().paint(painter, option, index)
 
 
+class FilesProxyModel(QSortFilterProxyModel):
+    def __init__(self):
+        super().__init__()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        source_model = self.sourceModel()
+        index = source_model.index(source_row, source_model.NAME_COLUMN)
+        item = source_model.itemFromIndex(index)
+        if item.data(source_model.LATEST_ROLE) == "false":
+            # Hide old file-versions from view; show only the latest version
+            return False
+        return super().filterAcceptsRow(source_row, source_parent)
+
+
 class FilesView(QTableView):
 
     location_updated = Signal(str)
@@ -106,7 +120,8 @@ class FilesView(QTableView):
 
         self.location: str = ""
 
-        self.proxy_model = QSortFilterProxyModel()
+        #self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model = FilesProxyModel()
         self.proxy_model.setSourceModel(self.source_model)
         self.proxy_model.setFilterKeyColumn(self.source_model.NAME_COLUMN)
 
