@@ -137,7 +137,9 @@ class FilesModel(QStandardItemModel):
 
         items = self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN)
         for item in items:
-            if item.data(self.LOCATION_ROLE) == location:  # file is already in model
+            if (
+                item.data(self.LOCATION_ROLE) == location
+            ):  # file is already in model
                 item.setData("false", self.LATEST_ROLE)
 
         name_item = QStandardItem(self._get_file_icon(local_path), basename)

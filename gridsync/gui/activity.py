@@ -422,7 +422,9 @@ class ActivityView(QTableView):
         self.proxy_model.setFilterKeyColumn(FilesModel.MTIME_COLUMN)
         self.proxy_model.setFilterRole(FilesModel.LOCATION_ROLE)
         self.proxy_model.setSortRole(FilesModel.MTIME_ROLE)
-        self.proxy_model.sort(FilesModel.MTIME_COLUMN, Qt.DescendingOrder)  # Latest changes on top
+        self.proxy_model.sort(
+            FilesModel.MTIME_COLUMN, Qt.DescendingOrder
+        )  # Latest changes on top
 
         self.setModel(self.proxy_model)
 

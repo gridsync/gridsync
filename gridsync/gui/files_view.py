@@ -95,9 +95,6 @@ class StatusItemDelegate(QStyledItemDelegate):
 
 
 class FilesProxyModel(QSortFilterProxyModel):
-    #def __init__(self):
-    #    super().__init__()
-
     def filterAcceptsRow(self, source_row, source_parent):
         source_model = self.sourceModel()
         index = source_model.index(source_row, source_model.NAME_COLUMN)
