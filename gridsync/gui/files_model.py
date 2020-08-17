@@ -138,15 +138,6 @@ class FilesModel(QStandardItemModel):
         items = self.findItems(basename, Qt.MatchExactly, self.NAME_COLUMN)
         for item in items:
             if item.data(self.LOCATION_ROLE) == location:  # file is already in model
-                #item.setIcon(self._get_file_icon(local_path))
-                #row = item.row()
-                #self._set_mtime(
-                #    self.item(row, self.MTIME_COLUMN), data.get("mtime", 0),
-                #)
-                #self._set_size(
-                #    self.item(row, self.SIZE_COLUMN), data.get("size", 0),
-                #)
-                #return
                 item.setData("false", self.LATEST_ROLE)
 
         name_item = QStandardItem(self._get_file_icon(local_path), basename)
@@ -156,17 +147,20 @@ class FilesModel(QStandardItemModel):
 
         status_item = QStandardItem()
 
-        #mtime_item = QStandardItem()
-        #self._set_mtime(mtime_item, data.get("mtime", 0))
-        mtime_item = QStandardItem()
+        mtime = data.get("mtime", 0)
+        mtime_item = QStandardItem(
+            naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
+        )
+        mtime_item.setData(mtime, self.MTIME_ROLE)
         mtime_item.setData(data, self.DATA_ROLE)
         mtime_item.setData(location, self.LOCATION_ROLE)
-        #mtime_item.setData(str(data.get("mtime", 0)), self.MTIME_ROLE)
-        mtime_item.setData(data.get("mtime", 0), self.MTIME_ROLE)
         mtime_item.setData(basename, self.BASENAME_ROLE)
+        mtime_item.setToolTip(f"Last modified: {time.ctime(mtime)}")
 
-        size_item = QStandardItem()
-        self._set_size(size_item, data.get("size", 0))
+        size = data.get("size", 0)
+        size_item = QStandardItem(naturalsize(size))
+        size_item.setData(size, self.SIZE_ROLE)
+        size_item.setToolTip(f"Size: {size} bytes")
 
         action_item = QStandardItem()
 

@@ -120,7 +120,6 @@ class FilesView(QTableView):
 
         self.location: str = ""
 
-        #self.proxy_model = QSortFilterProxyModel()
         self.proxy_model = FilesProxyModel()
         self.proxy_model.setSourceModel(self.source_model)
         self.proxy_model.setFilterKeyColumn(self.source_model.NAME_COLUMN)
