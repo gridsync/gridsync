@@ -167,7 +167,7 @@ class ActivityItemMenu(QMenu):
 
 
 # class ActivityListWidget(QListWidget):
-class ActivityView(QListWidget):
+class ActivityView_(QListWidget):
     def __init__(self, gateway, deduplicate=True, max_items=30):
         super().__init__()
         self.gateway = gateway

@@ -95,8 +95,8 @@ class StatusItemDelegate(QStyledItemDelegate):
 
 
 class FilesProxyModel(QSortFilterProxyModel):
-    def __init__(self):
-        super().__init__()
+    #def __init__(self):
+    #    super().__init__()
 
     def filterAcceptsRow(self, source_row, source_parent):
         source_model = self.sourceModel()
@@ -217,6 +217,7 @@ class FilesView(QTableView):
         if source_item:
             row = source_item.row()
             return self.source_model.item(row, self.source_model.NAME_COLUMN)
+        return None
 
     def on_action_button_clicked(self, index: QModelIndex) -> None:
         print(self, index, index.row())  # XXX
