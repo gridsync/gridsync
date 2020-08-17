@@ -415,20 +415,28 @@ class ActivityView(QTableView):
         vertical_header.setDefaultSectionSize(64)
         vertical_header.hide()
 
-        self.source_model = ActivityModel(gateway, self)
+        #self.source_model = ActivityModel(gateway, self)
+        self.source_model = FilesModel(gateway, self)
 
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.source_model)
-        self.proxy_model.setFilterKeyColumn(0)
+        #self.proxy_model.setFilterKeyColumn(0)
+        self.proxy_model.setFilterKeyColumn(FilesModel.MTIME_COLUMN)
         self.proxy_model.setFilterRole(FilesModel.LOCATION_ROLE)
         self.proxy_model.setSortRole(FilesModel.MTIME_ROLE)
-        self.proxy_model.sort(0, Qt.DescendingOrder)  # Latest changes on top
+        #self.proxy_model.sort(0, Qt.DescendingOrder)  # Latest changes on top
+        self.proxy_model.sort(FilesModel.MTIME_COLUMN, Qt.DescendingOrder)  # Latest changes on top
 
         self.setModel(self.proxy_model)
 
         # self.proxy_model.setFilterRegularExpression("t")
 
         self.setItemDelegate(ActivityDelegate(self))
+
+        self.setColumnHidden(FilesModel.NAME_COLUMN, True)
+        self.setColumnHidden(FilesModel.STATUS_COLUMN, True)
+        self.setColumnHidden(FilesModel.SIZE_COLUMN, True)
+        self.setColumnHidden(FilesModel.ACTION_COLUMN, True)
 
     def source_item(self, proxy_model_index: QModelIndex) -> QStandardItem:
         source_index = self.proxy_model.mapToSource(proxy_model_index)

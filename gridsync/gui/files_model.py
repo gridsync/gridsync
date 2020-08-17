@@ -37,8 +37,8 @@ class FilesModel(QStandardItemModel):
     SIZE_ROLE = Qt.UserRole + 4
     STATUS_ROLE = Qt.UserRole + 5
 
-    def __init__(self, gateway):
-        super().__init__(0, 5)
+    def __init__(self, gateway, parent=None):
+        super().__init__(0, 5, parent)
         self.gateway = gateway
 
         self.status_dict = {}
@@ -153,8 +153,14 @@ class FilesModel(QStandardItemModel):
 
         status_item = QStandardItem()
 
+        #mtime_item = QStandardItem()
+        #self._set_mtime(mtime_item, data.get("mtime", 0))
         mtime_item = QStandardItem()
-        self._set_mtime(mtime_item, data.get("mtime", 0))
+        mtime_item.setData(data, self.DATA_ROLE)
+        mtime_item.setData(location, self.LOCATION_ROLE)
+        #mtime_item.setData(str(data.get("mtime", 0)), self.MTIME_ROLE)
+        mtime_item.setData(data.get("mtime", 0), self.MTIME_ROLE)
+        mtime_item.setData(basename, self.BASENAME_ROLE)
 
         size_item = QStandardItem()
         self._set_size(size_item, data.get("size", 0))
