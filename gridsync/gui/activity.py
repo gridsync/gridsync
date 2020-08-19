@@ -291,6 +291,10 @@ class ActivityWidget(QWidget):
         self.view = view
 
         self.item = self.view.source_item(index)
+        self.action = (
+            self.item.data(FilesModel.DATA_ROLE).get("action").capitalize()
+        )
+        self.mtime = self.item.data(FilesModel.MTIME_ROLE)
 
         self.icon = QLabel()
         self.icon.setPixmap(
@@ -300,7 +304,7 @@ class ActivityWidget(QWidget):
         self.basename_label = QLabel(self.item.data(FilesModel.BASENAME_ROLE))
         self.basename_label.setFont(Font(11))
 
-        self.details_label = QLabel("details")
+        self.details_label = QLabel(self)
         self.details_label.setFont(Font(10))
 
         self._palette = self.palette()
@@ -325,6 +329,15 @@ class ActivityWidget(QWidget):
         layout.addWidget(self.button, 1, 5, 2, 2)
 
         self.leaveEvent(None)
+
+        self.update()
+
+    def update(self):
+        self.details_label.setText(
+            self.action
+            + " "
+            + naturaltime(datetime.now() - datetime.fromtimestamp(self.mtime))
+        )
 
     def enterEvent(self, _):
         self._palette.setColor(
