@@ -306,12 +306,9 @@ class ActivityWidget(QWidget):
 
         self.details_label = QLabel(self)
         self.details_label.setFont(Font(10))
+        self.details_label.setStyleSheet(f"color: {self.view.dim_text_color}")
 
         self._palette = self.palette()
-        dimmer_grey = BlendedColor(
-            self._palette.text().color(), self._palette.base().color(), 0.6
-        ).name()
-        self.details_label.setStyleSheet(f"color: {dimmer_grey}")
 
         self.button = QPushButton()
         self.button.setIcon(QIcon(resource("dots-horizontal-triple.png")))
@@ -417,6 +414,9 @@ class ActivityView(QTableView):
         self.highlight_color = BlendedColor(
             self.base_color, _palette.highlight().color(), 0.88
         )  # Was #E6F1F7
+        self.dim_text_color = BlendedColor(
+            _palette.text().color(), self.base_color, 0.6
+        ).name()
 
         self.setShowGrid(False)
 
