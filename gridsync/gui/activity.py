@@ -290,6 +290,8 @@ class ActivityWidget(QWidget):
         self.index = index
         self.view = view
 
+        self._menu_is_open = False
+
         self.item = self.view.source_item(index)
         self.action = (
             self.item.data(FilesModel.DATA_ROLE).get("action").capitalize()
@@ -325,7 +327,10 @@ class ActivityWidget(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 4, 4)
         layout.addWidget(self.button, 1, 5, 2, 2)
 
-        self.leaveEvent(None)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+
+        self.customContextMenuRequested.connect(self.show_menu)
+        self.button.clicked.connect(self.show_menu)
 
         self.update()
 
@@ -336,6 +341,24 @@ class ActivityWidget(QWidget):
             + naturaltime(datetime.now() - datetime.fromtimestamp(self.mtime))
         )
 
+    def show_menu(self, _):
+        menu = QMenu()
+        path = self.item.data(FilesModel.PATH_ROLE)
+        open_file_action = QAction("Open file", self)
+        open_file_action.triggered.connect(lambda: open_path(path))
+        open_folder_action = QAction("Open enclosing folder", self)
+        open_folder_action.triggered.connect(
+            lambda: open_enclosing_folder(path)
+        )
+        menu.addAction(open_file_action)
+        menu.addAction(open_folder_action)
+        self._menu_is_open = True
+        # position = self.view.viewport().mapFromGlobal(QCursor().pos())
+        # menu.exec_(self.view.viewport().mapToGlobal(position))
+        menu.exec_(QCursor().pos())
+        self._menu_is_open = False
+        self.leaveEvent(None)
+
     def enterEvent(self, _):
         self._palette.setColor(
             self.backgroundRole(), self.view.highlight_color
@@ -345,6 +368,8 @@ class ActivityWidget(QWidget):
         print(self.item.text())
 
     def leaveEvent(self, _):
+        if self._menu_is_open:  # Keep highlighted while menu is open
+            return
         self._palette.setColor(self.backgroundRole(), self.view.base_color)
         self.setPalette(self._palette)
         self.button.hide()
