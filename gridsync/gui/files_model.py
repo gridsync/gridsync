@@ -37,6 +37,7 @@ class FilesModel(QStandardItemModel):
     SIZE_ROLE = Qt.UserRole + 4
     STATUS_ROLE = Qt.UserRole + 5
     LATEST_ROLE = Qt.UserRole + 6
+    PATH_ROLE = Qt.UserRole + 7
 
     def __init__(self, gateway, parent=None):
         super().__init__(0, 5, parent)
@@ -157,6 +158,7 @@ class FilesModel(QStandardItemModel):
         mtime_item.setData(data, self.DATA_ROLE)
         mtime_item.setData(location, self.LOCATION_ROLE)
         mtime_item.setData(basename, self.BASENAME_ROLE)
+        mtime_item.setData(local_path, self.PATH_ROLE)
         mtime_item.setToolTip(f"Last modified: {time.ctime(mtime)}")
 
         size = data.get("size", 0)
