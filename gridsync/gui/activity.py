@@ -13,6 +13,7 @@ from PyQt5.QtCore import (
     Qt,
 )
 from PyQt5.QtCore import pyqtSignal as Signal
+from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import (
     QCursor,
     QIcon,
@@ -466,8 +467,6 @@ class ActivityView(QTableView):
 
         self.setModel(self.proxy_model)
 
-        # self.proxy_model.setFilterRegularExpression("t")
-
         self.setItemDelegate(ActivityDelegate(self))
 
         self.setColumnHidden(FilesModel.NAME_COLUMN, True)
@@ -479,8 +478,11 @@ class ActivityView(QTableView):
         source_index = self.proxy_model.mapToSource(proxy_model_index)
         return self.source_model.itemFromIndex(source_index)
 
-    def filter_by_location(self):
-        pass
+    @Slot(str)
+    def filter_by_location(self, location: str) -> None:
+        self.proxy_model.setFilterRole(FilesModel.LOCATION_ROLE)
+        self.proxy_model.setFilterRegularExpression(f"^{location}$")
 
-    def filter_by_remote_paths(self):
+    @Slot(list)
+    def filter_by_remote_paths(self, paths: list) -> None:
         pass
