@@ -255,6 +255,9 @@ txaio==18.8.1 \
 txtorcon==20.0.0 \
     --hash=sha256:122cd081786396f57718adda1c1a5eb01b8e9a4832fcd140918b45c10359377a \
     --hash=sha256:5c1145566a8733105da851b794e7b15cb56cea48693635b55c4bddfb79fe629d
+typing==3.7.4.3 \
+    --hash=sha256:1187fb9c82fd670d10aa07bbb6cfcfe4bdda42d6fab8d5134f04e8c4d0b71cc9 \
+    --hash=sha256:283d868f5071ab9ad873e5e52268d611e851c870a2ba354193026f2dfb29d8b5
 watchdog==0.10.2; sys_platform != "win32" and sys_platform != "linux2" \
     --hash=sha256:c560efb643faed5ef28784b2245cf8874f939569717a4a12826a173ac644456b
 zfec==1.5.3 \
