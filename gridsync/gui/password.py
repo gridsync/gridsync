@@ -21,7 +21,7 @@ from gridsync.gui.font import Font
 
 class PasswordDialog(QDialog):
     def __init__(self, parent=None, help_text="", show_stats=True):
-        super(PasswordDialog, self).__init__(parent)
+        super().__init__(parent)
         self.setMinimumWidth(400)
 
         self.label = QLabel("Password:")

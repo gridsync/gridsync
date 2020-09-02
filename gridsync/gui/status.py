@@ -22,7 +22,7 @@ from gridsync.gui.pixmap import Pixmap
 
 class StatusPanel(QWidget):
     def __init__(self, gateway, gui):
-        super(StatusPanel, self).__init__()
+        super().__init__()
         self.gateway = gateway
         self.gui = gui
 

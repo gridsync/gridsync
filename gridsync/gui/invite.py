@@ -44,7 +44,7 @@ from gridsync.tor import get_tor
 
 class InviteCodeCompleter(QCompleter):
     def __init__(self):
-        super(InviteCodeCompleter, self).__init__()
+        super().__init__()
         self.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompletionMode(QCompleter.InlineCompletion)
 
@@ -65,7 +65,7 @@ class InviteCodeLineEdit(QLineEdit):
     go = pyqtSignal(str)
 
     def __init__(self, parent=None):
-        super(InviteCodeLineEdit, self).__init__()
+        super().__init__()
         self.parent = parent
         model = QStringListModel()
         model.setStringList(wordlist)
@@ -146,7 +146,7 @@ class InviteCodeLineEdit(QLineEdit):
 
 class InviteCodeWidget(QWidget):
     def __init__(self, parent=None, tor_available=False):
-        super(InviteCodeWidget, self).__init__()
+        super().__init__()
         self.parent = parent
 
         self.label = QLabel("Enter invite code:")

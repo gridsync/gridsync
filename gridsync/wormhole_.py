@@ -31,7 +31,7 @@ class Wormhole(QObject):
     send_completed = pyqtSignal()
 
     def __init__(self, use_tor=False):
-        super(Wormhole, self).__init__()
+        super().__init__()
         self.use_tor = use_tor
         self._wormhole = None
 

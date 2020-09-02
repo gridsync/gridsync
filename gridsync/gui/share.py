@@ -41,7 +41,7 @@ class InviteSenderDialog(QDialog):
     closed = pyqtSignal(QWidget)
 
     def __init__(self, gateway, gui, folder_names=None):
-        super(InviteSenderDialog, self).__init__()
+        super().__init__()
         self.gateway = gateway
         self.gui = gui
         self.folder_names = folder_names
@@ -322,7 +322,7 @@ class InviteReceiverDialog(QDialog):
     closed = pyqtSignal(QWidget)
 
     def __init__(self, gateways):
-        super(InviteReceiverDialog, self).__init__()
+        super().__init__()
         self.gateways = gateways
         self.invite_receiver = None
         self.joined_folders = []

@@ -38,7 +38,7 @@ from gridsync.util import strip_html_tags
 
 class ComboBox(QComboBox):
     def __init__(self):
-        super(ComboBox, self).__init__()
+        super().__init__()
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.setFont(Font(10))
         self.current_index = 0
@@ -65,7 +65,7 @@ class ComboBox(QComboBox):
 
 class CentralWidget(QStackedWidget):
     def __init__(self, gui):
-        super(CentralWidget, self).__init__()
+        super().__init__()
         self.gui = gui
         self.views = []
         self.folders_views = {}
@@ -95,7 +95,7 @@ class CentralWidget(QStackedWidget):
 
 class MainWindow(QMainWindow):
     def __init__(self, gui):  # noqa: max-complexity
-        super(MainWindow, self).__init__()
+        super().__init__()
         self.gui = gui
         self.gateways = []
         self.welcome_dialog = None
