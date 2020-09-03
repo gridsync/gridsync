@@ -1228,7 +1228,9 @@ class Tahoe:
             voucher = self.generate_voucher()
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.put(
-            url + "/voucher", json.dumps({"voucher": voucher}).encode()
+            url + "/voucher",
+            json.dumps({"voucher": voucher}).encode(),
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
         if resp.code == 200:
             return voucher
@@ -1237,7 +1239,10 @@ class Tahoe:
     @inlineCallbacks
     def get_voucher(self, voucher: str):
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
-        resp = yield treq.get(url + "/voucher/" + voucher)
+        resp = yield treq.get(
+            url + "/voucher/" + voucher,
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
+        )
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
@@ -1246,7 +1251,10 @@ class Tahoe:
     @inlineCallbacks
     def get_vouchers(self):
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
-        resp = yield treq.get(url + "/voucher")
+        resp = yield treq.get(
+            url + "/voucher",
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
+        )
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content.get("vouchers")
@@ -1262,7 +1270,11 @@ class Tahoe:
         if position:
             params["position"] = position  # type: ignore
         url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
-        resp = yield treq.get(url + "/unblinded-token", params=params)
+        resp = yield treq.get(
+            url + "/unblinded-token",
+            params=params,
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
+        )
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
@@ -1359,6 +1371,7 @@ class Tahoe:
         resp = yield treq.post(
             url + "/unblinded-token",
             json.dumps({"unblinded-tokens": zkaps}).encode(),
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
         if resp.code == 200:
             content = yield treq.json_content(resp)
@@ -1395,7 +1408,8 @@ class Tahoe:
     def get_zkapauthz_version(self):
         resp = yield treq.get(
             f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/version"
+            "/version",
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
         version = ""
         if resp.code == 200:
