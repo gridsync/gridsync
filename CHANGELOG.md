@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.3 - 2020-07-24
 ### Added
 - Basic support for fetching and displaying "newscap" messages; see `docs/proposed/newscaps.md` (Issue #184; PR #192, #211)
 - Notification "badges" will now be displayed over the system tray icon to indicate unread newscap messages (Issue #226, PR #227)

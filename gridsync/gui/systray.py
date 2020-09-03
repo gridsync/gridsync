@@ -12,7 +12,7 @@ from gridsync.gui.pixmap import BadgedPixmap
 
 class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, gui):
-        super(SystemTrayIcon, self).__init__()
+        super().__init__()
         self.gui = gui
 
         tray_icon_path = resource(settings["application"]["tray_icon"])

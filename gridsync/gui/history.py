@@ -31,7 +31,7 @@ from gridsync.gui.status import StatusPanel
 
 class HistoryItemWidget(QWidget):
     def __init__(self, gateway, folder_name, data, parent):
-        super(HistoryItemWidget, self).__init__()
+        super().__init__()
         self.gateway = gateway
         self.data = data
         self.parent = parent
@@ -130,7 +130,7 @@ class HistoryItemWidget(QWidget):
 
 class HistoryListWidget(QListWidget):
     def __init__(self, gateway, deduplicate=True, max_items=30):
-        super(HistoryListWidget, self).__init__()
+        super().__init__()
         self.gateway = gateway
         self.deduplicate = deduplicate
         self.max_items = max_items
@@ -229,7 +229,7 @@ class HistoryListWidget(QListWidget):
 
 class HistoryView(QWidget):
     def __init__(self, gateway, gui, deduplicate=True, max_items=30):
-        super(HistoryView, self).__init__()
+        super().__init__()
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(HistoryListWidget(gateway, deduplicate, max_items))

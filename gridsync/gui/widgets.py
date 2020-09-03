@@ -42,7 +42,7 @@ class ClickableLabel(QLabel):
 
 class ConnectionSettings(QWidget):
     def __init__(self):
-        super(ConnectionSettings, self).__init__()
+        super().__init__()
 
         self.name_label = QLabel("Grid name:")
         self.name_line_edit = QLineEdit()
@@ -79,7 +79,7 @@ class ConnectionSettings(QWidget):
 
 class EncodingParameters(QWidget):
     def __init__(self):
-        super(EncodingParameters, self).__init__()
+        super().__init__()
 
         self.total_label = QLabel("shares.total (N)")
         self.total_spinbox = QSpinBox()
@@ -119,7 +119,7 @@ class EncodingParameters(QWidget):
 
 class RestoreSelector(QWidget):
     def __init__(self, parent):
-        super(RestoreSelector, self).__init__()
+        super().__init__()
         self.parent = parent
         self.lineedit = QLineEdit(self)
         self.button = QPushButton("Select file...")
@@ -141,7 +141,7 @@ class RestoreSelector(QWidget):
 
 class TahoeConfigForm(QWidget):
     def __init__(self):
-        super(TahoeConfigForm, self).__init__()
+        super().__init__()
         self.rootcap = None
         self.settings = {}
         self.progress = None

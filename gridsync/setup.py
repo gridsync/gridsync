@@ -133,7 +133,7 @@ class SetupRunner(QObject):
     done = pyqtSignal(object)
 
     def __init__(self, known_gateways, use_tor=False):
-        super(SetupRunner, self).__init__()
+        super().__init__()
         self.known_gateways = known_gateways
         self.use_tor = use_tor
         self.gateway = None
