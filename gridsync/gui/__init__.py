@@ -2,10 +2,10 @@
 
 from gridsync.desktop import notify
 from gridsync.gui.debug import DebugExporter
-from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.main_window import MainWindow
 from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.systray import SystemTrayIcon
+from gridsync.gui.welcome import WelcomeDialog
 
 
 class Gui:

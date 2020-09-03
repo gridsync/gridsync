@@ -8,16 +8,14 @@ node.
 import logging
 from collections import deque
 
-from hyperlink import parse
-
-from twisted.internet.endpoints import TCP4ClientEndpoint
-from twisted.application.internet import ClientService
-from twisted.application.service import MultiService
-
 from autobahn.twisted.websocket import (
     WebSocketClientFactory,
     WebSocketClientProtocol,
 )
+from hyperlink import parse
+from twisted.application.internet import ClientService
+from twisted.application.service import MultiService
+from twisted.internet.endpoints import TCP4ClientEndpoint
 
 
 class TahoeLogReader(

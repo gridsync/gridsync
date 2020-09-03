@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
 import logging
 import time
+from collections import defaultdict
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 

@@ -1,19 +1,17 @@
+from errno import EADDRINUSE
+from json import dumps
 from random import randrange
 from urllib.parse import urlsplit
-from json import dumps
-from errno import EADDRINUSE
-
-from pytest_twisted import inlineCallbacks
 
 from autobahn.twisted.websocket import (
     WebSocketServerFactory,
     WebSocketServerProtocol,
 )
-
+from pytest_twisted import inlineCallbacks
 from twisted.internet.defer import Deferred
-from twisted.internet.task import deferLater
 from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.error import CannotListenError
+from twisted.internet.task import deferLater
 
 from gridsync.streamedlogs import StreamedLogs
 
@@ -71,8 +69,8 @@ class FakeLogServerProtocol(WebSocketServerProtocol):
 
 def twlog():
     from sys import stdout
-    from twisted.logger import globalLogBeginner
-    from twisted.logger import textFileLogObserver
+
+    from twisted.logger import globalLogBeginner, textFileLogObserver
 
     globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
 

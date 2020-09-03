@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from configparser import RawConfigParser, NoOptionError, NoSectionError
+from configparser import NoOptionError, NoSectionError, RawConfigParser
 
 from atomicwrites import atomic_write
 

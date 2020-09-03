@@ -5,7 +5,7 @@ import logging
 import os
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import pyqtSignal, QObject, QPropertyAnimation, QThread
+from PyQt5.QtCore import QObject, QPropertyAnimation, QThread, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
 from gridsync.crypto import Crypter

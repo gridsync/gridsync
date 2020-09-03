@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
 import os
-from unittest.mock import Mock, MagicMock, call
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 
 from gridsync.desktop import (
     _dbus_notify,
-    notify,
-    get_clipboard_modes,
-    get_clipboard_text,
-    set_clipboard_text,
     _desktop_open,
-    open_enclosing_folder,
-    open_path,
+    autostart_disable,
     autostart_enable,
     autostart_is_enabled,
-    autostart_disable,
+    get_clipboard_modes,
+    get_clipboard_text,
+    notify,
+    open_enclosing_folder,
+    open_path,
+    set_clipboard_text,
 )
 
 

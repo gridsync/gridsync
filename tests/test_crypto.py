@@ -5,7 +5,7 @@ from hashlib import sha256
 import nacl
 import pytest
 
-from gridsync.crypto import VersionError, encrypt, decrypt, Crypter
+from gridsync.crypto import Crypter, VersionError, decrypt, encrypt
 
 
 def fast_kdf(*args, **kwargs):

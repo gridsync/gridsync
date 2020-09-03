@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import QItemSelectionModel, QFileInfo, QSize, Qt, QTimer
+from PyQt5.QtCore import QFileInfo, QItemSelectionModel, QSize, Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QAction,
@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet import reactor
 
-from gridsync import resource, APP_NAME, config_dir, settings
+from gridsync import APP_NAME, config_dir, resource, settings
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView

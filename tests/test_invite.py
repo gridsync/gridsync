@@ -14,8 +14,8 @@ from wormhole.errors import (
 )
 
 from gridsync.errors import UpgradeRequiredError
-from gridsync.invite import load_settings_from_cheatcode, is_valid_code
 from gridsync.gui.invite import InviteCodeWidget, show_failure  # XXX
+from gridsync.invite import is_valid_code, load_settings_from_cheatcode
 
 
 @pytest.mark.parametrize(
