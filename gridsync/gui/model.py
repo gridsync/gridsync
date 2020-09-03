@@ -20,7 +20,7 @@ from gridsync.util import humanized_list
 
 class Model(QStandardItemModel):
     def __init__(self, view):
-        super(Model, self).__init__(0, 5)
+        super().__init__(0, 5)
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
@@ -110,7 +110,7 @@ class Model(QStandardItemModel):
             )
 
     def data(self, index, role):
-        value = super(Model, self).data(index, role)
+        value = super().data(index, role)
         if role == Qt.SizeHintRole:
             return QSize(0, 30)
         return value

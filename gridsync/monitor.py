@@ -35,7 +35,7 @@ class MagicFolderChecker(QObject):
     files_updated = pyqtSignal(list, str, str)
 
     def __init__(self, gateway, name, remote=False):
-        super(MagicFolderChecker, self).__init__()
+        super().__init__()
         self.gateway = gateway
         self.name = name
         self.remote = remote
@@ -231,7 +231,7 @@ class GridChecker(QObject):
     space_updated = pyqtSignal(object)
 
     def __init__(self, gateway):
-        super(GridChecker, self).__init__()
+        super().__init__()
         self.gateway = gateway
         self.num_connected = 0
         self.num_known = 0
@@ -305,7 +305,7 @@ class Monitor(QObject):
     check_finished = pyqtSignal()
 
     def __init__(self, gateway):
-        super(Monitor, self).__init__()
+        super().__init__()
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
 

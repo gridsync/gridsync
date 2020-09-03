@@ -32,7 +32,7 @@ class FilesystemLock:
                         "Could not acquire lock on {}: {}".format(
                             self.filepath, str(error)
                         )
-                    )
+                    ) from error
                 raise
         else:
             fd = open(self.filepath, "w")
@@ -44,7 +44,7 @@ class FilesystemLock:
                     "Could not acquire lock on {}: {}".format(
                         self.filepath, str(error)
                     )
-                )
+                ) from error
         self.fd = fd
         logging.debug("Acquired lock: %s", self.fd)
 

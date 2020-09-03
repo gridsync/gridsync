@@ -18,7 +18,7 @@ class RecoveryKeyExporter(QObject):
     done = pyqtSignal(str)
 
     def __init__(self, parent=None):
-        super(RecoveryKeyExporter, self).__init__(parent)
+        super().__init__(parent)
         self.parent = parent
         self.filepath = None
         self.progress = None
@@ -119,7 +119,7 @@ class RecoveryKeyImporter(QObject):
     done = pyqtSignal(dict)
 
     def __init__(self, parent=None):
-        super(RecoveryKeyImporter, self).__init__()
+        super().__init__()
         self.parent = parent
         self.filepath = None
         self.progress = None

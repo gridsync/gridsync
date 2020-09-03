@@ -19,7 +19,7 @@ class Pixmap(QPixmap):
 
 class CompositePixmap(QPixmap):
     def __init__(self, pixmap, overlay=None, grayout=False):
-        super(CompositePixmap, self).__init__()
+        super().__init__()
         base_pixmap = QPixmap(pixmap)
         if grayout:
             painter = QPainter(base_pixmap)

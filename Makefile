@@ -175,7 +175,7 @@ pyinstaller:
 			rm -rf build/pyinstaller ; \
 			git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
 			pushd build/pyinstaller && \
-			git checkout 0222ae2ea070e304405ba84a1f455f93e68d86a4 && \
+			git checkout v4.0 && \
 			pushd bootloader && \
 			export MACOSX_DEPLOYMENT_TARGET=10.13 && \
 			export CFLAGS=-mmacosx-version-min=10.13 && \

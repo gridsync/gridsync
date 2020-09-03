@@ -76,7 +76,7 @@ class InviteReceiver(QObject):
     done = Signal(object)
 
     def __init__(self, known_gateways=None, use_tor=False):
-        super(InviteReceiver, self).__init__()
+        super().__init__()
         self.known_gateways = known_gateways
         self.use_tor = use_tor
 
@@ -132,7 +132,7 @@ class InviteSender(QObject):
     closed = Signal()
 
     def __init__(self, use_tor=False):
-        super(InviteSender, self).__init__()
+        super().__init__()
         self.use_tor = use_tor
 
         self.wormhole = Wormhole(use_tor)

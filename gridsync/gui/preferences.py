@@ -27,7 +27,7 @@ from gridsync.preferences import set_preference, get_preference
 
 class GeneralPane(QWidget):
     def __init__(self):
-        super(GeneralPane, self).__init__()
+        super().__init__()
         startup_groupbox = QGroupBox("Startup:", self)
         self.checkbox_autostart = QCheckBox("Start automatically on login")
         self.checkbox_minimize = QCheckBox("Start minimized")
@@ -77,7 +77,7 @@ class GeneralPane(QWidget):
 
 class NotificationsPane(QWidget):
     def __init__(self):
-        super(NotificationsPane, self).__init__()
+        super().__init__()
         notifications_groupbox = QGroupBox("Notifications:", self)
         notifications_label = QLabel("Show a desktop notification when...")
         self.checkbox_connection = QCheckBox("Connection status changes")
@@ -145,7 +145,7 @@ class NotificationsPane(QWidget):
 
 class PreferencesWindow(QMainWindow):
     def __init__(self):
-        super(PreferencesWindow, self).__init__()
+        super().__init__()
         self.setMinimumSize(500, 300)
         self.setUnifiedTitleAndToolBarOnMac(True)
 

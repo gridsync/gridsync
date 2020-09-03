@@ -12,7 +12,7 @@ from gridsync import __version__
 
 class Menu(QMenu):
     def __init__(self, gui, show_open_action=True):
-        super(Menu, self).__init__()
+        super().__init__()
         self.gui = gui
 
         self.about_msg = QMessageBox()

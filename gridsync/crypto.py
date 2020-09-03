@@ -60,7 +60,7 @@ class Crypter(QObject):
     failed = pyqtSignal(str)
 
     def __init__(self, data, password):
-        super(Crypter, self).__init__()
+        super().__init__()
         self.data = data
         self.password = password
 

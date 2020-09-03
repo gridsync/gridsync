@@ -43,7 +43,7 @@ from gridsync.tor import TOR_PURPLE
 
 class WelcomeWidget(QWidget):
     def __init__(self, parent=None):
-        super(WelcomeWidget, self).__init__()
+        super().__init__()
         self.parent = parent
 
         application_settings = global_settings["application"]
@@ -166,7 +166,7 @@ class WelcomeWidget(QWidget):
 
 class ProgressBarWidget(QWidget):
     def __init__(self):
-        super(ProgressBarWidget, self).__init__()
+        super().__init__()
 
         self.icon_server = QLabel()
         self.icon_server.setPixmap(Pixmap("cloud.png", 220))
@@ -258,7 +258,7 @@ class ProgressBarWidget(QWidget):
 
 class WelcomeDialog(QStackedWidget):
     def __init__(self, gui, known_gateways=None):
-        super(WelcomeDialog, self).__init__()
+        super().__init__()
         self.gui = gui
         self.known_gateways = known_gateways
         self.gateway = None

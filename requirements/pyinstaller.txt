@@ -12,8 +12,13 @@ macholib==1.14; sys_platform == "darwin" \
     --hash=sha256:c500f02867515e6c60a27875b408920d18332ddf96b4035ef03beddd782d4281
 pefile==2019.4.18; sys_platform == "win32" \
     --hash=sha256:a5d6e8305c6b210849b47a6174ddf9c452b2888340b8177874b862ba6c207645
-PyInstaller==3.6 \
+PyInstaller==3.6 ; python_version < "3" \
     --hash=sha256:3730fa80d088f8bb7084d32480eb87cbb4ddb64123363763cf8f2a1378c1c4b7
+pyinstaller==4.0 ; python_version >= "3" \
+    --hash=sha256:970beb07115761d5e4ec317c1351b712fd90ae7f23994db914c633281f99bab0
+pyinstaller-hooks-contrib==2020.7 ; python_version >= "3" \
+    --hash=sha256:5b6e06ba6072499189f5b8e1623d5f0414962941aac370ee4f842de25455be5b \
+    --hash=sha256:74936d044f319cd7a9dca322b46a818fcb6e2af1c67af62e8a6a3121eb2863d2
 pywin32-ctypes==0.2.0; sys_platform == "win32" \
     --hash=sha256:24ffc3b341d457d48e8922352130cf2644024a4ff09762a2261fd34c36ee5942 \
     --hash=sha256:9dc2d991b3479cc2df15930958b674a48a227d5361d413827a4cfd0b5876fc98

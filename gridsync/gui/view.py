@@ -36,7 +36,7 @@ from gridsync.util import humanized_list
 
 class Delegate(QStyledItemDelegate):
     def __init__(self, parent=None):
-        super(Delegate, self).__init__(parent=None)
+        super().__init__(parent=None)
         self.parent = parent
         self.waiting_movie = QMovie(resource("waiting.gif"))
         self.waiting_movie.setCacheMode(True)
@@ -79,12 +79,12 @@ class Delegate(QStyledItemDelegate):
                 point = option.rect.topLeft()
                 painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
                 option.rect = option.rect.translated(pixmap.width(), 0)
-        super(Delegate, self).paint(painter, option, index)
+        super().paint(painter, option, index)
 
 
 class View(QTreeView):
     def __init__(self, gui, gateway):  # pylint: disable=too-many-statements
-        super(View, self).__init__()
+        super().__init__()
         self.gui = gui
         self.gateway = gateway
         self.invite_sender_dialogs = []
