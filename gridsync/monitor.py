@@ -65,7 +65,7 @@ class MagicFolderChecker(QObject):
             for action, path in change:
                 if path not in notifications[action]:
                     notifications[action].append(path)
-            for action, files, in notifications.items():
+            for action, files in notifications.items():
                 logging.debug("%s %s %s", author, action, len(files))
                 # Currently, for non-'admin' members, member/author names are
                 # random/non-human-meaningful strings, so omit them for now.

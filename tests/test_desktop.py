@@ -124,7 +124,7 @@ def test__desktop_open_call_qdesktopservices_openurl(monkeypatch):
             "subprocess.Popen",
             'explorer /select,"/test/path/file.txt"',
         ),
-        ("linux", "gridsync.desktop._desktop_open", "/test/path",),
+        ("linux", "gridsync.desktop._desktop_open", "/test/path"),
     ],
 )
 def test_open_enclosing_folder(platform, mocked_call, args, monkeypatch):
@@ -140,7 +140,7 @@ def test_open_enclosing_folder(platform, mocked_call, args, monkeypatch):
     [
         ("darwin", "subprocess.Popen", ["open", "/test/path/file.txt"]),
         ("win32", "os.startfile", "/test/path/file.txt"),
-        ("linux", "gridsync.desktop._desktop_open", "/test/path/file.txt",),
+        ("linux", "gridsync.desktop._desktop_open", "/test/path/file.txt"),
     ],
 )
 def test_open_path(platform, mocked_call, args, monkeypatch):

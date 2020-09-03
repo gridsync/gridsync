@@ -242,8 +242,6 @@ class DebugExporter(QDialog):
                 f.write(self.plaintextedit.toPlainText())
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
-            error(
-                self, "Error exporting debug information", str(e),
-            )
+            error(self, "Error exporting debug information", str(e))
             return
         self.close()
