@@ -1226,9 +1226,9 @@ class Tahoe:
     def add_voucher(self, voucher: Optional[str] = None):
         if not voucher:
             voucher = self.generate_voucher()
-        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.put(
-            url + "/voucher",
+            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+            "/voucher",
             json.dumps({"voucher": voucher}).encode(),
             headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
@@ -1238,9 +1238,9 @@ class Tahoe:
 
     @inlineCallbacks
     def get_voucher(self, voucher: str):
-        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.get(
-            url + "/voucher/" + voucher,
+            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+            f"/voucher/{voucher}",
             headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
         if resp.code == 200:
@@ -1250,9 +1250,9 @@ class Tahoe:
 
     @inlineCallbacks
     def get_vouchers(self):
-        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.get(
-            url + "/voucher",
+            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+            "/voucher",
             headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
         if resp.code == 200:
@@ -1269,9 +1269,9 @@ class Tahoe:
             params["limit"] = limit
         if position:
             params["position"] = position  # type: ignore
-        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.get(
-            url + "/unblinded-token",
+            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+            "/unblinded-token",
             params=params,
             headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
@@ -1367,9 +1367,9 @@ class Tahoe:
 
     @inlineCallbacks
     def insert_zkaps(self, zkaps: list):
-        url = self.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1"
         resp = yield treq.post(
-            url + "/unblinded-token",
+            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+            "/unblinded-token",
             json.dumps({"unblinded-tokens": zkaps}).encode(),
             headers={"Authorization": f"tahoe-lafs {self.api_token}"},
         )
