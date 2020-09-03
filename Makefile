@@ -151,7 +151,7 @@ frozen-tahoe:
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@v2020.04.03 && \
-	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@50d0ba4841f1c72837c64a4aaa6d24a7b1956b26 && \
+	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@528221d831a4ad75c1f7ee801ca2c9af4c8b731f && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
