@@ -5,6 +5,10 @@ cache:
 matrix:
   include:
     - os: linux
+      dist: focal
+      sudo: required
+      env: PYTHON_CONFIGURE_OPTS="--enable-shared"
+    - os: linux
       dist: bionic
       sudo: required
       env: PYTHON_CONFIGURE_OPTS="--enable-shared"
