@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
-from gridsync import resource, APP_NAME
+from gridsync import APP_NAME, resource
 from gridsync.gui.activity import ActivityView
 from gridsync.gui.files_model import FilesModel
 from gridsync.gui.files_view import FilesView

@@ -5,8 +5,8 @@ import os
 from PyQt5.QtCore import (
     QModelIndex,
     QPoint,
-    QSize,
     QRegularExpression,
+    QSize,
     QSortFilterProxyModel,
     Qt,
 )

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import logging
 import os
 import time
+from datetime import datetime
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, Qt
@@ -17,7 +17,7 @@ from PyQt5.QtGui import (
 )
 from PyQt5.QtWidgets import QFileIconProvider
 
-from gridsync import resource, config_dir
+from gridsync import config_dir, resource
 from gridsync.gui.pixmap import CompositePixmap
 from gridsync.monitor import MagicFolderChecker
 

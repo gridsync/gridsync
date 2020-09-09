@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import os
 import time
+from datetime import datetime
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import (
     QFileInfo,
     QModelIndex,
     QSortFilterProxyModel,
-    QTimer,
     Qt,
+    QTimer,
 )
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtCore import pyqtSlot as Slot
@@ -22,13 +22,13 @@ from PyQt5.QtGui import (
     QStandardItemModel,
 )
 from PyQt5.QtWidgets import (
-    QAction,
     QAbstractItemView,
+    QAction,
     QFileIconProvider,
     QGridLayout,
     QLabel,
-    QListWidgetItem,
     QListWidget,
+    QListWidgetItem,
     QMenu,
     QPushButton,
     QSizePolicy,
