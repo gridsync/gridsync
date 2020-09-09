@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import logging
 import os
 import platform
 import sys
 import time
+from datetime import datetime
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import pyqtSignal, QObject, QSize, Qt, QThread
+from PyQt5.QtCore import QObject, QSize, Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QFontDatabase, QIcon
 from PyQt5.QtWidgets import (
     QCheckBox,
@@ -23,10 +23,9 @@ from PyQt5.QtWidgets import (
 )
 
 from gridsync import APP_NAME, __version__, resource
-from gridsync.msg import error
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.filter import get_filters, apply_filters, get_mask
-
+from gridsync.filter import apply_filters, get_filters, get_mask
+from gridsync.msg import error
 
 if sys.platform == "darwin":
     system = "macOS {}".format(platform.mac_ver()[0])
@@ -242,8 +241,6 @@ class DebugExporter(QDialog):
                 f.write(self.plaintextedit.toPlainText())
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
-            error(
-                self, "Error exporting debug information", str(e),
-            )
+            error(self, "Error exporting debug information", str(e))
             return
         self.close()

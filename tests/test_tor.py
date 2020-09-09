@@ -2,11 +2,11 @@
 
 from unittest.mock import MagicMock
 
-from PyQt5.QtWidgets import QMessageBox
 import pytest
+from PyQt5.QtWidgets import QMessageBox
 from pytest_twisted import inlineCallbacks
 
-from gridsync.tor import tor_required, get_tor, get_tor_with_prompt
+from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 
 
 @pytest.mark.parametrize(

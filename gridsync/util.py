@@ -3,7 +3,6 @@
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
 
-
 B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 

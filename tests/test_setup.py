@@ -5,19 +5,19 @@ import os
 from unittest.mock import MagicMock, Mock
 
 import pytest
-from pytest_twisted import inlineCallbacks
 import yaml
+from pytest_twisted import inlineCallbacks
 
 from gridsync import resource
-from gridsync.errors import UpgradeRequiredError, TorError
+from gridsync.errors import TorError, UpgradeRequiredError
 from gridsync.setup import (
-    is_onion_grid,
-    prompt_for_grid_name,
-    validate_grid,
-    prompt_for_folder_name,
-    validate_folders,
-    validate_settings,
     SetupRunner,
+    is_onion_grid,
+    prompt_for_folder_name,
+    prompt_for_grid_name,
+    validate_folders,
+    validate_grid,
+    validate_settings,
 )
 from gridsync.tahoe import Tahoe
 

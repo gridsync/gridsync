@@ -2,13 +2,13 @@
 
 import hashlib
 
-from PyQt5.QtCore import pyqtSignal, QObject
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
 from nacl.utils import random
+from PyQt5.QtCore import QObject, pyqtSignal
 
-from gridsync.util import b58encode, b58decode
+from gridsync.util import b58decode, b58encode
 
 
 def trunchash(string, length=7):

@@ -6,7 +6,7 @@
 import json
 import logging
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from wormhole import wormhole
@@ -14,8 +14,7 @@ from wormhole.errors import WormholeError
 from wormhole.tor_manager import get_tor
 
 from gridsync import settings
-from gridsync.errors import UpgradeRequiredError, TorError
-
+from gridsync.errors import TorError, UpgradeRequiredError
 
 APPID = settings["wormhole"]["appid"]
 RELAY = settings["wormhole"]["relay"]

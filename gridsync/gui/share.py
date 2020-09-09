@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import logging
 import os
 import sys
+from datetime import datetime
 
-from PyQt5.QtCore import pyqtSignal, QFileInfo, Qt, QTimer
+import wormhole.errors
+from PyQt5.QtCore import QFileInfo, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QDialog,
@@ -23,14 +24,13 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError
-import wormhole.errors
 
-from gridsync import resource, config_dir
+from gridsync import config_dir, resource
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
+from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.preferences import get_preference
 from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list

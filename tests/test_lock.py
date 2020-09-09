@@ -4,8 +4,8 @@ import os
 
 import pytest
 
-from gridsync.lock import FilesystemLock
 from gridsync.errors import FilesystemLockError
+from gridsync.lock import FilesystemLock
 
 
 def test_lock_acquire(tmpdir):

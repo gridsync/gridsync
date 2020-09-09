@@ -1,19 +1,17 @@
+from errno import EADDRINUSE
+from json import dumps
 from random import randrange
 from urllib.parse import urlsplit
-from json import dumps
-from errno import EADDRINUSE
-
-from pytest_twisted import inlineCallbacks
 
 from autobahn.twisted.websocket import (
     WebSocketServerFactory,
     WebSocketServerProtocol,
 )
-
+from pytest_twisted import inlineCallbacks
 from twisted.internet.defer import Deferred
-from twisted.internet.task import deferLater
 from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.error import CannotListenError
+from twisted.internet.task import deferLater
 
 from gridsync.streamedlogs import StreamedLogs
 
@@ -66,15 +64,13 @@ class FakeLogServerProtocol(WebSocketServerProtocol):
     FAKE_MESSAGE = dumps({"fake": "message"})
 
     def onOpen(self):
-        self.sendMessage(
-            self.FAKE_MESSAGE.encode("utf-8"), isBinary=False,
-        )
+        self.sendMessage(self.FAKE_MESSAGE.encode("utf-8"), isBinary=False)
 
 
 def twlog():
     from sys import stdout
-    from twisted.logger import globalLogBeginner
-    from twisted.logger import textFileLogObserver
+
+    from twisted.logger import globalLogBeginner, textFileLogObserver
 
     globalLogBeginner.beginLoggingTo([textFileLogObserver(stdout)])
 
@@ -139,9 +135,7 @@ def test_bounded_streamed_log_buffer(reactor, tahoe):
 
 class BinaryMessageServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
-        self.sendMessage(
-            b"this is a binary message", isBinary=True,
-        )
+        self.sendMessage(b"this is a binary message", isBinary=True)
         self.transport.loseConnection()
 
 
@@ -152,7 +146,7 @@ def test_binary_messages_dropped(reactor, tahoe):
     server = BinaryMessageServerProtocol()
 
     client = yield connect_to_log_endpoint(
-        reactor, tahoe, real_reactor, lambda: server,
+        reactor, tahoe, real_reactor, lambda: server
     )
     # client is a _WrappingProtocol because the implementation uses
     # TCP4ClientEndpoint which puts a _WrappingFactory into the reactor.  Then
@@ -245,7 +239,7 @@ def test_path(reactor, tahoe):
             path.callback(request.path)
 
     yield connect_to_log_endpoint(
-        reactor, tahoe, real_reactor, PathCheckingProtocol,
+        reactor, tahoe, real_reactor, PathCheckingProtocol
     )
     p = yield path
     assert p == "/private/logs/v1"
@@ -269,7 +263,7 @@ def test_authentication(reactor, tahoe):
             headers.callback(request.headers)
 
     yield connect_to_log_endpoint(
-        reactor, tahoe, real_reactor, AuthorizationCheckingProtocol,
+        reactor, tahoe, real_reactor, AuthorizationCheckingProtocol
     )
     h = yield headers
     assert h.get("authorization", None) == "tahoe-lafs {}".format(api_token), h

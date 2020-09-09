@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
 import logging
 import time
+from collections import defaultdict
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
 
@@ -65,7 +65,7 @@ class MagicFolderChecker(QObject):
             for action, path in change:
                 if path not in notifications[action]:
                     notifications[action].append(path)
-            for action, files, in notifications.items():
+            for action, files in notifications.items():
                 logging.debug("%s %s %s", author, action, len(files))
                 # Currently, for non-'admin' members, member/author names are
                 # random/non-human-meaningful strings, so omit them for now.

@@ -4,8 +4,7 @@ from binascii import hexlify, unhexlify
 
 import pytest
 
-from gridsync.util import b58encode, b58decode, humanized_list, strip_html_tags
-
+from gridsync.util import b58decode, b58encode, humanized_list, strip_html_tags
 
 # From https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
 base58_test_pairs = [

@@ -5,9 +5,9 @@ colorama==0.4.3; sys_platform == "win32" \
     --hash=sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff \
     --hash=sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1
 # Pylint does not yet support isort 5; see https://github.com/PyCQA/pylint/pull/3725
-isort==5.4.2 \
-    --hash=sha256:60a1b97e33f61243d12647aaaa3e6cc6778f5eb9f42997650f1cc975b6008750 \
-    --hash=sha256:d488ba1c5a2db721669cc180180d5acf84ebdc5af7827f7aaeaa75f73cf0e2b8
+isort==5.5.1 \
+    --hash=sha256:92533892058de0306e51c88f22ece002a209dc8e80288aa3cec6d443060d584f \
+    --hash=sha256:a200d47b7ee8b7f7d0a9646650160c4a51b6a91a9413fd31b1da2c4de789f5d3
 lazy-object-proxy==1.5.1 \
     --hash=sha256:00b78a97a79d0dfefa584d44dd1aba9668d3de7ec82335ba0ff51d53ef107143 \
     --hash=sha256:042b54fd71c2092e6d10e5e66fa60f65c5954f8145e809f5d9f394c9b13d32ee \

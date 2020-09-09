@@ -2,9 +2,9 @@
 
 import logging
 
+import txtorcon
 from PyQt5.QtWidgets import QMessageBox
 from twisted.internet.defer import inlineCallbacks
-import txtorcon
 
 from gridsync import settings
 

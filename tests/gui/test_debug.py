@@ -7,11 +7,11 @@ import pytest
 from PyQt5.QtCore import Qt
 
 from gridsync.gui.debug import (
-    system,
-    header,
-    warning_text,
-    LogLoader,
     DebugExporter,
+    LogLoader,
+    header,
+    system,
+    warning_text,
 )
 
 
