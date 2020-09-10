@@ -12,7 +12,6 @@ from PyQt5.QtGui import QColor, QPainter, QPalette, QPen
 
 from gridsync.gui.color import is_dark
 
-
 COLOR_USED = "#D42020"
 COLOR_COST = "#EE9A1D"
 COLOR_AVAILABLE = "#29A529"

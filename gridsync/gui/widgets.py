@@ -3,8 +3,8 @@
 import json
 import os
 
-from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtCore import QPropertyAnimation, QThread
+from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialogButtonBox,

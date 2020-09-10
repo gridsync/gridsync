@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import logging
 import webbrowser
+from datetime import datetime
 
 from humanize import naturalsize
 from PyQt5.QtCore import Qt

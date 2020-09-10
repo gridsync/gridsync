@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from humanize import naturalsize
-from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtWidgets import (
     QAction,
