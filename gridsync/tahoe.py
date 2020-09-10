@@ -1262,7 +1262,7 @@ class Tahoe:
 
     @inlineCallbacks
     def get_zkaps(
-        self, limit: Optional[int] = None, position: Optional[str] = None,
+        self, limit: Optional[int] = None, position: Optional[str] = None
     ):
         params = {}
         if limit:

@@ -171,7 +171,7 @@ class ZKAPInfoPane(QWidget):
             self.explainer_label.show()
             self.chart_view.show()
         self.chart_view.chart.update(
-            self._zkaps_used, self._zkaps_cost, self._zkaps_remaining,
+            self._zkaps_used, self._zkaps_cost, self._zkaps_remaining
         )
         self.gui.main_window.maybe_enable_actions()
 
