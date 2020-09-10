@@ -5,11 +5,11 @@ import argparse
 import subprocess
 import sys
 
-from gridsync import __version__, APP_NAME
+from gridsync import APP_NAME
 from gridsync import __doc__ as description
+from gridsync import __version__, msg
 from gridsync.core import Core
 from gridsync.errors import FilesystemLockError
-from gridsync import msg
 
 
 class TahoeVersion(argparse.Action):

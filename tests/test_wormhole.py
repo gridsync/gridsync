@@ -6,7 +6,7 @@ import pytest
 from pytest_twisted import inlineCallbacks
 from wormhole.errors import WormholeError
 
-from gridsync.errors import UpgradeRequiredError, TorError
+from gridsync.errors import TorError, UpgradeRequiredError
 from gridsync.wormhole_ import Wormhole, wormhole_receive, wormhole_send
 
 

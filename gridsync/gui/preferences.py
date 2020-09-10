@@ -18,11 +18,11 @@ from PyQt5.QtWidgets import (
 
 from gridsync import APP_NAME, resource
 from gridsync.desktop import (
+    autostart_disable,
     autostart_enable,
     autostart_is_enabled,
-    autostart_disable,
 )
-from gridsync.preferences import set_preference, get_preference
+from gridsync.preferences import get_preference, set_preference
 
 
 class GeneralPane(QWidget):

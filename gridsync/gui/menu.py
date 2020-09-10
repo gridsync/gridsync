@@ -6,8 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QMenu, QMessageBox
 
-from gridsync import resource, settings, APP_NAME
-from gridsync import __version__
+from gridsync import APP_NAME, __version__, resource, settings
 
 
 class Menu(QMenu):

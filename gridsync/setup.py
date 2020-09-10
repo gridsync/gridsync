@@ -6,18 +6,18 @@ import os
 import shutil
 from binascii import Error
 
-from atomicwrites import atomic_write
-from PyQt5.QtCore import pyqtSignal, QObject
-from PyQt5.QtWidgets import QInputDialog
 import treq
+from atomicwrites import atomic_write
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtWidgets import QInputDialog
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import config_dir, resource, APP_NAME
+from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
-from gridsync.errors import UpgradeRequiredError, TorError
+from gridsync.errors import TorError, UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
-from gridsync.tor import tor_required, get_tor, get_tor_with_prompt
+from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 
 
 def is_onion_grid(settings):

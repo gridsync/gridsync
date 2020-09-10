@@ -8,9 +8,9 @@ from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (
     QGridLayout,
     QLabel,
-    QPushButton,
     QMessageBox,
     QProgressBar,
+    QPushButton,
     QShortcut,
     QSizePolicy,
     QSpacerItem,
@@ -26,15 +26,15 @@ from wormhole.errors import (
     WrongPasswordError,
 )
 
-from gridsync import resource, APP_NAME
+from gridsync import APP_NAME, resource
 from gridsync import settings as global_settings
-from gridsync.invite import InviteReceiver, load_settings_from_cheatcode
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import TahoeConfigForm
+from gridsync.invite import InviteReceiver, load_settings_from_cheatcode
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl

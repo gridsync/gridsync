@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict
 import json
 import os
+from collections import OrderedDict
 from unittest.mock import Mock
 
 import pytest
 
-from gridsync import pkgdir, config_dir, autostart_file_path
+from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.filter import (
-    get_filters,
     apply_filters,
     filter_tahoe_log_message,
+    get_filters,
 )
 
 

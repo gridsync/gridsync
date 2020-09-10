@@ -13,7 +13,7 @@ from PyQt5.QtGui import QClipboard, QDesktopServices
 if sys.platform == "win32":
     from win32com.client import Dispatch  # pylint: disable=import-error
 
-from gridsync import resource, settings, APP_NAME, autostart_file_path
+from gridsync import APP_NAME, autostart_file_path, resource, settings
 
 
 def _dbus_notify(title, message, duration=5000):

@@ -3,7 +3,7 @@
 import json
 import os
 
-from gridsync import pkgdir, config_dir, autostart_file_path
+from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.crypto import trunchash
 
 

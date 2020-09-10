@@ -5,6 +5,10 @@ cache:
 matrix:
   include:
     - os: linux
+      dist: focal
+      sudo: required
+      env: PYTHON_CONFIGURE_OPTS="--enable-shared"
+    - os: linux
       dist: bionic
       sudo: required
       env: PYTHON_CONFIGURE_OPTS="--enable-shared"
@@ -49,12 +53,12 @@ install:
   - pyenv --version
   - pyenv install --list
   - pyenv versions
-  - pyenv install --skip-existing 2.7.17
-  - pyenv install --skip-existing 3.8.1
-  - pyenv install --skip-existing 3.7.6
-  - pyenv install --skip-existing 3.6.10
+  - pyenv install --skip-existing 2.7.18
+  - pyenv install --skip-existing 3.8.5
+  - pyenv install --skip-existing 3.7.9
+  - pyenv install --skip-existing 3.6.12
   - pyenv rehash
-  - pyenv global 2.7.17 3.7.6 3.8.1 3.6.10
+  - pyenv global 2.7.18 3.7.9 3.8.5 3.6.12
   - pyenv versions
   - which python && python --version
   - which python2 && python2 --version

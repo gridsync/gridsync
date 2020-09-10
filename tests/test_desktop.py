@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import os
-from unittest.mock import Mock, MagicMock, call
 import webbrowser
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 
 from gridsync.desktop import (
     _dbus_notify,
-    notify,
-    get_clipboard_modes,
-    get_clipboard_text,
-    set_clipboard_text,
     _desktop_open,
-    open_enclosing_folder,
-    open_path,
+    autostart_disable,
     autostart_enable,
     autostart_is_enabled,
-    autostart_disable,
     get_browser_name,
+    get_clipboard_modes,
+    get_clipboard_text,
+    notify,
+    open_enclosing_folder,
+    open_path,
+    set_clipboard_text,
 )
 
 
@@ -126,7 +126,7 @@ def test__desktop_open_call_qdesktopservices_openurl(monkeypatch):
             "subprocess.Popen",
             'explorer /select,"/test/path/file.txt"',
         ),
-        ("linux", "gridsync.desktop._desktop_open", "/test/path",),
+        ("linux", "gridsync.desktop._desktop_open", "/test/path"),
     ],
 )
 def test_open_enclosing_folder(platform, mocked_call, args, monkeypatch):
@@ -142,7 +142,7 @@ def test_open_enclosing_folder(platform, mocked_call, args, monkeypatch):
     [
         ("darwin", "subprocess.Popen", ["open", "/test/path/file.txt"]),
         ("win32", "os.startfile", "/test/path/file.txt"),
-        ("linux", "gridsync.desktop._desktop_open", "/test/path/file.txt",),
+        ("linux", "gridsync.desktop._desktop_open", "/test/path/file.txt"),
     ],
 )
 def test_open_path(platform, mocked_call, args, monkeypatch):

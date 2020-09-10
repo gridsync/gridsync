@@ -3,8 +3,8 @@
 import json
 import os
 
-from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal as Signal
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
 try:
@@ -16,7 +16,6 @@ from gridsync import pkgdir
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.util import b58encode
 from gridsync.wormhole_ import Wormhole
-
 
 cheatcodes = []
 try:

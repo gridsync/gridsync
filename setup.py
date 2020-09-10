@@ -8,7 +8,6 @@ from setuptools import setup
 
 import versioneer
 
-
 requirements = [
     "atomicwrites",
     "autobahn",

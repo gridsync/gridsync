@@ -4,17 +4,17 @@ import os
 from pathlib import Path
 
 try:
-    from unittest.mock import Mock, MagicMock
+    from unittest.mock import MagicMock, Mock
 except ImportError:
     from mock import Mock, MagicMock
 
 import pytest
+import yaml
 from pytest_twisted import inlineCallbacks
 from twisted.internet.testing import MemoryReactorClock
-import yaml
 
-from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
-from gridsync.tahoe import is_valid_furl, get_nodedirs, Tahoe
+from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
+from gridsync.tahoe import Tahoe, get_nodedirs, is_valid_furl
 
 
 def fake_get(*args, **kwargs):

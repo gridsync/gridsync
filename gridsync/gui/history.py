@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import os
 import time
+from datetime import datetime
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, QTimer, Qt
+from PyQt5.QtCore import QFileInfo, Qt, QTimer
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
 from PyQt5.QtWidgets import (
-    QAction,
     QAbstractItemView,
+    QAction,
     QFileIconProvider,
     QGridLayout,
     QLabel,
-    QListWidgetItem,
     QListWidget,
+    QListWidgetItem,
     QMenu,
     QPushButton,
     QSizePolicy,

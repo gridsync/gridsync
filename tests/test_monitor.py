@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, Mock, call
 import pytest
 from pytest_twisted import inlineCallbacks
 
-from gridsync.monitor import MagicFolderChecker, GridChecker, Monitor
+from gridsync.monitor import GridChecker, MagicFolderChecker, Monitor
 
 
 @pytest.fixture(scope="function")

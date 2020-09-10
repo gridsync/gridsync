@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from importlib import reload
 import os
 import sys
+from importlib import reload
 
 import pytest
 

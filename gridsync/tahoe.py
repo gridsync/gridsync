@@ -11,13 +11,14 @@ import shutil
 import signal
 import sys
 import tempfile
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from io import BytesIO
 from pathlib import Path
 from typing import List, Optional
 
-from atomicwrites import atomic_write
 import treq
+import yaml
+from atomicwrites import atomic_write
 from twisted.internet.defer import (
     Deferred,
     DeferredList,
@@ -28,18 +29,17 @@ from twisted.internet.error import ConnectError, ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
-import yaml
 
 from gridsync import pkgdir
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
-from gridsync.errors import TahoeError, TahoeCommandError, TahoeWebError
+from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
 from gridsync.filter import filter_tahoe_log_message
 from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
+from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
-from gridsync.preferences import set_preference, get_preference
 
 
 def is_valid_furl(furl):

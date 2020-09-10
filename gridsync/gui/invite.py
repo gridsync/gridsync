@@ -3,11 +3,11 @@
 import sys
 
 from PyQt5.QtCore import (
-    pyqtSignal,
     QPropertyAnimation,
     QSize,
     QStringListModel,
     Qt,
+    pyqtSignal,
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
@@ -33,12 +33,12 @@ from wormhole.errors import (
     WrongPasswordError,
 )
 
-from gridsync import resource, APP_NAME
+from gridsync import APP_NAME, resource
 from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.invite import wordlist, is_valid_code
+from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
 
 
