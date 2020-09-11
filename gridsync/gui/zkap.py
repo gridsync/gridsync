@@ -204,7 +204,7 @@ class ZKAPInfoPane(QWidget):
     #    # days meets or exceeds datetime.today().toordinal()
     #    delta = timedelta(days=days)
     #    try:
-    #        self.expiration_field.setText(naturaldelta(timedelta(days=days)))
+    #        self.expiration_field.setText(naturaldelta(delta))
     #    except OverflowError:
     #        self.expiration_field.setText("Several years")
     #    date = datetime.isoformat(datetime.now() + delta).split("T")[0]
