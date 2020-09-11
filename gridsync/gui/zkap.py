@@ -200,12 +200,11 @@ class ZKAPInfoPane(QWidget):
 
     # @Slot(int)
     # def on_days_remaining_updated(self, days):
-    #    # naturaldelta will raise an OverflowError if the number of
-    #    # days meets or exceeds datetime.today().toordinal()
     #    delta = timedelta(days=days)
     #    try:
     #        self.expiration_field.setText(naturaldelta(delta))
     #    except OverflowError:
+    #        # Raises if days >= datetime.today().toordinal()
     #        self.expiration_field.setText("Several years")
     #    date = datetime.isoformat(datetime.now() + delta).split("T")[0]
     #    self.expiration_field.setToolTip(f"Expires: {date}")
