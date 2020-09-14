@@ -359,6 +359,13 @@ class Tahoe:
                     "ristretto-issuer-root-url",
                     options.get("ristretto-issuer-root-url"),
                 )
+                pass_value = options.get("pass-value")
+                if pass_value:
+                    self.config_set(
+                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                        "pass-value",
+                        pass_value,
+                    )
             else:
                 log.warning(
                     "Skipping unknown storage plugin option: %s", options
