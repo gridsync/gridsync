@@ -85,17 +85,6 @@ class ZKAPInfoPane(QWidget):
         self.button.clicked.connect(self.on_button_clicked)
         self.button.setFixedSize(240, 32)
 
-        self.pending_label = QLabel(
-            f"A payment to {self.gateway.name} is still pending.\nThis window "
-            f"will update once {gateway.zkap_name_abbrev}s have been received"
-            ".\nIt may take several minutes for this process to complete."
-        )
-        self.pending_label.setAlignment(Qt.AlignCenter)
-        font = Font(10)
-        font.setItalic(True)
-        self.pending_label.setFont(font)
-        self.pending_label.hide()
-
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(title, 20, 0)
@@ -106,7 +95,6 @@ class ZKAPInfoPane(QWidget):
         layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
-        layout.addWidget(self.pending_label, 100, 0, 1, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
 
         self.groupbox.setLayout(layout)
@@ -122,9 +110,6 @@ class ZKAPInfoPane(QWidget):
         # self.gateway.monitor.days_remaining_updated.connect(
         #    self.on_days_remaining_updated
         # )
-        self.gateway.monitor.unpaid_vouchers_updated.connect(
-            self.on_unpaid_vouchers_updated
-        )
         self.gateway.monitor.total_folders_size_updated.connect(
             self.on_total_folders_size_updated
         )
@@ -186,17 +171,6 @@ class ZKAPInfoPane(QWidget):
     def on_zkaps_renewal_cost_updated(self, cost):
         self._zkaps_cost = cost
         self._update_chart()
-
-    @Slot(list)
-    def on_unpaid_vouchers_updated(self, vouchers):
-        if vouchers:
-            self.info_label.hide()
-            self.button.hide()
-            self.pending_label.show()
-        else:
-            self.pending_label.hide()
-            self.button.show()
-            self.info_label.show()
 
     # @Slot(int)
     # def on_days_remaining_updated(self, days):
