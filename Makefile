@@ -151,7 +151,13 @@ frozen-tahoe:
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@v2020.04.03 && \
-	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@528221d831a4ad75c1f7ee801ca2c9af4c8b731f && \
+	git clone https://github.com/PrivateStorageio/ZKAPAuthorizer build/ZKAPAuthorizer && \
+	cp ../../misc/zkapauthorizer-retry-interval.patch build/ZKAPAuthorizer && \
+	pushd build/ZKAPAuthorizer && \
+	git checkout 528221d831a4ad75c1f7ee801ca2c9af4c8b731f && \
+	git apply zkapauthorizer-retry-interval.patch && \
+	python -m pip install . && \
+	popd && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
