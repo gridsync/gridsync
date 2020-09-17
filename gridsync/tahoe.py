@@ -1425,6 +1425,22 @@ class Tahoe:
         return version
 
     @inlineCallbacks
+    def calculate_price(self, sizes: List[int]):
+        resp = yield treq.post(
+            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+            "/calculate-price",
+            json.dumps({"version": 1, "sizes": sizes}).encode(),
+            headers={
+                "Authorization": f"tahoe-lafs {self.api_token}",
+                "Content-Type": "application/json"
+            },
+        )
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content
+        raise TahoeWebError(f"Error calculating price: {resp.code}")
+
+    @inlineCallbacks
     def scan_storage_plugins(self):
         plugins = []
         log.debug("Scanning for known storage plugins...")
