@@ -1426,6 +1426,8 @@ class Tahoe:
 
     @inlineCallbacks
     def calculate_price(self, sizes: List[int]):
+        if not self.nodeurl:
+            return None
         resp = yield treq.post(
             f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
             "/calculate-price",
