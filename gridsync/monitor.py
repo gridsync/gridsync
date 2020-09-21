@@ -50,6 +50,7 @@ class MagicFolderChecker(QObject):
         self.size = 0
 
         self.members = []
+        self.sizes = []
         self.history = {}
         self.operations = {}
 
@@ -207,6 +208,7 @@ class MagicFolderChecker(QObject):
         members, size, t, history = yield self.gateway.get_magic_folder_state(
             self.name, members
         )
+        self.sizes = [data.get("size", 0) for data in history.values()]
         if members:
             members = sorted(members)
             if members != self.members:
