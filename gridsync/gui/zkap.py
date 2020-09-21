@@ -107,6 +107,9 @@ class ZKAPInfoPane(QWidget):
         self.gateway.monitor.zkaps_renewal_cost_updated.connect(
             self.on_zkaps_renewal_cost_updated
         )
+        self.gateway.monitor.zkaps_price_updated.connect(
+            self.on_zkaps_renewal_cost_updated
+        )
         # self.gateway.monitor.days_remaining_updated.connect(
         #    self.on_days_remaining_updated
         # )

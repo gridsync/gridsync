@@ -94,7 +94,7 @@ class ZKAPBarChart(QChart):
 
         series = QHorizontalPercentBarSeries()
         series.append(self.set_used)
-        # series.append(self.set_cost)
+        series.append(self.set_cost)
         series.append(self.set_available)
         series.append(self.set_expected)
 
