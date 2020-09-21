@@ -519,6 +519,7 @@ class Monitor(QObject):
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
         self.total_folders_size: int = 0
+        self.price: dict = {}
 
         self.grid_checker = GridChecker(self.gateway)
         self.grid_checker.connected.connect(self.connected.emit)
@@ -605,11 +606,13 @@ class Monitor(QObject):
             elif self.magic_folder_checkers[folder].remote:
                 self.magic_folder_checkers[folder].remote = False
         states = set()
+        sizes = []
         total_size = 0
         for magic_folder_checker in list(self.magic_folder_checkers.values()):
             if not magic_folder_checker.remote:
                 yield magic_folder_checker.do_check()
                 states.add(magic_folder_checker.state)
+            sizes += magic_folder_checker.sizes
             total_size += magic_folder_checker.size
         if (
             MagicFolderChecker.SYNCING in states
@@ -628,6 +631,9 @@ class Monitor(QObject):
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
             self.total_folders_size_updated.emit(total_size)
+        price = yield self.gateway.calculate_price(sizes)
+        if price != self.price:
+            self.price = price
         self.check_finished.emit()
 
     def start(self, interval=2):
