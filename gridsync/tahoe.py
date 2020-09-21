@@ -1432,7 +1432,7 @@ class Tahoe:
             json.dumps({"version": 1, "sizes": sizes}).encode(),
             headers={
                 "Authorization": f"tahoe-lafs {self.api_token}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
         )
         if resp.code == 200:
