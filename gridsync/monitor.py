@@ -510,6 +510,7 @@ class Monitor(QObject):
     zkaps_updated = pyqtSignal(int, int)
     zkaps_redeemed = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
+    zkaps_price_updated = pyqtSignal(int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
     low_zkaps_warning = pyqtSignal()
@@ -632,8 +633,9 @@ class Monitor(QObject):
             self.total_folders_size = total_size
             self.total_folders_size_updated.emit(total_size)
         price = yield self.gateway.calculate_price(sizes)
-        if price != self.price:
+        if price and price != self.price:
             self.price = price
+            self.zkaps_price_updated.emit(price.get("price"))
         self.check_finished.emit()
 
     def start(self, interval=2):
