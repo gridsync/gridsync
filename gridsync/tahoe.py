@@ -14,7 +14,7 @@ import tempfile
 from collections import OrderedDict, defaultdict
 from io import BytesIO
 from pathlib import Path
-from typing import List, Optional
+from typing import Generator, List, Optional
 
 import treq
 import yaml
@@ -1071,6 +1071,19 @@ class Tahoe:
         return None
 
     @inlineCallbacks
+    def get_bytes(self, cap: str):
+        if not cap or not self.nodeurl:
+            return b""
+        try:
+            resp = yield treq.get(f"{self.nodeurl}uri/{cap}")
+        except ConnectError:
+            return b""
+        if resp.code == 200:
+            content = yield treq.content(resp)
+            return content
+        raise TahoeWebError(f"Error getting bytes: {resp.code}")
+
+    @inlineCallbacks
     def get_json(self, cap):
         if not cap or not self.nodeurl:
             return None
@@ -1441,6 +1454,29 @@ class Tahoe:
             content = yield treq.json_content(resp)
             return content
         raise TahoeWebError(f"Error calculating price: {resp.code}")
+
+    @inlineCallbacks
+    def get_sizes(self) -> Generator[int, None, List[int]]:
+        sizes = []
+        rootcap = self.get_rootcap()
+        rootcap_bytes = yield self.get_bytes(f"{rootcap}/?t=json")
+        sizes.append(len(rootcap_bytes))
+        rootcap_data = json.loads(rootcap_bytes.decode("utf-8"))
+        if rootcap_data:
+            dircaps = []
+            for name, data in rootcap_data[1]["children"].items():
+                rw_uri = data[1].get("rw_uri", "")
+                if rw_uri:  # Only care about dirs the user can write to
+                    dircaps.append(rw_uri)
+            for dircap in dircaps:
+                dircap_bytes = yield self.get_bytes(f"{dircap}/?t=json")
+                sizes.append(len(dircap_bytes))
+                dircap_data = json.loads(dircap_bytes.decode("utf-8"))
+                for data in dircap_data[1]["children"].values():
+                    size = data[1].get("size", 0)
+                    if size:
+                        sizes.append(size)
+        return sizes
 
     @inlineCallbacks
     def scan_storage_plugins(self):
