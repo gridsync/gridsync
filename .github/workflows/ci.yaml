@@ -6,7 +6,8 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04 macos-10.15, windows-2019]
+        # https://docs.github.com/en/actions/reference/specifications-for-github-hosted-runners
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
         python-version: [3.6, 3.7, 3.8]
     runs-on: ${{ matrix.os }}
     steps:
