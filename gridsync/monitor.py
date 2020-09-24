@@ -632,11 +632,8 @@ class Monitor(QObject):
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
             self.total_folders_size_updated.emit(total_size)
-        price = yield self.gateway.calculate_price(sizes)
-        # TODO: Add price for: rootcap, ZKAP backup caps, magic-folder DMD...
-        if price and price != self.price:
-            self.price = price
-            self.zkaps_price_updated.emit(price.get("price"))
+            price = yield self.gateway.get_price()
+            self.zkaps_price_updated.emit(price.get("price", 0))
         self.check_finished.emit()
 
     def start(self, interval=2):
