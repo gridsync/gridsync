@@ -24,6 +24,8 @@ jobs:
         python -m pip install --upgrade setuptools pip tox
         sudo apt install -y xvfb x11-utils libxkbcommon-x11-0
     - name: Test
+      env:
+        QT_DEBUG_PLUGINS: 1
       run: make test
     - name: Build
       run: make all
