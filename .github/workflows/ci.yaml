@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade setuptools pip tox
-        sudo apt install -y xvfb libxkbcommon-x11-0
+        sudo apt install -y xvfb x11-utils libxkbcommon-x11-0
     - name: Test
       run: make test
     - name: Build
