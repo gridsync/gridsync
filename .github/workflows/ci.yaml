@@ -3,13 +3,12 @@ name: CI
 on: [push]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  test:
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.6, 3.7, 3.8]
-
+    runs-on: ${{ matrix.os.runs-on }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
