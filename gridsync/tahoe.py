@@ -14,7 +14,7 @@ import tempfile
 from collections import OrderedDict, defaultdict
 from io import BytesIO
 from pathlib import Path
-from typing import Generator, List, Optional
+from typing import Dict, Generator, List, Optional
 
 import treq
 import yaml
@@ -1477,6 +1477,12 @@ class Tahoe:
                     if size:
                         sizes.append(size)
         return sizes
+
+    @inlineCallbacks
+    def get_price(self) -> Generator[int, None, Dict[str, int]]:
+        sizes = yield self.get_sizes()
+        price = yield self.calculate_price(sizes)
+        return price
 
     @inlineCallbacks
     def scan_storage_plugins(self):
