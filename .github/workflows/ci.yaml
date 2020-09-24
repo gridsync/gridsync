@@ -26,6 +26,6 @@ jobs:
     - name: Test
       env:
         QT_DEBUG_PLUGINS: 1
-      run: make test
+      run: xvfb-run -a python -m tox
     - name: Build
       run: make all
