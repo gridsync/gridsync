@@ -21,11 +21,11 @@ jobs:
       run: python -c "import sys; print(sys.version)"
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade setuptools pip tox
+        python -m pip install --upgrade setuptools pip tox pytest
         sudo apt install -y libgl1 xvfb x11-utils libxkbcommon-x11-0
     - name: Test
       env:
         QT_DEBUG_PLUGINS: 1
-      run: xvfb-run -a `which python` -m tox
+      run: xvfb-run -a `which python` -m pytest
     - name: Build
       run: make all
