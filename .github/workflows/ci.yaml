@@ -20,7 +20,9 @@ jobs:
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
     - name: Install dependencies
-      run: python -m pip install --upgrade setuptools pip tox
+      run: |
+        python -m pip install --upgrade setuptools pip tox
+        sudo apt install -y xvfb libxkbcommon-x11-0
     - name: Test
       run: make test
     - name: Build
