@@ -1,23 +1,19 @@
 on: [push]
 
 jobs:
-  test:
+  Linux:
     strategy:
       fail-fast: false
       matrix:
         # https://docs.github.com/en/actions/reference/specifications-for-github-hosted-runners
         # [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
         os:
-          - runs-on: ubuntu-16.04
+          - runs-on: ubuntu-20.04
             platform: linux
           - runs-on: ubuntu-18.04
             platform: linux
-          - runs-on: ubuntu-20.04
+          - runs-on: ubuntu-16.04
             platform: linux
-          - runs-on: macOS-10.15
-            platform: darwin
-          - runs-on: windows-2019
-            platform: win32
     runs-on: ${{ matrix.os.runs-on }}
     steps:
     - name: Checkout
@@ -46,3 +42,57 @@ jobs:
         make test
     - name: Build
       run: make all
+  macOS:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - runs-on: macOS-10.15
+            platform: darwin
+    runs-on: ${{ matrix.os.runs-on }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Restore pyenv cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.pyenv
+        key: pyenv-${{ matrix.os.runs-on }}
+        restore-keys: pyenv-${{ matrix.os.runs-on }}
+    - name: Restore cargo cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cargo
+        key: cargo-${{ matrix.os.runs-on }}
+        restore-keys: cargo-${{ matrix.os.runs-on }}
+    - name: Install dependencies
+      run: |
+        scripts/provision_devtools.sh
+    - name: Test
+      run: |
+        env | sort
+        ls -al ~
+        cat ~/.bash_profile
+        source ~/.bash_profile
+        make test
+    - name: Build
+      run: make all
+  Windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - runs-on: windows-2019
+            platform: win32
+    runs-on: ${{ matrix.os.runs-on }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        scripts/provision_devtools.bat
+    - name: Test
+      run: |
+        make.bat test
+    - name: Build
+      run: make.bat all
