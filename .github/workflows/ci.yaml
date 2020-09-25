@@ -30,6 +30,7 @@ jobs:
         env | sort
         ls -al ~
         cat ~/.bash_profile
+        source ~/.bash_profile
         make test
     - name: Build
       run: make all
