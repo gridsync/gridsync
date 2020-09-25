@@ -15,6 +15,9 @@ jobs:
       run: |
         scripts/provision_devtools.sh
     - name: Test
-      run: make test
+      run: |
+        env
+        cat ~/.bashrc
+        make test
     - name: Build
       run: make all
