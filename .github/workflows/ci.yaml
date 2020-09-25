@@ -22,6 +22,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Restore pyenv cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.pyenv
+        key: pyenv-${{ runner.os }}
+        restore-key: pyenv-${{ runner.os }}
     - name: Install dependencies
       run: |
         scripts/provision_devtools.sh
