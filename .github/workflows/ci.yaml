@@ -29,7 +29,7 @@ jobs:
       run: |
         env | sort
         ls -al ~
-        cat ~/.bashrc
+        cat ~/.bash_profile
         make test
     - name: Build
       run: make all
