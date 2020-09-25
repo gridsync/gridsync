@@ -26,14 +26,14 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.pyenv
-        key: pyenv-${{ runner.os }}
-        restore-keys: pyenv-${{ runner.os }}
+        key: pyenv-${{ matrix.os.runs-on }}
+        restore-keys: pyenv-${{ matrix.os.runs-on }}
     - name: Restore cargo cache
       uses: actions/cache@v2
       with:
         path: ~/.cargo
-        key: cargo-${{ runner.os }}
-        restore-keys: cargo-${{ runner.os }}
+        key: cargo-${{ matrix.os.runs-on }}
+        restore-keys: cargo-${{ matrix.os.runs-on }}
     - name: Install dependencies
       run: |
         scripts/provision_devtools.sh
