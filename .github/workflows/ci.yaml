@@ -98,6 +98,6 @@ jobs:
         scripts/provision_devtools.bat
     - name: Test
       run: |
-        make.bat test
+        .\make.bat test
     - name: Build
-      run: make.bat all
+      run: .\make.bat all
