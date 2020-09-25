@@ -8,21 +8,16 @@ jobs:
         # https://docs.github.com/en/actions/reference/specifications-for-github-hosted-runners
         # [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
         os:
-          - name: Ubuntu 16.04 (Xenial Xerus)
+          - runs-on: ubuntu-16.04
             platform: linux
-            runs-on: ubuntu-16.04
-          - name: Ubuntu 18.04 (Bionic Beaver)
+          - runs-on: ubuntu-18.04
             platform: linux
-            runs-on: ubuntu-18.04
-          - name: Ubuntu 20.04 (Focal Fossa)
+          - runs-on: ubuntu-20.04
             platform: linux
-            runs-on: ubuntu-20.04
-          - name: macOS 10.15 (Catalina)
+          - runs-on: macOS-10.15
             platform: darwin
-            runs-on: macOS-10.15
-          - name: Windows 2019
+          - runs-on: windows-2019
             platform: win32
-            runs-on: windows-2019
     runs-on: ${{ matrix.os.runs-on }}
     steps:
     - name: Checkout
