@@ -33,12 +33,17 @@ jobs:
     - name: Test
       run: |
         env | sort
-        ls -al ~
         cat ~/.bash_profile
         source ~/.bash_profile
+        env | sort
         make test
     - name: Build
-      run: make all
+      run: |
+        env | sort
+        cat ~/.bash_profile
+        source ~/.bash_profile
+        env | sort
+        make all
   macOS:
     strategy:
       fail-fast: false
@@ -67,12 +72,17 @@ jobs:
     - name: Test
       run: |
         env | sort
-        ls -al ~
-        cat ~/.bash_profile
-        source ~/.bash_profile
+        cat ~/.zshrc
+        source ~/.zshrc
+        env | sort
         make test
     - name: Build
-      run: make all
+      run: |
+        env | sort
+        cat ~/.zshrc
+        source ~/.zshrc
+        env | sort
+        make all
   Windows:
     strategy:
       fail-fast: false
