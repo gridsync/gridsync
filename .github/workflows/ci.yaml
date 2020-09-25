@@ -32,7 +32,7 @@ jobs:
         scripts/provision_devtools.sh
     - name: Test
       run: |
-        env
+        env | sort
         cat ~/.bashrc
         make test
     - name: Build
