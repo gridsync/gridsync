@@ -28,6 +28,12 @@ jobs:
         path: ~/.pyenv
         key: pyenv-${{ runner.os }}
         restore-key: pyenv-${{ runner.os }}
+    - name: Restore cargo cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cargo
+        key: cargo-${{ runner.os }}
+        restore-key: cargo-${{ runner.os }}
     - name: Install dependencies
       run: |
         scripts/provision_devtools.sh
