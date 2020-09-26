@@ -1,9 +1,10 @@
 #!/bin/sh
 
 if [ "$(uname)" = "Darwin" ]; then
-    #yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-    #echo "Done"
     export HOMEBREW_NO_ANALYTICS=1
+    if [ ! -f "/usr/local/bin/brew" ]; then
+        yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    fi
     brew -v analytics off
     brew install openssl readline sqlite3 xz zlib rustup-init
     export MACOSX_DEPLOYMENT_TARGET="10.13"
