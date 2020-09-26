@@ -28,21 +28,14 @@ jobs:
         key: cargo-${{ matrix.os.runs-on }}
         restore-keys: cargo-${{ matrix.os.runs-on }}
     - name: Install dependencies
-      run: |
-        scripts/provision_devtools.sh
+      run: scripts/provision_devtools.sh
     - name: Test
       run: |
-        env | sort
-        cat ~/.bash_profile
         source ~/.bash_profile
-        env | sort
         make test
     - name: Build
       run: |
-        env | sort
-        cat ~/.bash_profile
         source ~/.bash_profile
-        env | sort
         make all
     - name: Verify
       run: |
@@ -76,21 +69,14 @@ jobs:
         key: cargo-${{ matrix.os.runs-on }}
         restore-keys: cargo-${{ matrix.os.runs-on }}
     - name: Install dependencies
-      run: |
-        scripts/provision_devtools.sh
+      run: scripts/provision_devtools.sh
     - name: Test
       run: |
-        env | sort
-        cat ~/.bashrc
         source ~/.bashrc
-        env | sort
         make test
     - name: Build
       run: |
-        env | sort
-        cat ~/.bashrc
         source ~/.bashrc
-        env | sort
         make all
     - name: Verify
       run: |
@@ -111,11 +97,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install dependencies
-      run: |
-        scripts/provision_devtools.bat
+      run: .\scripts\provision_devtools.bat
     - name: Test
-      run: |
-        .\make.bat test
+      run: .\make.bat test
     - name: Build
       run: .\make.bat all
     - name: Verify
