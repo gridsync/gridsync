@@ -110,6 +110,7 @@ jobs:
       run: |
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
         .\dist\Gridsync\Gridsync.exe --version
+        .\dist\Gridsync-setup.exe /help
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
