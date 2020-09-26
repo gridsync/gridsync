@@ -44,6 +44,11 @@ jobs:
         source ~/.bash_profile
         env | sort
         make all
+    - name: Verify
+      run: |
+        xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
+        xvfb-run -a dist/Gridsync/gridsync --version
+        xvfb-run -a dist/Gridsync.AppImage --version
   macOS:
     strategy:
       fail-fast: false
@@ -83,6 +88,10 @@ jobs:
         source ~/.bashrc
         env | sort
         make all
+    - name: Verify
+      run: |
+        dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
+        dist/Gridsync.app/Contents/MacOS/Gridsync --version
   Windows:
     strategy:
       fail-fast: false
@@ -101,3 +110,7 @@ jobs:
         .\make.bat test
     - name: Build
       run: .\make.bat all
+    - name: Verify
+      run: |
+        .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
+        .\dist\Gridsync\Gridsync.exe --version
