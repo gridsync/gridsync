@@ -46,6 +46,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: dist/Gridsync.AppImage
+        name: Gridsync-${{ matrix.os.runs-on }}.AppImage
   macOS:
     strategy:
       fail-fast: false
@@ -86,6 +87,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: dist/Gridsync.dmg
+        name: Gridsync-${{ matrix.os.runs-on }}.dmg
   Windows:
     strategy:
       fail-fast: false
@@ -110,3 +112,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: .\dist\Gridsync-setup.exe
+        name: Gridsync-${{ matrix.os.runs-on }}-setup.exe
