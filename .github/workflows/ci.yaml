@@ -72,15 +72,15 @@ jobs:
     - name: Test
       run: |
         env | sort
-        cat ~/.zshrc
-        source ~/.zshrc
+        cat ~/.bashrc
+        source ~/.bashrc
         env | sort
         make test
     - name: Build
       run: |
         env | sort
-        cat ~/.zshrc
-        source ~/.zshrc
+        cat ~/.bashrc
+        source ~/.bashrc
         env | sort
         make all
   Windows:
