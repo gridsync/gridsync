@@ -89,11 +89,18 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Restore cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          "%LocalAppData%\pip\cache"
+        key: cache-${{ matrix.os.runs-on }}
     - name: Install dependencies
       run: |
         choco install -y --no-progress --require-checksums vcpython27
         py -3 -m pip install tox
         py -3 -m pip cache dir
+        ls "%LocalAppData%\pip\cache"
     - name: Test
       run: .\make.bat test
     - name: Build
