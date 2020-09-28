@@ -1,0 +1,115 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  Linux:
+    strategy:
+      matrix:
+        os:
+          - runs-on: ubuntu-20.04
+          - runs-on: ubuntu-18.04
+          - runs-on: ubuntu-16.04
+    runs-on: ${{ matrix.os.runs-on }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Restore cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cargo
+          ~/.pyenv
+        key: cache-${{ matrix.os.runs-on }}
+        restore-keys: cache-${{ matrix.os.runs-on }}
+    - name: Install dependencies
+      run: scripts/provision_devtools.sh
+    - name: Test
+      run: |
+        source ~/.bash_profile
+        make test
+    - name: Build
+      run: |
+        source ~/.bash_profile
+        make all
+    - name: Verify
+      run: |
+        xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
+        xvfb-run -a dist/Gridsync/gridsync --version
+        xvfb-run -a dist/Gridsync.AppImage --version
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist/Gridsync.AppImage
+        name: Gridsync-${{ matrix.os.runs-on }}.AppImage
+  macOS:
+    strategy:
+      matrix:
+        os:
+          - runs-on: macos-10.15
+    runs-on: ${{ matrix.os.runs-on }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Restore cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cargo
+          ~/.pyenv
+        key: cache-${{ matrix.os.runs-on }}
+        restore-keys: cache-${{ matrix.os.runs-on }}
+    - name: Install dependencies
+      run: scripts/provision_devtools.sh
+    - name: Test
+      run: |
+        source ~/.bashrc
+        make test
+    - name: Build
+      run: |
+        source ~/.bashrc
+        make all
+    - name: Verify
+      run: |
+        dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
+        dist/Gridsync.app/Contents/MacOS/Gridsync --version
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist/Gridsync.dmg
+        name: Gridsync-${{ matrix.os.runs-on }}.dmg
+  Windows:
+    strategy:
+      matrix:
+        os:
+          - runs-on: windows-2019
+    runs-on: ${{ matrix.os.runs-on }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Restore cache
+      uses: actions/cache@v2
+      with:
+        path: c:\users\runneradmin\appdata\local\pip\cache
+        key: cache-${{ matrix.os.runs-on }}
+    - name: Install dependencies
+      run: |
+        choco install -y --no-progress --require-checksums vcpython27
+        py -3 -m pip install tox
+        py -3 -m pip cache dir
+        ls c:\users\runneradmin\appdata\local\pip\cache
+    - name: Test
+      run: .\make.bat test
+    - name: Build
+      run: .\make.bat all
+    - name: Verify
+      run: |
+        .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
+        .\dist\Gridsync\Gridsync.exe --version
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: .\dist\Gridsync-setup.exe
+        name: Gridsync-${{ matrix.os.runs-on }}-setup.exe
