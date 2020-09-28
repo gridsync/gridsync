@@ -18,8 +18,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/.pyenv
+          ~/.cache/pip
           ~/.cargo
+          ~/.pyenv
         key: cache-${{ matrix.os.runs-on }}
         restore-keys: cache-${{ matrix.os.runs-on }}
     - name: Install dependencies
@@ -55,8 +56,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/.pyenv
+          ~/.cache/pip
           ~/.cargo
+          ~/.pyenv
         key: cache-${{ matrix.os.runs-on }}
         restore-keys: cache-${{ matrix.os.runs-on }}
     - name: Install dependencies
