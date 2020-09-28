@@ -15,18 +15,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Restore pyenv cache
+    - name: Restore cache
       uses: actions/cache@v2
       with:
-        path: ~/.pyenv
-        key: pyenv-${{ matrix.os.runs-on }}
-        restore-keys: pyenv-${{ matrix.os.runs-on }}
-    - name: Restore cargo cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.cargo
-        key: cargo-${{ matrix.os.runs-on }}
-        restore-keys: cargo-${{ matrix.os.runs-on }}
+        path: |
+          ~/.pyenv
+          ~/.cargo
+        key: cache-${{ matrix.os.runs-on }}
+        restore-keys: cache-${{ matrix.os.runs-on }}
     - name: Install dependencies
       run: scripts/provision_devtools.sh
     - name: Test
@@ -57,18 +53,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Restore pyenv cache
+    - name: Restore cache
       uses: actions/cache@v2
       with:
-        path: ~/.pyenv
-        key: pyenv-${{ matrix.os.runs-on }}
-        restore-keys: pyenv-${{ matrix.os.runs-on }}
-    - name: Restore cargo cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.cargo
-        key: cargo-${{ matrix.os.runs-on }}
-        restore-keys: cargo-${{ matrix.os.runs-on }}
+        path: |
+          ~/.pyenv
+          ~/.cargo
+        key: cache-${{ matrix.os.runs-on }}
+        restore-keys: cache-${{ matrix.os.runs-on }}
     - name: Install dependencies
       run: scripts/provision_devtools.sh
     - name: Test
