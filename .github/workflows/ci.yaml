@@ -24,15 +24,13 @@ jobs:
         key: cache-${{ matrix.os.runs-on }}
         restore-keys: cache-${{ matrix.os.runs-on }}
     - name: Install dependencies
-      run: scripts/provision_devtools.sh
+      run: |
+        scripts/provision_devtools.sh
+        source ~/.bash_profile
     - name: Test
-      run: |
-        source ~/.bash_profile
-        make test
+      run: make test
     - name: Build
-      run: |
-        source ~/.bash_profile
-        make all
+      run: make all
     - name: Verify
       run: |
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
@@ -62,15 +60,13 @@ jobs:
         key: cache-${{ matrix.os.runs-on }}
         restore-keys: cache-${{ matrix.os.runs-on }}
     - name: Install dependencies
-      run: scripts/provision_devtools.sh
+      run: |
+        scripts/provision_devtools.sh
+        source ~/.bashrc
     - name: Test
-      run: |
-        source ~/.bashrc
-        make test
+      run: make test
     - name: Build
-      run: |
-        source ~/.bashrc
-        make all
+      run: make all
     - name: Verify
       run: |
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
