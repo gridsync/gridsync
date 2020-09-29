@@ -1438,9 +1438,9 @@ class Tahoe:
         return version
 
     @inlineCallbacks
-    def calculate_price(self, sizes: List[int]):
+    def calculate_price(self, sizes: List[int]) -> Generator[int, None, Dict]:
         if not self.nodeurl:
-            return None
+            return {}
         resp = yield treq.post(
             f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
             "/calculate-price",
@@ -1450,16 +1450,20 @@ class Tahoe:
                 "Content-Type": "application/json",
             },
         )
-        if resp.code == 200:
+        if resp.code == 200:  # type: ignore
             content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error calculating price: {resp.code}")
+            return content  # type: ignore
+        raise TahoeWebError(
+            f"Error calculating price: {resp.code}"  # type: ignore
+        )
 
     @inlineCallbacks
-    def get_sizes(self) -> Generator[int, None, List[int]]:
-        sizes = []
+    def get_sizes(self) -> Generator[int, None, List[Optional[int]]]:
+        sizes: list = []
         rootcap = self.get_rootcap()
         rootcap_bytes = yield self.get_bytes(f"{rootcap}/?t=json")
+        if not rootcap_bytes:
+            return sizes
         sizes.append(len(rootcap_bytes))
         rootcap_data = json.loads(rootcap_bytes.decode("utf-8"))
         if rootcap_data:
@@ -1479,10 +1483,10 @@ class Tahoe:
         return sizes
 
     @inlineCallbacks
-    def get_price(self) -> Generator[int, None, Dict[str, int]]:
+    def get_price(self) -> Generator[int, None, Dict]:
         sizes = yield self.get_sizes()
         price = yield self.calculate_price(sizes)
-        return price
+        return price  # type: ignore
 
     @inlineCallbacks
     def scan_storage_plugins(self):
