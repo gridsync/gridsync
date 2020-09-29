@@ -1468,7 +1468,7 @@ class Tahoe:
         rootcap_data = json.loads(rootcap_bytes.decode("utf-8"))
         if rootcap_data:
             dircaps = []
-            for name, data in rootcap_data[1]["children"].items():
+            for data in rootcap_data[1]["children"].values():
                 rw_uri = data[1].get("rw_uri", "")
                 if rw_uri:  # Only care about dirs the user can write to
                     dircaps.append(rw_uri)
