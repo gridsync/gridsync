@@ -29,6 +29,7 @@ jobs:
       run: |
         source ~/.bash_profile
         make test
+        ls -al
     - name: Build
       run: |
         source ~/.bash_profile
