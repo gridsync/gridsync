@@ -99,8 +99,6 @@ jobs:
       run: |
         choco install -y --no-progress --require-checksums vcpython27
         py -3 -m pip install tox
-        py -3 -m pip cache dir
-        ls c:\users\runneradmin\appdata\local\pip\cache
     - name: Test
       run: .\make.bat test
     - name: Build
