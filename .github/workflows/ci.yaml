@@ -21,8 +21,8 @@ jobs:
           ~/.cache/pip
           ~/.cargo
           ~/.pyenv
-        key: cache-${{ matrix.os.runs-on }}
-        restore-keys: cache-${{ matrix.os.runs-on }}
+        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: ${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: scripts/provision_devtools.sh
     - name: Test
@@ -59,8 +59,8 @@ jobs:
           ~/.cache/pip
           ~/.cargo
           ~/.pyenv
-        key: cache-${{ matrix.os.runs-on }}
-        restore-keys: cache-${{ matrix.os.runs-on }}
+        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: ${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: scripts/provision_devtools.sh
     - name: Test
@@ -93,13 +93,12 @@ jobs:
       uses: actions/cache@v2
       with:
         path: c:\users\runneradmin\appdata\local\pip\cache
-        key: cache-${{ matrix.os.runs-on }}
+        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: ${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: |
         choco install -y --no-progress --require-checksums vcpython27
         py -3 -m pip install tox
-        py -3 -m pip cache dir
-        ls c:\users\runneradmin\appdata\local\pip\cache
     - name: Test
       run: .\make.bat test
     - name: Build
