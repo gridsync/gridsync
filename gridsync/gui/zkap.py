@@ -180,9 +180,8 @@ class ZKAPInfoPane(QWidget):
 
     def on_low_zkaps_warning(self) -> None:
         self.gui.show_message(
-            f"Warning: Low {self.gateway.zkap_name_abbrev}s",
-            f"The number of {self.gateway.zkap_name_plural} available is "
-            f"low. Please purchase more {self.gateway.zkap_name_abbrev}s "
-            "to prevent data-loss.",
+            "Low storage-time",
+            "Your storage-time is running low. Please buy more storage-time "
+            "to prevent data-loss."
         )
         self.gui.main_window.show_zkap_view()
