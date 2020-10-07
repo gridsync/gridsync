@@ -196,6 +196,6 @@ class ZKAPInfoPane(QWidget):
         self.gui.show_message(
             "Low storage-time",
             "Your storage-time is running low. Please buy more storage-time "
-            "to prevent data-loss."
+            "to prevent data-loss.",
         )
         self.gui.main_window.show_zkap_view()
