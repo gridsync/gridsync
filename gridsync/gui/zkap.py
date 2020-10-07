@@ -151,6 +151,7 @@ class ZKAPInfoPane(QWidget):
     def _update_chart(self):
         if self._zkaps_remaining:
             self.zkaps_required_label.hide()
+            self.title.show()
             self.explainer_label.show()
             self.chart_view.show()
         self.chart_view.chart.update(
