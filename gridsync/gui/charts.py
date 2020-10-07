@@ -62,7 +62,8 @@ class ZKAPBarChart(QChart):
         super().__init__()
         self.gateway = gateway
 
-        self.unit_name = self.gateway.zkap_name_abbrev
+        self.unit_multiplier = 0.001  # XXX
+        self.unit_name = "GB-month"  # XXX
 
         self.set_used = QBarSet("Used")
         # color_used = QColor("#1F9FDE")
@@ -119,22 +120,36 @@ class ZKAPBarChart(QChart):
 
         self.update(10, 30, 40)  # XXX
 
+    def _convert_unit(self, value: int) -> float:
+        if value < 10:
+            return round(value * self.unit_multiplier, 3)
+        else:
+            return round(value * self.unit_multiplier, 2)
+
     def update(
         self, used: int = 0, cost: int = 0, available: int = 0, period: int = 0
     ) -> None:
         self.set_used.replace(0, used)
-        self.set_used.setLabel(f"{self.unit_name}s used ({used})")
+        self.set_used.setLabel(
+            f"{self.unit_name}s used ({self._convert_unit(used)})"
+        )
         self.set_cost.replace(0, cost)
         if period == 2678400:  # 31 days
-            self.set_cost.setLabel(f"Expected 31 day cost ({cost})")
+            self.set_cost.setLabel(
+                f"Expected 31 day cost ({self._convert_unit(cost)})"
+            )
         elif period:
             h = naturaldelta(dt.timedelta(seconds=period))
-            self.set_cost.setLabel(f"Expected cost for {h} ({cost})")
+            self.set_cost.setLabel(
+                f"Expected cost for {h} ({self._convert_unit(cost)})"
+            )
         else:
-            self.set_cost.setLabel(f"Expected cost ({cost})")
+            self.set_cost.setLabel(
+                f"Expected cost ({self._convert_unit(used)})"
+            )
         self.set_available.replace(0, available)
         self.set_available.setLabel(
-            f"{self.unit_name}s available ({available})"
+            f"{self.unit_name}s available ({self._convert_unit(available)})"
         )
         total = used + available
         batch_size = self.gateway.zkap_batch_size
