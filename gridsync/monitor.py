@@ -510,7 +510,7 @@ class Monitor(QObject):
     zkaps_updated = pyqtSignal(int, int)
     zkaps_redeemed = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
-    zkaps_price_updated = pyqtSignal(int)
+    zkaps_price_updated = pyqtSignal(int, int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
     low_zkaps_warning = pyqtSignal()
@@ -584,7 +584,9 @@ class Monitor(QObject):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
         yield self.gateway.await_ready()
         price = yield self.gateway.get_price()
-        self.zkaps_price_updated.emit(price.get("price", 0))
+        self.zkaps_price_updated.emit(
+            price.get("price", 0), price.get("period", 0)
+        )
         folders = yield self.gateway.get_magic_folders_from_rootcap()
         if not folders:
             return
@@ -635,7 +637,9 @@ class Monitor(QObject):
             self.total_folders_size = total_size
             self.total_folders_size_updated.emit(total_size)
             price = yield self.gateway.get_price()
-            self.zkaps_price_updated.emit(price.get("price", 0))
+            self.zkaps_price_updated.emit(
+                price.get("price", 0), price.get("period", 0)
+            )
         self.check_finished.emit()
 
     def start(self, interval=2):

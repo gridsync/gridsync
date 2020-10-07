@@ -166,8 +166,8 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_total = used + remaining
         self._update_chart()
 
-    @Slot(int)
-    def on_zkaps_renewal_cost_updated(self, cost):
+    @Slot(int, int)
+    def on_zkaps_renewal_cost_updated(self, cost, period):
         self._zkaps_cost = cost
         self._update_chart()
 
