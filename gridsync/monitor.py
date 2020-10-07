@@ -583,6 +583,8 @@ class Monitor(QObject):
     def scan_rootcap(self, overlay_file=None):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
         yield self.gateway.await_ready()
+        price = yield self.gateway.get_price()
+        self.zkaps_price_updated.emit(price.get("price", 0))
         folders = yield self.gateway.get_magic_folders_from_rootcap()
         if not folders:
             return
