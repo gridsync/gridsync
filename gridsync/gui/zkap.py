@@ -40,6 +40,13 @@ class ZKAPInfoPane(QWidget):
 
         self.groupbox = QGroupBox()
 
+        self.title = QLabel("Storage-time")
+        font = Font(11)
+        font.setBold(True)
+        self.title.setFont(font)
+        self.title.setAlignment(Qt.AlignCenter)
+        self.title.hide()
+
         self.explainer_label = QLabel(
             f"{gateway.zkap_name_abbrev}s will be spent automatically on a "
             "monthly basis to keep your data stored."
@@ -75,6 +82,7 @@ class ZKAPInfoPane(QWidget):
 
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
+        layout.addWidget(title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
