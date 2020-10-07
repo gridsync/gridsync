@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime as dt
+from typing import Union
 
 from humanize import naturaldelta
 from PyQt5.QtChart import (
@@ -120,7 +121,9 @@ class ZKAPBarChart(QChart):
 
         self.update(10, 30, 40)  # XXX
 
-    def _convert_unit(self, value: int) -> float:
+    def _convert_unit(self, value: int) -> Union[int, float]:
+        if self.unit_multiplier == 1:
+            return value
         if value < 10:
             return round(value * self.unit_multiplier, 3)
         else:
