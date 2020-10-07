@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import datetime as dt
+
+from humanize import naturaldelta
 from PyQt5.QtChart import (
     QBarSet,
     QChart,
@@ -116,11 +119,19 @@ class ZKAPBarChart(QChart):
 
         self.update(10, 30, 40)  # XXX
 
-    def update(self, used: int = 0, cost: int = 0, available: int = 0) -> None:
+    def update(
+        self, used: int = 0, cost: int = 0, available: int = 0, period: int = 0
+    ) -> None:
         self.set_used.replace(0, used)
         self.set_used.setLabel(f"{self.unit_name}s used ({used})")
         self.set_cost.replace(0, cost)
-        self.set_cost.setLabel(f"Monthly {self.unit_name} cost ({cost})")
+        if period == 2678400:  # 31 days
+            self.set_cost.setLabel(f"Expected 31 day cost ({cost})")
+        elif period:
+            h = naturaldelta(dt.timedelta(seconds=period))
+            self.set_cost.setLabel(f"Expected cost for {h} ({cost})")
+        else:
+            self.set_cost.setLabel(f"Expected cost ({cost})")
         self.set_available.replace(0, available)
         self.set_available.setLabel(
             f"{self.unit_name}s available ({available})"
