@@ -82,7 +82,7 @@ class ZKAPInfoPane(QWidget):
 
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
-        layout.addWidget(title, 20, 0)
+        layout.addWidget(self.title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
