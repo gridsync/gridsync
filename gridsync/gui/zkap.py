@@ -35,6 +35,7 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_cost: int = 0
         self._zkaps_remaining: int = 0
         self._zkaps_total: int = 0
+        self._zkaps_period: int = 0
         self._last_purchase_date: str = "Not available"
         self._amount_stored: str = "Not available"
 
@@ -155,7 +156,10 @@ class ZKAPInfoPane(QWidget):
             self.explainer_label.show()
             self.chart_view.show()
         self.chart_view.chart.update(
-            self._zkaps_used, self._zkaps_cost, self._zkaps_remaining
+            self._zkaps_used,
+            self._zkaps_cost,
+            self._zkaps_remaining,
+            self._zkaps_period,
         )
         self.gui.main_window.maybe_enable_actions()
 
@@ -169,6 +173,7 @@ class ZKAPInfoPane(QWidget):
     @Slot(int, int)
     def on_zkaps_renewal_cost_updated(self, cost, period):
         self._zkaps_cost = cost
+        self._zkaps_period = period
         self._update_chart()
 
     # @Slot(int)
