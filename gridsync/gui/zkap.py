@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import resource
+from gridsync import APP_NAME, resource
 from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.font import Font
@@ -48,8 +48,8 @@ class ZKAPInfoPane(QWidget):
         self.title.hide()
 
         self.explainer_label = QLabel(
-            f"{gateway.zkap_name_abbrev}s will be spent automatically on a "
-            "monthly basis to keep your data stored."
+            f"The {APP_NAME} app will gradually consume your storage-time to "
+            "keep your data saved."
         )
         font = Font(10)
         font.setItalic(True)
