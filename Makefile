@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := all
 SHELL := /bin/bash
-.PHONY: tahoe
+.PHONY: clean test all
 
 clean:
 	rm -rf build/
