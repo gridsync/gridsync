@@ -40,14 +40,6 @@ class ZKAPInfoPane(QWidget):
 
         self.groupbox = QGroupBox()
 
-        title = QLabel(
-            f"{gateway.zkap_name_plural} ({gateway.zkap_name_abbrev}s)"
-        )
-        font = Font(11)
-        font.setBold(True)
-        title.setFont(font)
-        title.setAlignment(Qt.AlignCenter)
-
         self.explainer_label = QLabel(
             f"{gateway.zkap_name_abbrev}s will be spent automatically on a "
             "monthly basis to keep your data stored."
@@ -59,12 +51,10 @@ class ZKAPInfoPane(QWidget):
         self.explainer_label.hide()
 
         self.zkaps_required_label = QLabel(
-            f"<br><i>{gateway.zkap_name_plural}</i> -- or "
-            f"<i>{gateway.zkap_name_abbrev}s</i> -- are required to store "
-            f"data on the {gateway.name} grid. You currently have <b>0</b> "
-            f"{gateway.zkap_name_abbrev}s. In order to continue, you will "
-            f"need to purchase {gateway.zkap_name_abbrev}s."
+            "You currently have 0 GB-months available.\n\nIn order to store "
+            f"data with {gateway.name}, you will need to buy storage-time."
         )
+        self.zkaps_required_label.setAlignment(Qt.AlignCenter)
         self.zkaps_required_label.setWordWrap(True)
 
         self.chart_view = ZKAPBarChartView(self.gateway)
@@ -76,9 +66,7 @@ class ZKAPInfoPane(QWidget):
         self.info_label.setFont(Font(10))
 
         browser = get_browser_name()
-        self.button = QPushButton(
-            f"Buy {gateway.zkap_name_abbrev}s in {browser} "
-        )
+        self.button = QPushButton(f"Buy storage-time in {browser} ")
         self.button.setStyleSheet("background: green; color: white")
         self.button.setIcon(QIcon(resource("globe-white.png")))
         self.button.setLayoutDirection(Qt.RightToLeft)
@@ -87,7 +75,6 @@ class ZKAPInfoPane(QWidget):
 
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
-        layout.addWidget(title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
