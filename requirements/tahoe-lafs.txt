@@ -247,9 +247,9 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
 # Required by ZKAPAuthorizer
-treq==20.4.1 \
-    --hash=sha256:68fee7d24c94b7f1432ad8077e22d0d15f957bf6fcf9cb771ff4c6acc7e2bc84 \
-    --hash=sha256:c75244d850a2238615126ba4332ab4af9ed8d270db266fded487a02e0dd2cc0c
+treq==20.9.0 \
+    --hash=sha256:83cd2ca75aef4f1fbdbe144c186426d930c3e8b20385df8cec9e12d442986da2 \
+    --hash=sha256:cff0ebf3476e2eb8599cacf8cbac4288a7c2f8a82fed5ea1708d600a2a6074a4
 tqdm==4.50.2 \
     --hash=sha256:43ca183da3367578ebf2f1c2e3111d51ea161ed1dc4e6345b86e27c2a93beff7 \
     --hash=sha256:69dfa6714dee976e2425a9aab84b622675b7b1742873041e3db8a8e86132a4af
