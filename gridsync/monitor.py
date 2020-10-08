@@ -472,12 +472,12 @@ class ZKAPChecker(QObject):
             self.zkaps_renewal_cost = count
 
         # XXX/FIXME: This assumes that leases will be renewed every 27 days.
-        #daily_cost = self.zkaps_renewal_cost / 27
-        #try:
+        # daily_cost = self.zkaps_renewal_cost / 27
+        # try:
         #    days_remaining = int(self.zkaps_remaining / daily_cost)
-        #except ZeroDivisionError:
+        # except ZeroDivisionError:
         #    return
-        #if days_remaining != self.days_remaining:
+        # if days_remaining != self.days_remaining:
         #    self.days_remaining = days_remaining
         #    self.days_remaining_updated.emit(days_remaining)
         self._maybe_emit_low_zkaps_warning()
