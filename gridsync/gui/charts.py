@@ -126,8 +126,7 @@ class ZKAPBarChart(QChart):
             return value
         if value < 10:
             return round(value * self.unit_multiplier, 3)
-        else:
-            return round(value * self.unit_multiplier, 2)
+        return round(value * self.unit_multiplier, 2)
 
     def update(
         self, used: int = 0, cost: int = 0, available: int = 0, period: int = 0
