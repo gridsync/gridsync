@@ -147,9 +147,7 @@ class ZKAPBarChart(QChart):
                 f"Expected cost for {h} ({self._convert(cost)})"
             )
         else:
-            self.set_cost.setLabel(
-                f"Expected cost ({self._convert(used)})"
-            )
+            self.set_cost.setLabel(f"Expected cost ({self._convert(used)})")
         self.set_available.replace(0, available)
         self.set_available.setLabel(
             f"{self.unit_name}s available ({self._convert(available)})"
