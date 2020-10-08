@@ -133,9 +133,9 @@ class ZKAPInfoPane(QWidget):
 
     def _update_info_label(self):
         self.info_label.setText(
-            f"Last purchase: {self._last_purchase_date} "
-            f"({self.gateway.zkap_batch_size} "
-            f"{self.gateway.zkap_name_abbrev}s)     "
+            f"Last purchase: {self._last_purchase_date} ("
+            f"{self.chart_view.chart._convert(self.gateway.zkap_batch_size)} "
+            f"{self.gateway.zkap_unit_name_abbrev}s)     "
             f"Amount stored: {self._amount_stored}"
         )
 
