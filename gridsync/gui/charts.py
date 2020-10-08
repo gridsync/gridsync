@@ -63,8 +63,8 @@ class ZKAPBarChart(QChart):
         super().__init__()
         self.gateway = gateway
 
-        self.unit_multiplier = 0.001  # XXX
-        self.unit_name = "GB-month"  # XXX
+        self.unit_multiplier = gateway.zkap_unit_multiplier
+        self.unit_name = gateway.zkap_unit_name
 
         self.set_used = QBarSet("Used")
         # color_used = QColor("#1F9FDE")

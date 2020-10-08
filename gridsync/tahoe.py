@@ -139,6 +139,10 @@ class Tahoe:
         self.zkap_name: str = "Zero-Knowledge Access Pass"
         self.zkap_name_abbrev: str = "ZKAP"
         self.zkap_name_plural: str = "Zero-Knowledge Access Passes"
+        self.zkap_unit_name: str = "Zero-Knowledge Access Pass"
+        self.zkap_unit_name_abbrev: str = "ZKAP"
+        self.zkap_unit_name_plural: str = "Zero-Knowledge Access Passes"
+        self.zkap_unit_multiplier: int = 1
         self.zkap_payment_url_root: str = ""
         self.zkap_dircap: str = ""
         self.zkap_batch_size: int = 32768  # XXX Hardcoded in ZKAPAuthorizer
@@ -229,6 +233,21 @@ class Tahoe:
             )
             suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
             self.zkap_name_plural = f"{zkap_name}{suffix}"
+
+        zkap_unit_name = settings.get("zkap_unit_name", "")
+        if zkap_unit_name:
+            self.zkap_unit_name = zkap_unit_name
+            suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
+            self.zkap_unit_name_plural = f"{zkap_unit_name}{suffix}"
+
+        zkap_unit_name_abbrev = settings.get("zkap_unit_name_abbrev", "")
+        if zkap_unit_name_abbrev:
+            self.zkap_unit_name_abbrev = zkap_unit_name_abbrev
+
+        zkap_unit_multiplier = settings.get("zkap_unit_multiplier", 0)
+        if zkap_unit_multiplier:
+            self.zkap_unit_multiplier = zkap_unit_multiplier
+
         self.zkap_payment_url_root = settings.get("zkap_payment_url_root", "")
         # TODO: Verify integrity? Support 'icon_base64'?
         self.settings = settings
