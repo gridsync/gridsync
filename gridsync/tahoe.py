@@ -237,7 +237,7 @@ class Tahoe:
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
             self.zkap_unit_name = zkap_unit_name
-            suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
+            suffix = "es" if zkap_unit_name.endswith("s") else "s"  # XXX
             self.zkap_unit_name_plural = f"{zkap_unit_name}{suffix}"
 
         zkap_unit_name_abbrev = settings.get("zkap_unit_name_abbrev", "")
