@@ -2,7 +2,7 @@
 
 import logging
 import webbrowser
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from humanize import naturalsize
 from PyQt5.QtCore import Qt
@@ -37,6 +37,7 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_total: int = 0
         self._zkaps_period: int = 0
         self._last_purchase_date: str = "Not available"
+        self._expiry_date: str = "Not available"
         self._amount_stored: str = "Not available"
 
         self.groupbox = QGroupBox()
@@ -106,9 +107,9 @@ class ZKAPInfoPane(QWidget):
         self.gateway.monitor.zkaps_price_updated.connect(
             self.on_zkaps_renewal_cost_updated
         )
-        # self.gateway.monitor.days_remaining_updated.connect(
-        #    self.on_days_remaining_updated
-        # )
+        self.gateway.monitor.days_remaining_updated.connect(
+            self.on_days_remaining_updated
+        )
         self.gateway.monitor.total_folders_size_updated.connect(
             self.on_total_folders_size_updated
         )
@@ -136,7 +137,7 @@ class ZKAPInfoPane(QWidget):
             f"Last purchase: {self._last_purchase_date} ("
             f"{self.chart_view.chart._convert(self.gateway.zkap_batch_size)} "
             f"{self.gateway.zkap_unit_name_abbrev}s)     "
-            f"Amount stored: {self._amount_stored}"
+            f"Expected expiry: {self._expiry_date}"
         )
 
     @Slot(str)
@@ -176,16 +177,16 @@ class ZKAPInfoPane(QWidget):
         self._zkaps_period = period
         self._update_chart()
 
-    # @Slot(int)
-    # def on_days_remaining_updated(self, days):
-    #    delta = timedelta(days=days)
-    #    try:
-    #        self.expiration_field.setText(naturaldelta(delta))
-    #    except OverflowError:
-    #        # Raises if days >= datetime.today().toordinal()
-    #        self.expiration_field.setText("Several years")
-    #    date = datetime.isoformat(datetime.now() + delta).split("T")[0]
-    #    self.expiration_field.setToolTip(f"Expires: {date}")
+    @Slot(int)
+    def on_days_remaining_updated(self, days: int) -> None:
+        self._expiry_date = datetime.strftime(
+            datetime.strptime(
+                datetime.isoformat(datetime.now() + timedelta(days=days)),
+                "%Y-%m-%dT%H:%M:%S.%f",
+            ),
+            "%d %b %Y",
+        )
+        self._update_info_label()
 
     @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:

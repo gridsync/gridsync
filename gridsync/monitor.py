@@ -353,7 +353,11 @@ class ZKAPChecker(QObject):
         return total
 
     def _maybe_emit_low_zkaps_warning(self):
-        if self.zkaps_total and not self._low_zkaps_warning_shown:
+        if (
+            self.zkaps_total
+            and self.days_remaining
+            and not self._low_zkaps_warning_shown
+        ):
             pct_used = 1 - (self.zkaps_remaining / self.zkaps_total)
             if pct_used >= 0.9 or self.days_remaining <= 60:
                 self.low_zkaps_warning.emit()
@@ -405,6 +409,14 @@ class ZKAPChecker(QObject):
             batches_consumed,
             tokens_to_trim,
         )
+
+    def emit_days_remaining_updated(self):
+        price = self.gateway.monitor.price.get("price", 0)  # XXX
+        period = self.gateway.monitor.price.get("period", 0)  # XXX
+        if price and period:
+            seconds_remaining = self.zkaps_remaining / price * period
+            self.days_remaining = int(seconds_remaining / 86400)
+            self.days_remaining_updated.emit(self.days_remaining)
 
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
@@ -460,14 +472,14 @@ class ZKAPChecker(QObject):
             self.zkaps_renewal_cost = count
 
         # XXX/FIXME: This assumes that leases will be renewed every 27 days.
-        daily_cost = self.zkaps_renewal_cost / 27
-        try:
-            days_remaining = int(self.zkaps_remaining / daily_cost)
-        except ZeroDivisionError:
-            return
-        if days_remaining != self.days_remaining:
-            self.days_remaining = days_remaining
-            self.days_remaining_updated.emit(days_remaining)
+        #daily_cost = self.zkaps_renewal_cost / 27
+        #try:
+        #    days_remaining = int(self.zkaps_remaining / daily_cost)
+        #except ZeroDivisionError:
+        #    return
+        #if days_remaining != self.days_remaining:
+        #    self.days_remaining = days_remaining
+        #    self.days_remaining_updated.emit(days_remaining)
         self._maybe_emit_low_zkaps_warning()
 
 
@@ -587,6 +599,8 @@ class Monitor(QObject):
         self.zkaps_price_updated.emit(
             price.get("price", 0), price.get("period", 0)
         )
+        self.price = price
+        self.zkap_checker.emit_days_remaining_updated()
         folders = yield self.gateway.get_magic_folders_from_rootcap()
         if not folders:
             return
@@ -640,6 +654,8 @@ class Monitor(QObject):
             self.zkaps_price_updated.emit(
                 price.get("price", 0), price.get("period", 0)
             )
+            self.price = price
+            self.zkap_checker.emit_days_remaining_updated()
         self.check_finished.emit()
 
     def start(self, interval=2):
