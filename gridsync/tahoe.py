@@ -199,7 +199,7 @@ class Tahoe:
             ) as f:
                 f.write(newscap)
 
-    def load_settings(self):
+    def load_settings(self):  # noqa: max-complexity=12
         try:
             with open(Path(self.nodedir, "private", "settings.json")) as f:
                 settings = json.loads(f.read())
