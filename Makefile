@@ -146,6 +146,8 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.14.0 && \
+	cp ../../misc/rsa-public-exponent.patch . && \
+	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
