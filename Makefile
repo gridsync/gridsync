@@ -198,7 +198,7 @@ pyinstaller:
 dmg:
 	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
-	python3 -m pip install dmgbuild && \
+	python3 -m pip install -r requirements/dmgbuild.txt && \
 	python3 scripts/call_dmgbuild.py
 
 check-outdated:
