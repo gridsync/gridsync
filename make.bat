@@ -72,6 +72,8 @@ call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call git checkout tahoe-lafs-1.14.0
+call copy ..\..\misc\rsa-public-exponent.patch .
+call git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install .
