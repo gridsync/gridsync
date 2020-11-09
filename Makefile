@@ -146,6 +146,8 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.14.0 && \
+	cp ../../misc/rsa-public-exponent.patch . && \
+	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
@@ -198,7 +200,7 @@ pyinstaller:
 dmg:
 	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
-	python3 -m pip install dmgbuild && \
+	python3 -m pip install -r requirements/dmgbuild.txt && \
 	python3 scripts/call_dmgbuild.py
 
 check-outdated:
