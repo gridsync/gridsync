@@ -19,6 +19,7 @@ requirements = [
     "PyQt5",
     "pyyaml",
     "qt5reactor",
+    "segno",
     "treq",
     "twisted[tls]",
     "txtorcon",
