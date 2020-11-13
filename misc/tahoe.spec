@@ -13,7 +13,12 @@ if not hasattr(sys, 'real_prefix'):
 # https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
 sys.modules['FixTk'] = None
 
-options = [('u', None, 'OPTION')]  # Unbuffered stdio
+options = [
+    # Enable unbuffered stdio:
+    ('u', None, 'OPTION'),
+    # Supress CryptographyDeprecationWarning (https://github.com/gridsync/gridsync/issues/313):
+    ('W ignore::UserWarning', None, 'OPTION')
+]
 
 added_files = [
     ('COPYING.*', '.'),
