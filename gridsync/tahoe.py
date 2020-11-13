@@ -427,6 +427,10 @@ class Tahoe:
             log.error('No "twistd.pid" file found in %s', self.nodedir)
             return
         self.state = Tahoe.STOPPING
+
+        # XXX
+        self.bridge.stop()
+
         self.streamedlogs.stop()
         if self.lock.locked:
             log.warning(
@@ -549,6 +553,13 @@ class Tahoe:
         self.shares_happy = int(self.config_get("client", "shares.happy"))
         self.load_magic_folders()
         self.streamedlogs.start(self.nodeurl, self.api_token)
+
+        # XXX
+        from twisted.internet import reactor
+        from gridsync.bridge import Bridge
+        self.bridge = Bridge(reactor)
+        self.bridge.start(self.nodeurl)
+
         self.load_newscap()
         self.newscap_checker.start()
         self.state = Tahoe.STARTED
