@@ -96,9 +96,7 @@ jobs:
         key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: ${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: |
-        choco install -y --no-progress --require-checksums vcpython27
-        py -3 -m pip install tox
+      run: py -3 -m pip install tox
     - name: Test
       run: .\make.bat test
     - name: Build
