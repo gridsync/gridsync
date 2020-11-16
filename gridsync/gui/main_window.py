@@ -380,9 +380,12 @@ class MainWindow(QMainWindow):
             view.select_folder()
 
     def link_device(self):
-        self.link_device_dialog = LinkDeviceDialog(self)
-        self.link_device_dialog.show()
-        self.link_device_dialog.go()
+        self.show_folders_view()
+        view = self.current_view()
+        if view:  # XXX
+            self.link_device_dialog = LinkDeviceDialog(view.gateway)
+            self.link_device_dialog.show()
+            self.link_device_dialog.go()
 
     def set_current_grid_status(self):
         current_view = self.current_view()
