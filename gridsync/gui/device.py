@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QPushButton
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QPushButton
 
 from gridsync.bridge import get_local_network_ip
 from gridsync.gui.qrcode import QRCode
