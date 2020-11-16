@@ -20,7 +20,6 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.close_button)
 
     def go(self):
-        lan_ip = get_local_network_ip()
         data = f"{self.gateway.bridge.address} {self.gateway.rootcap}"  # XXX
         # TODO: Create device-specific rootcap
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
