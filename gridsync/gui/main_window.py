@@ -24,7 +24,7 @@ from twisted.internet import reactor
 
 from gridsync import APP_NAME, config_dir, resource, settings
 from gridsync.gui.color import BlendedColor
-from gridsync.gui.device import DeviceLinkDialog
+from gridsync.gui.device import LinkDeviceDialog
 from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
 from gridsync.gui.pixmap import CompositePixmap
@@ -380,7 +380,7 @@ class MainWindow(QMainWindow):
             view.select_folder()
 
     def link_device(self):
-        self.link_device_dialog = DeviceLinkDialog(self)
+        self.link_device_dialog = LinkDeviceDialog(self)
         self.link_device_dialog.show()
         self.link_device_dialog.go()
 
