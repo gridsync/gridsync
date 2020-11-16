@@ -24,6 +24,7 @@ from twisted.internet import reactor
 
 from gridsync import APP_NAME, config_dir, resource, settings
 from gridsync.gui.color import BlendedColor
+from gridsync.gui.device import DeviceLinkDialog
 from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
 from gridsync.gui.pixmap import CompositePixmap
@@ -100,6 +101,7 @@ class MainWindow(QMainWindow):
         self.gateways = []
         self.welcome_dialog = None
         self.recovery_key_exporter = None
+        self.link_device_dialog = None
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(600, 400))
@@ -159,6 +161,13 @@ class MainWindow(QMainWindow):
         folder_action.setToolTip("Add a Folder...")
         folder_action.setFont(font)
         folder_action.triggered.connect(self.select_folder)
+
+        device_action = QAction(
+            QIcon(resource("cellphone-link.png")), "Link Device", self
+        )
+        device_action.setToolTip("Link a Device...")
+        device_action.setFont(font)
+        device_action.triggered.connect(self.link_device)
 
         if grid_invites_enabled:
             invites_action = QAction(
@@ -271,6 +280,7 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
         self.toolbar.addAction(folder_action)
+        self.toolbar.addAction(device_action)
         if grid_invites_enabled:
             self.toolbar.addWidget(invites_button)
         elif invites_enabled:
@@ -368,6 +378,11 @@ class MainWindow(QMainWindow):
         view = self.current_view()
         if view:
             view.select_folder()
+
+    def link_device(self):
+        self.link_device_dialog = DeviceLinkDialog(self)
+        self.link_device_dialog.show()
+        self.link_device_dialog.go()
 
     def set_current_grid_status(self):
         current_view = self.current_view()
