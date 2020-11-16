@@ -21,6 +21,7 @@ class Bridge:
     def __init__(self, reactor):
         self._reactor = reactor
         self.proxy = None
+        self.address = ""
 
     @inlineCallbacks
     def start(self, nodeurl, port=8089):
@@ -37,7 +38,8 @@ class Bridge:
             Site(ReverseProxyResource(url.hostname, url.port, b""))
         )
         host = self.proxy.getHost()
-        logging.debug(f"Bridge started: http://{host.host}:{host.port}")
+        self.address = f"http://{host.host}:{host.port}"
+        logging.debug(f"Bridge started: {self.address}")
 
     @inlineCallbacks
     def stop(self):
