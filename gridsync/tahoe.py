@@ -429,7 +429,10 @@ class Tahoe:
         self.state = Tahoe.STOPPING
 
         # XXX
-        self.bridge.stop()
+        try:
+            self.bridge.stop()
+        except AttributeError:
+            pass
 
         self.streamedlogs.stop()
         if self.lock.locked:
