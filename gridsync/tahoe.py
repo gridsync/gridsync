@@ -560,6 +560,7 @@ class Tahoe:
         # XXX
         from twisted.internet import reactor
         from gridsync.bridge import Bridge
+
         self.bridge = Bridge(reactor)
         self.bridge.start(self.nodeurl)
 
