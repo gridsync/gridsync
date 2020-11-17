@@ -123,6 +123,7 @@ class Tahoe:
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
+        self.bridge = None
         streamedlogs_maxlen = None
         debug_settings = global_settings.get("debug")
         if debug_settings:

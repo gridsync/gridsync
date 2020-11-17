@@ -27,10 +27,10 @@ class Bridge:
     def start(self, nodeurl, port=8089):
         if self.proxy and self.proxy.connected:
             logging.warning("Tried to start a bridge that was already running")
-            return None
+            return
         lan_ip = get_local_network_ip()
         logging.debug(
-            f"Starting bridge: http://{lan_ip}:{port} -> {nodeurl} ..."
+            "Starting bridge: http://%s:%s -> %s ...", lan_ip, port, nodeurl
         )
         endpoint = TCP4ServerEndpoint(self._reactor, port, interface=lan_ip)
         url = urlparse(nodeurl)
@@ -39,15 +39,17 @@ class Bridge:
         )
         host = self.proxy.getHost()
         self.address = f"http://{host.host}:{host.port}"
-        logging.debug(f"Bridge started: {self.address}")
+        logging.debug("Bridge started: %s", self.address)
 
     @inlineCallbacks
     def stop(self):
         if not self.proxy or not self.proxy.connected:
             logging.warning("Tried to stop a bridge that was not running")
-            return None
+            return
         host = self.proxy.getHost()
-        logging.debug(f"Stopping bridge: http://{host.host}:{host.port} ...")
+        logging.debug(
+            "Stopping bridge: http://%s:%s ...", host.host, host.port
+        )
         yield self.proxy.stopListening()
-        logging.debug(f"Bridge stopped: http://{host.host}:{host.port}")
+        logging.debug("Bridge stopped: http://%s:%s", host.host, host.port)
         self.proxy = None
