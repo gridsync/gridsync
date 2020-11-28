@@ -32,6 +32,7 @@ from gridsync import pkgdir
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
+from gridsync.devices import DevicesManager
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
 from gridsync.filter import filter_tahoe_log_message
 from gridsync.monitor import Monitor
@@ -134,6 +135,7 @@ class Tahoe:
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
+        self.devices_manager = DevicesManager(self)
 
     @staticmethod
     def read_cap_from_file(filepath):

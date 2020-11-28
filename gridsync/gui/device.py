@@ -17,15 +17,13 @@ class LinkDeviceDialog(QDialog):
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setFont(Font(16))
 
-        self.qrcode_label = QLabel()
+        self.qrcode_label = QLabel("Please wait; creating link...")
         self.qrcode_label.setAlignment(Qt.AlignCenter)
 
-        self.instructions_label = QLabel(
-            "Scan the above QR code with the Tahoe-LAFS mobile\n"
-            "application to link it with this device."
-        )
+        self.instructions_label = QLabel("Please wait; creating link...")
         self.instructions_label.setAlignment(Qt.AlignCenter)
         self.instructions_label.setWordWrap(True)
+        self.instructions_label.hide()
 
         self.close_button = QPushButton("Close")
         self.close_button.setMaximumWidth(200)
@@ -37,7 +35,15 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.instructions_label, 3, 1)
         layout.addWidget(self.close_button, 4, 1, Qt.AlignCenter)
 
-    def go(self):
-        data = f"{self.gateway.bridge.address} {self.gateway.rootcap}"  # XXX
-        # TODO: Create device-specific rootcap
+    def load_qr_code(self, device_rootcap: str) -> None:
+        data = f"{self.gateway.bridge.address} {device_rootcap}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
+        self.instructions_label.setText(
+            "Scan the above QR code with the Tahoe-LAFS mobile\n"
+            "application to link it with this device."
+        )
+        self.instructions_label.show()
+
+    def go(self) -> None:
+        d = self.gateway.devices_manager.link_folders()
+        d.addCallback(self.load_qr_code)
