@@ -896,7 +896,7 @@ def test_create_magic_folder_call__create_magic_folder(
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
     monkeypatch.setattr("gridsync.tahoe.Tahoe.load_magic_folders", MagicMock())
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.link_magic_folder_to_rootcap", MagicMock()
+        "gridsync.tahoe.Tahoe.link_magic_folder", MagicMock()
     )
     monkeypatch.setattr("gridsync.tahoe.deferLater", MagicMock())
     m = MagicMock(side_effect=exception_raised)
@@ -921,7 +921,7 @@ def test_create_magic_folder_call_command_magic_folder_join_and_create_alias(
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
     monkeypatch.setattr("gridsync.tahoe.Tahoe.load_magic_folders", MagicMock())
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.link_magic_folder_to_rootcap", MagicMock()
+        "gridsync.tahoe.Tahoe.link_magic_folder", MagicMock()
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", MagicMock())
     m = MagicMock()

@@ -779,21 +779,25 @@ class Tahoe:
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     @inlineCallbacks
-    def link_magic_folder_to_rootcap(self, name):
-        log.debug("Linking folder '%s' to rootcap...", name)
-        rootcap = self.get_rootcap()
+    def link_magic_folder(self, name, dircap=""):
+        if not dircap:
+            dircap = self.get_rootcap()
+            location = "rootcap"
+        else:
+            location = trunchash(dircap)
+        log.debug("Linking folder '%s' to %s...", name, location)
         tasks = []
         admin_dircap = self.get_admin_dircap(name)
         if admin_dircap:
-            tasks.append(self.link(rootcap, name + " (admin)", admin_dircap))
+            tasks.append(self.link(dircap, name + " (admin)", admin_dircap))
         collective_dircap = self.get_collective_dircap(name)
         tasks.append(
-            self.link(rootcap, name + " (collective)", collective_dircap)
+            self.link(dircap, name + " (collective)", collective_dircap)
         )
         personal_dircap = self.get_magic_folder_dircap(name)
-        tasks.append(self.link(rootcap, name + " (personal)", personal_dircap))
+        tasks.append(self.link(dircap, name + " (personal)", personal_dircap))
         yield DeferredList(tasks)
-        log.debug("Successfully linked folder '%s' to rootcap", name)
+        log.debug("Successfully linked folder '%s' to %s", name, location)
 
     @inlineCallbacks
     def unlink_magic_folder_from_rootcap(self, name):
@@ -882,7 +886,7 @@ class Tahoe:
         if not self.config_get("magic_folder", "enabled"):
             self.config_set("magic_folder", "enabled", "True")
         self.load_magic_folders()
-        yield self.link_magic_folder_to_rootcap(name)
+        yield self.link_magic_folder(name)
 
     @inlineCallbacks
     def restore_magic_folder(self, folder_name, dest):
@@ -1043,7 +1047,7 @@ class Tahoe:
             remote_folders = yield self.get_magic_folders_from_rootcap()
             for folder in self.magic_folders:
                 if folder not in remote_folders:
-                    self.link_magic_folder_to_rootcap(folder)
+                    self.link_magic_folder(folder)
                 else:
                     log.debug(
                         'Folder "%s" already linked to rootcap; ' "skipping.",
