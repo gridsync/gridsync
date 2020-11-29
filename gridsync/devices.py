@@ -1,3 +1,6 @@
+# pylint: disable=unsubscriptable-object
+# https://github.com/PyCQA/pylint/issues/3882
+
 import logging
 import os
 from typing import List, Optional
@@ -68,7 +71,9 @@ class DevicesManager:
     @inlineCallbacks
     def link_folders(
         self,
-        folders: Optional[List[str]] = None,
+        folders: Optional[
+            str
+        ] = None,  # pylint: disable=unsubscriptable-object
         devices: Optional[List[str]] = None,
     ) -> Deferred:
         # TODO:
