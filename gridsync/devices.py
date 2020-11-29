@@ -51,7 +51,7 @@ class DevicesManager:
         if not name:
             name = "device-" + b58encode(os.urandom(8))
         devicecap = yield self.gateway.mkdir(root, name)
-        return devicecap
+        return (name, devicecap)
 
     @inlineCallbacks
     def get_devicecaps(self, root: Optional[str] = "") -> Deferred:
@@ -78,9 +78,25 @@ class DevicesManager:
         #  - Get folders
         #  - Get devicecaps
         #  - Link folders into devicecap(s)
-        print(folders, devices)
-        devicecap = yield self.add_devicecap()
-        # yield self.get_devicecaps()
+        print('------------------------------------------------------')
+        if not folders:
+            folders = list(self.gateway.magic_folders)
+        if not folders:
+            log.warning("No folders found to link")
+        link_targets = []
+        if not devices:
+            new = yield self.add_devicecap()
+            name, cap = new
+            link_targets = [(name, cap)]
+        else:
+            devicecaps = yield self.get_devicecaps()
+            for name, cap in devicecaps:
+                for device in devices:
+                    if device == name:
+                        link_targets.append((name, cap))
+        print(link_targets)
+        print('------------------------------------------------------')
+        devicecap = yield self.add_devicecap()  # XXX
         return devicecap
 
     # @inlineCallbacks
