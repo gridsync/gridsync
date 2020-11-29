@@ -71,9 +71,7 @@ class DevicesManager:
     @inlineCallbacks
     def link_folders(
         self,
-        folders: Optional[
-            str
-        ] = None,  # pylint: disable=unsubscriptable-object
+        folders: Optional[str] = None,
         devices: Optional[List[str]] = None,
     ) -> Deferred:
         # TODO:
