@@ -71,13 +71,14 @@ class DevicesManager:
     @inlineCallbacks
     def link_folders(
         self,
-        folders: Optional[str] = None,
+        folders: Optional[List[str]] = None,
         devices: Optional[List[str]] = None,
     ) -> Deferred:
         # TODO:
         #  - Get folders
         #  - Get devicecaps
         #  - Link folders into devicecap(s)
+        print(folders, devices)
         devicecap = yield self.add_devicecap()
         # yield self.get_devicecaps()
         return devicecap
