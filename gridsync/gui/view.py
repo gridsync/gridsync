@@ -257,7 +257,7 @@ class View(QTreeView):
     @inlineCallbacks
     def unlink_folder(self, folder_name):
         try:
-            yield self.gateway.unlink_magic_folder_from_rootcap(folder_name)
+            yield self.gateway.unlink_magic_folder(folder_name)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(

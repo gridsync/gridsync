@@ -800,17 +800,22 @@ class Tahoe:
         log.debug("Successfully linked folder '%s' to %s", name, location)
 
     @inlineCallbacks
-    def unlink_magic_folder_from_rootcap(self, name):
-        log.debug("Unlinking folder '%s' from rootcap...", name)
-        rootcap = self.get_rootcap()
+    def unlink_magic_folder(self, name, dircap=""):
+        if not dircap:
+            dircap = self.get_rootcap()
+            location = "rootcap"
+        else:
+            location = trunchash(dircap)
+        log.debug("Unlinking folder '%s' from %s...", name, location)
         tasks = []
-        tasks.append(self.unlink(rootcap, name + " (collective)"))
-        tasks.append(self.unlink(rootcap, name + " (personal)"))
+        tasks.append(self.unlink(dircap, name + " (collective)"))
+        tasks.append(self.unlink(dircap, name + " (personal)"))
         if "admin_dircap" in self.remote_magic_folders[name]:
-            tasks.append(self.unlink(rootcap, name + " (admin)"))
-        del self.remote_magic_folders[name]
+            tasks.append(self.unlink(dircap, name + " (admin)"))
+        if location == "rootcap":
+            del self.remote_magic_folders[name]
         yield DeferredList(tasks)
-        log.debug("Successfully unlinked folder '%s' from rootcap", name)
+        log.debug("Successfully unlinked folder '%s' from %s", name, location)
 
     @inlineCallbacks
     def _create_magic_folder(self, path, alias, poll_interval=60):
