@@ -7,7 +7,6 @@ from typing import List, Optional
 
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
-from twisted.internet.task import deferLater
 
 from gridsync.util import b58encode
 
@@ -100,52 +99,48 @@ class DevicesManager:
         return devicecap
 
     @inlineCallbacks
-    def invite_device(self, device: str, folder: str):
+    def _do_invite(self, device: str, folder: str) -> Deferred:
         logging.debug("Inviting %s to folder '%s'...", device, folder)
-        #code = yield self.gateway.magic_folder_invite(folder, device)
-        yield deferLater(reactor, 2, lambda: None)  # XXX
-        code = "test+test"
+        code = yield self.gateway.magic_folder_invite(folder, device)
         logging.debug(
             "Sucessfully invited %s to folder '%s'...", device, folder
         )
-        return code
+        return folder, code
+
+    @inlineCallbacks
+    def _do_link(self, folder: str, dircap: str, code: str) -> Deferred:
+        yield self.gateway.link_magic_folder(
+            folder, dircap, code, grant_admin=False
+        )
 
     @inlineCallbacks
     def add_new_device(
         self, device: str = "", folders: Optional[List[str]] = None
-    ) -> Deferred:
+    ) -> Deferred:  # Deferred[str]
         if not device:
             device = "device-" + b58encode(os.urandom(8))
         if not folders:
             folders = list(self.gateway.magic_folders)
         if not folders:
             logging.warning("No folders found to link")
-        print('------------------------------------------------------')
-        tasks = []
-        for folder in folders:
-            tasks.append(self.invite_device(device, folder))
-            tasks.append(self.invite_device(device, folder))
-        results = yield DeferredList(tasks, consumeErrors=True)
-        print("#######################", results)
-        for success, result in results:
-            print(success, result)
-        codes = []
-        devicecap = yield self.add_devicecap("", device)
-        name, cap = devicecap
-        print('!!!!!!!!!!!!!!!!', name, cap)
-        return cap
 
-    # @inlineCallbacks
-    # def ls(self, cap: str):
-    #    results = []
-    #    json_data = yield self.gateway.get_json(cap)
-    #    if json_data:
-    #        for filename, data in json_data[1]["children"].items():
-    #            kind = data[0]
-    #            metadata = data[1]
-    #            mutable = metadata.get("mutable", False)
-    #            size = metadata.get("size", 0)
-    #            cap = metadata.get("rw_uri", metadata.get("ro_uri", ""))
-    #            mtime = metadata["metadata"]["tahoe"].get("linkmotime", 0)
-    #            results.append((filename, kind, mutable, size, mtime, cap))
-    #    return results
+        devicecap = yield self.add_devicecap("", device)
+        _, dircap = devicecap
+
+        results = yield DeferredList(
+            [self._do_invite(device, folder) for folder in folders],
+            consumeErrors=True,
+        )
+        print(results)
+
+        invites = []
+        for success, result in results:
+            if success:  # TODO: Handle failures? Warn?
+                invites.append(result)
+
+        results = yield DeferredList(
+            [self._do_link(folder, dircap, code) for folder, code in invites],
+            consumeErrors=True,
+        )
+        print("!!!!!!!!!!!!!!!!", device, dircap)
+        return dircap
