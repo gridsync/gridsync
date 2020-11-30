@@ -4,14 +4,19 @@
 import logging
 from typing import List, Optional
 
-from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
+from twisted.internet.defer import (
+    Deferred,
+    DeferredList,
+    DeferredLock,
+    inlineCallbacks,
+)
 
 
 class DevicesManager:
     def __init__(self, gateway) -> None:
         self.gateway = gateway
-
         self.devicescap: str = ""
+        self._devicescap_lock = DeferredLock()
 
     @inlineCallbacks
     def create_devicescap(self) -> Deferred:
@@ -43,7 +48,11 @@ class DevicesManager:
     def add_devicecap(self, name: str, root: Optional[str] = "") -> Deferred:
         if not root:
             root = yield self.get_devicescap()
-        devicecap = yield self.gateway.mkdir(root, name)
+        yield self._devicescap_lock.acquire()
+        try:
+            devicecap = yield self.gateway.mkdir(root, name)
+        finally:
+            yield self._devicescap_lock.release()
         return devicecap
 
     @inlineCallbacks
