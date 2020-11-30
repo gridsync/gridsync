@@ -779,7 +779,7 @@ class Tahoe:
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     @inlineCallbacks
-    def link_magic_folder(self, name, dircap=""):
+    def link_magic_folder(self, name, dircap="", grant_admin=True):
         if not dircap:
             dircap = self.get_rootcap()
             location = "rootcap"
@@ -787,9 +787,12 @@ class Tahoe:
             location = trunchash(dircap)
         log.debug("Linking folder '%s' to %s...", name, location)
         tasks = []
-        admin_dircap = self.get_admin_dircap(name)
-        if admin_dircap:
-            tasks.append(self.link(dircap, name + " (admin)", admin_dircap))
+        if grant_admin:
+            admin_dircap = self.get_admin_dircap(name)
+            if admin_dircap:
+                tasks.append(
+                    self.link(dircap, name + " (admin)", admin_dircap)
+                )
         collective_dircap = self.get_collective_dircap(name)
         tasks.append(
             self.link(dircap, name + " (collective)", collective_dircap)
