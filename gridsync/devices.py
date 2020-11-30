@@ -82,7 +82,7 @@ class DevicesManager:
         if not folders:
             folders = list(self.gateway.magic_folders)
         if not folders:
-            log.warning("No folders found to link")
+            logging.warning("No folders found to link")
         link_targets = []
         if not devices:
             new = yield self.add_devicecap()
