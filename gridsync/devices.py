@@ -2,13 +2,9 @@
 # https://github.com/PyCQA/pylint/issues/3882
 
 import logging
-import os
 from typing import List, Optional
 
-from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
-
-from gridsync.util import b58encode
 
 
 class DevicesManager:
@@ -44,15 +40,11 @@ class DevicesManager:
         return self.devicescap
 
     @inlineCallbacks
-    def add_devicecap(
-        self, root: Optional[str] = "", name: Optional[str] = ""
-    ) -> Deferred:
+    def add_devicecap(self, name: str, root: Optional[str] = "") -> Deferred:
         if not root:
             root = yield self.get_devicescap()
-        if not name:
-            name = "device-" + b58encode(os.urandom(8))
         devicecap = yield self.gateway.mkdir(root, name)
-        return (name, devicecap)
+        return devicecap
 
     @inlineCallbacks
     def get_devicecaps(self, root: Optional[str] = "") -> Deferred:
@@ -70,73 +62,37 @@ class DevicesManager:
         return results
 
     @inlineCallbacks
-    def link_folders(
-        self,
-        folders: Optional[List[str]] = None,
-        devices: Optional[List[str]] = None,
-    ) -> Deferred:
-        if not folders:
-            folders = list(self.gateway.magic_folders)
-        if not folders:
-            logging.warning("No folders found to link")
-        link_targets = []
-        if not devices:
-            new = yield self.add_devicecap()
-            name, cap = new
-            link_targets = [(name, cap)]
-        else:
-            devicecaps = yield self.get_devicecaps()
-            for name, cap in devicecaps:
-                for device in devices:
-                    if device == name:
-                        link_targets.append((name, cap))
-        print(link_targets)
-        for folder in folders:
-            for target in link_targets:
-                _, dircap = target
-                yield self._do_link(folder, dircap)
-        devicecap = yield self.add_devicecap()  # XXX
-        return devicecap
-
-    @inlineCallbacks
     def _do_invite(self, device: str, folder: str) -> Deferred:
         code = yield self.gateway.magic_folder_invite(folder, device)
         return folder, code
 
     @inlineCallbacks
-    def _do_link(self, folder: str, dircap: str, code: str) -> Deferred:
-        yield self.gateway.link_magic_folder(
-            folder, dircap, code, grant_admin=False
-        )
-
-    @inlineCallbacks
-    def add_new_device(
-        self, device: str = "", folders: Optional[List[str]] = None
-    ) -> Deferred:  # Deferred[str]
-        if not device:
-            device = "device-" + b58encode(os.urandom(8))
-        if not folders:
-            folders = list(self.gateway.magic_folders)
+    def add_new_device(self, device: str, folders: List[str]) -> Deferred:
         if not folders:
             logging.warning("No folders found to link")
 
-        devicecap = yield self.add_devicecap("", device)
-        _, dircap = devicecap
+        devicecap = yield self.add_devicecap(device)
 
-        results = yield DeferredList(
-            [self._do_invite(device, folder) for folder in folders],
-            consumeErrors=True,
-        )
-        print(results)
+        tasks = []
+        for folder in folders:
+            tasks.append(self._do_invite(device, folder))
+        results = yield DeferredList(tasks, consumeErrors=True)
 
         invites = []
         for success, result in results:
             if success:  # TODO: Handle failures? Warn?
                 invites.append(result)
 
-        results = yield DeferredList(
-            [self._do_link(folder, dircap, code) for folder, code in invites],
-            consumeErrors=True,
-        )
-        print("!!!!!!!!!!!!!!!!", device, dircap)
-        return dircap
+        tasks = []
+        for folder, code in invites:
+            tasks.append(
+                self.gateway.link_magic_folder(
+                    folder, devicecap, code, grant_admin=False
+                )
+            )
+        yield DeferredList(tasks, consumeErrors=True)
+        return devicecap
+
+    @inlineCallbacks
+    def add_new_folder(self, folder: str, devices: List[str]) -> Deferred:
+        pass

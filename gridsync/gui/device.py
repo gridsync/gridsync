@@ -1,9 +1,12 @@
+import os
+
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QPushButton
 
 from gridsync.gui.font import Font
 from gridsync.gui.qrcode import QRCode
+from gridsync.util import b58encode
 
 
 class LinkDeviceDialog(QDialog):
@@ -49,5 +52,7 @@ class LinkDeviceDialog(QDialog):
         self.instructions_label.show()
 
     def go(self) -> None:
-        d = self.gateway.devices_manager.add_new_device()
+        device_name = "Device-" + b58encode(os.urandom(8))
+        folders = list(self.gateway.magic_folders)
+        d = self.gateway.devices_manager.add_new_device(device_name, folders)
         d.addCallback(self.load_qr_code)
