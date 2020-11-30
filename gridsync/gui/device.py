@@ -45,5 +45,5 @@ class LinkDeviceDialog(QDialog):
         self.instructions_label.show()
 
     def go(self) -> None:
-        d = self.gateway.devices_manager.link_folders()
+        d = self.gateway.devices_manager.add_new_device()
         d.addCallback(self.load_qr_code)

@@ -5,7 +5,9 @@ import logging
 import os
 from typing import List, Optional
 
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet import reactor
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
+from twisted.internet.task import deferLater
 
 from gridsync.util import b58encode
 
@@ -74,11 +76,6 @@ class DevicesManager:
         folders: Optional[List[str]] = None,
         devices: Optional[List[str]] = None,
     ) -> Deferred:
-        # TODO:
-        #  - Get folders
-        #  - Get devicecaps
-        #  - Link folders into devicecap(s)
-        print('------------------------------------------------------')
         if not folders:
             folders = list(self.gateway.magic_folders)
         if not folders:
@@ -95,9 +92,48 @@ class DevicesManager:
                     if device == name:
                         link_targets.append((name, cap))
         print(link_targets)
-        print('------------------------------------------------------')
+        for folder in folders:
+            for target in link_targets:
+                _, dircap = target
+                yield self._do_link(folder, dircap)
         devicecap = yield self.add_devicecap()  # XXX
         return devicecap
+
+    @inlineCallbacks
+    def invite_device(self, device: str, folder: str):
+        logging.debug("Inviting %s to folder '%s'...", device, folder)
+        #code = yield self.gateway.magic_folder_invite(folder, device)
+        yield deferLater(reactor, 2, lambda: None)  # XXX
+        code = "test+test"
+        logging.debug(
+            "Sucessfully invited %s to folder '%s'...", device, folder
+        )
+        return code
+
+    @inlineCallbacks
+    def add_new_device(
+        self, device: str = "", folders: Optional[List[str]] = None
+    ) -> Deferred:
+        if not device:
+            device = "device-" + b58encode(os.urandom(8))
+        if not folders:
+            folders = list(self.gateway.magic_folders)
+        if not folders:
+            logging.warning("No folders found to link")
+        print('------------------------------------------------------')
+        tasks = []
+        for folder in folders:
+            tasks.append(self.invite_device(device, folder))
+            tasks.append(self.invite_device(device, folder))
+        results = yield DeferredList(tasks, consumeErrors=True)
+        print("#######################", results)
+        for success, result in results:
+            print(success, result)
+        codes = []
+        devicecap = yield self.add_devicecap("", device)
+        name, cap = devicecap
+        print('!!!!!!!!!!!!!!!!', name, cap)
+        return cap
 
     # @inlineCallbacks
     # def ls(self, cap: str):
