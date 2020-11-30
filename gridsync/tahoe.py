@@ -939,6 +939,7 @@ class Tahoe:
 
     @inlineCallbacks
     def magic_folder_invite(self, name, nickname):
+        log.debug('Creating invite to folder "%s" for %s...', name, nickname)
         yield self.await_ready()
         admin_dircap = self.get_admin_dircap(name)
         if not admin_dircap:
@@ -948,6 +949,9 @@ class Tahoe:
             )
         created = yield self.mkdir(admin_dircap, nickname)
         code = "{}+{}".format(self.get_collective_dircap(name), created)
+        log.debug(
+            'Successfully created invite to folder "%s" for %s', name, nickname
+        )
         return code
 
     @inlineCallbacks

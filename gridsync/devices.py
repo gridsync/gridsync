@@ -100,11 +100,7 @@ class DevicesManager:
 
     @inlineCallbacks
     def _do_invite(self, device: str, folder: str) -> Deferred:
-        logging.debug("Inviting %s to folder '%s'...", device, folder)
         code = yield self.gateway.magic_folder_invite(folder, device)
-        logging.debug(
-            "Sucessfully invited %s to folder '%s'...", device, folder
-        )
         return folder, code
 
     @inlineCallbacks
