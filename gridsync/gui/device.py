@@ -22,6 +22,9 @@ class LinkDeviceDialog(QDialog):
 
         self.instructions_label = QLabel("Please wait; creating link...")
         self.instructions_label.setAlignment(Qt.AlignCenter)
+        self.instructions_label.setTextInteractionFlags(
+            Qt.TextSelectableByMouse
+        )
         self.instructions_label.setWordWrap(True)
         self.instructions_label.hide()
 
