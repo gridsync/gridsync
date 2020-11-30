@@ -39,6 +39,7 @@ class LinkDeviceDialog(QDialog):
         data = f"{self.gateway.bridge.address} {device_rootcap}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
+            f"{data}\n\n"  # XXX
             "Scan the above QR code with the Tahoe-LAFS mobile\n"
             "application to link it with this device."
         )
