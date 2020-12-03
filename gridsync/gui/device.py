@@ -14,7 +14,7 @@ class LinkDeviceDialog(QDialog):
         super().__init__()
         self.gateway = gateway
 
-        self.setMinimumSize(QSize(500, 500))
+        self.setMinimumSize(QSize(600, 600))
 
         self.title_label = QLabel("Link Device")
         self.title_label.setAlignment(Qt.AlignCenter)
