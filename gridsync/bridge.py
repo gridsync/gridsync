@@ -11,7 +11,7 @@ from twisted.web.server import Site
 def get_local_network_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    s.connect(("<broadcast>", 0))
+    s.connect(("10.255.255.255", 1))
     ip = s.getsockname()[0]
     s.close()
     return ip
