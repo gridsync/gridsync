@@ -167,7 +167,7 @@ install:
 
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
-	python3 -m virtualenv --clear --python=python3.8.tox/pyinstaller && \
+	python3 -m virtualenv --clear --python=python3.8 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
 	pip install -r requirements/gridsync.txt && \
 	pip install -r requirements/pyinstaller.txt && \
