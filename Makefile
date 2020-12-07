@@ -165,6 +165,12 @@ frozen-tahoe:
 install:
 	python3 -m pip install --upgrade .
 
+
+# PyInstaller's bootloader needs to be recompiled in order to properly
+# support for dark mode on macOS[1] and to fix binaries on Linux[2][3].
+# 1: https://github.com/gridsync/gridsync/issues/267#issuecomment-609980411
+# 2: https://github.com/pyinstaller/pyinstaller/issues/5330
+# 3: https://github.com/pyinstaller/pyinstaller/issues/5361
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
 	python3 -m virtualenv --clear --python=python3.8 .tox/pyinstaller && \
