@@ -90,7 +90,7 @@ goto :eof
 
 :pyinstaller
 if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
-%PYTHON3% -m tox -e pyinstaller
+%PYTHON3% -m tox -e pyinstaller || exit /b 1
 goto :eof
 
 :installer

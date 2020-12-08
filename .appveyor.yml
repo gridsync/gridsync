@@ -1,7 +1,9 @@
+image:
+    - Visual Studio 2019
 environment:
   matrix:
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7.x"
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8.x"
       PYTHON_ARCH: "64"
 matrix:
   fast_finish: true
