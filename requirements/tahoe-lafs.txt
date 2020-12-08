@@ -253,9 +253,9 @@ spake2==0.8 \
 treq==20.9.0 \
     --hash=sha256:83cd2ca75aef4f1fbdbe144c186426d930c3e8b20385df8cec9e12d442986da2 \
     --hash=sha256:cff0ebf3476e2eb8599cacf8cbac4288a7c2f8a82fed5ea1708d600a2a6074a4
-tqdm==4.54.0 \
-    --hash=sha256:5c0d04e06ccc0da1bd3fa5ae4550effcce42fcad947b4a6cafa77bdc9b09ff22 \
-    --hash=sha256:9e7b8ab0ecbdbf0595adadd5f0ebbb9e69010e0bd48bbb0c15e550bf2a5292df
+tqdm==4.54.1 \
+    --hash=sha256:38b658a3e4ecf9b4f6f8ff75ca16221ae3378b2e175d846b6b33ea3a20852cf5 \
+    --hash=sha256:d4f413aecb61c9779888c64ddf0c62910ad56dcbe857d8922bb505d4dbff0df1
 Twisted==20.3.0 \
     --hash=sha256:040eb6641125d2a9a09cf198ec7b83dd8858c6f51f6770325ed9959c00f5098f \
     --hash=sha256:147780b8caf21ba2aef3688628eaf13d7e7fe02a86747cd54bfaf2140538f042 \
