@@ -4,8 +4,6 @@ Gridsync
 
 .. image:: https://github.com/gridsync/gridsync/workflows/CI/badge.svg
     :target: https://github.com/gridsync/gridsync/actions/
-.. image:: https://api.travis-ci.org/gridsync/gridsync.svg?branch=master
-    :target: https://travis-ci.org/gridsync/gridsync
 .. image:: https://ci.appveyor.com/api/projects/status/li99vnfax895i8oy/branch/master?svg=true
     :target: https://ci.appveyor.com/project/crwood/gridsync
 
