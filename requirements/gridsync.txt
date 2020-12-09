@@ -150,6 +150,7 @@ PyNaCl==1.4.0 \
 pyOpenSSL==20.0.0 \
     --hash=sha256:898aefbde331ba718570244c3b01dcddb1b31a3b336613436a45e52e27d9a82d \
     --hash=sha256:92f08eccbd73701cf744e8ffd6989aa7842d48cbe3fea8a7c031c5647f590ac5
+# Qt 5.15.2 is broken on Debian 10; see https://bugreports.qt.io/browse/QTBUG-88688
 PyQt5==5.15.1 \
     --hash=sha256:17a6d5258796bae16e447aa3efa00258425c09cf88ef68238762628a5dde7c6f \
     --hash=sha256:4e47021c2b8e89a3bc64247dfb224144e5c8d77e3ab44f3842d120aab6b3cbd4 \
