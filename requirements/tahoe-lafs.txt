@@ -80,6 +80,8 @@ click==7.1.2 \
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
     --hash=sha256:dd2fa9d6b1a51a83f0d7dd76293d734046aa176e384bf6e33b7e44880eb37c5d
+# cryptography 3.3 is the last release that will support python2
+# https://cryptography.io/en/latest/changelog.html#v3-3
 cryptography==3.3 \
     --hash=sha256:1366e6fff96bb1d320e3ef3c531b0428cb780c517b6059ffe8820e2a30bf5858 \
     --hash=sha256:2c28e69e8c2620869425420e466b224d351d5dc242d3e3293062cffa7fcdd276 \
