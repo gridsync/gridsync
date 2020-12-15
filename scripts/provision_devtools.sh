@@ -47,8 +47,8 @@ pyenv install --skip-existing 3.7.9
 pyenv install --skip-existing 3.6.12
 pyenv rehash
 pyenv global 2.7.18 3.8.6 3.7.9 3.6.12
-python2 -m pip install --upgrade setuptools pip
-python3 -m pip install --upgrade setuptools pip tox
+#python2 -m pip install --upgrade setuptools pip
+#python3 -m pip install --upgrade setuptools pip tox
 
 rustup-init -y --default-host "$RUST_DEFAULT_HOST" --default-toolchain stable
 . $HOME/.cargo/env
