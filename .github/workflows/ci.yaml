@@ -62,9 +62,7 @@ jobs:
         key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: ${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: |
-        ls /usr/local/Cellar/openssl
-        scripts/provision_devtools.sh
+      run: scripts/provision_devtools.sh
     - name: Test
       run: |
         source ~/.bashrc
