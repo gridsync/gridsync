@@ -59,6 +59,9 @@ elif sys.platform == "darwin":
     autostart_file_path = os.path.join(
         os.path.expanduser("~"), "Library", "LaunchAgents", APP_NAME + ".plist"
     )
+    # Required for macOS 11 ("Big Sur") compatibility.
+    # See https://github.com/gridsync/gridsync/issues/319
+    os.environ["QT_MAC_WANTS_LAYER"] = "1"
 else:
     config_home = os.environ.get(
         "XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")
