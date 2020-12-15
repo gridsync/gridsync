@@ -49,7 +49,9 @@ pyenv rehash
 pyenv global 2.7.18 3.8.6 3.7.9 3.6.12
 #python2 -m pip install --upgrade setuptools pip
 #python3 -m pip install --upgrade setuptools pip tox
+python2 -m pip install --upgrade "pip>=20.3.3"
 python2 -m pip --version
+python3 -m pip install --upgrade "pip>=20.3.3"
 python3 -m pip --version
 
 rustup-init -y --default-host "$RUST_DEFAULT_HOST" --default-toolchain stable
