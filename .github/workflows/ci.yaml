@@ -59,8 +59,8 @@ jobs:
           ~/.cache/pip
           ~/.cargo
           ~/.pyenv
-        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: ${{ matrix.os.runs-on }}-
+        key: cache-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: cache-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: scripts/provision_devtools.sh
     - name: Test
