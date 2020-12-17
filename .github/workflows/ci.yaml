@@ -49,8 +49,6 @@ jobs:
         os:
           - runs-on: macos-11.0
           - runs-on: macos-10.15
-          - runs-on: macos-10.14
-          - runs-on: macos-10.13
     runs-on: ${{ matrix.os.runs-on }}
     steps:
     - name: Checkout
