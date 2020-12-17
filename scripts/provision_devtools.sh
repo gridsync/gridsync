@@ -44,7 +44,7 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.8.6
 pyenv install --skip-existing 3.7.9
-pyenv install --skip-existing 3.6.12
+SYSTEM_VERSION_COMPAT=1 pyenv install --skip-existing 3.6.12
 pyenv rehash
 pyenv global 2.7.18 3.8.6 3.7.9 3.6.12
 python2 -m pip install --upgrade setuptools pip
