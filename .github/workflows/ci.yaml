@@ -52,15 +52,15 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-#    - name: Restore cache
-#      uses: actions/cache@v2
-#      with:
-#        path: |
-#          ~/.cache/pip
-#          ~/.cargo
-#          ~/.pyenv
-#        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-#        restore-keys: ${{ matrix.os.runs-on }}-
+    - name: Restore cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cargo
+          ~/.pyenv
+        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: ${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: |
         sudo rm -rf /Applications/Python*
@@ -72,8 +72,6 @@ jobs:
     - name: Build
       run: |
         source ~/.bashrc
-        ls
-        env | grep PATH
         make all
     - name: Verify
       run: |
