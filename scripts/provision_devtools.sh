@@ -44,7 +44,7 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.8.6
 pyenv install --skip-existing 3.7.9
-pyenv install --skip-existing 3.6.12 || pyenv install --skip-existing --patch 3.6.12 <<(curl -sSL "https://github.com/python/cpython/commit/8ea6353.patch?full_index=1")
+pyenv install --skip-existing 3.6.12 || pyenv install --skip-existing --patch 3.6.12 <<(curl -sSL https://github.com/python/cpython/commit/8ea6353.patch\?full_index\=1)
 pyenv rehash
 pyenv global 2.7.18 3.8.6 3.7.9 3.6.12
 python2 -m pip install --upgrade setuptools pip
