@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+### Added
+- Added support for Python 3.8 (Issue #264; PR #270)
+- Added support for macOS 11.0 ("Big Sur") (#319; PR #320)
+
+### Changed
+- Binary distributions of Gridsync will now ship with Python version 3.8 (Issue #269; PR #315)
+
+
 ## 0.4.3 - 2020-07-24
 ### Added
 - Basic support for fetching and displaying "newscap" messages; see `docs/proposed/newscaps.md` (Issue #184; PR #192, #211)

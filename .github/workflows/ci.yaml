@@ -47,7 +47,9 @@ jobs:
     strategy:
       matrix:
         os:
+          - runs-on: macos-11.0
           - runs-on: macos-10.15
+          - runs-on: macos-10.14
     runs-on: ${{ matrix.os.runs-on }}
     steps:
     - name: Checkout
@@ -59,10 +61,12 @@ jobs:
           ~/.cache/pip
           ~/.cargo
           ~/.pyenv
-        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: ${{ matrix.os.runs-on }}-
+        key: cache-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: cache-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: scripts/provision_devtools.sh
+      run: |
+        sudo rm -rf /Applications/Python*
+        scripts/provision_devtools.sh
     - name: Test
       run: |
         source ~/.bashrc
