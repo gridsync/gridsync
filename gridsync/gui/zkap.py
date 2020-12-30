@@ -82,6 +82,8 @@ class ZKAPInfoPane(QWidget):
         self.button.clicked.connect(self.on_button_clicked)
         self.button.setFixedSize(240, 32)
 
+        self.voucher_link = QLabel("<a href>I have a voucher code</a>")
+
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(self.title, 20, 0)
@@ -92,6 +94,7 @@ class ZKAPInfoPane(QWidget):
         layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
 
         self.groupbox.setLayout(layout)
