@@ -7,11 +7,13 @@ from datetime import datetime, timedelta
 from humanize import naturalsize
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QIcon, QPainter
+from PyQt5.QtGui import QFontDatabase, QIcon, QPainter
 from PyQt5.QtWidgets import (
+    QDialog,
     QGridLayout,
     QGroupBox,
     QLabel,
+    QLineEdit,
     QPushButton,
     QSizePolicy,
     QSpacerItem,
@@ -23,6 +25,51 @@ from gridsync import APP_NAME, resource
 from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.font import Font
+
+
+class VoucherDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        # self.setMinimumWidth(400)
+
+        self.label = QLabel("Voucher code:")
+        self.label.setFont(Font(14))
+        self.label.setStyleSheet("color: gray")
+
+        self.lineedit = QLineEdit(self)
+        # self.lineedit.setFont(Font(14))
+        # font = Font(14)
+        # font.setStyleHint(QFont.Monospace)
+        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font.setPointSize(14)
+        self.lineedit.setFont(font)
+        mask = ">NNNN-NNNN-NNNN-NNNN"
+        self.lineedit.setInputMask(mask)
+        self.lineedit.setFixedWidth(
+            self.lineedit.fontMetrics().boundingRect(mask).width() + 10
+        )
+        margins = self.lineedit.textMargins()
+        margins.setLeft(margins.left() + 4)  # XXX
+        self.lineedit.setTextMargins(margins)
+
+        # self.lineedit.textEdited.connect(self.on_lineedit_text_changed)
+        # self.lineedit.setEchoMode(QLineEdit.Password)
+        # self.action = QAction(QIcon(resource("eye.png")), "Toggle visibility")
+        # self.action.triggered.connect(self.toggle_visibility)
+        # self.lineedit.addAction(self.action, QLineEdit.TrailingPosition)
+        # self.lineedit.returnPressed.connect(self.accept)
+
+        layout = QGridLayout(self)
+        layout.addWidget(self.label, 1, 1)
+        layout.addWidget(self.lineedit, 2, 1)
+
+    # @Slot(str)
+    # def on_lineedit_text_changed(self, text: str) -> None:
+    #    print(text)
+    #    text = text.upper().replace(" ", "")
+    #    self.lineedit.setText(
+    #        " ".join(text[i : i + 4] for i in range(0, len(text), 4))
+    #    )
 
 
 class ZKAPInfoPane(QWidget):
@@ -39,6 +86,7 @@ class ZKAPInfoPane(QWidget):
         self._last_purchase_date: str = "Not available"
         self._expiry_date: str = "Not available"
         self._amount_stored: str = "Not available"
+        self.voucher_dialog = None
 
         self.groupbox = QGroupBox()
 
@@ -83,6 +131,7 @@ class ZKAPInfoPane(QWidget):
         self.button.setFixedSize(240, 32)
 
         self.voucher_link = QLabel("<a href>I have a voucher code</a>")
+        self.voucher_link.linkActivated.connect(self.on_voucher_link_clicked)
 
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
@@ -134,6 +183,11 @@ class ZKAPInfoPane(QWidget):
     @Slot()
     def on_button_clicked(self):
         self._open_zkap_payment_url()
+
+    @Slot()
+    def on_voucher_link_clicked(self):
+        self.voucher_dialog = VoucherDialog(self)
+        self.voucher_dialog.show()
 
     def _update_info_label(self):
         self.info_label.setText(
