@@ -181,7 +181,7 @@ pyinstaller:
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
 	pushd build/pyinstaller && \
-	git checkout --force 0c3112a1d3e541c017dc860de825e12b2f5d13c0 && \
+	git checkout --force v4.2 && \
 	pushd bootloader && \
 	case `uname` in \
 		Darwin) \
