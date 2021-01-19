@@ -1,0 +1,80 @@
+FROM centos:7
+
+RUN yum -y update
+#RUN yum -y groupinstall "GNOME Desktop"
+RUN yum -y install \
+    1:dbus-libs \
+    #1:qt-x11 \
+    at-spi2-atk \
+    at-spi2-core \
+    atk \
+    cairo \
+    cairo-gobject \
+    expat \
+    fontconfig \
+    freetype \
+    fribidi \
+    gdk-pixbuf2 \
+    #glib2 \
+    #glibc \
+    graphite2 \
+    gtk3 \
+    harfbuzz \
+    keyutils-libs \
+    krb5-libs \
+    libX11 \
+    libXau \
+    libXcomposite \
+    libXcursor \
+    libXdamage \
+    libXdmcp \
+    libXext \
+    libXfixes \
+    libXi \
+    libXinerama \
+    libXrandr \
+    libXrender \
+    libblkid \
+    libcom_err \
+    libepoxy \
+    libevdev \
+    libffi \
+    libgcc \
+    libgpg-error \
+    libgudev1 \
+    libinput \
+    libmount \
+    libselinux \
+    libthai \
+    libuuid \
+    libwacom \
+    libwayland-client \
+    libwayland-cursor \
+    libwayland-egl \
+    libxcb \
+    libxkbcommon \
+    libxkbcommon-x11 \
+    lz4 \
+    mtdev \
+    pango \
+    pcre2-utf16 \
+    pixman \
+    python-cffi \
+    python-libs \
+    #qt5-qtbase \
+    #qt5-qtbase-gui \
+    #qt5-qtdeclarative \
+    #qt5-qtsvg \
+    #qt5-qtwayland \
+    #qt5-qtwebsockets \
+    sqlite \
+    systemd-libs \
+    xcb-util-image \
+    xcb-util-keysyms \
+    xcb-util-renderutil \
+    xcb-util-wm \
+    xz-libs \
+    zlib
+
+COPY scripts/provision_devtools.sh /
+RUN /provision_devtools.sh
