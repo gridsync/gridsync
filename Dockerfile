@@ -3,16 +3,17 @@ FROM centos:7
 RUN yum -y update
 #RUN yum -y groupinstall "GNOME Desktop"
 RUN yum -y install \
-    1:dbus-libs \
-    1:openssl-libs \
+    #1:dbus-libs \
+    #1:openssl-libs \
     #1:qt-x11 \
-    2:libpng \
+    #2:libpng \
     at-spi2-atk \
     at-spi2-core \
     atk \
     bzip2-libs \
     cairo \
     cairo-gobject \
+    dbus-libs \
     elfutils-libelf \
     elfutils-libs \
     expat \
@@ -49,6 +50,7 @@ RUN yum -y install \
     libgpg-error \
     libicu \
     libmount \
+    libpng \
     libselinux \
     libthai \
     libuuid \
@@ -61,6 +63,7 @@ RUN yum -y install \
     lz4 \
     ncurses-libs \
     nss-softokn-freebl \
+    openssl-libs \
     pango \
     pcre \
     pcre2-utf16 \
