@@ -4,12 +4,17 @@ RUN yum -y update
 #RUN yum -y groupinstall "GNOME Desktop"
 RUN yum -y install \
     1:dbus-libs \
+    1:openssl-libs \
     #1:qt-x11 \
+    2:libpng \
     at-spi2-atk \
     at-spi2-core \
     atk \
+    bzip2-libs \
     cairo \
     cairo-gobject \
+    elfutils-libelf \
+    elfutils-libs \
     expat \
     fontconfig \
     freetype \
@@ -27,27 +32,26 @@ RUN yum -y install \
     libXcomposite \
     libXcursor \
     libXdamage \
-    libXdmcp \
     libXext \
     libXfixes \
     libXi \
     libXinerama \
     libXrandr \
     libXrender \
+    libattr \
     libblkid \
+    libcap \
     libcom_err \
     libepoxy \
-    libevdev \
     libffi \
     libgcc \
+    libgcrypt \
     libgpg-error \
-    libgudev1 \
-    libinput \
+    libicu \
     libmount \
     libselinux \
     libthai \
     libuuid \
-    libwacom \
     libwayland-client \
     libwayland-cursor \
     libwayland-egl \
@@ -55,8 +59,10 @@ RUN yum -y install \
     libxkbcommon \
     libxkbcommon-x11 \
     lz4 \
-    mtdev \
+    ncurses-libs \
+    nss-softokn-freebl \
     pango \
+    pcre \
     pcre2-utf16 \
     pixman \
     python-cffi \
@@ -67,8 +73,10 @@ RUN yum -y install \
     #qt5-qtsvg \
     #qt5-qtwayland \
     #qt5-qtwebsockets \
+    readline \
     sqlite \
     systemd-libs \
+    xcb-util \
     xcb-util-image \
     xcb-util-keysyms \
     xcb-util-renderutil \
