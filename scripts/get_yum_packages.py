@@ -6,13 +6,20 @@ import subprocess
 import sys
 
 
-def get_libs(appimage_path):
-    libs = set()
+def get_files(appimage_path):
+    files = []
     output = subprocess.check_output([appimage_path, "--appimage-extract"])
     for line in output.decode("utf-8").strip().split("\n"):
-        if os.path.isfile(line) and ".so" in line:
-            libs.add(os.path.basename(line))
+        files.append(line)
     shutil.rmtree("squashfs-root")
+    return sorted(files)
+
+
+def get_libs(files):
+    libs = set()
+    for path in files:
+        if os.path.isfile(path) and ".so" in path:
+            libs.add(os.path.basename(path))
     return libs
 
 
@@ -53,7 +60,10 @@ if __name__ == "__main__":
         sys.exit("Usage: {} <path to AppImage>".format(argv[0]))
     path = " ".join(argv[1:])
 
-    libs = get_libs(path)
+    files = get_files(path)
+    for file in files:
+        print(file)
+    libs = get_libs(files)
     pkgs = get_pkgs(libs)
     for pkg in sorted(list(pkgs)):
         print("    {} \\".format(pkg))
