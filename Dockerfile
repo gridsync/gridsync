@@ -7,67 +7,67 @@ RUN yum -y install \
     #1:openssl-libs \
     #1:qt-x11 \
     #2:libpng \
-    at-spi2-atk \
-    at-spi2-core \
-    atk \
+    #at-spi2-atk \
+    #at-spi2-core \
+    #atk \
     #bzip2-libs \
-    cairo \
-    cairo-gobject \
+    #cairo \
+    #cairo-gobject \
     #dbus-libs \
     #elfutils-libelf \
     #elfutils-libs \
     #expat \
-    fontconfig \
-    freetype \
-    fribidi \
-    gdk-pixbuf2 \
+    #fontconfig \
+    #freetype \
+    #fribidi \
+    #gdk-pixbuf2 \
     #glib2 \
     #glibc \
-    graphite2 \
+    #graphite2 \
     gtk3 \
-    harfbuzz \
+    #harfbuzz \
     #keyutils-libs \
     #krb5-libs \
-    libX11 \
-    libXau \
-    libXcomposite \
-    libXcursor \
-    libXdamage \
-    libXext \
-    libXfixes \
-    libXi \
-    libXinerama \
-    libXrandr \
-    libXrender \
+    #libX11 \
+    #libXau \
+    #libXcomposite \
+    #libXcursor \
+    #libXdamage \
+    #libXext \
+    #libXfixes \
+    #libXi \
+    #libXinerama \
+    #libXrandr \
+    #libXrender \
     #libattr \
     #libblkid \
     #libcap \
     #libcom_err \
-    libepoxy \
+    #libepoxy \
     #libffi \
     #libgcc \
     #libgcrypt \
     #libgpg-error \
     libicu \
     #libmount \
-    libpng \
+    #libpng \
     #libselinux \
-    libthai \
+    #libthai \
     #libuuid \
-    libwayland-client \
-    libwayland-cursor \
-    libwayland-egl \
-    libxcb \
-    libxkbcommon \
+    #libwayland-client \
+    #libwayland-cursor \
+    #libwayland-egl \
+    #libxcb \
+    #libxkbcommon \
     libxkbcommon-x11 \
     #lz4 \
     #ncurses-libs \
     #nss-softokn-freebl \
     #openssl-libs \
-    pango \
+    #pango \
     #pcre \
     pcre2-utf16 \
-    pixman \
+    #pixman \
     python-cffi \
     #python-libs \
     #qt5-qtbase \
