@@ -18,8 +18,9 @@ def get_files(appimage_path):
 def get_libs(files):
     libs = set()
     for path in files:
-        if os.path.isfile(path) and ".so" in path:
-            libs.add(os.path.basename(path))
+        basename = os.path.basename(path)
+        if ".so" in basename:
+            libs.add(basename)
     return libs
 
 
