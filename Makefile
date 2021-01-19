@@ -236,6 +236,13 @@ vagrant-build-windows:
 	vagrant up --provision-with test,build windows-10
 
 
+docker-image:
+	buildah bud -t gridsync/centos-7-builder .
+
+docker-build:
+	podman run --mount type=bind,src=.,target=/gridsync -w /gridsync -t gridsync/centos-7-builder bash -l -c make
+
+
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:
 	python3 scripts/codesign.py app
