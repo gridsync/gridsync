@@ -237,10 +237,20 @@ vagrant-build-windows:
 
 
 docker-image:
-	buildah bud -t gridsync/centos-7-builder .
+	export _ARGS="-t gridsync/centos-7-builder $$PWD" ;\
+	if [ -f "/usr/bin/buildah" ]; then \
+		buildah bud $$_ARGS ;\
+	else \
+		docker build $$_ARGS ;\
+	fi ;\
 
 docker-build:
-	podman run --mount type=bind,src=.,target=/gridsync -w /gridsync -t gridsync/centos-7-builder bash -l -c make
+	export _ARGS="--mount type=bind,src=$$PWD,target=/gridsync -w /gridsync -t gridsync/centos-7-builder bash -l -c make" ;\
+	if [ -f "/usr/bin/podman" ]; then \
+		podman run $$_ARGS ;\
+	else \
+		docker run $$_ARGS ;\
+	fi ;\
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
