@@ -57,6 +57,7 @@ Icon={1}
 
 
 os.environ['LD_LIBRARY_PATH'] = appdir_bin
+os.environ['APPIMAGE_EXTRACT_AND_RUN'] = '1'
 linuxdeploy_args = [
     'linuxdeploy',
     '--appdir=build/AppDir',
