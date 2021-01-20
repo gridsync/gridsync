@@ -237,7 +237,7 @@ vagrant-build-windows:
 
 
 docker-image:
-	export _ARGS="-t gridsync/centos-7-builder $$PWD" ;\
+	export _ARGS="-t gridsync/centos-7-builder $$(pwd)" ;\
 	if [ -f "/usr/bin/buildah" ]; then \
 		buildah bud $$_ARGS ;\
 	else \
@@ -245,7 +245,7 @@ docker-image:
 	fi ;\
 
 docker-build:
-	export _ARGS="--mount type=bind,src=$$PWD,target=/gridsync -w /gridsync -t gridsync/centos-7-builder bash -l -c make" ;\
+	export _ARGS="--mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync -i -t gridsync/centos-7-builder bash -l -c make" ;\
 	if [ -f "/usr/bin/podman" ]; then \
 		podman run $$_ARGS ;\
 	else \
