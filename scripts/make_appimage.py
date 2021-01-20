@@ -111,6 +111,19 @@ exec "$(dirname "$(readlink -e "$0")")/usr/bin/{}" "$@"
 os.chmod('build/AppDir/AppRun', 0o755)
 
 
+# Created the .DirIcon symlink here/now to prevent appimagetool from
+# doing it later, thereby allowing the atime and mtime of the symlink
+# to be overriden along with all of the other files in the AppDir.
+os.symlink(os.path.basename(icon_filepath), "build/AppDir/.DirIcon")
+
+for root, directories, files, in os.walk("build/AppDir"):
+    for file in files:
+        os.utime(os.path.join(root, file), (0, 0), follow_symlinks=False)
+    for directory in directories:
+        os.utime(os.path.join(root, directory), (0, 0), follow_symlinks=False)
+os.utime("build/AppDir", (0, 0))
+
+
 try:
     os.mkdir('dist')
 except OSError:
