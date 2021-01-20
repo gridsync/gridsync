@@ -88,4 +88,4 @@ RUN yum -y install \
     #zlib
 
 COPY scripts/provision_devtools.sh /
-RUN /provision_devtools.sh
+RUN /provision_devtools.sh && rm /provision_devtools.sh
