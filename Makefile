@@ -149,6 +149,7 @@ frozen-tahoe:
 	cp ../../misc/rsa-public-exponent.patch . && \
 	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
+	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
