@@ -35,7 +35,7 @@ if __name__ == "__main__":
     checksum_1 = sha256sum(target)
     subprocess.call(["make", "clean", "all"])
     checksum_2 = sha256sum(target)
-    if checksum_1 != checksum_2:
+    if checksum_1 == checksum_2:
         print("Success! {} was rebuilt reproducibly!".format(target))
     else:
         sys.exit("Hashes don't match ({}, {})".format(checksum_1, checksum_2))
