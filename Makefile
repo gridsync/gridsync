@@ -284,6 +284,9 @@ all:
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
+test-reproducibility:
+	python3 scripts/test_reproducibility.py
+
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.AppImage
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS.dmg
