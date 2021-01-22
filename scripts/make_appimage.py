@@ -116,12 +116,7 @@ os.chmod('build/AppDir/AppRun', 0o755)
 # to be overriden along with all of the other files in the AppDir.
 os.symlink(os.path.basename(icon_filepath), "build/AppDir/.DirIcon")
 
-for root, directories, files, in os.walk("build/AppDir"):
-    for file in files:
-        os.utime(os.path.join(root, file), (0, 0), follow_symlinks=False)
-    for directory in directories:
-        os.utime(os.path.join(root, directory), (0, 0), follow_symlinks=False)
-os.utime("build/AppDir", (0, 0))
+subprocess.call(["python3", "scripts/update_timestamps.py", "build/AppDir"])
 
 
 try:
