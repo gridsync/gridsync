@@ -31,7 +31,7 @@ def sha256sum(filepath):
 
 
 if __name__ == "__main__":
-    target = "dist/{}.AppImage".format(name)
+    target = sys.argv[1]
     checksum_1 = sha256sum(target)
     subprocess.call(["make", "clean", "all"])
     checksum_2 = sha256sum(target)

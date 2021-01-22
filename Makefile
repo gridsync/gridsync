@@ -285,6 +285,10 @@ all:
 	python3 scripts/sha256sum.py dist/*.*
 
 test-reproducibility:
+	@case `uname` in \
+		Darwin)	python3 scripts/test_reproducibility.py dist/Gridsync.dmg ;; \
+		*) python3 scripts/test_reproducibility.py dist/Gridsync.AppImage ;; \
+	esac
 	python3 scripts/test_reproducibility.py
 
 gpg-sign:

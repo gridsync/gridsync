@@ -91,6 +91,10 @@ jobs:
       run: |
         source ~/.bashrc
         make all
+    - name: Test reproducibility
+      run: |
+        source ~/.bashrc
+        make test-reproducibility
     - name: Verify
       run: |
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
