@@ -289,7 +289,6 @@ test-reproducibility:
 		Darwin)	python3 scripts/test_reproducibility.py dist/Gridsync.dmg ;; \
 		*) python3 scripts/test_reproducibility.py dist/Gridsync.AppImage ;; \
 	esac
-	python3 scripts/test_reproducibility.py
 
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.AppImage
