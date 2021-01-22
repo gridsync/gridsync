@@ -39,6 +39,10 @@ jobs:
       run: |
         source ~/.bash_profile
         make all
+    - name: Test reproducibility
+      run: |
+        source ~/.bash_profile
+        make test-reproducibility
     - name: Verify
       run: |
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
