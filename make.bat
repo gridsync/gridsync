@@ -44,6 +44,7 @@ if "%1"=="vagrant-desktop-windows" call :vagrant-desktop-windows
 if "%1"=="vagrant-build-linux" call :vagrant-build-linux
 if "%1"=="vagrant-build-macos" call :vagrant-build-macos
 if "%1"=="vagrant-build-windows" call :vagrant-build-windows
+if "%1"=="test-reproducibility" call :test-reproducibility
 if "%1"=="all" call :all
 if "%1"=="" call :all
 goto :eof
@@ -125,6 +126,11 @@ goto :eof
 
 :vagrant-build-windows
 call vagrant up --provision-with test,build windows-10
+goto :eof
+
+
+:test-reproducibility
+call py -3 .\scripts\test_reproducibility.py .\dist\Gridsync-setup.exe
 goto :eof
 
 

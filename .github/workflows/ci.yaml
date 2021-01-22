@@ -125,6 +125,8 @@ jobs:
       run: .\make.bat test
     - name: Build
       run: .\make.bat all
+    - name: Test reproducibility
+      run: .\make.bat test-reproducibility
     - name: Verify
       run: |
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
