@@ -1258,8 +1258,12 @@ class Tahoe:
         return members, total_size, latest_mtime, history_od
 
     @staticmethod
-    def generate_voucher() -> str:
-        return base64.urlsafe_b64encode(os.urandom(33)).decode("utf-8")
+    def generate_voucher(data: Optional[bytes] = b"") -> str:
+        if not data: 
+            data = os.urandom(64)
+        digest = hashlib.blake2b(data, digest_size=33).digest()
+        # XXX Truncate after hashing?
+        return base64.urlsafe_b64encode(digest).decode("utf-8")
 
     @inlineCallbacks
     def add_voucher(self, voucher: Optional[str] = None):
