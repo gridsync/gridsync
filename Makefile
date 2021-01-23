@@ -238,20 +238,10 @@ vagrant-build-windows:
 
 
 docker-image:
-	export _ARGS="-t gridsync-builder $$(pwd)" ;\
-	if [ -f "/usr/bin/buildah" ]; then \
-		buildah bud $$_ARGS ;\
-	else \
-		docker build $$_ARGS ;\
-	fi ;\
+	docker build gridsync-builder $$(pwd)
 
 docker-build:
-	export _ARGS="--mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync -t crwood/gridsync-builder:1 bash -l -c make" ;\
-	if [ -f "/usr/bin/podman" ]; then \
-		docker run $$_ARGS ;\
-	else \
-		docker run $$_ARGS ;\
-	fi ;\
+	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync crwood/gridsync-builder:1 bash -l -c make
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
