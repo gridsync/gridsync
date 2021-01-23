@@ -31,6 +31,10 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: scripts/provision_devtools.sh
+    - name: Docker Build
+      run: |
+        source ~/.bash_profile
+        make clean docker-build
     - name: Test
       run: |
         source ~/.bash_profile
@@ -43,10 +47,6 @@ jobs:
       run: |
         source ~/.bash_profile
         make test-reproducibility
-    - name: Docker Build
-      run: |
-        source ~/.bash_profile
-        make clean docker-build
     - name: Verify
       run: |
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
