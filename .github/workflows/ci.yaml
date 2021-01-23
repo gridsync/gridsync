@@ -34,6 +34,7 @@ jobs:
     - name: Docker Build
       run: |
         source ~/.bash_profile
+        sudo apt install slirp4netns
         make clean docker-build
     - name: Test
       run: |
