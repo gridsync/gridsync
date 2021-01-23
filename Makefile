@@ -247,11 +247,12 @@ docker-image:
 
 docker-build:
 	export _ARGS="--mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync -t crwood/gridsync-builder:1 bash -l -c make" ;\
-	if [ -f "/usr/bin/podman" ]; then \
-		podman run $$_ARGS ;\
-	else \
-		docker run $$_ARGS ;\
-	fi ;\
+	podman run $$_ARGS
+	#if [ -f "/usr/bin/podman" ]; then \
+	#	podman run $$_ARGS ;\
+	#else \
+	#	docker run $$_ARGS ;\
+	#fi ;\
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
