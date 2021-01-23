@@ -34,7 +34,6 @@ jobs:
     - name: Docker Build
       run: |
         source ~/.bash_profile
-        sudo apt install slirp4netns
         mkdir tmp && cd tmp && git clone -b reproducible-builds https://github.com/gridsync/gridsync && cd gridsync && make clean docker-build
     - name: Test
       run: |
