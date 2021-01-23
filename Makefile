@@ -246,7 +246,7 @@ docker-image:
 	fi ;\
 
 docker-build:
-	export _ARGS="--mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync -i -t crwood/gridsync-builder:1 bash -l -c make" ;\
+	export _ARGS="--mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync -t crwood/gridsync-builder:1 bash -l -c make" ;\
 	if [ -f "/usr/bin/podman" ]; then \
 		podman run $$_ARGS ;\
 	else \
