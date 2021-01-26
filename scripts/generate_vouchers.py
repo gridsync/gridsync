@@ -16,11 +16,11 @@ def generate_voucher(data: Optional[bytes] = b"") -> str:
     return base64.urlsafe_b64encode(digest).decode("utf-8")
 
 
-def dashify(s: str) -> str:
+def hyphenate(s: str) -> str:
     return "-".join([s[i : i + 4] for i in range(0, len(s), 4)])
 
 
-def undashify(s: str) -> str:
+def dehyphenate(s: str) -> str:
     return s.replace("-", "")
 
 
@@ -35,7 +35,7 @@ def generate_code() -> bytes:
 
 
 def is_valid(code: str, checksum_length: int = 2) -> bool:
-    code = undashify(code)
+    code = dehyphenate(code)
     try:
         decoded = base64.b32decode(code)
     except binascii.Error:
@@ -50,7 +50,9 @@ def is_valid(code: str, checksum_length: int = 2) -> bool:
 if __name__ == "__main__":
     for _ in range(100):
         code = generate_code()
-        print("{} -> {}".format(dashify(code.decode()), generate_voucher(code)))
+        print("{} -> {}".format(
+            hyphenate(code.decode()), generate_voucher(code)
+        ))
 
 # TODO:
 # Use different alphabet with fewer ambiguous chars?
