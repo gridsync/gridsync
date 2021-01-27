@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import base64
 import errno
 import hashlib
 import json
