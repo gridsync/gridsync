@@ -50,9 +50,9 @@ def is_valid(code: str, checksum_length: int = 2) -> bool:
 if __name__ == "__main__":
     for _ in range(100):
         code = generate_code()
-        print("{} -> {}".format(
-            hyphenate(code.decode()), generate_voucher(code)
-        ))
+        print(
+            "{} -> {}".format(hyphenate(code.decode()), generate_voucher(code))
+        )
 
 # TODO:
 # Use different alphabet with fewer ambiguous chars?
