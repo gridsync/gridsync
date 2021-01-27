@@ -25,6 +25,7 @@ from gridsync import APP_NAME, resource
 from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.font import Font
+from gridsync.voucher import generate_voucher
 
 
 class VoucherDialog(QDialog):
@@ -171,7 +172,7 @@ class ZKAPInfoPane(QWidget):
 
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
-        voucher = self.gateway.generate_voucher()  # TODO: Cache to disk
+        voucher = generate_voucher()  # TODO: Cache to disk
         payment_url = self.gateway.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)
         if webbrowser.open(payment_url):

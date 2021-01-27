@@ -40,6 +40,7 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
+from gridsync.voucher import generate_voucher
 
 
 def is_valid_furl(furl):
@@ -1257,18 +1258,10 @@ class Tahoe:
         latest_mtime = next(reversed(history_od), 0)
         return members, total_size, latest_mtime, history_od
 
-    @staticmethod
-    def generate_voucher(data: Optional[bytes] = b"") -> str:
-        if not data: 
-            data = os.urandom(64)
-        digest = hashlib.blake2b(data, digest_size=33).digest()
-        # XXX Truncate after hashing?
-        return base64.urlsafe_b64encode(digest).decode("utf-8")
-
     @inlineCallbacks
     def add_voucher(self, voucher: Optional[str] = None):
         if not voucher:
-            voucher = self.generate_voucher()
+            voucher = generate_voucher()
         resp = yield treq.put(
             f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
             "/voucher",
