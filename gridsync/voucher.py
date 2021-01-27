@@ -4,7 +4,6 @@ import base64
 import binascii
 import hashlib
 import os
-
 from typing import Optional
 
 
