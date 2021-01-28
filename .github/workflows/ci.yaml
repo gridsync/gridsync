@@ -14,15 +14,21 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Restore cache
+    - name: Restore pyenv cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo
+          ~/.pyenv
+        key: pyenv-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-${{ matrix.os.runs-on }}-
+    - name: Restore pip cache
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/pip
-          ~/.cargo
-          ~/.pyenv
-        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: ${{ matrix.os.runs-on }}-
+        key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: scripts/provision_devtools.sh
     - name: Test
@@ -54,15 +60,21 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Restore cache
+    - name: Restore pyenv cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo
+          ~/.pyenv
+        key: pyenv-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-${{ matrix.os.runs-on }}-
+    - name: Restore pip cache
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/pip
-          ~/.cargo
-          ~/.pyenv
-        key: cache-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: cache-${{ matrix.os.runs-on }}-
+        key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: |
         sudo rm -rf /Applications/Python*
@@ -93,12 +105,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Restore cache
+    - name: Restore pip cache
       uses: actions/cache@v2
       with:
         path: c:\users\runneradmin\appdata\local\pip\cache
-        key: ${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: ${{ matrix.os.runs-on }}-
+        key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: py -3 -m pip install tox
     - name: Test
