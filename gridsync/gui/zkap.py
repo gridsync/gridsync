@@ -25,7 +25,7 @@ from gridsync import APP_NAME, resource
 from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.font import Font
-from gridsync.voucher import generate_voucher
+from gridsync.voucher import generate_voucher, is_valid
 
 
 class VoucherDialog(QDialog):
@@ -33,7 +33,7 @@ class VoucherDialog(QDialog):
         super().__init__(parent)
         # self.setMinimumWidth(400)
 
-        self.label = QLabel("Voucher code:")
+        self.label = QLabel("Enter voucher code:")
         self.label.setFont(Font(14))
         self.label.setStyleSheet("color: gray")
 
@@ -52,25 +52,40 @@ class VoucherDialog(QDialog):
         margins = self.lineedit.textMargins()
         margins.setLeft(margins.left() + 4)  # XXX
         self.lineedit.setTextMargins(margins)
-
-        # self.lineedit.textEdited.connect(self.on_lineedit_text_changed)
+        self.lineedit.returnPressed.connect(self.on_return_pressed)
+        self.lineedit.textEdited.connect(
+            lambda _: self.error_message_label.setText("")
+        )
         # self.lineedit.setEchoMode(QLineEdit.Password)
         # self.action = QAction(QIcon(resource("eye.png")), "Toggle visibility")
         # self.action.triggered.connect(self.toggle_visibility)
         # self.lineedit.addAction(self.action, QLineEdit.TrailingPosition)
-        # self.lineedit.returnPressed.connect(self.accept)
+
+        self.error_message_label = QLabel()
+        self.error_message_label.setAlignment(Qt.AlignCenter)
+        self.error_message_label.setFont(Font(10))
+        self.error_message_label.setStyleSheet("color: red")
 
         layout = QGridLayout(self)
         layout.addWidget(self.label, 1, 1)
         layout.addWidget(self.lineedit, 2, 1)
+        layout.addWidget(self.error_message_label, 3, 1)
 
-    # @Slot(str)
-    # def on_lineedit_text_changed(self, text: str) -> None:
-    #    print(text)
-    #    text = text.upper().replace(" ", "")
-    #    self.lineedit.setText(
-    #        " ".join(text[i : i + 4] for i in range(0, len(text), 4))
-    #    )
+    def on_return_pressed(self):
+        text = self.lineedit.text().replace("-", "")
+        if is_valid(text):
+            self.accept()
+        else:
+            self.error_message_label.setText("Invalid code; please try again")
+
+    @staticmethod
+    def get_voucher_code(parent=None):
+        dialog = VoucherDialog(parent)
+        result = dialog.exec_()
+        return (
+            generate_voucher(dialog.lineedit.text().replace("-", "").encode()),
+            result,
+        )
 
 
 class ZKAPInfoPane(QWidget):
@@ -187,8 +202,10 @@ class ZKAPInfoPane(QWidget):
 
     @Slot()
     def on_voucher_link_clicked(self):
-        self.voucher_dialog = VoucherDialog(self)
-        self.voucher_dialog.show()
+        code, ok = VoucherDialog.get_voucher_code()
+        print(code, ok)
+        if ok:
+            print("OK")
 
     def _update_info_label(self):
         self.info_label.setText(
