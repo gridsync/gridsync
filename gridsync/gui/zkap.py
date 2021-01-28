@@ -28,7 +28,7 @@ from gridsync.gui.font import Font
 from gridsync.voucher import generate_voucher, is_valid
 
 
-class VoucherDialog(QDialog):
+class VoucherCodeDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         # self.setMinimumWidth(400)
@@ -79,8 +79,8 @@ class VoucherDialog(QDialog):
             self.error_message_label.setText("Invalid code; please try again")
 
     @staticmethod
-    def get_voucher_code(parent=None):
-        dialog = VoucherDialog(parent)
+    def get_voucher(parent=None):
+        dialog = VoucherCodeDialog(parent)
         result = dialog.exec_()
         return (
             generate_voucher(dialog.lineedit.text().replace("-", "").encode()),
@@ -202,10 +202,8 @@ class ZKAPInfoPane(QWidget):
 
     @Slot()
     def on_voucher_link_clicked(self):
-        code, ok = VoucherDialog.get_voucher_code()
-        print(code, ok)
-        if ok:
-            print("OK")
+        voucher, ok = VoucherCodeDialog.get_voucher()
+        print(voucher, ok)
 
     def _update_info_label(self):
         self.info_label.setText(
