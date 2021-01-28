@@ -203,7 +203,8 @@ class ZKAPInfoPane(QWidget):
     @Slot()
     def on_voucher_link_clicked(self):
         voucher, ok = VoucherCodeDialog.get_voucher()
-        print(voucher, ok)
+        if ok:
+            self.gateway.add_voucher(voucher)
 
     def _update_info_label(self):
         self.info_label.setText(
