@@ -56,10 +56,6 @@ class VoucherCodeDialog(QDialog):
         self.lineedit.textEdited.connect(
             lambda _: self.error_message_label.setText("")
         )
-        # self.lineedit.setEchoMode(QLineEdit.Password)
-        # self.action = QAction(QIcon(resource("eye.png")), "Toggle visibility")
-        # self.action.triggered.connect(self.toggle_visibility)
-        # self.lineedit.addAction(self.action, QLineEdit.TrailingPosition)
 
         self.error_message_label = QLabel()
         self.error_message_label.setAlignment(Qt.AlignCenter)
@@ -102,7 +98,6 @@ class ZKAPInfoPane(QWidget):
         self._last_purchase_date: str = "Not available"
         self._expiry_date: str = "Not available"
         self._amount_stored: str = "Not available"
-        self.voucher_dialog = None
 
         self.groupbox = QGroupBox()
 
