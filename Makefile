@@ -238,7 +238,7 @@ vagrant-build-windows:
 
 
 docker-image:
-	docker build --target gridsync-builder $$(pwd)
+	docker build --tag gridsync-builder $$(pwd)
 
 docker-build:
 	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync crwood/gridsync-builder:1 bash -l -c make
