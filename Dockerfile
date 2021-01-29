@@ -10,7 +10,8 @@ RUN yum -y update && yum -y install \
     xcb-util-image \
     xcb-util-keysyms \
     xcb-util-renderutil \
-    xcb-util-wm
+    xcb-util-wm \
+    && yum clean all
 
 COPY scripts/provision_devtools.sh /
 RUN /provision_devtools.sh && rm /provision_devtools.sh
