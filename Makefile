@@ -237,11 +237,18 @@ vagrant-build-windows:
 	vagrant up --provision-with test,build windows-10
 
 
+buildah-image:
+	buildah bud --tag gridsync-builder $$(pwd)
+
 docker-image:
 	docker build --tag gridsync-builder $$(pwd)
 
-docker-build:
-	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync crwood/gridsync-builder:1 bash -l -c make
+
+in-podman-container:
+	podman run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync crwood/gridsync-builder:2
+
+in-docker-container:
+	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync crwood/gridsync-builder:2
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
