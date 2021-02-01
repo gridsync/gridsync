@@ -1348,6 +1348,8 @@ class Tahoe:
 
     @inlineCallbacks
     def update_zkap_checkpoint(self, _=None):
+        if not self.zkap_auth_required:
+            return
         zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
         os.makedirs(zkaps_dir, exist_ok=True)
 
