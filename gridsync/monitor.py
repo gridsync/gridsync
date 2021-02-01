@@ -592,15 +592,20 @@ class Monitor(QObject):
         self.magic_folder_checkers[name] = mfc
 
     @inlineCallbacks
+    def update_price(self):
+        if self.gateway.zkap_auth_required:
+            price = yield self.gateway.get_price()
+            self.zkaps_price_updated.emit(
+                price.get("price", 0), price.get("period", 0)
+            )
+            self.price = price
+            self.zkap_checker.emit_days_remaining_updated()
+
+    @inlineCallbacks
     def scan_rootcap(self, overlay_file=None):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
         yield self.gateway.await_ready()
-        price = yield self.gateway.get_price()
-        self.zkaps_price_updated.emit(
-            price.get("price", 0), price.get("period", 0)
-        )
-        self.price = price
-        self.zkap_checker.emit_days_remaining_updated()
+        yield self.update_price()
         folders = yield self.gateway.get_magic_folders_from_rootcap()
         if not folders:
             return
@@ -650,12 +655,7 @@ class Monitor(QObject):
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
             self.total_folders_size_updated.emit(total_size)
-            price = yield self.gateway.get_price()
-            self.zkaps_price_updated.emit(
-                price.get("price", 0), price.get("period", 0)
-            )
-            self.price = price
-            self.zkap_checker.emit_days_remaining_updated()
+            yield self.update_price()
         self.check_finished.emit()
 
     def start(self, interval=2):
