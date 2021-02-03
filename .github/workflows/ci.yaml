@@ -31,10 +31,14 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: scripts/provision_devtools.sh
+    - name: Podman Build
+      run: |
+        source ~/.bash_profile
+        mkdir tmp-podman && cd tmp-podman && git clone -b reproducible-builds https://github.com/gridsync/gridsync && cd gridsync && make clean in-podman-container
     - name: Docker Build
       run: |
         source ~/.bash_profile
-        mkdir tmp && cd tmp && git clone -b reproducible-builds https://github.com/gridsync/gridsync && cd gridsync && make clean docker-build
+        mkdir tmp-docker && cd tmp-docker && git clone -b reproducible-builds https://github.com/gridsync/gridsync && cd gridsync && make clean in-docker-container
     - name: Test
       run: |
         source ~/.bash_profile
