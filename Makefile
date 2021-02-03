@@ -198,12 +198,12 @@ pyinstaller:
 			fi \
 		;; \
 		esac && \
-	export PYTHONHASHSEED=1 && \
 	python ./waf all && \
 	popd && \
 	pip install . && \
 	popd && \
 	pip list && \
+	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
 
 dmg:
