@@ -46,11 +46,11 @@ jobs:
     - name: Podman Build
       run: |
         source ~/.bash_profile
-        mkdir tmp-podman && cd tmp-podman && git clone -b reproducible-builds https://github.com/gridsync/gridsync && cd gridsync && make clean in-podman-container
+        make clean in-podman-container
     - name: Docker Build
       run: |
         source ~/.bash_profile
-        mkdir tmp-docker && cd tmp-docker && git clone -b reproducible-builds https://github.com/gridsync/gridsync && cd gridsync && make clean in-docker-container
+        make clean in-docker-container
     - name: Test
       run: |
         source ~/.bash_profile
