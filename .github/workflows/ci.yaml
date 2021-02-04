@@ -37,7 +37,9 @@ jobs:
         sudo apt-get install diffoscope
         sudo systemctl stop docker
         curl -fsSL https://get.docker.com/rootless | FORCE_ROOTLESS_INSTALL=1 sh
-        env
+        env | sort
+        which docker
+        docker --version
     - name: Podman Build
       run: |
         source ~/.bash_profile
