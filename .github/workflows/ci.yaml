@@ -45,7 +45,7 @@ jobs:
         env | sort
         which docker
         docker --version
-        systemctl --user restart docker
+        #systemctl --user restart docker
     #- name: Podman Build
     #  run: |
     #    source ~/.bash_profile
