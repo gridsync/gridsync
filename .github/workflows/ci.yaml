@@ -46,10 +46,10 @@ jobs:
         which docker
         docker --version
         systemctl --user restart docker
-    - name: Podman Build
-      run: |
-        source ~/.bash_profile
-        make clean in-podman-container
+    #- name: Podman Build
+    #  run: |
+    #    source ~/.bash_profile
+    #    make clean in-podman-container
     - name: Docker Build
       run: |
         source ~/.bash_profile
