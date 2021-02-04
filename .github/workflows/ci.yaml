@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -74,6 +76,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -123,6 +127,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
