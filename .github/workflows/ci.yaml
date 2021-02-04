@@ -36,24 +36,25 @@ jobs:
         scripts/provision_devtools.sh
         sudo apt-get install diffoscope
         sudo systemctl stop docker
-        curl -fsSL https://get.docker.com/rootless | FORCE_ROOTLESS_INSTALL=1 sh
-        echo export XDG_RUNTIME_DIR=/home/runner/.docker/run >> ~/.bash_profile
-        echo export PATH=/home/runner/bin:$PATH >> ~/.bash_profile
-        echo export DOCKER_HOST=unix:///home/runner/.docker/run/docker.sock >> ~/.bash_profile
-        cat ~/.bash_profile
+        #curl -fsSL https://get.docker.com/rootless | FORCE_ROOTLESS_INSTALL=1 sh
+        #echo export XDG_RUNTIME_DIR=/home/runner/.docker/run >> ~/.bash_profile
+        #echo export PATH=/home/runner/bin:$PATH >> ~/.bash_profile
+        #echo export DOCKER_HOST=unix:///home/runner/.docker/run/docker.sock >> ~/.bash_profile
+        #cat ~/.bash_profile
+        #source ~/.bash_profile
+        #env | sort
+        #which docker
+        #docker --version
+        #systemctl --user start docker
+    - name: Podman Build
+      run: |
         source ~/.bash_profile
-        env | sort
-        which docker
-        docker --version
-        systemctl --user start docker
-    #- name: Podman Build
-    #  run: |
-    #    source ~/.bash_profile
-    #    make clean in-podman-container
+        make clean in-podman-container
     - name: Docker Build
       run: |
         source ~/.bash_profile
         make clean in-docker-container
+        sudo make clean
     - name: Test
       run: |
         source ~/.bash_profile
