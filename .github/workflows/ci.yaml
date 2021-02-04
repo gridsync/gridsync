@@ -37,6 +37,9 @@ jobs:
         sudo apt-get install diffoscope
         sudo systemctl stop docker
         curl -fsSL https://get.docker.com/rootless | FORCE_ROOTLESS_INSTALL=1 sh
+        export XDG_RUNTIME_DIR=/home/runner/.docker/run
+        export PATH=/home/runner/bin:$PATH
+        export DOCKER_HOST=unix:///home/runner/.docker/run/docker.sock
         env | sort
         which docker
         docker --version
