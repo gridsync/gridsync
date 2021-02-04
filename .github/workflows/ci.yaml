@@ -35,6 +35,8 @@ jobs:
       run: |
         scripts/provision_devtools.sh
         sudo apt-get install diffoscope
+        curl -fsSL https://get.docker.com/rootless | sh
+        env
     - name: Podman Build
       run: |
         source ~/.bash_profile
