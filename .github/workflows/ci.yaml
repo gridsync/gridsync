@@ -35,7 +35,7 @@ jobs:
       run: |
         scripts/provision_devtools.sh
         sudo apt-get install diffoscope
-        sudo systemctl stop docker
+        #sudo systemctl stop docker
         #curl -fsSL https://get.docker.com/rootless | FORCE_ROOTLESS_INSTALL=1 sh
         #echo export XDG_RUNTIME_DIR=/home/runner/.docker/run >> ~/.bash_profile
         #echo export PATH=/home/runner/bin:$PATH >> ~/.bash_profile
