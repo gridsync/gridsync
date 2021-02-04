@@ -52,9 +52,6 @@ jobs:
     - name: Docker Build
       run: |
         source ~/.bash_profile
-        export XDG_RUNTIME_DIR=/home/runner/.docker/run
-        export PATH=/home/runner/bin:$PATH
-        export DOCKER_HOST=unix:///home/runner/.docker/run/docker.sock
         make clean in-docker-container
     - name: Test
       run: |
