@@ -19,7 +19,7 @@ clean:
 
 test:
 	@case `uname` in \
-		Darwin)	python3 -m tox ;; \
+		Darwin)	arch -x86_64 python3 -m tox ;; \
 		*) xvfb-run -a python3 -m tox ;; \
 	esac
 
@@ -259,10 +259,9 @@ appimage:
 	python3 scripts/make_appimage.py
 
 all:
-	$(MAKE) pyinstaller
 	@case `uname` in \
-		Darwin)	$(MAKE) dmg ;; \
-		*) $(MAKE) appimage ;; \
+		Darwin)	arch -x86_64 $(MAKE) pyinstaller dmg ;; \
+		*) $(MAKE) pyinstaller appimage ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
