@@ -144,6 +144,7 @@ frozen-tahoe:
 	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	source build/venv-tahoe/bin/activate && \
+	python --version || deactivate && export PATH=$$HOME/Library/Python/2.7/bin:$$PATH && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.14.0 && \
 	cp ../../misc/rsa-public-exponent.patch . && \
