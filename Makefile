@@ -143,6 +143,10 @@ frozen-tahoe:
 	mkdir -p build/tahoe-lafs
 	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
+	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
+	# so allow falling back to the user environment.
+	# https://github.com/pypa/virtualenv/issues/2023
+	# https://github.com/pypa/virtualenv/issues/2024
 	source build/venv-tahoe/bin/activate && \
 	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
