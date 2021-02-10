@@ -19,7 +19,7 @@ clean:
 
 test:
 	@case `uname` in \
-		Darwin)	python3 -m tox ;; \
+		Darwin)	arch -x86_64 python3 -m tox ;; \
 		*) xvfb-run -a python3 -m tox ;; \
 	esac
 
@@ -143,7 +143,12 @@ frozen-tahoe:
 	mkdir -p build/tahoe-lafs
 	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
+	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
+	# so allow falling back to the user environment.
+	# https://github.com/pypa/virtualenv/issues/2023
+	# https://github.com/pypa/virtualenv/issues/2024
 	source build/venv-tahoe/bin/activate && \
+	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.14.0 && \
 	cp ../../misc/rsa-public-exponent.patch . && \
@@ -155,7 +160,7 @@ frozen-tahoe:
 	python -m pip list && \
 	cp ../../misc/tahoe.spec pyinstaller.spec && \
 	export PYTHONHASHSEED=1 && \
-	pyinstaller pyinstaller.spec && \
+	python -m PyInstaller pyinstaller.spec && \
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
@@ -259,10 +264,9 @@ appimage:
 	python3 scripts/make_appimage.py
 
 all:
-	$(MAKE) pyinstaller
 	@case `uname` in \
-		Darwin)	$(MAKE) dmg ;; \
-		*) $(MAKE) appimage ;; \
+		Darwin)	arch -x86_64 $(MAKE) pyinstaller dmg ;; \
+		*) $(MAKE) pyinstaller appimage ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
