@@ -6,10 +6,6 @@ from distutils.sysconfig import get_python_lib
 import sys
 
 
-if not hasattr(sys, 'real_prefix'):
-    sys.exit("Please run inside a virtualenv with Tahoe-LAFS installed.")
-
-
 # https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
 sys.modules['FixTk'] = None
 
