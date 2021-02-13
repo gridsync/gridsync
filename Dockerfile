@@ -14,9 +14,9 @@ RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv \
     && source ~/.bash_profile \
     && export PYTHON_CONFIGURE_OPTS="--enable-shared" \
     && pyenv install 2.7.18 \
-    && pyenv install 3.8.6 \
+    && pyenv install 3.8.7 \
     && pyenv rehash \
-    && pyenv global 2.7.18 3.8.6 \
+    && pyenv global 2.7.18 3.8.7 \
     && python2 -m pip install --upgrade setuptools pip \
     && python3 -m pip install --upgrade setuptools pip tox && env
 
