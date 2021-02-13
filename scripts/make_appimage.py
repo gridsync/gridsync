@@ -114,7 +114,10 @@ os.chmod('build/AppDir/AppRun', 0o755)
 # Created the .DirIcon symlink here/now to prevent appimagetool from
 # doing it later, thereby allowing the atime and mtime of the symlink
 # to be overriden along with all of the other files in the AppDir.
-os.symlink(os.path.basename(icon_filepath), "build/AppDir/.DirIcon")
+try:
+    os.symlink(os.path.basename(icon_filepath), "build/AppDir/.DirIcon")
+except OSError:
+    pass
 
 subprocess.call(["python3", "scripts/update_timestamps.py", "build/AppDir"])
 
