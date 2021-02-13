@@ -1,7 +1,7 @@
 FROM centos:7
 
 RUN yum -y update && yum -y install \
-    # Seemingly required by Gridsync/Qt5; also provided by GNOME Desktop:
+    # Seemingly required by Gridsync/Qt5, as per scripts/get_yum_packages.py; also provided by GNOME Desktop:
     gtk3 libicu libxkbcommon-x11 pcre2-utf16 python-cffi xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm \
     # Required for pyenv, tests, build process; from scripts/provision_devtools.sh:
     which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file \
