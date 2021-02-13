@@ -9,7 +9,6 @@ jobs:
         os:
           - runs-on: ubuntu-20.04
           - runs-on: ubuntu-18.04
-          #- runs-on: ubuntu-16.04
     runs-on: ${{ matrix.os.runs-on }}
     steps:
     - name: Checkout
@@ -32,20 +31,7 @@ jobs:
         key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: |
-        scripts/provision_devtools.sh
-        sudo apt-get install diffoscope
-        #sudo systemctl stop docker
-        #curl -fsSL https://get.docker.com/rootless | FORCE_ROOTLESS_INSTALL=1 sh
-        #echo export XDG_RUNTIME_DIR=/home/runner/.docker/run >> ~/.bash_profile
-        #echo export PATH=/home/runner/bin:$PATH >> ~/.bash_profile
-        #echo export DOCKER_HOST=unix:///home/runner/.docker/run/docker.sock >> ~/.bash_profile
-        #cat ~/.bash_profile
-        #source ~/.bash_profile
-        #env | sort
-        #which docker
-        #docker --version
-        #systemctl --user start docker
+      run: scripts/provision_devtools.sh
     - name: Podman Build
       run: |
         source ~/.bash_profile
@@ -63,10 +49,6 @@ jobs:
       run: |
         source ~/.bash_profile
         make all
-    #- name: Test reproducibility
-    #  run: |
-    #    source ~/.bash_profile
-    #    make test-reproducibility
     - name: Verify
       run: |
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
@@ -117,10 +99,6 @@ jobs:
       run: |
         source ~/.bashrc
         make all
-    #- name: Test reproducibility
-    #  run: |
-    #    source ~/.bashrc
-    #    make test-reproducibility
     - name: Verify
       run: |
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
@@ -153,8 +131,6 @@ jobs:
       run: .\make.bat test
     - name: Build
       run: .\make.bat all
-    #- name: Test reproducibility
-    #  run: .\make.bat test-reproducibility
     - name: Verify
       run: |
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
