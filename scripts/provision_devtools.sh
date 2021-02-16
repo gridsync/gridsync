@@ -42,6 +42,7 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 . "$SHELLRC"
 
 pyenv install --skip-existing 2.7.18
+pyenv install --skip-existing 3.9.1
 pyenv install --skip-existing 3.8.6
 pyenv install --skip-existing 3.7.9
 # Python 3.6 is now in "security fixes only"[0] mode and won't build on macOS
@@ -54,7 +55,7 @@ pyenv install --skip-existing 3.7.9
 # [2] https://github.com/pyenv/pyenv/issues/1746
 pyenv install --skip-existing 3.6.12 || true
 pyenv rehash
-pyenv global 2.7.18 3.8.6 3.7.9 3.6.12 || pyenv global 2.7.18 3.8.6 3.7.9
+pyenv global 2.7.18 3.9.1 3.8.6 3.7.9 3.6.12 || pyenv global 2.7.18 3.9.1 3.8.6 3.7.9
 python2 -m pip install --upgrade setuptools pip
 python3 -m pip install --upgrade setuptools pip tox
 
