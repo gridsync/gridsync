@@ -4,7 +4,11 @@ let
   # Python 2 because Tahoe-LAFS has not yet been ported to Python 3.  We have
   # to be careful not to mix these into the GridSync Python environment
   # because Python 2 and Python 3 stuff conflicts.
-  zkapauthorizer = pkgs.python2Packages.callPackage (import ./zkapauthorizer.nix) { };
+  zkapauthorizer = pkgs.python2Packages.callPackage (import ./zkapauthorizer.nix) {
+    # Avoid passing tahoe-lafs from pkgs.python2Packages so that
+    # ZKAPAuthorizer feels free to do its own thing on that front.
+    tahoe-lafs = null;
+  };
   tahoe-lafs-env = pkgs.python2.buildEnv.override {
     # twisted plugins causes collisions between any packages that supply
     # plugins.
