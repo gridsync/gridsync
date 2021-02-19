@@ -84,7 +84,7 @@ call python -m pip install git+https://github.com/LeastAuthority/python-challeng
 call git clone https://github.com/PrivateStorageio/ZKAPAuthorizer .\build\ZKAPAuthorizer
 call copy ..\..\misc\zkapauthorizer-retry-interval.patch .\build\ZKAPAuthorizer
 call pushd .\build\ZKAPAuthorizer
-call git checkout 6cd0c32cc53a9734e2cb7c19a9ad28d479612197
+call git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963
 call git apply --ignore-space-change --ignore-whitespace zkapauthorizer-retry-interval.patch
 call python -m pip install .
 call popd
