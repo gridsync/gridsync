@@ -145,7 +145,8 @@ class Tahoe:
         self.zkap_unit_multiplier: int = 1
         self.zkap_payment_url_root: str = ""
         self.zkap_dircap: str = ""
-        self.zkap_batch_size: int = 32768  # XXX Hardcoded in ZKAPAuthorizer
+        # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
+        self.zkap_batch_size: int = 2 ** 15
         self.settings: dict = {}
 
         self.monitor.zkaps_redeemed.connect(self.backup_zkaps)
@@ -384,6 +385,13 @@ class Tahoe:
                         "storageclient.plugins.privatestorageio-zkapauthz-v1",
                         "pass-value",
                         pass_value,
+                    )
+                default_token_count = options.get("default-token-count")
+                if default_token_count:
+                    self.config_set(
+                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                        "default-token-count",
+                        default_token_count,
                     )
             else:
                 log.warning(
@@ -660,6 +668,13 @@ class Tahoe:
             "ristretto-issuer-root-url",
         ):
             self.zkap_auth_required = True
+        if self.zkap_auth_required:
+            default_token_count = self.config_get(
+                "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                "default-token-count",
+            )
+            if default_token_count:
+                self.zkap_batch_size = int(default_token_count)
 
         if os.path.isfile(self.pidfile):
             yield self.stop()
