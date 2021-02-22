@@ -658,12 +658,12 @@ class MainWindow(QMainWindow):
         key = event.key()
         if key in (Qt.Key_Backspace, Qt.Key_Delete):
             view = self.current_view()
-            selected = view.selectedIndexes() if view else None
+            selected = view.selectedIndexes() if view else []
             if selected:
                 view.confirm_stop_syncing(view.get_selected_folders())
         if key == Qt.Key_Escape:
             view = self.current_view()
-            selected = view.selectedIndexes() if view else None
+            selected = view.selectedIndexes() if view else []
             if selected:
                 for index in selected:
                     view.selectionModel().select(
