@@ -20,8 +20,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os.runs-on }}-
+        key: pyenv-cache-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache-${{ matrix.os.runs-on }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -30,7 +30,8 @@ jobs:
         key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: scripts/provision_devtools.sh
+      run: |
+        scripts/provision_devtools.sh
     - name: Test
       run: |
         source ~/.bash_profile
@@ -66,8 +67,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os.runs-on }}-
+        key: pyenv-cache-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache-${{ matrix.os.runs-on }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
