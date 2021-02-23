@@ -30,7 +30,9 @@ jobs:
         key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: scripts/provision_devtools.sh
+      run: |
+        rm -rf ~/.pyenv
+        scripts/provision_devtools.sh
     - name: Test
       run: |
         source ~/.bash_profile
@@ -78,6 +80,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo rm -rf /Applications/Python*
+        rm -rf ~/.pyenv
         scripts/provision_devtools.sh
     - name: Test
       run: |
