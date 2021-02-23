@@ -56,6 +56,8 @@ pyenv install --skip-existing 3.7.10
 pyenv install --skip-existing 3.6.13 || true
 pyenv rehash
 pyenv global 2.7.18 3.8.8 3.7.10 3.6.13 || pyenv global 2.7.18 3.8.8 3.7.10
+pyenv versions
+
 python2 -m pip install --upgrade setuptools pip
 python3 -m pip install --upgrade setuptools pip tox
 
