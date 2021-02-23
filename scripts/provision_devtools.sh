@@ -41,7 +41,6 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 
 . "$SHELLRC"
 
-pyenv install --list
 pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.8.8
 pyenv install --skip-existing 3.7.10
