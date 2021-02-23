@@ -31,7 +31,6 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: |
-        rm -rf ~/.pyenv
         scripts/provision_devtools.sh
     - name: Test
       run: |
