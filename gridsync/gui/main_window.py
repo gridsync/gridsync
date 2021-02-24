@@ -293,12 +293,11 @@ class MainWindow(QMainWindow):
         self.folders_button.setCheckable(True)
         self.folders_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        # TODO: Get name from zkap_name?
         self.zkaps_action = QAction(
-            QIcon(resource("circle-multiple-outline.png")), "Credits", self
+            QIcon(resource("chart-donut.png")), "Usage", self
         )
         self.zkaps_action.setEnabled(False)
-        self.zkaps_action.setToolTip("Show Credits")
+        self.zkaps_action.setToolTip("Show Usage")
         self.zkaps_action.setFont(font)
         self.zkaps_action.setCheckable(True)
         self.zkaps_action.triggered.connect(self.show_zkap_view)
