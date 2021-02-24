@@ -46,7 +46,6 @@ pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.8.8
 
 if [[ "${SKIP_OLD_PYTHON_VERSIONS}" ]]; then
-    echo "Skipping old python versions"
     pyenv rehash
     pyenv global 2.7.18 3.8.8
 else
