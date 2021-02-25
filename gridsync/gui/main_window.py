@@ -294,10 +294,10 @@ class MainWindow(QMainWindow):
         self.folders_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.zkaps_action = QAction(
-            QIcon(resource("chart-donut.png")), "Usage", self
+            QIcon(resource("chart-donut.png")), "Storage-time", self
         )
         self.zkaps_action.setEnabled(False)
-        self.zkaps_action.setToolTip("Show Usage")
+        self.zkaps_action.setToolTip("Show Storage-time")
         self.zkaps_action.setFont(font)
         self.zkaps_action.setCheckable(True)
         self.zkaps_action.triggered.connect(self.show_zkap_view)
@@ -346,6 +346,7 @@ class MainWindow(QMainWindow):
                 widget = self.toolbar.widgetForAction(action)
                 if isinstance(widget, QToolButton):
                     widget.setMaximumWidth(68)
+        self.zkaps_button.setMaximumWidth(100)
 
         self.active_invite_sender_dialogs = []
         self.active_invite_receiver_dialogs = []
