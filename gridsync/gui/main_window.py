@@ -341,13 +341,6 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(self.zkaps_button)
         self.toolbar.addWidget(self.history_button)
 
-        if sys.platform != "win32":  # Text is getting clipped on Windows 10
-            for action in self.toolbar.actions():
-                widget = self.toolbar.widgetForAction(action)
-                if isinstance(widget, QToolButton):
-                    widget.setMaximumWidth(68)
-        self.zkaps_button.setMaximumWidth(100)
-
         self.active_invite_sender_dialogs = []
         self.active_invite_receiver_dialogs = []
 
