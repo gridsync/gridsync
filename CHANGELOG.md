@@ -9,6 +9,10 @@
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.8 (Issue #269; PR #315)
 
+### Removed
+- Python 3.6 is no longer supported (Issue #324; PR #325)
+- The Gridsync project no longer depends on AppVeyor for continuous integration on Windows (Issue #326; PR #327)
+
 
 ## 0.4.3 - 2020-07-24
 ### Added
