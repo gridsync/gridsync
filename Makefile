@@ -242,20 +242,12 @@ vagrant-build-windows:
 	vagrant up --provision-with test,build windows-10
 
 
-buildah-image:
-	buildah bud --tag gridsync-builder $$(pwd)
-
 docker-image:
 	docker build --tag gridsync-builder $$(pwd)
 
 docker-push:
 	docker tag gridsync-builder gridsync/gridsync-builder
 	docker push gridsync/gridsync-builder
-
-
-in-podman-container:
-	podman run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
-		gridsync/gridsync-builder@sha256:72502ba020669f51463afd1d1add95c92f4739649e521e3be4e47f4eb18010ca
 
 in-docker-container:
 	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \

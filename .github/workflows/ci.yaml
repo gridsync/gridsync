@@ -32,10 +32,6 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
-    - name: Podman Build
-      run: |
-        source ~/.bash_profile
-        make clean in-podman-container
     - name: Docker Build
       run: |
         source ~/.bash_profile
