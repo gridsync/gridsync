@@ -291,12 +291,6 @@ all:
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
-test-reproducibility:
-	@case `uname` in \
-		Darwin)	python3 scripts/test_reproducibility.py dist/Gridsync.dmg ;; \
-		*) python3 scripts/test_reproducibility.py dist/Gridsync.AppImage ;; \
-	esac
-
 gpg-sign:
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.AppImage
 	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS.dmg
