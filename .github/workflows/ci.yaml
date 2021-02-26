@@ -32,10 +32,10 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
-    - name: Docker Build
+    - name: Build In Container
       run: |
         source ~/.bash_profile
-        make clean in-docker-container
+        make clean in-container
         sudo make clean
     - name: Test
       run: |
