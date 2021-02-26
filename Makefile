@@ -245,10 +245,12 @@ docker-image:
 
 
 in-podman-container:
-	podman run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync crwood/gridsync-builder:1 bash -l -c make
+	podman run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
+		gridsync/gridsync-builder@sha256:72502ba020669f51463afd1d1add95c92f4739649e521e3be4e47f4eb18010ca
 
 in-docker-container:
-	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync crwood/gridsync-builder:1 bash -l -c make
+	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
+		gridsync/gridsync-builder@sha256:72502ba020669f51463afd1d1add95c92f4739649e521e3be4e47f4eb18010ca
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
