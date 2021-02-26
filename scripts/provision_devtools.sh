@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 if [ "$(uname)" = "Darwin" ]; then
     export HOMEBREW_NO_ANALYTICS=1
@@ -33,6 +34,10 @@ else
     chmod +x ~/bin/appimagetool
     curl --proto '=https' -sSf https://sh.rustup.rs > ~/bin/rustup-init
     chmod +x ~/bin/rustup-init
+    if [ -z "${SKIP_DOCKER}" ]; then
+        curl -fsSL https://get.docker.com/rootless | sh
+        echo "export DOCKER_HOST=unix:///run/$(id --user --name)/$(id --user)/docker.sock" >> "$SHELLRC"
+    fi
 fi
 
 git clone https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --ff origin master
