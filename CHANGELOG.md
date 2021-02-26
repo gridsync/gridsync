@@ -3,10 +3,15 @@
 ## Unreleased
 ### Added
 - Added support for Python 3.8 (Issue #264; PR #270)
-- Added support for macOS 11.0 ("Big Sur") (#319; PR #320)
+- Added support for macOS 11.0 ("Big Sur") (Issue #319; PR #320)
+- Added support for building Gridsync on "Apple Silicon" (arm64) macs under the "Rosetta" translation environment (Issue #322; PR #323)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.8 (Issue #269; PR #315)
+
+### Removed
+- Python 3.6 is no longer supported (Issue #324; PR #325)
+- The Gridsync project no longer depends on AppVeyor for continuous integration on Windows (Issue #326; PR #327)
 
 
 ## 0.4.3 - 2020-07-24

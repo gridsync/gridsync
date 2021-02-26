@@ -95,9 +95,8 @@ if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
 goto :eof
 
 :installer
-call copy misc\InnoSetup5.iss .
-call copy misc\InnoSetup6.iss .
-call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup6.iss || "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\InnoSetup5.iss
+call copy misc\InnoSetup.iss .
+call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup.iss
 goto :eof
 
 
