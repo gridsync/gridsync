@@ -158,6 +158,17 @@ These will download and configure a suitable virtual machine for the target plat
 
 .. [*] Note that in order to get Vagrant/VirtualBox working properly, users of GNU/Linux may need to add the current user's name to the local "vboxusers" group, while users experiencing issues with Windows guests may need to install some combination of the `winrm`, `winrm-fs`, or `winrm-elevated` Vagrant plugins (via the `vagrant plugin install winrm winrm-fs winrm-elevated` command). For further assistance with installing, configuring, or using Vagrant and/or VirtualBox on your system, please consult the appropriate upstream documentation and/or help forums. In addition, please note that Gridsync project can make no guarantees about the security or safety of public Vagrant "Boxes"; please exercise appropriate caution when relying upon third-party software.
 
+
+Alternatively, users with `docker` installed can use the CentOS 7-based `gridsync-builder`_ image to build equivalent backward-compatible binaries without the addded overhead of Vagrant and VirtualBox:
+
+.. code-block:: shell-session
+
+    make in-container
+
+
+.. _gridsync-builder: https://hub.docker.com/repository/docker/gridsync/gridsync-builder
+
+
 **Development builds:**
 
 Unsigned binary distributions (currently tracking the `master` branch) are also available from the `project buildbot's "artifacts" directory`_. These packages, however, should not be considered trustworthy or reliable in any way and are made available only for testing purposes by developers. Please excercise appropriate caution when using these files (ideally by downloading and running them inside a disposable virtual machine).
