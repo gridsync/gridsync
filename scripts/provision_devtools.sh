@@ -49,13 +49,13 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 
 pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.8.8
-if [[ "${SKIP_OLD_PYTHON_VERSIONS}" ]]; then
+if [ "${SKIP_OLD_PYTHON_VERSIONS}" ]; then
     pyenv rehash
     pyenv global 2.7.18 3.8.8
 else
     pyenv install --skip-existing 3.7.10
     pyenv rehash
-    global 2.7.18 3.8.8 3.7.10
+    pyenv global 2.7.18 3.8.8 3.7.10
 fi
 pyenv versions
 
