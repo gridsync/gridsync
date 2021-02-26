@@ -8,4 +8,5 @@ RUN yum -y update && yum -y install \
 COPY scripts/provision_devtools.sh /
 RUN SKIP_OLD_PYTHON_VERSIONS=1 /provision_devtools.sh && rm /provision_devtools.sh
 
+WORKDIR /gridsync
 CMD ["bash", "-l", "-c", "make"]
