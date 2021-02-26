@@ -32,11 +32,6 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
-    - name: Build In Container
-      run: |
-        source ~/.bash_profile
-        make clean in-container
-        sudo make clean
     - name: Test
       run: |
         source ~/.bash_profile
@@ -49,6 +44,13 @@ jobs:
       run: |
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
         xvfb-run -a dist/Gridsync/gridsync --version
+        xvfb-run -a dist/Gridsync.AppImage --version
+    - name: Build (in container)
+      run: |
+        source ~/.bash_profile
+        make clean in-container
+    - name: Verify (on host)
+      run: |
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
