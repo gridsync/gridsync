@@ -44,17 +44,8 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.8.8
 pyenv install --skip-existing 3.7.10
-# Python 3.6 is now in "security fixes only"[0] mode and won't build on macOS
-# 10.16/11/"Big Sur" without backporting patches[1][2] -- in other words, it
-# isn't supported "officially" upstream. Because of this -- and because it's
-# more important to support a new version of macOS than an old version of
-# Python -- in the event that the Python 3.6 build fails, continue anyway.
-# [0] https://www.python.org/dev/peps/pep-0494/
-# [1] https://github.com/pyenv/pyenv/issues/1737
-# [2] https://github.com/pyenv/pyenv/issues/1746
-pyenv install --skip-existing 3.6.13 || true
 pyenv rehash
-pyenv global 2.7.18 3.8.8 3.7.10 3.6.13 || pyenv global 2.7.18 3.8.8 3.7.10
+pyenv global 2.7.18 3.8.8 3.7.10
 pyenv versions
 
 python2 -m pip install --upgrade setuptools pip
