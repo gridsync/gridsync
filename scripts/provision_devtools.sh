@@ -34,7 +34,7 @@ else
     chmod +x ~/bin/appimagetool
     curl --proto '=https' -sSf https://sh.rustup.rs > ~/bin/rustup-init
     chmod +x ~/bin/rustup-init
-    if [ -z "${SKIP_DOCKER}" ]; then
+    if [ -z "${SKIP_DOCKER_INSTALL}" ]; then
         curl -fsSL https://get.docker.com/rootless | sh
         echo "export DOCKER_HOST=unix:///run/$(id --user --name)/$(id --user)/docker.sock" >> "$SHELLRC"
     fi
