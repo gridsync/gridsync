@@ -129,6 +129,20 @@ Vagrant.configure("2") do |config|
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
   end
 
+  config.vm.define "ubuntu-20.10" do |b|
+    b.vm.box = "ubuntu/groovy64"
+    b.vm.hostname = "ubuntu-20.10"
+    b.vm.provider "virtualbox" do |vb|
+      vb.memory = "4096"
+    end
+    b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
+    b.vm.provision "desktop", type: "shell", inline: ubuntu_desktop
+    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
+    b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
+    b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
+    b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
+  end
+
   config.vm.define "macos-10.14" do |b|
     b.vm.box = "yzgyyang/macOS-10.14"
     b.vm.hostname = "macos-10.14"
