@@ -129,24 +129,6 @@ Vagrant.configure("2") do |config|
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
   end
 
-  config.vm.define "macos-10.13" do |b|
-    b.vm.box = "monsenso/macos-10.13"
-    b.vm.hostname = "macos-10.13"
-    b.vm.provider "virtualbox" do |vb|
-      vb.customize ["modifyvm", :id, "--usbehci", "off"]
-      vb.customize ["modifyvm", :id, "--usbxhci", "off"]
-      vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct", "MacBookPro11,3"]
-      vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemVersion", "1.0"]
-      vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiBoardProduct", "Iloveapple"]
-      vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
-    end
-    b.vm.synced_folder ".", "/Users/vagrant/vagrant", type: "rsync", rsync__chown: false
-    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
-    b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
-    b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
-    b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
-  end
-
   config.vm.define "macos-10.14" do |b|
     b.vm.box = "yzgyyang/macOS-10.14"
     b.vm.hostname = "macos-10.14"
