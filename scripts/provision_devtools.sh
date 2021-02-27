@@ -36,7 +36,7 @@ else
     chmod +x ~/bin/rustup-init
     if [ -z "${SKIP_DOCKER_INSTALL}" ]; then
         curl -fsSL https://get.docker.com/rootless | sh
-        echo "export DOCKER_HOST=unix:///run/$(id --user --name)/$(id --user)/docker.sock" >> "$SHELLRC"
+        echo "export DOCKER_HOST=unix:///run/user/$(id --user)/docker.sock" >> "$SHELLRC"
     fi
 fi
 
