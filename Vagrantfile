@@ -104,7 +104,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu-18.04" do |b|
     b.vm.box = "ubuntu/bionic64"
     b.vm.hostname = "ubuntu-18.04"
-    config.vm.provider "virtualbox" do |vb|
+    b.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
     end
     b.vm.synced_folder ".", "/home/vagrant/vagrant"
@@ -118,7 +118,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu-20.04" do |b|
     b.vm.box = "ubuntu/focal64"
     b.vm.hostname = "ubuntu-20.04"
-    config.vm.provider "virtualbox" do |vb|
+    b.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
     end
     b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
@@ -132,7 +132,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "macos-10.13" do |b|
     b.vm.box = "monsenso/macos-10.13"
     b.vm.hostname = "macos-10.13"
-    config.vm.provider "virtualbox" do |vb|
+    b.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--usbehci", "off"]
       vb.customize ["modifyvm", :id, "--usbxhci", "off"]
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct", "MacBookPro11,3"]
@@ -150,7 +150,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "macos-10.14" do |b|
     b.vm.box = "yzgyyang/macOS-10.14"
     b.vm.hostname = "macos-10.14"
-    config.vm.provider "virtualbox" do |vb|
+    b.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--usbehci", "off"]
       vb.customize ["modifyvm", :id, "--usbxhci", "off"]
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct", "MacBookPro11,3"]
@@ -168,7 +168,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "macos-10.15" do |b|
     b.vm.box = "ramsey/macos-catalina"
     b.vm.hostname = "macos-10.15"
-    config.vm.provider "virtualbox" do |vb|
+    b.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
       vb.customize ["modifyvm", :id, "--usbehci", "off"]
       vb.customize ["modifyvm", :id, "--usbxhci", "off"]
