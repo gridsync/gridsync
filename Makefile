@@ -250,7 +250,7 @@ docker-push:
 	docker push gridsync/gridsync-builder
 
 in-container:
-	docker run --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
+	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
 		gridsync/gridsync-builder@sha256:72502ba020669f51463afd1d1add95c92f4739649e521e3be4e47f4eb18010ca
 
 
