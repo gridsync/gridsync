@@ -15,7 +15,7 @@ if [ "$(uname)" = "Darwin" ]; then
 else
     if [ -f "/usr/bin/apt-get" ]; then
         sudo apt-get -y update
-        sudo apt-get -y install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libgl1 libgl1-mesa-dev x11-utils libdbus-1-3 libxcb-xfixes0
+        sudo apt-get -y install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libgl1 libgl1-mesa-dev x11-utils libdbus-1-3 libxcb-xfixes0 uidmap
         SHELLRC=~/.bash_profile
     elif [ -f "/usr/bin/yum" ]; then
         PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file"
@@ -36,7 +36,7 @@ else
     chmod +x ~/bin/rustup-init
     if [ -z "${SKIP_DOCKER_INSTALL}" ]; then
         curl -fsSL https://get.docker.com/rootless | sh
-        echo "export DOCKER_HOST=unix:///run/$(id --user --name)/$(id --user)/docker.sock" >> "$SHELLRC"
+        echo "export DOCKER_HOST=unix:///run/user/$(id --user)/docker.sock" >> "$SHELLRC"
     fi
 fi
 
