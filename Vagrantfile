@@ -104,9 +104,6 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu-18.04" do |b|
     b.vm.box = "ubuntu/bionic64"
     b.vm.hostname = "ubuntu-18.04"
-    b.vm.provider "virtualbox" do |vb|
-      vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
-    end
     b.vm.synced_folder ".", "/home/vagrant/vagrant"
     b.vm.provision "desktop", type: "shell", inline: ubuntu_desktop
     b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
