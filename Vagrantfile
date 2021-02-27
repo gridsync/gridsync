@@ -95,7 +95,7 @@ Vagrant.configure("2") do |config|
     b.vm.hostname = "centos-7"
     b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
     b.vm.provision "desktop", type: "shell", inline: gnome_desktop
-    b.vm.provision "devtools", type: "shell", privileged: false, path: "scripts/provision_devtools.sh"
+    b.vm.provision "devtools", type: "shell", privileged: false, env: {"SKIP_DOCKER_INSTALL": "1"}, path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
