@@ -6,6 +6,7 @@
 - Added support for macOS 11.0 ("Big Sur") (Issue #319; PR #320)
 - Added support for building Gridsync on "Apple Silicon" (arm64) macs under the "Rosetta" translation environment (Issue #322; PR #323)
 - Added support for building backward-compatible AppImages inside a CentOS 7-based container via `make in-container` (Issue #328; PR #329)
+- Gridsync AppImages can now be built reproducibly across many common host environments (including Debian 10, Fedora 32, Ubuntu 20.04 LTS, and Ubuntu 20.10) using `make in-container` (Issue #330; PR #335)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.8 (Issue #269; PR #315)
