@@ -191,7 +191,7 @@ install:
 # 3: https://github.com/pyinstaller/pyinstaller/issues/5361
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
-	python3 -m virtualenv --clear --python=python3.8 .tox/pyinstaller && \
+	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
 	pip install -r requirements/gridsync.txt && \
 	pip install -r requirements/pyinstaller.txt && \
@@ -263,7 +263,7 @@ docker-push:
 
 in-container:
 	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
-		gridsync/gridsync-builder@sha256:72502ba020669f51463afd1d1add95c92f4739649e521e3be4e47f4eb18010ca
+		gridsync/gridsync-builder@sha256:211cbc53640f737433389a024620d189022c7d5b4b93b62b1aaa3d47513b6a15
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html

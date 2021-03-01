@@ -211,7 +211,8 @@ You should have received a copy of the GNU General Public License along with thi
 Sponsors:
 ---------
 
-The ongoing development of this project is made possible by the generous sponsorships provided by `Least Authority`_ and `UXFund`_.
+The ongoing development of this project has been made possible by the generous sponsorships and grants provided by `Least Authority`_ (2016-), `Internews/UXFund`_ (2017), and `Open Technology Fund`_ (2019-2020).
 
 .. _Least Authority: https://leastauthority.com/
-.. _UXFund: https://usable.tools/uxfund.html
+.. _Internews/UXFund: https://usable.tools/blog/2016-12-28-uxfund-results/
+.. _Open Technology Fund: https://leastauthority.com/blog/secure-file-storage-tools-human-rights-defenders/
