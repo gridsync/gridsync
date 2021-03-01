@@ -154,6 +154,7 @@ frozen-tahoe:
 	cp ../../misc/rsa-public-exponent.patch . && \
 	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
+	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
@@ -220,8 +221,8 @@ check-outdated:
 	python3 scripts/check_outdated.py
 
 vagrant-desktop-linux:
-	vagrant up --no-provision ubuntu-20.04
-	vagrant provision --provision-with desktop ubuntu-20.04
+	vagrant up --no-provision ubuntu-20.10
+	vagrant provision --provision-with desktop ubuntu-20.10
 
 vagrant-desktop-macos:
 	vagrant up --no-provision macos-10.15
@@ -239,6 +240,18 @@ vagrant-build-macos:
 
 vagrant-build-windows:
 	vagrant up --provision-with test,build windows-10
+
+
+docker-image:
+	docker build --tag gridsync-builder $$(pwd)
+
+docker-push:
+	docker tag gridsync-builder gridsync/gridsync-builder
+	docker push gridsync/gridsync-builder
+
+in-container:
+	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
+		gridsync/gridsync-builder@sha256:72502ba020669f51463afd1d1add95c92f4739649e521e3be4e47f4eb18010ca
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html

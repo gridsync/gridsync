@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 if [ "$(uname)" = "Darwin" ]; then
     export HOMEBREW_NO_ANALYTICS=1
@@ -14,10 +15,11 @@ if [ "$(uname)" = "Darwin" ]; then
 else
     if [ -f "/usr/bin/apt-get" ]; then
         sudo apt-get -y update
-        sudo apt-get -y install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libgl1 libgl1-mesa-dev x11-utils libdbus-1-3 libxcb-xfixes0
+        sudo apt-get -y install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libgl1 libgl1-mesa-dev x11-utils libdbus-1-3 libxcb-xfixes0 uidmap
         SHELLRC=~/.bash_profile
     elif [ -f "/usr/bin/yum" ]; then
-        sudo yum -y install which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb
+        PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file"
+        yum -y install $PKGS || sudo yum -y install $PKGS
         SHELLRC=~/.bashrc
 	    ECHO_FLAGS=-e
     else
@@ -32,6 +34,10 @@ else
     chmod +x ~/bin/appimagetool
     curl --proto '=https' -sSf https://sh.rustup.rs > ~/bin/rustup-init
     chmod +x ~/bin/rustup-init
+    if [ -z "${SKIP_DOCKER_INSTALL}" ]; then
+        curl -fsSL https://get.docker.com/rootless | sh
+        echo "export DOCKER_HOST=unix:///run/user/$(id --user)/docker.sock" >> "$SHELLRC"
+    fi
 fi
 
 git clone https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin master
@@ -43,19 +49,15 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 
 pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.9.2
-pyenv install --skip-existing 3.8.8
-pyenv install --skip-existing 3.7.10
-# Python 3.6 is now in "security fixes only"[0] mode and won't build on macOS
-# 10.16/11/"Big Sur" without backporting patches[1][2] -- in other words, it
-# isn't supported "officially" upstream. Because of this -- and because it's
-# more important to support a new version of macOS than an old version of
-# Python -- in the event that the Python 3.6 build fails, continue anyway.
-# [0] https://www.python.org/dev/peps/pep-0494/
-# [1] https://github.com/pyenv/pyenv/issues/1737
-# [2] https://github.com/pyenv/pyenv/issues/1746
-pyenv install --skip-existing 3.6.13 || true
-pyenv rehash
-pyenv global 2.7.18 3.9.2 3.8.8 3.7.10 3.6.13 || pyenv global 2.7.18 3.9.2 3.8.8 3.7.10
+if [ "${SKIP_OLD_PYTHON_VERSIONS}" ]; then
+    pyenv rehash
+    pyenv global 2.7.18 3.9.2
+else
+    pyenv install --skip-existing 3.8.8
+    pyenv install --skip-existing 3.7.10
+    pyenv rehash
+    pyenv global 2.7.18 3.9.2 3.8.8 3.7.10
+fi
 pyenv versions
 
 python2 -m pip install --upgrade setuptools pip

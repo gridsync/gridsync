@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -30,8 +32,7 @@ jobs:
         key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: |
-        scripts/provision_devtools.sh
+      run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
       run: |
         source ~/.bash_profile
@@ -44,6 +45,13 @@ jobs:
       run: |
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
         xvfb-run -a dist/Gridsync/gridsync --version
+        xvfb-run -a dist/Gridsync.AppImage --version
+    - name: Build (in container)
+      run: |
+        source ~/.bash_profile
+        make clean in-container
+    - name: Verify (on host)
+      run: |
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
@@ -61,6 +69,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -106,6 +116,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
