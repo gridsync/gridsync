@@ -211,6 +211,10 @@ pyinstaller:
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
 
+zip:
+	python3 scripts/update_timestamps.py dist
+	python3 scripts/make_zip.py
+
 dmg:
 	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
@@ -278,8 +282,8 @@ appimage:
 
 all:
 	@case `uname` in \
-		Darwin)	arch -x86_64 $(MAKE) pyinstaller dmg ;; \
-		*) $(MAKE) pyinstaller appimage ;; \
+		Darwin)	arch -x86_64 $(MAKE) pyinstaller zip dmg ;; \
+		*) $(MAKE) pyinstaller zip appimage ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
