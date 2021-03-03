@@ -14,7 +14,7 @@ pefile==2019.4.18; sys_platform == "win32" \
     --hash=sha256:a5d6e8305c6b210849b47a6174ddf9c452b2888340b8177874b862ba6c207645
 PyInstaller==3.6 ; python_version < "3" \
     --hash=sha256:3730fa80d088f8bb7084d32480eb87cbb4ddb64123363763cf8f2a1378c1c4b7
-pyinstaller==4.2 ; python_version >= "3" \
+pyinstaller==4.2; python_version >= "3" \
     --hash=sha256:f5c0eeb2aa663cce9a5404292c0195011fa500a6501c873a466b2e8cad3c950c
 pyinstaller-hooks-contrib==2020.11 \
     --hash=sha256:fa8280b79d8a2b267a2e43ff44f73b3e4a68fc8d205b8d34e8e06c960f7c2fcf \

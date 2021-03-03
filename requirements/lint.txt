@@ -7,18 +7,15 @@ astroid==2.5.1 \
 black==20.8b1 \
     --hash=sha256:1c02557aa099101b9d21496f8a914e9ed2222ef70336404eeeac8edba836fbea \
     --hash=sha256:70b62ef1527c950db59062cda342ea224d772abdf6adc58b86a45421bab20a6b
-colorama==0.4.3; sys_platform == "win32" \
-    --hash=sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff \
-    --hash=sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1
-dataclasses==0.7 ; python_version < "3.7" \
-    --hash=sha256:3459118f7ede7c8bea0fe795bff7c6c2ce287d01dd226202f7c9ebc0610a7836 \
-    --hash=sha256:494a6dcae3b8bcf80848eea2ef64c0cc5cd307ffc263e17cdf42f3e5420808e6
+colorama==0.4.4; sys_platform == "win32" \
+    --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
+    --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
 flake8==3.8.4 \
     --hash=sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839 \
     --hash=sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b
-importlib-metadata==3.5.0 ; python_version < "3.8" \
-    --hash=sha256:2a851a30a1fd847cedd68c7c6bfb90e765db6265852f574e9d88bb40f96924ab \
-    --hash=sha256:31c5c29f17d064cc71bf6a005a8b25b3332787ab2e7362d5d258800ac825f471
+importlib-metadata==3.7.0; python_version < "3.8" \
+    --hash=sha256:24499ffde1b80be08284100393955842be4a59c7c16bbf2738aad0e464a8e0aa \
+    --hash=sha256:c6af5dbf1126cd959c4a8d8efd61d4d3c83bddb0459a17e554284a077574b614
 isort==5.7.0 \
     --hash=sha256:c729845434366216d320e936b8ad6f9d681aab72dc7cbc2d51bedc3582f3ad1e \
     --hash=sha256:fff4f0c04e1825522ce6949973e83110a6e907750cd92d128b0d14aaaadbffdc
