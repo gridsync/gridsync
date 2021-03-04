@@ -34,7 +34,7 @@ _addr = sys.argv[1].split("/")[0]
 _dest = sys.argv[1].split("/")[1]
 _host = _addr.split(":")[0]
 _port = _addr.split(":")[1]
-_user = socket.gethostname()
+_user = socket.gethostname().replace(".", "_")
 
 try:
     s = ssl.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
