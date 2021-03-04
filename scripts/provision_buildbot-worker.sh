@@ -1,4 +1,6 @@
 #!/bin/sh
+buildbot-worker stop ~/buildbot 
+rm -rf ~/buildbot
 python3 -m pip install buildbot-worker
 buildbot-worker create-worker ~/buildbot "$BUILDBOT_HOST" "$BUILDBOT_NAME" "$BUILDBOT_PASS"
 unset BUILDBOT_HOST
