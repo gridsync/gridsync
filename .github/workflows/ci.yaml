@@ -36,6 +36,7 @@ jobs:
     - name: Test
       run: |
         source ~/.bash_profile
+        env | sort
         make test
     - name: Build
       run: |
