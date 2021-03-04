@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import os
 import subprocess
+import sys
 
 
 def check_outdated(pip_path, env_name):
@@ -25,18 +26,28 @@ def check_outdated(pip_path, env_name):
     return (env_name, outdated)
 
 
+def get_virtualenvs():
+    envs = []
+    if sys.platform == "win32":
+        bindir = "Scripts"
+        pipexe = "pip.exe"
+    else:
+        bindir = "bin"
+        pipexe = "pip"
+    for dirname in os.listdir(".tox"):
+        pip_path = os.path.join(".tox", dirname, bindir, pipexe)
+        if os.path.exists(pip_path):
+            envs.append((dirname, pip_path))
+    tahoe_pip_path = os.path.join("build", "venv-tahoe", bindir, pipexe)
+    if os.path.exists(tahoe_pip_path):
+        envs.append(("tahoe-lafs", tahoe_pip_path))
+    return sorted(envs)
+
+
 def main():
-    tox_envs = subprocess.check_output(["python3", "-m", "tox", "-a"]).decode()
     results = []
-    for env in tox_envs.strip().split("\n"):
-        results.append(
-            check_outdated(os.path.join(".tox", env, "bin", "pip"), env)
-        )
-    results.append(
-        check_outdated(
-            os.path.join("build", "venv-tahoe", "bin", "pip"), "tahoe-lafs"
-        )
-    )
+    for env_name, pip_path in get_virtualenvs():
+        results.append(check_outdated(pip_path, env_name))
     for env_name, outdated in results:
         if outdated:
             print("\n" + env_name + ":\n-------------------------------")

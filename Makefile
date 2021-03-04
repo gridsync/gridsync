@@ -193,8 +193,8 @@ pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
 	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
-	pip install -r requirements/gridsync.txt && \
-	pip install -r requirements/pyinstaller.txt && \
+	pip install --no-deps -r requirements/gridsync.txt && \
+	pip install --no-deps -r requirements/pyinstaller.txt && \
 	pip install -e . && \
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
@@ -222,6 +222,10 @@ pyinstaller:
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
+
+zip:
+	python3 scripts/update_timestamps.py dist
+	python3 scripts/make_zip.py
 
 dmg:
 	python3 -m virtualenv --clear build/venv-dmg
@@ -290,8 +294,8 @@ appimage:
 
 all:
 	@case `uname` in \
-		Darwin)	arch -x86_64 $(MAKE) pyinstaller dmg ;; \
-		*) $(MAKE) pyinstaller appimage ;; \
+		Darwin)	arch -x86_64 $(MAKE) pyinstaller zip dmg ;; \
+		*) $(MAKE) pyinstaller zip appimage ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 
