@@ -1,12 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-try:
-    from configparser import RawConfigParser
-except ImportError:
-    from ConfigParser import RawConfigParser
 import os
 import zipfile
+from configparser import RawConfigParser
 
 
 config = RawConfigParser(allow_no_value=True)
@@ -28,6 +25,6 @@ def make_zip(base_name, root_dir=None, base_dir=None):
             paths.append(os.path.join(root, file))
     with zipfile.ZipFile(zipfile_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in sorted(paths):
-            zf.write(path)
+            zf.write(path, compresslevel=1)
 
 make_zip(os.path.join("dist", app_name) + ".zip", "dist", app_name)
