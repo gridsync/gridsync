@@ -10,7 +10,7 @@ from configparser import RawConfigParser
 config = RawConfigParser(allow_no_value=True)
 config.read(os.path.join("gridsync", "resources", "config.txt"))
 app_name = config.get("application", "name")
-#shutil.make_archive(os.path.join("dist", app_name), "zip", "dist", app_name)
+
 
 def make_zip(base_name, root_dir=None, base_dir=None):
     zipfile_path = os.path.abspath(base_name)
