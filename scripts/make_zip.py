@@ -32,6 +32,10 @@ def make_zip(base_name, root_dir=None, base_dir=None):
         for path in sorted(paths):
             if path.endswith("/"):
                 zf.writestr(zipfile.ZipInfo.from_file(path), "")
+            elif os.path.islink(path):
+                zinfo = zipfile.ZipInfo.from_file(path)
+                zinfo.external_attr |= 0o120000 << 16
+                zf.writestr(zinfo, os.readlink(path))
             else:
                 zf.write(path, compresslevel=1)
 
