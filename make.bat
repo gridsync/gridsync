@@ -95,6 +95,7 @@ if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
 goto :eof
 
 :zip
+%PYTHON3% .\scripts\update_permissions.py .\dist
 %PYTHON3% .\scripts\update_timestamps.py .\dist
 %PYTHON3% .\scripts\make_zip.py
 goto :eof

@@ -212,6 +212,7 @@ pyinstaller:
 	pyinstaller -y misc/gridsync.spec
 
 zip:
+	python3 scripts/update_permissions.py dist
 	python3 scripts/update_timestamps.py dist
 	python3 scripts/make_zip.py
 
