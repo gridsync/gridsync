@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Some distros (ubuntu-20.04, debian-10) have a default umask of 022
+# while others (ubuntu-20.10, fedora-32) use 0002. Normalizing this
+# helps with deterministic/reproducible builds.
 
 import os
 import sys
