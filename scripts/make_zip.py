@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import zipfile
 from configparser import RawConfigParser
 
@@ -39,4 +40,10 @@ def make_zip(base_name, root_dir=None, base_dir=None):
             else:
                 zf.write(path, compresslevel=1)
 
-make_zip(os.path.join("dist", app_name) + ".zip", "dist", app_name)
+
+if sys.platform == "darwin":
+    make_zip(
+        os.path.join("dist", app_name) + ".zip", "dist", app_name + ".app"
+    )
+else:
+    make_zip(os.path.join("dist", app_name) + ".zip", "dist", app_name)
