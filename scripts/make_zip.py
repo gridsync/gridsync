@@ -20,11 +20,19 @@ def make_zip(base_name, root_dir=None, base_dir=None):
 
     os.chdir(root_dir)
     paths = []
-    for root, _, files in os.walk(base_dir):
+    for root, directories, files in os.walk(base_dir):
         for file in files:
             paths.append(os.path.join(root, file))
+        for directory in directories:
+            dirpath = os.path.join(root, directory)
+            if not os.listdir(dirpath):  # Directory is empty
+                paths.append(dirpath + "/")
+
     with zipfile.ZipFile(zipfile_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in sorted(paths):
-            zf.write(path, compresslevel=1)
+            if path.endswith("/"):
+                zf.writestr(zipfile.ZipInfo.from_file(path), "")
+            else:
+                zf.write(path, compresslevel=1)
 
 make_zip(os.path.join("dist", app_name) + ".zip", "dist", app_name)
