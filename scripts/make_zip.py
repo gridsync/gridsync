@@ -38,7 +38,7 @@ def make_zip(base_name, root_dir=None, base_dir=None):
                 zf.writestr(zipfile.ZipInfo.from_file(path), "")
             elif os.path.islink(path):
                 zinfo = zipfile.ZipInfo.from_file(path)
-                zinfo.filename = path
+                zinfo.filename = path  # To strip trailing "/" from dirs
                 zinfo.create_system = 3
                 zinfo.external_attr = (0o755 | stat.S_IFLNK) << 16
                 zf.writestr(zinfo, os.readlink(path))
