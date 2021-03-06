@@ -27,6 +27,10 @@ def call_make_clean_zip():
         subprocess.call(["make.bat", "clean"])
         subprocess.call(["make.bat", "pyinstaller"])
         subprocess.call(["make.bat", "zip"])
+    elif sys.platform == "darwin":
+        subprocess.call(
+            ["arch", "-x86_64", "make", "clean", "pyinstaller", "zip"]
+        )
     else:
         subprocess.call(["make", "clean", "pyinstaller", "zip"])
 
