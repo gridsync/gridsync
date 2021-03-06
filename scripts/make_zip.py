@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import stat
 import sys
 import zipfile
 from configparser import RawConfigParser
@@ -26,7 +27,9 @@ def make_zip(base_name, root_dir=None, base_dir=None):
             paths.append(os.path.join(root, file))
         for directory in directories:
             dirpath = os.path.join(root, directory)
-            if not os.listdir(dirpath):  # Directory is empty
+            if os.path.islink(dirpath):
+                paths.append(dirpath)
+            elif not os.listdir(dirpath):  # Directory is empty
                 paths.append(dirpath + "/")
 
     with zipfile.ZipFile(zipfile_path, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -35,7 +38,9 @@ def make_zip(base_name, root_dir=None, base_dir=None):
                 zf.writestr(zipfile.ZipInfo.from_file(path), "")
             elif os.path.islink(path):
                 zinfo = zipfile.ZipInfo.from_file(path)
-                zinfo.external_attr |= 0o120000 << 16
+                zinfo.filename = path
+                zinfo.create_system = 3
+                zinfo.external_attr = (0o755 | stat.S_IFLNK) << 16
                 zf.writestr(zinfo, os.readlink(path))
             else:
                 zf.write(path, compresslevel=1)
