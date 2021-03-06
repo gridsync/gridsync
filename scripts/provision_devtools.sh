@@ -61,7 +61,7 @@ fi
 pyenv versions
 
 python2 -m pip install --upgrade setuptools pip
-python3 -m pip install --upgrade setuptools pip tox
+python3 -m pip install --upgrade setuptools pip tox diffoscope
 
 rustup-init -y --default-host "$RUST_DEFAULT_HOST" --default-toolchain stable
 . $HOME/.cargo/env
