@@ -110,7 +110,7 @@ jobs:
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test determinism
       run: |
-        source ~/.bash_profile
+        #source ~/.bash_profile
         python3 scripts/test_determinism.py
     - name: Make dmg
       run: |
