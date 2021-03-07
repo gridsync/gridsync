@@ -38,6 +38,7 @@ if "%1"=="test" call :test
 if "%1"=="frozen-tahoe" call :frozen-tahoe
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="zip" call :zip
+if "%1"=="test-determinism" call :test-determinism
 if "%1"=="installer" call :installer
 if "%1"=="vagrant-desktop-linux" call :vagrant-desktop-linux
 if "%1"=="vagrant-desktop-macos" call :vagrant-desktop-macos
