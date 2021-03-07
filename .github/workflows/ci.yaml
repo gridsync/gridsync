@@ -100,10 +100,11 @@ jobs:
       run: |
         source ~/.bashrc
         make test
-    - name: Build
+    - name: Make pyinstaller
       run: |
         source ~/.bashrc
-        make all
+        make pyinstaller
+        make zip
     - name: Verify
       run: |
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
@@ -144,8 +145,10 @@ jobs:
       run: py -3 -m pip install tox diffoscope
     - name: Test
       run: .\make.bat test
-    - name: Build
-      run: .\make.bat all
+    - name: Make pyinstaller
+      run: |
+        .\make.bat pyinstaller
+        .\make.bat zip
     - name: Verify
       run: |
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
