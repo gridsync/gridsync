@@ -1,0 +1,44 @@
+{
+  "version": "1",
+  "nickname": "HRO Grid",
+  "zkap_name": "HRO Grid Credit",
+  "zkap_payment_url_root": "https://leastauthority.com/product-development/",
+  "shares-needed": "2",
+  "shares-happy": "3",
+  "shares-total": "3",
+  "storage": {
+    "v0-xl5xjfmldinor3ukcuqgbifditkfgd3pkefc4b7srpdcp262e74q": {
+      "nickname": "storage001",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://sp46i5ckkmzqf47zoru5rio2pbk6glof@tcp:149.202.210.20:8898/uhcvf2szovlpwzlbu6jn5wcwe744yqeo",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/"
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    },
+    "v0-amkofc7ezs4xb7ivqhzu7y55ahjftl7ce5eb3uaatgjhygxr2yma": {
+      "nickname": "storage002",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://35uweljc5o6tq2pbbwbbabvfpwqphicc@tcp:104.144.74.50:8898/y2oahty2nllkb6zvds2xqm424uy2lhqd",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/"
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    },
+    "v0-wt2ntsujirdtviujlywrprmqbpzuolterfuxhwe6td3sszufpxbq": {
+      "nickname": "storage003",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://vdka3hbufgvqzu4i23qeexndomszioc2@tcp:151.80.28.108:8898/jdtpybia7icoqlaa3ihhr457iqacsziu",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/"
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    }
+  }
+}
