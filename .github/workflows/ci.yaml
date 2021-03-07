@@ -110,11 +110,11 @@ jobs:
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test determinism
       run: |
-        source ~/.bash_profile
+        source ~/.bashrc
         python3 scripts/test_determinism.py
     - name: Make dmg
       run: |
-        source ~/.bash_profile
+        source ~/.bashrc
         make dmg
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
