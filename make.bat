@@ -100,6 +100,9 @@ goto :eof
 %PYTHON3% .\scripts\make_zip.py
 goto :eof
 
+:test-determinism
+%PYTHON3% .\scripts\test_determinism.py
+goto :eof
 
 :installer
 call copy misc\InnoSetup.iss .

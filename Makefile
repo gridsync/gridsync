@@ -216,6 +216,9 @@ zip:
 	python3 scripts/update_timestamps.py dist
 	python3 scripts/make_zip.py
 
+test-determinism:
+	python3 scripts/test_determinism.py
+
 dmg:
 	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
