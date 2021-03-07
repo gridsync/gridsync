@@ -153,6 +153,9 @@ jobs:
     - name: Test determinism
       run: |
         make test-determinism
+    - name: Make installer
+      run: |
+        make installer
     - name: sha256sum
       run: python3 scripts/sha256sum.py .\dist\*.*
     - name: Upload artifacts
