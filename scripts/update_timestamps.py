@@ -11,20 +11,17 @@ def git_timestamp():
 
 
 def update_timestamps(path, timestamp):
+    paths = [path]
     for root, directories, files, in os.walk(path):
         for file in files:
-            os.utime(
-                os.path.join(root, file),
-                (timestamp, timestamp),
-                follow_symlinks=False
-            )
+            paths.append(os.path.join(root, file))
         for directory in directories:
-            os.utime(
-                os.path.join(root, directory),
-                (timestamp, timestamp),
-                follow_symlinks=False
-            )
-    os.utime(path, (timestamp, timestamp))
+            paths.append(os.path.join(root, directory))
+    for p in paths:
+        try:
+            os.utime(p, (timestamp, timestamp), follow_symlinks=False)
+        except NotImplementedError:  # Windows
+            os.utime(p, (timestamp, timestamp))
 
 
 if __name__ == "__main__":

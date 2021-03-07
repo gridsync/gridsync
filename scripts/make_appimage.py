@@ -111,22 +111,7 @@ exec "$(dirname "$(readlink -e "$0")")/usr/bin/{}" "$@"
 os.chmod('build/AppDir/AppRun', 0o755)
 
 
-# Some distros (ubuntu-20.04, debian-10) have a default umask of 022
-# while others (ubuntu-20.10, fedora-32) use 0002. Normalizing this
-# helps to make the AppImage build deterministically/reproducibly.
-resource_dirs = [
-    "build/AppDir/usr/bin/resources",
-    "build/AppDir/usr/share/icons/hicolor/scalable/apps"
-]
-for resource_dir in resource_dirs:
-    for root, directories, files in os.walk(resource_dir):
-        for file in files:
-            os.chmod(os.path.join(root, file), 0o644)
-        for directory in directories:
-            os.chmod(os.path.join(root, directory), 0o755)
-
-
-# Created the .DirIcon symlink here/now to prevent appimagetool from
+# Create the .DirIcon symlink here/now to prevent appimagetool from
 # doing it later, thereby allowing the atime and mtime of the symlink
 # to be overriden along with all of the other files in the AppDir.
 try:
@@ -134,6 +119,8 @@ try:
 except OSError:
     pass
 
+
+subprocess.call(["python3", "scripts/update_permissions.py", "build/AppDir"])
 subprocess.call(["python3", "scripts/update_timestamps.py", "build/AppDir"])
 
 
