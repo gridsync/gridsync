@@ -174,13 +174,17 @@ class MainWindow(QMainWindow):
 
         font = Font(8)
 
-        self.folder_action = QAction(
+        folder_action = QAction(
             QIcon(resource("folder-plus-outline.png")), "Add Folder", self
         )
-        self.folder_action.setEnabled(False)
-        self.folder_action.setToolTip("Add a Folder...")
-        self.folder_action.setFont(font)
-        self.folder_action.triggered.connect(self.select_folder)
+        folder_action.setEnabled(False)
+        folder_action.setToolTip("Add a Folder...")
+        folder_action.setFont(font)
+        folder_action.triggered.connect(self.select_folder)
+
+        self.folder_button = QToolButton(self)
+        self.folder_button.setDefaultAction(folder_action)
+        self.folder_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         if self.grid_invites_enabled:
             self.invites_action = QAction(
@@ -237,17 +241,17 @@ class MainWindow(QMainWindow):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
 
-        self.history_action = QAction(
+        history_action = QAction(
             QIcon(resource("clock-outline.png")), "History", self
         )
-        self.history_action.setEnabled(False)
-        self.history_action.setToolTip("Show/Hide History")
-        self.history_action.setFont(font)
-        self.history_action.setCheckable(True)
-        self.history_action.triggered.connect(self.show_history_view)
+        history_action.setEnabled(False)
+        history_action.setToolTip("Show/Hide History")
+        history_action.setFont(font)
+        history_action.setCheckable(True)
+        history_action.triggered.connect(self.show_history_view)
 
         self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(self.history_action)
+        self.history_button.setDefaultAction(history_action)
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
@@ -279,31 +283,31 @@ class MainWindow(QMainWindow):
         )
         self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        self.folders_action = QAction(
+        folders_action = QAction(
             QIcon(resource("folder-multiple-outline.png")), "Folders", self
         )
-        self.folders_action.setEnabled(False)
-        self.folders_action.setToolTip("Show Folders")
-        self.folders_action.setFont(font)
-        self.folders_action.setCheckable(True)
-        self.folders_action.triggered.connect(self.show_folders_view)
+        folders_action.setEnabled(False)
+        folders_action.setToolTip("Show Folders")
+        folders_action.setFont(font)
+        folders_action.setCheckable(True)
+        folders_action.triggered.connect(self.show_folders_view)
 
         self.folders_button = QToolButton(self)
-        self.folders_button.setDefaultAction(self.folders_action)
+        self.folders_button.setDefaultAction(folders_action)
         self.folders_button.setCheckable(True)
         self.folders_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        self.zkaps_action = QAction(
+        zkaps_action = QAction(
             QIcon(resource("chart-donut.png")), "Storage-time", self
         )
-        self.zkaps_action.setEnabled(False)
-        self.zkaps_action.setToolTip("Show Storage-time")
-        self.zkaps_action.setFont(font)
-        self.zkaps_action.setCheckable(True)
-        self.zkaps_action.triggered.connect(self.show_zkap_view)
+        zkaps_action.setEnabled(False)
+        zkaps_action.setToolTip("Show Storage-time")
+        zkaps_action.setFont(font)
+        zkaps_action.setCheckable(True)
+        zkaps_action.triggered.connect(self.show_zkap_view)
 
         self.zkaps_button = QToolButton(self)
-        self.zkaps_button.setDefaultAction(self.zkaps_action)
+        self.zkaps_button.setDefaultAction(zkaps_action)
         self.zkaps_button.setCheckable(True)
         self.zkaps_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
@@ -328,7 +332,8 @@ class MainWindow(QMainWindow):
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setMovable(False)
-        self.toolbar.addAction(self.folder_action)
+        # self.toolbar.addAction(self.folder_action)
+        self.toolbar.addWidget(self.folder_button)
         self.toolbar.addWidget(self.recovery_button)
         if self.grid_invites_enabled:
             self.toolbar.addWidget(self.invites_button)
@@ -352,10 +357,12 @@ class MainWindow(QMainWindow):
             gateway.zkap_auth_required
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
-            self.folder_action.setEnabled(False)
+            # self.folder_action.setEnabled(False)
+            self.folder_button.setEnabled(False)
             # self.invites_button.setEnabled(False)
             self.combo_box.setEnabled(False)
-            self.history_action.setEnabled(False)
+            #self.history_action.setEnabled(False)
+            self.history_button.setEnabled(False)
             self.recovery_button.setEnabled(False)
             self.folders_button.setEnabled(False)
             self.zkaps_button.setEnabled(False)
@@ -379,10 +386,12 @@ class MainWindow(QMainWindow):
                 self.history_button.setChecked(False)
                 self.folders_button.setChecked(False)
         else:
-            self.folder_action.setEnabled(True)
+            # self.folder_action.setEnabled(True)
+            self.folder_button.setEnabled(True)
             # self.invites_button.setEnabled(True)
             self.combo_box.setEnabled(True)
-            self.history_action.setEnabled(True)
+            #self.history_action.setEnabled(True)
+            self.history_button.setEnabled(True)
             self.recovery_button.setEnabled(True)
             self.folders_button.setEnabled(True)
             self.zkaps_button.setEnabled(True)
