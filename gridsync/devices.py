@@ -1,12 +1,7 @@
 import logging
 from typing import List, Optional
 
-from twisted.internet.defer import (
-    Deferred,
-    DeferredList,
-    DeferredLock,
-    inlineCallbacks,
-)
+from twisted.internet.defer import DeferredList, DeferredLock, inlineCallbacks
 
 
 class DevicesManager:
@@ -16,7 +11,7 @@ class DevicesManager:
         self._devicescap_lock = DeferredLock()
 
     @inlineCallbacks
-    def create_devicescap(self) -> Deferred:
+    def create_devicescap(self):
         yield self.gateway.lock.acquire()
         try:
             cap = yield self.gateway.mkdir(
@@ -27,7 +22,7 @@ class DevicesManager:
         return cap
 
     @inlineCallbacks
-    def get_devicescap(self) -> Deferred:
+    def get_devicescap(self):
         if self.devicescap:
             return self.devicescap
         rootcap = self.gateway.get_rootcap()
@@ -42,7 +37,7 @@ class DevicesManager:
         return self.devicescap
 
     @inlineCallbacks
-    def add_devicecap(self, name: str, root: Optional[str] = "") -> Deferred:
+    def add_devicecap(self, name: str, root: Optional[str] = ""):
         if not root:
             root = yield self.get_devicescap()
         yield self._devicescap_lock.acquire()
@@ -53,7 +48,7 @@ class DevicesManager:
         return devicecap
 
     @inlineCallbacks
-    def get_devicecaps(self, root: Optional[str] = "") -> Deferred:
+    def get_devicecaps(self, root: Optional[str] = ""):
         results = []
         if not root:
             root = yield self.get_devicescap()
@@ -68,12 +63,12 @@ class DevicesManager:
         return results
 
     @inlineCallbacks
-    def _do_invite(self, device: str, folder: str) -> Deferred:
+    def _do_invite(self, device: str, folder: str):
         code = yield self.gateway.magic_folder_invite(folder, device)
         return folder, code
 
     @inlineCallbacks
-    def add_new_device(self, device: str, folders: List[str]) -> Deferred:
+    def add_new_device(self, device: str, folders: List[str]):
         if not folders:
             logging.warning("No folders found to link")
 
@@ -100,5 +95,5 @@ class DevicesManager:
         return devicecap
 
     @inlineCallbacks
-    def add_new_folder(self, folder: str, devices: List[str]) -> Deferred:
+    def add_new_folder(self, folder: str, devices: List[str]):
         pass
