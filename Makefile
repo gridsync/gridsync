@@ -154,6 +154,7 @@ frozen-tahoe:
 	cp ../../misc/rsa-public-exponent.patch . && \
 	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
+	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
@@ -178,10 +179,10 @@ install:
 # 3: https://github.com/pyinstaller/pyinstaller/issues/5361
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
-	python3 -m virtualenv --clear --python=python3.8 .tox/pyinstaller && \
+	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
-	pip install -r requirements/gridsync.txt && \
-	pip install -r requirements/pyinstaller.txt && \
+	pip install --no-deps -r requirements/gridsync.txt && \
+	pip install --no-deps -r requirements/pyinstaller.txt && \
 	pip install -e . && \
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
@@ -210,6 +211,14 @@ pyinstaller:
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y misc/gridsync.spec
 
+zip:
+	python3 scripts/update_permissions.py dist
+	python3 scripts/update_timestamps.py dist
+	python3 scripts/make_zip.py
+
+test-determinism:
+	python3 scripts/test_determinism.py
+
 dmg:
 	python3 -m virtualenv --clear build/venv-dmg
 	source build/venv-dmg/bin/activate && \
@@ -220,8 +229,8 @@ check-outdated:
 	python3 scripts/check_outdated.py
 
 vagrant-desktop-linux:
-	vagrant up --no-provision ubuntu-20.04
-	vagrant provision --provision-with desktop ubuntu-20.04
+	vagrant up --no-provision ubuntu-20.10
+	vagrant provision --provision-with desktop ubuntu-20.10
 
 vagrant-desktop-macos:
 	vagrant up --no-provision macos-10.15
@@ -239,6 +248,18 @@ vagrant-build-macos:
 
 vagrant-build-windows:
 	vagrant up --provision-with test,build windows-10
+
+
+docker-image:
+	docker build --tag gridsync-builder $$(pwd)
+
+docker-push:
+	docker tag gridsync-builder gridsync/gridsync-builder
+	docker push gridsync/gridsync-builder
+
+in-container:
+	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
+		gridsync/gridsync-builder@sha256:211cbc53640f737433389a024620d189022c7d5b4b93b62b1aaa3d47513b6a15
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
@@ -265,8 +286,8 @@ appimage:
 
 all:
 	@case `uname` in \
-		Darwin)	arch -x86_64 $(MAKE) pyinstaller dmg ;; \
-		*) $(MAKE) pyinstaller appimage ;; \
+		Darwin)	arch -x86_64 $(MAKE) pyinstaller zip dmg ;; \
+		*) $(MAKE) pyinstaller zip appimage ;; \
 	esac
 	python3 scripts/sha256sum.py dist/*.*
 

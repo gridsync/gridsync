@@ -14,11 +14,11 @@ pefile==2019.4.18; sys_platform == "win32" \
     --hash=sha256:a5d6e8305c6b210849b47a6174ddf9c452b2888340b8177874b862ba6c207645
 PyInstaller==3.6 ; python_version < "3" \
     --hash=sha256:3730fa80d088f8bb7084d32480eb87cbb4ddb64123363763cf8f2a1378c1c4b7
-pyinstaller==4.2 ; python_version >= "3" \
+pyinstaller==4.2; python_version >= "3" \
     --hash=sha256:f5c0eeb2aa663cce9a5404292c0195011fa500a6501c873a466b2e8cad3c950c
-pyinstaller-hooks-contrib==2020.11 \
-    --hash=sha256:fa8280b79d8a2b267a2e43ff44f73b3e4a68fc8d205b8d34e8e06c960f7c2fcf \
-    --hash=sha256:fc3290a2ca337d1d58c579c223201360bfe74caed6454eaf5a2550b77dbda45c
+pyinstaller-hooks-contrib==2021.1 \
+    --hash=sha256:27558072021857d89524c42136feaa2ffe4f003f1bdf0278f9b24f6902c1759c \
+    --hash=sha256:892310e6363655838485ee748bf1c5e5cade7963686d9af8650ee218a3e0b031
 pywin32-ctypes==0.2.0; sys_platform == "win32" \
     --hash=sha256:24ffc3b341d457d48e8922352130cf2644024a4ff09762a2261fd34c36ee5942 \
     --hash=sha256:9dc2d991b3479cc2df15930958b674a48a227d5361d413827a4cfd0b5876fc98

@@ -4,8 +4,6 @@ Gridsync
 
 .. image:: https://github.com/gridsync/gridsync/workflows/CI/badge.svg
     :target: https://github.com/gridsync/gridsync/actions/
-.. image:: https://ci.appveyor.com/api/projects/status/li99vnfax895i8oy/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/crwood/gridsync
 
 
 Gridsync aims to provide a cross-platform, graphical user interface for `Tahoe-LAFS`_, the Least Authority File Store. It is intended to simplify the Tahoe-LAFS installation and configuration process and ultimately provide user-friendly mechanisms for common use-cases like backing up local files, synchronizing directories between devices, and sharing files and folders with other users across all major desktop platforms (GNU/Linux, macOS, and Windows). More broadly, Gridsync aims to duplicate most of the core functionality provided by other, proprietary "cloud" backup and synchronization services and utilities (such as Dropbox and BitTorrent Sync) but without demanding any sacrifice of the user's privacy or freedom -- and without requiring usage or knowledge of the command line. Accordingly, Gridsync is developed with the goal in mind of making secure cloud storage freely available to everyone, without exception, without added barriers, and regardless of one's operating system choice.
@@ -160,6 +158,17 @@ These will download and configure a suitable virtual machine for the target plat
 
 .. [*] Note that in order to get Vagrant/VirtualBox working properly, users of GNU/Linux may need to add the current user's name to the local "vboxusers" group, while users experiencing issues with Windows guests may need to install some combination of the `winrm`, `winrm-fs`, or `winrm-elevated` Vagrant plugins (via the `vagrant plugin install winrm winrm-fs winrm-elevated` command). For further assistance with installing, configuring, or using Vagrant and/or VirtualBox on your system, please consult the appropriate upstream documentation and/or help forums. In addition, please note that Gridsync project can make no guarantees about the security or safety of public Vagrant "Boxes"; please exercise appropriate caution when relying upon third-party software.
 
+
+Alternatively, users with `docker` installed can use the CentOS 7-based `gridsync-builder`_ image to build equivalent backward-compatible binaries without the addded overhead of Vagrant and VirtualBox:
+
+.. code-block:: shell-session
+
+    make in-container
+
+
+.. _gridsync-builder: https://hub.docker.com/repository/docker/gridsync/gridsync-builder
+
+
 **Development builds:**
 
 Unsigned binary distributions (currently tracking the `master` branch) are also available from the `project buildbot's "artifacts" directory`_. These packages, however, should not be considered trustworthy or reliable in any way and are made available only for testing purposes by developers. Please excercise appropriate caution when using these files (ideally by downloading and running them inside a disposable virtual machine).
@@ -190,7 +199,7 @@ Contributions of any sort (e.g., suggestions, criticisms, bug reports, pull requ
 License:
 --------
 
-Copyright (C) 2015-2020  Christopher R. Wood
+Copyright (C) 2015-2021  Christopher R. Wood
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -202,7 +211,8 @@ You should have received a copy of the GNU General Public License along with thi
 Sponsors:
 ---------
 
-The ongoing development of this project is made possible by the generous sponsorships provided by `Least Authority`_ and `UXFund`_.
+The ongoing development of this project has been made possible by the generous sponsorships and grants provided by `Least Authority`_ (2016-), `Internews/UXFund`_ (2017), and `Open Technology Fund`_ (2019-2020).
 
 .. _Least Authority: https://leastauthority.com/
-.. _UXFund: https://usable.tools/uxfund.html
+.. _Internews/UXFund: https://usable.tools/blog/2016-12-28-uxfund-results/
+.. _Open Technology Fund: https://leastauthority.com/blog/secure-file-storage-tools-human-rights-defenders/

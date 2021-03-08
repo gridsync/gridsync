@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -30,7 +32,7 @@ jobs:
         key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: scripts/provision_devtools.sh
+      run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
       run: |
         source ~/.bash_profile
@@ -44,6 +46,19 @@ jobs:
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
         xvfb-run -a dist/Gridsync/gridsync --version
         xvfb-run -a dist/Gridsync.AppImage --version
+    - name: Test determinism
+      run: |
+        source ~/.bash_profile
+        make test-determinism
+    - name: Build (in container)
+      run: |
+        source ~/.bash_profile
+        make clean in-container
+    - name: Verify (on host)
+      run: |
+        xvfb-run -a dist/Gridsync.AppImage --version
+    - name: sha256sum
+      run: python3 scripts/sha256sum.py dist/*.*
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -60,6 +75,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -83,14 +100,25 @@ jobs:
       run: |
         source ~/.bashrc
         make test
-    - name: Build
+    - name: Make pyinstaller
       run: |
         source ~/.bashrc
-        make all
+        make pyinstaller
+        make zip
     - name: Verify
       run: |
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
+    - name: Test determinism
+      run: |
+        source ~/.bashrc
+        make test-determinism
+    - name: Make dmg
+      run: |
+        source ~/.bashrc
+        make dmg
+    - name: sha256sum
+      run: python3 scripts/sha256sum.py dist/*.*
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -105,6 +133,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -112,15 +142,25 @@ jobs:
         key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: py -3 -m pip install tox
+      run: py -3 -m pip install tox diffoscope
     - name: Test
       run: .\make.bat test
-    - name: Build
-      run: .\make.bat all
+    - name: Make pyinstaller
+      run: |
+        .\make.bat pyinstaller
+        .\make.bat zip
     - name: Verify
       run: |
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
         .\dist\Gridsync\Gridsync.exe --version
+    - name: Test determinism
+      run: |
+        .\make.bat test-determinism
+    - name: Make installer
+      run: |
+        .\make.bat installer
+    - name: sha256sum
+      run: python3 scripts/sha256sum.py .\dist\*.*
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:

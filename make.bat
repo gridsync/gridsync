@@ -37,6 +37,8 @@ if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="frozen-tahoe" call :frozen-tahoe
 if "%1"=="pyinstaller" call :pyinstaller
+if "%1"=="zip" call :zip
+if "%1"=="test-determinism" call :test-determinism
 if "%1"=="installer" call :installer
 if "%1"=="vagrant-desktop-linux" call :vagrant-desktop-linux
 if "%1"=="vagrant-desktop-macos" call :vagrant-desktop-macos
@@ -93,10 +95,19 @@ if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
 %PYTHON3% -m tox -e pyinstaller || exit /b 1
 goto :eof
 
+:zip
+%PYTHON3% .\scripts\update_permissions.py .\dist
+%PYTHON3% .\scripts\update_timestamps.py .\dist
+%PYTHON3% .\scripts\make_zip.py
+goto :eof
+
+:test-determinism
+%PYTHON3% .\scripts\test_determinism.py
+goto :eof
+
 :installer
-call copy misc\InnoSetup5.iss .
-call copy misc\InnoSetup6.iss .
-call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup6.iss || "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" .\InnoSetup5.iss
+call copy misc\InnoSetup.iss .
+call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup.iss
 goto :eof
 
 
@@ -130,6 +141,7 @@ goto :eof
 
 :all
 call :pyinstaller
+call :zip
 call :installer
 call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
 goto :eof
