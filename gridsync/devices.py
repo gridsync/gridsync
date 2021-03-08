@@ -1,6 +1,3 @@
-# pylint: disable=unsubscriptable-object
-# https://github.com/PyCQA/pylint/issues/3882
-
 import logging
 from typing import List, Optional
 
