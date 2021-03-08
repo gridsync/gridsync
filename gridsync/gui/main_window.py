@@ -353,6 +353,24 @@ class MainWindow(QMainWindow):
 
     def maybe_enable_actions(self):  # noqa: max-complexity
         gateway = self.combo_box.currentData()
+        if gateway.zkap_auth_required:
+            self.zkaps_wa.setVisible(True)
+            if self.grid_invites_enabled:
+                self.invites_wa.setVisible(False)
+            else:
+                try:
+                    self.invite_wa.setVisible(False)
+                except AttributeError:
+                    pass
+        else:
+            self.zkaps_wa.setVisible(False)
+            if self.grid_invites_enabled:
+                self.invites_wa.setVisible(True)
+            else:
+                try:
+                    self.invite_wa.setVisible(True)
+                except AttributeError:
+                    pass
         if (
             gateway.zkap_auth_required
             and not gateway.monitor.zkap_checker.zkaps_remaining
