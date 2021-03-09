@@ -68,7 +68,7 @@ class TLSBridge:
         self.pemfile = os.path.join(gateway.nodedir, "private", "bridge.pem")
         self.proxy = None
         self.address = ""
-        self.certificate_digest: bytes = b""
+        self.__certificate_digest: bytes = b""
 
     def create_certificate(self):
         key = ec.generate_private_key(ec.SECP256R1())
@@ -95,14 +95,14 @@ class TLSBridge:
                 )
                 + cert.public_bytes(serialization.Encoding.PEM)
             )
-        self.certificate_digest = cert.fingerprint(hashes.SHA256())
+        self.__certificate_digest = cert.fingerprint(hashes.SHA256())
 
     def get_certificate_digest(self) -> bytes:
-        if not self.certificate_digest:
+        if not self.__certificate_digest:
             with open(self.pemfile) as f:
                 cert = x509.load_pem_x509_certificate(f.read().encode())
-            self.certificate_digest = cert.fingerprint(hashes.SHA256())
-        return self.certificate_digest
+            self.__certificate_digest = cert.fingerprint(hashes.SHA256())
+        return self.__certificate_digest
 
     @inlineCallbacks
     def start(self, nodeurl, port=8090):
