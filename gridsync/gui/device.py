@@ -42,7 +42,10 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.close_button, 4, 1, Qt.AlignCenter)
 
     def load_qr_code(self, device_rootcap: str) -> None:
-        data = f"{self.gateway.bridge.address} {device_rootcap}"
+        data = (
+            f"{self.gateway.bridge.address} {device_rootcap} "
+            f"{self.gateway.bridge.certificate_digest.replace(':', '')}"
+        )
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
             f"{data}\n\n"  # XXX
