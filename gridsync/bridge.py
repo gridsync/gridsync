@@ -68,7 +68,7 @@ class TLSBridge:
         self.pemfile = os.path.join(gateway.nodedir, "private", "bridge.pem")
         self.proxy = None
         self.address = ""
-        self.certificate_digest: str = ""
+        self.certificate_digest: bytes = b""
 
     def create_certificate(self):
         key = ec.generate_private_key(ec.SECP256R1())
@@ -96,11 +96,12 @@ class TLSBridge:
                 + cert.public_bytes(serialization.Encoding.PEM)
             )
 
-    def get_certificate_digest(self) -> str:
-        with open(self.pemfile) as f:
-            cert = x509.load_pem_x509_certificate(f.read().encode())
-        fp = iter(cert.fingerprint(hashes.SHA256()).hex().upper())
-        return ":".join(a + b for a, b in zip(fp, fp))
+    def get_certificate_digest(self) -> bytes:
+        if not self.certificate_digest:
+            with open(self.pemfile) as f:
+                cert = x509.load_pem_x509_certificate(f.read().encode())
+            self.certificate_digest = cert.fingerprint(hashes.SHA256())
+        return self.certificate_digest
 
     @inlineCallbacks
     def start(self, nodeurl, port=8090):
@@ -113,7 +114,6 @@ class TLSBridge:
         )
         if not os.path.exists(self.pemfile):
             self.create_certificate()
-        self.certificate_digest = self.get_certificate_digest()
         with open(self.pemfile) as f:
             certificate = ssl.PrivateCertificate.loadPEM(f.read()).options()
         endpoint = SSL4ServerEndpoint(
@@ -125,10 +125,10 @@ class TLSBridge:
         )
         host = self.proxy.getHost()
         self.address = f"https://{host.host}:{host.port}"
+        d = iter(self.get_certificate_digest().hex().upper())
+        fp = ":".join(a + b for a, b in zip(d, d))
         logging.debug(
-            "Bridge started: %s (certificate digest: %s)",
-            self.address,
-            self.certificate_digest,
+            "Bridge started: %s (certificate digest: %s)", self.address, fp
         )
 
     @inlineCallbacks
