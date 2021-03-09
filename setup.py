@@ -11,6 +11,7 @@ import versioneer
 requirements = [
     "atomicwrites",
     "autobahn",
+    "cryptography",
     'distro ; sys_platform != "darwin" and sys_platform != "win32"',
     "humanize",
     "hyperlink",
