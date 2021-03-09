@@ -1,10 +1,12 @@
+import datetime
 import logging
 import os
-import secrets
 import socket
 from urllib.parse import urlparse
 
-from OpenSSL import crypto
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from twisted.internet import ssl
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.endpoints import SSL4ServerEndpoint, TCP4ServerEndpoint
@@ -69,27 +71,37 @@ class TLSBridge:
         self.address = ""
         self.certificate_digest: str = ""
 
-    def create_certificate(self):  # XXX
-        pkey = crypto.PKey()
-        pkey.generate_key(crypto.TYPE_RSA, 2048)
-        cert = crypto.X509()
-        cert.gmtime_adj_notBefore(0)
-        cert.gmtime_adj_notAfter(100 * 365 * 24 * 60 * 60)
-        cert.set_serial_number(secrets.randbits(128))
-        cert.set_pubkey(pkey)
-        cert.sign(pkey, "sha256")
+    def create_certificate(self):
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         with open(self.keyfile, "wb") as f:
-            f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
+            f.write(
+                key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            )
+        subject = issuer = x509.Name([])
+        cert = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(issuer)
+            .public_key(key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.datetime.utcnow())
+            .not_valid_after(
+                datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
+            )
+            .sign(key, hashes.SHA256())
+        )
         with open(self.certfile, "wb") as f:
-            f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+            f.write(cert.public_bytes(serialization.Encoding.PEM))
 
     def get_certificate_digest(self) -> str:
         with open(self.certfile) as f:
-            return (
-                crypto.load_certificate(crypto.FILETYPE_PEM, f.read())
-                .digest("sha256")
-                .decode("utf-8")
-            )
+            cert = x509.load_pem_x509_certificate(f.read().encode())
+        fp = iter(cert.fingerprint(hashes.SHA256()).hex().upper())
+        return ":".join(a + b for a, b in zip(fp, fp))
 
     @inlineCallbacks
     def start(self, nodeurl, port=8090):
