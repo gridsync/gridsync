@@ -95,6 +95,7 @@ class TLSBridge:
                 )
                 + cert.public_bytes(serialization.Encoding.PEM)
             )
+        self.certificate_digest = cert.fingerprint(hashes.SHA256())
 
     def get_certificate_digest(self) -> bytes:
         if not self.certificate_digest:
