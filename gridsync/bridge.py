@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ec
 from twisted.internet import ssl
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.endpoints import SSL4ServerEndpoint, TCP4ServerEndpoint
@@ -72,7 +72,7 @@ class TLSBridge:
         self.certificate_digest: str = ""
 
     def create_certificate(self):
-        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        key = ec.generate_private_key(ec.SECP256R1())
         with open(self.keyfile, "wb") as f:
             f.write(
                 key.private_bytes(
