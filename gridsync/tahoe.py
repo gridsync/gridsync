@@ -563,9 +563,11 @@ class Tahoe:
         # XXX
         from twisted.internet import reactor
 
-        from gridsync.bridge import Bridge
+        # from gridsync.bridge import Bridge
+        from gridsync.bridge import TLSBridge
 
-        self.bridge = Bridge(reactor)
+        # self.bridge = Bridge(reactor)
+        self.bridge = TLSBridge(self, reactor)
         self.bridge.start(self.nodeurl)
 
         self.load_newscap()
