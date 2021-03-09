@@ -1,4 +1,5 @@
 import os
+from base64 import b64encode
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QPixmap
@@ -42,10 +43,8 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.close_button, 4, 1, Qt.AlignCenter)
 
     def load_qr_code(self, device_rootcap: str) -> None:
-        data = (
-            f"{self.gateway.bridge.address} {device_rootcap} "
-            f"{self.gateway.bridge.certificate_digest.replace(':', '')}"
-        )
+        fp = b64encode(self.gateway.bridge.get_certificate_digest()).decode()
+        data = f"{self.gateway.bridge.address} {device_rootcap} {fp}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
             f"{data}\n\n"  # XXX
