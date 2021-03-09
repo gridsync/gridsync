@@ -65,22 +65,13 @@ class TLSBridge:
     def __init__(self, gateway, reactor):
         self.gateway = gateway
         self._reactor = reactor
-        self.keyfile = os.path.join(gateway.nodedir, "private", "bridge.key")
-        self.certfile = os.path.join(gateway.nodedir, "private", "bridge.crt")
+        self.pemfile = os.path.join(gateway.nodedir, "private", "bridge.pem")
         self.proxy = None
         self.address = ""
         self.certificate_digest: str = ""
 
     def create_certificate(self):
         key = ec.generate_private_key(ec.SECP256R1())
-        with open(self.keyfile, "wb") as f:
-            f.write(
-                key.private_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
-                    encryption_algorithm=serialization.NoEncryption(),
-                )
-            )
         subject = issuer = x509.Name([])
         cert = (
             x509.CertificateBuilder()
@@ -94,11 +85,19 @@ class TLSBridge:
             )
             .sign(key, hashes.SHA256())
         )
-        with open(self.certfile, "wb") as f:
-            f.write(cert.public_bytes(serialization.Encoding.PEM))
+
+        with open(self.pemfile, "wb") as f:
+            f.write(
+                key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+                + cert.public_bytes(serialization.Encoding.PEM)
+            )
 
     def get_certificate_digest(self) -> str:
-        with open(self.certfile) as f:
+        with open(self.pemfile) as f:
             cert = x509.load_pem_x509_certificate(f.read().encode())
         fp = iter(cert.fingerprint(hashes.SHA256()).hex().upper())
         return ":".join(a + b for a, b in zip(fp, fp))
@@ -112,12 +111,11 @@ class TLSBridge:
         logging.debug(
             "Starting bridge: https://%s:%s -> %s ...", lan_ip, port, nodeurl
         )
-        if not os.path.exists(self.certfile):
+        if not os.path.exists(self.pemfile):
             self.create_certificate()
         self.certificate_digest = self.get_certificate_digest()
-        certificate = ssl.DefaultOpenSSLContextFactory(
-            self.keyfile, self.certfile
-        )
+        with open(self.pemfile) as f:
+            certificate = ssl.PrivateCertificate.loadPEM(f.read()).options()
         endpoint = SSL4ServerEndpoint(
             self._reactor, port, certificate, interface=lan_ip
         )
