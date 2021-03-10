@@ -29,7 +29,7 @@ from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
-from gridsync.gui.zkap import ZKAPInfoPane
+from gridsync.gui.usage import ZKAPInfoPane
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.util import strip_html_tags
