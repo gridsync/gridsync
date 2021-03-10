@@ -27,7 +27,7 @@ from gridsync.gui.voucher import VoucherCodeDialog
 from gridsync.voucher import generate_voucher
 
 
-class ZKAPInfoPane(QWidget):
+class UsageView(QWidget):
     def __init__(self, gateway, gui):
         super().__init__()
         self.gateway = gateway

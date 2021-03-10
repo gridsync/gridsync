@@ -29,7 +29,7 @@ from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
-from gridsync.gui.usage import ZKAPInfoPane
+from gridsync.gui.usage import UsageView
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.util import strip_html_tags
@@ -101,7 +101,7 @@ class CentralWidget(QStackedWidget):
 
     def add_zkap_view(self, gateway):
         gateway.load_settings()  # To ensure that zkap_name is read/updated
-        view = ZKAPInfoPane(gateway, self.gui)
+        view = UsageView(gateway, self.gui)
         widget = QWidget()
         layout = QGridLayout(widget)
         if sys.platform == "darwin":
