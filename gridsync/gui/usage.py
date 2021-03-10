@@ -211,4 +211,4 @@ class UsageView(QWidget):
             "Your storage-time is running low. Please buy more storage-time "
             "to prevent data-loss.",
         )
-        self.gui.main_window.show_zkap_view()
+        self.gui.main_window.show_usage_view()  # XXX

@@ -73,7 +73,7 @@ class CentralWidget(QStackedWidget):
         self.views = []
         self.folders_views = {}
         self.history_views = {}
-        self.zkap_views = {}
+        self.usage_views = {}
 
         # XXX/TODO: There are too many StatusPanel instances here,
         # resulting in spaghetti.. Clean this up.
@@ -99,7 +99,7 @@ class CentralWidget(QStackedWidget):
         self.addWidget(view)
         self.history_views[gateway] = view
 
-    def add_zkap_view(self, gateway):
+    def add_usage_view(self, gateway):
         gateway.load_settings()  # To ensure that zkap_name is read/updated
         view = UsageView(gateway, self.gui)
         widget = QWidget()
@@ -113,7 +113,7 @@ class CentralWidget(QStackedWidget):
         layout.addWidget(view)
         layout.addWidget(StatusPanel(gateway, self.gui))
         self.addWidget(widget)
-        self.zkap_views[gateway] = widget
+        self.usage_views[gateway] = widget
 
 
 class MainWindow(QMainWindow):
@@ -304,7 +304,7 @@ class MainWindow(QMainWindow):
         zkaps_action.setToolTip("Show Storage-time")
         zkaps_action.setFont(font)
         zkaps_action.setCheckable(True)
-        zkaps_action.triggered.connect(self.show_zkap_view)
+        zkaps_action.triggered.connect(self.show_usage_view)
 
         self.zkaps_button = QToolButton(self)
         self.zkaps_button.setDefaultAction(zkaps_action)
@@ -395,7 +395,7 @@ class MainWindow(QMainWindow):
             if not gateway.magic_folders:
                 try:
                     self.central_widget.setCurrentWidget(
-                        self.central_widget.zkap_views[
+                        self.central_widget.usage_views[
                             self.combo_box.currentData()
                         ]
                     )
@@ -427,7 +427,7 @@ class MainWindow(QMainWindow):
             if gateway not in self.gateways:
                 self.central_widget.add_folders_view(gateway)
                 self.central_widget.add_history_view(gateway)
-                self.central_widget.add_zkap_view(gateway)
+                self.central_widget.add_usage_view(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
                 gateway.newscap_checker.message_received.connect(
@@ -532,10 +532,10 @@ class MainWindow(QMainWindow):
         self.history_button.setChecked(True)
         self.set_current_grid_status()
 
-    def show_zkap_view(self):
+    def show_usage_view(self):
         try:
             self.central_widget.setCurrentWidget(
-                self.central_widget.zkap_views[self.combo_box.currentData()]
+                self.central_widget.usage_views[self.combo_box.currentData()]
             )
         except KeyError:
             return
