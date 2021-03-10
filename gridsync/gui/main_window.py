@@ -334,18 +334,18 @@ class MainWindow(QMainWindow):
         self.toolbar.setMovable(False)
         # self.toolbar.addAction(self.folder_action)
 
-        self.folders_wa = self.toolbar.addWidget(self.folders_button)
-        self.history_wa = self.toolbar.addWidget(self.history_button)
-        self.zkaps_wa = self.toolbar.addWidget(self.zkaps_button)
-        self.toolbar.addWidget(spacer_left)
-        self.toolbar.addWidget(self.combo_box)
-        self.toolbar.addWidget(spacer_right)
+        self.folder_wa = self.toolbar.addWidget(self.folder_button)
+        self.recovery_wa = self.toolbar.addWidget(self.recovery_button)
         if self.grid_invites_enabled:
             self.invites_wa = self.toolbar.addWidget(self.invites_button)
         elif self.invites_enabled:
             self.invite_wa = self.toolbar.addAction(self.invite_action)
-        self.folder_wa = self.toolbar.addWidget(self.folder_button)
-        self.recovery_wa = self.toolbar.addWidget(self.recovery_button)
+        self.toolbar.addWidget(spacer_left)
+        self.toolbar.addWidget(self.combo_box)
+        self.toolbar.addWidget(spacer_right)
+        self.folders_wa = self.toolbar.addWidget(self.folders_button)
+        self.zkaps_wa = self.toolbar.addWidget(self.zkaps_button)
+        self.history_wa = self.toolbar.addWidget(self.history_button)
 
         self.active_invite_sender_dialogs = []
         self.active_invite_receiver_dialogs = []
