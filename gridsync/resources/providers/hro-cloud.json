@@ -2,7 +2,6 @@
   "version": "1",
   "nickname": "HRO Grid",
   "zkap_name": "HRO Grid Credit",
-  "zkap_payment_url_root": "https://leastauthority.com/product-development/",
   "shares-needed": "2",
   "shares-happy": "3",
   "shares-total": "3",
