@@ -42,6 +42,10 @@ class UsageView(QWidget):
         self._expiry_date: str = "Not available"
         self._amount_stored: str = "Not available"
 
+        self.is_commercial_grid = bool(
+            "zkap_payment_url_root" in gateway.settings
+        )
+
         self.groupbox = QGroupBox()
 
         self.title = QLabel("Storage-time")
@@ -61,9 +65,13 @@ class UsageView(QWidget):
         self.explainer_label.setAlignment(Qt.AlignCenter)
         self.explainer_label.hide()
 
+        if self.is_commercial_grid:
+            action = "buy storage-time"
+        else:
+            action = "add storage-time using a voucher code"
         self.zkaps_required_label = QLabel(
             "You currently have 0 GB-months available.\n\nIn order to store "
-            f"data with {gateway.name}, you will need to buy storage-time."
+            f"data with {gateway.name}, you will need to {action}."
         )
         self.zkaps_required_label.setAlignment(Qt.AlignCenter)
         self.zkaps_required_label.setWordWrap(True)
@@ -76,16 +84,21 @@ class UsageView(QWidget):
         self.info_label = QLabel()
         self.info_label.setFont(Font(10))
 
-        browser = get_browser_name()
-        self.button = QPushButton(f"Buy storage-time in {browser} ")
+        if self.is_commercial_grid:
+            browser = get_browser_name()
+            self.button = QPushButton(f"Buy storage-time in {browser} ")
+            self.button.setIcon(QIcon(resource("globe-white.png")))
+            self.button.setLayoutDirection(Qt.RightToLeft)
+        else:
+            self.button = QPushButton(f"Use voucher code")
         self.button.setStyleSheet("background: green; color: white")
-        self.button.setIcon(QIcon(resource("globe-white.png")))
-        self.button.setLayoutDirection(Qt.RightToLeft)
-        self.button.clicked.connect(self.on_button_clicked)
         self.button.setFixedSize(240, 32)
+        self.button.clicked.connect(self.on_button_clicked)
 
         self.voucher_link = QLabel("<a href>I have a voucher code</a>")
         self.voucher_link.linkActivated.connect(self.on_voucher_link_clicked)
+        if not self.is_commercial_grid:
+            self.voucher_link.hide()
 
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
@@ -123,6 +136,12 @@ class UsageView(QWidget):
             self.on_low_zkaps_warning
         )
 
+    @Slot()
+    def on_voucher_link_clicked(self):
+        voucher, ok = VoucherCodeDialog.get_voucher()
+        if ok:
+            self.gateway.add_voucher(voucher)
+
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
         voucher = generate_voucher()  # TODO: Cache to disk
@@ -136,13 +155,10 @@ class UsageView(QWidget):
 
     @Slot()
     def on_button_clicked(self):
-        self._open_zkap_payment_url()
-
-    @Slot()
-    def on_voucher_link_clicked(self):
-        voucher, ok = VoucherCodeDialog.get_voucher()
-        if ok:
-            self.gateway.add_voucher(voucher)
+        if self.is_commercial_grid:
+            self._open_zkap_payment_url()
+        else:
+            self.on_voucher_link_clicked()
 
     def _update_info_label(self):
         self.info_label.setText(
