@@ -222,9 +222,10 @@ class UsageView(QWidget):
         self._update_info_label()
 
     def on_low_zkaps_warning(self) -> None:
+        action = "buy" if self.is_commercial_grid else "add"
         self.gui.show_message(
             "Low storage-time",
-            "Your storage-time is running low. Please buy more storage-time "
-            "to prevent data-loss.",
+            "Your storage-time is running low. Please {action} more "
+            "storage-time to prevent data-loss.",
         )
         self.gui.main_window.show_usage_view()  # XXX
