@@ -40,9 +40,6 @@ if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="zip" call :zip
 if "%1"=="test-determinism" call :test-determinism
 if "%1"=="installer" call :installer
-if "%1"=="vagrant-desktop-linux" call :vagrant-desktop-linux
-if "%1"=="vagrant-desktop-macos" call :vagrant-desktop-macos
-if "%1"=="vagrant-desktop-windows" call :vagrant-desktop-windows
 if "%1"=="vagrant-build-linux" call :vagrant-build-linux
 if "%1"=="vagrant-build-macos" call :vagrant-build-macos
 if "%1"=="vagrant-build-windows" call :vagrant-build-windows
@@ -126,31 +123,17 @@ call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup.iss
 goto :eof
 
 
-:vagrant-desktop-linux
-call vagrant up --no-provision ubuntu-18.04
-call vagrant provision --provision-with desktop ubuntu-18.04
-goto :eof
-
-:vagrant-desktop-macos
-call vagrant up --no-provision macos-10.15
-goto :eof
-
-:vagrant-desktop-windows
-call vagrant up --no-provision windows-10
-goto :eof
-
-
 :vagrant-build-linux
-call vagrant up
-call vagrant provision --provision-with test,build centos-7
+call vagrant up centos-7
+call vagrant provision --provision-with devtools,test,build centos-7
 goto :eof
 
 :vagrant-build-macos
-call vagrant up --provision-with test,build macos-10.14
+call vagrant up --provision-with devtools,test,build macos-10.14
 goto :eof
 
 :vagrant-build-windows
-call vagrant up --provision-with test,build windows-10
+call vagrant up --provision-with devtools,test,build windows-10
 goto :eof
 
 

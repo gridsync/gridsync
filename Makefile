@@ -240,26 +240,16 @@ dmg:
 check-outdated:
 	python3 scripts/check_outdated.py
 
-vagrant-desktop-linux:
-	vagrant up --no-provision ubuntu-20.10
-	vagrant provision --provision-with desktop ubuntu-20.10
-
-vagrant-desktop-macos:
-	vagrant up --no-provision macos-10.15
-
-vagrant-desktop-windows:
-	vagrant up --no-provision windows-10
-
 
 vagrant-build-linux:
 	vagrant up centos-7
-	vagrant provision --provision-with test,build centos-7
+	vagrant provision --provision-with devtools,test,build centos-7
 
 vagrant-build-macos:
-	vagrant up --provision-with test,build macos-10.14
+	vagrant up --provision-with devtools,test,build macos-10.14
 
 vagrant-build-windows:
-	vagrant up --provision-with test,build windows-10
+	vagrant up --provision-with devtools,test,build windows-10
 
 
 docker-image:
