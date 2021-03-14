@@ -62,7 +62,7 @@ class ToolBar(QToolBar):
     history_action_triggered = Signal()
     usage_action_triggered = Signal()
 
-    def __init__(self, main_window):
+    def __init__(self, main_window):  # noqa: max-complexity
         super().__init__(parent=main_window)
         self.main_window = main_window
 
@@ -277,7 +277,7 @@ class ToolBar(QToolBar):
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
-    def _update_action_visibility(self):  # noqa: max-complexity
+    def _update_action_visibility(self):
         gateway = self.combo_box.currentData()
         if not gateway:
             return
