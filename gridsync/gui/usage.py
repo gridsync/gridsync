@@ -190,7 +190,7 @@ class UsageView(QWidget):
             self._zkaps_remaining,
             self._zkaps_period,
         )
-        self.gui.main_window.maybe_enable_actions()
+        self.gui.main_window.toolbar.update_actions()  # XXX
 
     @Slot(int, int)
     def on_zkaps_updated(self, used, remaining):

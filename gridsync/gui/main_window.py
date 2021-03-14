@@ -27,43 +27,13 @@ from gridsync.gui.font import Font
 from gridsync.gui.history import HistoryView
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
+from gridsync.gui.toolbar import ToolBar
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.gui.usage import UsageView
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
 from gridsync.util import strip_html_tags
-
-
-class ComboBox(QComboBox):
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-        self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.setFont(Font(10))
-        self.current_index = 0
-        self.insertSeparator(0)
-        self.addItem(" Add new...")
-
-        self.activated.connect(self.on_activated)
-
-    def on_activated(self, index):
-        if index == self.count() - 1:  # If "Add new..." is selected
-            self.setCurrentIndex(self.current_index)
-        else:
-            self.current_index = index
-        gateway = self.currentData()
-        logging.debug("Selected %s", gateway.name)
-        self.parent.maybe_enable_actions()
-
-    def add_gateway(self, gateway):
-        basename = os.path.basename(os.path.normpath(gateway.nodedir))
-        icon = QIcon(os.path.join(gateway.nodedir, "icon"))
-        if not icon.availableSizes():
-            icon = QIcon(resource("tahoe-lafs.png"))
-        self.insertItem(0, icon, basename, gateway)
-        self.setCurrentIndex(0)
-        self.current_index = 0
 
 
 class CentralWidget(QStackedWidget):
@@ -75,10 +45,9 @@ class CentralWidget(QStackedWidget):
         self.history_views = {}
         self.usage_views = {}
 
-        # XXX/TODO: There are too many StatusPanel instances here,
-        # resulting in spaghetti.. Clean this up.
+        # XXX/TODO: There is no need for multiple StatusPanels. Clean this up.
 
-    def add_folders_view(self, gateway):
+    def _add_folders_view(self, gateway):
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
@@ -94,12 +63,12 @@ class CentralWidget(QStackedWidget):
         self.views.append(view)
         self.folders_views[gateway] = widget
 
-    def add_history_view(self, gateway):
+    def _add_history_view(self, gateway):
         view = HistoryView(gateway, self.gui)
         self.addWidget(view)
         self.history_views[gateway] = view
 
-    def add_usage_view(self, gateway):
+    def _add_usage_view(self, gateway):
         gateway.load_settings()  # To ensure that zkap_name is read/updated
         view = UsageView(gateway, self.gui)
         widget = QWidget()
@@ -115,29 +84,27 @@ class CentralWidget(QStackedWidget):
         self.addWidget(widget)
         self.usage_views[gateway] = widget
 
+    def add_gateway(self, gateway):
+        self._add_folders_view(gateway)
+        self._add_history_view(gateway)
+        self._add_usage_view(gateway)
+
 
 class MainWindow(QMainWindow):
-    def __init__(self, gui):  # noqa: max-complexity
+    def __init__(self, gui):
         super().__init__()
         self.gui = gui
+
         self.gateways = []
         self.welcome_dialog = None
         self.recovery_key_exporter = None
+        self.active_invite_sender_dialogs = []
+        self.active_invite_receiver_dialogs = []
+        self.pending_news_message = ()
 
         self.grid_invites_enabled: bool = True
         self.invites_enabled: bool = True
         self.multiple_grids_enabled: bool = True
-
-        self.setWindowTitle(APP_NAME)
-        # self.setMinimumSize(QSize(600, 400))
-        self.setMinimumSize(QSize(700, 450))
-        self.setUnifiedTitleAndToolBarOnMac(True)
-        self.setContextMenuPolicy(Qt.NoContextMenu)
-
-        if sys.platform == "darwin":
-            # To disable the broken/buggy "full screen" mode on macOS.
-            # See https://github.com/gridsync/gridsync/issues/241
-            self.setWindowFlags(Qt.Dialog)
 
         features_settings = settings.get("features")
         if features_settings:
@@ -150,6 +117,16 @@ class MainWindow(QMainWindow):
             multiple_grids = features_settings.get("multiple_grids")
             if multiple_grids and multiple_grids.lower() == "false":
                 self.multiple_grids_enabled = False
+
+        self.setWindowTitle(APP_NAME)
+        self.setMinimumSize(QSize(700, 450))
+        self.setUnifiedTitleAndToolBarOnMac(True)
+        self.setContextMenuPolicy(Qt.NoContextMenu)
+
+        if sys.platform == "darwin":
+            # To disable the broken/buggy "full screen" mode on macOS.
+            # See https://github.com/gridsync/gridsync/issues/241
+            self.setWindowFlags(Qt.Dialog)
 
         if self.multiple_grids_enabled:
             self.shortcut_new = QShortcut(QKeySequence.New, self)
@@ -172,262 +149,28 @@ class MainWindow(QMainWindow):
         self.central_widget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        font = Font(8)
-
-        folder_action = QAction(
-            QIcon(resource("folder-plus-outline.png")), "Add Folder", self
-        )
-        folder_action.setEnabled(False)
-        folder_action.setToolTip("Add a Folder...")
-        folder_action.setFont(font)
-        folder_action.triggered.connect(self.select_folder)
-
-        self.folder_button = QToolButton(self)
-        self.folder_button.setDefaultAction(folder_action)
-        self.folder_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        if self.grid_invites_enabled:
-            self.invites_action = QAction(
-                QIcon(resource("invite.png")), "Invites", self
-            )
-            self.invites_action.setToolTip("Enter or Create an Invite Code")
-            self.invites_action.setFont(font)
-
-            self.enter_invite_action = QAction(
-                QIcon(), "Enter Invite Code...", self
-            )
-            self.enter_invite_action.setToolTip("Enter an Invite Code...")
-            self.enter_invite_action.triggered.connect(
-                self.open_invite_receiver
-            )
-
-            self.create_invite_action = QAction(
-                QIcon(), "Create Invite Code...", self
-            )
-            self.create_invite_action.setToolTip("Create on Invite Code...")
-            self.create_invite_action.triggered.connect(
-                self.open_invite_sender_dialog
-            )
-
-            self.invites_menu = QMenu(self)
-            self.invites_menu.addAction(self.enter_invite_action)
-            self.invites_menu.addAction(self.create_invite_action)
-
-            self.invites_button = QToolButton(self)
-            self.invites_button.setDefaultAction(self.invites_action)
-            self.invites_button.setMenu(self.invites_menu)
-            self.invites_button.setPopupMode(2)
-            self.invites_button.setStyleSheet(
-                "QToolButton::menu-indicator { image: none }"
-            )
-            self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        elif self.invites_enabled:
-            self.invite_action = QAction(
-                QIcon(resource("invite.png")), "Enter Code", self
-            )
-            self.invite_action.setToolTip("Enter an Invite Code...")
-            self.invite_action.setFont(font)
-            self.invite_action.triggered.connect(self.open_invite_receiver)
-
-        spacer_left = QWidget()
-        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
-
-        self.combo_box = ComboBox(self)
+        self.toolbar = ToolBar(self)
+        self.addToolBar(self.toolbar)
+        self.combo_box = self.toolbar.combo_box  # XXX
         self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
-        if not self.multiple_grids_enabled:
-            self.combo_box.hide()
 
-        spacer_right = QWidget()
-        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
-
-        history_action = QAction(
-            QIcon(resource("clock-outline.png")), "History", self
+        self.toolbar.folder_action_triggered.connect(self.select_folder)
+        self.toolbar.enter_invite_action_triggered.connect(
+            self.open_invite_receiver
         )
-        history_action.setEnabled(False)
-        history_action.setToolTip("Show/Hide History")
-        history_action.setFont(font)
-        history_action.setCheckable(True)
-        history_action.triggered.connect(self.show_history_view)
-
-        self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(history_action)
-        self.history_button.setCheckable(True)
-        self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        recovery_action = QAction(
-            QIcon(resource("key-outline.png")), "Recovery", self
+        self.toolbar.create_invite_action_triggered.connect(
+            self.open_invite_sender_dialog
         )
-        recovery_action.setToolTip("Import or Export a Recovery Key")
-        recovery_action.setFont(font)
-
-        import_action = QAction(QIcon(), "Import Recovery Key...", self)
-        import_action.setToolTip("Import Recovery Key...")
-        import_action.triggered.connect(self.import_recovery_key)
-
-        export_action = QAction(QIcon(), "Export Recovery Key...", self)
-        export_action.setToolTip("Export Recovery Key...")
-        export_action.setShortcut(QKeySequence.Save)
-        export_action.triggered.connect(self.export_recovery_key)
-
-        recovery_menu = QMenu(self)
-        recovery_menu.addAction(import_action)
-        recovery_menu.addAction(export_action)
-
-        self.recovery_button = QToolButton(self)
-        self.recovery_button.setDefaultAction(recovery_action)
-        self.recovery_button.setMenu(recovery_menu)
-        self.recovery_button.setPopupMode(2)
-        self.recovery_button.setStyleSheet(
-            "QToolButton::menu-indicator { image: none }"
-        )
-        self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        folders_action = QAction(
-            QIcon(resource("folder-multiple-outline.png")), "Folders", self
-        )
-        folders_action.setEnabled(False)
-        folders_action.setToolTip("Show Folders")
-        folders_action.setFont(font)
-        folders_action.setCheckable(True)
-        folders_action.triggered.connect(self.show_folders_view)
-
-        self.folders_button = QToolButton(self)
-        self.folders_button.setDefaultAction(folders_action)
-        self.folders_button.setCheckable(True)
-        self.folders_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        zkaps_action = QAction(
-            QIcon(resource("chart-donut.png")), "Storage-time", self
-        )
-        zkaps_action.setEnabled(False)
-        zkaps_action.setToolTip("Show Storage-time")
-        zkaps_action.setFont(font)
-        zkaps_action.setCheckable(True)
-        zkaps_action.triggered.connect(self.show_usage_view)
-
-        self.zkaps_button = QToolButton(self)
-        self.zkaps_button.setDefaultAction(zkaps_action)
-        self.zkaps_button.setCheckable(True)
-        self.zkaps_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        self.toolbar = self.addToolBar("")
-        p = self.palette()
-        dimmer_grey = BlendedColor(
-            p.windowText().color(), p.window().color(), 0.7
-        ).name()
-        if sys.platform != "darwin":
-            self.toolbar.setStyleSheet(
-                """
-                QToolBar {{ border: 0px }}
-                QToolButton {{ color: {} }}
-            """.format(
-                    dimmer_grey
-                )
-            )
-        else:
-            self.toolbar.setStyleSheet(
-                "QToolButton {{ color: {} }}".format(dimmer_grey)
-            )
-        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.toolbar.setIconSize(QSize(24, 24))
-        self.toolbar.setMovable(False)
-        # self.toolbar.addAction(self.folder_action)
-
-        self.folder_wa = self.toolbar.addWidget(self.folder_button)
-        self.recovery_wa = self.toolbar.addWidget(self.recovery_button)
-        if self.grid_invites_enabled:
-            self.invites_wa = self.toolbar.addWidget(self.invites_button)
-        elif self.invites_enabled:
-            self.invite_wa = self.toolbar.addAction(self.invite_action)
-        self.toolbar.addWidget(spacer_left)
-        self.toolbar.addWidget(self.combo_box)
-        self.toolbar.addWidget(spacer_right)
-        self.folders_wa = self.toolbar.addWidget(self.folders_button)
-        self.zkaps_wa = self.toolbar.addWidget(self.zkaps_button)
-        self.history_wa = self.toolbar.addWidget(self.history_button)
-
-        self.active_invite_sender_dialogs = []
-        self.active_invite_receiver_dialogs = []
-
-        self.pending_news_message = ()
-
-    def maybe_enable_actions(self):  # noqa: max-complexity
-        gateway = self.combo_box.currentData()
-        if gateway.zkap_auth_required:
-            self.zkaps_wa.setVisible(True)
-            if self.grid_invites_enabled:
-                self.invites_wa.setVisible(False)
-            else:
-                try:
-                    self.invite_wa.setVisible(False)
-                except AttributeError:
-                    pass
-        else:
-            self.zkaps_wa.setVisible(False)
-            if self.grid_invites_enabled:
-                self.invites_wa.setVisible(True)
-            else:
-                try:
-                    self.invite_wa.setVisible(True)
-                except AttributeError:
-                    pass
-        if (
-            gateway.zkap_auth_required
-            and not gateway.monitor.zkap_checker.zkaps_remaining
-        ):
-            # self.folder_action.setEnabled(False)
-            self.folder_button.setEnabled(False)
-            # self.invites_button.setEnabled(False)
-            self.combo_box.setEnabled(False)
-            # self.history_action.setEnabled(False)
-            self.history_button.setEnabled(False)
-            self.recovery_button.setEnabled(False)
-            self.folders_button.setEnabled(False)
-            self.zkaps_button.setEnabled(False)
-            if self.grid_invites_enabled:
-                self.invites_button.setEnabled(False)
-            else:
-                try:
-                    self.invite_action.setEnabled(False)
-                except AttributeError:
-                    pass
-            if not gateway.magic_folders:
-                try:
-                    self.central_widget.setCurrentWidget(
-                        self.central_widget.usage_views[
-                            self.combo_box.currentData()
-                        ]
-                    )
-                except KeyError:
-                    return
-                self.zkaps_button.setChecked(True)
-                self.history_button.setChecked(False)
-                self.folders_button.setChecked(False)
-        else:
-            # self.folder_action.setEnabled(True)
-            self.folder_button.setEnabled(True)
-            # self.invites_button.setEnabled(True)
-            self.combo_box.setEnabled(True)
-            # self.history_action.setEnabled(True)
-            self.history_button.setEnabled(True)
-            self.recovery_button.setEnabled(True)
-            self.folders_button.setEnabled(True)
-            self.zkaps_button.setEnabled(True)
-            if self.grid_invites_enabled:
-                self.invites_button.setEnabled(True)
-            else:
-                try:
-                    self.invite_action.setEnabled(True)
-                except AttributeError:
-                    pass
+        self.toolbar.import_action_triggered.connect(self.import_recovery_key)
+        self.toolbar.export_action_triggered.connect(self.export_recovery_key)
+        self.toolbar.folders_action_triggered.connect(self.show_folders_view)
+        self.toolbar.history_action_triggered.connect(self.show_history_view)
+        self.toolbar.usage_action_triggered.connect(self.show_usage_view)
 
     def populate(self, gateways):
         for gateway in gateways:
             if gateway not in self.gateways:
-                self.central_widget.add_folders_view(gateway)
-                self.central_widget.add_history_view(gateway)
-                self.central_widget.add_usage_view(gateway)
+                self.central_widget.add_gateway(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
                 gateway.newscap_checker.message_received.connect(
@@ -437,7 +180,7 @@ class MainWindow(QMainWindow):
                     self.on_upgrade_required
                 )
         if gateways:
-            self.maybe_enable_actions()
+            self.toolbar.update_actions()  # XXX
 
     def show_news_message(self, gateway, title, message):
         msgbox = QMessageBox(self)
@@ -506,7 +249,7 @@ class MainWindow(QMainWindow):
         if not current_view:
             return
         self.gui.systray.update()
-        self.maybe_enable_actions()
+        self.toolbar.update_actions()  # XXX
 
     def show_folders_view(self):
         try:
@@ -515,9 +258,6 @@ class MainWindow(QMainWindow):
             )
         except KeyError:
             return
-        self.folders_button.setChecked(True)
-        self.zkaps_button.setChecked(False)
-        self.history_button.setChecked(False)
         self.set_current_grid_status()
 
     def show_history_view(self):
@@ -527,9 +267,6 @@ class MainWindow(QMainWindow):
             )
         except KeyError:
             return
-        self.folders_button.setChecked(False)
-        self.zkaps_button.setChecked(False)
-        self.history_button.setChecked(True)
         self.set_current_grid_status()
 
     def show_usage_view(self):
@@ -539,9 +276,6 @@ class MainWindow(QMainWindow):
             )
         except KeyError:
             return
-        self.folders_button.setChecked(False)
-        self.zkaps_button.setChecked(True)
-        self.history_button.setChecked(False)
         self.set_current_grid_status()
 
     def show_welcome_dialog(self):
@@ -552,18 +286,20 @@ class MainWindow(QMainWindow):
         self.welcome_dialog.raise_()
 
     def on_grid_selected(self, index):
-        if index == self.combo_box.count() - 1:
+        if index == self.combo_box.count() - 1:  # XXX
             self.show_welcome_dialog()
         if not self.combo_box.currentData():
             return
-        if self.history_button.isChecked():
+        if self.toolbar.history_button.isChecked():  # XXX
             self.show_history_view()
         else:
             self.show_folders_view()
+            self.toolbar.folders_button.setChecked(True)  # XXX
         if self.multiple_grids_enabled:
             self.setWindowTitle(
                 "{} - {}".format(APP_NAME, self.combo_box.currentData().name)
             )
+        self.toolbar.update_actions()  # XXX
 
     def confirm_export(self, path):
         if os.path.isfile(path):
@@ -589,7 +325,6 @@ class MainWindow(QMainWindow):
         self.recovery_key_exporter.do_export(gateway)
 
     def import_recovery_key(self):
-        # XXX Quick hack for user-testing; change later
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
         self.welcome_dialog.on_restore_link_activated()
 
