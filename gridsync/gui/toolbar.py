@@ -277,7 +277,7 @@ class ToolBar(QToolBar):
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
-    def _update_action_visibility(self):
+    def _update_action_visibility(self):  # noqa: max-complexity
         gateway = self.combo_box.currentData()
         if not gateway:
             return
@@ -300,7 +300,7 @@ class ToolBar(QToolBar):
                 except AttributeError:
                     pass
 
-    def _maybe_enable_actions(self):
+    def _maybe_enable_actions(self):  # noqa: max-complexity
         gateway = self.combo_box.currentData()
         if not gateway:
             return
