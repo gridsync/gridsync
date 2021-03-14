@@ -90,7 +90,7 @@ class UsageView(QWidget):
             self.button.setIcon(QIcon(resource("globe-white.png")))
             self.button.setLayoutDirection(Qt.RightToLeft)
         else:
-            self.button = QPushButton(f"Use voucher code")
+            self.button = QPushButton("Use voucher code")
         self.button.setStyleSheet("background: green; color: white")
         self.button.setFixedSize(240, 32)
         self.button.clicked.connect(self.on_button_clicked)
@@ -225,7 +225,7 @@ class UsageView(QWidget):
         action = "buy" if self.is_commercial_grid else "add"
         self.gui.show_message(
             "Low storage-time",
-            "Your storage-time is running low. Please {action} more "
+            f"Your storage-time is running low. Please {action} more "
             "storage-time to prevent data-loss.",
         )
         self.gui.main_window.show_usage_view()  # XXX
