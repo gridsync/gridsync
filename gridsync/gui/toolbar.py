@@ -4,37 +4,22 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import QItemSelectionModel, QSize, Qt, QTimer
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtCore import pyqtSignal as Signal
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
-    QGridLayout,
-    QMainWindow,
     QMenu,
-    QMessageBox,
-    QShortcut,
     QSizePolicy,
-    QStackedWidget,
     QToolBar,
     QToolButton,
     QWidget,
 )
-from twisted.internet import reactor
 
-from gridsync import APP_NAME, resource, settings
+from gridsync import resource, settings
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.gui.history import HistoryView
-from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
-from gridsync.gui.status import StatusPanel
-from gridsync.gui.view import View
-from gridsync.gui.welcome import WelcomeDialog
-from gridsync.gui.usage import UsageView as ZKAPInfoPane
-from gridsync.msg import error, info
-from gridsync.recovery import RecoveryKeyExporter
-from gridsync.util import strip_html_tags
 
 
 class ComboBox(QComboBox):
