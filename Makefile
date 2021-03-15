@@ -157,6 +157,7 @@ frozen-tahoe:
 	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
+	export RUSTFLAGS="-C debuginfo=0" && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@v2020.04.03 && \
 	git clone https://github.com/PrivateStorageio/ZKAPAuthorizer build/ZKAPAuthorizer && \
