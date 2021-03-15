@@ -7,7 +7,7 @@ if [ "$(uname)" = "Darwin" ]; then
         yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     fi
     brew -v analytics off
-    brew install openssl readline sqlite3 xz zlib rustup-init
+    brew install openssl readline sqlite3 xz zlib rustup-init diffoscope
     export MACOSX_DEPLOYMENT_TARGET="10.13"
     export PYTHON_CONFIGURE_OPTS="--enable-framework"
     export RUST_DEFAULT_HOST="x86_64-apple-darwin"
