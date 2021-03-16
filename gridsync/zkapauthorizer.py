@@ -147,7 +147,9 @@ class ZKAPAuthorizer:
         try:
             self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]
         except KeyError:
-            self.zkap_dircap = yield self.gateway.mkdir(self.gateway.rootcap, ".zkaps")
+            self.zkap_dircap = yield self.gateway.mkdir(
+                self.gateway.rootcap, ".zkaps"
+            )
         return self.zkap_dircap
 
     @inlineCallbacks
@@ -255,7 +257,7 @@ class ZKAPAuthorizer:
             str(Path(zkaps_dir, "last-total")), overwrite=True
         ) as f:
             f.write(str(backup_decoded.get("total")))
-#######################################################################################
+
     @inlineCallbacks
     def get_version(self):
         nodeurl = self.gateway.nodeurl

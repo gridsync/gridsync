@@ -142,7 +142,9 @@ class Tahoe:
         self.zkap_auth_required = False
 
         self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
-        self.monitor.sync_finished.connect(self.zkapauthorizer.update_zkap_checkpoint)
+        self.monitor.sync_finished.connect(
+            self.zkapauthorizer.update_zkap_checkpoint
+        )
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -232,7 +234,9 @@ class Tahoe:
         if zkap_unit_name:
             self.zkapauthorizer.zkap_unit_name = zkap_unit_name
             suffix = "es" if zkap_unit_name.endswith("s") else "s"  # XXX
-            self.zkapauthorizer.zkap_unit_name_plural = f"{zkap_unit_name}{suffix}"
+            self.zkapauthorizer.zkap_unit_name_plural = (
+                f"{zkap_unit_name}{suffix}"
+            )
 
         zkap_unit_name_abbrev = settings.get("zkap_unit_name_abbrev", "")
         if zkap_unit_name_abbrev:
@@ -242,7 +246,9 @@ class Tahoe:
         if zkap_unit_multiplier:
             self.zkapauthorizer.zkap_unit_multiplier = zkap_unit_multiplier
 
-        self.zkapauthorizer.zkap_payment_url_root = settings.get("zkap_payment_url_root", "")
+        self.zkapauthorizer.zkap_payment_url_root = settings.get(
+            "zkap_payment_url_root", ""
+        )
         # TODO: Verify integrity? Support 'icon_base64'?
         self.settings = settings
 
