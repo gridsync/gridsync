@@ -185,13 +185,14 @@ class StatusPanel(QWidget):
     def on_zkaps_updated(self, used: int, remaining: int) -> None:
         total = used + remaining
         self.zkap_label.setToolTip(
-            f"{self.gateway.zkap_name}s:\n\nUsed: {used}\n"
+            f"{self.gateway.zkapauthorizer.zkap_name}s:\n\nUsed: {used}\n"
             f"Total: {total}\nAvailable: {remaining}"
         )
         if remaining and remaining >= 1000:
             remaining = str(round(remaining / 1000, 1)) + "k"  # type: ignore
         self.zkap_label.setText(
-            f"{self.gateway.zkap_name_abbrev}s available: {remaining} "
+            f"{self.gateway.zkapauthorizer.zkap_name_abbrev}s "
+            f"available: {remaining} "
         )
         self.zkap_label.show()
 

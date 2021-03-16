@@ -428,7 +428,7 @@ class ZKAPChecker(QObject):
         ):
             return
         try:
-            vouchers = yield self.gateway.get_vouchers()
+            vouchers = yield self.gateway.zkapauthorizer.get_vouchers()
         except (ConnectError, TahoeWebError):
             return  # XXX
         if not vouchers:
@@ -438,7 +438,7 @@ class ZKAPChecker(QObject):
                 self.emit_zkaps_updated(self.zkaps_remaining, self.zkaps_total)
         total = self._parse_vouchers(vouchers)
         try:
-            zkaps = yield self.gateway.get_zkaps(limit=1)
+            zkaps = yield self.gateway.zkapauthorizer.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
             return  # XXX
         remaining = zkaps.get("total")
@@ -594,7 +594,7 @@ class Monitor(QObject):
     @inlineCallbacks
     def update_price(self):
         if self.gateway.zkap_auth_required:
-            price = yield self.gateway.get_price()
+            price = yield self.gateway.zkapauthorizer.get_price()
             self.zkaps_price_updated.emit(
                 price.get("price", 0), price.get("period", 0)
             )

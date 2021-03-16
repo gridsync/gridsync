@@ -511,7 +511,7 @@ class WelcomeDialog(QStackedWidget):
     def finish_button_clicked(self):
         self.gui.show_main_window()
         self.close()
-        if self.gateway.zkap_payment_url_root:  # XXX
+        if self.gateway.zkapauthorizer.zkap_payment_url_root:  # XXX
             self.prompt_to_export = False
             self.gui.main_window.show_usage_view()
         if self.prompt_to_export:

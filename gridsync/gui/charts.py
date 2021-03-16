@@ -63,8 +63,8 @@ class ZKAPBarChart(QChart):
         super().__init__()
         self.gateway = gateway
 
-        self.unit_multiplier = gateway.zkap_unit_multiplier
-        self.unit_name = gateway.zkap_unit_name
+        self.unit_multiplier = gateway.zkapauthorizer.zkap_unit_multiplier
+        self.unit_name = gateway.zkapauthorizer.zkap_unit_name
 
         self.set_used = QBarSet("Used")
         # color_used = QColor("#1F9FDE")
@@ -152,7 +152,7 @@ class ZKAPBarChart(QChart):
             f"{self.unit_name}s available ({self._convert(available)})"
         )
         total = used + available
-        batch_size = self.gateway.zkap_batch_size
+        batch_size = self.gateway.zkapauthorizer.zkap_batch_size
         if total <= batch_size:
             self.set_expected.replace(0, batch_size - total)
         else:

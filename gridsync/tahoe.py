@@ -40,6 +40,7 @@ from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.voucher import generate_voucher
+from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
 def is_valid_furl(furl):
@@ -135,22 +136,13 @@ class Tahoe:
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
-        self.zkap_auth_required = False
-        self.zkap_name: str = "Zero-Knowledge Access Pass"
-        self.zkap_name_abbrev: str = "ZKAP"
-        self.zkap_name_plural: str = "Zero-Knowledge Access Passes"
-        self.zkap_unit_name: str = "Zero-Knowledge Access Pass"
-        self.zkap_unit_name_abbrev: str = "ZKAP"
-        self.zkap_unit_name_plural: str = "Zero-Knowledge Access Passes"
-        self.zkap_unit_multiplier: int = 1
-        self.zkap_payment_url_root: str = ""
-        self.zkap_dircap: str = ""
-        # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
-        self.zkap_batch_size: int = 2 ** 15
         self.settings: dict = {}
 
-        self.monitor.zkaps_redeemed.connect(self.backup_zkaps)
-        self.monitor.sync_finished.connect(self.update_zkap_checkpoint)
+        self.zkapauthorizer = ZKAPAuthorizer(self)
+        self.zkap_auth_required = False
+
+        self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
+        self.monitor.sync_finished.connect(self.zkapauthorizer.update_zkap_checkpoint)
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -226,30 +218,31 @@ class Tahoe:
             settings["newscap"] = self.newscap
         if not settings.get("rootcap"):
             settings["rootcap"] = self.get_rootcap()
+
         zkap_name = settings.get("zkap_name", "")
         if zkap_name:
-            self.zkap_name = zkap_name
-            self.zkap_name_abbrev = "".join(
+            self.zkapauthorizer.zkap_name = zkap_name
+            self.zkapauthorizer.zkap_name_abbrev = "".join(
                 [c for c in zkap_name if c.isupper()]
             )
             suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
-            self.zkap_name_plural = f"{zkap_name}{suffix}"
+            self.zkapauthorizer.zkap_name_plural = f"{zkap_name}{suffix}"
 
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
-            self.zkap_unit_name = zkap_unit_name
+            self.zkapauthorizer.zkap_unit_name = zkap_unit_name
             suffix = "es" if zkap_unit_name.endswith("s") else "s"  # XXX
-            self.zkap_unit_name_plural = f"{zkap_unit_name}{suffix}"
+            self.zkapauthorizer.zkap_unit_name_plural = f"{zkap_unit_name}{suffix}"
 
         zkap_unit_name_abbrev = settings.get("zkap_unit_name_abbrev", "")
         if zkap_unit_name_abbrev:
-            self.zkap_unit_name_abbrev = zkap_unit_name_abbrev
+            self.zkapauthorizer.zkap_unit_name_abbrev = zkap_unit_name_abbrev
 
         zkap_unit_multiplier = settings.get("zkap_unit_multiplier", 0)
         if zkap_unit_multiplier:
-            self.zkap_unit_multiplier = zkap_unit_multiplier
+            self.zkapauthorizer.zkap_unit_multiplier = zkap_unit_multiplier
 
-        self.zkap_payment_url_root = settings.get("zkap_payment_url_root", "")
+        self.zkapauthorizer.zkap_payment_url_root = settings.get("zkap_payment_url_root", "")
         # TODO: Verify integrity? Support 'icon_base64'?
         self.settings = settings
 
@@ -1105,19 +1098,6 @@ class Tahoe:
         return None
 
     @inlineCallbacks
-    def get_bytes(self, cap: str):
-        if not cap or not self.nodeurl:
-            return b""
-        try:
-            resp = yield treq.get(f"{self.nodeurl}uri/{cap}")
-        except ConnectError:
-            return b""
-        if resp.code == 200:
-            content = yield treq.content(resp)
-            return content
-        raise TahoeWebError(f"Error getting bytes: {resp.code}")
-
-    @inlineCallbacks
     def get_json(self, cap):
         if not cap or not self.nodeurl:
             return None
@@ -1273,258 +1253,10 @@ class Tahoe:
         return members, total_size, latest_mtime, history_od
 
     @inlineCallbacks
-    def add_voucher(self, voucher: Optional[str] = None):
-        if not voucher:
-            voucher = generate_voucher()
-        resp = yield treq.put(
-            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/voucher",
-            json.dumps({"voucher": voucher}).encode(),
-            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
-        )
-        if resp.code == 200:
-            return voucher
-        raise TahoeWebError(f"Error adding voucher: {resp.code}")
-
-    @inlineCallbacks
-    def get_voucher(self, voucher: str):
-        resp = yield treq.get(
-            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            f"/voucher/{voucher}",
-            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
-        )
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error getting voucher: {resp.code}")
-
-    @inlineCallbacks
-    def get_vouchers(self):
-        resp = yield treq.get(
-            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/voucher",
-            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
-        )
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content.get("vouchers")
-        raise TahoeWebError(f"Error getting vouchers: {resp.code}")
-
-    @inlineCallbacks
-    def get_zkaps(
-        self, limit: Optional[int] = None, position: Optional[str] = None
-    ):
-        params = {}
-        if limit:
-            params["limit"] = limit
-        if position:
-            params["position"] = position  # type: ignore
-        resp = yield treq.get(
-            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/unblinded-token",
-            params=params,
-            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
-        )
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
-
-    def zkap_payment_url(self, voucher: str) -> str:
-        if not self.zkap_payment_url_root:
-            return ""
-        return "{}?voucher={}&checksum={}".format(
-            self.zkap_payment_url_root,
-            voucher,
-            hashlib.sha256(voucher.encode()).hexdigest(),
-        )
-
-    @inlineCallbacks
-    def get_zkap_dircap(self):
-        if not self.get_rootcap():
-            yield self.create_rootcap()
-        if self.zkap_dircap:
-            return self.zkap_dircap
-        root_json = yield self.get_json(self.rootcap)
-        try:
-            self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]
-        except KeyError:
-            self.zkap_dircap = yield self.mkdir(self.rootcap, ".zkaps")
-        return self.zkap_dircap
-
-    @inlineCallbacks
-    def get(self, cap: str):
-        yield self.await_ready()
-        resp = yield treq.get("{}uri/{}".format(self.nodeurl, cap))
-        content = yield treq.content(resp)
-        if resp.code == 200:
-            return content
-        raise TahoeWebError(content.decode("utf-8"))
-
-    @inlineCallbacks
-    def update_zkap_checkpoint(self, _=None):
-        if not self.zkap_auth_required:
-            return
-        zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
-        os.makedirs(zkaps_dir, exist_ok=True)
-
-        # The act of updating the checkpoint itself costs at least 1
-        # ZKAP, so use the *second* token as the "checkpoint" (on the
-        # assumption that the first/next token will be spent imminently)
-        zkaps = yield self.get_zkaps(2)
-        checkpoint = zkaps.get("unblinded-tokens")[1]
-        checkpoint_path = os.path.join(zkaps_dir, "checkpoint")
-        with atomic_write(checkpoint_path, overwrite=True) as f:
-            f.write(checkpoint.strip())
-
-        zkap_dircap = yield self.get_zkap_dircap()
-        checkpoint_filecap = yield self.upload(checkpoint_path)
-        yield self.link(zkap_dircap, "checkpoint", checkpoint_filecap)
-
-    @inlineCallbacks
-    def backup_zkaps(self, timestamp: str):
-        zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
-        os.makedirs(zkaps_dir, exist_ok=True)
-
-        local_backup_filename = timestamp.replace(":", "_") + ".json"
-        local_backup_path = os.path.join(zkaps_dir, local_backup_filename)
-        if os.path.exists(local_backup_path):
-            log.debug("ZKAP backup %s already uploaded", local_backup_filename)
-            return
-        try:
-            with open(os.path.join(zkaps_dir, "last-redeemed")) as f:
-                if timestamp == f.read():
-                    log.debug(
-                        "No ZKAP backup needed for %s; cancelling", timestamp
-                    )
-                    return
-        except OSError:
-            pass
-
-        temp_path = os.path.join(zkaps_dir, "backup.json.tmp")
-
-        zkaps = yield self.get_zkaps()
-        zkaps["last-redeemed"] = timestamp
-
-        with atomic_write(temp_path, overwrite=True) as f:  # type: ignore
-            f.write(json.dumps(zkaps))
-
-        zkap_dircap = yield self.get_zkap_dircap()
-        backup_filecap = yield self.upload(temp_path)
-        yield self.link(zkap_dircap, "backup.json", backup_filecap)
-
-        yield self.update_zkap_checkpoint()
-
-        shutil.move(temp_path, local_backup_path)
-
-    @inlineCallbacks
-    def insert_zkaps(self, zkaps: list):
-        resp = yield treq.post(
-            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/unblinded-token",
-            json.dumps({"unblinded-tokens": zkaps}).encode(),
-            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
-        )
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error inserting ZKAPs: {resp.code}")
-
-    @inlineCallbacks
-    def restore_zkaps(self):
-        zkap_dircap = yield self.get_zkap_dircap()
-
-        backup = yield self.get(zkap_dircap + "/backup.json")
-        backup_decoded = json.loads(backup.decode())
-        tokens = backup_decoded.get("unblinded-tokens")
-
-        checkpoint = yield self.get(zkap_dircap + "/checkpoint")
-        checkpoint = checkpoint.decode()
-
-        yield self.insert_zkaps(tokens[tokens.index(checkpoint) :])
-
-        zkaps_dir = os.path.join(self.nodedir, "private", "zkaps")
-        os.makedirs(zkaps_dir, exist_ok=True)
-
-        with atomic_write(
-            str(Path(zkaps_dir, "last-redeemed")), overwrite=True
-        ) as f:
-            f.write(str(backup_decoded.get("last-redeemed")))
-
-        with atomic_write(
-            str(Path(zkaps_dir, "last-total")), overwrite=True
-        ) as f:
-            f.write(str(backup_decoded.get("total")))
-
-    @inlineCallbacks
-    def get_zkapauthz_version(self):
-        resp = yield treq.get(
-            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/version",
-            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
-        )
-        version = ""
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            version = content.get("version", "")
-        return version
-
-    @inlineCallbacks
-    def calculate_price(self, sizes: List[int]) -> Generator[int, None, Dict]:
-        if not self.nodeurl:
-            return {}
-        resp = yield treq.post(
-            f"{self.nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/calculate-price",
-            json.dumps({"version": 1, "sizes": sizes}).encode(),
-            headers={
-                "Authorization": f"tahoe-lafs {self.api_token}",
-                "Content-Type": "application/json",
-            },
-        )
-        if resp.code == 200:  # type: ignore
-            content = yield treq.json_content(resp)
-            return content  # type: ignore
-        raise TahoeWebError(
-            f"Error calculating price: {resp.code}"  # type: ignore
-        )
-
-    @inlineCallbacks
-    def get_sizes(self) -> Generator[int, None, List[Optional[int]]]:
-        sizes: list = []
-        rootcap = self.get_rootcap()
-        rootcap_bytes = yield self.get_bytes(f"{rootcap}/?t=json")
-        if not rootcap_bytes:
-            return sizes
-        sizes.append(len(rootcap_bytes))
-        rootcap_data = json.loads(rootcap_bytes.decode("utf-8"))
-        if rootcap_data:
-            dircaps = []
-            for data in rootcap_data[1]["children"].values():
-                rw_uri = data[1].get("rw_uri", "")
-                if rw_uri:  # Only care about dirs the user can write to
-                    dircaps.append(rw_uri)
-            for dircap in dircaps:
-                dircap_bytes = yield self.get_bytes(f"{dircap}/?t=json")
-                sizes.append(len(dircap_bytes))
-                dircap_data = json.loads(dircap_bytes.decode("utf-8"))
-                for data in dircap_data[1]["children"].values():
-                    size = data[1].get("size", 0)
-                    if size:
-                        sizes.append(size)
-        return sizes
-
-    @inlineCallbacks
-    def get_price(self) -> Generator[int, None, Dict]:
-        sizes = yield self.get_sizes()
-        price = yield self.calculate_price(sizes)
-        return price  # type: ignore
-
-    @inlineCallbacks
     def scan_storage_plugins(self):
         plugins = []
         log.debug("Scanning for known storage plugins...")
-        version = yield self.get_zkapauthz_version()
+        version = yield self.zkapauthorizer.get_version()
         if version:
             plugins.append(("ZKAPAuthorizer", version))
         if plugins:

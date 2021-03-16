@@ -140,18 +140,18 @@ class UsageView(QWidget):
     def on_voucher_link_clicked(self):
         voucher, ok = VoucherCodeDialog.get_voucher()
         if ok:
-            self.gateway.add_voucher(voucher)
+            self.gateway.zkapauthorizer.add_voucher(voucher)
 
     @inlineCallbacks
     def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
         voucher = generate_voucher()  # TODO: Cache to disk
-        payment_url = self.gateway.zkap_payment_url(voucher)
+        payment_url = self.gateway.zkapauthorizer.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)
         if webbrowser.open(payment_url):
             logging.debug("Browser successfully launched")
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
-        yield self.gateway.add_voucher(voucher)
+        yield self.gateway.zkapauthorizer.add_voucher(voucher)
 
     @Slot()
     def on_button_clicked(self):
@@ -161,10 +161,11 @@ class UsageView(QWidget):
             self.on_voucher_link_clicked()
 
     def _update_info_label(self):
+        zkapauthorizer = self.gateway.zkapauthorizer
         self.info_label.setText(
             f"Last purchase: {self._last_purchase_date} ("
-            f"{self.chart_view.chart._convert(self.gateway.zkap_batch_size)} "
-            f"{self.gateway.zkap_unit_name_abbrev}s)     "
+            f"{self.chart_view.chart._convert(zkapauthorizer.zkap_batch_size)} "
+            f"{zkapauthorizer.zkap_unit_name_abbrev}s)     "
             f"Expected expiry: {self._expiry_date}"
         )
 
