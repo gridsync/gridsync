@@ -13,7 +13,7 @@ import tempfile
 from collections import OrderedDict, defaultdict
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, Generator, List, Optional
+from typing import List
 
 import treq
 import yaml
@@ -39,7 +39,6 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
-from gridsync.voucher import generate_voucher
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 

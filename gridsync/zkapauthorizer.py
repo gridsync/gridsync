@@ -1,44 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import errno
 import hashlib
 import json
 import logging as log
 import os
-import re
 import shutil
-import signal
-import sys
-import tempfile
-from collections import OrderedDict, defaultdict
-from io import BytesIO
 from pathlib import Path
 from typing import Dict, Generator, List, Optional
 
 import treq
-import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import (
-    Deferred,
-    DeferredList,
-    DeferredLock,
-    inlineCallbacks,
-)
-from twisted.internet.error import ConnectError, ProcessDone
-from twisted.internet.protocol import ProcessProtocol
-from twisted.internet.task import deferLater
-from twisted.python.procutils import which
+from twisted.internet.defer import inlineCallbacks
+from twisted.internet.error import ConnectError
 
-from gridsync import pkgdir
-from gridsync import settings as global_settings
-from gridsync.config import Config
-from gridsync.crypto import trunchash
-from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
-from gridsync.filter import filter_tahoe_log_message
-from gridsync.monitor import Monitor
-from gridsync.news import NewscapChecker
-from gridsync.preferences import get_preference, set_preference
-from gridsync.streamedlogs import StreamedLogs
+from gridsync.errors import TahoeWebError
 from gridsync.voucher import generate_voucher
 
 
