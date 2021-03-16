@@ -197,7 +197,7 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
 
         icon_path = None
-        if nickname == "Least Authority S4":
+        if nickname in ("Least Authority S4", "HRO Cloud"):
             icon_path = resource("leastauthority.com.icon")
             self.got_icon.emit(icon_path)
         elif "icon_base64" in settings:
