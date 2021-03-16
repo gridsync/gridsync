@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 
 from humanize import naturalsize
 from PyQt5.QtCore import QSize, Qt
@@ -92,13 +93,17 @@ class StatusPanel(QWidget):
 
         # zkap_chart_view = ZKAPCompactPieChartView()
 
-        self.zkap_label = QLabel()
-        self.zkap_label.setStyleSheet(f"color: {dimmer_grey}")
-        self.zkap_label.hide()
+        # self.zkap_label = QLabel()
+        # self.zkap_label.setStyleSheet(f"color: {dimmer_grey}")
+        # self.zkap_label.hide()
 
         self.stored_label = QLabel()
         self.stored_label.setStyleSheet(f"color: {dimmer_grey}")
         self.stored_label.hide()
+
+        self.expires_label = QLabel()
+        self.expires_label.setStyleSheet(f"color: {dimmer_grey}")
+        self.expires_label.hide()
 
         layout = QGridLayout(self)
         left, _, right, bottom = layout.getContentsMargins()
@@ -109,18 +114,22 @@ class StatusPanel(QWidget):
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
         layout.addWidget(self.tor_button, 1, 4)
         # layout.addWidget(zkap_chart_view, 1, 5)
-        layout.addWidget(self.zkap_label, 1, 5)
+        # layout.addWidget(self.zkap_label, 1, 5)
         layout.addWidget(self.stored_label, 1, 6)
-        layout.addWidget(preferences_button, 1, 7)
+        layout.addWidget(self.expires_label, 1, 7)
+        layout.addWidget(preferences_button, 1, 8)
 
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
         )
         self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
-        self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
+        # self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
         self.gateway.monitor.total_folders_size_updated.connect(
             self.on_total_folders_size_updated
+        )
+        self.gateway.monitor.days_remaining_updated.connect(
+            self.on_days_remaining_updated
         )
 
         self.on_sync_state_updated(0)
@@ -181,22 +190,37 @@ class StatusPanel(QWidget):
         self.num_known = known
         self._update_status_label()
 
-    @Slot(int, int)
-    def on_zkaps_updated(self, used: int, remaining: int) -> None:
-        total = used + remaining
-        self.zkap_label.setToolTip(
-            f"{self.gateway.zkapauthorizer.zkap_name}s:\n\nUsed: {used}\n"
-            f"Total: {total}\nAvailable: {remaining}"
-        )
-        if remaining and remaining >= 1000:
-            remaining = str(round(remaining / 1000, 1)) + "k"  # type: ignore
-        self.zkap_label.setText(
-            f"{self.gateway.zkapauthorizer.zkap_name_abbrev}s "
-            f"available: {remaining} "
-        )
-        self.zkap_label.show()
+    # @Slot(int, int)
+    # def on_zkaps_updated(self, used: int, remaining: int) -> None:
+    #    total = used + remaining
+    #    self.zkap_label.setToolTip(
+    #        f"{self.gateway.zkapauthorizer.zkap_name}s:\n\nUsed: {used}\n"
+    #        f"Total: {total}\nAvailable: {remaining}"
+    #    )
+    #    if remaining and remaining >= 1000:
+    #        remaining = str(round(remaining / 1000, 1)) + "k"  # type: ignore
+    #    self.zkap_label.setText(
+    #        f"{self.gateway.zkapauthorizer.zkap_name_abbrev}s "
+    #        f"available: {remaining} "
+    #    )
+    #    self.zkap_label.show()
 
     @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:
-        self.stored_label.setText(f"Stored: {naturalsize(size)} ")
+        if self.expires_label.text():
+            self.stored_label.setText(f"{naturalsize(size)} stored,")
+        else:
+            self.stored_label.setText(f"{naturalsize(size)} stored")
         self.stored_label.show()
+
+    @Slot(int)
+    def on_days_remaining_updated(self, days: int) -> None:
+        expiry_date = datetime.strftime(
+            datetime.strptime(
+                datetime.isoformat(datetime.now() + timedelta(days=days)),
+                "%Y-%m-%dT%H:%M:%S.%f",
+            ),
+            "%d %b %Y",
+        )
+        self.expires_label.setText(f"Expected expiry: {expiry_date}")
+        self.expires_label.show()
