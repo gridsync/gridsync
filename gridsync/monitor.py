@@ -385,7 +385,7 @@ class ZKAPChecker(QObject):
 
     def emit_zkaps_updated(self, remaining, total):
         used = total - remaining
-        batch_size = self.gateway.zkap_batch_size
+        batch_size = self.gateway.zkapauthorizer.zkap_batch_size
         if batch_size:
             batches_consumed = used // batch_size
             tokens_to_trim = batches_consumed * batch_size
