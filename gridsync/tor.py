@@ -41,8 +41,10 @@ def get_tor(reactor):  # TODO: Add launch option?
     logging.debug("Looking for a running Tor daemon...")
     try:
         tor = yield txtorcon.connect(reactor)
-    except RuntimeError:
-        logging.debug("Could not connect to a running Tor daemon.")
+    except RuntimeError as exc:
+        logging.debug(
+            "Could not connect to a running Tor daemon: %s", str(exc)
+        )
     if tor:
         logging.debug("Connected to Tor daemon (%s)", tor.version)
     return tor
