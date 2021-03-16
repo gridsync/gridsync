@@ -112,12 +112,12 @@ class StatusPanel(QWidget):
         layout.addWidget(self.syncing_icon, 1, 1)
         layout.addWidget(self.status_label, 1, 2)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
-        layout.addWidget(self.tor_button, 1, 4)
         # layout.addWidget(zkap_chart_view, 1, 5)
         # layout.addWidget(self.zkap_label, 1, 5)
         layout.addWidget(self.stored_label, 1, 6)
         layout.addWidget(self.expires_label, 1, 7)
-        layout.addWidget(preferences_button, 1, 8)
+        layout.addWidget(self.tor_button, 1, 8)
+        layout.addWidget(preferences_button, 1, 9)
 
         self.gateway.monitor.total_sync_state_updated.connect(
             self.on_sync_state_updated
