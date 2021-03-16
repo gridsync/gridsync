@@ -178,7 +178,7 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
 	mkdir -p dist/Tahoe-LAFS/challenge_bypass_ristretto && \
 	cp -R $$(python -c 'import site, sys;print site.getsitepackages()[0] if hasattr(sys, "real_prefix") else site.getusersitepackages()')/challenge_bypass_ristretto/*.so dist/Tahoe-LAFS/challenge_bypass_ristretto && \
-	sed -i 's/pip-req-build-....../pip-req-build-XXXXXX/g' dist/Tahoe-LAFS/challenge_bypass_ristretto/*.so && \
+	sed -i '' 's/pip-req-build-....../pip-req-build-XXXXXX/g' dist/Tahoe-LAFS/challenge_bypass_ristretto/*.so && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
