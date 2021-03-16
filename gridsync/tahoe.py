@@ -672,7 +672,7 @@ class Tahoe:
                 "default-token-count",
             )
             if default_token_count:
-                self.zkap_batch_size = int(default_token_count)
+                self.zkapauthorizer.zkap_batch_size = int(default_token_count)
 
         if os.path.isfile(self.pidfile):
             yield self.stop()
