@@ -28,7 +28,7 @@ from wormhole.errors import (
 
 from gridsync import APP_NAME, resource
 from gridsync import settings as global_settings
-from gridsync.errors import UpgradeRequiredError
+from gridsync.errors import AbortedByUserError, UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
@@ -335,6 +335,10 @@ class WelcomeDialog(QStackedWidget):
                 show_failure(failure, self)
                 self.show_error("Invite timed out")
                 self.reset()
+            return
+        elif failure.type == AbortedByUserError:
+            self.show_error("Operation aborted")
+            self.reset()
             return
         show_failure(failure, self)
         if failure.type == ServerConnectionError:
