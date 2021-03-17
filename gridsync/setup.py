@@ -5,6 +5,8 @@ import logging as log
 import os
 import shutil
 from binascii import Error
+from typing import Tuple, Set
+from urllib.parse import urlparse
 
 import treq
 from atomicwrites import atomic_write
@@ -34,6 +36,27 @@ def is_onion_grid(settings):
         if tor_required(furl):
             return True
     return False
+
+
+def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
+    hosts = set()
+    url = settings.get("zkap_payment_url_root")
+    if url:
+        hosts.add(urlparse(url).hostname)
+    storage_servers = settings.get("storage")
+    if storage_servers:
+        for data in storage_servers.values():
+            storage_options = data.get("storage-options")
+            if not storage_options:
+                continue
+            else:
+                for group in storage_options:
+                    url = group.get("ristretto-issuer-root-url")
+                    if url:
+                        hosts.add(urlparse(url).hostname)
+    if hosts:
+        return (True, hosts)
+    return (False, hosts)
 
 
 def prompt_for_grid_name(grid_name, parent=None):
