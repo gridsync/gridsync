@@ -88,7 +88,7 @@ def prompt_for_leaky_tor(
         msgbox.setText(text)
     ok = msgbox.addButton("Continue with Tor enabled", QMessageBox.AcceptRole)
     msgbox.addButton(QMessageBox.Abort)
-    result = msgbox.exec_()
+    msgbox.exec_()
     if msgbox.clickedButton() == ok:
         return True
     return False
