@@ -18,7 +18,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
-from gridsync.errors import TorError, UpgradeRequiredError
+from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 
@@ -362,7 +362,8 @@ class SetupRunner(QObject):
             zkap_grid, hosts = is_zkap_grid(settings)
             if zkap_grid:
                 permission_granted = prompt_for_leaky_tor(nickname, hosts)
-                # XXX
+                if not permission_granted:
+                    raise AbortedByUserError("The user aborted the operation")
 
         self.gateway = self.get_gateway(
             settings.get("introducer"), settings.get("storage")
