@@ -5,7 +5,7 @@ import logging as log
 import os
 import shutil
 from binascii import Error
-from typing import Tuple, Set
+from typing import Set, Tuple
 from urllib.parse import urlparse
 
 import treq
