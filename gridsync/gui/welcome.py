@@ -336,7 +336,7 @@ class WelcomeDialog(QStackedWidget):
                 self.show_error("Invite timed out")
                 self.reset()
             return
-        elif failure.type == AbortedByUserError:
+        if failure.type == AbortedByUserError:
             self.show_error("Operation aborted")
             self.reset()
             return
