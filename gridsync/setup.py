@@ -4,14 +4,15 @@ import base64
 import logging as log
 import os
 import shutil
+import sys
 from binascii import Error
-from typing import Set, Tuple
+from typing import Optional, Set, Tuple
 from urllib.parse import urlparse
 
 import treq
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -56,6 +57,41 @@ def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
     if hosts:
         return (True, hosts)
     return (False, hosts)
+
+
+def prompt_for_leaky_tor(
+    grid_name: str, hosts: Set, parent: Optional[QWidget] = None
+) -> bool:
+    msgbox = QMessageBox(parent)
+    msgbox.setWindowModality(Qt.ApplicationModal)
+    msgbox.setIcon(QMessageBox.Warning)
+    title = "WARNING: Possible anonymity-leak ahead!"
+    hosts_list = ""
+    for host in hosts:
+        hosts_list += f"<p><b>{host}</b>"
+    text = (
+        f"The <i>{grid_name}</i> grid requires the use of Zero-Knowledge "
+        "Access Passes (ZKAPs), however, the Tahoe-LAFS ZKAPAuthorizer "
+        "plugin that is used to redeem ZKAPs does not currently support "
+        "tunneling its connections over Tor.<p>"
+        "With Tor enabled, your local IP address will continue to be "
+        f"concealed from the storage servers that comprise the {grid_name} "
+        "grid, however, without taking any further precautions, the act of "
+        "purchasing or reedeming ZKAPs will expose your IP address to the "
+        f"following hosts, at minimum:{hosts_list}<p>"
+    )
+    if sys.platform == "darwin":
+        msgbox.setText(title)
+        msgbox.setInformativeText(text)
+    else:
+        msgbox.setWindowTitle(title)
+        msgbox.setText(text)
+    ok = msgbox.addButton("Continue with Tor enabled", QMessageBox.AcceptRole)
+    msgbox.addButton(QMessageBox.Abort)
+    result = msgbox.exec_()
+    if msgbox.clickedButton() == ok:
+        return True
+    return False
 
 
 def prompt_for_grid_name(grid_name, parent=None):
@@ -314,12 +350,19 @@ class SetupRunner(QObject):
         if "version" in settings and int(settings["version"]) > 2:
             raise UpgradeRequiredError
 
+        nickname = settings.get("nickname")
+
         if self.use_tor or "hide-ip" in settings or is_onion_grid(settings):
             settings["hide-ip"] = True
             self.use_tor = True
             tor = yield get_tor_with_prompt(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
+
+            zkap_grid, hosts = is_zkap_grid(settings)
+            if zkap_grid:
+                permission_granted = prompt_for_leaky_tor(nickname, hosts)
+                # XXX
 
         self.gateway = self.get_gateway(
             settings.get("introducer"), settings.get("storage")
@@ -329,7 +372,7 @@ class SetupRunner(QObject):
             yield self.join_grid(settings)
             yield self.ensure_recovery(settings)
         elif not folders_data:
-            self.grid_already_joined.emit(settings.get("nickname"))
+            self.grid_already_joined.emit(nickname)
         if folders_data:
             yield self.join_folders(folders_data)
             yield self.gateway.monitor.scan_rootcap()
