@@ -49,11 +49,10 @@ def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
             storage_options = data.get("storage-options")
             if not storage_options:
                 continue
-            else:
-                for group in storage_options:
-                    url = group.get("ristretto-issuer-root-url")
-                    if url:
-                        hosts.add(urlparse(url).hostname)
+            for group in storage_options:
+                url = group.get("ristretto-issuer-root-url")
+                if url:
+                    hosts.add(urlparse(url).hostname)
     if hosts:
         return (True, hosts)
     return (False, hosts)
