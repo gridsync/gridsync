@@ -157,7 +157,6 @@ frozen-tahoe:
 	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
-	export RUSTFLAGS="-C debuginfo=0" && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	git clone https://github.com/PrivateStorageio/ZKAPAuthorizer build/ZKAPAuthorizer && \
 	cp ../../misc/zkapauthorizer-retry-interval.patch build/ZKAPAuthorizer && \
@@ -177,7 +176,6 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
 	mkdir -p dist/Tahoe-LAFS/challenge_bypass_ristretto && \
 	cp -R $$(python -c 'import site, sys;print site.getsitepackages()[0] if hasattr(sys, "real_prefix") else site.getusersitepackages()')/challenge_bypass_ristretto/*.so dist/Tahoe-LAFS/challenge_bypass_ristretto && \
-	case `uname` in Darwin) LC_ALL=C sed -i '' 's/pip-req-build-....../pip-req-build-XXXXXX/g' dist/Tahoe-LAFS/challenge_bypass_ristretto/*.so; esac && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 

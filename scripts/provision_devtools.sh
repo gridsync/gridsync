@@ -7,10 +7,9 @@ if [ "$(uname)" = "Darwin" ]; then
         yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     fi
     brew -v analytics off
-    brew install openssl readline sqlite3 xz zlib rustup-init diffoscope
+    brew install openssl readline sqlite3 xz zlib diffoscope
     export MACOSX_DEPLOYMENT_TARGET="10.13"
     export PYTHON_CONFIGURE_OPTS="--enable-framework"
-    export RUST_DEFAULT_HOST="x86_64-apple-darwin"
     SHELLRC=~/.$(basename "$SHELL"rc)
 else
     if [ -f "/usr/bin/apt-get" ]; then
@@ -27,13 +26,10 @@ else
         exit 1
     fi
     export PYTHON_CONFIGURE_OPTS="--enable-shared"
-    export RUST_DEFAULT_HOST="x86_64-unknown-linux-gnu"
     curl -fsSL --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
     chmod +x ~/bin/linuxdeploy
     curl -fsSL --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
     chmod +x ~/bin/appimagetool
-    curl --proto '=https' -sSf https://sh.rustup.rs > ~/bin/rustup-init
-    chmod +x ~/bin/rustup-init
     if [ -z "${SKIP_DOCKER_INSTALL}" ]; then
         curl -fsSL https://get.docker.com/rootless | sh
         echo "export DOCKER_HOST=unix:///run/user/$(id --user)/docker.sock" >> "$SHELLRC"
@@ -62,6 +58,3 @@ pyenv versions
 
 python2 -m pip install --upgrade setuptools pip
 python3 -m pip install --upgrade setuptools pip tox diffoscope
-
-rustup-init -y --default-host "$RUST_DEFAULT_HOST" --default-toolchain stable
-. $HOME/.cargo/env
