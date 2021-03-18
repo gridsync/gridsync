@@ -223,6 +223,17 @@ pywin32==228 ; sys_platform == "win32" \
 requests==2.25.1 \
     --hash=sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804 \
     --hash=sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e
+# Required by ZKAPAuthorizer
+# On PyPI, no python-challenge-bypass-ristretto sdist is available
+# while the macOS wheel only supports 10.15 or higher, so omit "darwin"
+# here and build from source via the "frozen-tahoe" make target.
+# See/follow:
+# https://github.com/LeastAuthority/python-challenge-bypass-ristretto/issues/34
+# https://github.com/LeastAuthority/python-challenge-bypass-ristretto/issues/35
+python-challenge-bypass-ristretto==2020.4.3 ; sys_platform != "darwin" \
+    --hash=sha256:93cf5bb17ec2833b49282a674e741fbd0e2f6f6e03d8888188fe5169641a4b4d \
+    --hash=sha256:bed52f060d7c428b165c2197e12a42eb1248fe4e7eec13bec9b3529caf4983b1 \
+    --hash=sha256:d29762a2b2a0b3110d8d1c16554c7ebb3099e5d81c51dd897841f7c774692e95
 PyYAML==5.4.1 \
     --hash=sha256:08682f6b72c722394747bddaf0aa62277e02557c0fd1c42cb853016a38f8dedf \
     --hash=sha256:0f5f5786c0e09baddcd8b4b45f20a7b5d61a7e7e99846e3c799b05c7c53fa696 \

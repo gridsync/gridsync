@@ -78,7 +78,6 @@ call copy ..\..\misc\rsa-public-exponent.patch .
 call git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-call python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@v2020.04.03
 ::call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@528221d831a4ad75c1f7ee801ca2c9af4c8b731f
 call git clone https://github.com/PrivateStorageio/ZKAPAuthorizer .\build\ZKAPAuthorizer
 call copy ..\..\misc\zkapauthorizer-retry-interval.patch .\build\ZKAPAuthorizer
