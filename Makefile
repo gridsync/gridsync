@@ -159,14 +159,6 @@ frozen-tahoe:
 	export CFLAGS=-g0 && \
 	export RUSTFLAGS="-C debuginfo=0" && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
-	case `uname` in Darwin) \
-	if [ $$(python -c 'import platform;print(platform.mac_ver()[0][0:5])') == "10.14" ] ; then \
-			python -m pip install git+https://github.com/LeastAuthority/python-challenge-bypass-ristretto@v2020.04.03 ; \
-		else \
-			echo "python-challenge-bypass-ristretto==2020.04.03 --hash=sha256:d29762a2b2a0b3110d8d1c16554c7ebb3099e5d81c51dd897841f7c774692e95" > requirements-ristretto.txt && \
-			python -m pip install -r requirements-ristretto.txt ; \
-		fi ; \
-	esac && \
 	git clone https://github.com/PrivateStorageio/ZKAPAuthorizer build/ZKAPAuthorizer && \
 	cp ../../misc/zkapauthorizer-retry-interval.patch build/ZKAPAuthorizer && \
 	pushd build/ZKAPAuthorizer && \
