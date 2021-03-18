@@ -68,7 +68,6 @@ call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
 call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
-call 
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call git checkout tahoe-lafs-1.14.0
@@ -78,7 +77,6 @@ call copy ..\..\misc\rsa-public-exponent.patch .
 call git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-::call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@528221d831a4ad75c1f7ee801ca2c9af4c8b731f
 call git clone https://github.com/PrivateStorageio/ZKAPAuthorizer .\build\ZKAPAuthorizer
 call copy ..\..\misc\zkapauthorizer-retry-interval.patch .\build\ZKAPAuthorizer
 call pushd .\build\ZKAPAuthorizer
@@ -86,7 +84,6 @@ call git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963
 call git apply --ignore-space-change --ignore-whitespace zkapauthorizer-retry-interval.patch
 call python -m pip install .
 call popd
-::
 call python -m pip install .
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
