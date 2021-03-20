@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import datetime as dt
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from humanize import naturaldelta
 from PyQt5.QtChart import (
@@ -20,9 +21,12 @@ COLOR_USED = "#D42020"
 COLOR_COST = "#EE9A1D"
 COLOR_AVAILABLE = "#29A529"
 
+if TYPE_CHECKING:
+    from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
+
 
 class ZKAPPieChart(QChart):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         series = QPieSeries()
@@ -47,7 +51,7 @@ class ZKAPPieChart(QChart):
 
         self.update_tooltip()
 
-    def update_tooltip(self):
+    def update_tooltip(self) -> None:
         self.setToolTip(
             "ZKAPs used: {}\n"
             "ZKAPs available: {}\n\n"
@@ -59,7 +63,7 @@ class ZKAPPieChart(QChart):
 
 
 class ZKAPBarChart(QChart):
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
 
@@ -161,7 +165,7 @@ class ZKAPBarChart(QChart):
 
 
 class ZKAPCompactPieChartView(QChartView):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.chart = ZKAPPieChart()
         self.setMaximumSize(26, 26)
@@ -170,7 +174,7 @@ class ZKAPCompactPieChartView(QChartView):
 
 
 class ZKAPBarChartView(QChartView):
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.chart = ZKAPBarChart(gateway)
         self.setChart(self.chart)
