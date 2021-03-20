@@ -36,8 +36,10 @@ def _tahoe(tmpdir_factory, reactor):
     client.set_nodeurl("http://example.invalid:12345/")
     with open(os.path.join(client.nodedir, "node.url"), "w") as f:
         f.write("http://example.invalid:12345/")
+    api_token = b64encode(b"a" * 32).decode("ascii")
+    client.api_token = api_token
     with open(os.path.join(private_dir, "api_auth_token"), "w") as f:
-        f.write(b64encode(b"a" * 32).decode("ascii"))
+        f.write(api_token)
     return client
 
 
