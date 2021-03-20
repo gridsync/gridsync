@@ -79,19 +79,16 @@ class ZKAPAuthorizer:
     def get_zkaps(
         self, limit: Optional[int] = None, position: Optional[str] = None
     ):
-        params = {}
+        query_params = []
         if limit:
-            params["limit"] = limit
+            query_params.append(f"limit={limit}")
         if position:
-            params["position"] = position  # type: ignore
-        nodeurl = self.gateway.nodeurl
-        api_token = self.gateway.api_token
-        resp = yield treq.get(
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/unblinded-token",
-            params=params,
-            headers={"Authorization": f"tahoe-lafs {api_token}"},
-        )
+            query_params.append(f"position={position}")
+        if query_params:
+            query_string = "?" + "&".join(query_params)
+        else:
+            query_string = ""
+        resp = yield self._request("GET", f"/unblinded-token{query_string}")
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
