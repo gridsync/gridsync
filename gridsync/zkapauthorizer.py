@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import hashlib
 import json
@@ -6,7 +7,7 @@ import logging as log
 import os
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import treq
 from atomicwrites import atomic_write
@@ -17,9 +18,12 @@ from gridsync.errors import TahoeWebError
 from gridsync.types import TreqResponse, TwistedDeferred
 from gridsync.voucher import generate_voucher
 
+if TYPE_CHECKING:
+    from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
+
 
 class ZKAPAuthorizer:
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         self.gateway = gateway
 
         self.zkap_name: str = "Zero-Knowledge Access Pass"
@@ -124,7 +128,9 @@ class ZKAPAuthorizer:
         return self.zkap_dircap
 
     @inlineCallbacks
-    def update_zkap_checkpoint(self, _=None) -> TwistedDeferred[None]:
+    def update_zkap_checkpoint(
+        self, _: Optional[Any] = None
+    ) -> TwistedDeferred[None]:
         if not self.gateway.zkap_auth_required:
             return
         zkaps_dir = os.path.join(self.gateway.nodedir, "private", "zkaps")
