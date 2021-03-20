@@ -30,8 +30,8 @@ from gridsync.types import TwistedDeferred
 from gridsync.voucher import generate_voucher
 
 if TYPE_CHECKING:
-    from gridsync.gui import Gui
-    from gridsync.tahoe import Tahoe
+    from gridsync.gui import Gui  # pylint: disable=cyclic-import
+    from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
 class UsageView(QWidget):
