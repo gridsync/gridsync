@@ -38,16 +38,26 @@ class ZKAPAuthorizer:
         # self.monitor.sync_finished.connect(self.update_zkap_checkpoint)
 
     @inlineCallbacks
-    def add_voucher(self, voucher: Optional[str] = None):
+    def _request(self, method: str, path: str, data: Optional = None):
         nodeurl = self.gateway.nodeurl
         api_token = self.gateway.api_token
+        resp = yield treq.request(
+            method,
+            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1{path}",
+            headers={
+                "Authorization": f"tahoe-lafs {api_token}",
+                "Content-Type": "application/json",
+            },
+            data=data,
+        )
+        return resp
+
+    @inlineCallbacks
+    def add_voucher(self, voucher: Optional[str] = None):
         if not voucher:
             voucher = generate_voucher()
-        resp = yield treq.put(
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/voucher",
-            json.dumps({"voucher": voucher}).encode(),
-            headers={"Authorization": f"tahoe-lafs {api_token}"},
+        resp = yield self._request(
+            "PUT", "/voucher", json.dumps({"voucher": voucher}).encode()
         )
         if resp.code == 200:
             return voucher
@@ -55,13 +65,7 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def get_voucher(self, voucher: str):
-        nodeurl = self.gateway.nodeurl
-        api_token = self.gateway.api_token
-        resp = yield treq.get(
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            f"/voucher/{voucher}",
-            headers={"Authorization": f"tahoe-lafs {api_token}"},
-        )
+        resp = yield self._request("GET", f"/voucher/{voucher}")
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
@@ -69,13 +73,7 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def get_vouchers(self):
-        nodeurl = self.gateway.nodeurl
-        api_token = self.gateway.api_token
-        resp = yield treq.get(
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/voucher",
-            headers={"Authorization": f"tahoe-lafs {api_token}"},
-        )
+        resp = yield self._request("GET", "/voucher")
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content.get("vouchers")
@@ -185,13 +183,10 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def insert_zkaps(self, zkaps: list):
-        nodeurl = self.gateway.nodeurl
-        api_token = self.gateway.api_token
-        resp = yield treq.post(
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+        resp = yield self._request(
+            "POST",
             "/unblinded-token",
             json.dumps({"unblinded-tokens": zkaps}).encode(),
-            headers={"Authorization": f"tahoe-lafs {api_token}"},
         )
         if resp.code == 200:
             content = yield treq.json_content(resp)
@@ -235,14 +230,8 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def get_version(self):
-        nodeurl = self.gateway.nodeurl
-        api_token = self.gateway.api_token
-        resp = yield treq.get(
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
-            "/version",
-            headers={"Authorization": f"tahoe-lafs {api_token}"},
-        )
         version = ""
+        resp = yield self._request("GET", "/version")
         if resp.code == 200:
             content = yield treq.json_content(resp)
             version = content.get("version", "")
@@ -289,18 +278,12 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def calculate_price(self, sizes: List[int]) -> Generator[int, None, Dict]:
-        nodeurl = self.gateway.nodeurl
-        if not nodeurl:
+        if not self.gateway.nodeurl:
             return {}
-        api_token = self.gateway.api_token
-        resp = yield treq.post(
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1"
+        resp = yield self._request(
+            "POST",
             "/calculate-price",
             json.dumps({"version": 1, "sizes": sizes}).encode(),
-            headers={
-                "Authorization": f"tahoe-lafs {api_token}",
-                "Content-Type": "application/json",
-            },
         )
         if resp.code == 200:  # type: ignore
             content = yield treq.json_content(resp)
