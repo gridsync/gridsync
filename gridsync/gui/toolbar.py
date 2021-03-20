@@ -25,7 +25,7 @@ from gridsync.gui.font import Font
 
 if TYPE_CHECKING:
     from gridsync.gui.main_window import (
-        MainWindow
+        MainWindow,
     )  # pylint: disable=cyclic-import
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
