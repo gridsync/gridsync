@@ -34,7 +34,7 @@ class ZKAPAuthorizer:
         self.zkap_batch_size: int = 2 ** 15
 
     @inlineCallbacks
-    def _request(self, method: str, path: str, data: Optional = None):
+    def _request(self, method: str, path: str, data: Optional[bytes] = None):
         nodeurl = self.gateway.nodeurl
         api_token = self.gateway.api_token
         resp = yield treq.request(
