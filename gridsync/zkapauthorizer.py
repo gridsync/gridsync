@@ -14,7 +14,7 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 
 from gridsync.errors import TahoeWebError
-from gridsync.types import TwistedDeferred
+from gridsync.types import TreqResponse, TwistedDeferred
 from gridsync.voucher import generate_voucher
 
 
@@ -35,7 +35,9 @@ class ZKAPAuthorizer:
         self.zkap_batch_size: int = 2 ** 15
 
     @inlineCallbacks
-    def _request(self, method: str, path: str, data: Optional[bytes] = None):
+    def _request(
+        self, method: str, path: str, data: Optional[bytes] = None
+    ) -> TwistedDeferred[TreqResponse]:
         nodeurl = self.gateway.nodeurl
         api_token = self.gateway.api_token
         resp = yield treq.request(
