@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import webbrowser
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from humanize import naturalsize
 from PyQt5.QtCore import Qt
@@ -24,11 +26,16 @@ from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
+from gridsync.types import TwistedDeferred
 from gridsync.voucher import generate_voucher
+
+if TYPE_CHECKING:
+    from gridsync.gui import Gui
+    from gridsync.tahoe import Tahoe
 
 
 class UsageView(QWidget):
-    def __init__(self, gateway, gui):
+    def __init__(self, gateway: Tahoe, gui: Gui) -> None:
         super().__init__()
         self.gateway = gateway
         self.gui = gui
@@ -137,13 +144,13 @@ class UsageView(QWidget):
         )
 
     @Slot()
-    def on_voucher_link_clicked(self):
+    def on_voucher_link_clicked(self) -> None:
         voucher, ok = VoucherCodeDialog.get_voucher()
         if ok:
             self.gateway.zkapauthorizer.add_voucher(voucher)
 
     @inlineCallbacks
-    def _open_zkap_payment_url(self):  # XXX/TODO: Handle errors
+    def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
         voucher = generate_voucher()  # TODO: Cache to disk
         payment_url = self.gateway.zkapauthorizer.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)
@@ -154,13 +161,13 @@ class UsageView(QWidget):
         yield self.gateway.zkapauthorizer.add_voucher(voucher)
 
     @Slot()
-    def on_button_clicked(self):
+    def on_button_clicked(self) -> None:
         if self.is_commercial_grid:
             self._open_zkap_payment_url()
         else:
             self.on_voucher_link_clicked()
 
-    def _update_info_label(self):
+    def _update_info_label(self) -> None:
         zkapauthorizer = self.gateway.zkapauthorizer
         self.info_label.setText(
             f"Last purchase: {self._last_purchase_date} ("
@@ -170,7 +177,7 @@ class UsageView(QWidget):
         )
 
     @Slot(str)
-    def on_zkaps_redeemed(self, timestamp):
+    def on_zkaps_redeemed(self, timestamp: str) -> None:
         self._last_purchase_date = datetime.strftime(
             datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f"), "%d %b %Y"
         )
@@ -179,7 +186,7 @@ class UsageView(QWidget):
         self.chart_view.show()
         self._update_info_label()
 
-    def _update_chart(self):
+    def _update_chart(self) -> None:
         if self._zkaps_remaining:
             self.zkaps_required_label.hide()
             self.title.show()
@@ -194,14 +201,14 @@ class UsageView(QWidget):
         self.gui.main_window.toolbar.update_actions()  # XXX
 
     @Slot(int, int)
-    def on_zkaps_updated(self, used, remaining):
+    def on_zkaps_updated(self, used: int, remaining: int) -> None:
         self._zkaps_used = used
         self._zkaps_remaining = remaining
         self._zkaps_total = used + remaining
         self._update_chart()
 
     @Slot(int, int)
-    def on_zkaps_renewal_cost_updated(self, cost, period):
+    def on_zkaps_renewal_cost_updated(self, cost: int, period: int) -> None:
         self._zkaps_cost = cost
         self._zkaps_period = period
         self._update_chart()
