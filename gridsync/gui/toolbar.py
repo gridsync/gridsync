@@ -24,9 +24,9 @@ from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 
 if TYPE_CHECKING:
-    from gridsync.gui.main_window import (
+    from gridsync.gui.main_window import (  # pylint: disable=cyclic-import
         MainWindow,
-    )  # pylint: disable=cyclic-import
+    )
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
@@ -70,9 +70,9 @@ class ToolBar(QToolBar):
     history_action_triggered = Signal()
     usage_action_triggered = Signal()
 
-    def __init__(
+    def __init__(  # noqa: max-complexity
         self, main_window: MainWindow
-    ) -> None:  # noqa: max-complexity
+    ) -> None:
         super().__init__(parent=main_window)
         self.main_window = main_window
 
