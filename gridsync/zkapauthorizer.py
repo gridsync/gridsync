@@ -32,10 +32,6 @@ class ZKAPAuthorizer:
         self.zkap_dircap: str = ""
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2 ** 15
-        self.settings: dict = {}
-
-        # self.monitor.zkaps_redeemed.connect(self.backup_zkaps)
-        # self.monitor.sync_finished.connect(self.update_zkap_checkpoint)
 
     @inlineCallbacks
     def _request(self, method: str, path: str, data: Optional = None):
