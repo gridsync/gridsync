@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
 import sys
+from typing import TYPE_CHECKING, Optional
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtCore import pyqtSignal as Signal
@@ -21,9 +23,13 @@ from gridsync import resource, settings
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 
+if TYPE_CHECKING:
+    from gridsync.gui.main_window import MainWindow  # pylint: disable=cyclic-import
+    from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
+
 
 class ComboBox(QComboBox):
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.setFont(Font(10))
@@ -33,7 +39,7 @@ class ComboBox(QComboBox):
 
         self.activated.connect(self.on_activated)
 
-    def on_activated(self, index):
+    def on_activated(self, index: int) -> None:
         if index == self.count() - 1:  # If "Add new..." is selected
             self.setCurrentIndex(self.current_index)
         else:
@@ -41,7 +47,7 @@ class ComboBox(QComboBox):
         gateway = self.currentData()
         logging.debug("Selected %s", gateway.name)
 
-    def add_gateway(self, gateway):
+    def add_gateway(self, gateway: Tahoe) -> None:
         basename = os.path.basename(os.path.normpath(gateway.nodedir))
         icon = QIcon(os.path.join(gateway.nodedir, "icon"))
         if not icon.availableSizes():
@@ -62,7 +68,9 @@ class ToolBar(QToolBar):
     history_action_triggered = Signal()
     usage_action_triggered = Signal()
 
-    def __init__(self, main_window):  # noqa: max-complexity
+    def __init__(
+        self, main_window: MainWindow
+    ) -> None:  # noqa: max-complexity
         super().__init__(parent=main_window)
         self.main_window = main_window
 
@@ -277,7 +285,7 @@ class ToolBar(QToolBar):
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
-    def _update_action_visibility(self):
+    def _update_action_visibility(self) -> None:
         gateway = self.combo_box.currentData()
         if not gateway:
             return
@@ -300,7 +308,7 @@ class ToolBar(QToolBar):
                 except AttributeError:
                     pass
 
-    def _maybe_enable_actions(self):  # noqa: max-complexity
+    def _maybe_enable_actions(self) -> None:  # noqa: max-complexity
         gateway = self.combo_box.currentData()
         if not gateway:
             return
@@ -344,25 +352,25 @@ class ToolBar(QToolBar):
                 except AttributeError:
                     pass
 
-    def update_actions(self):
+    def update_actions(self) -> None:
         self._maybe_enable_actions()
         self._update_action_visibility()
 
-    def on_folders_activated(self):
+    def on_folders_activated(self) -> None:
         self.folders_button.setChecked(True)
         self.usage_button.setChecked(False)
         self.history_button.setChecked(False)
         self.update_actions()
         self.folders_action_triggered.emit()
 
-    def on_usage_activated(self):
+    def on_usage_activated(self) -> None:
         self.folders_button.setChecked(False)
         self.usage_button.setChecked(True)
         self.history_button.setChecked(False)
         self.update_actions()
         self.usage_action_triggered.emit()
 
-    def on_history_activated(self):
+    def on_history_activated(self) -> None:
         self.folders_button.setChecked(False)
         self.usage_button.setChecked(False)
         self.history_button.setChecked(True)
