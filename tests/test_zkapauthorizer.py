@@ -151,3 +151,110 @@ def test_zkap_payment_url_empty_zkap_payment_root_url(tahoe):
     zkapauthorizer.zkap_payment_url_root = ""
     url = zkapauthorizer.zkap_payment_url("TestVoucher")
     assert url == ""
+
+
+rootcap_json_content_with_zkaps = [
+    "dirnode",
+    {
+        "rw_uri": "URI:DIR2:aaaa:1111",
+        "verify_uri": "URI:DIR2-Verifier:bbbb:2222",
+        "ro_uri": "URI:DIR2-RO:cccc:3333",
+        "children": {
+            ".zkaps": [
+                "dirnode",
+                {
+                    "mutable": True,
+                    "verify_uri": "URI:DIR2-Verifier:dddd:4444",
+                    "ro_uri": "URI:DIR2-RO:eeee:5555",
+                    "rw_uri": "URI:DIR2:ffff:6666",
+                    "metadata": {
+                        "tahoe": {
+                            "linkmotime": 1616275885.477083,
+                            "linkcrtime": 1616275885.477083,
+                        }
+                    },
+                },
+            ],
+        },
+        "mutable": True,
+    },
+]
+
+rootcap_json_content_without_zkaps = [
+    "dirnode",
+    {
+        "rw_uri": "URI:DIR2:aaaa:1111",
+        "verify_uri": "URI:DIR2-Verifier:bbbb:2222",
+        "ro_uri": "URI:DIR2-RO:cccc:3333",
+        "children": {
+            "Cat Pics": [
+                "dirnode",
+                {
+                    "mutable": True,
+                    "verify_uri": "URI:DIR2-Verifier:dddd:4444",
+                    "ro_uri": "URI:DIR2-RO:eeee:5555",
+                    "rw_uri": "URI:DIR2:ffff:6666",
+                    "metadata": {
+                        "tahoe": {
+                            "linkmotime": 1616275885.477083,
+                            "linkcrtime": 1616275885.477083,
+                        }
+                    },
+                },
+            ],
+        },
+        "mutable": True,
+    },
+]
+
+
+@inlineCallbacks
+def test_get_zkap_dircap_from_rootcap(tahoe, monkeypatch):
+    tahoe.rootcap = "URI:DIR2:aaaa:1111"
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json",
+        Mock(return_value=rootcap_json_content_with_zkaps),
+    )
+    result = yield ZKAPAuthorizer(tahoe).get_zkap_dircap()
+    assert result == "URI:DIR2:ffff:6666"
+
+
+@inlineCallbacks
+def test_get_zkap_dircap_without_rootcap(tahoe, monkeypatch):
+    tahoe.rootcap = ""
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.create_rootcap", Mock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json",
+        Mock(return_value=rootcap_json_content_with_zkaps),
+    )
+    result = yield ZKAPAuthorizer(tahoe).get_zkap_dircap()
+    assert result == "URI:DIR2:ffff:6666"
+
+
+@inlineCallbacks
+def test_get_zkap_dircap_from_attribute_cache(tahoe, monkeypatch):
+    tahoe.rootcap = "URI:DIR2:aaaa:1111"
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json",
+        Mock(return_value=rootcap_json_content_with_zkaps),
+    )
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    zkapauthorizer.zkap_dircap = "URI:DIR2:gggg:7777"
+    result = yield zkapauthorizer.get_zkap_dircap()
+    assert result == "URI:DIR2:gggg:7777"
+
+
+@inlineCallbacks
+def test_get_zkap_dircap_mkdir_if_missing(tahoe, monkeypatch):
+    tahoe.rootcap = "URI:DIR2:aaaa:1111"
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json",
+        Mock(return_value=rootcap_json_content_without_zkaps),
+    )
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.mkdir",
+        Mock(return_value="URI:DIR2:hhhh:8888"),
+    )
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    result = yield zkapauthorizer.get_zkap_dircap()
+    assert result == "URI:DIR2:hhhh:8888"
