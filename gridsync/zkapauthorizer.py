@@ -86,7 +86,7 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def get_zkaps(
-        self, limit: Optional[int] = None, position: Optional[str] = None
+        self, limit: Optional[int] = 0, position: Optional[str] = None
     ) -> TwistedDeferred[bytes]:
         query_params = []
         if limit:
