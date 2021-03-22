@@ -114,10 +114,10 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def get_zkap_dircap(self) -> TwistedDeferred[str]:
-        if not self.gateway.get_rootcap():
-            yield self.gateway.create_rootcap()
         if self.zkap_dircap:
             return self.zkap_dircap
+        if not self.gateway.get_rootcap():
+            yield self.gateway.create_rootcap()
         root_json = yield self.gateway.get_json(self.gateway.rootcap)
         try:
             self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]  # type: ignore
