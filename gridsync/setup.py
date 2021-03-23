@@ -44,6 +44,7 @@ def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
     url = settings.get("zkap_payment_url_root")
     if url:
         hosts.add(urlparse(url).hostname)
+    zkapauthz = False
     storage_servers = settings.get("storage")
     if storage_servers:
         for data in storage_servers.values():
@@ -51,10 +52,12 @@ def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
             if not storage_options:
                 continue
             for group in storage_options:
+                if group.get("name") == "privatestorageio-zkapauthz-v1":
+                    zkapauthz = True
                 url = group.get("ristretto-issuer-root-url")
                 if url:
                     hosts.add(urlparse(url).hostname)
-    if hosts:
+    if zkapauthz or hosts:
         return (True, hosts)
     return (False, hosts)
 
