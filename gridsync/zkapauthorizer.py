@@ -117,7 +117,7 @@ class ZKAPAuthorizer:
         root_json = yield self.gateway.get_json(self.gateway.rootcap)
         try:
             self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]  # type: ignore
-        except KeyError:
+        except (KeyError, TypeError):
             self.zkap_dircap = yield self.gateway.mkdir(
                 self.gateway.rootcap, ".zkaps"
             )
