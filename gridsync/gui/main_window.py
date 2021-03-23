@@ -62,7 +62,7 @@ class CentralWidget(QStackedWidget):
         self.history_views[gateway] = view
 
     def _add_usage_view(self, gateway):
-        gateway.load_settings()  # To ensure that zkap_name is read/updated
+        gateway.load_settings()  # Ensure that zkap_unit_name is read/updated
         view = UsageView(gateway, self.gui)
         widget = QWidget()
         layout = QGridLayout(widget)

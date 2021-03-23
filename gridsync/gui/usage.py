@@ -172,7 +172,7 @@ class UsageView(QWidget):
         self.info_label.setText(
             f"Last purchase: {self._last_purchase_date} ("
             f"{self.chart_view.chart._convert(zkapauthorizer.zkap_batch_size)} "
-            f"{zkapauthorizer.zkap_unit_name_abbrev}s)     "
+            f"{zkapauthorizer.zkap_unit_name}s)     "
             f"Expected expiry: {self._expiry_date}"
         )
 

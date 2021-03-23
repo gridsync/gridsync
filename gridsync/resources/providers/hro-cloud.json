@@ -1,9 +1,7 @@
 {
   "version": "1",
   "nickname": "HRO Cloud",
-  "zkap_name": "HRO Grid Credit",
   "zkap_unit_name": "GB-month",
-  "zkap_unit_name_abbrev": "GB-month",
   "zkap_unit_multiplier": 0.001,
   "shares-needed": "2",
   "shares-happy": "3",

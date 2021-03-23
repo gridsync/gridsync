@@ -309,13 +309,13 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def ensure_recovery(self, settings):
+        zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
             self.gateway.save_settings(settings)  # XXX Unnecessary?
-            zkapauthz, _ = is_zkap_grid(settings)
             if zkapauthz:
                 yield self.gateway.zkapauthorizer.restore_zkaps()
-        elif settings.get("zkap_name"):
+        elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
             self.update_progress.emit("Generating Recovery Key...")

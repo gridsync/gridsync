@@ -27,12 +27,7 @@ class ZKAPAuthorizer:
         self.gateway = gateway
         self.zkapsdir = os.path.join(self.gateway.nodedir, "private", "zkaps")
 
-        self.zkap_name: str = "Zero-Knowledge Access Pass"
-        self.zkap_name_abbrev: str = "ZKAP"
-        self.zkap_name_plural: str = "Zero-Knowledge Access Passes"
-        self.zkap_unit_name: str = "Zero-Knowledge Access Pass"
-        self.zkap_unit_name_abbrev: str = "ZKAP"
-        self.zkap_unit_name_plural: str = "Zero-Knowledge Access Passes"
+        self.zkap_unit_name: str = "MB-month"
         self.zkap_unit_multiplier: int = 1
         self.zkap_payment_url_root: str = ""
         self.zkap_dircap: str = ""

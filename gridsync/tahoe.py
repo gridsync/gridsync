@@ -193,7 +193,7 @@ class Tahoe:
             ) as f:
                 f.write(newscap)
 
-    def load_settings(self):  # noqa: max-complexity=12
+    def load_settings(self):
         try:
             with open(Path(self.nodedir, "private", "settings.json")) as f:
                 settings = json.loads(f.read())
@@ -220,26 +220,9 @@ class Tahoe:
         if not settings.get("rootcap"):
             settings["rootcap"] = self.get_rootcap()
 
-        zkap_name = settings.get("zkap_name", "")
-        if zkap_name:
-            self.zkapauthorizer.zkap_name = zkap_name
-            self.zkapauthorizer.zkap_name_abbrev = "".join(
-                [c for c in zkap_name if c.isupper()]
-            )
-            suffix = "es" if zkap_name.endswith("s") else "s"  # XXX
-            self.zkapauthorizer.zkap_name_plural = f"{zkap_name}{suffix}"
-
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
             self.zkapauthorizer.zkap_unit_name = zkap_unit_name
-            suffix = "es" if zkap_unit_name.endswith("s") else "s"  # XXX
-            self.zkapauthorizer.zkap_unit_name_plural = (
-                f"{zkap_unit_name}{suffix}"
-            )
-
-        zkap_unit_name_abbrev = settings.get("zkap_unit_name_abbrev", "")
-        if zkap_unit_name_abbrev:
-            self.zkapauthorizer.zkap_unit_name_abbrev = zkap_unit_name_abbrev
 
         zkap_unit_multiplier = settings.get("zkap_unit_multiplier", 0)
         if zkap_unit_multiplier:
