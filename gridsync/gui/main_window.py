@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
                 self.multiple_grids_enabled = False
 
         self.setWindowTitle(APP_NAME)
-        self.setMinimumSize(QSize(700, 450))
+        self.setMinimumSize(QSize(740, 465))
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.setContextMenuPolicy(Qt.NoContextMenu)
 
