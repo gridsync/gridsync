@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 class ZKAPAuthorizer:
     def __init__(self, gateway: Tahoe) -> None:
         self.gateway = gateway
+        self.zkapsdir = os.path.join(self.gateway.nodedir, "private", "zkaps")
 
         self.zkap_name: str = "Zero-Knowledge Access Pass"
         self.zkap_name_abbrev: str = "ZKAP"
@@ -133,15 +134,14 @@ class ZKAPAuthorizer:
     ) -> TwistedDeferred[None]:
         if not self.gateway.zkap_auth_required:
             return
-        zkaps_dir = os.path.join(self.gateway.nodedir, "private", "zkaps")
-        os.makedirs(zkaps_dir, exist_ok=True)
+        os.makedirs(self.zkapsdir, exist_ok=True)
 
         # The act of updating the checkpoint itself costs at least 1
         # ZKAP, so use the *second* token as the "checkpoint" (on the
         # assumption that the first/next token will be spent imminently)
         zkaps = yield self.get_zkaps(2)
         checkpoint = zkaps.get("unblinded-tokens")[1]  # type: ignore
-        checkpoint_path = os.path.join(zkaps_dir, "checkpoint")
+        checkpoint_path = os.path.join(self.zkapsdir, "checkpoint")
         with atomic_write(checkpoint_path, overwrite=True) as f:
             f.write(checkpoint.strip())
 
@@ -151,16 +151,15 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def backup_zkaps(self, timestamp: str) -> TwistedDeferred[None]:
-        zkaps_dir = os.path.join(self.gateway.nodedir, "private", "zkaps")
-        os.makedirs(zkaps_dir, exist_ok=True)
+        os.makedirs(self.zkapsdir, exist_ok=True)
 
         local_backup_filename = timestamp.replace(":", "_") + ".json"
-        local_backup_path = os.path.join(zkaps_dir, local_backup_filename)
+        local_backup_path = os.path.join(self.zkapsdir, local_backup_filename)
         if os.path.exists(local_backup_path):
             log.debug("ZKAP backup %s already uploaded", local_backup_filename)
             return
         try:
-            with open(os.path.join(zkaps_dir, "last-redeemed")) as f:
+            with open(os.path.join(self.zkapsdir, "last-redeemed")) as f:
                 if timestamp == f.read():
                     log.debug(
                         "No ZKAP backup needed for %s; cancelling", timestamp
@@ -169,7 +168,7 @@ class ZKAPAuthorizer:
         except OSError:
             pass
 
-        temp_path = os.path.join(zkaps_dir, "backup.json.tmp")
+        temp_path = os.path.join(self.zkapsdir, "backup.json.tmp")
 
         zkaps = yield self.get_zkaps()
         zkaps["last-redeemed"] = timestamp  # type: ignore
@@ -219,16 +218,15 @@ class ZKAPAuthorizer:
 
         yield self.insert_zkaps(tokens[tokens.index(checkpoint) :])
 
-        zkaps_dir = os.path.join(self.gateway.nodedir, "private", "zkaps")
-        os.makedirs(zkaps_dir, exist_ok=True)
+        os.makedirs(self.zkapsdir, exist_ok=True)
 
         with atomic_write(
-            str(Path(zkaps_dir, "last-redeemed")), overwrite=True
+            str(Path(self.zkapsdir, "last-redeemed")), overwrite=True
         ) as f:
             f.write(str(backup_decoded.get("last-redeemed")))
 
         with atomic_write(
-            str(Path(zkaps_dir, "last-total")), overwrite=True
+            str(Path(self.zkapsdir, "last-total")), overwrite=True
         ) as f:
             f.write(str(backup_decoded.get("total")))
 
