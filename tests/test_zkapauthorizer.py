@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -258,3 +259,50 @@ def test_get_zkap_dircap_mkdir_if_missing(tahoe, monkeypatch):
     zkapauthorizer = ZKAPAuthorizer(tahoe)
     result = yield zkapauthorizer.get_zkap_dircap()
     assert result == "URI:DIR2:hhhh:8888"
+
+
+get_zkaps_json_output = {
+    "unblinded-tokens": ["TESTZKAP1111", "TESTZKAP2222", "TESTZKAP3333"],
+    "total": 50000,
+    "lease-maintenance-spending": None,
+}
+
+
+@inlineCallbacks
+def test_update_zkap_checkpoint_write_checkpoint_to_disk(tahoe, monkeypatch):
+    tahoe.zkap_auth_required = True
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    zkapauthorizer.zkap_dircap = "URI:TestZKAPDircap"
+    monkeypatch.setattr(
+        "gridsync.zkapauthorizer.ZKAPAuthorizer.get_zkaps",
+        Mock(return_value=get_zkaps_json_output),
+    )
+    fake_upload = Mock(return_value="URI:TestCheckpointFilecap")
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
+    fake_link = Mock()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    yield zkapauthorizer.update_zkap_checkpoint(None)
+    checkpoint_path = Path(zkapauthorizer.zkapsdir, "checkpoint")
+    with open(checkpoint_path) as f:
+        assert f.read() == "TESTZKAP2222"
+
+
+@inlineCallbacks
+def test_update_zkap_checkpoint_link_to_zkap_dircap(tahoe, monkeypatch):
+    tahoe.zkap_auth_required = True
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    zkapauthorizer.zkap_dircap = "URI:TestZKAPDircap"
+    monkeypatch.setattr(
+        "gridsync.zkapauthorizer.ZKAPAuthorizer.get_zkaps",
+        Mock(return_value=get_zkaps_json_output),
+    )
+    fake_upload = Mock(return_value="URI:TestCheckpointFilecap")
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
+    fake_link = Mock()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    yield zkapauthorizer.update_zkap_checkpoint(None)
+    assert fake_link.call_args[0] == (
+        "URI:TestZKAPDircap",  # dircap
+        "checkpoint",  # childname
+        "URI:TestCheckpointFilecap",  # childcap
+    )
