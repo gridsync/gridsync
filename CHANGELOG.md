@@ -9,6 +9,7 @@
 - Added support for building backward-compatible AppImages inside a CentOS 7-based container via `make in-container` (Issue #328; PR #329)
 - Gridsync AppImages can now be built reproducibly across many common host environments (including Debian 10, Fedora 32, Ubuntu 20.04 LTS, and Ubuntu 20.10) using `make in-container` (Issue #330; PR #335)
 - Gridsync binaries created with PyInstaller now build reproducibly on macOS and Windows (Issue #331, #332; PR #337)
+- Added preliminary support for ZKAPAuthorizer-enabled storage grids (Issue #238; PR #338)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.9 (Issue #316; PR #336)
