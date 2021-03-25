@@ -159,13 +159,6 @@ Alternatively, users with `docker` installed can use the CentOS 7-based `gridsyn
 .. _gridsync-builder: https://hub.docker.com/repository/docker/gridsync/gridsync-builder
 
 
-**Development builds:**
-
-Unsigned binary distributions (currently tracking the `master` branch) are also available from the `project buildbot's "artifacts" directory`_. These packages, however, should not be considered trustworthy or reliable in any way and are made available only for testing purposes by developers. Please excercise appropriate caution when using these files (ideally by downloading and running them inside a disposable virtual machine).
-
-.. _project buildbot's "artifacts" directory: https://buildbot.gridsync.io/artifacts/
-
-
 Known issues and limitations:
 -----------------------------
 
