@@ -1,0 +1,89 @@
+{
+  "version": "2",
+  "nickname": "HRO Cloud",
+  "zkap_unit_name": "GB-month",
+  "zkap_unit_multiplier": 0.001,
+  "shares-needed": "4",
+  "shares-happy": "2",
+  "shares-total": "6",
+  "storage": {
+    "v0-lvzdjo7glbk63sgfqg5c7obzh4iohwrxjnnhvquoelb4jcs735hq": {
+      "nickname": "storage001",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://f7k2u2y37tx4nl7wmnxfmjrddzxe6xdj@tcp:storage001.deerfield.leastauthority.com:8898/66jzneljj33yz6aafzisdzwwxbkqbejm",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
+          "pass-value": 1000000,
+	  "default-token-count": 50000
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    },
+    "v0-amkofc7ezs4xb7ivqhzu7y55ahjftl7ce5eb3uaatgjhygxr2yma": {
+      "nickname": "storage002",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://35uweljc5o6tq2pbbwbbabvfpwqphicc@tcp:104.144.74.50:8898/5qspucvk47jd2653hlwuqjze6dgwqvvf",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
+          "pass-value": 1000000,
+	  "default-token-count": 50000
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    },
+    "v0-wt2ntsujirdtviujlywrprmqbpzuolterfuxhwe6td3sszufpxbq": {
+      "nickname": "storage003",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://vdka3hbufgvqzu4i23qeexndomszioc2@tcp:151.80.28.108:8898/o6mrmo2ivjd4wppujl6jc52a47otnydp",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
+          "pass-value": 1000000,
+	  "default-token-count": 50000
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    },
+    "v0-cwrjfbxp2yv7dvpfhyb4lyavmwahxaq3o2hvewldu2z2qtgsjndq": {
+      "nickname": "storage004",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://slxbm5mk3fw6lbsufxnaz6eg2hjmzeyf@tcp:storage004.deerfield.leastauthority.com:8898/4i745ogos2mnwb3vqirjwocv43tp5cy4",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
+          "pass-value": 1000000,
+	  "default-token-count": 50000
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    },
+    "v0-ni2dnhmid5nvoij4c5mlup3nih7xvx2752u6mcoimc6db367m7ka": {
+      "nickname": "storage005",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://mo6aesc436hynf6wfvifyahknyvwrujf@tcp:storage005.deerfield.leastauthority.com:8898/7niauyocv2sld2ygvxqp24uwtv7z434b",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
+          "pass-value": 1000000,
+	  "default-token-count": 50000
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    },
+    "v0-5ma5fqomiv5cguqtcpzpqnzsxots74ehaorqgz7ayf44oatusjdq": {
+      "nickname": "storage006",
+      "storage-options": [
+        {
+          "name": "privatestorageio-zkapauthz-v1",
+          "storage-server-FURL": "pb://skqryuyopri2br2b3zgnp5pwbwvmm4ad@tcp:storage006.deerfield.leastauthority.com:8898/kdtm3mazna6p67bpq3e2mnllz4ycv3bu",
+          "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
+          "pass-value": 1000000,
+	  "default-token-count": 50000
+        }
+      ],
+      "anonymous-storage-FURL": "pb://@tcp:/"
+    }
+  }
+}
