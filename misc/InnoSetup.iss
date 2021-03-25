@@ -1,5 +1,5 @@
 #define MyAppName "Gridsync"
-#define MyAppVersion "0.4.3"
+#define MyAppVersion "0.5.0rc1"
 
 [Setup]
 AppName={#MyAppName}
