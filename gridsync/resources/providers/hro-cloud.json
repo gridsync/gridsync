@@ -15,7 +15,7 @@
           "storage-server-FURL": "pb://f7k2u2y37tx4nl7wmnxfmjrddzxe6xdj@tcp:storage001.deerfield.leastauthority.com:8898/66jzneljj33yz6aafzisdzwwxbkqbejm",
           "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
           "pass-value": 1000000,
-	  "default-token-count": 50000
+          "default-token-count": 50000
         }
       ],
       "anonymous-storage-FURL": "pb://@tcp:/"
@@ -28,7 +28,7 @@
           "storage-server-FURL": "pb://35uweljc5o6tq2pbbwbbabvfpwqphicc@tcp:storage002.deerfield.leastauthority.com:8898/5qspucvk47jd2653hlwuqjze6dgwqvvf",
           "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
           "pass-value": 1000000,
-	  "default-token-count": 50000
+          "default-token-count": 50000
         }
       ],
       "anonymous-storage-FURL": "pb://@tcp:/"
@@ -41,7 +41,7 @@
           "storage-server-FURL": "pb://vdka3hbufgvqzu4i23qeexndomszioc2@tcp:storage003.deerfield.leastauthority.com:8898/o6mrmo2ivjd4wppujl6jc52a47otnydp",
           "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
           "pass-value": 1000000,
-	  "default-token-count": 50000
+          "default-token-count": 50000
         }
       ],
       "anonymous-storage-FURL": "pb://@tcp:/"
@@ -54,7 +54,7 @@
           "storage-server-FURL": "pb://slxbm5mk3fw6lbsufxnaz6eg2hjmzeyf@tcp:storage004.deerfield.leastauthority.com:8898/4i745ogos2mnwb3vqirjwocv43tp5cy4",
           "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
           "pass-value": 1000000,
-	  "default-token-count": 50000
+          "default-token-count": 50000
         }
       ],
       "anonymous-storage-FURL": "pb://@tcp:/"
@@ -67,7 +67,7 @@
           "storage-server-FURL": "pb://mo6aesc436hynf6wfvifyahknyvwrujf@tcp:storage005.deerfield.leastauthority.com:8898/7niauyocv2sld2ygvxqp24uwtv7z434b",
           "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
           "pass-value": 1000000,
-	  "default-token-count": 50000
+          "default-token-count": 50000
         }
       ],
       "anonymous-storage-FURL": "pb://@tcp:/"
@@ -80,7 +80,7 @@
           "storage-server-FURL": "pb://skqryuyopri2br2b3zgnp5pwbwvmm4ad@tcp:storage006.deerfield.leastauthority.com:8898/kdtm3mazna6p67bpq3e2mnllz4ycv3bu",
           "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
           "pass-value": 1000000,
-	  "default-token-count": 50000
+          "default-token-count": 50000
         }
       ],
       "anonymous-storage-FURL": "pb://@tcp:/"
