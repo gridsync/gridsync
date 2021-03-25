@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import treq
 from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
-from twisted.internet.error import ConnectError
 
 from gridsync.errors import TahoeWebError
 from gridsync.types import TreqResponse, TwistedDeferred
