@@ -252,7 +252,7 @@ class ZKAPAuthorizer:
     def get_sizes(self) -> TwistedDeferred[List[Optional[int]]]:
         sizes: list = []
         rootcap = self.gateway.get_rootcap()
-        rootcap_bytes = yield self.get_bytes(f"{rootcap}/?t=json")
+        rootcap_bytes = yield self._get_content(f"{rootcap}/?t=json")
         if not rootcap_bytes:
             return sizes
         sizes.append(len(rootcap_bytes))
@@ -264,7 +264,7 @@ class ZKAPAuthorizer:
                 if rw_uri:  # Only care about dirs the user can write to
                     dircaps.append(rw_uri)
             for dircap in dircaps:
-                dircap_bytes = yield self.get_bytes(f"{dircap}/?t=json")
+                dircap_bytes = yield self._get_content(f"{dircap}/?t=json")
                 sizes.append(len(dircap_bytes))
                 dircap_data = json.loads(dircap_bytes.decode("utf-8"))
                 for data in dircap_data[1]["children"].values():
