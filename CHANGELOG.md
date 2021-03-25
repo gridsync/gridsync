@@ -10,6 +10,7 @@
 - Gridsync AppImages can now be built reproducibly across many common host environments (including Debian 10, Fedora 32, Ubuntu 20.04 LTS, and Ubuntu 20.10) using `make in-container` (Issue #330; PR #335)
 - Gridsync binaries created with PyInstaller now build reproducibly on macOS and Windows (Issue #331, #332; PR #337)
 - Added preliminary support for ZKAPAuthorizer-enabled storage grids (Issue #238; PR #338)
+- Added a `0-hro-cloud` "[cheat code](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md)" for Least Authority's "[HRO Cloud](https://leastauthority.com/blog/the-hro-cloud-least-authority-launches-secure-cloud-storage-for-human-rights-organizations/)" (Issue #339; PR #340)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.9 (Issue #316; PR #336)
