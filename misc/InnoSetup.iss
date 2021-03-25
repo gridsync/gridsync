@@ -20,7 +20,6 @@ UsePreviousPrivileges=no
 UsePreviousSetupType=no
 UsePreviousTasks=no
 UsePreviousUserInfo=no
-VersionInfoVersion={#MyAppVersion}
 WizardStyle=modern
 
 [Files]
