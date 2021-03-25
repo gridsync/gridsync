@@ -102,11 +102,8 @@ To install and run Gridsync on Windows (64-bit only; supporting Windows Server 2
 2. Run the executable installer and follow/complete the setup wizard
 3. Select "Launch Gridsync" when installation is finished
 
-Alternatively, Windows users who do not wish to use the executable installer can download and verify `Gridsync-Windows.zip`_, extract the enclosed "Gridsync" folder anywhere, and run `Gridsync.exe`.
-
 .. _Gridsync-Windows-setup.exe: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
-.. _Gridsync-Windows.zip: https://github.com/gridsync/gridsync/releases
 
 
 **From source:**
