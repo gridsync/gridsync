@@ -37,4 +37,6 @@ Currently, the following "cheat codes" are available in Gridsync:
 
 - `0-demo-grid`: A low-capacity, single-node storage grid intended for live demonstration and testing purposes only. Shares stored on this grid will be deleted periodically; do not use it for anything important!
 
+- `0-hro-cloud`: "A secure file storage system to human rights organizations that cannot or do not want to host and maintain their own storage servers" provided by Least Authority. See [this blog post](https://leastauthority.com/blog/the-hro-cloud-least-authority-launches-secure-cloud-storage-for-human-rights-organizations/) for futher details.
+
 If you are a public storage provider and would like your grid's connection settings to be available for all users of Gridsync, please open a pull request with your grid's connection settings as described above (i.e., by adding the appropriate JSON file to the `gridsync/resources/providers` directory). For an example of keys/values that are acceptable for a grid connection, see [`docs/example-invite.json`](https://github.com/gridsync/gridsync/blob/master/docs/example-invite.json).
