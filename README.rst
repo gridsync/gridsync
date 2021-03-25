@@ -87,7 +87,7 @@ To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and
 .. _Gridsync-Linux.AppImage: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on macOS (64-bit only; supporting macOS 10.13 "High Sierra" and above):
+To install and run Gridsync on macOS (64-bit only; supporting macOS 10.14 "Mojave" and above):
 
 1. Download `Gridsync-macOS.dmg`_ (and `verify`_ its signature)
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
