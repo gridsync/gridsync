@@ -193,7 +193,6 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
-        yield self.gateway.await_ready()
         resp = yield treq.get(f"{self.gateway.nodeurl}uri/{cap}")
         content = yield treq.content(resp)
         if resp.code == 200:  # type: ignore
@@ -203,6 +202,7 @@ class ZKAPAuthorizer:
     @inlineCallbacks
     def restore_zkaps(self) -> TwistedDeferred[None]:
         zkap_dircap = yield self.get_zkap_dircap()
+        yield self.gateway.await_ready()
 
         backup = yield self._get_content(zkap_dircap + "/backup.json")  # type: ignore
         backup_decoded = json.loads(backup.decode())  # type: ignore
