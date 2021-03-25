@@ -194,10 +194,10 @@ class ZKAPAuthorizer:
     @inlineCallbacks
     def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
         resp = yield treq.get(f"{self.gateway.nodeurl}uri/{cap}")
-        content = yield treq.content(resp)
         if resp.code == 200:  # type: ignore
+            content = yield treq.content(resp)
             return content
-        raise TahoeWebError(content.decode("utf-8"))  # type: ignore
+        raise TahoeWebError(f"Error getting cap content: {resp.code}")  # type: ignore
 
     @inlineCallbacks
     def restore_zkaps(self) -> TwistedDeferred[None]:
@@ -233,20 +233,6 @@ class ZKAPAuthorizer:
             content = yield treq.json_content(resp)
             version = content.get("version", "")  # type: ignore
         return version
-
-    @inlineCallbacks
-    def get_bytes(self, cap: str) -> TwistedDeferred[bytes]:
-        nodeurl = self.gateway.nodeurl
-        if not cap or not nodeurl:
-            return b""
-        try:
-            resp = yield treq.get(f"{nodeurl}uri/{cap}")
-        except ConnectError:
-            return b""
-        if resp.code == 200:  # type: ignore
-            content = yield treq.content(resp)
-            return content
-        raise TahoeWebError(f"Error getting bytes: {resp.code}")  # type: ignore
 
     @inlineCallbacks
     def get_sizes(self) -> TwistedDeferred[List[Optional[int]]]:
