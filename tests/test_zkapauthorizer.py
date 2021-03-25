@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -282,8 +283,7 @@ def test_update_zkap_checkpoint_write_checkpoint_to_disk(tahoe, monkeypatch):
     fake_link = Mock()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
     yield zkapauthorizer.update_zkap_checkpoint(None)
-    checkpoint_path = Path(zkapauthorizer.zkapsdir, "checkpoint")
-    with open(checkpoint_path) as f:
+    with open(Path(zkapauthorizer.zkapsdir, "checkpoint")) as f:
         assert f.read() == "TESTZKAP2222"
 
 
@@ -306,3 +306,113 @@ def test_update_zkap_checkpoint_link_to_zkap_dircap(tahoe, monkeypatch):
         "checkpoint",  # childname
         "URI:TestCheckpointFilecap",  # childcap
     )
+
+
+@inlineCallbacks
+def test_update_zkap_checkpoint_cancel_if_not_zkap_auth(tahoe, monkeypatch):
+    tahoe.zkap_auth_required = False
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    zkapauthorizer.zkap_dircap = "URI:TestZKAPDircap"
+    monkeypatch.setattr(
+        "gridsync.zkapauthorizer.ZKAPAuthorizer.get_zkaps",
+        Mock(return_value=get_zkaps_json_output),
+    )
+    fake_upload = Mock(return_value="URI:TestCheckpointFilecap")
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
+    fake_link = Mock()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    yield zkapauthorizer.update_zkap_checkpoint(None)
+    assert fake_upload.call_count == 0
+
+
+@inlineCallbacks
+def test_backup_zkaps_write_zkaps_to_disk(tahoe, monkeypatch):
+    tahoe.zkap_auth_required = True
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    zkapauthorizer.zkap_dircap = "URI:TestZKAPDircap"
+    monkeypatch.setattr(
+        "gridsync.zkapauthorizer.ZKAPAuthorizer.get_zkaps",
+        Mock(return_value=get_zkaps_json_output),
+    )
+    fake_upload = Mock(return_value="URI:TestBackupFilecap")
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
+    fake_link = Mock()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    yield zkapauthorizer.backup_zkaps("1234567890")
+    expected = dict(get_zkaps_json_output)
+    expected.update({"last-redeemed": "1234567890"})
+    with open(Path(zkapauthorizer.zkapsdir, "1234567890.json")) as f:
+        assert json.loads(f.read()) == expected
+
+
+@inlineCallbacks
+def test_backup_zkaps_cancel_upload_if_already_exists(tahoe, monkeypatch):
+    tahoe.zkap_auth_required = True
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    zkapauthorizer.zkap_dircap = "URI:TestZKAPDircap"
+    monkeypatch.setattr(
+        "gridsync.zkapauthorizer.ZKAPAuthorizer.get_zkaps",
+        Mock(return_value=get_zkaps_json_output),
+    )
+    fake_upload = Mock(return_value="URI:TestBackupFilecap")
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
+    fake_link = Mock()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    Path(zkapauthorizer.zkapsdir).mkdir()
+    Path(zkapauthorizer.zkapsdir, "1234567890.json").touch()
+    yield zkapauthorizer.backup_zkaps("1234567890")
+    assert fake_upload.call_count == 0
+
+
+@inlineCallbacks
+def test_backup_zkaps_cancel_upload_if_timestamp_matches(tahoe, monkeypatch):
+    tahoe.zkap_auth_required = True
+    zkapauthorizer = ZKAPAuthorizer(tahoe)
+    zkapauthorizer.zkap_dircap = "URI:TestZKAPDircap"
+    monkeypatch.setattr(
+        "gridsync.zkapauthorizer.ZKAPAuthorizer.get_zkaps",
+        Mock(return_value=get_zkaps_json_output),
+    )
+    fake_upload = Mock(return_value="URI:TestBackupFilecap")
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
+    fake_link = Mock()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    Path(zkapauthorizer.zkapsdir).mkdir()
+    with open(Path(zkapauthorizer.zkapsdir, "last-redeemed"), "w") as f:
+        f.write("1234567890")
+    yield zkapauthorizer.backup_zkaps("1234567890")
+    assert fake_upload.call_count == 0
+
+
+@inlineCallbacks
+def test_insert_zkaps(tahoe, monkeypatch):
+    monkeypatch.setattr("treq.request", fake_treq_request_resp_code_200())
+    monkeypatch.setattr("treq.json_content", Mock(return_value={}))
+    result = yield ZKAPAuthorizer(tahoe).insert_zkaps(["AAA", "BBB", "CCC"])
+    assert result == {}
+
+
+@inlineCallbacks
+def test_insert_zkaps_raise_tahoe_web_error(tahoe, monkeypatch):
+    monkeypatch.setattr("treq.request", fake_treq_request_resp_code_500())
+    monkeypatch.setattr("treq.json_content", Mock(return_value={}))
+    with pytest.raises(TahoeWebError):
+        yield ZKAPAuthorizer(tahoe).insert_zkaps(["AAA", "BBB", "CCC"])
+
+
+@inlineCallbacks
+def test__get_content(tahoe, monkeypatch):
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
+    monkeypatch.setattr("treq.get", fake_treq_request_resp_code_200())
+    monkeypatch.setattr("treq.content", Mock(return_value=b"test"))
+    result = yield ZKAPAuthorizer(tahoe)._get_content("URI:TEST")
+    assert result == b"test"
+
+
+@inlineCallbacks
+def test__get_content_raise_tahoe_web_error(tahoe, monkeypatch):
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
+    monkeypatch.setattr("treq.get", fake_treq_request_resp_code_500())
+    monkeypatch.setattr("treq.content", Mock(return_value=b"test"))
+    with pytest.raises(TahoeWebError):
+        yield ZKAPAuthorizer(tahoe)._get_content("URI:TEST")
