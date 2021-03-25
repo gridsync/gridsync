@@ -13,6 +13,7 @@ from gridsync.errors import TorError, UpgradeRequiredError
 from gridsync.setup import (
     SetupRunner,
     is_onion_grid,
+    is_zkap_grid,
     prompt_for_folder_name,
     prompt_for_grid_name,
     validate_folders,
@@ -65,6 +66,41 @@ from gridsync.tahoe import Tahoe
 )
 def test_is_onion_grid(settings, result):
     assert is_onion_grid(settings) == result
+
+
+@pytest.mark.parametrize(
+    "settings,result",
+    [
+        [{}, (False, set())],
+        [
+            {
+                "nickname": "TestGrid",
+                "zkap_payment_url_root": "https://example.org/payment/",
+                "storage": {
+                    "v0-aaaaaaaa": {
+                        "nickname": "storage001",
+                        "storage-options": [
+                            {
+                                "ristretto-issuer-root-url": "https://payments.example.org/"
+                            }
+                        ],
+                    },
+                    "v0-bbbbbbbb": {
+                        "nickname": "storage002",
+                        "storage-options": [
+                            {
+                                "ristretto-issuer-root-url": "https://payments.example.org/"
+                            }
+                        ],
+                    },
+                },
+            },
+            (True, {"example.org", "payments.example.org"}),
+        ],
+    ],
+)
+def test_is_zkap_grid(settings, result):
+    assert is_zkap_grid(settings) == result
 
 
 def test_prompt_for_grid_name(monkeypatch):
@@ -567,7 +603,7 @@ def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
 def test_run_raise_upgrade_required_error():
     sr = SetupRunner([])
     with pytest.raises(UpgradeRequiredError):
-        yield sr.run({"version": 9999})
+        yield sr.run({"version": 3})
 
 
 @inlineCallbacks

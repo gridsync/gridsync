@@ -13,3 +13,8 @@ class BlendedColor(QColor):
             int(pct_a * color_a.blue() + pct_b * color_b.blue()),
             int(pct_a * color_a.alpha() + pct_b * color_b.alpha()),
         )
+
+
+def is_dark(color: QColor) -> bool:
+    r, g, b, _ = color.getRgb()
+    return (r + g + b) <= (128 * 3)  # XXX

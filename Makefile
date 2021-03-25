@@ -151,11 +151,20 @@ frozen-tahoe:
 	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.14.0 && \
+	cp ../../misc/storage_client.py.patch . && \
+	git apply storage_client.py.patch && \
 	cp ../../misc/rsa-public-exponent.patch . && \
 	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
+	git clone https://github.com/PrivateStorageio/ZKAPAuthorizer build/ZKAPAuthorizer && \
+	cp ../../misc/zkapauthorizer-retry-interval.patch build/ZKAPAuthorizer && \
+	pushd build/ZKAPAuthorizer && \
+	git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963 && \
+	git apply zkapauthorizer-retry-interval.patch && \
+	python -m pip install . && \
+	popd && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
@@ -165,6 +174,8 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
+	mkdir -p dist/Tahoe-LAFS/challenge_bypass_ristretto && \
+	cp -R $$(python -c 'import site, sys;print site.getsitepackages()[0] if hasattr(sys, "real_prefix") else site.getusersitepackages()')/challenge_bypass_ristretto/*.so dist/Tahoe-LAFS/challenge_bypass_ristretto && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 

@@ -5,6 +5,10 @@ class GridsyncError(Exception):
     pass
 
 
+class AbortedByUserError(GridsyncError):
+    pass
+
+
 class FilesystemLockError(GridsyncError):
     pass
 
