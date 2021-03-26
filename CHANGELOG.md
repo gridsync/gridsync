@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0rc1 - 2021-03-25
 ### Added
 - Added support for Python 3.8 (Issues #264, #269; PRs #270, #315)
 - Added support for Python 3.9 (Issue #316; PR #336)
@@ -14,11 +14,12 @@
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.9 (Issue #316; PR #336)
+- The MainWindow's toolbar buttons/actions have been modified to facilitate the addition of ZKAPAuthorizer support (Issue #238; PR #338)
 
 ### Removed
 - Python 3.6 is no longer supported (Issue #324; PR #325)
 - macOS 10.13 ("High Sierra") is no longer supported (Issue #333; PR #334)
-- The Gridsync project no longer depends on AppVeyor for continuous integration on Windows (Issue #326; PR #327)
+- The Gridsync project no longer depends on AppVeyor or Travis-CI for continuous integration and now uses GitHub Actions (Issues #326, #317, #304; PR #327, #318, #305)
 
 ### Fixed
 - An issue preventing multiple Vagrant/VirtualBox environments from launching via `make vagrant-desktop-*` and/or `make vagrant-build-*` has been fixed (Issue #333; PR #334)
