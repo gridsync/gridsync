@@ -208,9 +208,9 @@ class StatusPanel(QWidget):
     @Slot(object)
     def on_total_folders_size_updated(self, size: int) -> None:
         if self.expires_label.text():
-            self.stored_label.setText(f"{naturalsize(size)} stored,")
+            self.stored_label.setText(f"Stored: {naturalsize(size)},")
         else:
-            self.stored_label.setText(f"{naturalsize(size)} stored")
+            self.stored_label.setText(f"Stored: {naturalsize(size)}")
         self.stored_label.show()
 
     @Slot(int)
