@@ -10,9 +10,9 @@ black==20.8b1 \
 colorama==0.4.4; sys_platform == "win32" \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
-flake8==3.9.0 \
-    --hash=sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff \
-    --hash=sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0
+flake8==3.9.1 \
+    --hash=sha256:1aa8990be1e689d96c745c5682b687ea49f2e05a443aff1f8251092b0014e378 \
+    --hash=sha256:3b9f848952dddccf635be78098ca75010f073bfe14d2c6bda867154bea728d2a
 importlib-metadata==3.10.1; python_version < "3.8" \
     --hash=sha256:2ec0faae539743ae6aaa84b49a169670a465f7f5d64e6add98388cc29fd1f2f6 \
     --hash=sha256:c9356b657de65c53744046fa8f7358afe0714a1af7d570c00c3835c2d724a7c1
