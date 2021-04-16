@@ -98,9 +98,9 @@ greenlet==1.0.0 \
     --hash=sha256:f6f65bf54215e4ebf6b01e4bb94c49180a589573df643735107056f7a910275b \
     --hash=sha256:f8450d5ef759dbe59f84f2c9f77491bb3d3c44bc1a573746daf086e70b14c243 \
     --hash=sha256:f97d83049715fd9dec7911860ecf0e17b48d8725de01e45de07d8ac0bd5bc378
-importlib-metadata==3.10.0; python_version < "3.8" \
-    --hash=sha256:c9db46394197244adf2f0b08ec5bc3cf16757e9590b02af1fca085c16c0d600a \
-    --hash=sha256:d2d46ef77ffc85cbf7dac7e81dd663fde71c45326131bea8033b9bad42268ebe
+importlib-metadata==3.10.1; python_version < "3.8" \
+    --hash=sha256:2ec0faae539743ae6aaa84b49a169670a465f7f5d64e6add98388cc29fd1f2f6 \
+    --hash=sha256:c9356b657de65c53744046fa8f7358afe0714a1af7d570c00c3835c2d724a7c1
 iniconfig==1.1.1 \
     --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
