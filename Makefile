@@ -209,10 +209,10 @@ pyinstaller:
 			export LINKFLAGS=-mmacosx-version-min=10.13 \
 		;; \
 		*) \
-			if [ $$(python -c "import distro;print(distro.id() + distro.version())") != "centos7" ] ; then \
-				export CC="gcc -no-pie" ; \
-			else \
+			if [ $$(python -c "import distro;print(distro.id() + distro.version())") == "centos7" ] ; then \
 				export CFLAGS="-std=gnu99" ; \
+			else \
+				export CC="gcc -no-pie" ; \
 			fi \
 		;; \
 		esac && \
