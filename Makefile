@@ -211,6 +211,8 @@ pyinstaller:
 		*) \
 			if [ $$(python -c "import distro;print(distro.id() + distro.version())") != "centos7" ] ; then \
 				export CC="gcc -no-pie" ; \
+			else \
+				export CFLAGS="-std=gnu99" ; \
 			fi \
 		;; \
 		esac && \
