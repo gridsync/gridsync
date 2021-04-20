@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import webbrowser
 from unittest.mock import MagicMock, Mock, call
 
 import pytest
@@ -11,6 +12,7 @@ from gridsync.desktop import (
     autostart_disable,
     autostart_enable,
     autostart_is_enabled,
+    get_browser_name,
     get_clipboard_modes,
     get_clipboard_text,
     notify,
@@ -234,3 +236,37 @@ def test_autostart_disable(tmpfile, monkeypatch):
         os.utime(tmpfile, None)
     autostart_disable()
     assert not autostart_is_enabled()
+
+
+@pytest.mark.parametrize(
+    "mocked_name,result",
+    [
+        ("browser1", "Browser1"),
+        ("test-browser", "Test Browser"),
+        ("windows-default", "browser"),
+        ("default", "browser"),
+        ("", "browser"),
+        ("xdg-open", "browser"),
+    ],
+)
+def test_get_browser_name(monkeypatch, mocked_name, result):
+    controller = Mock()
+    controller.name = mocked_name
+    monkeypatch.setattr("gridsync.desktop.webbrowser.get", lambda: controller)
+    name = get_browser_name()
+    assert name == result
+
+
+@pytest.mark.parametrize("side_effect", [AttributeError, webbrowser.Error])
+def test_get_browser_name_fallback_if_errors(monkeypatch, side_effect):
+    monkeypatch.setattr(
+        "gridsync.desktop.webbrowser.get", Mock(side_effect=side_effect)
+    )
+    name = get_browser_name()
+    assert name == "browser"
+
+
+def test_get_browser_name_fallback_if_get_returns_none(monkeypatch):
+    monkeypatch.setattr("gridsync.desktop.webbrowser.get", lambda: None)
+    name = get_browser_name()
+    assert name == "browser"

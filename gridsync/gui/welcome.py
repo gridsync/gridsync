@@ -28,7 +28,7 @@ from wormhole.errors import (
 
 from gridsync import APP_NAME, resource
 from gridsync import settings as global_settings
-from gridsync.errors import UpgradeRequiredError
+from gridsync.errors import AbortedByUserError, UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
@@ -336,6 +336,10 @@ class WelcomeDialog(QStackedWidget):
                 self.show_error("Invite timed out")
                 self.reset()
             return
+        if failure.type == AbortedByUserError:
+            self.show_error("Operation aborted")
+            self.reset()
+            return
         show_failure(failure, self)
         if failure.type == ServerConnectionError:
             self.show_error("Server connection error")
@@ -425,7 +429,7 @@ class WelcomeDialog(QStackedWidget):
         invite_receiver.done.connect(self.on_done)
         d = invite_receiver.receive(code, settings)
         d.addErrback(self.handle_failure)
-        reactor.callLater(30, d.cancel)
+        # reactor.callLater(30, d.cancel)  # XXX
 
     def cancel_button_clicked(self):
         if self.page_2.is_complete():
@@ -511,6 +515,9 @@ class WelcomeDialog(QStackedWidget):
     def finish_button_clicked(self):
         self.gui.show_main_window()
         self.close()
+        if self.gateway.zkapauthorizer.zkap_payment_url_root:  # XXX
+            self.prompt_to_export = False
+            self.gui.main_window.show_usage_view()
         if self.prompt_to_export:
             self.prompt_for_export(self.gateway)
         self.reset()

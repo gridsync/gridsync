@@ -1,0 +1,22 @@
+diff --git a/src/allmydata/storage_client.py b/src/allmydata/storage_client.py
+index 2f1823058..e77d085bd 100644
+--- a/src/allmydata/storage_client.py
++++ b/src/allmydata/storage_client.py
+@@ -216,6 +216,8 @@ class StorageFarmBroker(service.MultiService):
+             for plugin
+             in getPlugins(IFoolscapStoragePlugin)
+         }
++        from twisted.plugins.zkapauthorizer import ZKAPAuthorizer
++        plugins["privatestorageio-zkapauthz-v1"] = ZKAPAuthorizer()
+         return {
+             name: plugins[name].get_client_resource(node_config)
+             for (name, config)
+@@ -583,6 +585,8 @@ def _storage_from_foolscap_plugin(node_config, config, announcement, get_rref):
+         for plugin
+         in getPlugins(IFoolscapStoragePlugin)
+     }
++    from twisted.plugins.zkapauthorizer import ZKAPAuthorizer
++    plugins["privatestorageio-zkapauthz-v1"] = ZKAPAuthorizer()
+     storage_options = announcement.get(u"storage-options", [])
+     for plugin_name, plugin_config in config.storage_plugins.items():
+         try:

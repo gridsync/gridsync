@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import base64
-import json
 import logging as log
 import os
 import shutil
+import sys
 from binascii import Error
+from typing import Optional, Set, Tuple
+from urllib.parse import urlparse
 
 import treq
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
-from gridsync.errors import TorError, UpgradeRequiredError
+from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
 from gridsync.tahoe import Tahoe, select_executable
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 
@@ -34,6 +36,64 @@ def is_onion_grid(settings):
     for furl in furls:
         if tor_required(furl):
             return True
+    return False
+
+
+def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
+    hosts = set()
+    url = settings.get("zkap_payment_url_root")
+    if url:
+        hosts.add(urlparse(url).hostname)
+    zkapauthz = False
+    storage_servers = settings.get("storage")
+    if storage_servers:
+        for data in storage_servers.values():
+            storage_options = data.get("storage-options")
+            if not storage_options:
+                continue
+            for group in storage_options:
+                if group.get("name") == "privatestorageio-zkapauthz-v1":
+                    zkapauthz = True
+                url = group.get("ristretto-issuer-root-url")
+                if url:
+                    hosts.add(urlparse(url).hostname)
+    if zkapauthz or hosts:
+        return (True, hosts)
+    return (False, hosts)
+
+
+def prompt_for_leaky_tor(
+    grid_name: str, hosts: Set, parent: Optional[QWidget] = None
+) -> bool:
+    msgbox = QMessageBox(parent)
+    msgbox.setWindowModality(Qt.ApplicationModal)
+    msgbox.setIcon(QMessageBox.Warning)
+    title = "WARNING: Possible anonymity-leak ahead!"
+    hosts_list = ""
+    for host in hosts:
+        hosts_list += f"<p><b>{host}</b>"
+    text = (
+        f"The <i>{grid_name}</i> grid requires the use of Zero-Knowledge "
+        "Access Passes (ZKAPs), however, the Tahoe-LAFS ZKAPAuthorizer "
+        "plugin that is used to redeem ZKAPs does not currently support "
+        "tunneling its connections over Tor.<p>"
+        "With Tor enabled, your local IP address will continue to be "
+        f"concealed from the storage servers that comprise the {grid_name} "
+        "grid, however, without taking any further precautions, the act of "
+        "purchasing or reedeming ZKAPs will expose your IP address to the "
+        f"following hosts, at minimum:{hosts_list}<p>"
+    )
+    if sys.platform == "darwin":
+        msgbox.setText(title)
+        msgbox.setInformativeText(text)
+    else:
+        msgbox.setWindowTitle(title)
+        msgbox.setText(text)
+    ok = msgbox.addButton("Continue with Tor enabled", QMessageBox.AcceptRole)
+    msgbox.addButton(QMessageBox.Abort)
+    msgbox.exec_()
+    if msgbox.clickedButton() == ok:
+        return True
     return False
 
 
@@ -198,7 +258,7 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
 
         icon_path = None
-        if nickname == "Least Authority S4":
+        if nickname in ("Least Authority S4", "HRO Cloud"):
             icon_path = resource("leastauthority.com.icon")
             self.got_icon.emit(icon_path)
         elif "icon_base64" in settings:
@@ -225,14 +285,7 @@ class SetupRunner(QObject):
         self.gateway = Tahoe(nodedir, executable=executable)
         yield self.gateway.create_client(**settings)
 
-        newscap = settings.get("newscap")
-        if newscap:
-            with atomic_write(
-                os.path.join(nodedir, "private", "newscap"),
-                mode="w",
-                overwrite=True,
-            ) as f:
-                f.write(newscap)
+        self.gateway.save_settings(settings)
 
         if icon_path:
             try:
@@ -256,26 +309,24 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def ensure_recovery(self, settings):
-        settings_path = os.path.join(
-            self.gateway.nodedir, "private", "settings.json"
-        )
+        zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
-            self.update_progress.emit("Loading Recovery Key...")
-            with atomic_write(
-                self.gateway.rootcap_path, mode="w", overwrite=True
-            ) as f:
-                f.write(settings["rootcap"])
-            with atomic_write(settings_path, mode="w", overwrite=True) as f:
-                f.write(json.dumps(settings))
+            self.update_progress.emit("Restoring from Recovery Key...")
+            self.gateway.save_settings(settings)  # XXX Unnecessary?
+            if zkapauthz:
+                yield self.gateway.zkapauthorizer.restore_zkaps()
+        elif zkapauthz:
+            self.update_progress.emit("Connecting...")
         else:
             self.update_progress.emit("Generating Recovery Key...")
             try:
                 settings["rootcap"] = yield self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
-            with atomic_write(settings_path, mode="w", overwrite=True) as f:
-                f.write(json.dumps(settings))
-            settings_cap = yield self.gateway.upload(settings_path)
+            self.gateway.save_settings(settings)
+            settings_cap = yield self.gateway.upload(
+                os.path.join(self.gateway.nodedir, "private", "settings.json")
+            )
             yield self.gateway.link(
                 self.gateway.rootcap, "settings.json", settings_cap
             )
@@ -300,8 +351,10 @@ class SetupRunner(QObject):
 
     @inlineCallbacks
     def run(self, settings):
-        if "version" in settings and int(settings["version"]) > 1:
+        if "version" in settings and int(settings["version"]) > 2:
             raise UpgradeRequiredError
+
+        nickname = settings.get("nickname")
 
         if self.use_tor or "hide-ip" in settings or is_onion_grid(settings):
             settings["hide-ip"] = True
@@ -309,6 +362,12 @@ class SetupRunner(QObject):
             tor = yield get_tor_with_prompt(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
+
+            zkap_grid, hosts = is_zkap_grid(settings)
+            if zkap_grid:
+                permission_granted = prompt_for_leaky_tor(nickname, hosts)
+                if not permission_granted:
+                    raise AbortedByUserError("The user aborted the operation")
 
         self.gateway = self.get_gateway(
             settings.get("introducer"), settings.get("storage")
@@ -318,7 +377,7 @@ class SetupRunner(QObject):
             yield self.join_grid(settings)
             yield self.ensure_recovery(settings)
         elif not folders_data:
-            self.grid_already_joined.emit(settings.get("nickname"))
+            self.grid_already_joined.emit(nickname)
         if folders_data:
             yield self.join_folders(folders_data)
             yield self.gateway.monitor.scan_rootcap()

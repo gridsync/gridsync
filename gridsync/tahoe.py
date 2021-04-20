@@ -13,6 +13,7 @@ import tempfile
 from collections import OrderedDict, defaultdict
 from io import BytesIO
 from pathlib import Path
+from typing import List
 
 import treq
 import yaml
@@ -39,6 +40,7 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
+from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
 def is_valid_furl(furl):
@@ -136,6 +138,15 @@ class Tahoe:
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
         self.devices_manager = DevicesManager(self)
+        self.settings: dict = {}
+
+        self.zkapauthorizer = ZKAPAuthorizer(self)
+        self.zkap_auth_required = False
+
+        self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
+        self.monitor.sync_finished.connect(
+            self.zkapauthorizer.update_zkap_checkpoint
+        )
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -165,13 +176,36 @@ class Tahoe:
     def config_get(self, section, option):
         return self.config.get(section, option)
 
-    def get_settings(self, include_rootcap=False):
-        settings = {
-            "nickname": self.name,
-            "shares-needed": self.config_get("client", "shares.needed"),
-            "shares-happy": self.config_get("client", "shares.happy"),
-            "shares-total": self.config_get("client", "shares.total"),
-        }
+    def save_settings(self, settings: dict) -> None:
+        with atomic_write(
+            str(Path(self.nodedir, "private", "settings.json")), overwrite=True
+        ) as f:
+            f.write(json.dumps(settings))
+
+        rootcap = settings.get("rootcap")
+        if rootcap:
+            with atomic_write(
+                str(Path(self.nodedir, "private", "rootcap")), overwrite=True
+            ) as f:
+                f.write(rootcap)
+
+        newscap = settings.get("newscap")
+        if newscap:
+            with atomic_write(
+                str(Path(self.nodedir, "private", "newscap")), overwrite=True
+            ) as f:
+                f.write(newscap)
+
+    def load_settings(self):
+        try:
+            with open(Path(self.nodedir, "private", "settings.json")) as f:
+                settings = json.loads(f.read())
+        except FileNotFoundError:
+            settings = {}
+        settings["nickname"] = self.name
+        settings["shares-needed"] = self.config_get("client", "shares.needed")
+        settings["shares-happy"] = self.config_get("client", "shares.happy")
+        settings["shares-total"] = self.config_get("client", "shares.total")
         introducer = self.config_get("client", "introducer.furl")
         if introducer:
             settings["introducer"] = introducer
@@ -186,9 +220,34 @@ class Tahoe:
         self.load_newscap()
         if self.newscap:
             settings["newscap"] = self.newscap
-        if include_rootcap and os.path.exists(self.rootcap_path):
-            settings["rootcap"] = self.read_cap_from_file(self.rootcap_path)
+        if not settings.get("rootcap"):
+            settings["rootcap"] = self.get_rootcap()
+
+        zkap_unit_name = settings.get("zkap_unit_name", "")
+        if zkap_unit_name:
+            self.zkapauthorizer.zkap_unit_name = zkap_unit_name
+
+        zkap_unit_multiplier = settings.get("zkap_unit_multiplier", 0)
+        if zkap_unit_multiplier:
+            self.zkapauthorizer.zkap_unit_multiplier = zkap_unit_multiplier
+
+        self.zkapauthorizer.zkap_payment_url_root = settings.get(
+            "zkap_payment_url_root", ""
+        )
         # TODO: Verify integrity? Support 'icon_base64'?
+        self.settings = settings
+
+    def get_settings(self, include_rootcap=False):
+        if not self.settings:
+            self.load_settings()
+        settings = dict(self.settings)
+        if include_rootcap:
+            settings["rootcap"] = self.get_rootcap()
+        else:
+            try:
+                del settings["rootcap"]
+            except KeyError:
+                pass
         return settings
 
     def export(self, dest, include_rootcap=False):
@@ -278,9 +337,54 @@ class Tahoe:
             nickname = ann.get("nickname")
             if nickname:
                 results[server]["nickname"] = nickname
+            storage_options = ann.get("storage-options")
+            if storage_options:
+                results[server]["storage-options"] = storage_options
         return results
 
-    def add_storage_server(self, server_id, furl, nickname=None):
+    def _configure_storage_plugins(self, storage_options: List[dict]) -> None:
+        for options in storage_options:
+            if not isinstance(options, dict):
+                log.warning(
+                    "Skipping unknown storage plugin option: %s", options
+                )
+                continue
+            name = options.get("name")
+            if name == "privatestorageio-zkapauthz-v1":
+                # TODO: Append name instead of setting/overriding?
+                self.config_set("client", "storage.plugins", name)
+                self.config_set(
+                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                    "redeemer",
+                    "ristretto",
+                )
+                self.config_set(
+                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                    "ristretto-issuer-root-url",
+                    options.get("ristretto-issuer-root-url"),
+                )
+                pass_value = options.get("pass-value")
+                if pass_value:
+                    self.config_set(
+                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                        "pass-value",
+                        pass_value,
+                    )
+                default_token_count = options.get("default-token-count")
+                if default_token_count:
+                    self.config_set(
+                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                        "default-token-count",
+                        default_token_count,
+                    )
+            else:
+                log.warning(
+                    "Skipping unknown storage plugin option: %s", options
+                )
+
+    def add_storage_server(
+        self, server_id, furl, nickname=None, storage_options=None
+    ):
         log.debug("Adding storage server: %s...", server_id)
         yaml_data = self._read_servers_yaml()
         if not yaml_data or not yaml_data.get("storage"):
@@ -290,6 +394,11 @@ class Tahoe:
         }
         if nickname:
             yaml_data["storage"][server_id]["ann"]["nickname"] = nickname
+        if storage_options:
+            yaml_data["storage"][server_id]["ann"][
+                "storage-options"
+            ] = storage_options
+            self._configure_storage_plugins(storage_options)
         with atomic_write(
             self.servers_yaml_path, mode="w", overwrite=True
         ) as f:
@@ -299,9 +408,12 @@ class Tahoe:
     def add_storage_servers(self, storage_servers):
         for server_id, data in storage_servers.items():
             nickname = data.get("nickname")
+            storage_options = data.get("storage-options")
             furl = data.get("anonymous-storage-FURL")
             if furl:
-                self.add_storage_server(server_id, furl, nickname)
+                self.add_storage_server(
+                    server_id, furl, nickname, storage_options
+                )
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
 
@@ -542,6 +654,19 @@ class Tahoe:
         tcp = self.config_get("connections", "tcp")
         if tcp and tcp.lower() == "tor":
             self.use_tor = True
+        if self.config_get(
+            "storageclient.plugins.privatestorageio-zkapauthz-v1",
+            "ristretto-issuer-root-url",
+        ):
+            self.zkap_auth_required = True
+        if self.zkap_auth_required:
+            default_token_count = self.config_get(
+                "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                "default-token-count",
+            )
+            if default_token_count:
+                self.zkapauthorizer.zkap_batch_size = int(default_token_count)
+
         if os.path.isfile(self.pidfile):
             yield self.stop()
         if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
@@ -551,6 +676,9 @@ class Tahoe:
         if sys.platform == "win32" and pid.isdigit():
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
                 f.write(pid)
+
+        self.load_settings()
+
         with open(os.path.join(self.nodedir, "node.url")) as f:
             self.set_nodeurl(f.read().strip())
         token_file = os.path.join(self.nodedir, "private", "api_auth_token")
@@ -573,6 +701,9 @@ class Tahoe:
         self.load_newscap()
         self.newscap_checker.start()
         self.state = Tahoe.STARTED
+
+        yield self.scan_storage_plugins()
+
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
         )
@@ -699,11 +830,19 @@ class Tahoe:
             raise OSError(
                 "Rootcap file already exists: {}".format(self.rootcap_path)
             )
-        self.rootcap = yield self.mkdir()
-        with atomic_write(self.rootcap_path, mode="w") as f:
-            f.write(self.rootcap)
+        yield self.lock.acquire()
+        rootcap = yield self.mkdir()
+        try:
+            with atomic_write(self.rootcap_path, mode="w") as f:
+                f.write(rootcap)
+        except FileExistsError:
+            log.warning("Rootcap already exists")
+            return self.get_rootcap()
+        finally:
+            yield self.lock.release()
         log.debug("Rootcap saved to file: %s", self.rootcap_path)
-        return self.rootcap
+        self.rootcap = rootcap
+        return rootcap
 
     @inlineCallbacks
     def upload(self, local_path):
@@ -1140,6 +1279,18 @@ class Tahoe:
         history_od = OrderedDict(sorted(history_dict.items()))
         latest_mtime = next(reversed(history_od), 0)
         return members, total_size, latest_mtime, history_od
+
+    @inlineCallbacks
+    def scan_storage_plugins(self):
+        plugins = []
+        log.debug("Scanning for known storage plugins...")
+        version = yield self.zkapauthorizer.get_version()
+        if version:
+            plugins.append(("ZKAPAuthorizer", version))
+        if plugins:
+            log.debug("Found storage plugins: %s", plugins)
+        else:
+            log.debug("No storage plugins found")
 
 
 @inlineCallbacks

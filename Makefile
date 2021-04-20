@@ -151,11 +151,20 @@ frozen-tahoe:
 	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.14.0 && \
+	cp ../../misc/storage_client.py.patch . && \
+	git apply storage_client.py.patch && \
 	cp ../../misc/rsa-public-exponent.patch . && \
 	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
+	git clone https://github.com/PrivateStorageio/ZKAPAuthorizer build/ZKAPAuthorizer && \
+	cp ../../misc/zkapauthorizer-retry-interval.patch build/ZKAPAuthorizer && \
+	pushd build/ZKAPAuthorizer && \
+	git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963 && \
+	git apply zkapauthorizer-retry-interval.patch && \
+	python -m pip install . && \
+	popd && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
@@ -165,6 +174,8 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
+	mkdir -p dist/Tahoe-LAFS/challenge_bypass_ristretto && \
+	cp -R $$(python -c 'import site, sys;print site.getsitepackages()[0] if hasattr(sys, "real_prefix") else site.getusersitepackages()')/challenge_bypass_ristretto/*.so dist/Tahoe-LAFS/challenge_bypass_ristretto && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
@@ -187,7 +198,7 @@ pyinstaller:
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
 	pushd build/pyinstaller && \
-	git checkout --force v4.2 && \
+	git checkout --force v4.3 && \
 	pushd bootloader && \
 	case `uname` in \
 		Darwin) \
@@ -198,7 +209,9 @@ pyinstaller:
 			export LINKFLAGS=-mmacosx-version-min=10.13 \
 		;; \
 		*) \
-			if [ $$(python -c "import distro;print(distro.id() + distro.version())") != "centos7" ] ; then \
+			if [ $$(python -c "import distro;print(distro.id() + distro.version())") == "centos7" ] ; then \
+				export CFLAGS="-std=gnu99" ; \
+			else \
 				export CC="gcc -no-pie" ; \
 			fi \
 		;; \
@@ -228,26 +241,16 @@ dmg:
 check-outdated:
 	python3 scripts/check_outdated.py
 
-vagrant-desktop-linux:
-	vagrant up --no-provision ubuntu-20.10
-	vagrant provision --provision-with desktop ubuntu-20.10
-
-vagrant-desktop-macos:
-	vagrant up --no-provision macos-10.15
-
-vagrant-desktop-windows:
-	vagrant up --no-provision windows-10
-
 
 vagrant-build-linux:
 	vagrant up centos-7
-	vagrant provision --provision-with test,build centos-7
+	vagrant provision --provision-with devtools,test,build centos-7
 
 vagrant-build-macos:
-	vagrant up --provision-with test,build macos-10.14
+	vagrant up --provision-with devtools,test,build macos-10.14
 
 vagrant-build-windows:
-	vagrant up --provision-with test,build windows-10
+	vagrant up --provision-with devtools,test,build windows-10
 
 
 docker-image:

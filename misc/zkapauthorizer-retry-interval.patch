@@ -1,0 +1,13 @@
+diff --git a/src/_zkapauthorizer/controller.py b/src/_zkapauthorizer/controller.py
+index 7dc5146..e10729f 100644
+--- a/src/_zkapauthorizer/controller.py
++++ b/src/_zkapauthorizer/controller.py
+@@ -102,7 +102,7 @@ from .model import (
+     Error as model_Error,
+ )
+ 
+-RETRY_INTERVAL = timedelta(milliseconds=1)
++RETRY_INTERVAL = timedelta(milliseconds=1000)
+ 
+ @attr.s
+ class UnexpectedResponse(Exception):

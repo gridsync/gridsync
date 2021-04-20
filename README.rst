@@ -87,7 +87,7 @@ To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and
 .. _Gridsync-Linux.AppImage: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on macOS (64-bit only; supporting macOS 10.13 "High Sierra" and above):
+To install and run Gridsync on macOS (64-bit only; supporting macOS 10.14 "Mojave" and above):
 
 1. Download `Gridsync-macOS.dmg`_ (and `verify`_ its signature)
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
@@ -102,39 +102,26 @@ To install and run Gridsync on Windows (64-bit only; supporting Windows Server 2
 2. Run the executable installer and follow/complete the setup wizard
 3. Select "Launch Gridsync" when installation is finished
 
-Alternatively, Windows users who do not wish to use the executable installer can download and verify `Gridsync-Windows.zip`_, extract the enclosed "Gridsync" folder anywhere, and run `Gridsync.exe`.
-
 .. _Gridsync-Windows-setup.exe: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
-.. _Gridsync-Windows.zip: https://github.com/gridsync/gridsync/releases
 
 
 **From source:**
 
-Because Tahoe-LAFS has not yet been ported to python3, and because some GNU/Linux distributions might contain especially old versions of some dependencies, it is recommended to install and run Tahoe-LAFS and Gridsync inside their own virtual environments using updated dependencies from PyPI (ideally with hashes verified).
-
-The following series of steps (run from the top level of the Gridsync source tree) should work on most Debian-based GNU/Linux distributions:
+The project `Makefile`_ (or `make.bat`_ file on Windows) references the various scripts and commands necessary for building Gridsync from source. For most users with Python 2 and 3 already installed, building the application should simply be a matter of issuing a `make` command at the top-level of the source tree:
 
 .. code-block:: shell-session
 
-    sudo apt-get install build-essential libffi-dev libssl-dev python python-dev python3 python3-dev virtualenv
-    virtualenv --python=python2 ./venv2
-    ./venv2/bin/python -m pip install --upgrade setuptools pip
-    ./venv2/bin/python -m pip install tahoe-lafs
-    virtualenv --python=python3 ./venv3
-    ./venv3/bin/python -m pip install --upgrade setuptools pip
-    ./venv3/bin/python -m pip install -r requirements/requirements-hashes.txt
-    ./venv3/bin/python -m pip install .
-    PATH=$PATH:./venv2/bin ./venv3/bin/gridsync
+    make
+ 
 
+This will create a standalone executable distribution of Gridsync with all of its dependencies included (including a "frozen" python interpreter and Tahoe-LAFS, using `PyInstaller`_), placing the resultant files/installers in the `dist/` subdirectory. Should any errors arise regarding missing dependencies, a `provision_devtools.sh`_ script (or `provision_devtools.bat`_ on Windows) is provided to download and install all of the core dependencies needed to build Gridsync on most supported operating systems.
 
-Users of other distributions and operating systems should modify the above steps as required (for example, by installing Xcode on macOS in addition to python -- or the dependencies listed at the top of `make.bat`_ in the case of Windows).
-
+.. _Makefile: https://github.com/gridsync/gridsync/blob/master/Makefile
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
-
-Alternatively, users can use `PyInstaller`_ to generate a more "portable" binary distribution of Gridsync and Tahoe-LAFS (suitable for running on other machines of the same platform) by installing the required dependencies and typing `make` in the top-level of the source tree. This will create a standalone executable distribution of Gridsync and all of its dependencies (including a "frozen" python interpreter and Tahoe-LAFS), placing the resultant files/installers in the `dist/` subdirectory.
-
 .. _PyInstaller: http://www.pyinstaller.org/
+.. _provision_devtools.sh: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.sh
+.. _provision_devtools.bat: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.bat
 
 Note, however, that PyInstaller-generated binaries are typically `not backward-compatible`_; a PyInstaller executable that was built on a newer GNU/Linux distribution, for example (i.e., with a more recent version of `glibc`) will not run on older distributions. Accordingly, if you intend to distribute Gridsync binaries for use on a wide range operating system versions, it is recommended that you build the application on as old of a system as is reasonable for a given platform (i.e., one which can build and run Gridsync but which still receives security updates). Presently, CentOS 7, macOS "Mojave" (10.14), and Windows Server 2012 R2 arguably constitute the most suitable candidates for GNU/Linux, macOS, and Windows build systems respectively (insofar as binaries generated on these systems will be forward-compatible with all others in that platform-category that are still supported upstream).
 
@@ -167,13 +154,6 @@ Alternatively, users with `docker` installed can use the CentOS 7-based `gridsyn
 
 
 .. _gridsync-builder: https://hub.docker.com/repository/docker/gridsync/gridsync-builder
-
-
-**Development builds:**
-
-Unsigned binary distributions (currently tracking the `master` branch) are also available from the `project buildbot's "artifacts" directory`_. These packages, however, should not be considered trustworthy or reliable in any way and are made available only for testing purposes by developers. Please excercise appropriate caution when using these files (ideally by downloading and running them inside a disposable virtual machine).
-
-.. _project buildbot's "artifacts" directory: https://buildbot.gridsync.io/artifacts/
 
 
 Known issues and limitations:

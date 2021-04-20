@@ -40,9 +40,6 @@ if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="zip" call :zip
 if "%1"=="test-determinism" call :test-determinism
 if "%1"=="installer" call :installer
-if "%1"=="vagrant-desktop-linux" call :vagrant-desktop-linux
-if "%1"=="vagrant-desktop-macos" call :vagrant-desktop-macos
-if "%1"=="vagrant-desktop-windows" call :vagrant-desktop-windows
 if "%1"=="vagrant-build-linux" call :vagrant-build-linux
 if "%1"=="vagrant-build-macos" call :vagrant-build-macos
 if "%1"=="vagrant-build-windows" call :vagrant-build-windows
@@ -74,10 +71,19 @@ call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call git checkout tahoe-lafs-1.14.0
+call copy ..\..\misc\storage_client.py.patch .
+call git apply --ignore-space-change --ignore-whitespace storage_client.py.patch
 call copy ..\..\misc\rsa-public-exponent.patch .
 call git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
+call git clone https://github.com/PrivateStorageio/ZKAPAuthorizer .\build\ZKAPAuthorizer
+call copy ..\..\misc\zkapauthorizer-retry-interval.patch .\build\ZKAPAuthorizer
+call pushd .\build\ZKAPAuthorizer
+call git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963
+call git apply --ignore-space-change --ignore-whitespace zkapauthorizer-retry-interval.patch
+call python -m pip install .
+call popd
 call python -m pip install .
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
@@ -85,6 +91,8 @@ call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec
 call set PYTHONHASHSEED=
+call mkdir dist\Tahoe-LAFS\challenge_bypass_ristretto
+call copy ..\venv-tahoe\Lib\site-packages\challenge_bypass_ristretto\*.pyd dist\Tahoe-LAFS\challenge_bypass_ristretto\
 call move dist ..\..
 call popd
 call deactivate
@@ -111,31 +119,17 @@ call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup.iss
 goto :eof
 
 
-:vagrant-desktop-linux
-call vagrant up --no-provision ubuntu-18.04
-call vagrant provision --provision-with desktop ubuntu-18.04
-goto :eof
-
-:vagrant-desktop-macos
-call vagrant up --no-provision macos-10.15
-goto :eof
-
-:vagrant-desktop-windows
-call vagrant up --no-provision windows-10
-goto :eof
-
-
 :vagrant-build-linux
-call vagrant up
-call vagrant provision --provision-with test,build centos-7
+call vagrant up centos-7
+call vagrant provision --provision-with devtools,test,build centos-7
 goto :eof
 
 :vagrant-build-macos
-call vagrant up --provision-with test,build macos-10.14
+call vagrant up --provision-with devtools,test,build macos-10.14
 goto :eof
 
 :vagrant-build-windows
-call vagrant up --provision-with test,build windows-10
+call vagrant up --provision-with devtools,test,build windows-10
 goto :eof
 
 

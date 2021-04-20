@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0rc1 - 2021-03-25
 ### Added
 - Added support for Python 3.8 (Issues #264, #269; PRs #270, #315)
 - Added support for Python 3.9 (Issue #316; PR #336)
@@ -9,14 +9,17 @@
 - Added support for building backward-compatible AppImages inside a CentOS 7-based container via `make in-container` (Issue #328; PR #329)
 - Gridsync AppImages can now be built reproducibly across many common host environments (including Debian 10, Fedora 32, Ubuntu 20.04 LTS, and Ubuntu 20.10) using `make in-container` (Issue #330; PR #335)
 - Gridsync binaries created with PyInstaller now build reproducibly on macOS and Windows (Issue #331, #332; PR #337)
+- Added preliminary support for ZKAPAuthorizer-enabled storage grids (Issue #238; PR #338)
+- Added a `0-hro-cloud` "[cheat code](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md)" for Least Authority's "[HRO Cloud](https://leastauthority.com/blog/the-hro-cloud-least-authority-launches-secure-cloud-storage-for-human-rights-organizations/)" (Issue #339; PR #340)
 
 ### Changed
 - Binary distributions of Gridsync will now ship with Python version 3.9 (Issue #316; PR #336)
+- The MainWindow's toolbar buttons/actions have been modified to facilitate the addition of ZKAPAuthorizer support (Issue #238; PR #338)
 
 ### Removed
 - Python 3.6 is no longer supported (Issue #324; PR #325)
 - macOS 10.13 ("High Sierra") is no longer supported (Issue #333; PR #334)
-- The Gridsync project no longer depends on AppVeyor for continuous integration on Windows (Issue #326; PR #327)
+- The Gridsync project no longer depends on AppVeyor or Travis-CI for continuous integration and now uses GitHub Actions (Issues #326, #317, #304; PR #327, #318, #305)
 
 ### Fixed
 - An issue preventing multiple Vagrant/VirtualBox environments from launching via `make vagrant-desktop-*` and/or `make vagrant-build-*` has been fixed (Issue #333; PR #334)
