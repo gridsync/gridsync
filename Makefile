@@ -198,7 +198,7 @@ pyinstaller:
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
 	pushd build/pyinstaller && \
-	git checkout --force v4.2 && \
+	git checkout --force v4.3 && \
 	pushd bootloader && \
 	case `uname` in \
 		Darwin) \
@@ -209,7 +209,9 @@ pyinstaller:
 			export LINKFLAGS=-mmacosx-version-min=10.13 \
 		;; \
 		*) \
-			if [ $$(python -c "import distro;print(distro.id() + distro.version())") != "centos7" ] ; then \
+			if [ $$(python -c "import distro;print(distro.id() + distro.version())") == "centos7" ] ; then \
+				export CFLAGS="-std=gnu99" ; \
+			else \
 				export CC="gcc -no-pie" ; \
 			fi \
 		;; \
