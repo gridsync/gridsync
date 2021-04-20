@@ -1,3 +1,4 @@
+import logging
 import os
 from base64 import b64encode
 
@@ -47,11 +48,11 @@ class LinkDeviceDialog(QDialog):
         data = f"{self.gateway.bridge.address} {device_rootcap} {fp}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
-            f"{data}\n\n"  # XXX
             "Scan the above QR code with the Tahoe-LAFS mobile\n"
             "application to link it with this device."
         )
         self.instructions_label.show()
+        logging.debug("QR code displayed with encoded data: %s", data)  # XXX
 
     def go(self) -> None:
         device_name = "Device-" + b58encode(os.urandom(8))
