@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 
 from gridsync import APP_NAME, resource, settings
-from gridsync.gui.device import LinkDeviceDialog
+from gridsync.gui.devices import LinkDeviceDialog
 from gridsync.gui.history import HistoryView
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
