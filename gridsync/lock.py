@@ -35,7 +35,9 @@ class FilesystemLock:
                     ) from error
                 raise
         else:
-            fd = open(self.filepath, "w")
+            fd = open(  # pylint: disable=consider-using-with
+                self.filepath, "w"
+            )
             fd.flush()
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
