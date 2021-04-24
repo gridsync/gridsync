@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
 from twisted.internet import reactor
 
 from gridsync import APP_NAME, resource, settings
-from gridsync.gui.devices import LinkDeviceDialog
+from gridsync.gui.devices import DevicesView, LinkDeviceDialog
 from gridsync.gui.history import HistoryView
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
@@ -36,6 +36,7 @@ class CentralWidget(QStackedWidget):
         self.gui = gui
         self.views = []
         self.folders_views = {}
+        self.devices_views = {}
         self.history_views = {}
         self.usage_views = {}
 
@@ -56,6 +57,11 @@ class CentralWidget(QStackedWidget):
         self.addWidget(widget)
         self.views.append(view)
         self.folders_views[gateway] = widget
+
+    def _add_devices_view(self, gateway):
+        view = DevicesView(gateway, self.gui)
+        self.addWidget(view)
+        self.devices_views[gateway] = view
 
     def _add_history_view(self, gateway):
         view = HistoryView(gateway, self.gui)
@@ -80,6 +86,7 @@ class CentralWidget(QStackedWidget):
 
     def add_gateway(self, gateway):
         self._add_folders_view(gateway)
+        self._add_devices_view(gateway)
         self._add_history_view(gateway)
         self._add_usage_view(gateway)
 
@@ -160,6 +167,7 @@ class MainWindow(QMainWindow):
         self.toolbar.import_action_triggered.connect(self.import_recovery_key)
         self.toolbar.export_action_triggered.connect(self.export_recovery_key)
         self.toolbar.folders_action_triggered.connect(self.show_folders_view)
+        self.toolbar.devices_action_triggered.connect(self.show_devices_view)
         self.toolbar.history_action_triggered.connect(self.show_history_view)
         self.toolbar.usage_action_triggered.connect(self.show_usage_view)
 
@@ -259,6 +267,15 @@ class MainWindow(QMainWindow):
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.folders_views[self.combo_box.currentData()]
+            )
+        except KeyError:
+            return
+        self.set_current_grid_status()
+
+    def show_devices_view(self):
+        try:
+            self.central_widget.setCurrentWidget(
+                self.central_widget.devices_views[self.combo_box.currentData()]
             )
         except KeyError:
             return
