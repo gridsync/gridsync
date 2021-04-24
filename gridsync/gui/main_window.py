@@ -59,7 +59,7 @@ class CentralWidget(QStackedWidget):
         self.folders_views[gateway] = widget
 
     def _add_devices_view(self, gateway):
-        view = DevicesView(gateway, self.gui)
+        view = DevicesView(gateway)
         self.addWidget(view)
         self.devices_views[gateway] = view
 
