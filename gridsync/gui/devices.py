@@ -4,7 +4,7 @@ from base64 import b64encode
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QPushButton
+from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QPushButton, QWidget
 
 from gridsync.gui.font import Font
 from gridsync.gui.qrcode import QRCode
@@ -59,3 +59,23 @@ class LinkDeviceDialog(QDialog):
         folders = list(self.gateway.magic_folders)
         d = self.gateway.devices_manager.add_new_device(device_name, folders)
         d.addCallback(self.load_qr_code)
+
+
+class DevicesView(QWidget):
+    def __init__(self, gateway, gui):
+        super().__init__()
+        self.gateway = gateway
+        self.gui = gui
+
+        self.link_device_dialog = None
+        self.link_device_button = QPushButton("Link device")
+        self.link_device_button.clicked.connect(
+            self.on_link_device_button_clicked
+        )
+        layout = QGridLayout(self)
+        layout.addWidget(self.link_device_button)
+
+    def on_link_device_button_clicked(self):
+        self.link_device_dialog = LinkDeviceDialog(self.gateway)
+        self.link_device_dialog.show()
+        self.link_device_dialog.go()
