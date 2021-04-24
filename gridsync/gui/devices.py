@@ -68,10 +68,16 @@ class DevicesView(QWidget):
         self.gui = gui
 
         self.link_device_dialog = None
-        self.link_device_button = QPushButton("Link device")
+
+        self.link_device_button = QPushButton("Link Device...")
+        self.link_device_button.setStyleSheet(
+            "background: green; color: white"
+        )
+        self.link_device_button.setFixedSize(150, 32)
         self.link_device_button.clicked.connect(
             self.on_link_device_button_clicked
         )
+
         layout = QGridLayout(self)
         layout.addWidget(self.link_device_button)
 
