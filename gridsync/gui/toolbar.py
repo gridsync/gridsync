@@ -188,7 +188,7 @@ class ToolBar(QToolBar):
             #    self.open_invite_sender_dialog
             # )
             self.create_invite_action.triggered.connect(
-                self.import_action_triggered.emit
+                self.create_invite_action_triggered.emit
             )
 
             self.invites_menu = QMenu(self)
