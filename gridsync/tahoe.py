@@ -1305,13 +1305,14 @@ def select_executable():
     executables = which("tahoe")
     if not executables:
         return None
-    tmpdir = tempfile.TemporaryDirectory()
     tasks = []
-    for executable in executables:
-        log.debug(
-            "Found %s; checking for multi-magic-folder support...", executable
-        )
-        tasks.append(Tahoe(tmpdir.name, executable=executable).get_features())
+    with tempfile.TemporaryDirectory() as tmpdir:
+        for executable in executables:
+            log.debug(
+                "Found %s; checking for multi-magic-folder support...",
+                executable,
+            )
+            tasks.append(Tahoe(tmpdir, executable=executable).get_features())
     results = yield DeferredList(tasks)
     for success, result in results:
         if success:
