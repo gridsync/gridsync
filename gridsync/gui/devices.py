@@ -1,11 +1,20 @@
 import logging
 import os
 from base64 import b64encode
+from typing import List
 
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QPushButton, QWidget
+from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
+from PyQt5.QtWidgets import (
+    QDialog,
+    QGridLayout,
+    QLabel,
+    QPushButton,
+    QTableView,
+    QWidget,
+)
 
+from gridsync import resource
 from gridsync.gui.font import Font
 from gridsync.gui.qrcode import QRCode
 from gridsync.util import b58encode
@@ -61,6 +70,55 @@ class LinkDeviceDialog(QDialog):
         d.addCallback(self.load_qr_code)
 
 
+class DevicesModel(QStandardItemModel):
+    def __init__(self, gateway):
+        super().__init__(0, 2)
+        self.gateway = gateway
+
+        self.setHeaderData(0, Qt.Horizontal, "Device Name")
+        self.setHeaderData(1, Qt.Horizontal, "Linked Folders")
+
+    def add_device(self, name: str, folders: List[str]):
+        name_item = QStandardItem(QIcon(resource("laptop.png")), name)
+        folders_item = QStandardItem(", ".join(sorted(folders)))
+        self.appendRow([name_item, folders_item])
+
+    def remove_device(self, name: str):
+        items = self.findItems(name, Qt.MatchExactly, 0)
+        if items:
+            self.removeRow(items[0].row())
+
+
+class DevicesTableView(QTableView):
+    def __init__(self, gateway):
+        super().__init__()
+        self.gateway = gateway
+
+        self._model = DevicesModel(gateway)
+
+        self.setModel(self._model)
+
+        self.setColumnWidth(0, 200)
+        self.setShowGrid(False)
+        self.setSelectionBehavior(QTableView.SelectRows)
+        self.setSelectionMode(QTableView.ExtendedSelection)
+
+        vertical_header = self.verticalHeader()
+        vertical_header.hide()
+
+        horizontal_header = self.horizontalHeader()
+        horizontal_header.setHighlightSections(False)
+        horizontal_header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        horizontal_header.setStretchLastSection(True)
+
+        # XXX
+        self._model.add_device("one", ["a", "b"])
+        self._model.add_device("two", ["a", "c", "b"])
+
+        self._model.remove_device("two")
+        self._model.remove_device("three")
+
+
 class DevicesView(QWidget):
     def __init__(self, gateway, gui):
         super().__init__()
@@ -68,6 +126,8 @@ class DevicesView(QWidget):
         self.gui = gui
 
         self.link_device_dialog = None
+
+        self.table_view = DevicesTableView(gateway)
 
         self.link_device_button = QPushButton("Link Device...")
         self.link_device_button.setStyleSheet(
@@ -80,6 +140,7 @@ class DevicesView(QWidget):
 
         layout = QGridLayout(self)
         layout.addWidget(self.link_device_button)
+        layout.addWidget(self.table_view)
 
     def on_link_device_button_clicked(self):
         self.link_device_dialog = LinkDeviceDialog(self.gateway)
