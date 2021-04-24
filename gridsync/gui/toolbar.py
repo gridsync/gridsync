@@ -68,6 +68,7 @@ class ToolBar(QToolBar):
     import_action_triggered = Signal()
     export_action_triggered = Signal()
     folders_action_triggered = Signal()
+    devices_action_triggered = Signal()
     history_action_triggered = Signal()
     usage_action_triggered = Signal()
 
@@ -254,10 +255,10 @@ class ToolBar(QToolBar):
         self.history_button.setDefaultAction(self.history_action)
         self.history_button.setCheckable(True)
         self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
         self.folders_action = QAction(
             QIcon(resource("folder-multiple-outline.png")), "Folders", self
         )
-
         self.folders_action.setEnabled(False)
         self.folders_action.setToolTip("Show Folders")
         self.folders_action.setFont(font)
@@ -269,6 +270,20 @@ class ToolBar(QToolBar):
         self.folders_button.setDefaultAction(self.folders_action)
         self.folders_button.setCheckable(True)
         self.folders_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        self.devices_action = QAction(
+            QIcon(resource("cellphone-link.png")), "Devices", self
+        )
+        self.devices_action.setEnabled(False)
+        self.devices_action.setToolTip("Show Devices")
+        self.devices_action.setFont(font)
+        self.devices_action.setCheckable(True)
+        self.devices_action.triggered.connect(self.on_devices_activated)
+
+        self.devices_button = QToolButton(self)
+        self.devices_button.setDefaultAction(self.devices_action)
+        self.devices_button.setCheckable(True)
+        self.devices_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.usage_action = QAction(
             QIcon(resource("chart-donut.png")), "Storage-time", self
@@ -298,6 +313,7 @@ class ToolBar(QToolBar):
         self.addWidget(spacer_right)
 
         self.folders_wa = self.addWidget(self.folders_button)
+        self.devices_wa = self.addWidget(self.devices_button)
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
@@ -337,6 +353,7 @@ class ToolBar(QToolBar):
             self.recovery_button.setEnabled(False)
             self.history_button.setEnabled(False)
             self.folders_button.setEnabled(False)
+            self.devices_button.setEnabled(False)
             self.usage_button.setEnabled(False)
             if self.grid_invites_enabled:
                 self.invites_button.setEnabled(False)
@@ -355,12 +372,14 @@ class ToolBar(QToolBar):
                 self.usage_button.setChecked(True)
                 self.history_button.setChecked(False)
                 self.folders_button.setChecked(False)
+                self.devices_button.setChecked(False)
         else:
             self.folder_button.setEnabled(True)
             self.device_button.setEnabled(True)
             self.recovery_button.setEnabled(True)
             self.history_button.setEnabled(True)
             self.folders_button.setEnabled(True)
+            self.devices_button.setEnabled(True)
             self.usage_button.setEnabled(True)
             if self.grid_invites_enabled:
                 self.invites_button.setEnabled(True)
@@ -376,13 +395,23 @@ class ToolBar(QToolBar):
 
     def on_folders_activated(self) -> None:
         self.folders_button.setChecked(True)
+        self.devices_button.setChecked(False)
         self.usage_button.setChecked(False)
         self.history_button.setChecked(False)
         self.update_actions()
         self.folders_action_triggered.emit()
 
+    def on_devices_activated(self) -> None:
+        self.folders_button.setChecked(False)
+        self.devices_button.setChecked(True)
+        self.usage_button.setChecked(False)
+        self.history_button.setChecked(False)
+        self.update_actions()
+        self.devices_action_triggered.emit()
+
     def on_usage_activated(self) -> None:
         self.folders_button.setChecked(False)
+        self.devices_button.setChecked(False)
         self.usage_button.setChecked(True)
         self.history_button.setChecked(False)
         self.update_actions()
@@ -390,6 +419,7 @@ class ToolBar(QToolBar):
 
     def on_history_activated(self) -> None:
         self.folders_button.setChecked(False)
+        self.devices_button.setChecked(False)
         self.usage_button.setChecked(False)
         self.history_button.setChecked(True)
         self.update_actions()
