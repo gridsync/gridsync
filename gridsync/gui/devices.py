@@ -17,11 +17,12 @@ from PyQt5.QtWidgets import (
 from gridsync import resource
 from gridsync.gui.font import Font
 from gridsync.gui.qrcode import QRCode
+from gridsync.tahoe import Tahoe
 from gridsync.util import b58encode
 
 
 class LinkDeviceDialog(QDialog):
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
 
@@ -71,26 +72,26 @@ class LinkDeviceDialog(QDialog):
 
 
 class DevicesModel(QStandardItemModel):
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__(0, 2)
         self.gateway = gateway
 
         self.setHeaderData(0, Qt.Horizontal, "Device Name")
         self.setHeaderData(1, Qt.Horizontal, "Linked Folders")
 
-    def add_device(self, name: str, folders: List[str]):
+    def add_device(self, name: str, folders: List[str]) -> None:
         name_item = QStandardItem(QIcon(resource("laptop.png")), name)
         folders_item = QStandardItem(", ".join(sorted(folders)))
         self.appendRow([name_item, folders_item])
 
-    def remove_device(self, name: str):
+    def remove_device(self, name: str) -> None:
         items = self.findItems(name, Qt.MatchExactly, 0)
         if items:
             self.removeRow(items[0].row())
 
 
 class DevicesTableView(QTableView):
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
 
@@ -120,12 +121,11 @@ class DevicesTableView(QTableView):
 
 
 class DevicesView(QWidget):
-    def __init__(self, gateway, gui):
+    def __init__(self, gateway: Tahoe):
         super().__init__()
         self.gateway = gateway
-        self.gui = gui
 
-        self.link_device_dialog = None
+        self.link_device_dialog: LinkDeviceDialog = None
 
         self.table_view = DevicesTableView(gateway)
 
@@ -142,7 +142,7 @@ class DevicesView(QWidget):
         layout.addWidget(self.link_device_button)
         layout.addWidget(self.table_view)
 
-    def on_link_device_button_clicked(self):
+    def on_link_device_button_clicked(self) -> None:
         self.link_device_dialog = LinkDeviceDialog(self.gateway)
         self.link_device_dialog.show()
         self.link_device_dialog.go()
