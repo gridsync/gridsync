@@ -132,17 +132,17 @@ class ToolBar(QToolBar):
         self.folder_button.setDefaultAction(self.folder_action)
         self.folder_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        self.device_action = QAction(
-            QIcon(resource("cellphone-link.png")), "Link Device", self
-        )
-        self.device_action.setEnabled(False)
-        self.device_action.setToolTip("Link a Device...")
-        self.device_action.setFont(font)
-        self.device_action.triggered.connect(self.device_action_triggered.emit)
+        # self.device_action = QAction(
+        #    QIcon(resource("cellphone-link.png")), "Link Device", self
+        # )
+        # self.device_action.setEnabled(False)
+        # self.device_action.setToolTip("Link a Device...")
+        # self.device_action.setFont(font)
+        # self.device_action.triggered.connect(self.device_action_triggered.emit)
 
-        self.device_button = QToolButton(self)
-        self.device_button.setDefaultAction(self.device_action)
-        self.device_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        # self.device_button = QToolButton(self)
+        # self.device_button.setDefaultAction(self.device_action)
+        # self.device_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         recovery_action = QAction(
             QIcon(resource("key-outline.png")), "Recovery", self
@@ -301,7 +301,7 @@ class ToolBar(QToolBar):
         self.usage_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
         self.folder_wa = self.addWidget(self.folder_button)
-        self.device_wa = self.addWidget(self.device_button)
+        # self.device_wa = self.addWidget(self.device_button)
         self.recovery_wa = self.addWidget(self.recovery_button)
         if self.grid_invites_enabled:
             self.invites_wa = self.addWidget(self.invites_button)
@@ -349,7 +349,7 @@ class ToolBar(QToolBar):
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
             self.folder_button.setEnabled(False)
-            self.device_button.setEnabled(False)
+            # self.device_button.setEnabled(False)
             self.recovery_button.setEnabled(False)
             self.history_button.setEnabled(False)
             self.folders_button.setEnabled(False)
@@ -375,7 +375,7 @@ class ToolBar(QToolBar):
                 self.devices_button.setChecked(False)
         else:
             self.folder_button.setEnabled(True)
-            self.device_button.setEnabled(True)
+            # self.device_button.setEnabled(True)
             self.recovery_button.setEnabled(True)
             self.history_button.setEnabled(True)
             self.folders_button.setEnabled(True)
