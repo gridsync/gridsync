@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import datetime
 import logging
 import os
 import socket
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from cryptography import x509
@@ -13,8 +16,13 @@ from twisted.internet.endpoints import SSL4ServerEndpoint, TCP4ServerEndpoint
 from twisted.web.proxy import ReverseProxyResource
 from twisted.web.server import Site
 
+from gridsync.types import TwistedDeferred
 
-def get_local_network_ip():
+if TYPE_CHECKING:
+    from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
+
+
+def get_local_network_ip() -> str:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     s.connect(("10.255.255.255", 1))
@@ -24,13 +32,13 @@ def get_local_network_ip():
 
 
 class Bridge:
-    def __init__(self, reactor):
+    def __init__(self, reactor) -> None:  # type: ignore
         self._reactor = reactor
         self.proxy = None
         self.address = ""
 
     @inlineCallbacks
-    def start(self, nodeurl, port=8089):
+    def start(self, nodeurl: str, port: int = 8089) -> TwistedDeferred[None]:
         if self.proxy and self.proxy.connected:
             logging.warning("Tried to start a bridge that was already running")
             return
@@ -43,12 +51,12 @@ class Bridge:
         self.proxy = yield endpoint.listen(
             Site(ReverseProxyResource(url.hostname, url.port, b""))
         )
-        host = self.proxy.getHost()
+        host = self.proxy.getHost()  # type: ignore
         self.address = f"http://{host.host}:{host.port}"
         logging.debug("Bridge started: %s", self.address)
 
     @inlineCallbacks
-    def stop(self):
+    def stop(self) -> TwistedDeferred[None]:
         if not self.proxy or not self.proxy.connected:
             logging.warning("Tried to stop a bridge that was not running")
             return
@@ -62,7 +70,7 @@ class Bridge:
 
 
 class TLSBridge:
-    def __init__(self, gateway, reactor):
+    def __init__(self, gateway: Tahoe, reactor) -> None:  # type: ignore
         self.gateway = gateway
         self._reactor = reactor
         self.pemfile = os.path.join(gateway.nodedir, "private", "bridge.pem")
@@ -70,7 +78,7 @@ class TLSBridge:
         self.address = ""
         self.__certificate_digest: bytes = b""
 
-    def create_certificate(self):
+    def create_certificate(self) -> None:
         key = ec.generate_private_key(ec.SECP256R1())
         subject = issuer = x509.Name([])
         cert = (
@@ -105,7 +113,7 @@ class TLSBridge:
         return self.__certificate_digest
 
     @inlineCallbacks
-    def start(self, nodeurl, port=8090):
+    def start(self, nodeurl: str, port: int = 8090) -> TwistedDeferred[None]:
         if self.proxy and self.proxy.connected:
             logging.warning("Tried to start a bridge that was already running")
             return
@@ -124,7 +132,7 @@ class TLSBridge:
         self.proxy = yield endpoint.listen(
             Site(ReverseProxyResource(url.hostname, url.port, b""))
         )
-        host = self.proxy.getHost()
+        host = self.proxy.getHost()  # type: ignore
         self.address = f"https://{host.host}:{host.port}"
         d = iter(self.get_certificate_digest().hex().upper())
         fp = ":".join(a + b for a, b in zip(d, d))
@@ -133,7 +141,7 @@ class TLSBridge:
         )
 
     @inlineCallbacks
-    def stop(self):
+    def stop(self) -> TwistedDeferred[None]:
         if not self.proxy or not self.proxy.connected:
             logging.warning("Tried to stop a bridge that was not running")
             return

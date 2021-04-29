@@ -1,17 +1,24 @@
+from __future__ import annotations
+
 import logging
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from twisted.internet.defer import DeferredList, DeferredLock, inlineCallbacks
 
+from gridsync.types import TwistedDeferred
+
+if TYPE_CHECKING:
+    from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
+
 
 class DevicesManager:
-    def __init__(self, gateway) -> None:
+    def __init__(self, gateway: Tahoe) -> None:  # type: ignore
         self.gateway = gateway
         self.devicescap: str = ""
         self._devicescap_lock = DeferredLock()
 
     @inlineCallbacks
-    def create_devicescap(self):
+    def create_devicescap(self) -> TwistedDeferred[str]:
         yield self.gateway.lock.acquire()
         try:
             cap = yield self.gateway.mkdir(
@@ -22,7 +29,7 @@ class DevicesManager:
         return cap
 
     @inlineCallbacks
-    def get_devicescap(self):
+    def get_devicescap(self) -> TwistedDeferred[str]:
         if self.devicescap:
             return self.devicescap
         rootcap = self.gateway.get_rootcap()
@@ -37,7 +44,9 @@ class DevicesManager:
         return self.devicescap
 
     @inlineCallbacks
-    def add_devicecap(self, name: str, root: Optional[str] = ""):
+    def add_devicecap(
+        self, name: str, root: Optional[str] = ""
+    ) -> TwistedDeferred[str]:
         if not root:
             root = yield self.get_devicescap()
         yield self._devicescap_lock.acquire()
@@ -48,7 +57,9 @@ class DevicesManager:
         return devicecap
 
     @inlineCallbacks
-    def get_devicecaps(self, root: Optional[str] = ""):
+    def get_devicecaps(
+        self, root: Optional[str] = ""
+    ) -> TwistedDeferred[List]:
         results = []
         if not root:
             root = yield self.get_devicescap()
@@ -63,12 +74,16 @@ class DevicesManager:
         return results
 
     @inlineCallbacks
-    def _do_invite(self, device: str, folder: str):
+    def _do_invite(
+        self, device: str, folder: str
+    ) -> TwistedDeferred[Tuple[str, str]]:
         code = yield self.gateway.magic_folder_invite(folder, device)
         return folder, code
 
     @inlineCallbacks
-    def add_new_device(self, device: str, folders: List[str]):
+    def add_new_device(
+        self, device: str, folders: List[str]
+    ) -> TwistedDeferred[str]:
         if not folders:
             logging.warning("No folders found to link")
 
@@ -77,7 +92,7 @@ class DevicesManager:
         tasks = []
         for folder in folders:
             tasks.append(self._do_invite(device, folder))
-        results = yield DeferredList(tasks, consumeErrors=True)
+        results = yield DeferredList(tasks, consumeErrors=True)  # type: ignore
 
         invites = []
         for success, result in results:
@@ -91,9 +106,9 @@ class DevicesManager:
                     folder, devicecap, code, grant_admin=False
                 )
             )
-        yield DeferredList(tasks, consumeErrors=True)
+        yield DeferredList(tasks, consumeErrors=True)  # type: ignore
         return devicecap
 
     @inlineCallbacks
-    def add_new_folder(self, folder: str, devices: List[str]):
+    def add_new_folder(self, folder: str, devices: List[str]) -> None:
         pass
