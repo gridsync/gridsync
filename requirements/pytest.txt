@@ -131,9 +131,9 @@ pytest-twisted==1.13.2 \
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
-typing-extensions==3.7.4.3; python_version < "3.8" \
-    --hash=sha256:7cb407020f00f7bfc3cb3e7881628838e69d8f3fcab2f64742a5e76b2f841918 \
-    --hash=sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c
+typing-extensions==3.10.0.0; python_version < "3.8" \
+    --hash=sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342 \
+    --hash=sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84
 zipp==3.4.1; python_version < "3.8" \
     --hash=sha256:3607921face881ba3e026887d8150cca609d517579abe052ac81fc5aeffdbd76 \
     --hash=sha256:51cb66cc54621609dd593d1787f286ee42a5c0adbb4b29abea5a63edc3e03098

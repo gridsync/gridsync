@@ -59,25 +59,25 @@ class ZKAPAuthorizer:
         resp = yield self._request(
             "PUT", "/voucher", json.dumps({"voucher": voucher}).encode()
         )
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             return voucher
-        raise TahoeWebError(f"Error adding voucher: {resp.code}")  # type: ignore
+        raise TahoeWebError(f"Error adding voucher: {resp.code}")
 
     @inlineCallbacks
     def get_voucher(self, voucher: str) -> TwistedDeferred[Dict]:
         resp = yield self._request("GET", f"/voucher/{voucher}")
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
-        raise TahoeWebError(f"Error getting voucher: {resp.code}")  # type: ignore
+        raise TahoeWebError(f"Error getting voucher: {resp.code}")
 
     @inlineCallbacks
     def get_vouchers(self) -> TwistedDeferred[List]:
         resp = yield self._request("GET", "/voucher")
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             content = yield treq.json_content(resp)
-            return content.get("vouchers")  # type: ignore
-        raise TahoeWebError(f"Error getting vouchers: {resp.code}")  # type: ignore
+            return content.get("vouchers")
+        raise TahoeWebError(f"Error getting vouchers: {resp.code}")
 
     @inlineCallbacks
     def get_zkaps(
@@ -93,10 +93,10 @@ class ZKAPAuthorizer:
         else:
             query_string = ""
         resp = yield self._request("GET", f"/unblinded-token{query_string}")
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
-        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")  # type: ignore
+        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
 
     def zkap_payment_url(self, voucher: str) -> str:
         if not self.zkap_payment_url_root:
@@ -115,7 +115,7 @@ class ZKAPAuthorizer:
             yield self.gateway.create_rootcap()
         root_json = yield self.gateway.get_json(self.gateway.rootcap)
         try:
-            self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]  # type: ignore
+            self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]
         except (KeyError, TypeError):
             self.zkap_dircap = yield self.gateway.mkdir(
                 self.gateway.rootcap, ".zkaps"
@@ -134,7 +134,7 @@ class ZKAPAuthorizer:
         # ZKAP, so use the *second* token as the "checkpoint" (on the
         # assumption that the first/next token will be spent imminently)
         zkaps = yield self.get_zkaps(2)
-        checkpoint = zkaps.get("unblinded-tokens")[1]  # type: ignore
+        checkpoint = zkaps.get("unblinded-tokens")[1]
         checkpoint_path = os.path.join(self.zkapsdir, "checkpoint")
         with atomic_write(checkpoint_path, overwrite=True) as f:
             f.write(checkpoint.strip())
@@ -165,7 +165,7 @@ class ZKAPAuthorizer:
         temp_path = os.path.join(self.zkapsdir, "backup.json.tmp")
 
         zkaps = yield self.get_zkaps()
-        zkaps["last-redeemed"] = timestamp  # type: ignore
+        zkaps["last-redeemed"] = timestamp
 
         with atomic_write(temp_path, overwrite=True) as f:  # type: ignore
             f.write(json.dumps(zkaps))
@@ -185,30 +185,30 @@ class ZKAPAuthorizer:
             "/unblinded-token",
             json.dumps({"unblinded-tokens": zkaps}).encode(),
         )
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
-        raise TahoeWebError(f"Error inserting ZKAPs: {resp.code}")  # type: ignore
+        raise TahoeWebError(f"Error inserting ZKAPs: {resp.code}")
 
     @inlineCallbacks
     def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
         resp = yield treq.get(f"{self.gateway.nodeurl}uri/{cap}")
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             content = yield treq.content(resp)
             return content
-        raise TahoeWebError(f"Error getting cap content: {resp.code}")  # type: ignore
+        raise TahoeWebError(f"Error getting cap content: {resp.code}")
 
     @inlineCallbacks
     def restore_zkaps(self) -> TwistedDeferred[None]:
         zkap_dircap = yield self.get_zkap_dircap()
         yield self.gateway.await_ready()
 
-        backup = yield self._get_content(zkap_dircap + "/backup.json")  # type: ignore
-        backup_decoded = json.loads(backup.decode())  # type: ignore
+        backup = yield self._get_content(zkap_dircap + "/backup.json")
+        backup_decoded = json.loads(backup.decode())
         tokens = backup_decoded.get("unblinded-tokens")
 
-        checkpoint = yield self._get_content(zkap_dircap + "/checkpoint")  # type: ignore
-        checkpoint = checkpoint.decode()  # type: ignore
+        checkpoint = yield self._get_content(zkap_dircap + "/checkpoint")
+        checkpoint = checkpoint.decode()
 
         yield self.insert_zkaps(tokens[tokens.index(checkpoint) :])
 
@@ -228,9 +228,9 @@ class ZKAPAuthorizer:
     def get_version(self) -> TwistedDeferred[str]:
         version = ""
         resp = yield self._request("GET", "/version")
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             content = yield treq.json_content(resp)
-            version = content.get("version", "")  # type: ignore
+            version = content.get("version", "")
         return version
 
     @inlineCallbacks
@@ -267,12 +267,10 @@ class ZKAPAuthorizer:
             "/calculate-price",
             json.dumps({"version": 1, "sizes": sizes}).encode(),
         )
-        if resp.code == 200:  # type: ignore
+        if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
-        raise TahoeWebError(
-            f"Error calculating price: {resp.code}"  # type: ignore
-        )
+        raise TahoeWebError(f"Error calculating price: {resp.code}")
 
     @inlineCallbacks
     def get_price(self) -> TwistedDeferred[Dict]:
