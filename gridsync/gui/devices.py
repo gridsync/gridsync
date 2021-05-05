@@ -113,11 +113,11 @@ class DevicesTableView(QTableView):
         horizontal_header.setStretchLastSection(True)
 
         # XXX
-        self._model.add_device("one", ["a", "b"])
-        self._model.add_device("two", ["a", "c", "b"])
+        # self._model.add_device("one", ["a", "b"])
+        # self._model.add_device("two", ["a", "c", "b"])
 
-        self._model.remove_device("two")
-        self._model.remove_device("three")
+        # self._model.remove_device("two")
+        # self._model.remove_device("three")
 
 
 class DevicesView(QWidget):
