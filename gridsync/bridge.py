@@ -80,9 +80,9 @@ class TLSBridge:
 
     def create_certificate(self, common_name: str) -> None:
         key = ec.generate_private_key(ec.SECP256R1())
-        subject = issuer = x509.Name([
-            x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)
-        ])
+        subject = issuer = x509.Name(
+            [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
+        )
         cert = (
             x509.CertificateBuilder()
             .subject_name(subject)
