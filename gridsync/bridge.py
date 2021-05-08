@@ -78,9 +78,11 @@ class TLSBridge:
         self.address = ""
         self.__certificate_digest: bytes = b""
 
-    def create_certificate(self) -> None:
+    def create_certificate(self, common_name: str) -> None:
         key = ec.generate_private_key(ec.SECP256R1())
-        subject = issuer = x509.Name([])
+        subject = issuer = x509.Name([
+            x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)
+        ])
         cert = (
             x509.CertificateBuilder()
             .subject_name(subject)
@@ -122,7 +124,7 @@ class TLSBridge:
             "Starting bridge: https://%s:%s -> %s ...", lan_ip, port, nodeurl
         )
         if not os.path.exists(self.pemfile):
-            self.create_certificate()
+            self.create_certificate(lan_ip + ".invalid")  # XXX
         with open(self.pemfile) as f:
             certificate = ssl.PrivateCertificate.loadPEM(f.read()).options()
         endpoint = SSL4ServerEndpoint(
