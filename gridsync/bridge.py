@@ -89,6 +89,16 @@ def get_certificate_digest(pemfile: str) -> bytes:
     return digest
 
 
+class BridgeReverseProxyResource(ReverseProxyResource):
+    def __init__(self, bridge, host, port, path, reactor):
+        self.bridge = bridge
+        super().__init__(host, port, path, reactor)
+
+    def getChild(self, path, request):
+        self.bridge.resource_requested(request)
+        return super().getChild(path, request)
+
+
 class Bridge:
     def __init__(self, gateway: Tahoe, reactor, use_tls=True) -> None:  # type: ignore
         self.gateway = gateway
@@ -150,7 +160,11 @@ class Bridge:
             )
         url = urlparse(nodeurl)
         self.proxy = yield endpoint.listen(
-            Site(ReverseProxyResource(url.hostname, url.port, b""))
+            Site(
+                BridgeReverseProxyResource(
+                    self, url.hostname, url.port, b"", self._reactor
+                )
+            )
         )
         host = self.proxy.getHost()  # type: ignore
         self.address = f"{self.scheme}://{host.host}:{host.port}"
@@ -162,6 +176,11 @@ class Bridge:
             )
         else:
             logging.debug("Bridge started: %s", self.address)
+
+    def resource_requested(self, request) -> None:
+        logging.debug(
+            "%s %s %s", request.getClientIP(), request.method, request.uri
+        )
 
     @inlineCallbacks
     def stop(self) -> TwistedDeferred[None]:
