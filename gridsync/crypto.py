@@ -19,8 +19,8 @@ def randstr(length: int = 32, alphabet: str = "") -> str:
     return "".join(secrets.choice(alphabet) for i in range(length))
 
 
-def trunchash(string, length=7):
-    return hashlib.sha256(string.encode()).hexdigest()[:length]
+def trunchash(s, length=7):
+    return hashlib.sha256(s.encode()).hexdigest()[:length]
 
 
 class VersionError(CryptoError):
