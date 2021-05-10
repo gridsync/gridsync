@@ -5,7 +5,7 @@ from hashlib import sha256
 import nacl
 import pytest
 
-from gridsync.crypto import Crypter, VersionError, decrypt, encrypt
+from gridsync.crypto import Crypter, VersionError, decrypt, encrypt, randstr
 
 
 def fast_kdf(*args, **kwargs):
@@ -20,6 +20,18 @@ def ciphertext_with_argon2():
 @pytest.fixture(scope="module")
 def crypter():
     return Crypter(b"data", b"password")
+
+
+def test_randstr_random():
+    assert randstr() != randstr()
+
+
+def test_randstr_length():
+    assert len(randstr(16)) == 16
+
+
+def test_randstr_alphabet():
+    assert randstr(8, "A") == "AAAAAAAA"
 
 
 def test_argon2id_saltbytes():
