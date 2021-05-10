@@ -124,13 +124,6 @@ class DevicesTableView(QTableView):
         horizontal_header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         horizontal_header.setStretchLastSection(True)
 
-        # XXX
-        # self._model.add_device("one", ["a", "b"])
-        # self._model.add_device("two", ["a", "c", "b"])
-
-        # self._model.remove_device("two")
-        # self._model.remove_device("three")
-
 
 class DevicesView(QWidget):
     def __init__(self, gateway: Tahoe):
