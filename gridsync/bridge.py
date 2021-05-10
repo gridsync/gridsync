@@ -138,7 +138,7 @@ class Bridge:
                 self._reactor, port, certificate, interface=lan_ip
             )
         else:
-            endpoint = TCP4ServerEndpoint(
+            endpoint = TCP4ServerEndpoint(  # type: ignore
                 self._reactor, port, interface=lan_ip
             )
         url = urlparse(nodeurl)
