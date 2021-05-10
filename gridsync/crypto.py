@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import secrets
+import string
 
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
@@ -9,6 +11,12 @@ from nacl.utils import random
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from gridsync.util import b58decode, b58encode
+
+
+def randstr(length: int = 32, alphabet: str = "") -> str:
+    if not alphabet:
+        alphabet = string.ascii_letters + string.digits
+    return "".join(secrets.choice(alphabet) for i in range(length))
 
 
 def trunchash(string, length=7):

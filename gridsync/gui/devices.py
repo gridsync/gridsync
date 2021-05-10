@@ -16,10 +16,10 @@ from PyQt5.QtWidgets import (
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync import resource
+from gridsync.crypto import randstr
 from gridsync.gui.font import Font
 from gridsync.gui.qrcode import QRCode
 from gridsync.tahoe import Tahoe
-from gridsync.util import b58encode
 
 
 class LinkDeviceDialog(QDialog):
@@ -66,7 +66,7 @@ class LinkDeviceDialog(QDialog):
         logging.debug("QR code displayed with encoded data: %s", data)  # XXX
 
     def go(self) -> None:
-        device_name = "Device-" + b58encode(os.urandom(8))
+        device_name = "Device-" + randstr(8)
         folders = list(self.gateway.magic_folders)
         d = self.gateway.devices_manager.add_new_device(device_name, folders)
         d.addCallback(self.load_qr_code)
