@@ -34,7 +34,7 @@ def get_local_network_ip() -> str:
 
 
 def get_free_port(
-    port: int = 0, range_min: int = 1024, range_max: int = 65535
+    port: int = 0, range_min: int = 49152, range_max: int = 65535
 ) -> int:
     if not port:
         port = randint(range_min, range_max)
@@ -117,7 +117,7 @@ class Bridge:
             # TODO: Check that hostname matches lan_ip
         else:
             if not port:
-                port = get_free_port(range_min=49152, range_max=65535)
+                port = get_free_port()
             with open(self.urlfile, "w") as f:
                 f.write(f"{self.scheme}://{lan_ip}:{port}")
         logging.debug(
