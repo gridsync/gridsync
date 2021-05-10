@@ -54,47 +54,14 @@ def get_free_port(
 
 
 class Bridge:
-    def __init__(self, reactor) -> None:  # type: ignore
-        self._reactor = reactor
-        self.proxy = None
-        self.address = ""
-
-    @inlineCallbacks
-    def start(self, nodeurl: str, port: int = 8089) -> TwistedDeferred[None]:
-        if self.proxy and self.proxy.connected:
-            logging.warning("Tried to start a bridge that was already running")
-            return
-        lan_ip = get_local_network_ip()
-        logging.debug(
-            "Starting bridge: http://%s:%s -> %s ...", lan_ip, port, nodeurl
-        )
-        endpoint = TCP4ServerEndpoint(self._reactor, port, interface=lan_ip)
-        url = urlparse(nodeurl)
-        self.proxy = yield endpoint.listen(
-            Site(ReverseProxyResource(url.hostname, url.port, b""))
-        )
-        host = self.proxy.getHost()  # type: ignore
-        self.address = f"http://{host.host}:{host.port}"
-        logging.debug("Bridge started: %s", self.address)
-
-    @inlineCallbacks
-    def stop(self) -> TwistedDeferred[None]:
-        if not self.proxy or not self.proxy.connected:
-            logging.warning("Tried to stop a bridge that was not running")
-            return
-        host = self.proxy.getHost()
-        logging.debug(
-            "Stopping bridge: http://%s:%s ...", host.host, host.port
-        )
-        yield self.proxy.stopListening()
-        logging.debug("Bridge stopped: http://%s:%s", host.host, host.port)
-        self.proxy = None
-
-
-class TLSBridge:
-    def __init__(self, gateway: Tahoe, reactor) -> None:  # type: ignore
+    def __init__(self, gateway: Tahoe, reactor, use_tls=True) -> None:  # type: ignore
         self.gateway = gateway
         self._reactor = reactor
+        self.use_tls = use_tls
+        if use_tls:
+            self.scheme = "https"
+        else:
+            self.scheme = "http"
         self.pemfile = os.path.join(gateway.nodedir, "private", "bridge.pem")
         self.urlfile = os.path.join(gateway.nodedir, "private", "bridge.url")
         self.proxy = None
@@ -152,28 +119,42 @@ class TLSBridge:
             if not port:
                 port = get_free_port(range_min=49152, range_max=65535)
             with open(self.urlfile, "w") as f:
-                f.write(f"https://{lan_ip}:{port}")
+                f.write(f"{self.scheme}://{lan_ip}:{port}")
         logging.debug(
-            "Starting bridge: https://%s:%s -> %s ...", lan_ip, port, nodeurl
+            "Starting bridge: %s://%s:%s -> %s ...",
+            self.scheme,
+            lan_ip,
+            port,
+            nodeurl,
         )
-        if not os.path.exists(self.pemfile):
-            self.create_certificate(lan_ip + ".invalid")  # XXX
-        with open(self.pemfile) as f:
-            certificate = ssl.PrivateCertificate.loadPEM(f.read()).options()
-        endpoint = SSL4ServerEndpoint(
-            self._reactor, port, certificate, interface=lan_ip
-        )
+        if self.use_tls:
+            if not os.path.exists(self.pemfile):
+                self.create_certificate(lan_ip + ".invalid")  # XXX
+            with open(self.pemfile) as f:
+                certificate = ssl.PrivateCertificate.loadPEM(
+                    f.read()
+                ).options()
+            endpoint = SSL4ServerEndpoint(
+                self._reactor, port, certificate, interface=lan_ip
+            )
+        else:
+            endpoint = TCP4ServerEndpoint(
+                self._reactor, port, interface=lan_ip
+            )
         url = urlparse(nodeurl)
         self.proxy = yield endpoint.listen(
             Site(ReverseProxyResource(url.hostname, url.port, b""))
         )
         host = self.proxy.getHost()  # type: ignore
-        self.address = f"https://{host.host}:{host.port}"
-        d = iter(self.get_certificate_digest().hex().upper())
-        fp = ":".join(a + b for a, b in zip(d, d))
-        logging.debug(
-            "Bridge started: %s (certificate digest: %s)", self.address, fp
-        )
+        self.address = f"{self.scheme}://{host.host}:{host.port}"
+        if self.use_tls:
+            d = iter(self.get_certificate_digest().hex().upper())
+            fp = ":".join(a + b for a, b in zip(d, d))
+            logging.debug(
+                "Bridge started: %s (certificate digest: %s)", self.address, fp
+            )
+        else:
+            logging.debug("Bridge started: %s", self.address)
 
     @inlineCallbacks
     def stop(self) -> TwistedDeferred[None]:
@@ -182,8 +163,13 @@ class TLSBridge:
             return
         host = self.proxy.getHost()
         logging.debug(
-            "Stopping bridge: https://%s:%s ...", host.host, host.port
+            "Stopping bridge: %s://%s:%s ...",
+            self.scheme,
+            host.host,
+            host.port,
         )
         yield self.proxy.stopListening()
-        logging.debug("Bridge stopped: https://%s:%s", host.host, host.port)
+        logging.debug(
+            "Bridge stopped: %s://%s:%s", self.scheme, host.host, host.port
+        )
         self.proxy = None
