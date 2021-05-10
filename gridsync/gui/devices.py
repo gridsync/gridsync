@@ -20,6 +20,7 @@ from gridsync.crypto import randstr
 from gridsync.gui.font import Font
 from gridsync.gui.qrcode import QRCode
 from gridsync.tahoe import Tahoe
+from gridsync.types import TwistedDeferred
 
 
 class LinkDeviceDialog(QDialog):
@@ -96,7 +97,7 @@ class DevicesModel(QStandardItemModel):
             self.removeRow(items[0].row())
 
     @inlineCallbacks
-    def populate(self):
+    def populate(self) -> TwistedDeferred[None]:
         devicecaps = yield self.gateway.devices_manager.get_devicecaps()
         for name, _ in devicecaps:
             self.add_device(name, [])  # XXX
