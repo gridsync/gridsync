@@ -20,7 +20,11 @@ from twisted.web.server import Site
 
 from gridsync.types import TwistedDeferred
 
+# pylint: disable=ungrouped-imports
 if TYPE_CHECKING:
+    from twisted.internet.interfaces import IReactorCore
+    from twisted.web.server import Request
+
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
@@ -90,17 +94,26 @@ def get_certificate_digest(pemfile: str) -> bytes:
 
 
 class BridgeReverseProxyResource(ReverseProxyResource):
-    def __init__(self, bridge, host, port, path, reactor):
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        bridge: Bridge,
+        host: str,
+        port: int,
+        path: bytes,
+        reactor: IReactorCore,
+    ) -> None:
         self.bridge = bridge
         super().__init__(host, port, path, reactor)
 
-    def getChild(self, path, request):
+    def getChild(self, path: bytes, request: Request) -> ReverseProxyResource:
         self.bridge.resource_requested(request)
         return super().getChild(path, request)
 
 
 class Bridge:
-    def __init__(self, gateway: Tahoe, reactor, use_tls=True) -> None:  # type: ignore
+    def __init__(
+        self, gateway: Tahoe, reactor: IReactorCore, use_tls: bool = True
+    ) -> None:
         self.gateway = gateway
         self._reactor = reactor
         self.use_tls = use_tls
@@ -177,7 +190,7 @@ class Bridge:
         else:
             logging.debug("Bridge started: %s", self.address)
 
-    def resource_requested(self, request) -> None:
+    def resource_requested(self, request: Request) -> None:
         logging.debug(
             "%s %s %s", request.getClientIP(), request.method, request.uri
         )
