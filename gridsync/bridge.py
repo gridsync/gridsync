@@ -53,6 +53,42 @@ def get_free_port(
             return port
 
 
+def create_certificate(pemfile: str, common_name: str) -> bytes:
+    key = ec.generate_private_key(ec.SECP256R1())
+    subject = issuer = x509.Name(
+        [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
+    )
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(issuer)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.utcnow())
+        .not_valid_after(
+            datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
+        )
+        .sign(key, hashes.SHA256())
+    )
+    with open(pemfile, "wb") as f:
+        f.write(
+            key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+            + cert.public_bytes(serialization.Encoding.PEM)
+        )
+    return cert.fingerprint(hashes.SHA256())
+
+
+def get_certificate_digest(pemfile: str) -> bytes:
+    with open(pemfile) as f:
+        cert = x509.load_pem_x509_certificate(f.read().encode())
+    digest = cert.fingerprint(hashes.SHA256())
+    return digest
+
+
 class Bridge:
     def __init__(self, gateway: Tahoe, reactor, use_tls=True) -> None:  # type: ignore
         self.gateway = gateway
@@ -68,40 +104,9 @@ class Bridge:
         self.address = ""
         self.__certificate_digest: bytes = b""
 
-    def create_certificate(self, common_name: str) -> None:
-        key = ec.generate_private_key(ec.SECP256R1())
-        subject = issuer = x509.Name(
-            [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
-        )
-        cert = (
-            x509.CertificateBuilder()
-            .subject_name(subject)
-            .issuer_name(issuer)
-            .public_key(key.public_key())
-            .serial_number(x509.random_serial_number())
-            .not_valid_before(datetime.datetime.utcnow())
-            .not_valid_after(
-                datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
-            )
-            .sign(key, hashes.SHA256())
-        )
-
-        with open(self.pemfile, "wb") as f:
-            f.write(
-                key.private_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
-                    encryption_algorithm=serialization.NoEncryption(),
-                )
-                + cert.public_bytes(serialization.Encoding.PEM)
-            )
-        self.__certificate_digest = cert.fingerprint(hashes.SHA256())
-
     def get_certificate_digest(self) -> bytes:
         if not self.__certificate_digest:
-            with open(self.pemfile) as f:
-                cert = x509.load_pem_x509_certificate(f.read().encode())
-            self.__certificate_digest = cert.fingerprint(hashes.SHA256())
+            self.__certificate_digest = get_certificate_digest(self.pemfile)
         return self.__certificate_digest
 
     @inlineCallbacks
@@ -129,7 +134,9 @@ class Bridge:
         )
         if self.use_tls:
             if not os.path.exists(self.pemfile):
-                self.create_certificate(lan_ip + ".invalid")  # XXX
+                self.__certificate_digest = create_certificate(
+                    self.pemfile, lan_ip + ".invalid"
+                )
             with open(self.pemfile) as f:
                 certificate = ssl.PrivateCertificate.loadPEM(
                     f.read()
