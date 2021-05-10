@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class DevicesManager:
-    def __init__(self, gateway: Tahoe) -> None:  # type: ignore
+    def __init__(self, gateway: Tahoe) -> None:
         self.gateway = gateway
         self.devicescap: str = ""
         self._devicescap_lock = DeferredLock()
