@@ -60,8 +60,13 @@ class CentralWidget(QStackedWidget):
 
     def _add_devices_view(self, gateway):
         view = DevicesView(gateway)
-        self.addWidget(view)
-        self.devices_views[gateway] = view
+        widget = QWidget()
+        layout = QGridLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(view)
+        layout.addWidget(StatusPanel(gateway, self.gui))
+        self.addWidget(widget)
+        self.devices_views[gateway] = widget
 
     def _add_history_view(self, gateway):
         view = HistoryView(gateway, self.gui)
