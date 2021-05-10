@@ -135,11 +135,13 @@ class TLSBridge:
         return self.__certificate_digest
 
     @inlineCallbacks
-    def start(self, nodeurl: str, port: int = 8090) -> TwistedDeferred[None]:
+    def start(self, nodeurl: str, port: int = 0) -> TwistedDeferred[None]:
         if self.proxy and self.proxy.connected:
             logging.warning("Tried to start a bridge that was already running")
             return
         lan_ip = get_local_network_ip()
+        if not port:
+            port = get_free_port(range_min=49152, range_max=65535)
         logging.debug(
             "Starting bridge: https://%s:%s -> %s ...", lan_ip, port, nodeurl
         )
