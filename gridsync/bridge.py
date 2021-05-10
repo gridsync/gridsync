@@ -151,8 +151,8 @@ class TLSBridge:
         else:
             if not port:
                 port = get_free_port(range_min=49152, range_max=65535)
-            with open(self.urlfile, "wb") as f:
-                f.write(f"https://{lan_ip}:{port}".encode())
+            with open(self.urlfile, "w") as f:
+                f.write(f"https://{lan_ip}:{port}")
         logging.debug(
             "Starting bridge: https://%s:%s -> %s ...", lan_ip, port, nodeurl
         )
