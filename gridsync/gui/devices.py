@@ -83,6 +83,9 @@ class DevicesModel(QStandardItemModel):
         self.populate()
 
     def add_device(self, name: str, folders: List[str]) -> None:
+        items = self.findItems(name, Qt.MatchExactly, 0)
+        if items:
+            return  # Item already in model
         name_item = QStandardItem(QIcon(resource("laptop.png")), name)
         folders_item = QStandardItem(", ".join(sorted(folders)))
         self.appendRow([name_item, folders_item])
