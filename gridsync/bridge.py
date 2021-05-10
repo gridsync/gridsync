@@ -94,6 +94,7 @@ class TLSBridge:
         self.gateway = gateway
         self._reactor = reactor
         self.pemfile = os.path.join(gateway.nodedir, "private", "bridge.pem")
+        self.urlfile = os.path.join(gateway.nodedir, "private", "bridge.url")
         self.proxy = None
         self.address = ""
         self.__certificate_digest: bytes = b""
@@ -140,8 +141,16 @@ class TLSBridge:
             logging.warning("Tried to start a bridge that was already running")
             return
         lan_ip = get_local_network_ip()
-        if not port:
-            port = get_free_port(range_min=49152, range_max=65535)
+        if os.path.exists(self.urlfile):
+            with open(self.urlfile) as f:
+                url = urlparse(f.read().strip())
+            lan_ip, port = url.hostname, url.port
+            # TODO: Check that hostname matches lan_ip
+        else:
+            if not port:
+                port = get_free_port(range_min=49152, range_max=65535)
+            with open(self.urlfile, "wb") as f:
+                f.write(f"https://{lan_ip}:{port}".encode())
         logging.debug(
             "Starting bridge: https://%s:%s -> %s ...", lan_ip, port, nodeurl
         )
