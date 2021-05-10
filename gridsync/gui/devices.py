@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
     QTableView,
     QWidget,
 )
+from twisted.internet.defer import inlineCallbacks
 
 from gridsync import resource
 from gridsync.gui.font import Font
@@ -79,6 +80,8 @@ class DevicesModel(QStandardItemModel):
         self.setHeaderData(0, Qt.Horizontal, "Device Name")
         self.setHeaderData(1, Qt.Horizontal, "Linked Folders")
 
+        self.populate()
+
     def add_device(self, name: str, folders: List[str]) -> None:
         name_item = QStandardItem(QIcon(resource("laptop.png")), name)
         folders_item = QStandardItem(", ".join(sorted(folders)))
@@ -88,6 +91,12 @@ class DevicesModel(QStandardItemModel):
         items = self.findItems(name, Qt.MatchExactly, 0)
         if items:
             self.removeRow(items[0].row())
+
+    @inlineCallbacks
+    def populate(self):
+        devicecaps = yield self.gateway.devices_manager.get_devicecaps()
+        for name, _ in devicecaps:
+            self.add_device(name, [])  # XXX
 
 
 class DevicesTableView(QTableView):
