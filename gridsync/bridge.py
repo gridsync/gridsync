@@ -190,7 +190,8 @@ class Bridge:
         else:
             logging.debug("Bridge started: %s", self.address)
 
-    def resource_requested(self, request: Request) -> None:
+    @staticmethod
+    def resource_requested(request: Request) -> None:
         logging.debug(
             "%s %s %s", request.getClientIP(), request.method, request.uri
         )
