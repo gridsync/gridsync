@@ -33,7 +33,9 @@ def get_local_network_ip() -> str:
     return ip
 
 
-def get_free_port(port: int = 0, range_min=1024, range_max=65535) -> int:
+def get_free_port(
+    port: int = 0, range_min: int = 1024, range_max: int = 65535
+) -> int:
     if not port:
         port = randint(range_min, range_max)
     while True:
