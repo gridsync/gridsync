@@ -97,9 +97,9 @@ class DevicesModel(QStandardItemModel):
 
     @inlineCallbacks
     def populate(self) -> TwistedDeferred[None]:
-        devicecaps = yield self.gateway.devices_manager.get_devicecaps()
-        for name, _ in devicecaps:
-            self.add_device(name, [])  # XXX
+        sharemap = yield self.gateway.devices_manager.get_sharemap()
+        for device_name, folders in sharemap.items():
+            self.add_device(device_name, folders)
 
 
 class DevicesTableView(QTableView):
