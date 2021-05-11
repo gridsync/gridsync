@@ -74,6 +74,29 @@ class DevicesManager:
         return results
 
     @inlineCallbacks
+    def get_folders_for_device(self, device, cap):
+        folder_names = []
+        folders = yield self.gateway.get_magic_folders(cap)
+        if folders:
+            for folder_name in folders:
+                folder_names.append(folder_name)
+        return device, sorted(folder_names)
+
+    @inlineCallbacks
+    def get_sharemap(self) -> TwistedDeferred[Dict[str, List[str]]]:
+        sharemap = {}
+        devicecaps = yield self.get_devicecaps()
+        tasks = []
+        for name, cap in devicecaps:
+            tasks.append(self.get_folders_for_device(name, cap))
+        results = yield DeferredList(tasks, consumeErrors=True)
+        for success, result in results:
+            if success:
+                name, folders = result
+                sharemap[name] = folders
+        return sharemap
+
+    @inlineCallbacks
     def _do_invite(
         self, device: str, folder: str
     ) -> TwistedDeferred[Tuple[str, str]]:
