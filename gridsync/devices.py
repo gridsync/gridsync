@@ -74,7 +74,9 @@ class DevicesManager:
         return results
 
     @inlineCallbacks
-    def get_folders_for_device(self, device, cap):
+    def get_folders_for_device(
+        self, device: str, cap: str
+    ) -> TwistedDeferred[Tuple[str, List[str]]]:
         folder_names = []
         folders = yield self.gateway.get_magic_folders(cap)
         if folders:
@@ -89,7 +91,7 @@ class DevicesManager:
         tasks = []
         for name, cap in devicecaps:
             tasks.append(self.get_folders_for_device(name, cap))
-        results = yield DeferredList(tasks, consumeErrors=True)
+        results = yield DeferredList(tasks, consumeErrors=True)  # type: ignore
         for success, result in results:
             if success:
                 name, folders = result
