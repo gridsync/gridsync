@@ -93,6 +93,13 @@ def get_certificate_digest(pemfile: str) -> bytes:
     return digest
 
 
+def get_certificate_public_bytes(pemfile: str) -> bytes:
+    with open(pemfile) as f:
+        cert = x509.load_pem_x509_certificate(f.read().encode())
+    public_bytes = cert.public_bytes(serialization.Encoding.PEM)
+    return public_bytes
+
+
 class BridgeReverseProxyResource(ReverseProxyResource):
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -126,6 +133,14 @@ class Bridge:
         self.proxy = None
         self.address = ""
         self.__certificate_digest: bytes = b""
+        self.__certificate_public_bytes: bytes = b""
+
+    def get_public_certificate(self) -> bytes:
+        if not self.__certificate_public_bytes:
+            self.__certificate_public_bytes = get_certificate_public_bytes(
+                self.pemfile
+            )
+        return self.__certificate_public_bytes
 
     def get_certificate_digest(self) -> bytes:
         if not self.__certificate_digest:

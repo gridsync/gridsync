@@ -55,8 +55,13 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.close_button, 4, 1, Qt.AlignCenter)
 
     def load_qr_code(self, device_rootcap: str) -> None:
-        fp = b64encode(self.gateway.bridge.get_certificate_digest()).decode()
-        data = f"{self.gateway.bridge.address} {device_rootcap} {fp}"
+        # fp = b64encode(self.gateway.bridge.get_certificate_digest()).decode()
+        print("########################################")  # XXX
+        public_bytes = self.gateway.bridge.get_public_certificate()
+        print(public_bytes)
+        pb = b64encode(public_bytes).decode()
+        print("########################################")  # XXX
+        data = f"{self.gateway.bridge.address} {device_rootcap} {pb}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
             "Scan the above QR code with the Tahoe-LAFS mobile\n"
