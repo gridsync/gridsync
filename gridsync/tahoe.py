@@ -40,6 +40,7 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
+from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -1172,22 +1173,30 @@ class Tahoe:
         return self._get_magic_folder_setting(name, "directory")
 
     @inlineCallbacks
-    def get_magic_folders_from_rootcap(self, content=None):
+    def get_magic_folders(self, rootcap: str = "") -> TwistedDeferred[dict]:
+        if not rootcap:
+            rootcap = self.get_rootcap()
+        content = yield self.get_json(rootcap)
         if not content:
-            content = yield self.get_json(self.get_rootcap())
-        if content:
-            folders = defaultdict(dict)
-            for name, data in content[1]["children"].items():
-                data_dict = data[1]
-                if name.endswith(" (collective)"):
-                    prefix = name.split(" (collective)")[0]
-                    folders[prefix]["collective_dircap"] = data_dict["ro_uri"]
-                elif name.endswith(" (personal)"):
-                    prefix = name.split(" (personal)")[0]
-                    folders[prefix]["upload_dircap"] = data_dict["rw_uri"]
-                elif name.endswith(" (admin)"):
-                    prefix = name.split(" (admin)")[0]
-                    folders[prefix]["admin_dircap"] = data_dict["rw_uri"]
+            return {}
+        folders = defaultdict(dict)  # type: ignore
+        for name, data in content[1]["children"].items():
+            data_dict = data[1]
+            if name.endswith(" (collective)"):
+                prefix = name.split(" (collective)")[0]
+                folders[prefix]["collective_dircap"] = data_dict["ro_uri"]
+            elif name.endswith(" (personal)"):
+                prefix = name.split(" (personal)")[0]
+                folders[prefix]["upload_dircap"] = data_dict["rw_uri"]
+            elif name.endswith(" (admin)"):
+                prefix = name.split(" (admin)")[0]
+                folders[prefix]["admin_dircap"] = data_dict["rw_uri"]
+        return dict(folders)
+
+    @inlineCallbacks
+    def get_magic_folders_from_rootcap(self):
+        folders = yield self.get_magic_folders()
+        if folders:
             self.remote_magic_folders = folders
             return folders
         return None
