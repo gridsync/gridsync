@@ -19,6 +19,7 @@ from twisted.web.proxy import ReverseProxyResource
 from twisted.web.resource import Resource
 from twisted.web.server import Site
 
+from gridsync.crypto import randstr
 from gridsync.types import TwistedDeferred
 
 # pylint: disable=ungrouped-imports
@@ -126,6 +127,7 @@ class BridgeReverseProxyResource(ReverseProxyResource):
         self.bridge.resource_requested(request)
         content = self.bridge.single_serve_content.pop(path, b"")
         if content:
+            self.bridge.on_token_redeemed(path)
             return SingleServeResource(content)
         return super().getChild(path, request)
 
@@ -148,6 +150,7 @@ class Bridge:
         self.__certificate_digest: bytes = b""
         self.__certificate_public_bytes: bytes = b""
         self.single_serve_content = {}
+        self.pending_links = {}
 
     def get_public_certificate(self) -> bytes:
         if not self.__certificate_public_bytes:
@@ -224,6 +227,16 @@ class Bridge:
         logging.debug(
             "%s %s %s", request.getClientIP(), request.method, request.uri
         )
+
+    def add_pending_link(self, device_name: str, device_cap: str) -> str:
+        token = randstr(32)
+        self.single_serve_content[token.encode()] = device_cap.encode()
+        self.pending_links[token] = device_name
+        return token
+
+    def on_token_redeemed(self, token: bytes):
+        device_name = self.pending_links.pop(token.decode(), "")
+        logging.debug("Device linked: %s", device_name)
 
     @inlineCallbacks
     def stop(self) -> TwistedDeferred[None]:

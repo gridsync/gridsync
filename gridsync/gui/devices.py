@@ -26,6 +26,7 @@ class LinkDeviceDialog(QDialog):
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
+        self.device_name: str = ""
 
         self.setMinimumSize(QSize(600, 600))
 
@@ -57,11 +58,15 @@ class LinkDeviceDialog(QDialog):
     def load_qr_code(self, device_rootcap: str) -> None:
         # fp = b64encode(self.gateway.bridge.get_certificate_digest()).decode()
         print("########################################")  # XXX
+        token = self.gateway.bridge.add_pending_link(
+            self.device_name, device_rootcap
+        )
         public_bytes = self.gateway.bridge.get_public_certificate()
         print(public_bytes)
         pb = b64encode(public_bytes).decode()
         print("########################################")  # XXX
         data = f"{self.gateway.bridge.address} {device_rootcap} {pb}"
+        data = f"{self.gateway.bridge.address}/{token} {pb}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
             "Scan the above QR code with the Tahoe-LAFS mobile\n"
@@ -75,6 +80,7 @@ class LinkDeviceDialog(QDialog):
         folders = list(self.gateway.magic_folders)
         d = self.gateway.devices_manager.add_new_device(device_name, folders)
         d.addCallback(self.load_qr_code)
+        self.device_name = device_name
 
 
 class DevicesModel(QStandardItemModel):
