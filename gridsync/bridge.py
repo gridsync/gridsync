@@ -16,6 +16,7 @@ from twisted.internet import ssl
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.endpoints import SSL4ServerEndpoint, TCP4ServerEndpoint
 from twisted.web.proxy import ReverseProxyResource
+from twisted.web.resource import Resource
 from twisted.web.server import Site
 
 from gridsync.types import TwistedDeferred
@@ -100,6 +101,15 @@ def get_certificate_public_bytes(pemfile: str) -> bytes:
     return public_bytes
 
 
+class SingleServeResource(Resource):
+    def __init__(self, content: bytes):
+        super().__init__()
+        self.content = content
+
+    def render_GET(self, request: Request) -> bytes:
+        return self.content
+
+
 class BridgeReverseProxyResource(ReverseProxyResource):
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -114,6 +124,9 @@ class BridgeReverseProxyResource(ReverseProxyResource):
 
     def getChild(self, path: bytes, request: Request) -> ReverseProxyResource:
         self.bridge.resource_requested(request)
+        content = self.bridge.single_serve_content.pop(path, b"")
+        if content:
+            return SingleServeResource(content)
         return super().getChild(path, request)
 
 
@@ -134,6 +147,7 @@ class Bridge:
         self.address = ""
         self.__certificate_digest: bytes = b""
         self.__certificate_public_bytes: bytes = b""
+        self.single_serve_content = {}
 
     def get_public_certificate(self) -> bytes:
         if not self.__certificate_public_bytes:
