@@ -23,7 +23,7 @@ def randstr(length: int = 32, alphabet: str = "") -> str:
     return "".join(secrets.choice(alphabet) for i in range(length))
 
 
-def trunchash(s, length=7):
+def trunchash(s: str, length: int = 7) -> str:
     return hashlib.sha256(s.encode()).hexdigest()[:length]
 
 
@@ -74,7 +74,7 @@ class VersionError(CryptoError):
     pass
 
 
-def encrypt(message, password):
+def encrypt(message: bytes, password: bytes) -> str:
     version = b"1"
     salt = random(argon2id.SALTBYTES)  # 16
     key = argon2id.kdf(
@@ -89,7 +89,7 @@ def encrypt(message, password):
     return version + b58encode(salt + encrypted).encode()
 
 
-def decrypt(ciphertext, password):
+def decrypt(ciphertext: bytes, password: bytes) -> str:
     version = ciphertext[:1]
     ciphertext = b58decode(ciphertext[1:].decode())
     if version == b"1":
@@ -103,7 +103,9 @@ def decrypt(ciphertext, password):
             memlimit=argon2id.MEMLIMIT_SENSITIVE,  # 1073741824
         )
     else:
-        raise VersionError("Invalid version byte; received {}".format(version))
+        raise VersionError(
+            "Invalid version byte; received {!r}".format(version)
+        )
     box = SecretBox(key)
     plaintext = box.decrypt(encrypted)
     return plaintext
@@ -111,21 +113,21 @@ def decrypt(ciphertext, password):
 
 class Crypter(QObject):
 
-    succeeded = pyqtSignal(object)  # bytes (python3) or str (python2)
+    succeeded = pyqtSignal(object)
     failed = pyqtSignal(str)
 
-    def __init__(self, data, password):
+    def __init__(self, data: bytes, password: bytes) -> None:
         super().__init__()
         self.data = data
         self.password = password
 
-    def encrypt(self):
+    def encrypt(self) -> None:
         try:
             self.succeeded.emit(encrypt(self.data, self.password))
         except Exception as err:  # pylint: disable=broad-except
             self.failed.emit(str(err))
 
-    def decrypt(self):
+    def decrypt(self) -> None:
         try:
             self.succeeded.emit(decrypt(self.data, self.password))
         except Exception as err:  # pylint: disable=broad-except
