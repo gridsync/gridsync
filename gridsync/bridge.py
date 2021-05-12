@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Union
 from urllib.parse import urlparse
 
 from twisted.internet import ssl
@@ -34,7 +34,7 @@ class SingleServeResource(Resource):
         super().__init__()
         self.content = content
 
-    def render_GET(self, request: Request) -> bytes:
+    def render_GET(self, _: Request) -> bytes:
         return self.content
 
 
@@ -50,7 +50,9 @@ class BridgeReverseProxyResource(ReverseProxyResource):
         super().__init__(host, port, path, reactor)
         self.bridge = bridge
 
-    def getChild(self, path: bytes, request: Request) -> ReverseProxyResource:
+    def getChild(
+        self, path: bytes, request: Request
+    ) -> Union[ReverseProxyResource, SingleServeResource]:
         self.bridge.resource_requested(request)
         content = self.bridge.single_serve_content.pop(path, b"")
         if content:
@@ -76,8 +78,8 @@ class Bridge:
         self.address = ""
         self.__certificate_digest: bytes = b""
         self.__certificate_public_bytes: bytes = b""
-        self.single_serve_content = {}
-        self.pending_links = {}
+        self.single_serve_content: Dict[bytes, bytes] = {}
+        self.pending_links: Dict[str, str] = {}
 
     def get_public_certificate(self) -> bytes:
         if not self.__certificate_public_bytes:
@@ -161,7 +163,7 @@ class Bridge:
         self.pending_links[token] = device_name
         return token
 
-    def on_token_redeemed(self, token: bytes):
+    def on_token_redeemed(self, token: bytes) -> None:
         device_name = self.pending_links.pop(token.decode(), "")
         logging.debug("Device linked: %s", device_name)
 
