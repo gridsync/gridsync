@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import hashlib
 import secrets
 import string
 
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
@@ -21,6 +25,49 @@ def randstr(length: int = 32, alphabet: str = "") -> str:
 
 def trunchash(s, length=7):
     return hashlib.sha256(s.encode()).hexdigest()[:length]
+
+
+def create_certificate(pemfile: str, common_name: str) -> bytes:
+    key = ec.generate_private_key(ec.SECP256R1())
+    subject = issuer = x509.Name(
+        [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
+    )
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(issuer)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.utcnow())
+        .not_valid_after(
+            datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
+        )
+        .sign(key, hashes.SHA256())
+    )
+    with open(pemfile, "wb") as f:
+        f.write(
+            key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+            + cert.public_bytes(serialization.Encoding.PEM)
+        )
+    return cert.fingerprint(hashes.SHA256())
+
+
+def get_certificate_digest(pemfile: str) -> bytes:
+    with open(pemfile) as f:
+        cert = x509.load_pem_x509_certificate(f.read().encode())
+    digest = cert.fingerprint(hashes.SHA256())
+    return digest
+
+
+def get_certificate_public_bytes(pemfile: str) -> bytes:
+    with open(pemfile) as f:
+        cert = x509.load_pem_x509_certificate(f.read().encode())
+    public_bytes = cert.public_bytes(serialization.Encoding.PEM)
+    return public_bytes
 
 
 class VersionError(CryptoError):

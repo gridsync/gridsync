@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import datetime
 import errno
 import logging
 import os
@@ -9,9 +8,6 @@ from random import randint
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
-from cryptography import x509
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec
 from twisted.internet import ssl
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.endpoints import SSL4ServerEndpoint, TCP4ServerEndpoint
@@ -19,7 +15,12 @@ from twisted.web.proxy import ReverseProxyResource
 from twisted.web.resource import Resource
 from twisted.web.server import Site
 
-from gridsync.crypto import randstr
+from gridsync.crypto import (
+    create_certificate,
+    get_certificate_digest,
+    get_certificate_public_bytes,
+    randstr,
+)
 from gridsync.types import TwistedDeferred
 
 # pylint: disable=ungrouped-imports
@@ -57,49 +58,6 @@ def get_free_port(
                 raise
             logging.debug("Port %s is free", port)
             return port
-
-
-def create_certificate(pemfile: str, common_name: str) -> bytes:
-    key = ec.generate_private_key(ec.SECP256R1())
-    subject = issuer = x509.Name(
-        [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
-    )
-    cert = (
-        x509.CertificateBuilder()
-        .subject_name(subject)
-        .issuer_name(issuer)
-        .public_key(key.public_key())
-        .serial_number(x509.random_serial_number())
-        .not_valid_before(datetime.datetime.utcnow())
-        .not_valid_after(
-            datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
-        )
-        .sign(key, hashes.SHA256())
-    )
-    with open(pemfile, "wb") as f:
-        f.write(
-            key.private_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=serialization.NoEncryption(),
-            )
-            + cert.public_bytes(serialization.Encoding.PEM)
-        )
-    return cert.fingerprint(hashes.SHA256())
-
-
-def get_certificate_digest(pemfile: str) -> bytes:
-    with open(pemfile) as f:
-        cert = x509.load_pem_x509_certificate(f.read().encode())
-    digest = cert.fingerprint(hashes.SHA256())
-    return digest
-
-
-def get_certificate_public_bytes(pemfile: str) -> bytes:
-    with open(pemfile) as f:
-        cert = x509.load_pem_x509_certificate(f.read().encode())
-    public_bytes = cert.public_bytes(serialization.Encoding.PEM)
-    return public_bytes
 
 
 class SingleServeResource(Resource):
