@@ -119,8 +119,8 @@ class BridgeReverseProxyResource(ReverseProxyResource):
         path: bytes,
         reactor: IReactorCore,
     ) -> None:
-        self.bridge = bridge
         super().__init__(host, port, path, reactor)
+        self.bridge = bridge
 
     def getChild(self, path: bytes, request: Request) -> ReverseProxyResource:
         self.bridge.resource_requested(request)
