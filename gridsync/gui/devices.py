@@ -56,12 +56,10 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.close_button, 4, 1, Qt.AlignCenter)
 
     def load_qr_code(self, device_rootcap: str) -> None:
-        # fp = b64encode(self.gateway.bridge.get_certificate_digest()).decode()
         token = self.gateway.bridge.add_pending_link(
             self.device_name, device_rootcap
         )
         pb = b64encode(self.gateway.bridge.get_public_certificate()).decode()
-        # data = f"{self.gateway.bridge.address} {device_rootcap} {pb}"
         data = f"{self.gateway.bridge.address}/{token} {pb}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
