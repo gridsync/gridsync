@@ -93,7 +93,9 @@ class Bridge:
             self.__certificate_digest = get_certificate_digest(self.pemfile)
         return self.__certificate_digest
 
-    def _create_endpoint(self, ip: str, port: int):
+    def _create_endpoint(
+        self, ip: str, port: int
+    ) -> Union[SSL4ServerEndpoint, TCP4ServerEndpoint]:
         if self.use_tls:
             if not os.path.exists(self.pemfile):
                 self.__certificate_digest = create_certificate(
