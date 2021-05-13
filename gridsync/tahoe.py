@@ -141,7 +141,6 @@ class Tahoe:
         self.newscap_checker = NewscapChecker(self)
         self.devices_manager = DevicesManager(self)
 
-
         self.settings: dict = {}
 
         self.zkapauthorizer = ZKAPAuthorizer(self)
