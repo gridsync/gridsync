@@ -51,6 +51,7 @@ def create_certificate(pemfile: str, hostname: str, ip_address: str) -> bytes:
             datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
         )
         .add_extension(san, False)
+        .add_extension(x509.BasicConstraints(ca=True, path_length=0), False)
         .sign(key, hashes.SHA256())
     )
     with open(pemfile, "wb") as f:
