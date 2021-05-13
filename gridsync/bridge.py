@@ -93,6 +93,21 @@ class Bridge:
             self.__certificate_digest = get_certificate_digest(self.pemfile)
         return self.__certificate_digest
 
+    def _create_endpoint(self, ip: str, port: int):
+        if self.use_tls:
+            if not os.path.exists(self.pemfile):
+                self.__certificate_digest = create_certificate(
+                    self.pemfile, ip + ".invalid", ip
+                )
+            with open(self.pemfile) as f:
+                certificate = ssl.PrivateCertificate.loadPEM(
+                    f.read()
+                ).options()
+            return SSL4ServerEndpoint(
+                self._reactor, port, certificate, interface=ip
+            )
+        return TCP4ServerEndpoint(self._reactor, port, interface=ip)
+
     @inlineCallbacks
     def start(self, nodeurl: str, port: int = 0) -> TwistedDeferred[None]:
         if self.proxy and self.proxy.connected:
@@ -116,22 +131,7 @@ class Bridge:
             port,
             nodeurl,
         )
-        if self.use_tls:
-            if not os.path.exists(self.pemfile):
-                self.__certificate_digest = create_certificate(
-                    self.pemfile, lan_ip + ".invalid", lan_ip
-                )
-            with open(self.pemfile) as f:
-                certificate = ssl.PrivateCertificate.loadPEM(
-                    f.read()
-                ).options()
-            endpoint = SSL4ServerEndpoint(
-                self._reactor, port, certificate, interface=lan_ip
-            )
-        else:
-            endpoint = TCP4ServerEndpoint(  # type: ignore
-                self._reactor, port, interface=lan_ip
-            )
+        endpoint = self._create_endpoint(lan_ip, port)
         url = urlparse(nodeurl)
         self.proxy = yield endpoint.listen(
             Site(
