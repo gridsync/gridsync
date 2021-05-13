@@ -40,16 +40,15 @@ def create_certificate(pemfile: str, hostname: str, ip_address: str) -> bytes:
             x509.IPAddress(ipaddress.ip_address(ip_address)),
         ]
     )
+    now = datetime.datetime.utcnow()
     cert = (
         x509.CertificateBuilder()
         .subject_name(subject)
         .issuer_name(issuer)
         .public_key(key.public_key())
         .serial_number(x509.random_serial_number())
-        .not_valid_before(datetime.datetime.utcnow())
-        .not_valid_after(
-            datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
-        )
+        .not_valid_before(now)
+        .not_valid_after(now + datetime.timedelta(days=365 * 100))
         .add_extension(san, False)
         .add_extension(x509.BasicConstraints(ca=True, path_length=0), False)
         .sign(key, hashes.SHA256())
