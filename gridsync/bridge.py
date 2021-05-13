@@ -119,7 +119,7 @@ class Bridge:
         if self.use_tls:
             if not os.path.exists(self.pemfile):
                 self.__certificate_digest = create_certificate(
-                    self.pemfile, lan_ip + ".invalid"
+                    self.pemfile, lan_ip + ".invalid", lan_ip
                 )
             with open(self.pemfile) as f:
                 certificate = ssl.PrivateCertificate.loadPEM(

@@ -2,6 +2,7 @@
 
 import datetime
 import hashlib
+import ipaddress
 import secrets
 import string
 
@@ -27,10 +28,17 @@ def trunchash(s: str, length: int = 7) -> str:
     return hashlib.sha256(s.encode()).hexdigest()[:length]
 
 
-def create_certificate(pemfile: str, common_name: str) -> bytes:
+def create_certificate(pemfile: str, hostname: str, ip_address: str) -> bytes:
     key = ec.generate_private_key(ec.SECP256R1())
     subject = issuer = x509.Name(
-        [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
+        [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, hostname)]
+    )
+    san = x509.SubjectAlternativeName(
+        [
+            x509.DNSName(hostname),
+            x509.DNSName(ip_address),
+            x509.IPAddress(ipaddress.ip_address(ip_address)),
+        ]
     )
     cert = (
         x509.CertificateBuilder()
@@ -42,6 +50,7 @@ def create_certificate(pemfile: str, common_name: str) -> bytes:
         .not_valid_after(
             datetime.datetime.utcnow() + datetime.timedelta(days=365 * 100)
         )
+        .add_extension(san, False)
         .sign(key, hashes.SHA256())
     )
     with open(pemfile, "wb") as f:
