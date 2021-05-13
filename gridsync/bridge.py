@@ -102,12 +102,8 @@ class Bridge:
                     self.pemfile, ip + ".invalid", ip
                 )
             with open(self.pemfile) as f:
-                certificate = ssl.PrivateCertificate.loadPEM(
-                    f.read()
-                ).options()
-            return SSL4ServerEndpoint(
-                self._reactor, port, certificate, interface=ip
-            )
+                cert = ssl.PrivateCertificate.loadPEM(f.read()).options()
+            return SSL4ServerEndpoint(self._reactor, port, cert, interface=ip)
         return TCP4ServerEndpoint(self._reactor, port, interface=ip)
 
     @inlineCallbacks
