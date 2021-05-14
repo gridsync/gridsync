@@ -111,30 +111,48 @@ class Bridge:
         if self.proxy and self.proxy.connected:
             logging.warning("Tried to start a bridge that was already running")
             return
-        lan_ip = get_local_network_ip()
+
         if os.path.exists(self.urlfile):
             with open(self.urlfile) as f:
                 url = urlparse(f.read().strip())
-            lan_ip, port = url.hostname, url.port
+            bridge_host, bridge_port = url.hostname, url.port
+            if not bridge_host:
+                raise ValueError(
+                    f"Bridge hostname not found in {self.urlfile}"
+                )
+            if not bridge_port:
+                raise ValueError(f"Bridge port not found in {self.urlfile}")
             # TODO: Check that hostname matches lan_ip
+            # TODO: Check/verify scheme
         else:
-            if not port:
-                port = get_free_port()
+            bridge_host = get_local_network_ip()
+            if port:
+                bridge_port = port
+            else:
+                bridge_port = get_free_port()
             with open(self.urlfile, "w") as f:
-                f.write(f"{self.scheme}://{lan_ip}:{port}")
+                f.write(f"{self.scheme}://{bridge_host}:{bridge_port}")
+
         logging.debug(
             "Starting bridge: %s://%s:%s -> %s ...",
             self.scheme,
-            lan_ip,
-            port,
+            bridge_host,
+            bridge_port,
             nodeurl,
         )
-        endpoint = self._create_endpoint(lan_ip, port)
+
         url = urlparse(nodeurl)
+        node_host, node_port = url.hostname, url.port
+        if not node_host:
+            raise ValueError("Node hostname not found")
+        if not node_port:
+            raise ValueError("Node port not found")
+
+        endpoint = self._create_endpoint(bridge_host, bridge_port)
         self.proxy = yield endpoint.listen(
             Site(
                 BridgeReverseProxyResource(
-                    self, url.hostname, url.port, b"", self._reactor
+                    self, node_host, node_port, b"", self._reactor
                 )
             )
         )
