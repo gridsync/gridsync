@@ -1,3 +1,4 @@
+# mypy: allow-any-explicit
 from typing import Any, Generator, TypeVar
 
 from treq.response import _Response
