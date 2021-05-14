@@ -98,6 +98,7 @@ class DevicesModel(QStandardItemModel):
         self.setHeaderData(0, Qt.Horizontal, "Device Name")
         self.setHeaderData(1, Qt.Horizontal, "Linked Folders")
 
+        self.gateway.devices_manager.device_added.connect(self.on_device_added)
         self.populate()
 
     def add_device(self, name: str, folders: List[str]) -> None:
@@ -118,6 +119,9 @@ class DevicesModel(QStandardItemModel):
         sharemap = yield self.gateway.devices_manager.get_sharemap()
         for device_name, folders in sharemap.items():
             self.add_device(device_name, folders)
+
+    def on_device_added(self, device_name):
+        self.populate()
 
 
 class DevicesTableView(QTableView):
