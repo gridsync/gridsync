@@ -177,7 +177,8 @@ class DevicesView(QWidget):
 
         self.table_view = DevicesTableView(gateway)
 
-        self.link_device_button = QPushButton("Link Device...")
+        self.link_device_button = QPushButton(" Link Device...")
+        self.link_device_button.setIcon(QIcon(resource("qrcode-white.png")))
         self.link_device_button.setStyleSheet(
             "background: green; color: white"
         )
