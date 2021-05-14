@@ -7,7 +7,7 @@ import logging as log
 import os
 import shutil
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
 from atomicwrites import atomic_write
@@ -124,7 +124,7 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def update_zkap_checkpoint(
-        self, _: Optional[Any] = None
+        self, _: Optional[str] = ""
     ) -> TwistedDeferred[None]:
         if not self.gateway.zkap_auth_required:
             return
