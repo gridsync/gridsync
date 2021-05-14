@@ -111,7 +111,7 @@ class DevicesModel(QStandardItemModel):
         items = self.findItems(name, Qt.MatchExactly, 0)
         if items:
             return  # Item already in model
-        name_item = QStandardItem(QIcon(resource("laptop.png")), name)
+        name_item = QStandardItem(QIcon(resource("cellphone.png")), name)
         folders_item = QStandardItem(", ".join(sorted(folders)))
         self.appendRow([name_item, folders_item])
 
@@ -160,7 +160,9 @@ class DevicesTableView(QTableView):
         current_item = self._model.itemFromIndex(self.indexAt(position))
         print(current_item)
         menu = QMenu(self)
-        remove_action = QAction(QIcon(resource("close.png")), "Unlink device")
+        remove_action = QAction(
+            QIcon(resource("cellphone-erase.png")), "Unlink device"
+        )
         remove_action.triggered.connect(print)
         menu.addAction(remove_action)
         menu.exec_(self.viewport().mapToGlobal(position))
