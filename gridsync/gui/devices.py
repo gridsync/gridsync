@@ -126,6 +126,7 @@ class DevicesModel(QStandardItemModel):
 
     def on_device_linked(self, device_name: str) -> None:
         self.populate()
+        logging.debug("Successfully linked %s", device_name)
 
 
 class DevicesTableView(QTableView):

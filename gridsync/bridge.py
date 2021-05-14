@@ -182,7 +182,7 @@ class Bridge:
     def on_token_redeemed(self, token: bytes) -> None:
         device_name = self.pending_links.pop(token.decode(), "")
         self.gateway.devices_manager.device_linked.emit(device_name)  # XXX
-        logging.debug("Device linked: %s", device_name)
+        logging.debug("Token redeemed: %s", str(token))
 
     @inlineCallbacks
     def stop(self) -> TwistedDeferred[None]:
