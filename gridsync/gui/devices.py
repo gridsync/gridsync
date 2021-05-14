@@ -5,9 +5,11 @@ from typing import List
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import (
+    QAction,
     QDialog,
     QGridLayout,
     QLabel,
+    QMenu,
     QPushButton,
     QTableView,
     QWidget,
@@ -140,6 +142,7 @@ class DevicesTableView(QTableView):
 
         self.setColumnWidth(0, 200)
         self.setShowGrid(False)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSelectionMode(QTableView.ExtendedSelection)
 
@@ -150,6 +153,17 @@ class DevicesTableView(QTableView):
         horizontal_header.setHighlightSections(False)
         horizontal_header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         horizontal_header.setStretchLastSection(True)
+
+        self.customContextMenuRequested.connect(self.on_right_click)
+
+    def on_right_click(self, position):
+        current_item = self._model.itemFromIndex(self.indexAt(position))
+        print(current_item)
+        menu = QMenu(self)
+        remove_action = QAction(QIcon(resource("close.png")), "Unlink device")
+        remove_action.triggered.connect(print)
+        menu.addAction(remove_action)
+        menu.exec_(self.viewport().mapToGlobal(position))
 
 
 class DevicesView(QWidget):
