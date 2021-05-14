@@ -56,7 +56,7 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.instructions_label, 3, 1)
         layout.addWidget(self.close_button, 4, 1, Qt.AlignCenter)
 
-        self.gateway.devices_manager.device_added.connect(self.on_device_added)
+        self.gateway.devices_manager.device_linked.connect(self.on_device_linked)
 
     def load_qr_code(self, device_rootcap: str) -> None:
         token = self.gateway.bridge.add_pending_link(
@@ -79,7 +79,7 @@ class LinkDeviceDialog(QDialog):
         d.addCallback(self.load_qr_code)
         self.device_name = device_name
 
-    def on_device_added(self, device_name: str) -> None:
+    def on_device_linked(self, device_name: str) -> None:
         if device_name == self.device_name:
             self.title_label.setText("Success!")
             self.qrcode_label.setPixmap(
@@ -98,7 +98,7 @@ class DevicesModel(QStandardItemModel):
         self.setHeaderData(0, Qt.Horizontal, "Device Name")
         self.setHeaderData(1, Qt.Horizontal, "Linked Folders")
 
-        self.gateway.devices_manager.device_added.connect(self.on_device_added)
+        self.gateway.devices_manager.device_linked.connect(self.on_device_linked)
         self.populate()
 
     def add_device(self, name: str, folders: List[str]) -> None:
@@ -120,7 +120,7 @@ class DevicesModel(QStandardItemModel):
         for device_name, folders in sharemap.items():
             self.add_device(device_name, folders)
 
-    def on_device_added(self, device_name: str) -> None:
+    def on_device_linked(self, device_name: str) -> None:
         self.populate()
 
 

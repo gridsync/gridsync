@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class DevicesManager(QObject):
 
-    device_added = Signal(str)  # device name
+    device_linked = Signal(str)  # device name
 
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
