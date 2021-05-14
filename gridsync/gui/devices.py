@@ -152,7 +152,7 @@ class DevicesView(QWidget):
         super().__init__()
         self.gateway = gateway
 
-        self.link_device_dialog: LinkDeviceDialog = None
+        self.link_device_dialogs: List = []
 
         self.table_view = DevicesTableView(gateway)
 
@@ -170,6 +170,8 @@ class DevicesView(QWidget):
         layout.addWidget(self.table_view)
 
     def on_link_device_button_clicked(self) -> None:
-        self.link_device_dialog = LinkDeviceDialog(self.gateway)
-        self.link_device_dialog.show()
-        self.link_device_dialog.go()
+        dialog = LinkDeviceDialog(self.gateway)
+        self.link_device_dialogs.append(dialog)
+        dialog.show()
+        dialog.go()
+        # TODO: Remove on close
