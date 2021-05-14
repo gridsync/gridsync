@@ -17,6 +17,7 @@ from twisted.internet.defer import inlineCallbacks
 from gridsync import resource
 from gridsync.crypto import randstr
 from gridsync.gui.font import Font
+from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
 from gridsync.tahoe import Tahoe
 from gridsync.types import TwistedDeferred
@@ -55,6 +56,8 @@ class LinkDeviceDialog(QDialog):
         layout.addWidget(self.instructions_label, 3, 1)
         layout.addWidget(self.close_button, 4, 1, Qt.AlignCenter)
 
+        self.gateway.devices_manager.device_added.connect(self.on_device_added)
+
     def load_qr_code(self, device_rootcap: str) -> None:
         token = self.gateway.bridge.add_pending_link(
             self.device_name, device_rootcap
@@ -75,6 +78,16 @@ class LinkDeviceDialog(QDialog):
         d = self.gateway.devices_manager.add_new_device(device_name, folders)
         d.addCallback(self.load_qr_code)
         self.device_name = device_name
+
+    def on_device_added(self, device_name):
+        if device_name == self.device_name:
+            self.title_label.setText("Success!")
+            self.qrcode_label.setPixmap(
+                Pixmap(resource("green_checkmark.png"), 128)
+            )
+            self.instructions_label.setText(
+                f"{device_name} was successfully linked!"
+            )
 
 
 class DevicesModel(QStandardItemModel):
