@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal as Signal
 from twisted.internet.defer import DeferredList, DeferredLock, inlineCallbacks
 
 from gridsync.types import TwistedDeferred
@@ -11,8 +13,12 @@ if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
-class DevicesManager:
+class DevicesManager(QObject):
+
+    device_added = Signal(str)  # device name
+
     def __init__(self, gateway: Tahoe) -> None:
+        super().__init__()
         self.gateway = gateway
         self.devicescap: str = ""
         self._devicescap_lock = DeferredLock()
