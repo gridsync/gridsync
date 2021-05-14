@@ -79,7 +79,7 @@ class LinkDeviceDialog(QDialog):
         d.addCallback(self.load_qr_code)
         self.device_name = device_name
 
-    def on_device_added(self, device_name):
+    def on_device_added(self, device_name: str) -> None:
         if device_name == self.device_name:
             self.title_label.setText("Success!")
             self.qrcode_label.setPixmap(
@@ -120,7 +120,7 @@ class DevicesModel(QStandardItemModel):
         for device_name, folders in sharemap.items():
             self.add_device(device_name, folders)
 
-    def on_device_added(self, device_name):
+    def on_device_added(self, device_name: str) -> None:
         self.populate()
 
 
@@ -148,7 +148,7 @@ class DevicesTableView(QTableView):
 
 
 class DevicesView(QWidget):
-    def __init__(self, gateway: Tahoe):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
 
