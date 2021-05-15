@@ -70,8 +70,10 @@ class LinkDeviceDialog(QDialog):
         data = f"{self.gateway.bridge.address}/{token} {pb}"
         self.qrcode_label.setPixmap(QPixmap(QRCode(data).scaled(400, 400)))
         self.instructions_label.setText(
-            "Scan the above QR code with the Tahoe-LAFS mobile\n"
-            "application to link it with this device."
+            "Scan the above QR code with the <a href='https://github.com/"
+            "LeastAuthority/tahoe-lafs-android-app'>Tahoe-LAFS Android app"
+            "</a> to link it with this device. Linking a device will allow "
+            "it to browse and modify your folders."
         )
         self.instructions_label.show()
         logging.debug("QR code displayed with encoded data: %s", data)  # XXX
