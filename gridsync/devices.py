@@ -168,7 +168,7 @@ class DevicesManager(QObject):
                 tasks.append(
                     self.gateway.magic_folder_uninvite(folder, device_name)
                 )
-        yield DeferredList(tasks, consumeErrors=True)
+        yield DeferredList(tasks, consumeErrors=True)  # type: ignore
 
         tasks = [self.remove_devicecap(device) for device in sharemap.keys()]
-        yield DeferredList(tasks, consumeErrors=True)
+        yield DeferredList(tasks, consumeErrors=True)  # type: ignore
