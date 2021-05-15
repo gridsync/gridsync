@@ -160,15 +160,19 @@ class DevicesManager(QObject):
 
     @inlineCallbacks
     def remove_devices(self, devices: List[str]) -> TwistedDeferred[None]:
+        filtered = {}
         sharemap = yield self.get_sharemap()
+        for device_name, folders in sharemap.items():
+            if device_name in devices:
+                filtered[device_name] = folders
 
         tasks = []
-        for device_name, folders in sharemap.items():
+        for device_name, folders in filtered.items():
             for folder in folders:
                 tasks.append(
                     self.gateway.magic_folder_uninvite(folder, device_name)
                 )
         yield DeferredList(tasks, consumeErrors=True)  # type: ignore
 
-        tasks = [self.remove_devicecap(device) for device in sharemap.keys()]
+        tasks = [self.remove_devicecap(device) for device in filtered]
         yield DeferredList(tasks, consumeErrors=True)  # type: ignore
