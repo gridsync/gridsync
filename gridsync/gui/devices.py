@@ -107,6 +107,8 @@ class DevicesModel(QStandardItemModel):
         self.gateway.devices_manager.device_linked.connect(
             self.on_device_linked
         )
+        self.gateway.devices_manager.device_removed.connect(self.remove_device)
+
         self.populate()
 
     def add_device(self, name: str, folders: List[str]) -> None:
@@ -171,8 +173,6 @@ class DevicesTableView(QTableView):
     @inlineCallbacks
     def _remove_selected(self, _: bool) -> TwistedDeferred[None]:
         selected = self._selected_devices()
-        for device in selected:
-            self._model.remove_device(device)
         yield self.gateway.devices_manager.remove_devices(selected)
 
     def on_right_click(self, position: QPoint) -> None:
