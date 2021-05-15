@@ -156,14 +156,32 @@ class DevicesTableView(QTableView):
 
         self.customContextMenuRequested.connect(self.on_right_click)
 
+    def _selected_devices(self) -> List[str]:
+        devices = []
+        selected = self.selectedIndexes()
+        if selected:
+            for index in selected:
+                item = self._model.itemFromIndex(index)
+                if item.column() == 0:
+                    devices.append(item.text())
+        return devices
+
+    @inlineCallbacks
+    def _remove_selected(self, _: bool) -> None:
+        selected = self._selected_devices()
+        for device in selected:
+            self._model.remove_device(device)
+        yield self.gateway.devices_manager.remove_devices(selected)
+
     def on_right_click(self, position):
-        current_item = self._model.itemFromIndex(self.indexAt(position))
-        print(current_item)
         menu = QMenu(self)
-        remove_action = QAction(
-            QIcon(resource("cellphone-erase.png")), "Unlink device"
-        )
-        remove_action.triggered.connect(print)
+        selected = self._selected_devices()
+        if len(selected) >= 2:
+            text = "Unlink devices..."
+        else:
+            text = "Unlink device..."
+        remove_action = QAction(QIcon(resource("cellphone-erase.png")), text)
+        remove_action.triggered.connect(self._remove_selected)
         menu.addAction(remove_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
