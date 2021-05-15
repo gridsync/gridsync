@@ -21,6 +21,7 @@ from gridsync.crypto import randstr
 from gridsync.gui.font import Font
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
+from gridsync.msg import question
 from gridsync.tahoe import Tahoe
 from gridsync.types import TwistedDeferred
 
@@ -170,10 +171,24 @@ class DevicesTableView(QTableView):
                     devices.append(item.text())
         return devices
 
+    def confirm_unlink(self, devices: List[str]) -> bool:
+        if len(devices) >= 2:
+            title = "Unlink devices?"
+        else:
+            title = "Unlink device?"
+        devices_list = "\n".join(devices)
+        text = (
+            "Are you sure you wish to unlink the following devices?\n\n"
+            f"{devices_list}\n\nUnlinking a device will prevent it from "
+            "modifying your existing folders and seeing new changes."
+        )
+        return question(self, title, text)
+
     @inlineCallbacks
     def _remove_selected(self, _: bool) -> TwistedDeferred[None]:
         selected = self._selected_devices()
-        yield self.gateway.devices_manager.remove_devices(selected)
+        if self.confirm_unlink(selected):
+            yield self.gateway.devices_manager.remove_devices(selected)
 
     def on_right_click(self, position: QPoint) -> None:
         menu = QMenu(self)
