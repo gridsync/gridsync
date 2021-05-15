@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 class DevicesManager(QObject):
 
     device_linked = Signal(str)  # device name
+    device_removed = Signal(str)  # device name
 
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
@@ -74,6 +75,7 @@ class DevicesManager(QObject):
             yield self.gateway.unlink(root, device_name)
         finally:
             yield self._devicescap_lock.release()
+        self.device_removed.emit(device_name)
         logging.debug("Removed device %s", device_name)
 
     @inlineCallbacks
