@@ -159,7 +159,7 @@ class DevicesManager(QObject):
         pass
 
     @inlineCallbacks
-    def remove_devices(self, devices: List[str]) -> None:
+    def remove_devices(self, devices: List[str]) -> TwistedDeferred[None]:
         sharemap = yield self.get_sharemap()
 
         tasks = []

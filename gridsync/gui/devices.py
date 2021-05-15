@@ -2,7 +2,7 @@ import logging
 from base64 import b64encode
 from typing import List
 
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QPoint, QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import (
     QAction,
@@ -167,13 +167,13 @@ class DevicesTableView(QTableView):
         return devices
 
     @inlineCallbacks
-    def _remove_selected(self, _: bool) -> None:
+    def _remove_selected(self, _: bool) -> TwistedDeferred[None]:
         selected = self._selected_devices()
         for device in selected:
             self._model.remove_device(device)
         yield self.gateway.devices_manager.remove_devices(selected)
 
-    def on_right_click(self, position):
+    def on_right_click(self, position: QPoint) -> None:
         menu = QMenu(self)
         selected = self._selected_devices()
         if len(selected) >= 2:
