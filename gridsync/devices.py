@@ -63,6 +63,20 @@ class DevicesManager(QObject):
         return devicecap
 
     @inlineCallbacks
+    def remove_devicecap(
+        self, device_name: str, root: Optional[str] = ""
+    ) -> TwistedDeferred[None]:
+        logging.debug("Removing device %s...", device_name)
+        if not root:
+            root = yield self.get_devicescap()
+        yield self._devicescap_lock.acquire()
+        try:
+            yield self.gateway.unlink(root, device_name)
+        finally:
+            yield self._devicescap_lock.release()
+        logging.debug("Removed device %s", device_name)
+
+    @inlineCallbacks
     def get_devicecaps(
         self, root: Optional[str] = ""
     ) -> TwistedDeferred[List]:
@@ -143,3 +157,18 @@ class DevicesManager(QObject):
     @inlineCallbacks
     def add_new_folder(self, folder: str, devices: List[str]) -> None:
         pass
+
+    @inlineCallbacks
+    def remove_devices(self, devices: List[str]) -> None:
+        sharemap = yield self.get_sharemap()
+
+        tasks = []
+        for device_name, folders in sharemap.items():
+            for folder in folders:
+                tasks.append(
+                    self.gateway.magic_folder_uninvite(folder, device_name)
+                )
+        yield DeferredList(tasks, consumeErrors=True)
+
+        tasks = [self.remove_devicecap(device) for device in sharemap.keys()]
+        yield DeferredList(tasks, consumeErrors=True)
