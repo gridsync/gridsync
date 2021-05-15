@@ -31,6 +31,7 @@ class LinkDeviceDialog(QDialog):
         super().__init__()
         self.gateway = gateway
         self.device_name: str = ""
+        self.success: bool = False
 
         self.setMinimumSize(QSize(600, 600))
 
@@ -95,6 +96,13 @@ class LinkDeviceDialog(QDialog):
             self.instructions_label.setText(
                 f"{device_name} was successfully linked!"
             )
+            self.success = True
+
+    def exec_(self) -> QDialog.DialogCode:
+        result = super().exec_()
+        if not self.success:  # XXX
+            self.gateway.devices_manager.remove_devices([self.device_name])
+        return result
 
 
 class DevicesModel(QStandardItemModel):
@@ -229,6 +237,5 @@ class DevicesView(QWidget):
     def on_link_device_button_clicked(self) -> None:
         dialog = LinkDeviceDialog(self.gateway)
         self.link_device_dialogs.append(dialog)
-        dialog.show()
         dialog.go()
-        # TODO: Remove on close
+        dialog.exec_()
