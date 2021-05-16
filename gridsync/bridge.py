@@ -124,6 +124,7 @@ class Bridge:
                 raise ValueError(f"Bridge port not found in {self.urlfile}")
             # TODO: Check that hostname matches lan_ip
             # TODO: Check/verify scheme
+            # TODO: Backup/link pemfile, urlfile into rootcap
         else:
             bridge_host = get_local_network_ip()
             if port:
