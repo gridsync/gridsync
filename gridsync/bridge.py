@@ -53,7 +53,6 @@ class BridgeReverseProxyResource(ReverseProxyResource):
     def getChild(
         self, path: bytes, request: Request
     ) -> Union[ReverseProxyResource, SingleServeResource]:
-        self.bridge.resource_requested(request)
         content = self.bridge.single_serve_content.pop(path, b"")
         if content:
             self.bridge.on_token_redeemed(path)
@@ -168,12 +167,6 @@ class Bridge:
         else:
             logging.debug("Bridge started: %s", self.address)
         return self.address
-
-    @staticmethod
-    def resource_requested(request: Request) -> None:
-        logging.debug(
-            "%s %s %s", request.getClientIP(), request.method, request.uri
-        )
 
     def add_pending_link(self, device_name: str, device_cap: str) -> str:
         token = randstr(32)
