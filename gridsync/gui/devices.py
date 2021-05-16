@@ -198,12 +198,14 @@ class DevicesTableView(QTableView):
             yield self.gateway.devices_manager.remove_devices(selected)
 
     def on_right_click(self, position: QPoint) -> None:
-        menu = QMenu(self)
         selected = self._selected_devices()
-        if len(selected) >= 2:
+        if not selected:
+            return
+        elif len(selected) >= 2:
             text = "Unlink devices..."
         else:
             text = "Unlink device..."
+        menu = QMenu(self)
         remove_action = QAction(QIcon(resource("cellphone-erase.png")), text)
         remove_action.triggered.connect(self._remove_selected)
         menu.addAction(remove_action)
