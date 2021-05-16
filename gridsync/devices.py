@@ -128,7 +128,7 @@ class DevicesManager(QObject):
         return folder, code
 
     @inlineCallbacks
-    def add_new_device(
+    def add_device(
         self, device: str, folders: List[str]
     ) -> TwistedDeferred[str]:
         if not folders:

@@ -83,7 +83,7 @@ class LinkDeviceDialog(QDialog):
     def go(self) -> None:
         device_name = "Device-" + randstr(8)
         folders = list(self.gateway.magic_folders)
-        d = self.gateway.devices_manager.add_new_device(device_name, folders)
+        d = self.gateway.devices_manager.add_device(device_name, folders)
         d.addCallback(self.load_qr_code)
         self.device_name = device_name
 
