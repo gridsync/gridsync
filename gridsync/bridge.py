@@ -110,7 +110,7 @@ class Bridge:
     def start(self, nodeurl: str, port: int = 0) -> TwistedDeferred[str]:
         if self.proxy and self.proxy.connected:
             logging.warning("Tried to start a bridge that was already running")
-            return
+            return self.address
 
         if os.path.exists(self.urlfile):
             with open(self.urlfile) as f:
