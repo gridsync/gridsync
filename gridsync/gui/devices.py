@@ -201,7 +201,7 @@ class DevicesTableView(QTableView):
         selected = self._selected_devices()
         if not selected:
             return
-        elif len(selected) >= 2:
+        if len(selected) >= 2:
             text = "Unlink devices..."
         else:
             text = "Unlink device..."
