@@ -4,8 +4,18 @@ from hashlib import sha256
 
 import nacl
 import pytest
+from cryptography import x509
 
-from gridsync.crypto import Crypter, VersionError, decrypt, encrypt, randstr
+from gridsync.crypto import (
+    Crypter,
+    VersionError,
+    create_certificate,
+    decrypt,
+    encrypt,
+    get_certificate_digest,
+    get_certificate_public_bytes,
+    randstr,
+)
 
 
 def fast_kdf(*args, **kwargs):
@@ -32,6 +42,28 @@ def test_randstr_length():
 
 def test_randstr_alphabet():
     assert randstr(8, "A") == "AAAAAAAA"
+
+
+def test_create_certificate(tmp_path):
+    pemfile = tmp_path / "cert.pem"
+    before = pemfile.exists()
+    create_certificate(pemfile, "example.org", "127.0.0.1")
+    after = pemfile.exists()
+    assert (before, after) == (False, True)
+
+
+def test_get_certificate_digest(tmp_path):
+    pemfile = tmp_path / "cert.pem"
+    digest = create_certificate(pemfile, "example.org", "127.0.0.1")
+    assert get_certificate_digest(pemfile) == digest
+
+
+def test_get_certificate_public_bytes_is_self_signed(tmp_path):
+    pemfile = tmp_path / "cert.pem"
+    create_certificate(pemfile, "example.org", "127.0.0.1")
+    public_bytes = get_certificate_public_bytes(pemfile)
+    cert = x509.load_pem_x509_certificate(public_bytes)
+    assert cert.subject == cert.issuer
 
 
 def test_argon2id_saltbytes():
