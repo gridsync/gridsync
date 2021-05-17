@@ -157,7 +157,7 @@ class Bridge:
                 )
             )
         except CannotListenError as err:
-            logging.warn(err)  # TODO: Alert user? Prompt to re-link devices?
+            logging.warning(err)  # TODO: Alert user? Prompt to re-link device?
             return ""
         host = self.proxy.getHost()  # type: ignore
         self.address = f"{self.scheme}://{host.host}:{host.port}"
