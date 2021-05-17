@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Dict, Union
+from typing import TYPE_CHECKING, Dict, Tuple, Union
 from urllib.parse import urlparse
 
 from twisted.internet import ssl
@@ -93,25 +93,7 @@ class Bridge:
             self.__certificate_digest = get_certificate_digest(self.pemfile)
         return self.__certificate_digest
 
-    def _create_endpoint(
-        self, ip: str, port: int
-    ) -> Union[SSL4ServerEndpoint, TCP4ServerEndpoint]:
-        if self.use_tls:
-            if not os.path.exists(self.pemfile):
-                self.__certificate_digest = create_certificate(
-                    self.pemfile, ip + ".invalid", ip
-                )
-            with open(self.pemfile) as f:
-                cert = ssl.PrivateCertificate.loadPEM(f.read()).options()
-            return SSL4ServerEndpoint(self._reactor, port, cert, interface=ip)
-        return TCP4ServerEndpoint(self._reactor, port, interface=ip)
-
-    @inlineCallbacks
-    def start(self, nodeurl: str, port: int = 0) -> TwistedDeferred[str]:
-        if self.proxy and self.proxy.connected:
-            logging.warning("Tried to start a bridge that was already running")
-            return self.address
-
+    def _get_bridge_address(self, port: int = 0) -> Tuple[str, int]:
         if os.path.exists(self.urlfile):
             with open(self.urlfile) as f:
                 url = urlparse(f.read().strip())
@@ -131,6 +113,28 @@ class Bridge:
                 bridge_port = get_free_port()
             with open(self.urlfile, "w") as f:
                 f.write(f"{self.scheme}://{bridge_host}:{bridge_port}")
+        return bridge_host, bridge_port
+
+    def _create_endpoint(
+        self, ip: str, port: int
+    ) -> Union[SSL4ServerEndpoint, TCP4ServerEndpoint]:
+        if self.use_tls:
+            if not os.path.exists(self.pemfile):
+                self.__certificate_digest = create_certificate(
+                    self.pemfile, ip + ".invalid", ip
+                )
+            with open(self.pemfile) as f:
+                cert = ssl.PrivateCertificate.loadPEM(f.read()).options()
+            return SSL4ServerEndpoint(self._reactor, port, cert, interface=ip)
+        return TCP4ServerEndpoint(self._reactor, port, interface=ip)
+
+    @inlineCallbacks
+    def start(self, nodeurl: str, port: int = 0) -> TwistedDeferred[str]:
+        if self.proxy and self.proxy.connected:
+            logging.warning("Tried to start a bridge that was already running")
+            return self.address
+
+        bridge_host, bridge_port = self._get_bridge_address(port)
 
         logging.debug(
             "Starting bridge: %s://%s:%s -> %s ...",
