@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from twisted.internet import ssl
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.endpoints import SSL4ServerEndpoint, TCP4ServerEndpoint
+from twisted.internet.error import CannotListenError
 from twisted.web.proxy import ReverseProxyResource
 from twisted.web.resource import Resource
 from twisted.web.server import Site
@@ -121,8 +122,6 @@ class Bridge:
                 )
             if not bridge_port:
                 raise ValueError(f"Bridge port not found in {self.urlfile}")
-            # TODO: Check that hostname matches lan_ip
-            # TODO: Check/verify scheme
             # TODO: Backup/link pemfile, urlfile into rootcap
         else:
             bridge_host = get_local_network_ip()
@@ -149,13 +148,17 @@ class Bridge:
             raise ValueError("Node port not found")
 
         endpoint = self._create_endpoint(bridge_host, bridge_port)
-        self.proxy = yield endpoint.listen(
-            Site(
-                BridgeReverseProxyResource(
-                    self, node_host, node_port, b"", self._reactor
+        try:
+            self.proxy = yield endpoint.listen(
+                Site(
+                    BridgeReverseProxyResource(
+                        self, node_host, node_port, b"", self._reactor
+                    )
                 )
             )
-        )
+        except CannotListenError as err:
+            logging.warn(err)  # TODO: Alert user? Prompt to re-link devices?
+            return ""
         host = self.proxy.getHost()  # type: ignore
         self.address = f"{self.scheme}://{host.host}:{host.port}"
         if self.use_tls:
