@@ -195,4 +195,3 @@ class Bridge:
         logging.debug(
             "Bridge stopped: %s://%s:%s", self.scheme, host.host, host.port
         )
-        self.proxy = None
