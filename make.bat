@@ -114,8 +114,7 @@ goto :eof
 goto :eof
 
 :installer
-call copy misc\InnoSetup.iss .
-call "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\InnoSetup.iss
+call %PYTHON3% .\scripts\make_installer.py
 goto :eof
 
 
