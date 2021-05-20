@@ -21,6 +21,8 @@
 
 @echo off
 
+exit /b 1
+
 if defined APPVEYOR (
     if "%PYTHON_ARCH%" == "64" (
         set PYTHON2=C:\Python27-x64\python.exe
