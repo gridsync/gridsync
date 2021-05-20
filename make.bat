@@ -21,8 +21,6 @@
 
 @echo off
 
-exit /b 1
-
 if defined APPVEYOR (
     if "%PYTHON_ARCH%" == "64" (
         set PYTHON2=C:\Python27-x64\python.exe
@@ -62,7 +60,7 @@ call del .\.coverage
 goto :eof
 
 :test
-call %PYTHON3% -m tox || exit /b 1
+%PYTHON3% -m tox || exit /b 1
 goto :eof
 
 :frozen-tahoe
