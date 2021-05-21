@@ -48,15 +48,15 @@ if "%1"=="" call :all
 goto :eof
 
 :clean
-rmdir /s /q .\build
-rmdir /s /q .\dist
-rmdir /s /q .\.eggs
-rmdir /s /q .\.cache
-rmdir /s /q .\.tox
-rmdir /s /q .\htmlcov
-rmdir /s /q .\.pytest_cache
-rmdir /s /q .\.mypy_cache
-del .\.coverage
+call rmdir /s /q .\build
+call rmdir /s /q .\dist
+call rmdir /s /q .\.eggs
+call rmdir /s /q .\.cache
+call rmdir /s /q .\.tox
+call rmdir /s /q .\htmlcov
+call rmdir /s /q .\.pytest_cache
+call rmdir /s /q .\.mypy_cache
+call del .\.coverage
 goto :eof
 
 :test
@@ -64,38 +64,38 @@ goto :eof
 goto :eof
 
 :frozen-tahoe
-%PYTHON2% -m pip install --upgrade setuptools pip virtualenv
-%PYTHON2% -m virtualenv --clear .\build\venv-tahoe
-.\build\venv-tahoe\Scripts\activate
-python -m pip install --upgrade setuptools pip
-git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
-pushd .\build\tahoe-lafs
-git checkout tahoe-lafs-1.14.0
-copy ..\..\misc\storage_client.py.patch .
-git apply --ignore-space-change --ignore-whitespace storage_client.py.patch
-copy ..\..\misc\rsa-public-exponent.patch .
-git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
-python setup.py update_version
-python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-git clone https://github.com/PrivateStorageio/ZKAPAuthorizer .\build\ZKAPAuthorizer
-copy ..\..\misc\zkapauthorizer-retry-interval.patch .\build\ZKAPAuthorizer
-pushd .\build\ZKAPAuthorizer
-git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963
-git apply --ignore-space-change --ignore-whitespace zkapauthorizer-retry-interval.patch
-python -m pip install .
-popd
-python -m pip install .
-python -m pip install -r ..\..\requirements\pyinstaller.txt
-python -m pip list
-copy ..\..\misc\tahoe.spec pyinstaller.spec
-set PYTHONHASHSEED=1
-pyinstaller pyinstaller.spec
-set PYTHONHASHSEED=
-mkdir dist\Tahoe-LAFS\challenge_bypass_ristretto
-copy ..\venv-tahoe\Lib\site-packages\challenge_bypass_ristretto\*.pyd dist\Tahoe-LAFS\challenge_bypass_ristretto\
-move dist ..\..
-popd
-deactivate
+call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
+call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
+call .\build\venv-tahoe\Scripts\activate
+call python -m pip install --upgrade setuptools pip
+call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
+call pushd .\build\tahoe-lafs
+call git checkout tahoe-lafs-1.14.0
+call copy ..\..\misc\storage_client.py.patch .
+call git apply --ignore-space-change --ignore-whitespace storage_client.py.patch
+call copy ..\..\misc\rsa-public-exponent.patch .
+call git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
+call python setup.py update_version
+call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
+call git clone https://github.com/PrivateStorageio/ZKAPAuthorizer .\build\ZKAPAuthorizer
+call copy ..\..\misc\zkapauthorizer-retry-interval.patch .\build\ZKAPAuthorizer
+call pushd .\build\ZKAPAuthorizer
+call git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963
+call git apply --ignore-space-change --ignore-whitespace zkapauthorizer-retry-interval.patch
+call python -m pip install .
+call popd
+call python -m pip install .
+call python -m pip install -r ..\..\requirements\pyinstaller.txt
+call python -m pip list
+call copy ..\..\misc\tahoe.spec pyinstaller.spec
+call set PYTHONHASHSEED=1
+call pyinstaller pyinstaller.spec
+call set PYTHONHASHSEED=
+call mkdir dist\Tahoe-LAFS\challenge_bypass_ristretto
+call copy ..\venv-tahoe\Lib\site-packages\challenge_bypass_ristretto\*.pyd dist\Tahoe-LAFS\challenge_bypass_ristretto\
+call move dist ..\..
+call popd
+call deactivate
 goto :eof
 
 :pyinstaller
@@ -114,17 +114,17 @@ goto :eof
 goto :eof
 
 :installer
-%PYTHON3% .\scripts\make_installer.py
+call %PYTHON3% .\scripts\make_installer.py
 goto :eof
 
 
 :vagrant-build-linux
-vagrant up centos-7
-vagrant provision --provision-with devtools,test,build centos-7
+call vagrant up centos-7
+call vagrant provision --provision-with devtools,test,build centos-7
 goto :eof
 
 :vagrant-build-macos
-vagrant up --provision-with devtools,test,build macos-10.14
+call vagrant up --provision-with devtools,test,build macos-10.14
 goto :eof
 
 :vagrant-build-windows
