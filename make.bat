@@ -141,4 +141,5 @@ goto :eof
 
 :error
 echo ERRORR %errorlevel%
-exit /b %errorlevel%
+echo ERRORR %errorlevel%
+exit %errorlevel%
