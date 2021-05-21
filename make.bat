@@ -140,6 +140,5 @@ call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
 goto :eof
 
 :error
-echo ERRORR %errorlevel%
-echo ERRORR %errorlevel%
+echo Error in batch file; exiting with error level %errorlevel%
 exit %errorlevel%
