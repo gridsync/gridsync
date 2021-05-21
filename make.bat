@@ -89,7 +89,7 @@ call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
 call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
-call pyinstaller pyinstaller.specNOTFOUND || goto :error
+call pyinstaller pyinstaller.spec || goto :error
 call set PYTHONHASHSEED=
 call mkdir dist\Tahoe-LAFS\challenge_bypass_ristretto
 call copy ..\venv-tahoe\Lib\site-packages\challenge_bypass_ristretto\*.pyd dist\Tahoe-LAFS\challenge_bypass_ristretto\
