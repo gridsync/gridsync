@@ -60,7 +60,7 @@ call del .\.coverage
 goto :eof
 
 :test
-call %PYTHON3% -m tox || exit /b 1
+%PYTHON3% -m tox || goto :error
 goto :eof
 
 :frozen-tahoe
@@ -89,7 +89,7 @@ call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
 call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
-call pyinstaller pyinstaller.spec
+call pyinstaller pyinstaller.spec || goto :error
 call set PYTHONHASHSEED=
 call mkdir dist\Tahoe-LAFS\challenge_bypass_ristretto
 call copy ..\venv-tahoe\Lib\site-packages\challenge_bypass_ristretto\*.pyd dist\Tahoe-LAFS\challenge_bypass_ristretto\
@@ -100,21 +100,21 @@ goto :eof
 
 :pyinstaller
 if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
-%PYTHON3% -m tox -e pyinstaller || exit /b 1
+%PYTHON3% -m tox -e pyinstaller || goto :error
 goto :eof
 
 :zip
-%PYTHON3% .\scripts\update_permissions.py .\dist
-%PYTHON3% .\scripts\update_timestamps.py .\dist
-%PYTHON3% .\scripts\make_zip.py
+%PYTHON3% .\scripts\update_permissions.py .\dist || goto :error
+%PYTHON3% .\scripts\update_timestamps.py .\dist || goto :error
+%PYTHON3% .\scripts\make_zip.py || goto :error
 goto :eof
 
 :test-determinism
-%PYTHON3% .\scripts\test_determinism.py
+%PYTHON3% .\scripts\test_determinism.py || goto :error
 goto :eof
 
 :installer
-call %PYTHON3% .\scripts\make_installer.py
+call %PYTHON3% .\scripts\make_installer.py || goto :error
 goto :eof
 
 
@@ -138,3 +138,7 @@ call :zip
 call :installer
 call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
 goto :eof
+
+:error
+echo Error in batch file; exiting with error level %errorlevel%
+exit %errorlevel%
