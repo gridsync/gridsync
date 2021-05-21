@@ -60,7 +60,7 @@ call del .\.coverage
 goto :eof
 
 :test
-%PYTHON3% -m tox || exit /b 1
+%PYTHON3% -m tox || goto :error
 goto :eof
 
 :frozen-tahoe
@@ -138,3 +138,7 @@ call :zip
 call :installer
 call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
 goto :eof
+
+:error
+echo ERROR
+exit /b %errorlevel%
