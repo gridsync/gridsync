@@ -60,7 +60,7 @@ call del .\.coverage
 goto :eof
 
 :test
-%PYTHON3% -m tox || goto :error
+%PYTHON3% -m tox || exit %ERRORLEVEL%
 goto :eof
 
 :frozen-tahoe
