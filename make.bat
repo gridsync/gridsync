@@ -141,4 +141,4 @@ goto :eof
 
 :error
 echo Error in batch file; exiting with error level %errorlevel%
-exit /b %errorlevel%
+exit %errorlevel%
