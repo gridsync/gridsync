@@ -140,5 +140,5 @@ call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
 goto :eof
 
 :error
-echo ERROR
+echo ERRORR %errorlevel%
 exit /b %errorlevel%

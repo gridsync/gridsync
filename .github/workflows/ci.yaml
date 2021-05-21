@@ -142,7 +142,7 @@ jobs:
     - name: Install dependencies
       run: py -3 -m pip install tox diffoscope
     - name: Test
-      run: py -3 -m tox
+      run: .\make.bat test
     - name: Make pyinstaller
       run: |
         .\make.bat pyinstaller
