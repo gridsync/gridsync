@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QAction,
     QDialog,
     QGridLayout,
+    QInputDialog,
     QLabel,
     QMenu,
     QPushButton,
@@ -23,8 +24,8 @@ from gridsync.crypto import randstr
 from gridsync.gui.font import Font
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
-from gridsync.msg import question
-from gridsync.tahoe import Tahoe
+from gridsync.msg import error, question
+from gridsync.tahoe import Tahoe, TahoeWebError
 from gridsync.types import TwistedDeferred
 
 
@@ -139,6 +140,15 @@ class DevicesModel(QStandardItemModel):
         if items:
             self.removeRow(items[0].row())
 
+    def rename_device(self, name: str, new_name: str) -> None:
+        items = self.findItems(name, Qt.MatchExactly, 0)
+        if not items:
+            logging.warning(
+                "Tried to rename device %s which doesn't exist", name
+            )
+            return
+        items[0].setText(new_name)
+
     @inlineCallbacks
     def populate(self) -> TwistedDeferred[None]:
         devices = yield self.gateway.devices_manager.get_devices()
@@ -199,6 +209,30 @@ class DevicesTableView(QTableView):
         return question(self, title, text)
 
     @inlineCallbacks
+    def _rename_device(self, _: bool) -> None:
+        devices = self._selected_devices()
+        if not devices:
+            return
+        old_name = devices[0]
+        new_name, ok = QInputDialog.getText(
+            self,
+            f"Rename {old_name}",
+            f"Please choose a new name for {old_name}:",
+            0,
+            old_name,
+        )
+        if not ok:
+            return
+        try:
+            yield self.gateway.devices_manager.rename_device(
+                old_name, new_name
+            )
+        except TahoeWebError as err:
+            error(self, "Error renaming device", str(err))
+            return
+        yield self._model.rename_device(old_name, new_name)
+
+    @inlineCallbacks
     def _remove_selected(self, _: bool) -> TwistedDeferred[None]:
         selected = self._selected_devices()
         if self.confirm_unlink(selected):
@@ -208,13 +242,18 @@ class DevicesTableView(QTableView):
         selected = self._selected_devices()
         if not selected:
             return
-        if len(selected) >= 2:
+        num_selected = len(selected)
+        if num_selected >= 2:
             text = "Unlink devices..."
         else:
             text = "Unlink device..."
         menu = QMenu(self)
+        rename_action = QAction("Rename")
+        rename_action.triggered.connect(self._rename_device)
         remove_action = QAction(QIcon(resource("cellphone-erase.png")), text)
         remove_action.triggered.connect(self._remove_selected)
+        if num_selected == 1:
+            menu.addAction(rename_action)
         menu.addAction(remove_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
