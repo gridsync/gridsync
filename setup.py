@@ -21,6 +21,7 @@ requirements = [
     "PyQtChart",
     "pyyaml",
     "qt5reactor",
+    "retricon",
     "segno",
     "treq",
     "twisted[tls]",
