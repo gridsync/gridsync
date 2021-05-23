@@ -125,7 +125,6 @@ class DevicesModel(QStandardItemModel):
         items = self.findItems(name, Qt.MatchExactly, 0)
         if items:
             return  # Item already in model
-        # name_item = QStandardItem(QIcon(resource("cellphone.png")), name)
         buffer = BytesIO()
         retricon(cap).save(buffer, "PNG")
         buffer.seek(0)
