@@ -243,14 +243,13 @@ class DevicesTableView(QTableView):
         if not selected:
             return
         menu = QMenu(self)
-        if len(selected) >= 2:
-            text = "Unlink devices..."
-        else:
-            text = "Unlink device..."
-            rename_action = QAction(QIcon(resource("pencil.png")), "Rename")
+        if len(selected) == 1:
+            rename_action = QAction(QIcon(resource("pencil.png")), "Rename...")
             rename_action.triggered.connect(self._rename_device)
             menu.addAction(rename_action)
-        remove_action = QAction(QIcon(resource("cellphone-erase.png")), text)
+        remove_action = QAction(
+            QIcon(resource("cellphone-erase.png")), "Unlink..."
+        )
         remove_action.triggered.connect(self._remove_selected)
         menu.addAction(remove_action)
         menu.exec_(self.viewport().mapToGlobal(position))
