@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal as Signal
@@ -96,29 +96,30 @@ class DevicesManager(QObject):
         return results
 
     @inlineCallbacks
-    def get_folders_for_device(
+    def _get_folders_for_device(
         self, device: str, cap: str
-    ) -> TwistedDeferred[Tuple[str, List[str]]]:
+    ) -> TwistedDeferred[Dict[str, Union[str, List[str]]]]:
         folder_names = []
         folders = yield self.gateway.get_magic_folders(cap)
         if folders:
             for folder_name in folders:
                 folder_names.append(folder_name)
-        return device, sorted(folder_names)
+        return {"name": device, "cap": cap, "folders": sorted(folder_names)}
 
     @inlineCallbacks
-    def get_sharemap(self) -> TwistedDeferred[Dict[str, List[str]]]:
-        sharemap = {}
+    def get_devices(
+        self,
+    ) -> TwistedDeferred[List[Dict[str, Union[str, List[str]]]]]:
+        devices = []
         devicecaps = yield self.get_devicecaps()
         tasks = []
         for name, cap in devicecaps:
-            tasks.append(self.get_folders_for_device(name, cap))
+            tasks.append(self._get_folders_for_device(name, cap))
         results = yield DeferredList(tasks, consumeErrors=True)  # type: ignore
         for success, result in results:
             if success:
-                name, folders = result
-                sharemap[name] = folders
-        return sharemap
+                devices.append(result)
+        return devices
 
     @inlineCallbacks
     def _do_invite(
@@ -163,10 +164,11 @@ class DevicesManager(QObject):
     @inlineCallbacks
     def remove_devices(self, devices: List[str]) -> TwistedDeferred[None]:
         filtered = {}
-        sharemap = yield self.get_sharemap()
-        for device_name, folders in sharemap.items():
+        current_devices = yield self.get_devices()
+        for device in current_devices:
+            device_name = device["name"]
             if device_name in devices:
-                filtered[device_name] = folders
+                filtered[device_name] = device["folders"]
 
         tasks = []
         for device_name, folders in filtered.items():
