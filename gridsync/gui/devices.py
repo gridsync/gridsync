@@ -1,5 +1,6 @@
 import logging
 from base64 import b64encode
+from io import BytesIO
 from typing import List
 
 from PyQt5.QtCore import QPoint, QSize, Qt
@@ -14,6 +15,7 @@ from PyQt5.QtWidgets import (
     QTableView,
     QWidget,
 )
+from retricon import retricon
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync import resource
@@ -123,7 +125,13 @@ class DevicesModel(QStandardItemModel):
         items = self.findItems(name, Qt.MatchExactly, 0)
         if items:
             return  # Item already in model
-        name_item = QStandardItem(QIcon(resource("cellphone.png")), name)
+        # name_item = QStandardItem(QIcon(resource("cellphone.png")), name)
+        buffer = BytesIO()
+        retricon(name).save(buffer, "PNG")  # XXX Use cap instead of name?
+        buffer.seek(0)
+        pixmap = QPixmap()
+        pixmap.loadFromData(buffer.read())
+        name_item = QStandardItem(QIcon(pixmap), name)
         folders_item = QStandardItem(", ".join(sorted(folders)))
         self.appendRow([name_item, folders_item])
 
