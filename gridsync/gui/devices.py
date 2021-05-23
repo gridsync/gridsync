@@ -248,7 +248,7 @@ class DevicesTableView(QTableView):
         else:
             text = "Unlink device..."
         menu = QMenu(self)
-        rename_action = QAction("Rename")
+        rename_action = QAction(QIcon(resource("pencil.png")), "Rename")
         rename_action.triggered.connect(self._rename_device)
         remove_action = QAction(QIcon(resource("cellphone-erase.png")), text)
         remove_action.triggered.connect(self._remove_selected)
