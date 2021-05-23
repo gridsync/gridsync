@@ -126,7 +126,7 @@ class DevicesModel(QStandardItemModel):
         if items:
             return  # Item already in model
         buffer = BytesIO()
-        retricon(cap).save(buffer, "PNG")
+        retricon(cap, min_fill=0.4).save(buffer, "PNG")
         buffer.seek(0)
         pixmap = QPixmap()
         pixmap.loadFromData(buffer.read())
