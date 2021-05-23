@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QInputDialog,
     QLabel,
+    QLineEdit,
     QMenu,
     QPushButton,
     QTableView,
@@ -218,7 +219,7 @@ class DevicesTableView(QTableView):
             self,
             f"Rename {old_name}",
             f"Please choose a new name for {old_name}:",
-            0,
+            QLineEdit.Normal,
             old_name,
         )
         if not ok:
