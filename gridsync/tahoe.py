@@ -864,6 +864,24 @@ class Tahoe:
             raise TahoeWebError(content.decode("utf-8"))
 
     @inlineCallbacks
+    def rename(
+        self, cap: str, from_name: str, to_name: str
+    ) -> TwistedDeferred[None]:
+        log.debug('Renaming "%s" to "%s"...', from_name, to_name)
+        resp = yield treq.post(
+            f"{self.nodeurl}uri/{cap}/?t=rename"
+            f"&from_name={from_name}&to_name={to_name}&replace=false"
+        )
+        if resp.code == 409:
+            raise TahoeWebError(
+                f'Error renaming {from_name}: "{to_name}" already exists'
+            )
+        elif resp.code != 200:
+            content = yield treq.content(resp)
+            raise TahoeWebError(content.decode("utf-8"))
+        log.debug('Successfully renamed "%s" to "%s"...', from_name, to_name)
+
+    @inlineCallbacks
     def link(self, dircap, childname, childcap):
         dircap_hash = trunchash(dircap)
         childcap_hash = trunchash(childcap)
