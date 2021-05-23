@@ -121,13 +121,13 @@ class DevicesModel(QStandardItemModel):
 
         self.populate()
 
-    def add_device(self, name: str, folders: List[str]) -> None:
+    def add_device(self, name: str, cap: str, folders: List[str]) -> None:
         items = self.findItems(name, Qt.MatchExactly, 0)
         if items:
             return  # Item already in model
         # name_item = QStandardItem(QIcon(resource("cellphone.png")), name)
         buffer = BytesIO()
-        retricon(name).save(buffer, "PNG")  # XXX Use cap instead of name?
+        retricon(cap).save(buffer, "PNG")
         buffer.seek(0)
         pixmap = QPixmap()
         pixmap.loadFromData(buffer.read())
@@ -142,9 +142,9 @@ class DevicesModel(QStandardItemModel):
 
     @inlineCallbacks
     def populate(self) -> TwistedDeferred[None]:
-        sharemap = yield self.gateway.devices_manager.get_sharemap()
-        for device_name, folders in sharemap.items():
-            self.add_device(device_name, folders)
+        devices = yield self.gateway.devices_manager.get_devices()
+        for device in devices:
+            self.add_device(device["name"], device["cap"], device["folders"])
 
     def on_device_linked(self, device_name: str) -> None:
         self.populate()
