@@ -158,6 +158,13 @@ class DevicesManager(QObject):
         return devicecap
 
     @inlineCallbacks
+    def rename_device(
+        self, device: str, new_name: str
+    ) -> TwistedDeferred[None]:
+        devicescap = yield self.get_devicescap()
+        yield self.gateway.rename(devicescap, device, new_name)
+
+    @inlineCallbacks
     def remove_devices(self, devices: List[str]) -> TwistedDeferred[None]:
         filtered = {}
         current_devices = yield self.get_devices()
