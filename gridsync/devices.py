@@ -158,10 +158,6 @@ class DevicesManager(QObject):
         return devicecap
 
     @inlineCallbacks
-    def add_new_folder(self, folder: str, devices: List[str]) -> None:
-        pass
-
-    @inlineCallbacks
     def remove_devices(self, devices: List[str]) -> TwistedDeferred[None]:
         filtered = {}
         current_devices = yield self.get_devices()
