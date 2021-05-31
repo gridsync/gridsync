@@ -80,7 +80,7 @@ call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call git clone https://github.com/PrivateStorageio/ZKAPAuthorizer .\build\ZKAPAuthorizer
 call copy ..\..\misc\zkapauthorizer-retry-interval.patch .\build\ZKAPAuthorizer
 call pushd .\build\ZKAPAuthorizer
-call git checkout 632d2cdc96bb2975d8aff573a3858f1a6aae9963
+call git checkout db98de7ce49f5e6485ca28697ee393e41a96d238
 call git apply --ignore-space-change --ignore-whitespace zkapauthorizer-retry-interval.patch
 call python -m pip install .
 call popd
