@@ -159,7 +159,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "macos-10.15" do |b|
-    b.vm.box = "apscommode/macos-10.15"
+    b.vm.box = "cloudkats/macos"
     b.vm.hostname = "macos-10.15"
     b.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
