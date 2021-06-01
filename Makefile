@@ -179,6 +179,27 @@ frozen-tahoe:
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
+magic-folder:
+	mkdir -p dist
+	mkdir -p build/magic-folder
+	git clone https://github.com/LeastAuthority/magic-folder.git build/magic-folder
+	python3 -m virtualenv --clear --python=python2 build/venv-magic-folder
+	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
+	# so allow falling back to the user environment.
+	# https://github.com/pypa/virtualenv/issues/2023
+	# https://github.com/pypa/virtualenv/issues/2024
+	source build/venv-magic-folder/bin/activate && \
+	python --version || deactivate && \
+	python -m pip install -r requirements/pyinstaller.txt && \
+	cp misc/magic-folder/* build/magic-folder && \
+	pushd build/magic-folder && \
+	python -m pip install . && \
+	python -m pip list && \
+	export PYTHONHASHSEED=1 && \
+	python -m PyInstaller magic-folder.spec && \
+	popd && \
+	mv build/magic-folder/dist/magic-folder dist
+
 install:
 	python3 -m pip install --upgrade .
 
