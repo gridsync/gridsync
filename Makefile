@@ -195,7 +195,6 @@ magic-folder:
 	pushd build/magic-folder && \
 	python -m pip install . && \
 	python -m pip install git+https://github.com/tahoe-lafs/tahoe-lafs.git@c9d5b1f6b98fbd132a85b5cfb244afc458979daa && \
-	patch ../venv-magic-folder/lib/python2.7/site-packages/allmydata/version_checks.py allmydata_version_checks.patch && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller magic-folder.spec && \
