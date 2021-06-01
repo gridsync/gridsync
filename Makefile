@@ -194,7 +194,7 @@ magic-folder:
 	cp misc/magic-folder/* build/magic-folder && \
 	pushd build/magic-folder && \
 	python -m pip install . && \
-	patch ../venv-magic-folder/lib/python2.7/site-packages/allmydata/version_checks.py 002.allmydata_version_checks.patch && \
+	patch ../venv-magic-folder/lib/python2.7/site-packages/allmydata/version_checks.py allmydata_version_checks.patch && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller magic-folder.spec && \
