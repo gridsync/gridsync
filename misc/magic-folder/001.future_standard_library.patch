@@ -1,0 +1,15 @@
+--- a/future/standard_library/__init__.py
++++ b/future/standard_library/__init__.py
+@@ -455,8 +455,10 @@
+         # top-level package:
+         newmod = sys.modules[newmodname]
+         # newmod.__future_module__ = True
+-
+-        __import__(oldmodname)
++        try:
++            __import__(oldmodname)
++        except ImportError:
++            continue
+         oldmod = sys.modules[oldmodname]
+ 
+         obj = getattr(oldmod, oldobjname)

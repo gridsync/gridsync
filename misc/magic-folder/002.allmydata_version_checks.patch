@@ -1,0 +1,11 @@
+--- a/allmydata/version_checks.py
++++ b/allmydata/version_checks.py
+@@ -256,7 +256,7 @@
+         for modulename in warning_imports:
+             try:
+                 __import__(modulename)
+-            except (ImportError, SyntaxError):
++            except (AttributeError, ImportError, SyntaxError):
+                 pass
+     finally:
+         # Leave suppressions for UserWarnings and global_deprecation_messages active.
