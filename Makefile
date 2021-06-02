@@ -212,6 +212,7 @@ install:
 # 3: https://github.com/pyinstaller/pyinstaller/issues/5361
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
+	if [ ! -d dist/magic-folder ] ; then make magic-folder ; fi
 	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
 	pip install --no-deps -r requirements/gridsync.txt && \
