@@ -36,6 +36,7 @@ if defined APPVEYOR (
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="frozen-tahoe" call :frozen-tahoe
+if "%1"=="magic-folder" call :magic-folder
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="zip" call :zip
 if "%1"=="test-determinism" call :test-determinism
@@ -95,6 +96,25 @@ call mkdir dist\Tahoe-LAFS\challenge_bypass_ristretto
 call copy ..\venv-tahoe\Lib\site-packages\challenge_bypass_ristretto\*.pyd dist\Tahoe-LAFS\challenge_bypass_ristretto\
 call move dist ..\..
 call popd
+call deactivate
+goto :eof
+
+:magic-folder
+call git clone https://github.com/LeastAuthority/magic-folder.git build/magic-folder
+call %PYTHON2% -m virtualenv --clear build\venv-magic-folder
+call .\build\venv-magic-folder\Scripts\activate
+call python -m pip install -r requirements\pyinstaller.txt
+call copy misc\magic-folder\* build\magic-folder
+call pushd build\magic-folder
+call python -m pip install .
+call python -m pip install git+https://github.com/tahoe-lafs/tahoe-lafs.git@c9d5b1f6b98fbd132a85b5cfb244afc458979daa
+call python -m pip list
+call copy ..\..\misc\tahoe.spec pyinstaller.spec
+call set PYTHONHASHSEED=1
+call python -m PyInstaller magic-folder.spec || goto :error
+call set PYTHONHASHSEED=
+call popd
+call move dist build\magic-folder\dist\magic-folder dist
 call deactivate
 goto :eof
 
