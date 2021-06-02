@@ -81,9 +81,9 @@ distro==1.5.0; sys_platform != "darwin" and sys_platform != "win32" \
     --hash=sha256:df74eed763e18d10d0da624258524ae80486432cd17392d9c3d96f5e83cd2799
 hkdf==0.0.3 \
     --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
-humanize==3.6.0 \
-    --hash=sha256:6d9bee57f856418302b5d11d7229bc401882d800962a19fd6dcdd83672cb15e6 \
-    --hash=sha256:a31704cf41f023e268032c4813c6482573320150a0d986f76b245e0451bb89e1
+humanize==3.7.0 \
+    --hash=sha256:5eaafcd584fd01ab9a59f040e20b3daa35a24e8125d4c84788392d799be2012a \
+    --hash=sha256:8b1463a17bf722c06712ac9d31f7e46efd048dd4e76fafeac9f3b8f972b0b8e3
 hyperlink==21.0.0 \
     --hash=sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b \
     --hash=sha256:e6b14c37ecb73e89c77d78cdb4c2cc8f3fb59a885c5b3f819ff4ed80f25af1b4
