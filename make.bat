@@ -114,7 +114,7 @@ call set PYTHONHASHSEED=1
 call python -m PyInstaller magic-folder.spec || goto :error
 call set PYTHONHASHSEED=
 call popd
-call move dist build\magic-folder\dist\magic-folder dist
+call move build\magic-folder\dist\magic-folder dist
 call deactivate
 goto :eof
 
