@@ -137,3 +137,19 @@ else:
     print('##################################################################')
     print('WARNING: No Tahoe-LAFS bundle found!')
     print('##################################################################')
+
+
+magic_folder_bundle_path = os.path.join('dist', 'magic-folder')
+if os.path.isdir(magic_folder_bundle_path):
+    if sys.platform == 'darwin':
+        dest = os.path.join(
+            'dist', app_name + '.app', 'Contents', 'MacOS', 'magic-folder')
+    else:
+        dest = os.path.join('dist', app_name, 'magic-folder')
+    print("Copying {} to {}...".format(magic_folder_bundle_path, dest))
+    shutil.copytree(magic_folder_bundle_path, dest)
+    print("Done")
+else:
+    print('#################################################################')
+    print('WARNING: No magic-folder bundle found!')
+    print('#################################################################')
