@@ -43,6 +43,7 @@ jobs:
     - name: Verify
       run: |
         xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
+        xvfb-run -a dist/magic-folder/magic-folder --version
         xvfb-run -a dist/Gridsync/gridsync --version
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test determinism
@@ -106,6 +107,7 @@ jobs:
     - name: Verify
       run: |
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
+        dist/Gridsync.app/Contents/MacOS/magic-folder/magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test determinism
       run: |
@@ -150,6 +152,7 @@ jobs:
     - name: Verify
       run: |
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
+        .\dist\Gridsync\magic-folder\magic-folder.exe --version
         .\dist\Gridsync\Gridsync.exe --version
     - name: Test determinism
       run: |
