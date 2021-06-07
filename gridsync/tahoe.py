@@ -35,6 +35,7 @@ from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
 from gridsync.filter import filter_tahoe_log_message
+from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
@@ -144,6 +145,7 @@ class Tahoe:
         self.monitor.sync_finished.connect(
             self.zkapauthorizer.update_zkap_checkpoint
         )
+        self.magic_folder = MagicFolder(self)
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -682,6 +684,8 @@ class Tahoe:
         self.state = Tahoe.STARTED
 
         yield self.scan_storage_plugins()
+
+        yield self.magic_folder.start()  # XXX
 
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
