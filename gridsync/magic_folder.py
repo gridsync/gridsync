@@ -136,8 +136,9 @@ class MagicFolder:
             )
 
     def stop(self):
+        pidfile = Path(self.configdir, "magic-folder.pid")
         try:
-            with open(Path(self.configdir, "magic-folder.pid"), "r") as f:
+            with open(pidfile, "r") as f:
                 pid = int(f.read())
         except (EnvironmentError, ValueError) as err:
             logging.warning("Error loading magic-folder.pid: %s", str(err))
@@ -148,6 +149,10 @@ class MagicFolder:
         except OSError as err:
             if err.errno not in (errno.ESRCH, errno.EINVAL):
                 logging.error(err)
+        try:
+            pidfile.unlink()
+        except OSError as err:
+            logging.warning("Error removing magic-folder.pid: %s", err)
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
