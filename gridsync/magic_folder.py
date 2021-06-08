@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import errno
 import json
+import signal
 import logging
 import os
 import shutil
@@ -133,6 +134,20 @@ class MagicFolder:
             raise MagicFolderError(
                 "Could not parse port from magic-folder API endpoint"
             )
+
+    def stop(self):
+        try:
+            with open(Path(self.configdir, "magic-folder.pid"), "r") as f:
+                pid = int(f.read())
+        except (EnvironmentError, ValueError) as err:
+            logging.warning("Error loading magic-folder.pid: %s", str(err))
+            return
+        logging.debug("Trying to kill PID %d...", pid)
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError as err:
+            if err.errno not in (errno.ESRCH, errno.EINVAL):
+                logging.error(err)
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
