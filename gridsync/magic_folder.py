@@ -43,10 +43,10 @@ class MagicFolderWebError(MagicFolderError):
 
 
 class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
-    def onOpen(self):
+    def onOpen(self) -> None:
         logging.debug("WebSocket connection opened.")
 
-    def onMessage(self, payload, isBinary):
+    def onMessage(self, payload: bytes, isBinary: bool) -> None:
         if isBinary:
             logging.warning(
                 "Received a binary-mode WebSocket message from magic-folder "
@@ -57,7 +57,7 @@ class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
         logging.debug("WebSocket message received: %s", msg)
         self.factory.magic_folder.on_message_received(msg)
 
-    def onClose(self, wasClean, code, reason):
+    def onClose(self, wasClean: bool, code: int, reason: str) -> None:
         logging.debug(
             "WebSocket connection closed: %s (code %s)", reason, code
         )
@@ -103,9 +103,9 @@ class MagicFolderStatusMonitor(MultiService):
         super().__init__()
         self.magic_folder = magic_folder
 
-        self._client_service = None
+        self._client_service: Optional[ClientService] = None
 
-    def _create_client_service(self):
+    def _create_client_service(self) -> ClientService:
         endpoint = TCP4ClientEndpoint(
             reactor, "127.0.0.1", self.magic_folder.port
         )
@@ -118,14 +118,14 @@ class MagicFolderStatusMonitor(MultiService):
         client_service = ClientService(endpoint, factory, clock=reactor)
         return client_service
 
-    def stop(self):
-        if self.running:
+    def stop(self) -> None:
+        if self.running and self._client_service:
             self._client_service.disownServiceParent()
             self._client_service = None
             return super().stopService()
         return None
 
-    def start(self):
+    def start(self) -> None:
         if not self.running:
             self._client_service = self._create_client_service()
             self._client_service.setServiceParent(self)
@@ -145,7 +145,7 @@ class MagicFolder:
         self.api_token: str = ""
         self.monitor = MagicFolderStatusMonitor(self)
 
-    def on_message_received(self, msg: str):
+    def on_message_received(self, msg: str) -> None:
         print("###########", msg)
 
     @inlineCallbacks
