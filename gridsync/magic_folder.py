@@ -108,15 +108,6 @@ class MagicFolder:
         self.api_token = config.get("api_token", "")
         if not self.api_token:
             raise MagicFolderError("Could not load magic-folder API token")
-        api_endpoint = config.get("api_endpoint", "")
-        if not api_endpoint:
-            raise MagicFolderError("Could not load magic-folder API endpoint")
-        try:
-            self.api_port = int(api_endpoint.split(":")[-1])
-        except ValueError:
-            raise MagicFolderError(
-                "Could not parse port from magic-folder API endpoint"
-            )
 
     def stop(self):
         pidfile = Path(self.configdir, "magic-folder.pid")
@@ -150,7 +141,7 @@ class MagicFolder:
         result = yield self.command(
             ["run"], "Completed initial Magic Folder setup"
         )
-        pid, port = result
+        pid, self.port = result
         with open(pidfile, "w") as f:
             f.write(str(pid))
         yield self._load_config()
