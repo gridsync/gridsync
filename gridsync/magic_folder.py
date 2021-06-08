@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import errno
+import json
 import logging
 import os
 import shutil
+import socket
 from io import BytesIO
+from pathlib import Path
+from random import randint
 from typing import TYPE_CHECKING, List, Optional
 
 from twisted.internet import reactor
@@ -16,6 +21,26 @@ if TYPE_CHECKING:
 
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
+
+
+def randport(
+    port: int = 0, range_min: int = 49152, range_max: int = 65535
+) -> int:
+    if not port:
+        port = randint(range_min, range_max)
+    while True:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                logging.debug("Trying to bind to port: %i", port)
+                s.bind(("127.0.0.1", port))
+            except socket.error as err:
+                logging.debug("Couldn't bind to port %i: %s", port, err)
+                if err.errno == errno.EADDRINUSE:
+                    port = randint(range_min, range_max)
+                    continue
+                raise
+            logging.debug("Port %s is free", port)
+            return port
 
 
 class MagicFolderError(Exception):
@@ -36,6 +61,7 @@ class MagicFolderProcessProtocol(ProcessProtocol):
         self.output.write(data)
         decoded = data.decode()
         for line in decoded.strip().split("\n"):
+            print("#############", line)
             if not self.done.called and self.trigger and self.trigger in line:
                 self.done.callback(self.transport.pid)  # type: ignore
 
@@ -60,6 +86,9 @@ class MagicFolder:
         self.gateway = gateway
         self.executable = executable
 
+        self.configdir = Path(gateway.nodedir, "private", "magic-folder")
+        self.pid: int = 0
+
     @inlineCallbacks
     def command(
         self, args: List[str], callback_trigger: str = ""
@@ -70,7 +99,7 @@ class MagicFolder:
             raise EnvironmentError(
                 'Could not find "magic-folder" executable on PATH.'
             )
-        args = [self.executable] + args
+        args = [self.executable, f"--config={self.configdir}"] + args
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         logging.debug("Executing %s...", " ".join(args))
@@ -89,5 +118,12 @@ class MagicFolder:
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
-        version = yield self.version()
-        logging.debug("!!!!!!!!!!!!!!!!!!!!!!!!!! Found: %s", version)  # XXX
+        if not self.configdir.exists():
+            yield self.command(
+                ["init", "-l", f"tcp:{randport()}", "-n", self.gateway.nodedir]
+            )
+        self.pid = yield self.command(
+            ["run"], "Completed initial Magic Folder setup"
+        )
+        with open(Path(self.configdir, "magic-folder.pid"), "w") as f:
+            f.write(str(self.pid))
