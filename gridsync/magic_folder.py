@@ -110,7 +110,7 @@ class MagicFolder:
         if not self.api_token:
             raise MagicFolderError("Could not load magic-folder API token")
 
-    def stop(self):
+    def stop(self) -> None:
         pidfile = Path(self.configdir, "magic-folder.pid")
         try:
             with open(pidfile, "r") as f:
