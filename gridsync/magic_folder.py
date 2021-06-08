@@ -47,7 +47,7 @@ class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
 
     def onMessage(self, payload, isBinary):
         if not isBinary:
-            logging.debug(payload.decode("utf8"))
+            self.factory.magic_folder.on_message_received(payload)
 
 
 class MagicFolderProcessProtocol(ProcessProtocol):
@@ -101,6 +101,7 @@ class MagicFolderStatusMonitor(MultiService):
             headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
         )
         factory.protocol = MagicFolderWebSocketClientProtocol
+        factory.magic_folder = self.magic_folder
         client_service = ClientService(endpoint, factory, clock=reactor)
         return client_service
 
@@ -130,6 +131,9 @@ class MagicFolder:
         self.config: dict = {}
         self.api_token: str = ""
         self.monitor = MagicFolderStatusMonitor(self)
+
+    def on_message_received(self, msg: str):
+        print('###########', msg)
 
     @inlineCallbacks
     def command(
