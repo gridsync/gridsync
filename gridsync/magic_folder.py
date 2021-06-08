@@ -8,11 +8,17 @@ import shutil
 import signal
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Dict
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
+from autobahn.twisted.websocket import (
+    WebSocketClientFactory, WebSocketClientProtocol
+)
+from twisted.application.internet import ClientService
+from twisted.application.service import MultiService
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 
@@ -33,6 +39,15 @@ class MagicFolderProcessError(MagicFolderError):
 
 class MagicFolderWebError(MagicFolderError):
     pass
+
+
+class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
+    def onOpen(self):
+        logging.debug("WebSocket connection opened.")
+
+    def onMessage(self, payload, isBinary):
+        if not isBinary:
+            logging.debug(payload.decode("utf8"))
 
 
 class MagicFolderProcessProtocol(ProcessProtocol):
@@ -70,6 +85,40 @@ class MagicFolderProcessProtocol(ProcessProtocol):
             )
 
 
+class MagicFolderStatusMonitor(MultiService):
+    def __init__(self, magic_folder: MagicFolder) -> None:
+        super().__init__()
+        self.magic_folder = magic_folder
+
+        self._client_service = None
+
+    def _create_client_service(self):
+        endpoint = TCP4ClientEndpoint(
+            reactor, "127.0.0.1", self.magic_folder.port
+        )
+        factory = WebSocketClientFactory(
+            f"ws://127.0.0.1:{self.magic_folder.port}/v1/status",
+            headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
+        )
+        factory.protocol = MagicFolderWebSocketClientProtocol
+        client_service = ClientService(endpoint, factory, clock=reactor)
+        return client_service
+
+    def stop(self):
+        if self.running:
+            self._client_service.disownServiceParent()
+            self._client_service = None
+            return super().stopService()
+        return None
+
+    def start(self):
+        if not self.running:
+            self._client_service = self._create_client_service()
+            self._client_service.setServiceParent(self)
+            return super().startService()
+        return None
+
+
 class MagicFolder:
     def __init__(self, gateway: Tahoe, executable: Optional[str] = "") -> None:
         self.gateway = gateway
@@ -80,6 +129,7 @@ class MagicFolder:
         self.port: int = 0
         self.config: dict = {}
         self.api_token: str = ""
+        self.monitor = MagicFolderStatusMonitor(self)
 
     @inlineCallbacks
     def command(
@@ -177,3 +227,4 @@ class MagicFolder:
         with open(pidfile, "w") as f:
             f.write(str(pid))
         yield self._load_config()
+        self.monitor.start()
