@@ -519,6 +519,7 @@ class Tahoe:
                 log.debug("Successfully removed %s", fullpath)
 
     def kill(self):
+        self.magic_folder.stop()  # XXX
         try:
             with open(self.pidfile, "r") as f:
                 pid = int(f.read())
