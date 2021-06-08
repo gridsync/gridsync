@@ -88,6 +88,8 @@ class MagicFolder:
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.pid: int = 0
+        self.port: int = 0
+        self.api_token: str = ""
 
     @inlineCallbacks
     def command(
@@ -116,6 +118,23 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
+    def _load_config(self) -> TwistedDeferred[None]:
+        config_output = yield self.command(["show-config"])
+        config = json.loads(config_output)
+        self.api_token = config.get("api_token", "")
+        if not self.api_token:
+            raise MagicFolderError("Could not load magic-folder API token")
+        api_endpoint = config.get("api_endpoint", "")
+        if not api_endpoint:
+            raise MagicFolderError("Could not load magic-folder API endpoint")
+        try:
+            self.api_port = int(api_endpoint.split(":")[-1])
+        except ValueError:
+            raise MagicFolderError(
+                "Could not parse port from magic-folder API endpoint"
+            )
+
+    @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
         if not self.configdir.exists():
@@ -126,4 +145,5 @@ class MagicFolder:
             ["run"], "Completed initial Magic Folder setup"
         )
         with open(Path(self.configdir, "magic-folder.pid"), "w") as f:
-            f.write(str(self.pid))
+            f.write(str(self.pid)
+        yield self._load_config()
