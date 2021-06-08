@@ -8,8 +8,9 @@ import shutil
 import signal
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Dict
 
+import treq
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ProcessDone
@@ -27,6 +28,10 @@ class MagicFolderError(Exception):
 
 
 class MagicFolderProcessError(MagicFolderError):
+    pass
+
+
+class MagicFolderWebError(MagicFolderError):
     pass
 
 
@@ -101,6 +106,32 @@ class MagicFolder:
     def version(self) -> TwistedDeferred[str]:
         output = yield self.command(["--version"])
         return output
+
+    @inlineCallbacks
+    def _request(self, method: str, path: str) -> TwistedDeferred[dict]:
+        if not self.api_token:
+            raise MagicFolderWebError("API token not found")
+        if not self.port:
+            raise MagicFolderWebError("API port not found")
+        resp = yield treq.request(
+            method,
+            f"http://127.0.0.1:{self.port}/v1{path}",
+            headers={"Authorization": f"Bearer {self.api_token}"},
+        )
+        content = yield treq.content(resp)
+        if resp.code == 200:
+            return json.loads(content)
+        else:
+            raise MagicFolderWebError(
+                f"Error {resp.code} requesting {method} {path}: {content}"
+            )
+
+    @inlineCallbacks
+    def get_folders(self) -> TwistedDeferred[Dict[str, dict]]:
+        folders = yield self._request(
+            "GET", "/magic-folder?include_secret_information=1"
+        )
+        return folders
 
     @inlineCallbacks
     def _load_config(self) -> TwistedDeferred[None]:
