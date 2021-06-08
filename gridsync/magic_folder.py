@@ -46,8 +46,13 @@ class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
         logging.debug("WebSocket connection opened.")
 
     def onMessage(self, payload, isBinary):
-        if not isBinary:
-            self.factory.magic_folder.on_message_received(payload)
+        if isBinary:
+            logging.warning(
+                "Received a binary-mode WebSocket message from magic-folder "
+                "status API; dropping."
+            )
+            return
+        self.factory.magic_folder.on_message_received(payload)
 
     def onClose(self, wasClean, code, reason):
         logging.debug(
