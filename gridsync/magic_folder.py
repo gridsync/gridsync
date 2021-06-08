@@ -239,7 +239,13 @@ class MagicFolder:
             self.stop()
         if not self.configdir.exists():
             yield self.command(
-                ["init", "-l", "tcp:0", "-n", self.gateway.nodedir]
+                [
+                    "init",
+                    "-l",
+                    "tcp:0:interface=127.0.0.1",
+                    "-n",
+                    self.gateway.nodedir,
+                ]
             )
         result = yield self.command(
             ["run"], "Completed initial Magic Folder setup"
