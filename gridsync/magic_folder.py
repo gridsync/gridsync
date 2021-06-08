@@ -52,7 +52,9 @@ class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
                 "status API; dropping."
             )
             return
-        self.factory.magic_folder.on_message_received(payload)
+        msg = payload.decode("utf-8")
+        logging.debug("WebSocket message received: %s", msg)
+        self.factory.magic_folder.on_message_received(msg)
 
     def onClose(self, wasClean, code, reason):
         logging.debug(
