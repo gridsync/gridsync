@@ -8,7 +8,7 @@ import shutil
 import signal
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional
 
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks
