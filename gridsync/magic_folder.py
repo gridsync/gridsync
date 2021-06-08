@@ -49,6 +49,11 @@ class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
         if not isBinary:
             self.factory.magic_folder.on_message_received(payload)
 
+    def onClose(self, wasClean, code, reason):
+        logging.debug(
+            "WebSocket connection closed: %s (code %s)", reason, code
+        )
+
 
 class MagicFolderProcessProtocol(ProcessProtocol):
     def __init__(self, callback_trigger: str = "") -> None:
