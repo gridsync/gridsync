@@ -775,6 +775,7 @@ def test_tahoe_get_log_apply_filter_use_identifier(tahoe):
 @inlineCallbacks
 def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-start")))
+    client.magic_folder = Mock()  # XXX
     privatedir = os.path.join(client.nodedir, "private")
     os.makedirs(privatedir)
     nodeurl = "http://127.0.0.1:54321"
@@ -836,6 +837,7 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
 @inlineCallbacks
 def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-start")))
+    client.magic_folder = Mock()  # XXX
     privatedir = os.path.join(client.nodedir, "private")
     os.makedirs(privatedir)
     nodeurl = "http://127.0.0.1:54321"
