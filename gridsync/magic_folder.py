@@ -152,6 +152,9 @@ class MagicFolder:
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
+        pidfile = Path(self.configdir, "magic-folder.pid")
+        if pidfile.exists():
+            self.stop()
         if not self.configdir.exists():
             yield self.command(
                 ["init", "-l", f"tcp:{randport()}", "-n", self.gateway.nodedir]
@@ -159,6 +162,6 @@ class MagicFolder:
         self.pid = yield self.command(
             ["run"], "Completed initial Magic Folder setup"
         )
-        with open(Path(self.configdir, "magic-folder.pid"), "w") as f:
+        with open(pidfile, "w") as f:
             f.write(str(self.pid))
         yield self._load_config()
