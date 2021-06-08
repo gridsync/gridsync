@@ -42,7 +42,9 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
-class MagicFolderWebSocketClientProtocol(WebSocketClientProtocol):
+class MagicFolderWebSocketClientProtocol(
+    WebSocketClientProtocol
+):  # pylint: disable=too-many-ancestors
     def onOpen(self) -> None:
         logging.debug("WebSocket connection opened.")
 
@@ -145,7 +147,8 @@ class MagicFolder:
         self.api_token: str = ""
         self.monitor = MagicFolderStatusMonitor(self)
 
-    def on_message_received(self, msg: str) -> None:
+    @staticmethod
+    def on_message_received(msg: str) -> None:
         print("###########", msg)
 
     @inlineCallbacks
@@ -209,10 +212,9 @@ class MagicFolder:
         content = yield treq.content(resp)
         if resp.code == 200:
             return json.loads(content)
-        else:
-            raise MagicFolderWebError(
-                f"Error {resp.code} requesting {method} {path}: {content}"
-            )
+        raise MagicFolderWebError(
+            f"Error {resp.code} requesting {method} {path}: {content}"
+        )
 
     @inlineCallbacks
     def get_folders(self) -> TwistedDeferred[Dict[str, dict]]:
