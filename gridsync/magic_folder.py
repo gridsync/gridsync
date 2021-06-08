@@ -12,7 +12,8 @@ from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
 from autobahn.twisted.websocket import (
-    WebSocketClientFactory, WebSocketClientProtocol
+    WebSocketClientFactory,
+    WebSocketClientProtocol,
 )
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
@@ -145,7 +146,7 @@ class MagicFolder:
         self.monitor = MagicFolderStatusMonitor(self)
 
     def on_message_received(self, msg: str):
-        print('###########', msg)
+        print("###########", msg)
 
     @inlineCallbacks
     def command(
