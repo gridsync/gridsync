@@ -158,6 +158,27 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
+    def add_folder(
+        self,
+        path: str,
+        author: str,
+        name: Optional[str] = "",
+        poll_interval: int = 60,
+    ) -> TwistedDeferred[None]:
+        p = Path(path)
+        if not name:
+            name = p.name
+        yield self.command(
+            [
+                "add",
+                f"--author={author}",
+                f"--name={name}",
+                f"--poll-interval={poll_interval}",
+                str(p.resolve()),
+            ]
+        )
+
+    @inlineCallbacks
     def _request(self, method: str, path: str) -> TwistedDeferred[dict]:
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
