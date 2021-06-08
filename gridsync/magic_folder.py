@@ -145,5 +145,5 @@ class MagicFolder:
             ["run"], "Completed initial Magic Folder setup"
         )
         with open(Path(self.configdir, "magic-folder.pid"), "w") as f:
-            f.write(str(self.pid)
+            f.write(str(self.pid))
         yield self._load_config()
