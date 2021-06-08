@@ -550,6 +550,9 @@ class Tahoe:
             yield self.lock.acquire()
             yield self.lock.release()
             log.debug("Lock released; resuming stop operation...")
+
+        self.magic_folder.stop()  # XXX
+
         if sys.platform == "win32":
             self.kill()
         else:
