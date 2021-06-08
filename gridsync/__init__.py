@@ -14,10 +14,12 @@ __license__ = "GPLv3"
 if getattr(sys, "frozen", False):
     pkgdir = os.path.dirname(os.path.realpath(sys.executable))
     os.environ["PATH"] += os.pathsep + os.path.join(pkgdir, "Tahoe-LAFS")
-    if sys.platform == "win32" and getattr(sys, "_MEIPASS", False):
+    if sys.platform == "win32":
         # Workaround for PyInstaller being unable to find Qt5Core.dll on PATH.
         # See https://github.com/pyinstaller/pyinstaller/issues/4293
-        os.environ["PATH"] = sys._MEIPASS + os.pathsep + os.environ["PATH"]
+        _meipass = getattr(sys, "_MEIPASS", False)
+        if _meipass:
+            os.environ["PATH"] = _meipass + os.pathsep + os.environ["PATH"]
     try:
         del sys.modules["twisted.internet.reactor"]  # PyInstaller workaround
     except KeyError:
