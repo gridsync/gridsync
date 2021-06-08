@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import errno
 import json
-import signal
 import logging
 import os
 import shutil
-import socket
+import signal
 from io import BytesIO
 from pathlib import Path
-from random import randint
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks
@@ -22,26 +20,6 @@ if TYPE_CHECKING:
 
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
-
-
-def randport(
-    port: int = 0, range_min: int = 49152, range_max: int = 65535
-) -> int:
-    if not port:
-        port = randint(range_min, range_max)
-    while True:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                logging.debug("Trying to bind to port: %i", port)
-                s.bind(("127.0.0.1", port))
-            except socket.error as err:
-                logging.debug("Couldn't bind to port %i: %s", port, err)
-                if err.errno == errno.EADDRINUSE:
-                    port = randint(range_min, range_max)
-                    continue
-                raise
-            logging.debug("Port %s is free", port)
-            return port
 
 
 class MagicFolderError(Exception):
@@ -57,14 +35,19 @@ class MagicFolderProcessProtocol(ProcessProtocol):
         self.trigger = callback_trigger
         self.done = Deferred()
         self.output = BytesIO()
+        self.port: int = 0
 
     def outReceived(self, data: bytes) -> None:
         self.output.write(data)
         decoded = data.decode()
         for line in decoded.strip().split("\n"):
-            print("#############", line)
+            if "Site starting on " in line and not self.port:  # XXX
+                try:
+                    self.port = int(line.split(" ")[-1])
+                except ValueError:
+                    pass
             if not self.done.called and self.trigger and self.trigger in line:
-                self.done.callback(self.transport.pid)  # type: ignore
+                self.done.callback((self.transport.pid, self.port))  # type: ignore
 
     def errReceived(self, data: bytes) -> None:
         self.outReceived(data)
@@ -162,11 +145,12 @@ class MagicFolder:
             self.stop()
         if not self.configdir.exists():
             yield self.command(
-                ["init", "-l", f"tcp:{randport()}", "-n", self.gateway.nodedir]
+                ["init", "-l", "tcp:0", "-n", self.gateway.nodedir]
             )
-        self.pid = yield self.command(
+        result = yield self.command(
             ["run"], "Completed initial Magic Folder setup"
         )
+        pid, port = result
         with open(pidfile, "w") as f:
-            f.write(str(self.pid))
+            f.write(str(pid))
         yield self._load_config()
