@@ -234,6 +234,15 @@ class MagicFolder:
         return snapshots
 
     @inlineCallbacks
+    def get_participants(
+        self, folder_name: str
+    ) -> TwistedDeferred[Dict[str, dict]]:
+        participants = yield self._request(
+            "GET", f"/magic-folder/{folder_name}/participants"
+        )
+        return participants
+
+    @inlineCallbacks
     def _load_config(self) -> TwistedDeferred[None]:
         config_output = yield self.command(["show-config"])
         self.config = json.loads(config_output)
