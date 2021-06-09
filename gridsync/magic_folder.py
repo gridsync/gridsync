@@ -76,6 +76,7 @@ class MagicFolderProcessProtocol(ProcessProtocol):
         self.output.write(data)
         decoded = data.decode()
         for line in decoded.strip().split("\n"):
+            logging.debug("[magic-folder] %s", line)  # XXX
             if "Site starting on " in line and not self.port:  # XXX
                 try:
                     self.port = int(line.split(" ")[-1])
