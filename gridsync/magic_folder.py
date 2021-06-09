@@ -187,6 +187,7 @@ class MagicFolder:
         poll_interval: int = 60,
     ) -> TwistedDeferred[None]:
         p = Path(path)
+        p.mkdir(parents=True, exist_ok=True)
         if not name:
             name = p.name
         yield self.command(
@@ -281,3 +282,4 @@ class MagicFolder:
             f.write(str(pid))
         yield self._load_config()
         self.monitor.start()
+        yield self.add_folder(Path(self.configdir, "TestFolder", "one", "two"), "test")
