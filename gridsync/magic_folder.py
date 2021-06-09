@@ -243,6 +243,17 @@ class MagicFolder:
         return participants
 
     @inlineCallbacks
+    def add_participant(
+        self, folder_name: str, author_name: str, personal_dmd: str
+    ) -> TwistedDeferred[Dict[str, dict]]:
+        data = {"author": {"name": author_name}, "personal_dmd": personal_dmd}
+        yield self._request(
+            "POST",
+            f"/magic-folder/{folder_name}/participants",
+            body=json.dumps(data).encode("utf-8"),
+        )
+
+    @inlineCallbacks
     def _load_config(self) -> TwistedDeferred[None]:
         config_output = yield self.command(["show-config"])
         self.config = json.loads(config_output)
