@@ -199,7 +199,7 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def _request(self, method: str, path: str) -> TwistedDeferred[dict]:
+    def _request(self, method: str, path: str, body: bytes = b"") -> TwistedDeferred[dict]:
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
         if not self.port:
@@ -208,6 +208,7 @@ class MagicFolder:
             method,
             f"http://127.0.0.1:{self.port}/v1{path}",
             headers={"Authorization": f"Bearer {self.api_token}"},
+            data=body,
         )
         content = yield treq.content(resp)
         if resp.code == 200:
