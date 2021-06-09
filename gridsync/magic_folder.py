@@ -201,7 +201,9 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def _request(self, method: str, path: str, body: bytes = b"") -> TwistedDeferred[dict]:
+    def _request(
+        self, method: str, path: str, body: bytes = b""
+    ) -> TwistedDeferred[dict]:
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
         if not self.port:
@@ -282,4 +284,3 @@ class MagicFolder:
             f.write(str(pid))
         yield self._load_config()
         self.monitor.start()
-        yield self.add_folder(Path(self.configdir, "TestFolder", "one", "two"), "test")
