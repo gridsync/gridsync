@@ -153,7 +153,7 @@ class MagicFolder:
         print("###########", msg)
 
     @inlineCallbacks
-    def command(
+    def _command(
         self, args: List[str], callback_trigger: str = ""
     ) -> TwistedDeferred[str]:
         if not self.executable:
@@ -175,7 +175,7 @@ class MagicFolder:
 
     @inlineCallbacks
     def version(self) -> TwistedDeferred[str]:
-        output = yield self.command(["--version"])
+        output = yield self._command(["--version"])
         return output
 
     @inlineCallbacks
@@ -190,7 +190,7 @@ class MagicFolder:
         p.mkdir(parents=True, exist_ok=True)
         if not name:
             name = p.name
-        yield self.command(
+        yield self._command(
             [
                 "add",
                 f"--author={author}",
@@ -255,7 +255,7 @@ class MagicFolder:
 
     @inlineCallbacks
     def _load_config(self) -> TwistedDeferred[None]:
-        config_output = yield self.command(["show-config"])
+        config_output = yield self._command(["show-config"])
         self.config = json.loads(config_output)
         self.api_token = self.config.get("api_token", "")
         if not self.api_token:
@@ -287,7 +287,7 @@ class MagicFolder:
         if pidfile.exists():
             self.stop()
         if not self.configdir.exists():
-            yield self.command(
+            yield self._command(
                 [
                     "init",
                     "-l",
@@ -296,7 +296,7 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        result = yield self.command(
+        result = yield self._command(
             ["run"], "Completed initial Magic Folder setup"
         )
         pid, self.port = result
