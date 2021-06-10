@@ -265,7 +265,7 @@ class MagicFolder:
             raise MagicFolderError("Could not load magic-folder API token")
 
     def stop(self) -> None:
-        kill(self.pidfile)
+        kill(pidfile=self.pidfile)
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:

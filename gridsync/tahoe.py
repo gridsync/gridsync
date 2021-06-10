@@ -521,7 +521,7 @@ class Tahoe:
 
     def kill(self):
         self.magic_folder.stop()  # XXX
-        kill(self.pidfile)
+        kill(pidfile=self.pidfile)
         if sys.platform == "win32":
             self._win32_cleanup()
 
