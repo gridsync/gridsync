@@ -145,6 +145,7 @@ class Tahoe:
             self.zkapauthorizer.update_zkap_checkpoint
         )
         self.magic_folder = MagicFolder(self)
+        self.storage_furl: str = ""
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -682,6 +683,10 @@ class Tahoe:
         self.streamedlogs.start(self.nodeurl, self.api_token)
         self.load_newscap()
         self.newscap_checker.start()
+        storage_furl_path = Path(self.nodedir, "private", "storage.furl")
+        if storage_furl_path.exists():
+            self.storage_furl = storage_furl_path.read_text().strip()
+
         self.state = Tahoe.STARTED
 
         yield self.scan_storage_plugins()
