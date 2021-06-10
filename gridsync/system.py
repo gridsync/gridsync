@@ -21,8 +21,7 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
         if err.errno not in (errno.ESRCH, errno.EINVAL):
             logging.error("Error killing PID %i: %s", pid, str(err))
             raise
-        else:
-            logging.warning("Could not kill PID %i: %s", pid, str(err))
+        logging.warning("Could not kill PID %i: %s", pid, str(err))
     if pidfile:
         logging.debug("Removing pidfile: %s", str(pidfile))
         try:

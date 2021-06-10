@@ -21,13 +21,13 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 
-from gridsync.system import kill
-
 if TYPE_CHECKING:
     from twisted.python.failure import Failure
 
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
+
+from gridsync.system import kill
 
 
 class MagicFolderError(Exception):
