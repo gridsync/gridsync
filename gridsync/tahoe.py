@@ -473,12 +473,12 @@ class Tahoe:
         return self.executable, True, True
 
     @inlineCallbacks
-    def create_client(self, **kwargs):
+    def create_node(self, **kwargs):
         if os.path.exists(self.nodedir):
             raise FileExistsError(
                 "Nodedir already exists: {}".format(self.nodedir)
             )
-        args = ["create-client", "--webport=tcp:0:interface=127.0.0.1"]
+        args = ["create-node", "--webport=tcp:0:interface=127.0.0.1"]
         for key, value in kwargs.items():
             if key in (
                 "nickname",
@@ -486,16 +486,25 @@ class Tahoe:
                 "shares-needed",
                 "shares-happy",
                 "shares-total",
+                "listen",
+                "location",
+                "port",
             ):
-                args.extend(["--{}".format(key), str(value)])
-            elif key in ["needed", "happy", "total"]:
-                args.extend(["--shares-{}".format(key), str(value)])
-            elif key == "hide-ip":
-                args.append("--hide-ip")
+                args.extend([f"--{key}", str(value)])
+            elif key in ("needed", "happy", "total"):
+                args.extend([f"--shares-{key}", str(value)])
+            elif key in ("hide-ip", "no-storage"):
+                args.append(f"--{key}")
         yield self.command(args)
         storage_servers = kwargs.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
+
+    @inlineCallbacks
+    def create_client(self, **kwargs):
+        kwargs["no-storage"] = True
+        kwargs["listen"] = "none"
+        yield self.create_node(**kwargs)
 
     def _win32_cleanup(self):
         # XXX A dirty hack to try to remove any stale magic-folder
