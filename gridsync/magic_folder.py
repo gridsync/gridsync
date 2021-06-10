@@ -263,6 +263,7 @@ class MagicFolder:
             raise MagicFolderError("Could not load magic-folder API token")
 
     def stop(self) -> None:
+        self.monitor.stop()
         kill(pidfile=self.pidfile)
 
     @inlineCallbacks
