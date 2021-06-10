@@ -144,6 +144,7 @@ class MagicFolder:
         self.executable = executable
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
+        self.pidfile = Path(self.configdir, "magic-folder.pid")
         self.pid: int = 0
         self.port: int = 0
         self.config: dict = {}
@@ -264,13 +265,12 @@ class MagicFolder:
             raise MagicFolderError("Could not load magic-folder API token")
 
     def stop(self) -> None:
-        kill(pidfile=Path(self.configdir, "magic-folder.pid"))
+        kill(self.pidfile)
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
-        pidfile = Path(self.configdir, "magic-folder.pid")
-        if pidfile.exists():
+        if self.pidfile.exists():
             self.stop()
         if not self.configdir.exists():
             yield self._command(
@@ -286,7 +286,7 @@ class MagicFolder:
             ["run"], "Completed initial Magic Folder setup"
         )
         pid, self.port = result
-        with open(pidfile, "w") as f:
+        with open(self.pidfile, "w") as f:
             f.write(str(pid))
         yield self._load_config()
         self.monitor.start()
