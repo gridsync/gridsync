@@ -23,6 +23,8 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 
+from gridsync.system import kill
+
 if TYPE_CHECKING:
     from twisted.python.failure import Failure
 
@@ -262,23 +264,7 @@ class MagicFolder:
             raise MagicFolderError("Could not load magic-folder API token")
 
     def stop(self) -> None:
-        pidfile = Path(self.configdir, "magic-folder.pid")
-        try:
-            with open(pidfile, "r") as f:
-                pid = int(f.read())
-        except (EnvironmentError, ValueError) as err:
-            logging.warning("Error loading magic-folder.pid: %s", str(err))
-            return
-        logging.debug("Trying to kill PID %d...", pid)
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except OSError as err:
-            if err.errno not in (errno.ESRCH, errno.EINVAL):
-                logging.error(err)
-        try:
-            pidfile.unlink()
-        except OSError as err:
-            logging.warning("Error removing magic-folder.pid: %s", err)
+        kill(pidfile=Path(self.configdir, "magic-folder.pid"))
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
