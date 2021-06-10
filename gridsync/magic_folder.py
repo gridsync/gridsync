@@ -284,7 +284,6 @@ class MagicFolder:
             ["run"], "Completed initial Magic Folder setup"
         )
         pid, self.port = result
-        with open(self.pidfile, "w") as f:
-            f.write(str(pid))
+        self.pidfile.write_text(str(pid))
         yield self._load_config()
         self.monitor.start()
