@@ -246,7 +246,7 @@ class MagicFolder:
     @inlineCallbacks
     def add_participant(
         self, folder_name: str, author_name: str, personal_dmd: str
-    ) -> TwistedDeferred[Dict[str, dict]]:
+    ) -> TwistedDeferred[None]:
         data = {"author": {"name": author_name}, "personal_dmd": personal_dmd}
         yield self._request(
             "POST",
