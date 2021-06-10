@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import errno
 import hashlib
 import json
 import logging as log
 import os
 import re
 import shutil
-import signal
 import sys
 import tempfile
 from collections import OrderedDict, defaultdict
