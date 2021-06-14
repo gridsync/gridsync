@@ -691,7 +691,7 @@ class Tahoe:
 
         yield self.scan_storage_plugins()
 
-        yield self.magic_folder.start()  # XXX
+        # yield self.magic_folder.start()  # XXX
 
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
