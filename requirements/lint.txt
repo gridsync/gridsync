@@ -130,8 +130,8 @@ typed-ast==1.4.3 \
     --hash=sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65
 types-atomicwrites==0.1.4 \
     --hash=sha256:e7f5063072b3795a789c54f895d9829444611dacdbffb5b8e6ad2f026a779942
-types-PyYAML==0.1.8 \
-    --hash=sha256:8db1c8ceed4f6e86d54484e40709ad5f684a2f780308ba7a5e3850be9fb5961a
+types-PyYAML==5.4.1 \
+    --hash=sha256:88c0c5bcb2656a7da25f0ed5a7cfa557edb8191a7f7a71b3aaabd799792c5321
 typing-extensions==3.10.0.0 \
     --hash=sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342 \
     --hash=sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84
