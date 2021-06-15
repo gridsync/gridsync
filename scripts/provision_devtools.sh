@@ -58,7 +58,7 @@ pyenv versions
 
 
 . "$SHELLRC"
-eval "$(pyenv init -)"
+eval "$(pyenv init --path)"
 env | grep PATH
 which python2
 which python3
