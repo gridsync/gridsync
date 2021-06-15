@@ -1,4 +1,12 @@
+import os
+
 from pytest_twisted import inlineCallbacks
+
+os.environ["PATH"] = (
+    os.path.join(os.getcwd(), "dist", "Tahoe-LAFS")
+    + os.pathsep
+    + os.environ["PATH"]
+)
 
 
 @inlineCallbacks
