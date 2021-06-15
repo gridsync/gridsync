@@ -20,7 +20,6 @@ else
         PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file"
         yum -y install $PKGS || sudo yum -y install $PKGS
         SHELLRC=~/.bashrc
-	    ECHO_FLAGS=-e
     else
         echo "Error: Unknown environment"
         exit 1
@@ -39,7 +38,7 @@ fi
 git clone --branch v2.0.1 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.0.1
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "$SHELLRC"
 echo 'export PATH="$PYENV_ROOT/bin:$HOME/bin:$PATH"' >> "$SHELLRC"
-echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> "$SHELLRC"
+echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
 
 . "$SHELLRC"
 
@@ -57,8 +56,6 @@ fi
 pyenv versions
 
 
-. "$SHELLRC"
-eval "$(pyenv init --path)"
 env | grep PATH
 which python2
 which python3
