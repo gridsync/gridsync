@@ -60,6 +60,7 @@ jobs:
     - name: Test integration
       run: |
         source ~/.bash_profile
+        ls -al .tox
         xvfb-run -a python3 -m tox -e integration
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
