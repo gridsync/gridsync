@@ -39,6 +39,7 @@ from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import kill
+from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -1108,6 +1109,11 @@ class Tahoe:
             content = yield treq.content(resp)
             return json.loads(content.decode("utf-8"))
         return None
+
+    @inlineCallbacks
+    def diminish(self, cap: str) -> TwistedDeferred[str]:
+        output = yield self.get_json(cap)
+        return output[1]['ro_uri']
 
     def get_rootcap(self):
         if not self.rootcap:
