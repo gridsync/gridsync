@@ -57,6 +57,8 @@ jobs:
     - name: Verify (on host)
       run: |
         xvfb-run -a dist/Gridsync.AppImage --version
+    - name: Test integration
+      run: xvfb-run -a python3 -m tox -e integration
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
     - name: Upload artifacts
@@ -109,6 +111,8 @@ jobs:
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
         dist/Gridsync.app/Contents/MacOS/magic-folder/magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
+    - name: Test integration
+      run: python3 -m tox -e integration
     - name: Test determinism
       run: |
         source ~/.bashrc
@@ -154,6 +158,8 @@ jobs:
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
         .\dist\Gridsync\magic-folder\magic-folder.exe --version
         .\dist\Gridsync\Gridsync.exe --version
+    - name: Test integration
+      run: py -3 -m tox -e integration
     - name: Test determinism
       run: |
         .\make.bat test-determinism
