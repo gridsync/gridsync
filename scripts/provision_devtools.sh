@@ -44,15 +44,15 @@ echo "$ECHO_FLAGS" 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv 
 . "$SHELLRC"
 
 pyenv install --skip-existing 2.7.18
-pyenv install --skip-existing 3.9.4
+pyenv install --skip-existing 3.9.5
 if [ "${SKIP_OLD_PYTHON_VERSIONS}" ]; then
     pyenv rehash
-    pyenv global 2.7.18 3.9.4
+    pyenv global 2.7.18 3.9.5
 else
-    pyenv install --skip-existing 3.8.9
+    pyenv install --skip-existing 3.8.10
     pyenv install --skip-existing 3.7.10
     pyenv rehash
-    pyenv global 2.7.18 3.9.4 3.8.9 3.7.10
+    pyenv global 2.7.18 3.9.5 3.8.10 3.7.10
 fi
 pyenv versions
 
