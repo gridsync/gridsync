@@ -56,5 +56,11 @@ else
 fi
 pyenv versions
 
+
+. "$SHELLRC"
+env | grep PATH
+which python2
+which python3
+
 python2 -m pip install --upgrade setuptools pip
 python3 -m pip install --upgrade setuptools pip tox diffoscope
