@@ -1,7 +1,14 @@
+import os
 import secrets
 import string
 
 from pytest_twisted import async_yield_fixture, inlineCallbacks
+
+os.environ["PATH"] = (
+    os.path.join(os.getcwd(), "dist", "magic-folder")
+    + os.pathsep
+    + os.environ["PATH"]
+)
 
 
 def randstr(length: int = 32, alphabet: str = "") -> str:
