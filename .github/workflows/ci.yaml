@@ -58,7 +58,9 @@ jobs:
       run: |
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test integration
-      run: xvfb-run -a python3 -m tox -e integration
+      run: |
+        source ~/.bash_profile
+        xvfb-run -a python3 -m tox -e integration
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
     - name: Upload artifacts
@@ -112,7 +114,9 @@ jobs:
         dist/Gridsync.app/Contents/MacOS/magic-folder/magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test integration
-      run: python3 -m tox -e integration
+      run: |
+        source ~/.bashrc
+        python3 -m tox -e integration
     - name: Test determinism
       run: |
         source ~/.bashrc
@@ -159,7 +163,8 @@ jobs:
         .\dist\Gridsync\magic-folder\magic-folder.exe --version
         .\dist\Gridsync\Gridsync.exe --version
     - name: Test integration
-      run: py -3 -m tox -e integration
+      run: |
+        py -3 -m tox -e integration
     - name: Test determinism
       run: |
         .\make.bat test-determinism
