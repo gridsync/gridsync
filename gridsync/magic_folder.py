@@ -216,7 +216,7 @@ class MagicFolder:
             data=body,
         )
         content = yield treq.content(resp)
-        if resp.code == 200:
+        if resp.code in (200, 201):
             return json.loads(content)
         raise MagicFolderWebError(
             f"Error {resp.code} requesting {method} {path}: {content}"
