@@ -54,9 +54,7 @@ jobs:
       run: |
         source ~/.bash_profile
         make clean in-container
-        ls -al ~
-        sudo chown -R runner:runner ~
-        ls -al ~
+        sudo chown -R runner ~
     - name: Verify (on host)
       run: |
         xvfb-run -a dist/Gridsync.AppImage --version
