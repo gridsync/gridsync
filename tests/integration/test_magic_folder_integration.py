@@ -54,7 +54,8 @@ def test_add_participant(magic_folder, tmp_path):
     yield magic_folder.add_folder(path, author)
 
     author_name = randstr()
-    personal_dmd = yield magic_folder.gateway.mkdir()
+    dircap = yield magic_folder.gateway.mkdir()
+    personal_dmd = yield magic_folder.gateway.diminish(dircap)
     yield magic_folder.add_participant(folder_name, author_name, personal_dmd)
     participants = yield magic_folder.get_participants(folder_name)
     assert author_name in participants
