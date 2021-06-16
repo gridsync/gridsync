@@ -179,6 +179,41 @@ class MagicFolder:
         output = yield self._command(["--version"])
         return output
 
+    def stop(self) -> None:
+        self.monitor.stop()
+        kill(pidfile=self.pidfile)
+
+    @inlineCallbacks
+    def _load_config(self) -> TwistedDeferred[None]:
+        config_output = yield self._command(["show-config"])
+        self.config = json.loads(config_output)
+        self.api_token = self.config.get("api_token", "")
+        if not self.api_token:
+            raise MagicFolderError("Could not load magic-folder API token")
+
+    @inlineCallbacks
+    def start(self) -> TwistedDeferred[None]:
+        logging.debug("Starting magic-folder...")
+        if self.pidfile.exists():
+            self.stop()
+        if not self.configdir.exists():
+            yield self._command(
+                [
+                    "init",
+                    "-l",
+                    "tcp:0:interface=127.0.0.1",
+                    "-n",
+                    self.gateway.nodedir,
+                ]
+            )
+        result = yield self._command(
+            ["run"], "Completed initial Magic Folder setup"
+        )
+        self.pid, self.port = result
+        self.pidfile.write_text(str(self.pid))
+        yield self._load_config()
+        self.monitor.start()
+
     @inlineCallbacks
     def add_folder(
         self,
@@ -253,38 +288,3 @@ class MagicFolder:
             f"/magic-folder/{folder_name}/participants",
             body=json.dumps(data).encode("utf-8"),
         )
-
-    @inlineCallbacks
-    def _load_config(self) -> TwistedDeferred[None]:
-        config_output = yield self._command(["show-config"])
-        self.config = json.loads(config_output)
-        self.api_token = self.config.get("api_token", "")
-        if not self.api_token:
-            raise MagicFolderError("Could not load magic-folder API token")
-
-    def stop(self) -> None:
-        self.monitor.stop()
-        kill(pidfile=self.pidfile)
-
-    @inlineCallbacks
-    def start(self) -> TwistedDeferred[None]:
-        logging.debug("Starting magic-folder...")
-        if self.pidfile.exists():
-            self.stop()
-        if not self.configdir.exists():
-            yield self._command(
-                [
-                    "init",
-                    "-l",
-                    "tcp:0:interface=127.0.0.1",
-                    "-n",
-                    self.gateway.nodedir,
-                ]
-            )
-        result = yield self._command(
-            ["run"], "Completed initial Magic Folder setup"
-        )
-        self.pid, self.port = result
-        self.pidfile.write_text(str(self.pid))
-        yield self._load_config()
-        self.monitor.start()
