@@ -198,7 +198,8 @@ class View(QTreeView):
         if self._restart_required:
             self._restart_required = False
             logging.debug("A restart was scheduled; restarting...")
-            yield self.gateway.restart()
+            # yield self.gateway.restart()
+            yield self.gateway.magic_folder.restart()
         else:
             logging.debug("No restarts were scheduled; not restarting")
 
@@ -490,7 +491,8 @@ class View(QTreeView):
         self.model().add_folder(path)
         folder_name = os.path.basename(path)
         try:
-            yield self.gateway.create_magic_folder(path)
+            # yield self.gateway.create_magic_folder(path)
+            yield self.gateway.magic_folder.add_folder(path, "admin")
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
