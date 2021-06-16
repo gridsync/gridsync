@@ -184,7 +184,7 @@ class MagicFolder:
         kill(pidfile=self.pidfile)
         for logfile in Path(".").glob("magic-folder-cli.*.eliot"):
             p = Path(logfile)
-            logging.debug("Cleaning up %s...", str(p)) 
+            logging.debug("Cleaning up %s...", str(p))
             p.unlink()
 
     @inlineCallbacks
