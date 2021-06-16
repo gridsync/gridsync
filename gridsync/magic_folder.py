@@ -248,6 +248,16 @@ class MagicFolder:
         )
 
     @inlineCallbacks
+    def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
+        yield self._command(
+            [
+                "leave",
+                f"--name={folder_name}",
+                "--really-delete-write-capability",
+            ]
+        )
+
+    @inlineCallbacks
     def _request(
         self, method: str, path: str, body: bytes = b""
     ) -> TwistedDeferred[dict]:
