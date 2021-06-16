@@ -43,6 +43,22 @@ def test_add_folder_and_get_folder(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_leave_folder(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    folders = yield magic_folder.get_folders()
+    folder_was_added = (folder_name in folders)
+
+    yield magic_folder.leave_folder(folder_name)
+    folders = yield magic_folder.get_folders()
+    folder_was_removed = (folder_name not in folders)
+
+    assert (folder_was_added, folder_was_removed) == (True, True)
+
+
+@inlineCallbacks
 def test_get_participants(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
