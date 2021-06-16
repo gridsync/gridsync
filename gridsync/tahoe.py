@@ -692,7 +692,8 @@ class Tahoe:
 
         yield self.scan_storage_plugins()
 
-        # yield self.magic_folder.start()  # XXX
+        if not self.storage_furl:  # XXX Is a client (TODO: a better way.)
+            yield self.magic_folder.start()
 
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
