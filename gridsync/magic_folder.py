@@ -219,6 +219,13 @@ class MagicFolder:
         self.monitor.start()
 
     @inlineCallbacks
+    def restart(self) -> TwistedDeferred[None]:
+        logging.debug("Restarting magic-folder...")
+        self.stop()
+        yield self.start()
+        logging.debug("Magic-folder restarted successfully")
+
+    @inlineCallbacks
     def add_folder(
         self,
         path: str,
