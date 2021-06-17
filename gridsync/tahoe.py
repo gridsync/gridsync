@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import errno
 import hashlib
 import json
 import logging as log
 import os
 import re
 import shutil
-import signal
 import sys
 import tempfile
 from collections import OrderedDict, defaultdict
@@ -39,6 +37,7 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
+from gridsync.system import kill
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -517,18 +516,7 @@ class Tahoe:
                 log.debug("Successfully removed %s", fullpath)
 
     def kill(self):
-        try:
-            with open(self.pidfile, "r") as f:
-                pid = int(f.read())
-        except (EnvironmentError, ValueError) as err:
-            log.warning("Error loading pid from pidfile: %s", str(err))
-            return
-        log.debug("Trying to kill PID %d...", pid)
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except OSError as err:
-            if err.errno not in (errno.ESRCH, errno.EINVAL):
-                log.error(err)
+        kill(pidfile=self.pidfile)
         if sys.platform == "win32":
             self._win32_cleanup()
 
