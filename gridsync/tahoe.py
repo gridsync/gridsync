@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import errno
 import hashlib
 import json
 import logging as log
 import os
 import re
 import shutil
-import signal
 import sys
 import tempfile
 from collections import OrderedDict, defaultdict
@@ -39,6 +37,8 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
+from gridsync.system import kill
+from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -144,6 +144,7 @@ class Tahoe:
         self.monitor.sync_finished.connect(
             self.zkapauthorizer.update_zkap_checkpoint
         )
+        self.storage_furl: str = ""
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -472,12 +473,12 @@ class Tahoe:
         return self.executable, True, True
 
     @inlineCallbacks
-    def create_client(self, **kwargs):
+    def create_node(self, **kwargs):
         if os.path.exists(self.nodedir):
             raise FileExistsError(
                 "Nodedir already exists: {}".format(self.nodedir)
             )
-        args = ["create-client", "--webport=tcp:0:interface=127.0.0.1"]
+        args = ["create-node", "--webport=tcp:0:interface=127.0.0.1"]
         for key, value in kwargs.items():
             if key in (
                 "nickname",
@@ -485,16 +486,25 @@ class Tahoe:
                 "shares-needed",
                 "shares-happy",
                 "shares-total",
+                "listen",
+                "location",
+                "port",
             ):
-                args.extend(["--{}".format(key), str(value)])
-            elif key in ["needed", "happy", "total"]:
-                args.extend(["--shares-{}".format(key), str(value)])
-            elif key == "hide-ip":
-                args.append("--hide-ip")
+                args.extend([f"--{key}", str(value)])
+            elif key in ("needed", "happy", "total"):
+                args.extend([f"--shares-{key}", str(value)])
+            elif key in ("hide-ip", "no-storage"):
+                args.append(f"--{key}")
         yield self.command(args)
         storage_servers = kwargs.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
+
+    @inlineCallbacks
+    def create_client(self, **kwargs):
+        kwargs["no-storage"] = True
+        kwargs["listen"] = "none"
+        yield self.create_node(**kwargs)
 
     def _win32_cleanup(self):
         # XXX A dirty hack to try to remove any stale magic-folder
@@ -517,18 +527,7 @@ class Tahoe:
                 log.debug("Successfully removed %s", fullpath)
 
     def kill(self):
-        try:
-            with open(self.pidfile, "r") as f:
-                pid = int(f.read())
-        except (EnvironmentError, ValueError) as err:
-            log.warning("Error loading pid from pidfile: %s", str(err))
-            return
-        log.debug("Trying to kill PID %d...", pid)
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except OSError as err:
-            if err.errno not in (errno.ESRCH, errno.EINVAL):
-                log.error(err)
+        kill(pidfile=self.pidfile)
         if sys.platform == "win32":
             self._win32_cleanup()
 
@@ -679,6 +678,10 @@ class Tahoe:
         self.streamedlogs.start(self.nodeurl, self.api_token)
         self.load_newscap()
         self.newscap_checker.start()
+        storage_furl_path = Path(self.nodedir, "private", "storage.furl")
+        if storage_furl_path.exists():
+            self.storage_furl = storage_furl_path.read_text().strip()
+
         self.state = Tahoe.STARTED
 
         yield self.scan_storage_plugins()
@@ -801,6 +804,11 @@ class Tahoe:
         raise TahoeWebError(
             "Error creating Tahoe-LAFS directory: {}".format(resp.code)
         )
+
+    @inlineCallbacks
+    def diminish(self, cap: str) -> TwistedDeferred[str]:
+        output = yield self.get_json(cap)
+        return output[1]["ro_uri"]
 
     @inlineCallbacks
     def create_rootcap(self):

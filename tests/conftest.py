@@ -1,15 +1,49 @@
 import os.path
 from base64 import b64encode
 from functools import partial
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
+from unittest.mock import Mock
 
 import pytest
+from pytest_twisted import async_yield_fixture
 
+from gridsync.network import get_free_port
 from gridsync.tahoe import Tahoe
+
+
+@async_yield_fixture(scope="module")
+async def tahoe_server(tmp_path_factory):
+    server = Tahoe(tmp_path_factory.mktemp("tahoe_server") / "nodedir")
+    print("Server nodedir:", server.nodedir)
+    port = get_free_port()
+    await server.create_node(
+        port=f"tcp:{port}:interface=127.0.0.1",
+        location=f"tcp:127.0.0.1:{port}",
+    )
+    await server.start()
+    yield server
+    await server.stop()
+
+
+@async_yield_fixture(scope="module")
+async def tahoe_client(tmp_path_factory, tahoe_server):
+    client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
+    print("Client nodedir:", client.nodedir)
+    settings = {
+        "nickname": "Test Grid",
+        "shares-needed": "1",
+        "shares-happy": "1",
+        "shares-total": "1",
+        "storage": {
+            "test-grid-storage-server-1": {
+                "nickname": "test-grid-storage-server-1",
+                "anonymous-storage-FURL": tahoe_server.storage_furl,
+            }
+        },
+    }
+    await client.create_client(**settings)
+    await client.start()
+    yield client
+    await client.stop()
 
 
 @pytest.fixture()
