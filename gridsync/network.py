@@ -23,7 +23,7 @@ def get_free_port(
             try:
                 logging.debug("Trying to bind to port: %i", port)
                 s.bind(("127.0.0.1", port))
-            except socket.error as err:
+            except OSError as err:
                 logging.debug("Couldn't bind to port %i: %s", port, err)
                 if err.errno == errno.EADDRINUSE:
                     port = randint(range_min, range_max)
