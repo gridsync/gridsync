@@ -60,7 +60,7 @@ jobs:
     - name: Test integration
       run: |
         source ~/.bash_profile
-        xvfb-run -a python3 -m tox -e integration
+        make test-integration
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
     - name: Upload artifacts
@@ -115,7 +115,7 @@ jobs:
     - name: Test integration
       run: |
         source ~/.bashrc
-        python3 -m tox -e integration
+        make test-integration
     - name: Test determinism
       run: |
         source ~/.bashrc
@@ -162,7 +162,7 @@ jobs:
         .\dist\Gridsync\Gridsync.exe --version
     - name: Test integration
       run: |
-        py -3 -m tox -e integration
+        .\make.bat test-integration
     - name: Test determinism
       run: |
         .\make.bat test-determinism
