@@ -20,3 +20,10 @@ def test_tahoe_client_connected_servers(tahoe_client):
 def test_tahoe_client_mkdir(tahoe_client):
     cap = yield tahoe_client.mkdir()
     assert cap.startswith("URI:DIR2:")
+
+
+@inlineCallbacks
+def test_diminish(tahoe_client):
+    dircap = yield tahoe_client.mkdir()
+    diminished = yield tahoe_client.diminish(dircap)
+    assert diminished.startswith("URI:DIR2-RO:")

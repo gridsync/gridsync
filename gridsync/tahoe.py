@@ -38,6 +38,7 @@ from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import kill
+from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -803,6 +804,11 @@ class Tahoe:
         raise TahoeWebError(
             "Error creating Tahoe-LAFS directory: {}".format(resp.code)
         )
+
+    @inlineCallbacks
+    def diminish(self, cap: str) -> TwistedDeferred[str]:
+        output = yield self.get_json(cap)
+        return output[1]["ro_uri"]
 
     @inlineCallbacks
     def create_rootcap(self):
