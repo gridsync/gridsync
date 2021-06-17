@@ -35,6 +35,7 @@ if defined APPVEYOR (
 
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
+if "%1"=="test-integration" call :test-integration
 if "%1"=="frozen-tahoe" call :frozen-tahoe
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="zip" call :zip
@@ -61,6 +62,10 @@ goto :eof
 
 :test
 %PYTHON3% -m tox || goto :error
+goto :eof
+
+:test-integration
+%PYTHON3% -m tox -e integration || goto :error
 goto :eof
 
 :frozen-tahoe
