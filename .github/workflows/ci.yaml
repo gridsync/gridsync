@@ -21,8 +21,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-cache-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-cache-${{ matrix.os.runs-on }}-
+        key: cache-pyenv-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: cache-pyenv-${{ matrix.os.runs-on }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -53,9 +53,14 @@ jobs:
       run: |
         source ~/.bash_profile
         make clean in-container
+        sudo chown -R runner ~
     - name: Verify (on host)
       run: |
         xvfb-run -a dist/Gridsync.AppImage --version
+    - name: Test integration
+      run: |
+        source ~/.bash_profile
+        make test-integration
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
     - name: Upload artifacts
@@ -81,8 +86,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os.runs-on }}-
+        key: cache-pyenv-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: cache-pyenv-${{ matrix.os.runs-on }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -107,6 +112,10 @@ jobs:
       run: |
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
+    - name: Test integration
+      run: |
+        source ~/.bashrc
+        make test-integration
     - name: Test determinism
       run: |
         source ~/.bashrc
@@ -151,6 +160,9 @@ jobs:
       run: |
         .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
         .\dist\Gridsync\Gridsync.exe --version
+    - name: Test integration
+      run: |
+        .\make.bat test-integration
     - name: Test determinism
       run: |
         .\make.bat test-determinism

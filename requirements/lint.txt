@@ -128,10 +128,12 @@ typed-ast==1.4.3 \
     --hash=sha256:f2362f3cb0f3172c42938946dbc5b7843c2a28aec307c49100c8b38764eb6927 \
     --hash=sha256:f328adcfebed9f11301eaedfa48e15bdece9b519fb27e6a8c01aa52a17ec31b3 \
     --hash=sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65
-types-atomicwrites==0.1.3 \
-    --hash=sha256:18af17b6dbfb59a692ccae362886a84d434962e4038ece6f9f7a2a9502932b3b
-types-PyYAML==0.1.6 \
-    --hash=sha256:8620045462a0ae1ecff7e97041905abdedc7afdff7ea66cac31df29fb1af6fa3
+types-atomicwrites==0.1.5 \
+    --hash=sha256:778d6ab2d188ac41d08f62a1f671b003af57ae1feba208b59433272d5ac1202a \
+    --hash=sha256:9b73ac447ce007329575d3684d756fc636c89d8652b3bbd9e289953de15c88e7
+types-PyYAML==5.4.3 \
+    --hash=sha256:2e7b81b2b7af751634425107b986086c6ba7cb61270a43a5c290c58be8cdbc3a \
+    --hash=sha256:bca83cbfc0be48600a8abf1e3d87fb762a91e6d35d724029a3321dd2dce2ceb1
 typing-extensions==3.10.0.0 \
     --hash=sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342 \
     --hash=sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84
