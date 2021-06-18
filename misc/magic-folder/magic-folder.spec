@@ -12,7 +12,7 @@ options = [
 ]
 
 a = Analysis(
-    ["magic-folder.py"],
+    ["src/magic_folder/__main__.py"],
     pathex=[],
     binaries=[],
     datas=[],
