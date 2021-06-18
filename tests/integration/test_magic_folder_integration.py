@@ -1,20 +1,14 @@
 import os
-import secrets
-import string
 
 from pytest_twisted import async_yield_fixture, inlineCallbacks
+
+from gridsync.crypto import randstr
 
 os.environ["PATH"] = (
     os.path.join(os.getcwd(), "dist", "magic-folder")
     + os.pathsep
     + os.environ["PATH"]
 )
-
-
-def randstr(length: int = 32, alphabet: str = "") -> str:
-    if not alphabet:
-        alphabet = string.ascii_letters + string.digits
-    return "".join(secrets.choice(alphabet) for i in range(length))
 
 
 @async_yield_fixture(scope="module")
