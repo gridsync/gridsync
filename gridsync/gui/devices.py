@@ -210,7 +210,7 @@ class DevicesTableView(QTableView):
         return question(self, title, text)
 
     @inlineCallbacks
-    def _rename_device(self, _: bool) -> None:
+    def _rename_device(self, _: bool) -> TwistedDeferred[None]:
         devices = self._selected_devices()
         if not devices:
             return
@@ -231,7 +231,7 @@ class DevicesTableView(QTableView):
         except TahoeWebError as err:
             error(self, "Error renaming device", str(err))
             return
-        yield self._model.rename_device(old_name, new_name)
+        self._model.rename_device(old_name, new_name)
 
     @inlineCallbacks
     def _remove_selected(self, _: bool) -> TwistedDeferred[None]:
