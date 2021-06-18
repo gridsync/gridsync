@@ -2,7 +2,7 @@
 
 import sys
 
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QWidget
 
 
 def critical(title, text):
@@ -26,6 +26,22 @@ def error(parent, title, text, detailed_text=None):
         msg.setText(text)
     msg.setDetailedText(detailed_text)
     return msg.exec_()
+
+
+def question(parent: QWidget, title: str, text: str) -> bool:
+    msg = QMessageBox(parent)
+    msg.setIcon(QMessageBox.Question)
+    if sys.platform == "darwin":
+        msg.setText(title)
+        msg.setInformativeText(text)
+    else:
+        msg.setWindowTitle(title)
+        msg.setText(text)
+    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    msg.setDefaultButton(QMessageBox.Yes)
+    if msg.exec_() == QMessageBox.Yes:
+        return True
+    return False
 
 
 def info(parent, title, text):

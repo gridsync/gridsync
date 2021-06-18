@@ -23,6 +23,12 @@ test:
 		*) xvfb-run -a python3 -m tox ;; \
 	esac
 
+test-integration:
+	@case `uname` in \
+		Darwin)	arch -x86_64 python3 -m tox -e integration ;; \
+		*) xvfb-run -a python3 -m tox -e integration ;; \
+	esac
+
 pngs:
 	mkdir -p build/frames
 	for i in images/gridsync*.svg; do \

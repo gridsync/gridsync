@@ -1,32 +1,13 @@
-import errno
 import os.path
-import socket
 from base64 import b64encode
 from functools import partial
-from random import randint
 from unittest.mock import Mock
 
 import pytest
 from pytest_twisted import async_yield_fixture
 
+from gridsync.network import get_free_port
 from gridsync.tahoe import Tahoe
-
-
-def get_free_port(
-    port: int = 0, range_min: int = 49152, range_max: int = 65535
-) -> int:
-    if not port:
-        port = randint(range_min, range_max)
-    while True:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind(("127.0.0.1", port))
-            except socket.error as err:
-                if err.errno == errno.EADDRINUSE:
-                    port = randint(range_min, range_max)
-                    continue
-                raise
-            return port
 
 
 @async_yield_fixture(scope="module")
