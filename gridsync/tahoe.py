@@ -883,7 +883,7 @@ class Tahoe:
             raise TahoeWebError(
                 f'Error renaming {from_name}: "{to_name}" already exists'
             )
-        elif resp.code != 200:
+        if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
         log.debug('Successfully renamed "%s" to "%s"...', from_name, to_name)
