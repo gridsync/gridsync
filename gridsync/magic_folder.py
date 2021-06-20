@@ -42,29 +42,6 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
-class MagicFolderWebSocketClientProtocol(
-    WebSocketClientProtocol
-):  # pylint: disable=too-many-ancestors
-    def onOpen(self) -> None:
-        logging.debug("WebSocket connection opened.")
-
-    def onMessage(self, payload: bytes, isBinary: bool) -> None:
-        if isBinary:
-            logging.warning(
-                "Received a binary-mode WebSocket message from magic-folder "
-                "status API; dropping."
-            )
-            return
-        msg = payload.decode("utf-8")
-        logging.debug("WebSocket message received: %s", msg)
-        self.factory.magic_folder.on_message_received(msg)
-
-    def onClose(self, wasClean: bool, code: int, reason: str) -> None:
-        logging.debug(
-            "WebSocket connection closed: %s (code %s)", reason, code
-        )
-
-
 class MagicFolderProcessProtocol(ProcessProtocol):
     def __init__(self, callback_trigger: str = "") -> None:
         self.trigger = callback_trigger
@@ -99,6 +76,29 @@ class MagicFolderProcessProtocol(ProcessProtocol):
                     self.output.getvalue().decode().strip()
                 )
             )
+
+
+class MagicFolderWebSocketClientProtocol(
+    WebSocketClientProtocol
+):  # pylint: disable=too-many-ancestors
+    def onOpen(self) -> None:
+        logging.debug("WebSocket connection opened.")
+
+    def onMessage(self, payload: bytes, isBinary: bool) -> None:
+        if isBinary:
+            logging.warning(
+                "Received a binary-mode WebSocket message from magic-folder "
+                "status API; dropping."
+            )
+            return
+        msg = payload.decode("utf-8")
+        logging.debug("WebSocket message received: %s", msg)
+        self.factory.magic_folder.on_message_received(msg)
+
+    def onClose(self, wasClean: bool, code: int, reason: str) -> None:
+        logging.debug(
+            "WebSocket connection closed: %s (code %s)", reason, code
+        )
 
 
 class MagicFolderStatusMonitor(MultiService):
