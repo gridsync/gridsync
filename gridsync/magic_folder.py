@@ -148,6 +148,7 @@ class MagicFolder:
         self.config: dict = {}
         self.api_token: str = ""
         self.monitor = MagicFolderStatusMonitor(self)
+        self.magic_folders = {}
 
     @staticmethod
     def on_message_received(msg: str) -> None:
@@ -286,6 +287,7 @@ class MagicFolder:
         folders = yield self._request(
             "GET", "/magic-folder?include_secret_information=1"
         )
+        self.magic_folders = folders
         return folders
 
     @inlineCallbacks
