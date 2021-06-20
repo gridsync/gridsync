@@ -13,6 +13,7 @@ from autobahn.twisted.websocket import (
     WebSocketClientFactory,
     WebSocketClientProtocol,
 )
+from PyQt5.QtCore import QObject, pyqtSignal
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
 from twisted.internet import reactor
@@ -93,7 +94,7 @@ class MagicFolderWebSocketClientProtocol(
             return
         msg = payload.decode("utf-8")
         logging.debug("WebSocket message received: %s", msg)
-        self.factory.magic_folder.on_message_received(msg)
+        self.factory.magic_folder.monitor.on_status_message_received(msg)
 
     def onClose(self, wasClean: bool, code: int, reason: str) -> None:
         logging.debug(
@@ -136,6 +137,30 @@ class MagicFolderStatusMonitor(MultiService):
         return None
 
 
+class MagicFolderMonitor(QObject):
+
+    # sync_started = pyqtSignal()
+    # sync_finished = pyqtSignal()
+    synchronizing_state_changed = pyqtSignal(bool)
+
+    def __init__(self, magic_folder: MagicFolder) -> None:
+        super().__init__()
+        self.magic_folder = magic_folder
+        self.status_monitor = MagicFolderStatusMonitor(magic_folder)
+
+    def on_status_message_received(self, msg: str) -> None:
+        data = json.loads(msg)
+        state = data.get("state")
+        if state and "synchronizing" in state:
+            self.synchronizing_state_changed.emit(state.get("synchronizing"))
+
+    def start(self) -> None:
+        self.status_monitor.start()
+
+    def stop(self) -> None:
+        self.status_monitor.stop()
+
+
 class MagicFolder:
     def __init__(self, gateway: Tahoe, executable: Optional[str] = "") -> None:
         self.gateway = gateway
@@ -147,12 +172,8 @@ class MagicFolder:
         self.port: int = 0
         self.config: dict = {}
         self.api_token: str = ""
-        self.monitor = MagicFolderStatusMonitor(self)
+        self.monitor = MagicFolderMonitor(self)
         self.magic_folders = {}
-
-    @staticmethod
-    def on_message_received(msg: str) -> None:
-        print("###########", msg)
 
     @inlineCallbacks
     def _command(
