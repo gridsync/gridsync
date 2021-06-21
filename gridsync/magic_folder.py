@@ -150,7 +150,7 @@ class MagicFolderMonitor(QObject):
         super().__init__()
         self.magic_folder = magic_folder
         self.status_monitor = MagicFolderStatusMonitor(magic_folder)
-        self.folders = {}
+        self.folders: Dict[str, dict] = {}
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
@@ -189,7 +189,7 @@ class MagicFolder:
         self.config: dict = {}
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
-        self.magic_folders = {}
+        self.magic_folders: Dict[str, dict] = {}
 
     @inlineCallbacks
     def _command(
