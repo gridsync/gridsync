@@ -143,10 +143,14 @@ class MagicFolderMonitor(QObject):
     # sync_finished = pyqtSignal()
     synchronizing_state_changed = pyqtSignal(bool)
 
+    folder_added = pyqtSignal(str)  # folder
+    folder_removed = pyqtSignal(str)  # folder
+
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
         self.magic_folder = magic_folder
         self.status_monitor = MagicFolderStatusMonitor(magic_folder)
+        self.folders = {}
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
@@ -154,8 +158,20 @@ class MagicFolderMonitor(QObject):
         if state and "synchronizing" in state:
             self.synchronizing_state_changed.emit(state.get("synchronizing"))
 
+    @inlineCallbacks
+    def do_check(self) -> TwistedDeferred[None]:
+        folders = yield self.magic_folder.get_folders()
+        for folder in folders:
+            if folder not in self.folders:
+                self.folder_added.emit(folder)
+        for known_folder in self.folders:
+            if known_folder not in folders:
+                self.folder_removed.emit(known_folder)
+        self.folders = folders
+
     def start(self) -> None:
         self.status_monitor.start()
+        self.do_check()
 
     def stop(self) -> None:
         self.status_monitor.stop()
