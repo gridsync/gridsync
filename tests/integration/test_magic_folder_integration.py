@@ -76,3 +76,32 @@ def test_add_participant(magic_folder, tmp_path):
     yield magic_folder.add_participant(folder_name, author_name, personal_dmd)
     participants = yield magic_folder.get_participants(folder_name)
     assert author_name in participants
+
+
+@inlineCallbacks
+def test_monitor_emits_folder_added_signal(magic_folder, tmp_path, qtbot):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.monitor.do_check()
+    with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
+        yield magic_folder.add_folder(path, author)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args == [folder_name]
+
+
+@inlineCallbacks
+def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
+    # Removing existing folders first
+    folders = yield magic_folder.get_folders()
+    for folder in folders:
+        yield magic_folder.leave_folder(folder)
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    yield magic_folder.monitor.do_check()
+    with qtbot.wait_signal(magic_folder.monitor.folder_removed) as blocker:
+        yield magic_folder.leave_folder(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args == [folder_name]
