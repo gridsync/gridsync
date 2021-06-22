@@ -9,21 +9,14 @@ import shutil
 import sys
 import tempfile
 from collections import OrderedDict, defaultdict
-from io import BytesIO
 from pathlib import Path
 from typing import List
 
 import treq
 import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import (
-    Deferred,
-    DeferredList,
-    DeferredLock,
-    inlineCallbacks,
-)
-from twisted.internet.error import ConnectError, ProcessDone
-from twisted.internet.protocol import ProcessProtocol
+from twisted.internet.defer import DeferredList, DeferredLock, inlineCallbacks
+from twisted.internet.error import ConnectError
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
@@ -38,7 +31,7 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
 from gridsync.streamedlogs import StreamedLogs
-from gridsync.system import kill
+from gridsync.system import SubprocessProtocol, kill
 from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
@@ -59,38 +52,6 @@ def get_nodedirs(basedir):
     except OSError:
         pass
     return sorted(nodedirs)
-
-
-class CommandProtocol(ProcessProtocol):
-    def __init__(self, parent, callback_trigger=None):
-        self.parent = parent
-        self.trigger = callback_trigger
-        self.done = Deferred()
-        self.output = BytesIO()
-
-    def outReceived(self, data):
-        self.output.write(data)
-        data = data.decode("utf-8")
-        for line in data.strip().split("\n"):
-            if line:
-                self.parent.line_received(line)
-            if not self.done.called and self.trigger and self.trigger in line:
-                self.done.callback(self.transport.pid)
-
-    def errReceived(self, data):
-        self.outReceived(data)
-
-    def processEnded(self, reason):
-        if not self.done.called:
-            self.done.callback(self.output.getvalue().decode("utf-8"))
-
-    def processExited(self, reason):
-        if not self.done.called and not isinstance(reason.value, ProcessDone):
-            self.done.errback(
-                TahoeCommandError(
-                    self.output.getvalue().decode("utf-8").strip()
-                )
-            )
 
 
 class Tahoe:
@@ -454,9 +415,15 @@ class Tahoe:
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(logged_args))
-        protocol = CommandProtocol(self, callback_trigger)
+        protocol = SubprocessProtocol(
+            callback_trigger,
+            errback_exception=TahoeCommandError,
+            collector=self.line_received,
+        )
         reactor.spawnProcess(protocol, exe, args=args, env=env)
         output = yield protocol.done
+        if callback_trigger:
+            return protocol.pid
         return output
 
     @inlineCallbacks
