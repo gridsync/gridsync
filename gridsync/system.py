@@ -1,9 +1,20 @@
+from __future__ import annotations
+
 import errno
 import logging
 import os
 import signal
+from io import BytesIO
 from pathlib import Path
-from typing import Optional, Union
+from subprocess import SubprocessError
+from typing import TYPE_CHECKING, Callable, Optional, Union
+
+from twisted.internet.defer import Deferred
+from twisted.internet.error import ProcessDone
+from twisted.internet.protocol import ProcessProtocol
+
+if TYPE_CHECKING:
+    from twisted.python.failure import Failure
 
 
 def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
@@ -32,3 +43,62 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
             )
             return
         logging.debug("Successfully removed pidfile: %s", str(pidfile))
+
+
+class SubprocessProtocol(ProcessProtocol):
+    def __init__(
+        self,
+        callback_trigger: str = "",
+        errback_trigger: str = "",
+        errback_exception: Exception = SubprocessError,
+        collector: Optional[Callable] = None,
+    ) -> None:
+        self.callback_trigger = callback_trigger
+        self.errback_trigger = errback_trigger
+        self.errback_exception = errback_exception
+        self.collector = collector
+        self.pid: int = 0
+        self.output = BytesIO()
+        self.done = Deferred()
+
+    def callback(self) -> None:
+        self.done.callback(self.output.getvalue().decode("utf-8").strip())
+
+    def errback(self) -> None:
+        self.done.errback(
+            self.errback_exception(
+                self.output.getvalue().decode("utf-8").strip()
+            )
+        )
+
+    def connectionMade(self) -> None:
+        self.pid = self.transport.pid
+
+    def outReceived(self, data: bytes) -> None:
+        if not self.done.called:
+            self.output.write(data)
+        for line in data.decode("utf-8").strip().split("\n"):
+            if not line:
+                continue
+            if self.collector:
+                self.collector(line)
+            if self.done.called:
+                continue
+            if self.callback_trigger and self.callback_trigger in line:
+                self.callback()
+            elif self.errback_trigger and self.errback_trigger in line:
+                self.errback()
+
+    def errReceived(self, data: bytes) -> None:
+        self.outReceived(data)
+
+    def processEnded(self, reason: Failure) -> None:
+        if self.done.called:
+            return
+        if isinstance(reason.value, ProcessDone):
+            self.callback()
+        else:
+            self.errback()
+
+    def processExited(self, reason: Failure) -> None:
+        self.processEnded(reason)
