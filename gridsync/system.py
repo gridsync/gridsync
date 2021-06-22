@@ -7,7 +7,7 @@ import signal
 from io import BytesIO
 from pathlib import Path
 from subprocess import SubprocessError
-from typing import TYPE_CHECKING, Callable, Optional, Union
+from typing import TYPE_CHECKING, Callable, Optional, Type, Union
 
 from twisted.internet.defer import Deferred
 from twisted.internet.error import ProcessDone
@@ -50,7 +50,7 @@ class SubprocessProtocol(ProcessProtocol):
         self,
         callback_trigger: str = "",
         errback_trigger: str = "",
-        errback_exception: Exception = SubprocessError,
+        errback_exception: Type[Exception] = SubprocessError,
         collector: Optional[Callable] = None,
     ) -> None:
         self.callback_trigger = callback_trigger
@@ -72,7 +72,7 @@ class SubprocessProtocol(ProcessProtocol):
         )
 
     def connectionMade(self) -> None:
-        self.pid = self.transport.pid
+        self.pid = self.transport.pid  # type: ignore
 
     def outReceived(self, data: bytes) -> None:
         if not self.done.called:

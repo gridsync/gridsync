@@ -5,7 +5,7 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 import treq
 from autobahn.twisted.websocket import (
@@ -153,7 +153,7 @@ class MagicFolder:
     @inlineCallbacks
     def _command(
         self, args: List[str], callback_trigger: str = ""
-    ) -> TwistedDeferred[str]:
+    ) -> TwistedDeferred[Union[Tuple[int, str], str]]:
         if not self.executable:
             self.executable = shutil.which("magic-folder")
         if not self.executable:
@@ -170,7 +170,7 @@ class MagicFolder:
         )
         output = yield protocol.done  # type: ignore
         if callback_trigger:
-            return protocol.transport.pid, output
+            return protocol.pid, output
         return output
 
     @inlineCallbacks
