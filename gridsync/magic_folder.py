@@ -4,9 +4,8 @@ import json
 import logging
 import os
 import shutil
-from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 import treq
 from autobahn.twisted.websocket import (
@@ -17,18 +16,14 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.endpoints import TCP4ClientEndpoint
-from twisted.internet.error import ProcessDone
-from twisted.internet.protocol import ProcessProtocol
 
 if TYPE_CHECKING:
-    from twisted.python.failure import Failure
-
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
 
-from gridsync.system import kill
+from gridsync.system import SubprocessProtocol, kill
 
 
 class MagicFolderError(Exception):
@@ -41,42 +36,6 @@ class MagicFolderProcessError(MagicFolderError):
 
 class MagicFolderWebError(MagicFolderError):
     pass
-
-
-class MagicFolderProcessProtocol(ProcessProtocol):
-    def __init__(self, callback_trigger: str = "") -> None:
-        self.trigger = callback_trigger
-        self.done = Deferred()
-        self.output = BytesIO()
-        self.port: int = 0
-
-    def outReceived(self, data: bytes) -> None:
-        self.output.write(data)
-        decoded = data.decode()
-        for line in decoded.strip().split("\n"):
-            logging.debug("[magic-folder] %s", line)  # XXX
-            if "Site starting on " in line and not self.port:  # XXX
-                try:
-                    self.port = int(line.split(" ")[-1])
-                except ValueError:
-                    pass
-            if not self.done.called and self.trigger and self.trigger in line:
-                self.done.callback((self.transport.pid, self.port))  # type: ignore
-
-    def errReceived(self, data: bytes) -> None:
-        self.outReceived(data)
-
-    def processEnded(self, reason: Failure) -> None:
-        if not self.done.called:
-            self.done.callback(self.output.getvalue().decode().strip())
-
-    def processExited(self, reason: Failure) -> None:
-        if not self.done.called and not isinstance(reason.value, ProcessDone):
-            self.done.errback(
-                MagicFolderProcessError(
-                    self.output.getvalue().decode().strip()
-                )
-            )
 
 
 class MagicFolderWebSocketClientProtocol(
@@ -205,11 +164,13 @@ class MagicFolder:
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         logging.debug("Executing %s...", " ".join(args))
-        protocol = MagicFolderProcessProtocol(callback_trigger)
+        protocol = SubprocessProtocol(callback_trigger)
         reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
         output = yield protocol.done  # type: ignore
+        if callback_trigger:
+            return protocol.transport.pid, output
         return output
 
     @inlineCallbacks
@@ -237,6 +198,21 @@ class MagicFolder:
             raise MagicFolderError("Could not load magic-folder API token")
 
     @inlineCallbacks
+    def _run(self) -> TwistedDeferred[Tuple[int, int]]:
+        result = yield self._command(
+            ["run"], "Completed initial Magic Folder setup"
+        )
+        pid, output = result
+        port = 0
+        for line in output.split("\n"):
+            if "Site starting on " in line and not port:  # XXX
+                try:
+                    port = int(line.split(" ")[-1])
+                except ValueError:
+                    pass
+        return (pid, port)
+
+    @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
         if self.pidfile.exists():
@@ -251,9 +227,7 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        result = yield self._command(
-            ["run"], "Completed initial Magic Folder setup"
-        )
+        result = yield self._run()
         self.pid, self.port = result
         self.pidfile.write_text(str(self.pid))
         yield self._load_config()
