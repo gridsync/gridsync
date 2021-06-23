@@ -18,6 +18,7 @@ from twisted.application.service import MultiService
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
@@ -232,6 +233,11 @@ class MagicFolder:
         self.pidfile.write_text(str(self.pid))
         yield self._load_config()
         self.monitor.start()
+
+    @inlineCallbacks
+    def await_running(self) -> TwistedDeferred[None]:
+        while not self.monitor.status_monitor.running:  # XXX
+            yield deferLater(reactor, 0.2, lambda: None)
 
     @inlineCallbacks
     def restart(self) -> TwistedDeferred[None]:
