@@ -79,6 +79,23 @@ def test_add_participant(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_add_snapshot(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    yield magic_folder.restart()
+    yield magic_folder.await_running()
+
+    filename = randstr()
+    filepath = path / filename
+    filepath.write_text("Test" * 100)
+    yield magic_folder.add_snapshot(folder_name, filename)
+    snapshots = yield magic_folder.get_snapshots()
+    assert filename in snapshots.get(folder_name)
+
+
+@inlineCallbacks
 def test_monitor_emits_folder_added_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
     path = tmp_path / folder_name
