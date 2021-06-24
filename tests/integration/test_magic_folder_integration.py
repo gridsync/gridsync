@@ -1,6 +1,8 @@
 import os
 
 from pytest_twisted import async_yield_fixture, inlineCallbacks
+from twisted.internet import reactor
+from twisted.internet.task import deferLater
 
 from gridsync.crypto import randstr
 
@@ -106,6 +108,28 @@ def test_add_snapshot(magic_folder, tmp_path):
     yield magic_folder.add_snapshot(folder_name, filename)
     snapshots = yield magic_folder.get_snapshots()
     assert filename in snapshots.get(folder_name)
+
+
+@inlineCallbacks
+def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+    yield magic_folder.restart()
+
+    filename = randstr()
+    filepath = path / filename
+    filepath.write_text("Test" * 100)
+    yield magic_folder.add_snapshot(folder_name, filename)
+
+    folders = yield magic_folder.get_folders()
+    upload_dircap = folders[folder_name]["upload_dircap"]
+
+    yield deferLater(reactor, 1, lambda: None)
+
+    content = yield magic_folder.gateway.get_json(upload_dircap)
+    assert filename in content[1]["children"]
 
 
 @inlineCallbacks
