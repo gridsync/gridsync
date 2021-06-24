@@ -10,7 +10,7 @@ from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import inlineCallbacks
 
 from gridsync import config_dir, resource
 from gridsync.gui.pixmap import CompositePixmap
