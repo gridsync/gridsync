@@ -26,7 +26,13 @@ def test_version(magic_folder):
 
 
 @inlineCallbacks
-def test_add_folder_and_get_folder(magic_folder, tmp_path):
+def test_get_folders(magic_folder):
+    folders = yield magic_folder.get_folders()
+    assert folders == {}
+
+
+@inlineCallbacks
+def test_add_folder(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
