@@ -79,6 +79,13 @@ def test_add_participant(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_get_snapshots(magic_folder):
+    folders = yield magic_folder.get_folders()
+    snapshots = yield magic_folder.get_snapshots()
+    assert sorted(snapshots.keys()) == sorted(folders.keys())
+
+
+@inlineCallbacks
 def test_add_snapshot(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
