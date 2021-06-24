@@ -10,6 +10,7 @@ from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
+from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from gridsync import config_dir, resource
 from gridsync.gui.pixmap import CompositePixmap
@@ -153,9 +154,16 @@ class Model(QStandardItemModel):
         if items:
             self.removeRow(items[0].row())
 
+    # def populate_(self):
+    #    for magic_folder in list(self.gateway.load_magic_folders().values()):
+    #        self.add_folder(magic_folder["directory"])
+
+    @inlineCallbacks
     def populate(self):
-        for magic_folder in list(self.gateway.load_magic_folders().values()):
-            self.add_folder(magic_folder["directory"])
+        yield self.gateway.magic_folder.await_running()
+        folders = yield self.gateway.magic_folder.get_folders()
+        for folder in list(folders.values()):
+            self.add_folder(folder["magic_path"])
 
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
         items = self.findItems(folder_name)
