@@ -313,6 +313,14 @@ class MagicFolder:
         return snapshots
 
     @inlineCallbacks
+    def add_snapshot(
+        self, folder_name: str, filepath: str
+    ) -> TwistedDeferred[None]:
+        yield self._request(
+            "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
+        )
+
+    @inlineCallbacks
     def get_participants(
         self, folder_name: str
     ) -> TwistedDeferred[Dict[str, dict]]:
