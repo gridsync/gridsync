@@ -322,7 +322,7 @@ class MagicFolder:
             yield self.get_folders()
             magic_path = self.magic_folders[folder_name]["magic_path"]
         if filepath.startswith(magic_path):
-            filepath = filepath.lstrip(magic_path)
+            filepath = filepath[len(magic_path) + len(os.sep) :]
         yield self._request(
             "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
         )
