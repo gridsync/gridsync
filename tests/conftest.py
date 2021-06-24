@@ -19,6 +19,7 @@ async def tahoe_server(tmp_path_factory):
         port=f"tcp:{port}:interface=127.0.0.1",
         location=f"tcp:127.0.0.1:{port}",
     )
+    server.config_set("storage", "reserved_space", "10M")
     await server.start()
     yield server
     await server.stop()
