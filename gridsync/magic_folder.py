@@ -316,6 +316,13 @@ class MagicFolder:
     def add_snapshot(
         self, folder_name: str, filepath: str
     ) -> TwistedDeferred[None]:
+        try:
+            magic_path = self.magic_folders[folder_name]["magic_path"]
+        except KeyError:
+            yield self.get_folders()
+            magic_path = self.magic_folders[folder_name]["magic_path"]
+        if filepath.startswith(magic_path):
+            filepath = filepath.lstrip(magic_path)
         yield self._request(
             "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
         )
