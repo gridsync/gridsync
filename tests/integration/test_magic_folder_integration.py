@@ -100,7 +100,6 @@ def test_add_snapshot(magic_folder, tmp_path):
     author = randstr()
     yield magic_folder.add_folder(path, author)
     yield magic_folder.restart()
-    yield magic_folder.await_running()
 
     filename = randstr()
     filepath = path / filename
