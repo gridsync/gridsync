@@ -258,14 +258,14 @@ class MagicFolder:
         p.mkdir(parents=True, exist_ok=True)
         if not name:
             name = p.name
-        yield self._command(
-            [
-                "add",
-                f"--author={author}",
-                f"--name={name}",
-                f"--poll-interval={poll_interval}",
-                str(p.resolve()),
-            ]
+        data = {
+            "name": name,
+            "author_name": author,
+            "local_path": str(p.resolve()),
+            "poll_interval": str(poll_interval),
+        }
+        yield self._request(
+            "POST", "/magic-folder", body=json.dumps(data).encode()
         )
 
     @inlineCallbacks
