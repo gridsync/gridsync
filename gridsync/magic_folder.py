@@ -247,28 +247,6 @@ class MagicFolder:
         logging.debug("Magic-folder restarted successfully")
 
     @inlineCallbacks
-    def add_folder(
-        self,
-        path: str,
-        author: str,
-        name: Optional[str] = "",
-        poll_interval: int = 60,
-    ) -> TwistedDeferred[None]:
-        p = Path(path)
-        p.mkdir(parents=True, exist_ok=True)
-        if not name:
-            name = p.name
-        data = {
-            "name": name,
-            "author_name": author,
-            "local_path": str(p.resolve()),
-            "poll_interval": str(poll_interval),
-        }
-        yield self._request(
-            "POST", "/magic-folder", body=json.dumps(data).encode()
-        )
-
-    @inlineCallbacks
     def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
         yield self._command(
             [
@@ -306,6 +284,28 @@ class MagicFolder:
         )
         self.magic_folders = folders
         return folders
+
+    @inlineCallbacks
+    def add_folder(
+        self,
+        path: str,
+        author: str,
+        name: Optional[str] = "",
+        poll_interval: int = 60,
+    ) -> TwistedDeferred[None]:
+        p = Path(path)
+        p.mkdir(parents=True, exist_ok=True)
+        if not name:
+            name = p.name
+        data = {
+            "name": name,
+            "author_name": author,
+            "local_path": str(p.resolve()),
+            "poll_interval": str(poll_interval),
+        }
+        yield self._request(
+            "POST", "/magic-folder", body=json.dumps(data).encode()
+        )
 
     @inlineCallbacks
     def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
