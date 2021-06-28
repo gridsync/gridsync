@@ -1,6 +1,5 @@
 from errno import EADDRINUSE
 from json import dumps
-from random import randrange
 from urllib.parse import urlsplit
 
 from autobahn.twisted.websocket import (
@@ -13,6 +12,7 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.error import CannotListenError
 from twisted.internet.task import deferLater
 
+from gridsync.network import get_free_port
 from gridsync.streamedlogs import StreamedLogs
 
 
@@ -41,7 +41,7 @@ def fake_log_server(protocol):
     from twisted.internet import reactor
 
     while True:
-        port_number = randrange(10000, 60000)
+        port_number = get_free_port()
         # Why do you make me know the port number in advance, Autobahn?
         factory = WebSocketServerFactory(
             "ws://127.0.0.1:{}".format(port_number)
