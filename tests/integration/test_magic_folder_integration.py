@@ -1,10 +1,13 @@
 import os
+import time
 
+import pytest
 from pytest_twisted import async_yield_fixture, inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
 from gridsync.crypto import randstr
+from gridsync.tahoe import Tahoe
 
 os.environ["PATH"] = (
     os.path.join(os.getcwd(), "dist", "magic-folder")
@@ -19,6 +22,61 @@ async def magic_folder(tahoe_client):
     await mf.start()
     yield mf
     mf.stop()
+
+
+@async_yield_fixture(scope="module")
+async def alice_magic_folder(tmp_path_factory, tahoe_server):
+    client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
+    print("Alice's client nodedir:", client.nodedir)
+    settings = {
+        "nickname": "Test Grid",
+        "shares-needed": "1",
+        "shares-happy": "1",
+        "shares-total": "1",
+        "storage": {
+            "test-grid-storage-server-1": {
+                "nickname": "test-grid-storage-server-1",
+                "anonymous-storage-FURL": tahoe_server.storage_furl,
+            }
+        },
+    }
+    await client.create_client(**settings)
+    await client.start()
+    yield client.magic_folder
+    await client.stop()
+
+
+@async_yield_fixture(scope="module")
+async def bob_magic_folder(tmp_path_factory, tahoe_server):
+    client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
+    print("Bob's client nodedir:", client.nodedir)
+    settings = {
+        "nickname": "Test Grid",
+        "shares-needed": "1",
+        "shares-happy": "1",
+        "shares-total": "1",
+        "storage": {
+            "test-grid-storage-server-1": {
+                "nickname": "test-grid-storage-server-1",
+                "anonymous-storage-FURL": tahoe_server.storage_furl,
+            }
+        },
+    }
+    await client.create_client(**settings)
+    await client.start()
+    yield client.magic_folder
+    await client.stop()
+
+
+@inlineCallbacks
+def until(predicate, timeout=10, period=0.2):
+    limit = time.time() + timeout
+    while time.time() < limit:
+        result = predicate()
+        if result:
+            return result
+        yield deferLater(reactor, period, lambda: None)
+    raise TimeoutError(f"Timeout {timeout} seconds hit for {predicate}")
 
 
 @inlineCallbacks
@@ -129,6 +187,42 @@ def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
 
     content = yield magic_folder.gateway.get_json(upload_dircap)
     assert filename in content[1]["children"]
+
+
+@inlineCallbacks
+def test_alice_add_folder(alice_magic_folder, tmp_path):
+    folder_name = "ToBob"
+    alice_path = tmp_path / folder_name
+    yield alice_magic_folder.add_folder(alice_path, "Alice", poll_interval=1)
+    yield alice_magic_folder.restart()
+
+    filename = "SharedFile.txt"
+    filepath = alice_path / filename
+    filepath.write_text("Test" * 100)
+    yield alice_magic_folder.add_snapshot(folder_name, filename)
+
+    snapshots = yield alice_magic_folder.get_snapshots()
+    assert filename in snapshots.get(folder_name)
+
+
+@inlineCallbacks
+def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
+    folder_name = "FromAlice"
+    bob_path = tmp_path / folder_name
+    yield bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
+    yield bob_magic_folder.restart()
+
+    alice_folders = yield alice_magic_folder.get_folders()
+    alice_personal_dmd = yield alice_magic_folder.gateway.diminish(
+        alice_folders["ToBob"]["upload_dircap"]
+    )
+    yield bob_magic_folder.add_participant(
+        folder_name, "Alice", alice_personal_dmd
+    )
+
+    p = bob_path / "SharedFile.txt"
+    succeeded = yield until(p.exists)
+    assert succeeded is True
 
 
 @inlineCallbacks
