@@ -27,7 +27,7 @@ def get_free_port(
             except OSError as err:
                 print("####### err.errno:", err.errno)
                 logging.debug("Couldn't bind to port %i: %s", port, err)
-                if err.errno == errno.EADDRINUSE:
+                if err.errno in (errno.EADDRINUSE, 10013):
                     port = randint(range_min, range_max)
                     continue
                 if sys.platform == "win32":
