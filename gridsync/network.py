@@ -1,6 +1,7 @@
 import errno
 import logging
 import socket
+import sys
 from random import randint
 
 
@@ -24,10 +25,13 @@ def get_free_port(
                 logging.debug("Trying to bind to port: %i", port)
                 s.bind(("127.0.0.1", port))
             except OSError as err:
+                print('####### err.errno:', err.errno')
                 logging.debug("Couldn't bind to port %i: %s", port, err)
                 if err.errno == errno.EADDRINUSE:
                     port = randint(range_min, range_max)
                     continue
+                if sys.platform == "win32":
+                    print('####### err.winerror:', err.winerror')
                 raise
             logging.debug("Port %s is free", port)
             return port
