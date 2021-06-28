@@ -30,7 +30,8 @@ def get_free_port(
                     # "[WinError 10013] An attempt was made to access a
                     # socket in a way forbidden by its access
                     # permissions"
-                    sys.platform == "win32" and err.winerror == 10013
+                    sys.platform == "win32"
+                    and err.winerror == 10013
                 ):
                     port = randint(range_min, range_max)
                     continue
