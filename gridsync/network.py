@@ -25,13 +25,15 @@ def get_free_port(
                 logging.debug("Trying to bind to port: %i", port)
                 s.bind(("127.0.0.1", port))
             except OSError as err:
-                print("####### err.errno:", err.errno)
                 logging.debug("Couldn't bind to port %i: %s", port, err)
-                if err.errno in (errno.EADDRINUSE, 10013):
+                if err.errno == errno.EADDRINUSE or (
+                    # "[WinError 10013] An attempt was made to access a
+                    # socket in a way forbidden by its access
+                    # permissions"
+                    sys.platform == "win32" and err.winerror == 10013
+                ):
                     port = randint(range_min, range_max)
                     continue
-                if sys.platform == "win32":
-                    print("####### err.winerror:", err.winerror)
                 raise
             logging.debug("Port %s is free", port)
             return port
