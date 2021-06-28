@@ -1,7 +1,6 @@
 import os
 import time
 
-import pytest
 from pytest_twisted import async_yield_fixture, inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
