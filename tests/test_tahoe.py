@@ -164,6 +164,12 @@ def test_get_settings_includes_convergence_secret(tahoe):
     )
 
 
+def test_get_settings_exclude_convergence_secret_by_default(tahoe):
+    secret = randstr()
+    Path(tahoe.nodedir, "private", "convergence").write_text(secret)
+    assert secret not in tahoe.get_settings()
+
+
 def test_save_settings_includes_convergence_secret(tahoe):
     secret = randstr()
     tahoe.save_settings({"convergence": secret})
