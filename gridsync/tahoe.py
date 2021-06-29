@@ -194,6 +194,14 @@ class Tahoe:
             ) as f:
                 f.write(newscap)
 
+        convergence = settings.get("convergence")
+        if convergence:
+            with atomic_write(
+                str(Path(self.nodedir, "private", "convergence")),
+                overwrite=True,
+            ) as f:
+                f.write(newscap)
+
     def load_settings(self):
         try:
             with open(Path(self.nodedir, "private", "settings.json")) as f:
@@ -241,6 +249,9 @@ class Tahoe:
         settings = dict(self.settings)
         if include_secrets:
             settings["rootcap"] = self.get_rootcap()
+            settings["convergence"] = Path(
+                self.nodedir, "private", "convergence"
+            ).read_text()
         else:
             try:
                 del settings["rootcap"]
