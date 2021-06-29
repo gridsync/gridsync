@@ -235,11 +235,11 @@ class Tahoe:
         # TODO: Verify integrity? Support 'icon_base64'?
         self.settings = settings
 
-    def get_settings(self, include_rootcap=False):
+    def get_settings(self, include_secrets=False):
         if not self.settings:
             self.load_settings()
         settings = dict(self.settings)
-        if include_rootcap:
+        if include_secrets:
             settings["rootcap"] = self.get_rootcap()
         else:
             try:
@@ -248,9 +248,9 @@ class Tahoe:
                 pass
         return settings
 
-    def export(self, dest, include_rootcap=False):
+    def export(self, dest, include_secrets=False):
         log.debug("Exporting settings to '%s'...", dest)
-        settings = self.get_settings(include_rootcap)
+        settings = self.get_settings(include_secrets)
         if self.use_tor:
             settings["hide-ip"] = True
         with atomic_write(dest, mode="w", overwrite=True) as f:
