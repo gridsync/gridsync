@@ -200,7 +200,7 @@ class Tahoe:
                 str(Path(self.nodedir, "private", "convergence")),
                 overwrite=True,
             ) as f:
-                f.write(newscap)
+                f.write(convergence)
 
     def load_settings(self):
         try:
