@@ -233,6 +233,12 @@ def test_validate_settings_strip_rootcap(monkeypatch):
     assert validate_settings(settings, [], None) == {"nickname": "SomeGrid"}
 
 
+def test_validate_settings_strip_convergence_secret(monkeypatch):
+    monkeypatch.setattr("gridsync.setup.validate_grid", fake_validate)
+    settings = {"nickname": "SomeGrid", "convergence": "AAAAAAAA"}
+    assert validate_settings(settings, [], None) == {"nickname": "SomeGrid"}
+
+
 def test_validate_settings_validate_folders(monkeypatch):
     monkeypatch.setattr("gridsync.setup.validate_grid", fake_validate)
     monkeypatch.setattr("gridsync.setup.validate_folders", fake_validate)
