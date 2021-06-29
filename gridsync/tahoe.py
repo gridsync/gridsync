@@ -251,7 +251,7 @@ class Tahoe:
             settings["rootcap"] = self.get_rootcap()
             settings["convergence"] = Path(
                 self.nodedir, "private", "convergence"
-            ).read_text()
+            ).read_text().strip()
         else:
             try:
                 del settings["rootcap"]
