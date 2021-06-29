@@ -257,6 +257,10 @@ class Tahoe:
                 del settings["rootcap"]
             except KeyError:
                 pass
+            try:
+                del settings["convergence"]
+            except KeyError:
+                pass
         return settings
 
     def export(self, dest, include_secrets=False):
