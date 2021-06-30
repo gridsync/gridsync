@@ -160,7 +160,7 @@ def test_add_snapshot(magic_folder, tmp_path):
 
     filename = randstr()
     filepath = path / filename
-    filepath.write_text("Test" * 100)
+    filepath.write_text(randstr() * 10)
     yield magic_folder.add_snapshot(folder_name, filename)
     snapshots = yield magic_folder.get_snapshots()
     assert filename in snapshots.get(folder_name)
@@ -176,7 +176,7 @@ def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
 
     filename = randstr()
     filepath = path / filename
-    filepath.write_text("Test" * 100)
+    filepath.write_text(randstr() * 10)
     yield magic_folder.add_snapshot(folder_name, filename)
 
     folders = yield magic_folder.get_folders()
@@ -197,7 +197,7 @@ def test_alice_add_folder(alice_magic_folder, tmp_path):
 
     filename = "SharedFile.txt"
     filepath = alice_path / filename
-    filepath.write_text("Test" * 100)
+    filepath.write_text(randstr() * 10)
     yield alice_magic_folder.add_snapshot(folder_name, filename)
 
     snapshots = yield alice_magic_folder.get_snapshots()
@@ -241,7 +241,7 @@ def test_monitor_emits_synchronizing_state_changed_signal(
         yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
-        filepath.write_text("Test" * 100)
+        filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
         yield deferLater(reactor, 1, lambda: None)
 
@@ -259,7 +259,7 @@ def test_monitor_emits_sync_started_signal(
         yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
-        filepath.write_text("Test" * 100)
+        filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
         yield deferLater(reactor, 1, lambda: None)
     assert blocker.args == []
@@ -278,7 +278,7 @@ def test_monitor_emits_sync_stopped_signal(
         yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
-        filepath.write_text("Test" * 100)
+        filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
         yield deferLater(reactor, 1, lambda: None)
     assert blocker.args == []
