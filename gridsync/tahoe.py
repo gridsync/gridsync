@@ -249,9 +249,11 @@ class Tahoe:
         settings = dict(self.settings)
         if include_secrets:
             settings["rootcap"] = self.get_rootcap()
-            settings["convergence"] = Path(
-                self.nodedir, "private", "convergence"
-            ).read_text().strip()
+            settings["convergence"] = (
+                Path(self.nodedir, "private", "convergence")
+                .read_text()
+                .strip()
+            )
         else:
             try:
                 del settings["rootcap"]
