@@ -178,6 +178,8 @@ def validate_folders(settings, known_gateways, parent=None):
 def validate_settings(settings, known_gateways, parent, from_wormhole=True):
     if from_wormhole and "rootcap" in settings:
         del settings["rootcap"]
+    if from_wormhole and "convergence" in settings:
+        del settings["convergence"]
     settings = validate_grid(settings, parent)
     if "magic-folders" in settings:
         settings = validate_folders(settings, known_gateways, parent)

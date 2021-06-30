@@ -34,6 +34,7 @@ async def tahoe_client(tmp_path_factory, tahoe_server):
         "shares-needed": "1",
         "shares-happy": "1",
         "shares-total": "1",
+        "convergence": "a" * 52,
         "storage": {
             "test-grid-storage-server-1": {
                 "nickname": "test-grid-storage-server-1",
@@ -42,6 +43,7 @@ async def tahoe_client(tmp_path_factory, tahoe_server):
         },
     }
     await client.create_client(**settings)
+    client.save_settings(settings)
     await client.start()
     yield client
     await client.stop()
