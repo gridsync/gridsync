@@ -247,6 +247,44 @@ def test_monitor_emits_synchronizing_state_changed_signal(
 
 
 @inlineCallbacks
+def test_monitor_emits_sync_started_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+
+    with qtbot.wait_signal(magic_folder.monitor.sync_started) as blocker:
+        yield magic_folder.restart()
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text("Test" * 100)
+        yield magic_folder.add_snapshot(folder_name, filename)
+        yield deferLater(reactor, 1, lambda: None)
+    assert blocker.args == []
+
+
+@inlineCallbacks
+def test_monitor_emits_sync_stopped_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+
+    with qtbot.wait_signal(magic_folder.monitor.sync_stopped) as blocker:
+        yield magic_folder.restart()
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text("Test" * 100)
+        yield magic_folder.add_snapshot(folder_name, filename)
+        yield deferLater(reactor, 1, lambda: None)
+    assert blocker.args == []
+
+
+@inlineCallbacks
 def test_monitor_emits_folder_added_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
     path = tmp_path / folder_name
