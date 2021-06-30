@@ -194,6 +194,14 @@ class Tahoe:
             ) as f:
                 f.write(newscap)
 
+        convergence = settings.get("convergence")
+        if convergence:
+            with atomic_write(
+                str(Path(self.nodedir, "private", "convergence")),
+                overwrite=True,
+            ) as f:
+                f.write(convergence)
+
     def load_settings(self):
         try:
             with open(Path(self.nodedir, "private", "settings.json")) as f:
@@ -235,22 +243,31 @@ class Tahoe:
         # TODO: Verify integrity? Support 'icon_base64'?
         self.settings = settings
 
-    def get_settings(self, include_rootcap=False):
+    def get_settings(self, include_secrets=False):
         if not self.settings:
             self.load_settings()
         settings = dict(self.settings)
-        if include_rootcap:
+        if include_secrets:
             settings["rootcap"] = self.get_rootcap()
+            settings["convergence"] = (
+                Path(self.nodedir, "private", "convergence")
+                .read_text()
+                .strip()
+            )
         else:
             try:
                 del settings["rootcap"]
             except KeyError:
                 pass
+            try:
+                del settings["convergence"]
+            except KeyError:
+                pass
         return settings
 
-    def export(self, dest, include_rootcap=False):
+    def export(self, dest, include_secrets=False):
         log.debug("Exporting settings to '%s'...", dest)
-        settings = self.get_settings(include_rootcap)
+        settings = self.get_settings(include_secrets)
         if self.use_tor:
             settings["hide-ip"] = True
         with atomic_write(dest, mode="w", overwrite=True) as f:

@@ -44,7 +44,7 @@ class RecoveryKeyExporter(QObject):
         self.crypter_thread.wait()
 
     def _export_encrypted_recovery(self, gateway, password):
-        settings = gateway.get_settings(include_rootcap=True)
+        settings = gateway.get_settings(include_secrets=True)
         if gateway.use_tor:
             settings["hide-ip"] = True
         data = json.dumps(settings)
@@ -95,7 +95,7 @@ class RecoveryKeyExporter(QObject):
         if not dest:
             return
         try:
-            gateway.export(dest, include_rootcap=True)
+            gateway.export(dest, include_secrets=True)
         except Exception as e:  # pylint: disable=broad-except
             error(self.parent, "Error exporting Recovery Key", str(e))
             return

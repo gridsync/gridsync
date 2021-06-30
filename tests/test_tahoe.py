@@ -13,6 +13,7 @@ import yaml
 from pytest_twisted import inlineCallbacks
 from twisted.internet.testing import MemoryReactorClock
 
+from gridsync.crypto import randstr
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
 from gridsync.tahoe import Tahoe, get_nodedirs, is_valid_furl
 
@@ -153,6 +154,26 @@ def test_get_settings(tahoe):
     nickname = settings["nickname"]
     icon_url = settings["icon_url"]
     assert (nickname, icon_url) == (tahoe.name, "test_url")
+
+
+def test_get_settings_includes_convergence_secret(tahoe):
+    secret = randstr()
+    Path(tahoe.nodedir, "private", "convergence").write_text(secret)
+    assert (
+        tahoe.get_settings(include_secrets=True).get("convergence") == secret
+    )
+
+
+def test_get_settings_exclude_convergence_secret_by_default(tahoe):
+    secret = randstr()
+    Path(tahoe.nodedir, "private", "convergence").write_text(secret)
+    assert secret not in tahoe.get_settings()
+
+
+def test_save_settings_includes_convergence_secret(tahoe):
+    secret = randstr()
+    tahoe.save_settings({"convergence": secret})
+    assert Path(tahoe.nodedir, "private", "convergence").read_text() == secret
 
 
 def test_export(tahoe, tmpdir_factory):
