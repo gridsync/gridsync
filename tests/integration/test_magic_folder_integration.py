@@ -247,9 +247,7 @@ def test_monitor_emits_synchronizing_state_changed_signal(
 
 
 @inlineCallbacks
-def test_monitor_emits_sync_started_signal(
-    magic_folder, tmp_path, qtbot
-):
+def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
@@ -266,9 +264,7 @@ def test_monitor_emits_sync_started_signal(
 
 
 @inlineCallbacks
-def test_monitor_emits_sync_stopped_signal(
-    magic_folder, tmp_path, qtbot
-):
+def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
