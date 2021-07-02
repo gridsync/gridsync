@@ -156,7 +156,6 @@ def test_add_snapshot(magic_folder, tmp_path):
     path = tmp_path / folder_name
     author = randstr()
     yield magic_folder.add_folder(path, author)
-    yield magic_folder.restart()
 
     filename = randstr()
     filepath = path / filename
@@ -172,7 +171,6 @@ def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
     path = tmp_path / folder_name
     author = randstr()
     yield magic_folder.add_folder(path, author, poll_interval=1)
-    yield magic_folder.restart()
 
     filename = randstr()
     filepath = path / filename
@@ -193,7 +191,6 @@ def test_alice_add_folder(alice_magic_folder, tmp_path):
     folder_name = "ToBob"
     alice_path = tmp_path / folder_name
     yield alice_magic_folder.add_folder(alice_path, "Alice", poll_interval=1)
-    yield alice_magic_folder.restart()
 
     filename = "SharedFile.txt"
     filepath = alice_path / filename
@@ -209,7 +206,6 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
     folder_name = "FromAlice"
     bob_path = tmp_path / folder_name
     yield bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
-    yield bob_magic_folder.restart()
 
     alice_folders = yield alice_magic_folder.get_folders()
     alice_personal_dmd = yield alice_magic_folder.gateway.diminish(
@@ -238,7 +234,6 @@ def test_monitor_emits_synchronizing_state_changed_signal(
     with qtbot.wait_signal(
         magic_folder.monitor.synchronizing_state_changed
     ), qtbot.wait_signal(magic_folder.monitor.synchronizing_state_changed):
-        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -254,7 +249,6 @@ def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
     yield magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.sync_started) as blocker:
-        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -271,7 +265,6 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
     yield magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.sync_stopped) as blocker:
-        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
