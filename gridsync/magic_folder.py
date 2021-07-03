@@ -160,19 +160,16 @@ class MagicFolder:
         self.magic_folders: Dict[str, dict] = {}
 
     @staticmethod
-    def on_stdout_data_received(data: bytes) -> None:
-        for line in data.decode("utf-8").strip().split("\n"):
-            logging.debug("[magic-folder:stdout] %s", line)
+    def on_stdout_line_received(line: str) -> None:
+        logging.debug("[magic-folder:stdout] %s", line)
 
     @staticmethod
-    def on_stderr_data_received(data: bytes) -> None:
-        for line in data.decode("utf-8").strip().split("\n"):
-            logging.error("[magic-folder:stderr] %s", line)
+    def on_stderr_line_received(line: str) -> None:
+        logging.error("[magic-folder:stderr] %s", line)
 
     @staticmethod
-    def on_log_data_received(data: bytes) -> None:
-        for line in data.decode("utf-8").strip().split("\n"):
-            logging.debug("[magic-folder:log] %s", line)
+    def on_log_line_received(line: str) -> None:
+        logging.debug("[magic-folder:log] %s", line)
 
     @inlineCallbacks
     def _command(
@@ -194,10 +191,10 @@ class MagicFolder:
         logging.debug("Executing %s...", " ".join(args))
         protocol = SubprocessProtocol(
             callback_trigger,
-            collectors={
-                1: self.on_stdout_data_received,
-                2: self.on_stderr_data_received,
-                3: self.on_log_data_received,
+            line_collectors={
+                1: self.on_stdout_line_received,
+                2: self.on_stderr_line_received,
+                3: self.on_log_line_received,
             },
         )
         transport = yield reactor.spawnProcess(  # type: ignore
