@@ -82,16 +82,16 @@ class SubprocessProtocol(ProcessProtocol):
                 continue
             if self.collector:
                 self.collector(line)
+            if self.line_collectors and childFD in self.line_collectors:
+                line_collector = self.line_collectors.get(childFD)
+                if line_collector:
+                    line_collector(line)
             if self.done.called:
                 continue
             if self.callback_trigger and self.callback_trigger in line:
                 self.callback()
             elif self.errback_trigger and self.errback_trigger in line:
                 self.errback()
-            if self.line_collectors and childFD in self.line_collectors:
-                line_collector = self.line_collectors.get(childFD)
-                if line_collector:
-                    line_collector(line)
         if self.collectors and childFD in self.collectors:
             collector = self.collectors.get(childFD)
             if collector:
