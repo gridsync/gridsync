@@ -159,6 +159,18 @@ class MagicFolder:
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
 
+    def on_stdout_data_received(self, data):
+        for line in data.decode("utf-8").strip().split("\n"):
+            logging.debug("[magic-folder:stdout] %s", line)
+
+    def on_stderr_data_received(self, data):
+        for line in data.decode("utf-8").strip().split("\n"):
+            logging.error("[magic-folder:stderr] %s", line)
+
+    def on_log_data_received(self, data):
+        for line in data.decode("utf-8").strip().split("\n"):
+            logging.debug("[magic-folder:log] %s", line)
+
     @inlineCallbacks
     def _command(
         self, args: List[str], callback_trigger: str = ""
@@ -171,15 +183,26 @@ class MagicFolder:
             )
         args = [
             self.executable,
-            "--eliot-fd=2",  # redirect log output to stderr
+            "--eliot-fd=3",  # redirect log output to file descriptor 3
             f"--config={self.configdir}",
         ] + args
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         logging.debug("Executing %s...", " ".join(args))
-        protocol = SubprocessProtocol(callback_trigger)
+        protocol = SubprocessProtocol(
+            callback_trigger,
+            collectors={
+                1: self.on_stdout_data_received,
+                2: self.on_stderr_data_received,
+                3: self.on_log_data_received,
+            },
+        )
         reactor.spawnProcess(  # type: ignore
-            protocol, self.executable, args=args, env=env
+            protocol,
+            self.executable,
+            args=args,
+            env=env,
+            childFDs={1: "r", 2: "r", 3: "r"},
         )
         output = yield protocol.done  # type: ignore
         if callback_trigger:
