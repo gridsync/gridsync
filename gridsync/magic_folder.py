@@ -194,13 +194,6 @@ class MagicFolder:
     def stop(self) -> None:
         self.monitor.stop()
         kill(pidfile=self.pidfile)
-        for logfile in Path(".").glob("magic-folder-cli.*.eliot"):
-            p = Path(logfile)
-            logging.debug("Cleaning up %s...", str(p))
-            try:
-                p.unlink()
-            except OSError as err:
-                logging.warning("Error removing %s: %s", str(p), str(err))
 
     @inlineCallbacks
     def _load_config(self) -> TwistedDeferred[None]:
