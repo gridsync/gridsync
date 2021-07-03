@@ -54,7 +54,7 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
 
 
 class SubprocessProtocol(ProcessProtocol):
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         callback_triggers: Optional[List[str]] = None,
         errback_triggers: Optional[List[Tuple[str, Type[Exception]]]] = None,
