@@ -169,7 +169,11 @@ class MagicFolder:
             raise EnvironmentError(
                 'Could not find "magic-folder" executable on PATH.'
             )
-        args = [self.executable, f"--config={self.configdir}"] + args
+        args = [
+            self.executable,
+            "--eliot-fd=2",  # redirect log output to stderr
+            f"--config={self.configdir}",
+        ] + args
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         logging.debug("Executing %s...", " ".join(args))
