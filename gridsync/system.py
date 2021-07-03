@@ -51,7 +51,6 @@ class SubprocessProtocol(ProcessProtocol):
         callback_trigger: str = "",
         errback_trigger: str = "",
         errback_exception: Type[Exception] = SubprocessError,
-        collector: Optional[Callable] = None,
         collectors: Optional[Dict[int, Callable]] = None,
         line_collectors: Optional[Dict[int, Callable]] = None,
     ) -> None:
