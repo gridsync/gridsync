@@ -51,13 +51,13 @@ class SubprocessProtocol(ProcessProtocol):
         callback_trigger: str = "",
         errback_trigger: str = "",
         errback_exception: Type[Exception] = SubprocessError,
-        collectors: Optional[Dict[int, Callable]] = None,
+        data_collectors: Optional[Dict[int, Callable]] = None,
         line_collectors: Optional[Dict[int, Callable]] = None,
     ) -> None:
         self.callback_trigger = callback_trigger
         self.errback_trigger = errback_trigger
         self.errback_exception = errback_exception
-        self.collectors = collectors
+        self.data_collectors = data_collectors
         self.line_collectors = line_collectors
         self.output = BytesIO()
         self.done = Deferred()
@@ -88,10 +88,10 @@ class SubprocessProtocol(ProcessProtocol):
                 self.callback()
             elif self.errback_trigger and self.errback_trigger in line:
                 self.errback()
-        if self.collectors and childFD in self.collectors:
-            collector = self.collectors.get(childFD)
-            if collector:
-                collector(data)
+        if self.data_collectors and childFD in self.data_collectors:
+            data_collector = self.data_collectors.get(childFD)
+            if data_collector:
+                data_collector(data)
 
     def processEnded(self, reason: Failure) -> None:
         if self.done.called:
