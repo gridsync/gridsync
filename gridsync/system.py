@@ -58,7 +58,6 @@ class SubprocessProtocol(ProcessProtocol):
         self.callback_trigger = callback_trigger
         self.errback_trigger = errback_trigger
         self.errback_exception = errback_exception
-        self.collector = collector
         self.collectors = collectors
         self.line_collectors = line_collectors
         self.output = BytesIO()
@@ -80,8 +79,6 @@ class SubprocessProtocol(ProcessProtocol):
         for line in data.decode("utf-8").strip().split("\n"):
             if not line:
                 continue
-            if self.collector:
-                self.collector(line)
             if self.line_collectors and childFD in self.line_collectors:
                 line_collector = self.line_collectors.get(childFD)
                 if line_collector:
