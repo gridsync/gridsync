@@ -93,6 +93,10 @@ class SubprocessProtocol(ProcessProtocol):
     def childDataReceived(self, childFD: int, data: bytes) -> None:
         if not self.done.called:
             self.output.write(data)
+        if self.data_collectors and childFD in self.data_collectors:
+            data_collector = self.data_collectors.get(childFD)
+            if data_collector:
+                data_collector(data)
         for line in data.decode("utf-8").strip().split("\n"):
             if not line:
                 continue
@@ -102,13 +106,7 @@ class SubprocessProtocol(ProcessProtocol):
                     line_collector(line)
             if self.done.called:
                 continue
-
             self._check_triggers(line)
-
-        if self.data_collectors and childFD in self.data_collectors:
-            data_collector = self.data_collectors.get(childFD)
-            if data_collector:
-                data_collector(data)
 
     def processEnded(self, reason: Failure) -> None:
         if self.done.called:
