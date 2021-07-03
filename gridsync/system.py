@@ -6,7 +6,6 @@ import os
 import signal
 from io import BytesIO
 from pathlib import Path
-from subprocess import SubprocessError
 from typing import (
     TYPE_CHECKING,
     Callable,
