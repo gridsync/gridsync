@@ -190,7 +190,7 @@ class MagicFolder:
         env["PYTHONUNBUFFERED"] = "1"
         logging.debug("Executing %s...", " ".join(args))
         protocol = SubprocessProtocol(
-            callback_trigger,
+            callback_triggers=[callback_trigger],
             line_collectors={
                 1: self.on_stdout_line_received,
                 2: self.on_stderr_line_received,

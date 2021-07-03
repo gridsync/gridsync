@@ -433,7 +433,7 @@ class Tahoe:
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(logged_args))
         protocol = SubprocessProtocol(
-            callback_trigger,
+            callback_triggers=[callback_trigger],
             errback_exception=TahoeCommandError,
             line_collectors={1: self.line_received},
         )
