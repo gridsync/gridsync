@@ -59,7 +59,6 @@ class SubprocessProtocol(ProcessProtocol):
         self.errback_exception = errback_exception
         self.collector = collector
         self.collectors = collectors
-        self.pid: int = 0
         self.output = BytesIO()
         self.done = Deferred()
 
@@ -72,9 +71,6 @@ class SubprocessProtocol(ProcessProtocol):
                 self.output.getvalue().decode("utf-8").strip()
             )
         )
-
-    def connectionMade(self) -> None:
-        self.pid = self.transport.pid  # type: ignore
 
     def childDataReceived(self, childFD: int, data: bytes) -> None:
         if not self.done.called:

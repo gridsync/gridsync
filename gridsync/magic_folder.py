@@ -197,7 +197,7 @@ class MagicFolder:
                 3: self.on_log_data_received,
             },
         )
-        reactor.spawnProcess(  # type: ignore
+        transport = yield reactor.spawnProcess(  # type: ignore
             protocol,
             self.executable,
             args=args,
@@ -206,7 +206,7 @@ class MagicFolder:
         )
         output = yield protocol.done  # type: ignore
         if callback_trigger:
-            return protocol.pid, output
+            return transport.pid, output
         return output
 
     @inlineCallbacks

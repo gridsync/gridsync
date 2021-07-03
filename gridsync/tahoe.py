@@ -437,10 +437,12 @@ class Tahoe:
             errback_exception=TahoeCommandError,
             collector=self.line_received,
         )
-        reactor.spawnProcess(protocol, exe, args=args, env=env)
+        transport = yield reactor.spawnProcess(
+            protocol, exe, args=args, env=env
+        )
         output = yield protocol.done
         if callback_trigger:
-            return protocol.pid
+            return transport.pid
         return output
 
     @inlineCallbacks
