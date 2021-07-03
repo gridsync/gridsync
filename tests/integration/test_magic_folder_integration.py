@@ -187,6 +187,24 @@ def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_create_backup_cap(magic_folder):
+    cap = yield magic_folder.create_backup_cap()
+    assert cap.startswith("URI:DIR2")
+
+
+@inlineCallbacks
+def test_get_backup_cap(magic_folder):
+    cap = yield magic_folder.get_backup_cap()
+    assert cap.startswith("URI:DIR2")
+
+
+@inlineCallbacks
+def test_store_backup_cap_as_attribute(magic_folder):
+    cap = yield magic_folder.get_backup_cap()
+    assert magic_folder.backup_cap == cap
+
+
+@inlineCallbacks
 def test_alice_add_folder(alice_magic_folder, tmp_path):
     folder_name = "ToBob"
     alice_path = tmp_path / folder_name

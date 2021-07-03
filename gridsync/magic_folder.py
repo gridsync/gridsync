@@ -158,6 +158,7 @@ class MagicFolder:
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
+        self.backup_cap: str = ""
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -374,3 +375,31 @@ class MagicFolder:
             f"/magic-folder/{folder_name}/participants",
             body=json.dumps(data).encode("utf-8"),
         )
+
+    @inlineCallbacks
+    def create_backup_cap(self) -> TwistedDeferred[str]:
+        yield self.gateway.lock.acquire()
+        try:
+            cap = yield self.gateway.mkdir(
+                self.gateway.get_rootcap(), ".magic-folders"
+            )
+        finally:
+            yield self.gateway.lock.release()
+        return cap
+
+    @inlineCallbacks
+    def get_backup_cap(self) -> TwistedDeferred[str]:
+        if self.backup_cap:
+            return self.backup_cap
+        rootcap = self.gateway.get_rootcap()
+        yield self.gateway.await_ready()
+        data = yield self.gateway.get_json(rootcap)
+        try:
+            self.backup_cap = data[1]["children"][".magic-folders"][1][
+                "rw_uri"
+            ]
+        except (KeyError, TypeError):
+            logging.debug("Magic-Folder backup cap not found; creating...")
+            self.backup_cap = yield self.create_backup_cap()
+            logging.debug("Magic-Folder backup cap successfully created")
+        return self.backup_cap
