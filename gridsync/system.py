@@ -86,9 +86,11 @@ class SubprocessProtocol(ProcessProtocol):
                 if text and text in line:
                     self._callback()
         if self.errback_triggers:
-            for text, exception in self.errback_triggers:
-                if text and text in line:
-                    self._errback(exception)
+            for pair in self.errback_triggers:
+                if pair:
+                    text, exception = pair
+                    if text and text in line:
+                        self._errback(exception)
 
     def childDataReceived(self, childFD: int, data: bytes) -> None:
         if not self.done.called:
