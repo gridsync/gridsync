@@ -7,7 +7,7 @@ import signal
 from io import BytesIO
 from pathlib import Path
 from subprocess import SubprocessError
-from typing import TYPE_CHECKING, Callable, Optional, Type, Union
+from typing import TYPE_CHECKING, Callable, Dict, Optional, Type, Union
 
 from twisted.internet.defer import Deferred
 from twisted.internet.error import ProcessDone
@@ -52,11 +52,13 @@ class SubprocessProtocol(ProcessProtocol):
         errback_trigger: str = "",
         errback_exception: Type[Exception] = SubprocessError,
         collector: Optional[Callable] = None,
+        collectors: Optional[Dict[int, Callable]] = None,
     ) -> None:
         self.callback_trigger = callback_trigger
         self.errback_trigger = errback_trigger
         self.errback_exception = errback_exception
         self.collector = collector
+        self.collectors = collectors
         self.pid: int = 0
         self.output = BytesIO()
         self.done = Deferred()
@@ -74,7 +76,7 @@ class SubprocessProtocol(ProcessProtocol):
     def connectionMade(self) -> None:
         self.pid = self.transport.pid  # type: ignore
 
-    def outReceived(self, data: bytes) -> None:
+    def childDataReceived(self, childFD: int, data: bytes) -> None:
         if not self.done.called:
             self.output.write(data)
         for line in data.decode("utf-8").strip().split("\n"):
@@ -88,9 +90,10 @@ class SubprocessProtocol(ProcessProtocol):
                 self.callback()
             elif self.errback_trigger and self.errback_trigger in line:
                 self.errback()
-
-    def errReceived(self, data: bytes) -> None:
-        self.outReceived(data)
+        if self.collectors and childFD in self.collectors:
+            collector = self.collectors.get(childFD)
+            if collector:
+                collector(data)
 
     def processEnded(self, reason: Failure) -> None:
         if self.done.called:
