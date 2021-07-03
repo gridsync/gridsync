@@ -220,6 +220,18 @@ def test_backup_folder(magic_folder):
 
 
 @inlineCallbacks
+def test_restore_folder(magic_folder):
+    folders = yield magic_folder.get_folders()
+    folder_name = next(iter(folders))
+    yield magic_folder.backup_folder(folder_name)
+    yield magic_folder.leave_folder(folder_name)
+
+    yield magic_folder.restore_folder(folder_name)
+    folders = yield magic_folder.get_folders()
+    assert folder_name in folders
+
+
+@inlineCallbacks
 def test_alice_add_folder(alice_magic_folder, tmp_path):
     folder_name = "ToBob"
     alice_path = tmp_path / folder_name

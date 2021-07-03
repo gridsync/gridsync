@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shutil
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
 
+from gridsync.crypto import randstr
 from gridsync.system import SubprocessProtocol, kill
 
 
@@ -417,3 +419,23 @@ class MagicFolder:
         yield self.gateway.link(
             backup_cap, f"{folder_name} (personal)", upload_dircap
         )
+
+    @inlineCallbacks
+    def restore_folder(
+        self, folder_name: str, path: str = "test"
+    ) -> TwistedDeferred[None]:
+        backup_cap = yield self.get_backup_cap()
+        content = yield self.gateway.get_json(backup_cap)
+        children = content[1]["children"]
+        personal_metadata = children.get(f"{folder_name} (personal)")
+        if not personal_metadata:
+            raise MagicFolderWebError(
+                f'Error restoring folder "{folder_name}"; '
+                "personal metadata not found"
+            )
+        personal_dmd = personal_metadata[1]["ro_uri"]
+
+        yield self.restart()  # XXX
+        yield self.add_folder(path, randstr(8), name=folder_name)  # XXX
+        author = f"Restored-{datetime.now().isoformat()}"
+        yield self.add_participant(folder_name, author, personal_dmd)
