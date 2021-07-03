@@ -104,9 +104,8 @@ class SubprocessProtocol(ProcessProtocol):
                 line_collector = self.line_collectors.get(childFD)
                 if line_collector:
                     line_collector(line)
-            if self.done.called:
-                continue
-            self._check_triggers(line)
+            if not self.done.called:
+                self._check_triggers(line)
 
     def processEnded(self, reason: Failure) -> None:
         if self.done.called:
