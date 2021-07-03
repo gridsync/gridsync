@@ -67,32 +67,32 @@ class SubprocessProtocol(ProcessProtocol):
         self.errback_exception = errback_exception
         self.data_collectors = data_collectors
         self.line_collectors = line_collectors
-        self.output = BytesIO()
+        self._output = BytesIO()
         self.done = Deferred()
 
-    def callback(self) -> None:
-        self.done.callback(self.output.getvalue().decode("utf-8").strip())
+    def _callback(self) -> None:
+        self.done.callback(self._output.getvalue().decode("utf-8").strip())
 
-    def errback(self, exception: Type[Exception]) -> None:
+    def _errback(self, exception: Type[Exception]) -> None:
         if self.errback_exception:
             exception = self.errback_exception
         self.done.errback(
-            exception(self.output.getvalue().decode("utf-8").strip())
+            exception(self._output.getvalue().decode("utf-8").strip())
         )
 
     def _check_triggers(self, line: str) -> None:
         if self.callback_triggers:
             for text in self.callback_triggers:
                 if text and text in line:
-                    self.callback()
+                    self._callback()
         if self.errback_triggers:
             for text, exception in self.errback_triggers:
                 if text and text in line:
-                    self.errback(exception)
+                    self._errback(exception)
 
     def childDataReceived(self, childFD: int, data: bytes) -> None:
         if not self.done.called:
-            self.output.write(data)
+            self._output.write(data)
         if self.data_collectors and childFD in self.data_collectors:
             data_collector = self.data_collectors.get(childFD)
             if data_collector:
@@ -111,9 +111,9 @@ class SubprocessProtocol(ProcessProtocol):
         if self.done.called:
             return
         if isinstance(reason.value, ProcessDone):
-            self.callback()
+            self._callback()
         else:
-            self.errback(reason.value)
+            self._errback(reason.value)
 
     def processExited(self, reason: Failure) -> None:
         self.processEnded(reason)
