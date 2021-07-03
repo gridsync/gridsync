@@ -403,3 +403,17 @@ class MagicFolder:
             self.backup_cap = yield self.create_backup_cap()
             logging.debug("Magic-Folder backup cap successfully created")
         return self.backup_cap
+
+    @inlineCallbacks
+    def backup_folder(self, folder_name: str) -> TwistedDeferred[None]:
+        folders = yield self.get_folders()
+        data = folders.get(folder_name)
+        collective_dircap = data.get("collective_dircap")
+        upload_dircap = data.get("upload_dircap")
+        backup_cap = yield self.get_backup_cap()
+        yield self.gateway.link(
+            backup_cap, f"{folder_name} (collective)", collective_dircap
+        )
+        yield self.gateway.link(
+            backup_cap, f"{folder_name} (personal)", upload_dircap
+        )

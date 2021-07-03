@@ -205,6 +205,21 @@ def test_store_backup_cap_as_attribute(magic_folder):
 
 
 @inlineCallbacks
+def test_backup_folder(magic_folder):
+    folders = yield magic_folder.get_folders()
+    folder_name = next(iter(folders))
+    yield magic_folder.backup_folder(folder_name)
+
+    backup_cap = yield magic_folder.get_backup_cap()
+    content = yield magic_folder.gateway.get_json(backup_cap)
+    children = content[1]["children"]
+    assert (
+        f"{folder_name} (collective)" in children
+        and f"{folder_name} (personal)" in children
+    )
+
+
+@inlineCallbacks
 def test_alice_add_folder(alice_magic_folder, tmp_path):
     folder_name = "ToBob"
     alice_path = tmp_path / folder_name
