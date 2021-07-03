@@ -159,15 +159,18 @@ class MagicFolder:
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
 
-    def on_stdout_data_received(self, data: bytes) -> None:
+    @staticmethod
+    def on_stdout_data_received(data: bytes) -> None:
         for line in data.decode("utf-8").strip().split("\n"):
             logging.debug("[magic-folder:stdout] %s", line)
 
-    def on_stderr_data_received(self, data: bytes) -> None:
+    @staticmethod
+    def on_stderr_data_received(data: bytes) -> None:
         for line in data.decode("utf-8").strip().split("\n"):
             logging.error("[magic-folder:stderr] %s", line)
 
-    def on_log_data_received(self, data: bytes) -> None:
+    @staticmethod
+    def on_log_data_received(data: bytes) -> None:
         for line in data.decode("utf-8").strip().split("\n"):
             logging.debug("[magic-folder:log] %s", line)
 
