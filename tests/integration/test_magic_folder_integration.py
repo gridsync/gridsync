@@ -225,6 +225,7 @@ def test_restore_folder(magic_folder):
     folder_name = next(iter(folders))
     yield magic_folder.backup_folder(folder_name)
     yield magic_folder.leave_folder(folder_name)
+    yield magic_folder.restart()
 
     yield magic_folder.restore_folder(folder_name)
     folders = yield magic_folder.get_folders()

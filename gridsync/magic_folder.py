@@ -435,7 +435,6 @@ class MagicFolder:
             )
         personal_dmd = personal_metadata[1]["ro_uri"]
 
-        yield self.restart()  # XXX
         yield self.add_folder(path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
         yield self.add_participant(folder_name, author, personal_dmd)
