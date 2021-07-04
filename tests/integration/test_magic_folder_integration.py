@@ -284,7 +284,7 @@ def test_monitor_emits_synchronizing_state_changed_signal(
         filepath = path / filename
         filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
-        yield deferLater(reactor, 1, lambda: None)
+        yield deferLater(reactor, 1.5, lambda: None)
 
 
 @inlineCallbacks
@@ -300,7 +300,7 @@ def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
         filepath = path / filename
         filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
-        yield deferLater(reactor, 1, lambda: None)
+        yield deferLater(reactor, 1.5, lambda: None)
     assert blocker.args == []
 
 
@@ -317,7 +317,7 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
         filepath = path / filename
         filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
-        yield deferLater(reactor, 1, lambda: None)
+        yield deferLater(reactor, 1.5, lambda: None)
     assert blocker.args == []
 
 
