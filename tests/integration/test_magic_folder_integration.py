@@ -279,6 +279,7 @@ def test_monitor_emits_synchronizing_state_changed_signal(
     with qtbot.wait_signal(
         magic_folder.monitor.synchronizing_state_changed
     ), qtbot.wait_signal(magic_folder.monitor.synchronizing_state_changed):
+        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -294,6 +295,7 @@ def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
     yield magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.sync_started) as blocker:
+        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -310,6 +312,7 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
     yield magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.sync_stopped) as blocker:
+        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
