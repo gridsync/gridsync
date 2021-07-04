@@ -21,6 +21,9 @@ elif os.environ.get("DESKTOP_SESSION") == "mate":
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
 else:
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
 
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
