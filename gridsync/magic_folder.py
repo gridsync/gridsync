@@ -177,12 +177,24 @@ class MagicFolder:
         logging.debug("[magic-folder:stdout] %s", line)
 
     @staticmethod
-    def on_stderr_line_received(line: str) -> None:
-        logging.error("[magic-folder:stderr] %s", line)
+    def _is_eliot_log_message(s: str) -> bool:
+        try:
+            data = json.loads(s)
+        except json.decoder.JSONDecodeError:
+            return False
+        if (
+            isinstance(data, dict)
+            and "timestamp" in data
+            and "task_uuid" in data
+        ):
+            return True
+        return False
 
-    @staticmethod
-    def on_log_line_received(line: str) -> None:
-        logging.debug("[magic-folder:log] %s", line)
+    def on_stderr_line_received(self, line: str) -> None:
+        if self._is_eliot_log_message(line):
+            logging.debug("[magic-folder:log] %s", line)  # XXX
+        else:
+            logging.error("[magic-folder:stderr] %s", line)
 
     @inlineCallbacks
     def _command(
