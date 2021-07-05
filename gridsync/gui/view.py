@@ -206,7 +206,8 @@ class View(QTreeView):
     @inlineCallbacks
     def download_folder(self, folder_name, dest):
         try:
-            yield self.gateway.restore_magic_folder(folder_name, dest)
+            # yield self.gateway.restore_magic_folder(folder_name, dest)
+            yield self.gateway.magic_folder.restore_folder(folder_name, dest)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
@@ -216,7 +217,7 @@ class View(QTreeView):
                 "{}: {}".format(folder_name, type(e).__name__, str(e)),
             )
             return
-        self._restart_required = True
+        # self._restart_required = True
         logging.debug(
             'Successfully joined folder "%s"; scheduled restart', folder_name
         )
