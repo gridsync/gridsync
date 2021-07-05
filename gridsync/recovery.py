@@ -206,7 +206,16 @@ class RecoveryKeyImporter(QObject):
         except Exception as e:  # pylint: disable=broad-except
             error(self, type(e).__name__, str(e))
             return
-        self._parse_content(content)
+        try:
+            self._parse_content(content)
+        except TypeError as err:
+            error(
+                self.parent,
+                "Error parsing Recovery Key content",
+                f"The file {path} does not appear to be a valid Recovery Key."
+                "\n\nPlease try again, selecting a valid Recovery Key file.",
+                str(err)
+            )
 
     def _select_file(self):
         dialog = QFileDialog(self.parent, "Select a Recovery Key")
