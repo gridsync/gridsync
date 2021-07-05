@@ -213,7 +213,7 @@ class RecoveryKeyImporter(QObject):
             )
             return
         except Exception as e:  # pylint: disable=broad-except
-            error(self.parent, type(e).__name__, str(e))
+            error(self.parent, "Error loading Recovery Key", str(e))
             return
         try:
             self._parse_content(content)
