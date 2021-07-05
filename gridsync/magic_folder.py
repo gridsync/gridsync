@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shutil
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
@@ -160,6 +161,7 @@ class MagicFolder:
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
+        self.remote_magic_folders: Dict[str, dict] = {}
         self.backup_cap: str = ""
 
     @staticmethod
@@ -419,6 +421,25 @@ class MagicFolder:
         yield self.gateway.link(
             backup_cap, f"{folder_name} (personal)", upload_dircap
         )
+
+    @inlineCallbacks
+    def get_remote_folders(self) -> TwistedDeferred[Dict[str, dict]]:
+        folders = defaultdict(dict)
+        backup_cap = yield self.get_backup_cap()
+        content = yield self.gateway.get_json(backup_cap)
+        for name, data in content[1]["children"].items():
+            data_dict = data[1]
+            if name.endswith(" (collective)"):
+                prefix = name.split(" (collective)")[0]
+                folders[prefix]["collective_dircap"] = data_dict["ro_uri"]
+            elif name.endswith(" (personal)"):
+                prefix = name.split(" (personal)")[0]
+                folders[prefix]["upload_dircap"] = data_dict["rw_uri"]
+            elif name.endswith(" (admin)"):
+                prefix = name.split(" (admin)")[0]
+                folders[prefix]["admin_dircap"] = data_dict["rw_uri"]
+        self.remote_magic_folders = folders
+        return dict(folders)
 
     @inlineCallbacks
     def restore_folder(
