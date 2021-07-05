@@ -476,7 +476,7 @@ class View(QTreeView):
             )
         else:
             for folder in selected:
-                if not self.gateway.magic_folders[folder]["admin_dircap"]:
+                if not self.gateway.magic_folders[folder].get("admin_dircap"):
                     share_menu.setEnabled(False)
                     share_menu.setTitle(
                         "Sync with device (disabled; no admin access)"
