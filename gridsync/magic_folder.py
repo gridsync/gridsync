@@ -196,7 +196,7 @@ class MagicFolder:
             )
         args = [
             self.executable,
-            "--eliot-fd=3",  # redirect log output to file descriptor 3
+            "--eliot-fd=2",  # redirect log output to stderr
             f"--config={self.configdir}",
         ] + args
         env = os.environ
@@ -207,7 +207,6 @@ class MagicFolder:
             line_collectors={
                 1: self.on_stdout_line_received,
                 2: self.on_stderr_line_received,
-                3: self.on_log_line_received,
             },
         )
         transport = yield reactor.spawnProcess(  # type: ignore
@@ -215,7 +214,7 @@ class MagicFolder:
             self.executable,
             args=args,
             env=env,
-            childFDs={1: "r", 2: "r", 3: "r"},
+            childFDs={1: "r", 2: "r"},
         )
         output = yield protocol.done  # type: ignore
         if callback_trigger:
