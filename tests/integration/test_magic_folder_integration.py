@@ -220,14 +220,15 @@ def test_backup_folder(magic_folder):
 
 
 @inlineCallbacks
-def test_restore_folder(magic_folder):
+def test_restore_folder(magic_folder, tmp_path):
     folders = yield magic_folder.get_folders()
     folder_name = next(iter(folders))
     yield magic_folder.backup_folder(folder_name)
     yield magic_folder.leave_folder(folder_name)
     yield magic_folder.restart()
 
-    yield magic_folder.restore_folder(folder_name)
+    local_path = tmp_path / folder_name
+    yield magic_folder.restore_folder(folder_name, local_path)
     folders = yield magic_folder.get_folders()
     assert folder_name in folders
 

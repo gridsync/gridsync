@@ -422,7 +422,7 @@ class MagicFolder:
 
     @inlineCallbacks
     def restore_folder(
-        self, folder_name: str, path: str = "test"
+        self, folder_name: str, local_path: str
     ) -> TwistedDeferred[None]:
         backup_cap = yield self.get_backup_cap()
         content = yield self.gateway.get_json(backup_cap)
@@ -435,6 +435,6 @@ class MagicFolder:
             )
         personal_dmd = personal_metadata[1]["ro_uri"]
 
-        yield self.add_folder(path, randstr(8), name=folder_name)  # XXX
+        yield self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
         yield self.add_participant(folder_name, author, personal_dmd)
