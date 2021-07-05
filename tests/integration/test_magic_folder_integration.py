@@ -337,7 +337,7 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
         filepath = path / filename
         filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
-        yield deferLater(reactor, 1.5, lambda: None)
+        yield deferLater(reactor, 2, lambda: None)
     assert blocker.args == []
 
 
