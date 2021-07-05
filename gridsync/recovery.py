@@ -215,6 +215,14 @@ class RecoveryKeyImporter(QObject):
         except Exception as e:  # pylint: disable=broad-except
             error(self.parent, "Error loading Recovery Key", str(e))
             return
+        if not content:
+            error(
+                self.parent,
+                "Invalid Recovery Key",
+                f"The file {path} is empty."
+                "\n\nPlease try again, selecting a valid Recovery Key file."
+            )
+            return
         try:
             self._parse_content(content)
         except TypeError as err:
