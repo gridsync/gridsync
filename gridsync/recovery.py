@@ -209,7 +209,7 @@ class RecoveryKeyImporter(QObject):
                 "Error loading Recovery Key",
                 f"{path} is a directory, and not a valid Recovery Key."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
-                str(err)
+                str(err),
             )
             return
         except Exception as e:  # pylint: disable=broad-except
@@ -220,7 +220,7 @@ class RecoveryKeyImporter(QObject):
                 self.parent,
                 "Invalid Recovery Key",
                 f"The file {path} is empty."
-                "\n\nPlease try again, selecting a valid Recovery Key file."
+                "\n\nPlease try again, selecting a valid Recovery Key file.",
             )
             return
         try:
@@ -231,7 +231,7 @@ class RecoveryKeyImporter(QObject):
                 "Error parsing Recovery Key content",
                 f"The file {path} does not appear to be a valid Recovery Key."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
-                str(err)
+                str(err),
             )
 
     def _select_file(self):
