@@ -339,6 +339,7 @@ class MagicFolder:
         yield self._request(
             "POST", "/magic-folder", body=json.dumps(data).encode()
         )
+        yield self.backup_folder(name)  # XXX
 
     @inlineCallbacks
     def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
