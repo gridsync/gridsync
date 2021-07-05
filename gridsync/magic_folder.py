@@ -7,7 +7,15 @@ import shutil
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    DefaultDict,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import treq
 from autobahn.twisted.websocket import (
@@ -425,7 +433,7 @@ class MagicFolder:
 
     @inlineCallbacks
     def get_remote_folders(self) -> TwistedDeferred[Dict[str, dict]]:
-        folders = defaultdict(dict)
+        folders: DefaultDict[str, dict] = defaultdict(dict)
         backup_cap = yield self.get_backup_cap()
         content = yield self.gateway.get_json(backup_cap)
         for name, data in content[1]["children"].items():
