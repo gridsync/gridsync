@@ -31,3 +31,12 @@ def test_show_error_msg_if_os_error_raises(monkeypatch, tmp_path):
     filepath = tmp_path / "test"
     RecoveryKeyImporter().do_import(str(filepath))
     assert fake_error.call_args[0][2] == "!Error!"
+
+
+def test_show_error_msg_with_human_friendly_title(monkeypatch, tmp_path):
+    fake_error = Mock()
+    monkeypatch.setattr("gridsync.recovery.error", fake_error)
+    monkeypatch.setattr("builtins.open", Mock(side_effect=OSError("!Error!")))
+    filepath = tmp_path / "test"
+    RecoveryKeyImporter().do_import(str(filepath))
+    assert fake_error.call_args[0][1] == "Error loading Recovery Key"
