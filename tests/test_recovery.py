@@ -40,3 +40,12 @@ def test_show_error_msg_with_human_friendly_title(monkeypatch, tmp_path):
     filepath = tmp_path / "test"
     RecoveryKeyImporter().do_import(str(filepath))
     assert fake_error.call_args[0][1] == "Error loading Recovery Key"
+
+
+def test_show_error_msg_if_recovery_file_is_empty(monkeypatch, tmp_path):
+    fake_error = Mock()
+    monkeypatch.setattr("gridsync.recovery.error", fake_error)
+    filepath = tmp_path / "test"
+    filepath.touch()
+    RecoveryKeyImporter().do_import(str(filepath))
+    assert fake_error.call_args[0][1] == "Invalid Recovery Key"
