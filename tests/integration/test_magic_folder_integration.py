@@ -368,3 +368,7 @@ def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
         yield magic_folder.leave_folder(folder_name)
         yield magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
+
+
+def test_eliot_logs_collected(magic_folder):
+    assert len(magic_folder.get_logs()) > 0
