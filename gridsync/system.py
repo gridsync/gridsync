@@ -59,13 +59,14 @@ class SubprocessProtocol(ProcessProtocol):
         callback_triggers: Optional[List[str]] = None,
         errback_triggers: Optional[List[Tuple[str, Type[Exception]]]] = None,
         errback_exception: Optional[Type[Exception]] = None,
-        line_collectors: Optional[Dict[int, Callable]] = None,
-        stderr_collector: Optional[Callable] = None,
+        stdout_line_collector: Optional[Callable] = None,
+        stderr_line_collector: Optional[Callable] = None,
     ) -> None:
         self.callback_triggers = callback_triggers
         self.errback_triggers = errback_triggers
         self.errback_exception = errback_exception
-        self.line_collectors = line_collectors
+        self.stdout_line_collector = stdout_line_collector
+        self.stderr_line_collector = stderr_line_collector
         self._output = BytesIO()
         self.done = Deferred()
 
@@ -97,10 +98,10 @@ class SubprocessProtocol(ProcessProtocol):
         for line in data.decode("utf-8").strip().split("\n"):
             if not line:
                 continue
-            if self.line_collectors and childFD in self.line_collectors:
-                line_collector = self.line_collectors.get(childFD)
-                if line_collector:
-                    line_collector(line)
+            if self.stdout_line_collector and childFD == 1:
+                self.stdout_line_collector(line)
+            elif self.stderr_line_collector and childFD == 2:
+                self.stderr_line_collector(line)
             if not self.done.called:
                 self._check_triggers(line)
 

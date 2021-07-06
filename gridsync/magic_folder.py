@@ -216,16 +216,11 @@ class MagicFolder:
         logging.debug("Executing %s...", " ".join(args))
         protocol = SubprocessProtocol(
             callback_triggers=[callback_trigger],
-            line_collectors={
-                1: self.on_stdout_line_received,
-                2: self.on_stderr_line_received,
-            },
+            stdout_line_collector=self.on_stdout_line_received,
+            stderr_line_collector=self.on_stderr_line_received,
         )
         transport = yield reactor.spawnProcess(  # type: ignore
-            protocol,
-            self.executable,
-            args=args,
-            env=env,
+            protocol, self.executable, args=args, env=env
         )
         output = yield protocol.done  # type: ignore
         if callback_trigger:

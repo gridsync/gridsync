@@ -435,7 +435,7 @@ class Tahoe:
         protocol = SubprocessProtocol(
             callback_triggers=[callback_trigger],
             errback_exception=TahoeCommandError,
-            line_collectors={1: self.line_received},
+            stdout_line_collector=self.line_received,
         )
         transport = yield reactor.spawnProcess(
             protocol, exe, args=args, env=env
