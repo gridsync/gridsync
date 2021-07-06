@@ -81,9 +81,9 @@ distro==1.5.0; sys_platform != "darwin" and sys_platform != "win32" \
     --hash=sha256:df74eed763e18d10d0da624258524ae80486432cd17392d9c3d96f5e83cd2799
 hkdf==0.0.3 \
     --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
-humanize==3.9.0 \
-    --hash=sha256:2cc4f7d2f5994ea9fcddd4b681ddea9abd23baa8cc64bd0af041a0162636f31c \
-    --hash=sha256:892a5b7b87763c4c6997a58382c2b1f4614048a2e01c23ef1bb0456e6f9d4d5d
+humanize==3.10.0 \
+    --hash=sha256:aab7625d62dd5e0a054c8413a47d1fa257f3bdd8e9a2442c2fe36061bdd1d9bf \
+    --hash=sha256:b2413730ce6684f85e0439a5b80b8f402e09f03e16ab8023d1da758c6ff41148
 hyperlink==21.0.0 \
     --hash=sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b \
     --hash=sha256:e6b14c37ecb73e89c77d78cdb4c2cc8f3fb59a885c5b3f819ff4ed80f25af1b4
@@ -229,9 +229,9 @@ six==1.16.0 \
 spake2==0.8 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4
-tqdm==4.61.1 \
-    --hash=sha256:24be966933e942be5f074c29755a95b315c69a91f839a29139bf26ffffe2d3fd \
-    --hash=sha256:aa0c29f03f298951ac6318f7c8ce584e48fa22ec26396e6411e43d038243bdb2
+tqdm==4.61.2 \
+    --hash=sha256:5aa445ea0ad8b16d82b15ab342de6b195a722d75fc1ef9934a46bba6feafbc64 \
+    --hash=sha256:8bb94db0d4468fea27d004a0f1d1c02da3cdedc00fe491c0de986b76a04d6b0a
 treq==21.5.0 \
     --hash=sha256:02ea86383fc4b57539c45a965eaa1e9fd28302cdf382d21da8430050c97be9b8 \
     --hash=sha256:abf44b7b1b44bcade28b5ae2b440a94a72a96df45f5d6fec76d73b73f69e705c
