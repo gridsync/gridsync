@@ -72,6 +72,7 @@ def test_generate_code():
         ["GEZD-GNBV-GY3T-QX2V", True],
         ["GEZDGNBVGY3TQX21", False],  # "1" is not in base32 alphabet
         ["GEZDGNBVGY3TQX22", False],  # Checksum fails
+        ["AAAA-AAAA-AAAA-AAAŁ", False],  # Non-ASCII character
     ],
 )
 def test_is_valid(code, expected):

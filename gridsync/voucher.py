@@ -37,7 +37,7 @@ def is_valid(code: str, checksum_length: int = 2) -> bool:
     code = dehyphenate(code)
     try:
         decoded = base64.b32decode(code)
-    except binascii.Error:
+    except (binascii.Error, UnicodeEncodeError, ValueError):
         return False
     b = decoded[:-checksum_length]
     checksum = decoded[-checksum_length:]
