@@ -95,6 +95,7 @@ class LogLoader(QObject):
         self.content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
+            + "Magic-Folder: {}\n".format(self.core.magic_folder_version)
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
