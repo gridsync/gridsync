@@ -226,7 +226,6 @@ class MagicFolder:
             self.executable,
             args=args,
             env=env,
-            childFDs={1: "r", 2: "r"},
         )
         output = yield protocol.done  # type: ignore
         if callback_trigger:
