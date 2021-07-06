@@ -96,8 +96,6 @@ class SubprocessProtocol(ProcessProtocol):
         if not self.done.called:
             self._output.write(data)
         for line in data.decode("utf-8").strip().split("\n"):
-            if not line:
-                continue
             if self.stdout_line_collector and childFD == 1:
                 self.stdout_line_collector(line)
             elif self.stderr_line_collector and childFD == 2:
