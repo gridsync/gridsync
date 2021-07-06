@@ -69,6 +69,17 @@ warning_text = (
 )
 
 
+def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
+    return (
+        f"\n------ Beginning of Tahoe-LAFS log for {gateway_name} ------\n"
+        f"{tahoe_log}"
+        f"\n------ End of Tahoe-LAFS log for {gateway_name} ------\n"
+        f"\n------ Beginning of Magic-Folder log for {gateway_name} ------\n"
+        f"{magic_folder_log}"
+        f"\n------ End of Magic-Folder log for {gateway_name} ------\n"
+    )
+
+
 class LogLoader(QObject):
 
     done = pyqtSignal()
@@ -94,34 +105,23 @@ class LogLoader(QObject):
         self.filtered_content = apply_filters(self.content, filters)
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
-            gateway_mask = get_mask(gateway.name, "GatewayName", gateway_id)
-            tahoe_log = join_eliot_logs(gateway.get_streamed_log_messages())
-            filtered_tahoe_log = join_eliot_logs(
-                filter_eliot_logs(gateway.get_streamed_log_messages())
+            self.content = self.content + log_fmt(
+                gateway.name,
+                join_eliot_logs(gateway.get_streamed_log_messages()),
+                join_eliot_logs(gateway.magic_folder.get_logs()),
             )
-            mf_log = join_eliot_logs(gateway.magic_folder.get_logs())
-            filtered_mf_log = join_eliot_logs(
-                filter_eliot_logs(gateway.magic_folder.get_logs())
-            )
-            self.content = self.content + (
-                "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
-                "\n----- End of Tahoe-LAFS log for {0} -----\n"
-                "\n----- Beginning of Magic-Folder log for {0} -----\n{2}"
-                "\n----- End of Magic-Folder log for {0} -----\n".format(
-                    gateway.name,
-                    tahoe_log,
-                    mf_log,
-                )
-            )
-            self.filtered_content = self.filtered_content + (
-                "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
-                "\n----- End of Tahoe-LAFS log for {0} -----\n"
-                "\n----- Beginning of Magic-Folder log for {0} -----\n{2}"
-                "\n----- End of Magic-Folder log for {0} -----\n".format(
-                    gateway_mask,
-                    filtered_tahoe_log,
-                    filtered_mf_log,
-                )
+            self.filtered_content = self.filtered_content + log_fmt(
+                get_mask(gateway.name, "GatewayName", gateway_id),
+                join_eliot_logs(
+                    filter_eliot_logs(
+                        gateway.get_streamed_log_messages(), gateway_id
+                    )
+                ),
+                join_eliot_logs(
+                    filter_eliot_logs(
+                        gateway.magic_folder.get_logs(), gateway_id
+                    )
+                ),
             )
         self.done.emit()
         logging.debug("Loaded logs in %f seconds", time.time() - start_time)
