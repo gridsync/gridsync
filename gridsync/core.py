@@ -45,6 +45,7 @@ from gridsync import APP_NAME, config_dir, msg, resource, settings
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
 from gridsync.preferences import get_preference, set_preference
+from gridsync.magic_folder import MagicFolder
 from gridsync.tahoe import Tahoe, get_nodedirs, select_executable
 from gridsync.tor import get_tor
 
@@ -67,6 +68,7 @@ class Core:
         self.gateways = []
         self.executable = None
         self.tahoe_version = None
+        self.magic_folder_version: str = ""
         self.operations = []
         log_deque_maxlen = 100000  # XXX
         debug_settings = settings.get("debug")
@@ -98,6 +100,13 @@ class Core:
             self.tahoe_version = version.split("\n")[0]
             if self.tahoe_version.startswith("tahoe-lafs: "):
                 self.tahoe_version = self.tahoe_version.lstrip("tahoe-lafs: ")
+
+    @inlineCallbacks
+    def get_magic_folder_version(self):
+        magic_folder = MagicFolder(Tahoe(None))
+        version = yield magic_folder.version()
+        if version:
+            self.magic_folder_version = version.lstrip("Magic Folder version ")
 
     @inlineCallbacks
     def start_gateways(self):
@@ -135,6 +144,15 @@ class Core:
             logging.critical("Error getting Tahoe-LAFS version")
             msg.critical(
                 "Error getting Tahoe-LAFS version",
+                "{}: {}".format(type(e).__name__, str(e)),
+            )
+            reactor.stop()
+        try:
+            yield self.get_magic_folder_version()
+        except Exception as e:  # pylint: disable=broad-except
+            logging.critical("Error getting Magic-Folder version")
+            msg.critical(
+                "Error getting Magic-Folder version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
             reactor.stop()
