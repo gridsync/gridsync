@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import shutil
-from collections import defaultdict
+from collections import defaultdict, deque
 from datetime import datetime
 from pathlib import Path
 from typing import (
@@ -157,9 +157,15 @@ class MagicFolderMonitor(QObject):
 
 
 class MagicFolder:
-    def __init__(self, gateway: Tahoe, executable: Optional[str] = "") -> None:
+    def __init__(
+        self,
+        gateway: Tahoe,
+        executable: Optional[str] = "",
+        logs_maxlen: int = 1000000,  # XXX
+    ) -> None:
         self.gateway = gateway
         self.executable = executable
+        self._log_buffer = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.pidfile = Path(self.configdir, "magic-folder.pid")
@@ -193,8 +199,12 @@ class MagicFolder:
     def on_stderr_line_received(self, line: str) -> None:
         if self._is_eliot_log_message(line):
             logging.debug("[magic-folder:log] %s", line)  # XXX
+            self._log_buffer.append(line.encode("utf-8"))
         else:
             logging.error("[magic-folder:stderr] %s", line)
+
+    def get_logs(self) -> list:
+        return list(msg.decode("utf-8") for msg in list(self._log_buffer))
 
     @inlineCallbacks
     def _command(
