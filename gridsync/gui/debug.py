@@ -24,7 +24,13 @@ from PyQt5.QtWidgets import (
 
 from gridsync import APP_NAME, __version__, resource
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.filter import apply_filters, get_filters, get_mask
+from gridsync.filter import (
+    apply_filters,
+    filter_eliot_logs,
+    get_filters,
+    get_mask,
+    join_eliot_logs,
+)
 from gridsync.msg import error
 
 if sys.platform == "darwin":
@@ -89,17 +95,32 @@ class LogLoader(QObject):
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
             gateway_mask = get_mask(gateway.name, "GatewayName", gateway_id)
+            tahoe_log = join_eliot_logs(gateway.get_streamed_log_messages())
+            filtered_tahoe_log = join_eliot_logs(
+                filter_eliot_logs(gateway.get_streamed_log_messages())
+            )
+            mf_log = join_eliot_logs(gateway.magic_folder.get_logs())
+            filtered_mf_log = join_eliot_logs(
+                filter_eliot_logs(gateway.magic_folder.get_logs())
+            )
             self.content = self.content + (
                 "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
-                "\n----- End of Tahoe-LAFS log for {0} -----\n".format(
-                    gateway.name, gateway.get_log()
+                "\n----- End of Tahoe-LAFS log for {0} -----\n"
+                "\n----- Beginning of Magic-Folder log for {0} -----\n{2}"
+                "\n----- End of Magic-Folder log for {0} -----\n".format(
+                    gateway.name,
+                    tahoe_log,
+                    mf_log,
                 )
             )
             self.filtered_content = self.filtered_content + (
                 "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
-                "\n----- End of Tahoe-LAFS log for {0} -----\n".format(
+                "\n----- End of Tahoe-LAFS log for {0} -----\n"
+                "\n----- Beginning of Magic-Folder log for {0} -----\n{2}"
+                "\n----- End of Magic-Folder log for {0} -----\n".format(
                     gateway_mask,
-                    gateway.get_log(apply_filter=True, identifier=gateway_id),
+                    filtered_tahoe_log,
+                    filtered_mf_log,
                 )
             )
         self.done.emit()
