@@ -75,9 +75,13 @@ def _desktop_open(path):
 def open_enclosing_folder(path):
     path = os.path.expanduser(path)
     if sys.platform == "darwin":
-        subprocess.Popen(["open", "--reveal", path])
+        subprocess.Popen(  # pylint: disable=consider-using-with
+            ["open", "--reveal", path]
+        )
     elif sys.platform == "win32":
-        subprocess.Popen('explorer /select,"{}"'.format(path))
+        subprocess.Popen(  # pylint: disable=consider-using-with
+            'explorer /select,"{}"'.format(path)
+        )
     else:
         # TODO: Get file-manager via `xdg-mime query default inode/directory`
         # and, if 'org.gnome.Nautilus.desktop', call `nautilus --select`?
@@ -87,7 +91,7 @@ def open_enclosing_folder(path):
 def open_path(path):
     path = os.path.expanduser(path)
     if sys.platform == "darwin":
-        subprocess.Popen(["open", path])
+        subprocess.Popen(["open", path])  # pylint: disable=consider-using-with
     elif sys.platform == "win32":
         os.startfile(path)
     else:

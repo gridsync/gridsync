@@ -19,6 +19,7 @@ async def tahoe_server(tmp_path_factory):
         port=f"tcp:{port}:interface=127.0.0.1",
         location=f"tcp:127.0.0.1:{port}",
     )
+    server.config_set("storage", "reserved_space", "10M")
     await server.start()
     yield server
     await server.stop()
@@ -33,6 +34,7 @@ async def tahoe_client(tmp_path_factory, tahoe_server):
         "shares-needed": "1",
         "shares-happy": "1",
         "shares-total": "1",
+        "convergence": "a" * 52,
         "storage": {
             "test-grid-storage-server-1": {
                 "nickname": "test-grid-storage-server-1",
@@ -41,6 +43,7 @@ async def tahoe_client(tmp_path_factory, tahoe_server):
         },
     }
     await client.create_client(**settings)
+    client.save_settings(settings)
     await client.start()
     yield client
     await client.stop()

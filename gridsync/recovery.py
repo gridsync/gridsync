@@ -44,7 +44,7 @@ class RecoveryKeyExporter(QObject):
         self.crypter_thread.wait()
 
     def _export_encrypted_recovery(self, gateway, password):
-        settings = gateway.get_settings(include_rootcap=True)
+        settings = gateway.get_settings(include_secrets=True)
         if gateway.use_tor:
             settings["hide-ip"] = True
         data = json.dumps(settings)
@@ -95,7 +95,7 @@ class RecoveryKeyExporter(QObject):
         if not dest:
             return
         try:
-            gateway.export(dest, include_rootcap=True)
+            gateway.export(dest, include_secrets=True)
         except Exception as e:  # pylint: disable=broad-except
             error(self.parent, "Error exporting Recovery Key", str(e))
             return
@@ -203,10 +203,36 @@ class RecoveryKeyImporter(QObject):
         try:
             with open(path, "rb") as f:
                 content = f.read()
-        except Exception as e:  # pylint: disable=broad-except
-            error(self, type(e).__name__, str(e))
+        except IsADirectoryError as err:
+            error(
+                self.parent,
+                "Error loading Recovery Key",
+                f"{path} is a directory, and not a valid Recovery Key."
+                "\n\nPlease try again, selecting a valid Recovery Key file.",
+                str(err),
+            )
             return
-        self._parse_content(content)
+        except Exception as e:  # pylint: disable=broad-except
+            error(self.parent, "Error loading Recovery Key", str(e))
+            return
+        if not content:
+            error(
+                self.parent,
+                "Invalid Recovery Key",
+                f"The file {path} is empty."
+                "\n\nPlease try again, selecting a valid Recovery Key file.",
+            )
+            return
+        try:
+            self._parse_content(content)
+        except TypeError as err:
+            error(
+                self.parent,
+                "Error parsing Recovery Key content",
+                f"The file {path} does not appear to be a valid Recovery Key."
+                "\n\nPlease try again, selecting a valid Recovery Key file.",
+                str(err),
+            )
 
     def _select_file(self):
         dialog = QFileDialog(self.parent, "Select a Recovery Key")
