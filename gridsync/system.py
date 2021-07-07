@@ -11,9 +11,7 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
 from twisted.internet.defer import Deferred
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
-
-if TYPE_CHECKING:
-    from twisted.python.failure import Failure
+from twisted.python.failure import Failure
 
 
 def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
@@ -67,9 +65,12 @@ class SubprocessProtocol(ProcessProtocol):
     def _errback(self, exception: Type[Exception]) -> None:
         if self.errback_exception:
             exception = self.errback_exception
-        self.done.errback(
-            exception(self._output.getvalue().decode("utf-8").strip())
-        )
+        try:
+            self.done.errback(
+                Failure(
+                    exception(self._output.getvalue().decode("utf-8").strip())
+                )
+            )
 
     def _check_triggers(self, line: str) -> None:
         if self.callback_triggers:
