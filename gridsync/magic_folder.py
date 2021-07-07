@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import shutil
-import sys
 from collections import defaultdict, deque
 from datetime import datetime
 from pathlib import Path

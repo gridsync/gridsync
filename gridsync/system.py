@@ -4,7 +4,6 @@ import errno
 import logging
 import os
 import signal
-import sys
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
