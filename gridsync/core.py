@@ -44,8 +44,8 @@ from twisted.python.log import PythonLoggingObserver, startLogging
 from gridsync import APP_NAME, config_dir, msg, resource, settings
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
-from gridsync.preferences import get_preference, set_preference
 from gridsync.magic_folder import MagicFolder
+from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs, select_executable
 from gridsync.tor import get_tor
 
