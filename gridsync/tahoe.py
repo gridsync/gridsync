@@ -25,7 +25,6 @@ from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
-from gridsync.filter import filter_tahoe_log_message
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
