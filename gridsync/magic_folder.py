@@ -317,6 +317,7 @@ class MagicFolder:
             )
         except Exception as exc:  # pylint: disable=broad-except
             print("@@@@@@@@@@", str(exc))  # XXX
+            return
         print(f"LEAVE FROM {folder_name} completed")
 
     @inlineCallbacks
