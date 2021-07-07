@@ -113,6 +113,7 @@ class SubprocessProtocol(ProcessProtocol):
                 sys.platform == "win32"
                 and reason.value.exitCode == -1073740777
             ):
+                print("!!!!!!!!!!!!!!!!")
                 self._callback()
             else:
                 self._errback(reason.type)

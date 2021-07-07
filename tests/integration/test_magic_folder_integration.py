@@ -85,6 +85,11 @@ def test_version(magic_folder):
 
 
 @inlineCallbacks
+def test_restart(magic_folder):
+    yield magic_folder.restart()
+
+
+@inlineCallbacks
 def test_get_folders(magic_folder):
     folders = yield magic_folder.get_folders()
     assert folders == {}

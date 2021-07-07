@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shutil
+import sys
 from collections import defaultdict, deque
 from datetime import datetime
 from pathlib import Path
@@ -300,6 +301,8 @@ class MagicFolder:
     def restart(self) -> TwistedDeferred[None]:
         logging.debug("Restarting magic-folder...")
         self.stop()
+        if sys.platform == "win32":
+            yield deferLater(reactor, 1, lambda: None)
         yield self.start()
         logging.debug("Magic-folder restarted successfully")
 
