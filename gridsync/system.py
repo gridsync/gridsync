@@ -6,7 +6,7 @@ import os
 import signal
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
+from typing import Callable, List, Optional, Tuple, Type, Union
 
 from twisted.internet.defer import Deferred
 from twisted.internet.error import ProcessDone
