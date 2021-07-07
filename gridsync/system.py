@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
 
 from twisted.internet.defer import Deferred
-from twisted.internet.error import ProcessDone
+from twisted.internet.error import ProcessDone, ProcessTerminated
 from twisted.internet.protocol import ProcessProtocol
 
 if TYPE_CHECKING:
@@ -102,6 +102,14 @@ class SubprocessProtocol(ProcessProtocol):
             return
         if isinstance(reason.value, ProcessDone):
             self._callback()
+        elif isinstance(reason.value, ProcessTerminated):
+            print("-------------------------------")
+            print(reason.value.exitCode)
+            print(reason.value.signal)
+            print(reason.value.status)
+            print("########", self._output.getvalue().decode("utf-8").strip())
+            self._errback(reason.value)
+            print("-------------------------------")
         else:
             print("########", self._output.getvalue().decode("utf-8").strip())
             self._errback(reason.value)
