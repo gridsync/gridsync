@@ -10,8 +10,10 @@ import pytest
 from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.filter import (
     apply_filters,
+    filter_eliot_logs,
     filter_tahoe_log_message,
     get_filters,
+    join_eliot_logs,
 )
 
 
@@ -619,3 +621,28 @@ def test__apply_filter_by_message_type(msg, keys):
         original_value = str(msg.get(key))
         filtered_msg = filter_tahoe_log_message(json.dumps(msg), "1")
         assert original_value not in filtered_msg
+
+
+def test_filter_eliot_logs_apply_filter():
+    messages = [
+        '{"action_type": "magic-folder:full-scan", "nickname": "TestGrid"}'
+    ]
+    assert filter_eliot_logs(messages) == [
+        '{"action_type": "magic-folder:full-scan", '
+        '"nickname": "<Filtered:GatewayName:95e65be>"}'
+    ]
+
+
+def test_filter_eliot_logs_apply_filter_use_identifier():
+    messages = [
+        '{"action_type": "magic-folder:full-scan", "nickname": "TestGrid"}'
+    ]
+    assert filter_eliot_logs(messages, "1") == [
+        '{"action_type": "magic-folder:full-scan", '
+        '"nickname": "<Filtered:GatewayName:1>"}'
+    ]
+
+
+def test_join_eliot_logs_sort_output():
+    messages = ['{"C": 3, "A": 1, "B": 2}']
+    assert join_eliot_logs(messages) == '{"A": 1, "B": 2, "C": 3}'
