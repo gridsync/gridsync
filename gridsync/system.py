@@ -100,6 +100,7 @@ class SubprocessProtocol(ProcessProtocol):
         if isinstance(reason.value, ProcessDone):
             self._callback()
         else:
+            print("########", self._output.getvalue().decode("utf-8").strip())
             self._errback(reason.value)
 
     def processExited(self, reason: Failure) -> None:
