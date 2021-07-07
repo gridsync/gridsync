@@ -321,7 +321,7 @@ class MagicFolder:
                     "--really-delete-write-capability",
                 ]
             )
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             print("@@@@@@@@@@", str(exc))  # XXX
         print(f"LEAVE FROM {folder_name} completed")
 
