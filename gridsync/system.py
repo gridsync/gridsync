@@ -108,7 +108,7 @@ class SubprocessProtocol(ProcessProtocol):
             print(reason.value.signal)
             print(reason.value.status)
             print("########", self._output.getvalue().decode("utf-8").strip())
-            self._errback(reason.value)
+            self._errback(reason.type)
             print("-------------------------------")
         else:
             print("########", self._output.getvalue().decode("utf-8").strip())
