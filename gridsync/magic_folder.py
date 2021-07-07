@@ -245,10 +245,8 @@ class MagicFolder:
         return output
 
     def stop(self) -> None:
-        print("STOPPING...")
         self.monitor.stop()
         kill(pidfile=self.pidfile)
-        print("STOP COMPLETED")
 
     @inlineCallbacks
     def _load_config(self) -> TwistedDeferred[None]:
@@ -275,7 +273,6 @@ class MagicFolder:
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
-        print("STARTING...")
         logging.debug("Starting magic-folder...")
         if self.pidfile.exists():
             self.stop()
@@ -294,7 +291,7 @@ class MagicFolder:
         self.pidfile.write_text(str(self.pid))
         yield self._load_config()
         self.monitor.start()
-        print("START COMPLETED")
+        logging.debug("Started magic-folder")
 
     @inlineCallbacks
     def await_running(self) -> TwistedDeferred[None]:
@@ -305,8 +302,6 @@ class MagicFolder:
     def restart(self) -> TwistedDeferred[None]:
         logging.debug("Restarting magic-folder...")
         self.stop()
-        if sys.platform == "win32":
-            yield deferLater(reactor, 1, lambda: None)
         yield self.start()
         logging.debug("Magic-folder restarted successfully")
 

@@ -103,24 +103,15 @@ class SubprocessProtocol(ProcessProtocol):
             return
         if isinstance(reason.value, ProcessDone):
             self._callback()
+            return
         elif isinstance(reason.value, ProcessTerminated):
-            print("-------------------------------")
-            print(reason.value.exitCode)
-            print(reason.value.signal)
-            print(reason.value.status)
-            print("########", self._output.getvalue().decode("utf-8").strip())
-            if (
-                sys.platform == "win32"
-                and reason.value.exitCode == -1073740777
-            ):
-                print("!!!!!!!!!!!!!!!!")
-                self._callback()
-            else:
-                self._errback(reason.type)
-            print("-------------------------------")
-        else:
-            print("########", self._output.getvalue().decode("utf-8").strip())
-            self._errback(reason.value)
+            print("---------------------------------------------------------")
+            print("exitCode: ", reason.value.exitCode)
+            print("signal: ", reason.value.signal)
+            print("status: ", reason.value.status)
+            print("output: ", self._output.getvalue().decode("utf-8").strip())
+            print("---------------------------------------------------------")
+        self._errback(reason.type)
 
     def processExited(self, reason: Failure) -> None:
         self.processEnded(reason)
