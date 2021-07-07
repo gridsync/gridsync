@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     DefaultDict,
+    Deque,
     Dict,
     List,
     Optional,
@@ -165,7 +166,7 @@ class MagicFolder:
     ) -> None:
         self.gateway = gateway
         self.executable = executable
-        self._log_buffer = deque(maxlen=logs_maxlen)
+        self._log_buffer: Deque[bytes] = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.pidfile = Path(self.configdir, "magic-folder.pid")
