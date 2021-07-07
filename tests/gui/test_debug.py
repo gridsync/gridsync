@@ -37,9 +37,7 @@ def core():
     fake_gateway.name = "TestGridOne"
     fake_gateway.newscap = "URI:NEWSCAP"
     fake_gateway.magic_folder = Mock()
-    fake_gateway.magic_folder.get_logs = Mock(
-        return_value=['{"test": 123}']
-    )
+    fake_gateway.magic_folder.get_logs = Mock(return_value=['{"test": 123}'])
     fake_gateway.magic_folders = {}
     fake_gateway.get_streamed_log_messages = Mock(
         return_value=['{"test": 123}']
