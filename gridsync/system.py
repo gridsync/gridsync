@@ -103,7 +103,7 @@ class SubprocessProtocol(ProcessProtocol):
         if isinstance(reason.value, ProcessDone):
             self._callback()
             return
-        elif isinstance(reason.value, ProcessTerminated):
+        if isinstance(reason.value, ProcessTerminated):
             print("---------------------------------------------------------")
             print("exitCode: ", reason.value.exitCode)
             print("signal: ", reason.value.signal)
