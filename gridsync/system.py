@@ -4,6 +4,7 @@ import errno
 import logging
 import os
 import signal
+import sys
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
@@ -108,7 +109,13 @@ class SubprocessProtocol(ProcessProtocol):
             print(reason.value.signal)
             print(reason.value.status)
             print("########", self._output.getvalue().decode("utf-8").strip())
-            self._errback(reason.type)
+            if (
+                sys.platform == "win32"
+                and reason.value.exitCode == -1073740777
+            ):
+                self._callback()
+            else:
+                self._errback(reason.type)
             print("-------------------------------")
         else:
             print("########", self._output.getvalue().decode("utf-8").strip())
