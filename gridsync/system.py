@@ -66,9 +66,7 @@ class SubprocessProtocol(ProcessProtocol):
         if self.errback_exception:
             exception = self.errback_exception
         self.done.errback(
-            Failure(
-                exception(self._output.getvalue().decode("utf-8").strip())
-            )
+            Failure(exception(self._output.getvalue().decode("utf-8").strip()))
         )
 
     def _check_triggers(self, line: str) -> None:
