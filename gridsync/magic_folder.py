@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shutil
+import sys
 from collections import defaultdict, deque
 from datetime import datetime
 from pathlib import Path
@@ -297,16 +298,22 @@ class MagicFolder:
         while not self.monitor.status_monitor.running:  # XXX
             yield deferLater(reactor, 0.2, lambda: None)
 
+    def _win32_remove_stale_dirs(self) -> None:
+        for path in self.configdir.glob("**/folder-*"):
+            if path.is_dir() and not path.joinpath("stash").exists():
+                shutil.rmtree(path)
+
     @inlineCallbacks
     def restart(self) -> TwistedDeferred[None]:
         logging.debug("Restarting magic-folder...")
         self.stop()
+        if sys.platform == "win32":
+            self._win32_remove_stale_dirs()
         yield self.start()
         logging.debug("Magic-folder restarted successfully")
 
     @inlineCallbacks
     def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
-        import sys
         from pprint import pprint
 
         if sys.platform == "win32":
