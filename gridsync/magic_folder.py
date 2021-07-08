@@ -306,16 +306,13 @@ class MagicFolder:
 
     @inlineCallbacks
     def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
-        try:
-            yield self._command(
-                [
-                    "leave",
-                    f"--name={folder_name}",
-                    "--really-delete-write-capability",
-                ]
-            )
-        except Exception as exc:  # pylint: disable=broad-except
-            print("@@@@@@@@@@", str(exc))  # XXX
+        yield self._command(
+            [
+                "leave",
+                f"--name={folder_name}",
+                "--really-delete-write-capability",
+            ]
+        )
 
     @inlineCallbacks
     def _request(
