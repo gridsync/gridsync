@@ -308,7 +308,7 @@ class MagicFolder:
         logging.debug("Restarting magic-folder...")
         self.stop()
         if sys.platform == "win32":
-            yield deferLater(reactor, 2, lambda: None)
+            yield deferLater(reactor, 20, lambda: None)
             self._win32_remove_stale_dirs()
         yield self.start()
         logging.debug("Magic-folder restarted successfully")
