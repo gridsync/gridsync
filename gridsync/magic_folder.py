@@ -330,7 +330,7 @@ class MagicFolder:
             print("After:")
             pprint(folders)
             print(Path(stash_path).exists())
-            shutil.rmtree(stash_path)
+            shutil.rmtree(stash_path, ignore_errors=True)
             print(Path(stash_path).exists())
         print("-------------------------------------------------------")
 
