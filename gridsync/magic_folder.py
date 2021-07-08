@@ -307,7 +307,6 @@ class MagicFolder:
     @inlineCallbacks
     def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
         print("-------------------------------------------------------")
-        import shutil
         import sys
         from pprint import pprint
 
