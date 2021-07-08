@@ -306,7 +306,14 @@ class MagicFolder:
 
     @inlineCallbacks
     def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
-        print(f"TRYING TO LEAVE {folder_name}...")
+        print("-------------------------------------------------------")
+        import sys
+        from pprint import pprint
+
+        if sys.platform == "win32":
+            folders = yield self.get_folders()
+            print("Before:")
+            pprint(folders)
         try:
             yield self._command(
                 [
@@ -317,8 +324,11 @@ class MagicFolder:
             )
         except Exception as exc:  # pylint: disable=broad-except
             print("@@@@@@@@@@", str(exc))  # XXX
-            return
-        print(f"LEAVE FROM {folder_name} completed")
+        if sys.platform == "win32":
+            folders = yield self.get_folders()
+            print("After:")
+            pprint(folders)
+        print("-------------------------------------------------------")
 
     @inlineCallbacks
     def _request(
