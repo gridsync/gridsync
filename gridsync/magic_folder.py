@@ -307,6 +307,7 @@ class MagicFolder:
     @inlineCallbacks
     def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
         print("-------------------------------------------------------")
+        import shutil
         import sys
         from pprint import pprint
 
@@ -314,6 +315,7 @@ class MagicFolder:
             folders = yield self.get_folders()
             print("Before:")
             pprint(folders)
+            stash_path = folders[folder_name].get("stash_path")
         try:
             yield self._command(
                 [
@@ -328,6 +330,9 @@ class MagicFolder:
             folders = yield self.get_folders()
             print("After:")
             pprint(folders)
+            print(Path(stash_path).exists())
+            shutil.rmtree(stash_path)
+            print(Path(stash_path).exists())
         print("-------------------------------------------------------")
 
     @inlineCallbacks
