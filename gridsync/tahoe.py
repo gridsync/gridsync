@@ -433,13 +433,12 @@ class Tahoe:
         log.debug("Executing: %s...", " ".join(logged_args))
         protocol = SubprocessProtocol(
             callback_triggers=[callback_trigger],
-            errback_exception=TahoeCommandError,
             stdout_line_collector=self.line_received,
         )
         transport = yield reactor.spawnProcess(
             protocol, exe, args=args, env=env
         )
-        output = yield protocol.done
+        output = yield protocol.done  # TODO: re-raise TahoeCommandError?
         if callback_trigger:
             return transport.pid
         return output
