@@ -60,7 +60,7 @@ class MagicFolderMonitor(QObject):
         self.folders: Dict[str, dict] = {}
 
         self._was_synchronizing: bool = False
-        self._ws_reader = None
+        self._ws_reader: Optional[WebSocketReaderService] = None
         self.running = False
 
     def on_status_message_received(self, msg: str) -> None:
