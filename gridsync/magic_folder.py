@@ -19,16 +19,9 @@ from typing import (
 )
 
 import treq
-from autobahn.twisted.websocket import (
-    WebSocketClientFactory,
-    WebSocketClientProtocol,
-)
 from PyQt5.QtCore import QObject, pyqtSignal
-from twisted.application.internet import ClientService
-from twisted.application.service import MultiService
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
@@ -37,6 +30,7 @@ if TYPE_CHECKING:
 
 from gridsync.crypto import randstr
 from gridsync.system import SubprocessProtocol, kill
+from gridsync.websocket import WebSocketReaderService
 
 
 class MagicFolderError(Exception):
@@ -51,64 +45,6 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
-class MagicFolderWebSocketClientProtocol(
-    WebSocketClientProtocol
-):  # pylint: disable=too-many-ancestors
-    def onOpen(self) -> None:
-        logging.debug("WebSocket connection opened.")
-
-    def onMessage(self, payload: bytes, isBinary: bool) -> None:
-        if isBinary:
-            logging.warning(
-                "Received a binary-mode WebSocket message from magic-folder "
-                "status API; dropping."
-            )
-            return
-        msg = payload.decode("utf-8")
-        logging.debug("WebSocket message received: %s", msg)
-        self.factory.magic_folder.monitor.on_status_message_received(msg)
-
-    def onClose(self, wasClean: bool, code: int, reason: str) -> None:
-        logging.debug(
-            "WebSocket connection closed: %s (code %s)", reason, code
-        )
-
-
-class MagicFolderStatusMonitor(MultiService):
-    def __init__(self, magic_folder: MagicFolder) -> None:
-        super().__init__()
-        self.magic_folder = magic_folder
-
-        self._client_service: Optional[ClientService] = None
-
-    def _create_client_service(self) -> ClientService:
-        endpoint = TCP4ClientEndpoint(
-            reactor, "127.0.0.1", self.magic_folder.port
-        )
-        factory = WebSocketClientFactory(
-            f"ws://127.0.0.1:{self.magic_folder.port}/v1/status",
-            headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
-        )
-        factory.protocol = MagicFolderWebSocketClientProtocol
-        factory.magic_folder = self.magic_folder
-        client_service = ClientService(endpoint, factory, clock=reactor)
-        return client_service
-
-    def stop(self) -> None:
-        if self.running and self._client_service:
-            self._client_service.disownServiceParent()
-            self._client_service = None
-            return super().stopService()
-        return None
-
-    def start(self) -> None:
-        if not self.running:
-            self._client_service = self._create_client_service()
-            self._client_service.setServiceParent(self)
-            return super().startService()
-        return None
-
-
 class MagicFolderMonitor(QObject):
 
     synchronizing_state_changed = pyqtSignal(bool)
@@ -121,10 +57,11 @@ class MagicFolderMonitor(QObject):
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
         self.magic_folder = magic_folder
-        self.status_monitor = MagicFolderStatusMonitor(magic_folder)
         self.folders: Dict[str, dict] = {}
 
         self._was_synchronizing: bool = False
+        self._ws_reader = None
+        self.running = False
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
@@ -150,11 +87,20 @@ class MagicFolderMonitor(QObject):
         self.folders = folders
 
     def start(self) -> None:
-        self.status_monitor.start()
+        self._ws_reader = WebSocketReaderService(
+            f"ws://127.0.0.1:{self.magic_folder.port}/v1/status",
+            headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
+            collector=self.on_status_message_received,
+        )
+        self._ws_reader.start()
+        self.running = True
         self.do_check()
 
     def stop(self) -> None:
-        self.status_monitor.stop()
+        self.running = False
+        if self._ws_reader:
+            self._ws_reader.stop()
+            self._ws_reader = None
 
 
 class MagicFolder:
@@ -294,7 +240,7 @@ class MagicFolder:
 
     @inlineCallbacks
     def await_running(self) -> TwistedDeferred[None]:
-        while not self.monitor.status_monitor.running:  # XXX
+        while not self.monitor.running:  # XXX
             yield deferLater(reactor, 0.2, lambda: None)
 
     @inlineCallbacks
