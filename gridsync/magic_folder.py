@@ -47,6 +47,8 @@ class MagicFolderWebError(MagicFolderError):
 
 class MagicFolderMonitor(QObject):
 
+    status_message_received = pyqtSignal(dict)
+
     synchronizing_state_changed = pyqtSignal(bool)
     sync_started = pyqtSignal()
     sync_stopped = pyqtSignal()
@@ -59,12 +61,14 @@ class MagicFolderMonitor(QObject):
         self.magic_folder = magic_folder
         self.folders: Dict[str, dict] = {}
 
+        self._last_status_message: Dict[str, dict] = {}
         self._was_synchronizing: bool = False
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running = False
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
+        self.status_message_received.emit(data)
         state = data.get("state")
         if state and "synchronizing" in state:
             synchronizing = state.get("synchronizing")
@@ -74,6 +78,7 @@ class MagicFolderMonitor(QObject):
             elif self._was_synchronizing and not synchronizing:
                 self.sync_stopped.emit()
             self._was_synchronizing = synchronizing
+        self._last_status_message = data
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
