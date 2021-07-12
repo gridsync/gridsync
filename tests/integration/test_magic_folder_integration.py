@@ -291,6 +291,16 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_folders_in_status_api_message(magic_folder, qtbot):
+    with qtbot.wait_signal(
+        magic_folder.monitor.status_message_received
+    ) as blocker:
+        yield magic_folder.restart()
+        yield deferLater(reactor, 1, lambda: None)
+    assert "folders" in blocker.args[0].get("state")
+
+
+@inlineCallbacks
 def test_monitor_emits_synchronizing_state_changed_signal(
     magic_folder, tmp_path, qtbot
 ):
