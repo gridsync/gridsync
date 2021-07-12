@@ -192,6 +192,28 @@ def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_get_file_status(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+
+    filename = randstr()
+    filepath = path / filename
+    filepath.write_text(randstr() * 10)
+    yield magic_folder.add_snapshot(folder_name, filename)
+    yield deferLater(reactor, 1.5, lambda: None)
+
+    output = yield magic_folder.get_file_status(folder_name)
+    keys = output[0].keys()
+    assert ("mtime" in keys, "name" in keys, "size" in keys) == (
+        True,
+        True,
+        True,
+    )
+
+
+@inlineCallbacks
 def test_create_backup_cap(magic_folder):
     cap = yield magic_folder.create_backup_cap()
     assert cap.startswith("URI:DIR2")

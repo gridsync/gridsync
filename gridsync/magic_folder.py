@@ -358,6 +358,13 @@ class MagicFolder:
         )
 
     @inlineCallbacks
+    def get_file_status(self, folder_name) -> TwistedDeferred[List[Dict]]:
+        output = yield self._request(
+            "GET", f"/magic-folder/{folder_name}/file-status"
+        )
+        return output
+
+    @inlineCallbacks
     def create_backup_cap(self) -> TwistedDeferred[str]:
         yield self.gateway.lock.acquire()
         try:
