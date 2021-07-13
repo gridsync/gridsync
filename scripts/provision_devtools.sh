@@ -35,7 +35,7 @@ else
     fi
 fi
 
-git clone --branch v2.0.1 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.0.1
+git clone --branch v2.0.3 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.0.3
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "$SHELLRC"
 echo 'export PATH="$PYENV_ROOT/bin:$HOME/bin:$PATH"' >> "$SHELLRC"
 echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
@@ -43,15 +43,15 @@ echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
 . "$SHELLRC"
 
 pyenv install --skip-existing 2.7.18
-pyenv install --skip-existing 3.9.5
+pyenv install --skip-existing 3.9.6
 if [ "${SKIP_OLD_PYTHON_VERSIONS}" ]; then
     pyenv rehash
-    pyenv global 2.7.18 3.9.5
+    pyenv global 2.7.18 3.9.6
 else
-    pyenv install --skip-existing 3.8.10
-    pyenv install --skip-existing 3.7.10
+    pyenv install --skip-existing 3.8.11
+    pyenv install --skip-existing 3.7.11
     pyenv rehash
-    pyenv global 2.7.18 3.9.5 3.8.10 3.7.10
+    pyenv global 2.7.18 3.9.6 3.8.11 3.7.11
 fi
 pyenv versions
 
