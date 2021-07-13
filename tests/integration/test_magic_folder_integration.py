@@ -391,6 +391,23 @@ def test_monitor_emits_folder_added_signal(magic_folder, tmp_path, qtbot):
 
 
 @inlineCallbacks
+def test_monitor_emits_folder_added_signal_via_status_message(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
+        yield magic_folder.add_folder(path, author)
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.add_snapshot(folder_name, filename)
+        yield deferLater(reactor, 2, lambda: None)
+    assert blocker.args == [folder_name]
+
+
+@inlineCallbacks
 def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
     # Removing existing folders first
     folders = yield magic_folder.get_folders()
