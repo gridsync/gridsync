@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import sys
+from pathlib import Path
 
 from versioneer import get_versions
 
@@ -137,3 +138,17 @@ else:
     print('##################################################################')
     print('WARNING: No Tahoe-LAFS bundle found!')
     print('##################################################################')
+
+
+# The presence of *.dist-info dirs causes issues with reproducible builds as
+# of PyInstaller v4.4; see: https://github.com/gridsync/gridsync/issues/363
+dist_dir = Path("dist", app_name)
+info_paths = []
+for p in dist_dir.glob("**/*.dist-info"):
+    info_paths.append(str(p))
+for p in info_paths:
+    print(f"Removing {p}...")
+    try:
+        shutil.rmtree(p)
+    except Exception as exc:
+        print(f"WARNING: Could not remove {p}: {str(exc)}")
