@@ -66,6 +66,19 @@ class MagicFolderMonitor(QObject):
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running = False
 
+        self._known_folders: List[str] = []
+
+    def compare_folders(self, folders: List[str]) -> None:
+        for folder in folders:
+            if folder not in self._known_folders:
+                print("*** ADDDED:", folder)
+                self.folder_added.emit(folder)
+        for folder in self._known_folders:
+            if folder not in folders:
+                print("*** REMOVED:", folder)
+                self.folder_removed.emit(folder)
+        self._known_folders = list(folders)
+
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
         self.status_message_received.emit(data)
@@ -78,18 +91,14 @@ class MagicFolderMonitor(QObject):
             elif self._was_synchronizing and not synchronizing:
                 self.sync_stopped.emit()
             self._was_synchronizing = synchronizing
+        folders = state.get("folders")
+        self.compare_folders(list(folders))
         self._last_status_message = data
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
         folders = yield self.magic_folder.get_folders()
-        for folder in folders:
-            if folder not in self.folders:
-                self.folder_added.emit(folder)
-        for known_folder in self.folders:
-            if known_folder not in folders:
-                self.folder_removed.emit(known_folder)
-        self.folders = folders
+        self.compare_folders(folders)
 
     def start(self) -> None:
         self._ws_reader = WebSocketReaderService(
