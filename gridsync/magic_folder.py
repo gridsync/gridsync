@@ -50,8 +50,8 @@ class MagicFolderMonitor(QObject):
     status_message_received = pyqtSignal(dict)
 
     synchronizing_state_changed = pyqtSignal(bool)
-    sync_started = pyqtSignal()
-    sync_stopped = pyqtSignal()
+    sync_started = pyqtSignal(str)  # folder
+    sync_stopped = pyqtSignal(str)  # folder
 
     folder_added = pyqtSignal(str)  # folder
     folder_removed = pyqtSignal(str)  # folder
@@ -84,9 +84,9 @@ class MagicFolderMonitor(QObject):
             is_syncing = self._is_syncing(folder, current_folders)
             was_syncing = self._is_syncing(folder, previous_folders)
             if is_syncing and not was_syncing:
-                self.sync_started.emit()
+                self.sync_started.emit(folder)
             elif was_syncing and not is_syncing:
-                self.sync_stopped.emit()
+                self.sync_stopped.emit(folder)
 
     def compare_folders(self, folders: List[str]) -> None:
         for folder in folders:
