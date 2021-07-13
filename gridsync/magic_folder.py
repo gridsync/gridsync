@@ -74,8 +74,8 @@ class MagicFolderMonitor(QObject):
         return False
 
     def compare_state(self, state: Dict) -> None:
-        current_folders = state.get("folders")
-        previous_folders = self._prev_state.get("folders")
+        current_folders = state.get("folders", {})
+        previous_folders = self._prev_state.get("folders", {})
         for folder in current_folders:
             is_syncing = self._is_syncing(folder, current_folders)
             was_syncing = self._is_syncing(folder, previous_folders)
@@ -374,7 +374,7 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_file_status(self, folder_name) -> TwistedDeferred[List[Dict]]:
+    def get_file_status(self, folder_name: str) -> TwistedDeferred[List[Dict]]:
         output = yield self._request(
             "GET", f"/magic-folder/{folder_name}/file-status"
         )
