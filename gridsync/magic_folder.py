@@ -58,9 +58,7 @@ class MagicFolderMonitor(QObject):
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
         self.magic_folder = magic_folder
-        self.folders: Dict[str, dict] = {}
 
-        self._last_status_message: Dict[str, dict] = {}
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running = False
 
@@ -89,11 +87,9 @@ class MagicFolderMonitor(QObject):
     def compare_folders(self, folders: List[str]) -> None:
         for folder in folders:
             if folder not in self._known_folders:
-                print("*** ADDDED:", folder)
                 self.folder_added.emit(folder)
         for folder in self._known_folders:
             if folder not in folders:
-                print("*** REMOVED:", folder)
                 self.folder_removed.emit(folder)
         self._known_folders = list(folders)
 
@@ -103,7 +99,6 @@ class MagicFolderMonitor(QObject):
         state = data.get("state")
         folders = state.get("folders")
         self.compare_folders(list(folders))
-        self._last_status_message = data
         self.compare_state(state)
         self._prev_state = state
 
