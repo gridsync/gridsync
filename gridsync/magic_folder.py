@@ -382,6 +382,20 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
+    def get_files_info(self, folder_name: str) -> TwistedDeferred[Tuple]:
+        file_status = yield self.get_file_status(folder_name)
+        sizes = []
+        latest_mtime = 0
+        for item in file_status:
+            size = int(item.get("size", 0))
+            sizes.append(size)
+            mtime = item.get("mtime")
+            if mtime > latest_mtime:
+                latest_mtime = mtime
+        total_size = sum(sizes)
+        return sizes, total_size, latest_mtime
+
+    @inlineCallbacks
     def create_backup_cap(self) -> TwistedDeferred[str]:
         yield self.gateway.lock.acquire()
         try:
