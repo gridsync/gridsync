@@ -66,7 +66,27 @@ class MagicFolderMonitor(QObject):
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running = False
 
+        self._prev_state: Dict = {}
         self._known_folders: List[str] = []
+
+    def _is_syncing(self, folder_name: str, folders_state: Dict) -> bool:
+        folder_data = folders_state.get(folder_name)
+        if not folder_data:
+            return False
+        if folder_data.get("uploads") or folder_data.get("downloads"):
+            return True
+        return False
+
+    def compare_state(self, state: Dict) -> None:
+        current_folders = state.get("folders")
+        previous_folders = self._prev_state.get("folders")
+        for folder in current_folders:
+            is_syncing = self._is_syncing(folder, current_folders)
+            was_syncing = self._is_syncing(folder, previous_folders)
+            if is_syncing and not was_syncing:
+                self.sync_started.emit()
+            elif was_syncing and not is_syncing:
+                self.sync_stopped.emit()
 
     def compare_folders(self, folders: List[str]) -> None:
         for folder in folders:
@@ -94,6 +114,8 @@ class MagicFolderMonitor(QObject):
         folders = state.get("folders")
         self.compare_folders(list(folders))
         self._last_status_message = data
+        self.compare_state(state)
+        self._prev_state = state
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
