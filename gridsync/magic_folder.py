@@ -65,7 +65,8 @@ class MagicFolderMonitor(QObject):
         self._prev_state: Dict = {}
         self._known_folders: List[str] = []
 
-    def _is_syncing(self, folder_name: str, folders_state: Dict) -> bool:
+    @staticmethod
+    def _is_syncing(folder_name: str, folders_state: Dict) -> bool:
         folder_data = folders_state.get(folder_name)
         if not folder_data:
             return False
