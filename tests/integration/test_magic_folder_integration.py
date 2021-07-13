@@ -323,28 +323,6 @@ def test_folders_in_status_api_message(magic_folder, qtbot):
 
 
 @inlineCallbacks
-def test_monitor_emits_synchronizing_state_changed_signal(
-    magic_folder, tmp_path, qtbot
-):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
-
-    # FIXME: Using two "with" statements instead of qtbot.wait_signals
-    # due to https://github.com/pytest-dev/pytest-qt/issues/316
-    with qtbot.wait_signal(
-        magic_folder.monitor.synchronizing_state_changed
-    ), qtbot.wait_signal(magic_folder.monitor.synchronizing_state_changed):
-        yield magic_folder.restart()
-        filename = randstr()
-        filepath = path / filename
-        filepath.write_text(randstr() * 10)
-        yield magic_folder.add_snapshot(folder_name, filename)
-        yield deferLater(reactor, 1.5, lambda: None)
-
-
-@inlineCallbacks
 def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
     path = tmp_path / folder_name
@@ -358,7 +336,7 @@ def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
         filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
         yield deferLater(reactor, 1.5, lambda: None)
-    assert blocker.args == []
+    assert blocker.args == [folder_name]
 
 
 @inlineCallbacks
@@ -375,7 +353,7 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
         filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
         yield deferLater(reactor, 2, lambda: None)
-    assert blocker.args == []
+    assert blocker.args == [folder_name]
 
 
 @inlineCallbacks
