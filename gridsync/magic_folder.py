@@ -49,7 +49,6 @@ class MagicFolderMonitor(QObject):
 
     status_message_received = pyqtSignal(dict)
 
-    synchronizing_state_changed = pyqtSignal(bool)
     sync_started = pyqtSignal(str)  # folder
     sync_stopped = pyqtSignal(str)  # folder
 
@@ -62,7 +61,6 @@ class MagicFolderMonitor(QObject):
         self.folders: Dict[str, dict] = {}
 
         self._last_status_message: Dict[str, dict] = {}
-        self._was_synchronizing: bool = False
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running = False
 
@@ -103,14 +101,6 @@ class MagicFolderMonitor(QObject):
         data = json.loads(msg)
         self.status_message_received.emit(data)
         state = data.get("state")
-        if state and "synchronizing" in state:
-            synchronizing = state.get("synchronizing")
-            self.synchronizing_state_changed.emit(synchronizing)
-            if not self._was_synchronizing and synchronizing:
-                self.sync_started.emit()
-            elif self._was_synchronizing and not synchronizing:
-                self.sync_stopped.emit()
-            self._was_synchronizing = synchronizing
         folders = state.get("folders")
         self.compare_folders(list(folders))
         self._last_status_message = data
