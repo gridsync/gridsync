@@ -63,7 +63,7 @@ a = Analysis(
         ('../gridsync/resources/*', 'resources'),
         ('../gridsync/resources/providers/*', 'resources/providers')
     ],
-    hiddenimports=['cffi', 'PyQt5.sip', 'pkg_resources.py2_warn'],
+    hiddenimports=['cffi', 'PyQt5.sip', 'pkg_resources.py2_warn', 'humanize'],
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
@@ -144,11 +144,11 @@ else:
 # of PyInstaller v4.4; see: https://github.com/gridsync/gridsync/issues/363
 dist_dir = Path("dist", app_name)
 info_paths = []
-for p in dist_dir.glob("**/*.dist-info"):
+for p in dist_dir.glob("**/*.dist-info/RECORD"):
     info_paths.append(str(p))
 for p in info_paths:
     print(f"Removing {p}...")
     try:
-        shutil.rmtree(p)
+        os.remove(p)
     except Exception as exc:
         print(f"WARNING: Could not remove {p}: {str(exc)}")
