@@ -64,6 +64,12 @@ class Model(QStandardItemModel):
             self.set_transfer_progress
         )
 
+        self.mf_monitor = self.gateway.magic_folder.monitor
+        self.mf_monitor.folder_added.connect(self.add_folder)
+        self.mf_monitor.folder_removed.connect(self.remove_folder)
+        self.mf_monitor.sync_started.connect(self.on_sync_started)
+        self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
+
     def on_space_updated(self, size):
         self.available_space = size
 
