@@ -323,11 +323,13 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):
+        self.set_status(folder_name, MagicFolderChecker.SYNCING)
         self.gui.core.operations.append((self.gateway, folder_name))
         self.gui.systray.update()
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
+        self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:
