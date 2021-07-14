@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import sys
+from pathlib import Path
 
 from versioneer import get_versions
 
@@ -153,3 +154,13 @@ else:
     print('#################################################################')
     print('WARNING: No magic-folder bundle found!')
     print('#################################################################')
+
+
+# The presence of *.dist-info/RECORD files causes issues with reproducible
+# builds; see: https://github.com/gridsync/gridsync/issues/363
+for p in [p for p in Path("dist", app_name).glob("**/*.dist-info/RECORD")]:
+    print(f"Removing {p}...")
+    try:
+        os.remove(p)
+    except Exception as exc:
+        print(f"WARNING: Could not remove {p}: {str(exc)}")
