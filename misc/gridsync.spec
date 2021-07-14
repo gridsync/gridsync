@@ -140,13 +140,9 @@ else:
     print('##################################################################')
 
 
-# The presence of *.dist-info dirs causes issues with reproducible builds as
-# of PyInstaller v4.4; see: https://github.com/gridsync/gridsync/issues/363
-dist_dir = Path("dist", app_name)
-info_paths = []
-for p in dist_dir.glob("**/*.dist-info/RECORD"):
-    info_paths.append(str(p))
-for p in info_paths:
+# The presence of *.dist-info/RECORD files causes issues with reproducible
+# builds; see: https://github.com/gridsync/gridsync/issues/363
+for p in [p for p in Path("dist", app_name).glob("**/*.dist-info/RECORD")]:
     print(f"Removing {p}...")
     try:
         os.remove(p)
