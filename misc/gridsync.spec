@@ -63,7 +63,7 @@ a = Analysis(
         ('../gridsync/resources/*', 'resources'),
         ('../gridsync/resources/providers/*', 'resources/providers')
     ],
-    hiddenimports=['cffi', 'PyQt5.sip', 'pkg_resources.py2_warn', 'humanize'],
+    hiddenimports=['cffi', 'PyQt5.sip', 'pkg_resources.py2_warn'],
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
