@@ -11,8 +11,13 @@ options = [
     ("W ignore::UserWarning", None, "OPTION"),
 ]
 
+# Get the path to the installed __main__ module.
+import inspect
+from magic_folder import __main__ as script_module
+script_path = inspect.getsourcefile(script_module)
+
 a = Analysis(
-    ["src/magic_folder/__main__.py"],
+    [script_path],
     pathex=[],
     binaries=[],
     datas=[],
