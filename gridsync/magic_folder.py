@@ -14,6 +14,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Set,
     Tuple,
     Union,
 )
@@ -64,6 +65,7 @@ class MagicFolderMonitor(QObject):
 
         self._prev_state: Dict = {}
         self._known_folders: List[str] = []
+        self._prev_folders: Dict = {}
 
     @staticmethod
     def _is_syncing(folder_name: str, folders_state: Dict) -> bool:
@@ -94,6 +96,55 @@ class MagicFolderMonitor(QObject):
                 self.folder_removed.emit(folder)
         self._known_folders = list(folders)
 
+    @staticmethod
+    def _parse_file_status(
+        file_status: List[Dict],
+    ) -> Tuple[Set[str], List[int], int, int]:
+        files = set()
+        sizes = []
+        latest_mtime = 0
+        for item in file_status:
+            files.add(item.get("name", ""))
+            size = int(item.get("size", 0))
+            sizes.append(size)
+            mtime = item.get("mtime", 0)
+            if mtime > latest_mtime:
+                latest_mtime = mtime
+        total_size = sum(sizes)
+        return files, sizes, total_size, latest_mtime
+
+    def _compare_file_status(
+        self,
+        folder_name: str,
+        file_status: List[Dict],
+        previous_file_status: List[Dict],
+    ) -> None:
+        current = self._parse_file_status(file_status)
+        current_files, current_sizes, current_size, current_mtime = current
+        previous = self._parse_file_status(previous_file_status)
+        prev_files, prev_sizes, prev_size, prev_mtime = previous
+
+        for file in current_files:
+            if file not in prev_files:
+                print("*** FILE_ADDED: ", folder_name, file)
+        for file in prev_files:
+            if file not in current_files:
+                print("*** FILE REMOVED: ", folder_name, file)
+
+        if current_size != prev_size:
+            print("*** SIZE UPDATED: ", folder_name, current_size)
+
+        if current_mtime != prev_mtime:
+            print("*** MTIME UPDATED: ", folder_name, current_mtime)
+
+    def compare_files(self, folders: Dict) -> None:
+        for folder_name, data in folders.items():
+            self._compare_file_status(
+                folder_name,
+                data.get("file_status", []),
+                self._prev_folders.get("file_status", []),
+            )
+
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
         self.status_message_received.emit(data)
@@ -119,6 +170,8 @@ class MagicFolderMonitor(QObject):
             if success:  # XXX
                 folder_name, file_status = result
                 folders[folder_name]["file_status"] = file_status
+        self.compare_files(folders)
+        self._prev_folders = folders
 
     def start(self) -> None:
         self._ws_reader = WebSocketReaderService(
