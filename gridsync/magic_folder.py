@@ -105,12 +105,12 @@ class MagicFolderMonitor(QObject):
     @staticmethod
     def _parse_file_status(
         file_status: List[Dict],
-    ) -> Tuple[Set[str], List[int], int, int]:
-        files = set()
+    ) -> Tuple[Dict[str, Dict], List[int], int, int]:
+        files = {}
         sizes = []
         latest_mtime = 0
         for item in file_status:
-            files.add(item.get("name", ""))
+            files[item.get("name", "")] = item
             size = int(item.get("size", 0))
             sizes.append(size)
             mtime = item.get("mtime", 0)
