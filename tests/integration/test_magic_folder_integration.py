@@ -424,5 +424,38 @@ def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
     assert blocker.args == [folder_name]
 
 
+@inlineCallbacks
+def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    with qtbot.wait_signal(magic_folder.monitor.file_added) as blocker:
+        yield magic_folder.add_folder(path, author)
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args == [folder_name, filename]
+
+
+@inlineCallbacks
+def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    with qtbot.wait_signal(magic_folder.monitor.file_modified) as blocker:
+        yield magic_folder.add_folder(path, author)
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.monitor.do_check()
+        filepath.write_text(randstr() * 16)
+        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args == [folder_name, filename]
+
+
 def test_eliot_logs_collected(magic_folder):
     assert len(magic_folder.get_logs()) > 0
