@@ -21,7 +21,7 @@ from typing import (
 import treq
 from PyQt5.QtCore import QObject, pyqtSignal
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
@@ -104,9 +104,21 @@ class MagicFolderMonitor(QObject):
         self._prev_state = state
 
     @inlineCallbacks
+    def _get_file_status(self, folder_name: str) -> TwistedDeferred[Tuple]:
+        result = yield self.magic_folder.get_file_status(folder_name)
+        return (folder_name, result)
+
+    @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
         folders = yield self.magic_folder.get_folders()
         self.compare_folders(folders)
+        results = yield DeferredList(
+            [self._get_file_status(f) for f in folders]
+        )
+        for success, result in results:
+            if success:  # XXX
+                folder_name, file_status = result
+                folders[folder_name]["file_status"] = file_status
 
     def start(self) -> None:
         self._ws_reader = WebSocketReaderService(
