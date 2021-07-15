@@ -50,14 +50,14 @@ class MagicFolderMonitor(QObject):
 
     status_message_received = pyqtSignal(dict)
 
-    sync_started = pyqtSignal(str)  # folder
-    sync_stopped = pyqtSignal(str)  # folder
+    sync_started = pyqtSignal(str)  # folder_name
+    sync_stopped = pyqtSignal(str)  # folder_name
 
-    folder_added = pyqtSignal(str)  # folder
-    folder_removed = pyqtSignal(str)  # folder
+    folder_added = pyqtSignal(str)  # folder_name
+    folder_removed = pyqtSignal(str)  # folder_name
 
     mtime_updated = pyqtSignal(str, int)  # folder_name, mtime
-    size_updated = pyqtSignal(str, object)  # folder_name, mtime
+    size_updated = pyqtSignal(str, object)  # folder_name, size
 
     file_added = pyqtSignal(str, str)  # folder_name, relpath
     file_removed = pyqtSignal(str, str)  # folder_name, relpath
