@@ -61,6 +61,9 @@ class MagicFolderMonitor(QObject):
 
     file_added = pyqtSignal(str, str)  # folder_name, relpath
     file_removed = pyqtSignal(str, str)  # folder_name, relpath
+    file_modified = pyqtSignal(str, str)  # folder_name, relpath
+    # For compatibility with HistoryItemWidget:
+    file_updated = pyqtSignal(str, dict)  # folder_name, status
 
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
@@ -130,14 +133,34 @@ class MagicFolderMonitor(QObject):
         previous = self._parse_file_status(previous_file_status)
         prev_files, prev_sizes, prev_size, prev_mtime = previous
 
-        for file in current_files:
+        file_updates = []
+        for file, status in current_files.items():
             if file not in prev_files:
                 print("*** FILE_ADDED: ", folder_name, file)
                 self.file_added.emit(folder_name, file)
-        for file in prev_files:
-            if file not in current_files:
+                status["action"] = "added"
+                file_updates.append(status)
+            else:
+                prev_status = prev_files.get(file)
+                prev_size = prev_status.get("size")
+                prev_mtime = prev_status.get("mtime")
+                size = status.get("size")
+                mtime = status.get("mtime")
+                if size != prev_size or mtime != prev_mtime:
+                    print("*** FILE_MODIFIED: ", folder_name, file)
+                    self.file_modified.emit(folder_name, file)
+                    status["action"] = "updated"
+                    file_updates.append(status)
+        for file, status in prev_files.items():
+            if file not in prev_files:
+                status["action"] = "deleted"
+                file_updates.append(status)
                 print("*** FILE REMOVED: ", folder_name, file)
                 self.file_removed.emit(folder_name, file)
+
+        for update in file_updates:
+            print("*** FILE UPDATED: ", folder_name, update)
+            self.file_updated.emit(folder_name, update)
 
         if current_size != prev_size:
             print("*** SIZE UPDATED: ", folder_name, current_size)
