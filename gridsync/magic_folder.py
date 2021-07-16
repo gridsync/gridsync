@@ -415,6 +415,7 @@ class MagicFolder:
         author: str,
         name: Optional[str] = "",
         poll_interval: int = 60,
+        scan_interval: int = 60,
     ) -> TwistedDeferred[None]:
         p = Path(path)
         p.mkdir(parents=True, exist_ok=True)
@@ -424,7 +425,8 @@ class MagicFolder:
             "name": name,
             "author_name": author,
             "local_path": str(p.resolve()),
-            "poll_interval": str(poll_interval),
+            "poll_interval": poll_interval,
+            "scan_interval": scan_interval,
         }
         yield self._request(
             "POST", "/magic-folder", body=json.dumps(data).encode()
