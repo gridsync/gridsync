@@ -112,7 +112,7 @@ class MagicFolderMonitor(QObject):
         sizes = []
         latest_mtime = 0
         for item in file_status:
-            files[item.get("name", "")] = item
+            files[item.get("relpath", "")] = item
             size = int(item.get("size", 0))
             sizes.append(size)
             mtime = item.get("mtime", 0)
