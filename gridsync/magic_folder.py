@@ -128,9 +128,9 @@ class MagicFolderMonitor(QObject):
         previous_file_status: List[Dict],
     ) -> None:
         current = self._parse_file_status(file_status)
-        current_files, current_sizes, current_size, current_mtime = current
+        current_files, _, current_size, current_mtime = current
         previous = self._parse_file_status(previous_file_status)
-        prev_files, prev_sizes, prev_size, prev_mtime = previous
+        prev_files, _, prev_size, prev_mtime = previous
 
         file_updates = []
         for file, status in current_files.items():
