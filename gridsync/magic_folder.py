@@ -141,9 +141,9 @@ class MagicFolderMonitor(QObject):
                 status["action"] = "added"
                 file_updates.append(status)
             else:
-                prev_status = prev_files.get(file)
-                prev_size = prev_status.get("size")
-                prev_mtime = prev_status.get("mtime")
+                prev_status = prev_files.get(file, {})
+                prev_size = prev_status.get("size", 0)
+                prev_mtime = prev_status.get("mtime", 0)
                 size = status.get("size")
                 mtime = status.get("mtime")
                 if size != prev_size or mtime != prev_mtime:
@@ -196,7 +196,7 @@ class MagicFolderMonitor(QObject):
     def do_check(self) -> TwistedDeferred[None]:
         folders = yield self.magic_folder.get_folders()
         self.compare_folders(folders)
-        results = yield DeferredList(
+        results = yield DeferredList(  # type: ignore
             [self._get_file_status(f) for f in folders]
         )
         for success, result in results:
