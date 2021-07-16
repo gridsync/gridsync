@@ -175,7 +175,7 @@ class MagicFolderMonitor(QObject):
             self._compare_file_status(
                 folder_name,
                 data.get("file_status", []),
-                self._prev_folders.get("file_status", []),
+                self._prev_folders.get(folder_name, {}).get("file_status", []),
             )
 
     def on_status_message_received(self, msg: str) -> None:
