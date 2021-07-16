@@ -206,7 +206,7 @@ def test_get_file_status(magic_folder, tmp_path):
 
     output = yield magic_folder.get_file_status(folder_name)
     keys = output[0].keys()
-    assert ("mtime" in keys, "name" in keys, "size" in keys) == (
+    assert ("mtime" in keys, "relpath" in keys, "size" in keys) == (
         True,
         True,
         True,
