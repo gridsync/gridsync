@@ -397,7 +397,7 @@ class MagicFolder:
         if resp.code in (200, 201):
             return json.loads(content)
         raise MagicFolderWebError(
-            f"Error {resp.code} requesting {method} /v1/{path}: {content}"
+            f"Error {resp.code} requesting {method} /v1{path}: {content}"
         )
 
     @inlineCallbacks
