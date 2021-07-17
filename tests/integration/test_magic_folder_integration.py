@@ -436,7 +436,10 @@ def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
         filepath.write_text(randstr() * 10)
         yield magic_folder.add_snapshot(folder_name, filename)
         yield magic_folder.monitor.do_check()
-    assert blocker.args == [folder_name, filename]
+    assert (blocker.args[0], blocker.args[1].get("relpath")) == (
+        folder_name,
+        filename,
+    )
 
 
 @inlineCallbacks
@@ -454,7 +457,10 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
         filepath.write_text(randstr() * 16)
         yield magic_folder.add_snapshot(folder_name, filename)
         yield magic_folder.monitor.do_check()
-    assert blocker.args == [folder_name, filename]
+    assert (blocker.args[0], blocker.args[1].get("relpath")) == (
+        folder_name,
+        filename,
+    )
 
 
 def test_eliot_logs_collected(magic_folder):
