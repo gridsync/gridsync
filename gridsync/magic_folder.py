@@ -58,9 +58,9 @@ class MagicFolderMonitor(QObject):
     mtime_updated = pyqtSignal(str, int)  # folder_name, mtime
     size_updated = pyqtSignal(str, object)  # folder_name, size
 
-    file_added = pyqtSignal(str, str)  # folder_name, relpath
-    file_removed = pyqtSignal(str, str)  # folder_name, relpath
-    file_modified = pyqtSignal(str, str)  # folder_name, relpath
+    file_added = pyqtSignal(str, dict)  # folder_name, status
+    file_removed = pyqtSignal(str, dict)  # folder_name, status
+    file_modified = pyqtSignal(str, dict)  # folder_name, status
     # For compatibility with HistoryItemWidget:
     file_updated = pyqtSignal(str, dict)  # folder_name, status
 
@@ -135,8 +135,8 @@ class MagicFolderMonitor(QObject):
         file_updates = []
         for file, status in current_files.items():
             if file not in prev_files:
-                print("*** FILE_ADDED: ", folder_name, file)
-                self.file_added.emit(folder_name, file)
+                print("*** FILE_ADDED: ", folder_name, status)
+                self.file_added.emit(folder_name, status)
                 status["action"] = "added"
                 file_updates.append(status)
             else:
@@ -146,16 +146,16 @@ class MagicFolderMonitor(QObject):
                 size = status.get("size")
                 mtime = status.get("mtime")
                 if size != prev_size or mtime != prev_mtime:
-                    print("*** FILE_MODIFIED: ", folder_name, file)
-                    self.file_modified.emit(folder_name, file)
+                    print("*** FILE_MODIFIED: ", folder_name, status)
+                    self.file_modified.emit(folder_name, status)
                     status["action"] = "updated"
                     file_updates.append(status)
         for file, status in prev_files.items():
             if file not in prev_files:
                 status["action"] = "deleted"
                 file_updates.append(status)
-                print("*** FILE REMOVED: ", folder_name, file)
-                self.file_removed.emit(folder_name, file)
+                print("*** FILE REMOVED: ", folder_name, status)
+                self.file_removed.emit(folder_name, status)
 
         for update in file_updates:
             print("*** FILE UPDATED: ", folder_name, update)
