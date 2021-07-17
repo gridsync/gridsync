@@ -409,7 +409,7 @@ class MagicFolder:
         return folders
 
     @inlineCallbacks
-    def add_folder(
+    def add_folder(  # pylint: disable=too-many-arguments
         self,
         path: str,
         author: str,
