@@ -192,6 +192,28 @@ def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_scanner_uploads_to_personal_dmd(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(
+        path, author, poll_interval=1, scan_interval=1
+    )
+
+    filename = randstr()
+    filepath = path / filename
+    filepath.write_text(randstr() * 10)
+
+    folders = yield magic_folder.get_folders()
+    upload_dircap = folders[folder_name]["upload_dircap"]
+
+    yield deferLater(reactor, 2, lambda: None)
+
+    content = yield magic_folder.gateway.get_json(upload_dircap)
+    assert filename in content[1]["children"]
+
+
+@inlineCallbacks
 def test_get_file_status(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
