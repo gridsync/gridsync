@@ -89,8 +89,10 @@ class MagicFolderMonitor(QObject):
             is_syncing = self._is_syncing(folder, current_folders)
             was_syncing = self._is_syncing(folder, previous_folders)
             if is_syncing and not was_syncing:
+                print("*** STARTED SYNCING:", folder)
                 self.sync_started.emit(folder)
             elif was_syncing and not is_syncing:
+                print("*** STOPPED SYNCING:", folder)
                 self.sync_stopped.emit(folder)
 
     def compare_folders(self, folders: List[str]) -> None:
