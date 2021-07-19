@@ -207,7 +207,7 @@ def test_scanner_uploads_to_personal_dmd(magic_folder, tmp_path):
     folders = yield magic_folder.get_folders()
     upload_dircap = folders[folder_name]["upload_dircap"]
 
-    yield deferLater(reactor, 2, lambda: None)
+    yield deferLater(reactor, 2.5, lambda: None)
 
     content = yield magic_folder.gateway.get_json(upload_dircap)
     assert filename in content[1]["children"]
