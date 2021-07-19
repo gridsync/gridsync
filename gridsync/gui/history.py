@@ -163,6 +163,11 @@ class HistoryListWidget(QListWidget):
             self.update_visible_widgets
         )
 
+        mf_monitor = self.gateway.magic_folder.monitor
+        mf_monitor.file_added.connect(self._on_file_added)
+        mf_monitor.file_modified.connect(self._on_file_modified)
+        mf_monitor.file_removed.connect(self._on_file_removed)
+
     def on_double_click(self, item):
         open_enclosing_folder(self.itemWidget(item).path)
 
@@ -207,6 +212,21 @@ class HistoryListWidget(QListWidget):
         )
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
+
+    def _on_file_added(self, folder_name, data):
+        print("### FILE_ADDED", folder_name, data)
+        data["action"] = "added"  # XXX
+        self.add_item(folder_name, data)
+
+    def _on_file_modified(self, folder_name, data):
+        print("### FILE_MODIFIED", folder_name, data)
+        data["action"] = "modified"  # XXX
+        self.add_item(folder_name, data)
+
+    def _on_file_removed(self, folder_name, data):
+        print("### FILE_REMOVED", folder_name, data)
+        data["action"] = "removed"  # XXX
+        self.add_item(folder_name, data)
 
     def update_visible_widgets(self):
         if not self.isVisible():
