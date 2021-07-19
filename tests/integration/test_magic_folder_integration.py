@@ -236,28 +236,6 @@ def test_get_file_status(magic_folder, tmp_path):
 
 
 @inlineCallbacks
-def test_get_files_info(magic_folder, tmp_path):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
-
-    filename = randstr()
-    filepath = path / filename
-    filepath.write_text(randstr(32) * 10)
-    yield magic_folder.add_snapshot(folder_name, filename)
-
-    filename = randstr()
-    filepath = path / filename
-    filepath.write_text(randstr(32) * 10)
-    yield magic_folder.add_snapshot(folder_name, filename)
-
-    folder_info = yield magic_folder.get_files_info(folder_name)
-    sizes, total_size, _ = folder_info
-    assert (sizes, total_size) == ([320, 320], 640)
-
-
-@inlineCallbacks
 def test_create_backup_cap(magic_folder):
     cap = yield magic_folder.create_backup_cap()
     assert cap.startswith("URI:DIR2")
