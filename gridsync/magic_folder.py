@@ -106,13 +106,15 @@ class MagicFolderMonitor(QObject):
 
     @staticmethod
     def _parse_file_status(
-        file_status: List[Dict],
+            file_status: List[Dict], magic_path: str
     ) -> Tuple[Dict[str, Dict], List[int], int, int]:
         files = {}
         sizes = []
         latest_mtime = 0
         for item in file_status:
-            files[item.get("relpath", "")] = item
+            relpath = item.get("relpath", "")
+            item["path"] = str(Path(magic_path, relpath).resolve())
+            files[relpath] = item
             size = int(item.get("size", 0))
             sizes.append(size)
             mtime = item.get("mtime", 0)
@@ -124,12 +126,13 @@ class MagicFolderMonitor(QObject):
     def _compare_file_status(
         self,
         folder_name: str,
+        magic_path: str,
         file_status: List[Dict],
         previous_file_status: List[Dict],
     ) -> None:
-        current = self._parse_file_status(file_status)
+        current = self._parse_file_status(file_status, magic_path)
         current_files, _, current_size, current_mtime = current
-        previous = self._parse_file_status(previous_file_status)
+        previous = self._parse_file_status(previous_file_status, magic_path)
         prev_files, _, prev_size, prev_mtime = previous
 
         for file, status in current_files.items():
@@ -162,6 +165,7 @@ class MagicFolderMonitor(QObject):
         for folder_name, data in folders.items():
             self._compare_file_status(
                 folder_name,
+                data.get("magic_path", ""),
                 data.get("file_status", []),
                 self._prev_folders.get(folder_name, {}).get("file_status", []),
             )
