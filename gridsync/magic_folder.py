@@ -159,7 +159,7 @@ class MagicFolderMonitor(QObject):
 
         if current_mtime != prev_mtime:
             print("*** MTIME UPDATED: ", folder_name, current_mtime)
-            self.mtime_updated.emit(folder_name, current_size)
+            self.mtime_updated.emit(folder_name, current_mtime)
 
     def compare_files(self, folders: Dict) -> None:
         for folder_name, data in folders.items():
