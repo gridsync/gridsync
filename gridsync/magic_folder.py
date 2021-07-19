@@ -106,7 +106,7 @@ class MagicFolderMonitor(QObject):
 
     @staticmethod
     def _parse_file_status(
-            file_status: List[Dict], magic_path: str
+        file_status: List[Dict], magic_path: str
     ) -> Tuple[Dict[str, Dict], List[int], int, int]:
         files = {}
         sizes = []
