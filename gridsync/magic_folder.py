@@ -61,8 +61,6 @@ class MagicFolderMonitor(QObject):
     file_added = pyqtSignal(str, dict)  # folder_name, status
     file_removed = pyqtSignal(str, dict)  # folder_name, status
     file_modified = pyqtSignal(str, dict)  # folder_name, status
-    # For compatibility with HistoryItemWidget:
-    file_updated = pyqtSignal(str, dict)  # folder_name, status
 
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
@@ -132,13 +130,10 @@ class MagicFolderMonitor(QObject):
         previous = self._parse_file_status(previous_file_status)
         prev_files, _, prev_size, prev_mtime = previous
 
-        file_updates = []
         for file, status in current_files.items():
             if file not in prev_files:
                 print("*** FILE_ADDED: ", folder_name, status)
                 self.file_added.emit(folder_name, status)
-                status["action"] = "added"
-                file_updates.append(status)
             else:
                 prev_status = prev_files.get(file, {})
                 prev_size = prev_status.get("size", 0)
@@ -148,18 +143,10 @@ class MagicFolderMonitor(QObject):
                 if size != prev_size or mtime != prev_mtime:
                     print("*** FILE_MODIFIED: ", folder_name, status)
                     self.file_modified.emit(folder_name, status)
-                    status["action"] = "updated"
-                    file_updates.append(status)
         for file, status in prev_files.items():
             if file not in prev_files:
-                status["action"] = "deleted"
-                file_updates.append(status)
                 print("*** FILE REMOVED: ", folder_name, status)
                 self.file_removed.emit(folder_name, status)
-
-        for update in file_updates:
-            print("*** FILE UPDATED: ", folder_name, update)
-            self.file_updated.emit(folder_name, update)
 
         if current_size != prev_size:
             print("*** SIZE UPDATED: ", folder_name, current_size)
