@@ -257,7 +257,6 @@ class MagicFolder:
 
     def on_stderr_line_received(self, line: str) -> None:
         if self._is_eliot_log_message(line):
-            logging.debug("[magic-folder:log] %s", line)  # XXX
             self._log_buffer.append(line.encode("utf-8"))
         else:
             logging.error("[magic-folder:stderr] %s", line)
