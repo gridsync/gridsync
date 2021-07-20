@@ -85,11 +85,6 @@ def test_version(magic_folder):
 
 
 @inlineCallbacks
-def test_restart(magic_folder):
-    yield magic_folder.restart()
-
-
-@inlineCallbacks
 def test_get_folders(magic_folder):
     folders = yield magic_folder.get_folders()
     assert folders == {}
@@ -331,16 +326,6 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
     p = bob_path / "SharedFile.txt"
     succeeded = yield until(p.exists)
     assert succeeded is True
-
-
-@inlineCallbacks
-def test_folders_in_status_api_message(magic_folder, qtbot):
-    with qtbot.wait_signal(
-        magic_folder.monitor.status_message_received
-    ) as blocker:
-        yield magic_folder.restart()
-        yield deferLater(reactor, 1, lambda: None)
-    assert "folders" in blocker.args[0].get("state")
 
 
 @inlineCallbacks
