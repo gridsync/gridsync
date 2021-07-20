@@ -355,13 +355,6 @@ class MagicFolder:
             yield deferLater(reactor, 0.2, lambda: None)
 
     @inlineCallbacks
-    def restart(self) -> TwistedDeferred[None]:
-        logging.debug("Restarting magic-folder...")
-        self.stop()
-        yield self.start()
-        logging.debug("Magic-folder restarted successfully")
-
-    @inlineCallbacks
     def _request(
         self, method: str, path: str, body: bytes = b""
     ) -> TwistedDeferred[dict]:
