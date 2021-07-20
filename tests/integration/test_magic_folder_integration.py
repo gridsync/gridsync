@@ -464,4 +464,4 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
 
 
 def test_eliot_logs_collected(magic_folder):
-    assert len(magic_folder.get_logs()) > 0
+    assert len(magic_folder.get_log_messages()) > 0

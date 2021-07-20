@@ -261,7 +261,7 @@ class MagicFolder:
         else:
             logging.error("[magic-folder:stderr] %s", line)
 
-    def get_logs(self) -> list:
+    def get_log_messages(self) -> list:
         return list(msg.decode("utf-8") for msg in list(self._log_buffer))
 
     @inlineCallbacks
