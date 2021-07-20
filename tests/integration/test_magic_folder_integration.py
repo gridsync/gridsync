@@ -292,7 +292,6 @@ def test_restore_folder(magic_folder, tmp_path):
     folder_name = next(iter(folders))
     yield magic_folder.backup_folder(folder_name)
     yield magic_folder.leave_folder(folder_name)
-    yield magic_folder.restart()
 
     local_path = tmp_path / folder_name
     yield magic_folder.restore_folder(folder_name, local_path)
@@ -352,7 +351,6 @@ def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
     yield magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.sync_started) as blocker:
-        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -369,7 +367,6 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
     yield magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.sync_stopped) as blocker:
-        yield magic_folder.restart()
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
