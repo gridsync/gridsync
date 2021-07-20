@@ -362,16 +362,6 @@ class MagicFolder:
         logging.debug("Magic-folder restarted successfully")
 
     @inlineCallbacks
-    def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
-        yield self._command(
-            [
-                "leave",
-                f"--name={folder_name}",
-                "--really-delete-write-capability",
-            ]
-        )
-
-    @inlineCallbacks
     def _request(
         self, method: str, path: str, body: bytes = b""
     ) -> TwistedDeferred[dict]:
@@ -424,6 +414,14 @@ class MagicFolder:
             "POST", "/magic-folder", body=json.dumps(data).encode()
         )
         yield self.backup_folder(name)  # XXX
+
+    @inlineCallbacks
+    def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
+        yield self._request(
+            "DELETE",
+            f"/magic-folder/{folder_name}",
+            body=json.dumps({"really-delete-write-capability": True}).encode(),
+        )
 
     @inlineCallbacks
     def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
