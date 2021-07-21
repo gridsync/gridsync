@@ -230,8 +230,7 @@ class View(QTreeView):
         tasks = []
         for folder in folders:
             tasks.append(self.download_folder(folder, dest))
-        d = DeferredList(tasks)
-        # d.addCallback(self.maybe_restart_gateway)  # XXX
+        DeferredList(tasks)  # XXX
 
     def show_failure(self, failure):
         logging.error("%s: %s", str(failure.type.__name__), str(failure.value))
@@ -366,7 +365,6 @@ class View(QTreeView):
                     tasks.append(self.remove_folder(folder, unlink=True))
             d = DeferredList(tasks)
             d.addCallback(self.maybe_rescan_rootcap)
-            # d.addCallback(self.maybe_restart_gateway)  # XXX
 
     def open_folders(self, folders):
         for folder in folders:
@@ -539,8 +537,7 @@ class View(QTreeView):
             tasks = []
             for path in paths_to_add:
                 tasks.append(self.add_folder(path))
-            d = DeferredList(tasks)
-            # d.addCallback(self.maybe_restart_gateway)  # XXX
+            DeferredList(tasks)  # XXX
 
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")
