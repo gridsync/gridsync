@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := all
 SHELL := /bin/bash
+SCRIPTS := $(CURDIR)/scripts
 .PHONY: clean test all
 
 clean:
@@ -199,7 +200,8 @@ magic-folder:
 	python -m pip install -r requirements/pyinstaller.txt && \
 	cp misc/magic-folder/* build/magic-folder && \
 	pushd build/magic-folder && \
-	python -m pip install . && \
+	python $(SCRIPTS)/reproducible-pip.py install --require-hashes -r requirements/base.txt && \
+	python -m pip install --no-deps . && \
 	python -m pip install git+https://github.com/tahoe-lafs/tahoe-lafs.git@c9d5b1f6b98fbd132a85b5cfb244afc458979daa && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
