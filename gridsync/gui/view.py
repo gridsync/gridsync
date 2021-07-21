@@ -198,8 +198,7 @@ class View(QTreeView):
         if self._restart_required:
             self._restart_required = False
             logging.debug("A restart was scheduled; restarting...")
-            # yield self.gateway.restart()
-            yield self.gateway.magic_folder.restart()
+            yield self.gateway.restart()
         else:
             logging.debug("No restarts were scheduled; not restarting")
 
@@ -232,7 +231,7 @@ class View(QTreeView):
         for folder in folders:
             tasks.append(self.download_folder(folder, dest))
         d = DeferredList(tasks)
-        d.addCallback(self.maybe_restart_gateway)
+        # d.addCallback(self.maybe_restart_gateway)  # XXX
 
     def show_failure(self, failure):
         logging.error("%s: %s", str(failure.type.__name__), str(failure.value))
@@ -367,7 +366,7 @@ class View(QTreeView):
                     tasks.append(self.remove_folder(folder, unlink=True))
             d = DeferredList(tasks)
             d.addCallback(self.maybe_rescan_rootcap)
-            d.addCallback(self.maybe_restart_gateway)
+            # d.addCallback(self.maybe_restart_gateway)  # XXX
 
     def open_folders(self, folders):
         for folder in folders:
@@ -541,7 +540,7 @@ class View(QTreeView):
             for path in paths_to_add:
                 tasks.append(self.add_folder(path))
             d = DeferredList(tasks)
-            d.addCallback(self.maybe_restart_gateway)
+            # d.addCallback(self.maybe_restart_gateway)  # XXX
 
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")
