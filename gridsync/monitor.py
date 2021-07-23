@@ -422,10 +422,8 @@ class ZKAPChecker(QObject):
     def do_check(self):  # noqa: max-complexity
         if not self._time_started:
             self._time_started = time.time()
-        if (
-            self.gateway.zkap_auth_required is not True
-            or not self.gateway.nodeurl
-        ):
+        if not self.gateway.zkap_auth_required or self.gateway.nodeurl is None:
+            # Either the node doesn't use ZKAPs or isn't running.
             return
         try:
             vouchers = yield self.gateway.zkapauthorizer.get_vouchers()

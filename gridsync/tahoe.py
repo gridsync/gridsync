@@ -94,6 +94,15 @@ class CommandProtocol(ProcessProtocol):
 
 class Tahoe:
 
+    """
+    :ivar zkap_auth_required: ``True`` if the node is configured to use
+        ZKAPAuthorizer and spend ZKAPs for storage operations, ``False``
+        otherwise.
+
+    :ivar nodeurl: ``None`` until the Tahoe-LAFS child process is running,
+        then a string giving the root of the node's HTTP API.
+    """
+
     STOPPED = 0
     STARTING = 1
     STARTED = 2
@@ -138,7 +147,7 @@ class Tahoe:
         self.settings: dict = {}
 
         self.zkapauthorizer = ZKAPAuthorizer(self)
-        self.zkap_auth_required = False
+        self.zkap_auth_required: bool = False
 
         self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
         self.monitor.sync_finished.connect(
