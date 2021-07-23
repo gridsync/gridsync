@@ -21,6 +21,7 @@ in buildPythonPackage rec {
   };
   nativeBuildInputs = [
     pkgconfig
+    wrapQtAppsHook
     qmake
     sip
     qtbase
@@ -84,10 +85,6 @@ in buildPythonPackage rec {
   doCheck = true;
 
   enableParallelBuilding = true;
-
-  passthru = {
-    inherit wrapQtAppsHook;
-  };
 
   meta = with lib; {
     description = "Python bindings for Qt5Chart";
