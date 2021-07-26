@@ -374,6 +374,8 @@ class ZKAPChecker(QObject):
 
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
+        # XXX zkaps_last_redeemed starts as "0" which cannot be parsed as an
+        # ISO8601 datetime.
         last_redeemed = datetime.fromisoformat(self.zkaps_last_redeemed)
         now = datetime.now()
         seconds = datetime.timestamp(now) - datetime.timestamp(last_redeemed)
