@@ -12,15 +12,16 @@ let
   inherit (pyqt5) sip;
 in buildPythonPackage rec {
   pname = "PyQtChart";
-  version = "5.13.1";
+  version = "5.15.4";
   format = "other";
 
   src = fetchurl {
-    url = "https://www.riverbankcomputing.com/static/Downloads/${pname}/${version}/${pname}-${version}.tar.gz";
-    sha256 = "03hkahpqj6jn1af5f7sjhk6bsc4d6avgj9qmijrmfy2jhca0m5j9";
+    url = "https://files.pythonhosted.org/packages/e6/af/dd493297922be2935ae2de34daea818940c4f747a98d09acaaa5e84cd1dd/${pname}-${version}.tar.gz";
+    sha256 = "0x409mf3qfv4yq9fb091h85i57cqh20zmz97pkm0bqai51im0xz4";
   };
   nativeBuildInputs = [
     pkgconfig
+    wrapQtAppsHook
     qmake
     sip
     qtbase
@@ -84,10 +85,6 @@ in buildPythonPackage rec {
   doCheck = true;
 
   enableParallelBuilding = true;
-
-  passthru = {
-    inherit wrapQtAppsHook;
-  };
 
   meta = with lib; {
     description = "Python bindings for Qt5Chart";
