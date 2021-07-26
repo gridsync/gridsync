@@ -290,7 +290,9 @@ class _VoucherParse(object):
     :ivar unpaid_vouchers: A list of voucher identifiers which are believed to
         not yet have been paid for.
 
-    :ivar zkaps_last_redeemed: The
+    :ivar zkaps_last_redeemed: An ISO8601 datetime string giving the latest
+        time at which a voucher was seen to have been redeemed.  If no
+        redemption was seen then the value is an empty string instead.
     """
     total_tokens = attr.ib()
     unpaid_vouchers = attr.ib()
@@ -304,6 +306,19 @@ def _parse_vouchers(
     """
     Examine a list of vouchers states from ZKAPAuthorizer to derive certain
     facts about the overall state.
+
+    :param vouchers: A representation of the vouchers to inspect.  This is
+        expected to be a value like the one returned by ZKAPAuthorizer's **GET
+        /storage-plugins/privatestorageio-zkapauthz-v1/voucher** endpoint.
+
+    :param time_started: The time at which the currently active
+        ``ZKAPChecker`` began monitoring the state of vouchers in the
+        ZKAPAuthorizer-enabled Tahoe-LAFS node.  This is used to exclude
+        vouchers older than this checker, the redemption status of which this
+        function cannot currently interpret.
+
+    :return: A summary of the state of the vouchers and the number of tokens
+        available.
     """
     total = 0
     zkaps_last_redeemed = ""
