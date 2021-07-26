@@ -39,7 +39,7 @@ class HistoryItemWidget(QWidget):
         self.path = data["path"]
         self.size = data["size"]
         self.action = data["action"]
-        self.mtime = data["mtime"]
+        self.mtime = data.get("last-updated", data.get("mtime"))
         self._thumbnail_loaded = False
 
         self.setAutoFillBackground(True)
