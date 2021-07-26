@@ -110,9 +110,9 @@ pytest-cov==2.12.1 \
 pytest-qt==4.0.2 \
     --hash=sha256:dfc5240dec7eb43b76bcb5f9a87eecae6ef83592af49f3af5f1d5d093acaa93e \
     --hash=sha256:e03847ac02a890ccaac0fde1748855b9dce425aceba62005c6cfced6cf7d5456
-pytest-twisted==1.13.2 \
-    --hash=sha256:1a9d1b53001bd5b866fd49038c4047acfd885213ad80070838a70cf2136fc63d \
-    --hash=sha256:cee2320becc5625050ab221b8f38533e636651a24644612f4726891fdf1f1847
+pytest-twisted==1.13.3 \
+    --hash=sha256:64b5fd3bd0b0b84787791a39c0b5c0a944df4f489a8093ebf195bb4f97f515b1 \
+    --hash=sha256:a82356a0c18937b0f2fa4c1be4aaf5159b72e645c31d0de1f2a8d89f2e7e6322
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
