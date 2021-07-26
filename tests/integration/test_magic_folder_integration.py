@@ -237,6 +237,17 @@ def test_get_file_status(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_scan(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+
+    output = yield magic_folder.scan(folder_name)
+    assert output == {}
+
+
+@inlineCallbacks
 def test_create_backup_cap(magic_folder):
     cap = yield magic_folder.create_backup_cap()
     assert cap.startswith("URI:DIR2")

@@ -464,6 +464,15 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
+    def scan(self, folder_name: str) -> TwistedDeferred[Dict]:
+        output = yield self._request(
+            "PUT",
+            f"/magic-folder/{folder_name}/scan",
+            body=json.dumps({"wait-for-snapshots": True}).encode("utf-8"),
+        )
+        return output
+
+    @inlineCallbacks
     def create_backup_cap(self) -> TwistedDeferred[str]:
         yield self.gateway.lock.acquire()
         try:
