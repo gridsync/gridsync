@@ -206,7 +206,8 @@ class HistoryListWidget(QListWidget):
         else:
             self.takeItem(self.max_items)
             item = QListWidgetItem()
-        self.insertItem(0 - int(data["mtime"]), item)  # Newest on top
+        mtime = int(data.get("last-updated", data.get("mtime")))
+        self.insertItem(1 - mtime, item)  # Newest on top
         custom_widget = HistoryItemWidget(
             self.gateway, folder_name, data, self
         )
