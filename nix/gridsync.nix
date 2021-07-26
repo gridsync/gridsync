@@ -32,6 +32,8 @@ python3Packages.buildPythonApplication rec {
   name = "${pname}-${version}";
   src = ../.;
 
+  patches = [ ./test_network.patch ];
+
   nativeBuildInputs = [
     wrapQtAppsHook
   ];
