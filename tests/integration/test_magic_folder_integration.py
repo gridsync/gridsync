@@ -212,7 +212,7 @@ def test_get_file_status(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    yield magic_folder.add_folder(path, author)
 
     filename = randstr()
     filepath = path / filename
@@ -318,7 +318,7 @@ def test_alice_add_folder(alice_magic_folder, tmp_path):
     filename = "SharedFile.txt"
     filepath = alice_path / filename
     filepath.write_text(randstr() * 10)
-    yield alice_magic_folder.add_snapshot(folder_name, filename)
+    yield alice_magic_folder.scan(folder_name)
 
     snapshots = yield alice_magic_folder.get_snapshots()
     assert filename in snapshots.get(folder_name)
@@ -348,13 +348,13 @@ def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    yield magic_folder.add_folder(path, author)
 
     with qtbot.wait_signal(magic_folder.monitor.sync_started) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.scan(folder_name)
         yield deferLater(reactor, 1.5, lambda: None)
     assert blocker.args == [folder_name]
 
@@ -370,7 +370,7 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.scan(folder_name)
         yield deferLater(reactor, 2, lambda: None)
     assert blocker.args == [folder_name]
 
@@ -399,7 +399,7 @@ def test_monitor_emits_folder_added_signal_via_status_message(
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.scan(folder_name)
         yield deferLater(reactor, 2, lambda: None)
     assert blocker.args == [folder_name]
 
@@ -431,7 +431,7 @@ def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
         folder_name,
@@ -449,10 +449,10 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
         filepath.write_text(randstr() * 16)
-        yield magic_folder.add_snapshot(folder_name, filename)
+        yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
         folder_name,
