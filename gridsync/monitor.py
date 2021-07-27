@@ -427,7 +427,7 @@ class ZKAPChecker(QObject):
             self.gateway.zkap_auth_required is not True
             or not self.gateway.nodeurl
         ):
-            print("zkapauthorizer or node error")
+            print("zkapauthorizer or node error {!r} {!r}".format(self.gateway.zkap_auth_required, self.gateway.nodeurl))
             return
         try:
             vouchers = yield self.gateway.zkapauthorizer.get_vouchers()
