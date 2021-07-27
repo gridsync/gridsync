@@ -469,7 +469,10 @@ def test_monitor_do_checks_add_magic_folder_checker(monkeypatch):
     monkeypatch.setattr(
         "gridsync.monitor.MagicFolderChecker.do_check", lambda _: MagicMock()
     )
-    monitor = Monitor(MagicMock(magic_folders={"TestFolder": {}}))
+    gateway = MagicMock(magic_folders={"TestFolder": {}})
+    gateway.zkap_auth_required = False
+
+    monitor = Monitor(gateway)
     monitor.grid_checker = MagicMock()
     yield monitor.do_checks()
     assert "TestFolder" in monitor.magic_folder_checkers
@@ -480,7 +483,10 @@ def test_monitor_do_checks_switch_magic_folder_checker_remote(monkeypatch):
     monkeypatch.setattr(
         "gridsync.monitor.MagicFolderChecker.do_check", lambda _: MagicMock()
     )
-    monitor = Monitor(MagicMock(magic_folders={"TestFolder": {}}))
+    gateway = MagicMock(magic_folders={"TestFolder": {}})
+    gateway.zkap_auth_required = False
+
+    monitor = Monitor(gateway)
     monitor.grid_checker = MagicMock()
     test_mfc = MagicFolderChecker(MagicMock(), "TestFolder")
     test_mfc.remote = True
@@ -494,7 +500,10 @@ def test_monitor_emit_check_finished(monkeypatch, qtbot):
     monkeypatch.setattr(
         "gridsync.monitor.MagicFolderChecker.do_check", lambda _: MagicMock()
     )
-    monitor = Monitor(MagicMock(magic_folders={"TestFolder": {}}))
+    gateway = MagicMock(magic_folders={"TestFolder": {}})
+    gateway.zkap_auth_required = False
+
+    monitor = Monitor(gateway)
     monitor.grid_checker = MagicMock()
     with qtbot.wait_signal(monitor.check_finished):
         yield monitor.do_checks()
