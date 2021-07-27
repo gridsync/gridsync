@@ -294,6 +294,7 @@ class _VoucherParse(object):
         time at which a voucher was seen to have been redeemed.  If no
         redemption was seen then the value is an empty string instead.
     """
+
     total_tokens = attr.ib()
     unpaid_vouchers = attr.ib()
     zkaps_last_redeemed = attr.ib()
