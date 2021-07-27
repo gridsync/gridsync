@@ -420,16 +420,19 @@ class ZKAPChecker(QObject):
 
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
+        print("do_check")
         if not self._time_started:
             self._time_started = time.time()
         if (
             self.gateway.zkap_auth_required is not True
             or not self.gateway.nodeurl
         ):
+            print("zkapauthorizer or node error")
             return
         try:
             vouchers = yield self.gateway.zkapauthorizer.get_vouchers()
         except (ConnectError, TahoeWebError):
+            print("voucher error")
             return  # XXX
         if not vouchers:
             if self.zkaps_last_redeemed == "0":
@@ -440,6 +443,7 @@ class ZKAPChecker(QObject):
         try:
             zkaps = yield self.gateway.zkapauthorizer.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
+            print("get_zkaps error")
             return  # XXX
         remaining = zkaps.get("total")
         print("Remaining: {!r} total: {!r}".format(remaining, total))
