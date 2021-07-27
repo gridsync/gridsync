@@ -167,7 +167,7 @@ frozen-tahoe:
 	git clone https://github.com/PrivateStorageio/ZKAPAuthorizer build/ZKAPAuthorizer && \
 	cp ../../misc/zkapauthorizer-retry-interval.patch build/ZKAPAuthorizer && \
 	pushd build/ZKAPAuthorizer && \
-	git checkout badd89bfbe9e510e2c05603bd293bdff792d04cd && \
+	git checkout 8d66213431e5ea68683d9d1cd4266614314e85a1 && \
 	git apply zkapauthorizer-retry-interval.patch && \
 	python -m pip install . && \
 	popd && \
