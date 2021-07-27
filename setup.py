@@ -10,6 +10,7 @@ import versioneer
 
 requirements = [
     "atomicwrites",
+    "attrs",
     "autobahn",
     'distro ; sys_platform != "darwin" and sys_platform != "win32"',
     "humanize",
