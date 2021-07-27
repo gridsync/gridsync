@@ -279,7 +279,7 @@ class GridChecker(QObject):
 
 
 @attr.s
-class _VoucherParse(object):
+class _VoucherParse:
     """
     :ivar total_tokens: A number of spendable tokens that are expected to
         exist due to all of the vouchers that have already been redeemed plus
