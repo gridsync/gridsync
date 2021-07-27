@@ -445,6 +445,7 @@ class ZKAPChecker(QObject):
         if remaining and not total:
             print("Remaining: {!r} total: {!r}".format(remaining, total))
             total = self._maybe_load_last_total()
+            1 / 0
         if not total or remaining > total:
             # When redeeming tokens in batches, ZKAPs become available
             # during the "redeeming" state but the *total* number is
