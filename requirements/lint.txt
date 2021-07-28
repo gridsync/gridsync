@@ -129,6 +129,8 @@ typed-ast==1.4.3 \
     --hash=sha256:f2362f3cb0f3172c42938946dbc5b7843c2a28aec307c49100c8b38764eb6927 \
     --hash=sha256:f328adcfebed9f11301eaedfa48e15bdece9b519fb27e6a8c01aa52a17ec31b3 \
     --hash=sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65
+types-attrs==19.1.0 \
+    --hash=sha256:d11acf7a2531a7c52a740c30fa3eb8d01d3066c10d34c01ff5e59502caac5352
 types-atomicwrites==0.1.5 \
     --hash=sha256:778d6ab2d188ac41d08f62a1f671b003af57ae1feba208b59433272d5ac1202a \
     --hash=sha256:9b73ac447ce007329575d3684d756fc636c89d8652b3bbd9e289953de15c88e7
