@@ -32,6 +32,8 @@ python3Packages.buildPythonApplication rec {
   name = "${pname}-${version}";
   src = ../.;
 
+  patches = [ ./test_network.patch ];
+
   nativeBuildInputs = [
     wrapQtAppsHook
   ];
@@ -78,9 +80,12 @@ python3Packages.buildPythonApplication rec {
     wrapProgram "$out/bin/gridsync" "''${qtWrapperArgs[@]}"
   '';
 
-  doCheck = false;
-
-  # checkPhase = ''
-  # ${xvfb_run}/bin/xvfb-run -a pytest tests
-  # '';
+  # The test suite also needs Qt to work.  So wrap up the command for running
+  # the test suite with the same Qt wrapper args and then run that wrapper.
+  checkPhase = ''
+    echo ${xvfb_run}/bin/xvfb-run -a pytest tests > run-tests.sh
+    chmod u+x run-tests.sh
+    wrapProgram run-tests.sh "''${qtWrapperArgs[@]}"
+    ./run-tests.sh
+  '';
 }

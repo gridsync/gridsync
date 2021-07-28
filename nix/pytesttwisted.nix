@@ -1,10 +1,10 @@
 # Copied and modified from https://github.com/garbas/nixpkgs-python/blob/master/pytest/requirements.nix
 { stdenv, fetchurl, python3Packages }:
 python3Packages.buildPythonPackage {
-  name = "pytest-twisted-1.10";
+  name = "pytest-twisted-1.13.3";
   src = fetchurl {
-    url = "https://files.pythonhosted.org/packages/17/42/7a08d581834054c909b9604ec97ff2d9e923c7eaa1ea7012248fb8e6045e/pytest-twisted-1.10.zip";
-    sha256 = "b13a8c53c1763ce5a7497dfe60b67d766dafe2b50f1353be0dd098cf76be2eac";
+    url = "https://files.pythonhosted.org/packages/2b/05/fb4addd4e1f86fad3bb52064139db15174f56b00df4ff8c2ad3c5edb01b6/pytest-twisted-1.13.3.tar.gz";
+    sha256 = "08k3gqp9zn58ybhhs7f38pk756qmynmf86sczbrb0dw9q6h5c8x8";
   };
   doCheck = false;
   checkPhase = "";

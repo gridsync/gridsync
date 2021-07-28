@@ -5,8 +5,9 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
+import attr
 from PyQt5.QtCore import QObject, pyqtSignal
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
@@ -277,6 +278,77 @@ class GridChecker(QObject):
             self.num_happy = num_happy
 
 
+@attr.s
+class _VoucherParse:
+    """
+    :ivar total_tokens: A number of spendable tokens that are expected to
+        exist due to all of the vouchers that have already been redeemed plus
+        those expected to exist when vouchers currently being redeemed finish
+        being redeemed.
+
+    :ivar unpaid_vouchers: A list of voucher identifiers which are believed to
+        not yet have been paid for.
+
+    :ivar zkaps_last_redeemed: An ISO8601 datetime string giving the latest
+        time at which a voucher was seen to have been redeemed.  If no
+        redemption was seen then the value is an empty string instead.
+    """
+
+    total_tokens = attr.ib()
+    unpaid_vouchers = attr.ib()
+    zkaps_last_redeemed = attr.ib()
+
+
+def _parse_vouchers(
+    vouchers: List[dict],
+    time_started: datetime,
+) -> _VoucherParse:
+    """
+    Examine a list of vouchers states from ZKAPAuthorizer to derive certain
+    facts about the overall state.
+
+    :param vouchers: A representation of the vouchers to inspect.  This is
+        expected to be a value like the one returned by ZKAPAuthorizer's **GET
+        /storage-plugins/privatestorageio-zkapauthz-v1/voucher** endpoint.
+
+    :param time_started: The time at which the currently active
+        ``ZKAPChecker`` began monitoring the state of vouchers in the
+        ZKAPAuthorizer-enabled Tahoe-LAFS node.  This is used to exclude
+        vouchers older than this checker, the redemption status of which this
+        function cannot currently interpret.
+
+    :return: A summary of the state of the vouchers and the number of tokens
+        available.
+    """
+    total = 0
+    zkaps_last_redeemed = ""
+    unpaid_vouchers = set()
+    for voucher in vouchers:
+        number = voucher["number"]
+        state = voucher["state"]
+        name = state["name"]
+        if name == "unpaid":
+            # XXX There is no reliable way of knowing whether the user
+            # intends to pay for an older voucher -- i.e., one that
+            # was created before the application started --
+            # so ignore those older vouchers for now and only monitor
+            # those vouchers that were created during *this* run.
+            created = voucher["created"]
+            if created is None:
+                continue
+            time_created = datetime.fromisoformat(created)
+            if time_created > time_started:
+                unpaid_vouchers.add(number)
+        elif name == "redeeming":
+            total += voucher["expected-tokens"]
+        elif name == "redeemed":
+            total += state["token-count"]
+            finished = state["finished"]
+            zkaps_last_redeemed = max(zkaps_last_redeemed, finished)
+
+    return _VoucherParse(total, sorted(unpaid_vouchers), zkaps_last_redeemed)
+
+
 class ZKAPChecker(QObject):
 
     zkaps_updated = pyqtSignal(int, int)  # used, remaining
@@ -290,7 +362,7 @@ class ZKAPChecker(QObject):
         super().__init__()
         self.gateway = gateway
 
-        self._time_started: int = 0
+        self._time_started: Optional[datetime] = None
         self._low_zkaps_warning_shown: bool = False
 
         self.zkaps_remaining: int = 0
@@ -302,55 +374,13 @@ class ZKAPChecker(QObject):
 
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
+        # XXX zkaps_last_redeemed starts as "0" which cannot be parsed as an
+        # ISO8601 datetime.
         last_redeemed = datetime.fromisoformat(self.zkaps_last_redeemed)
         now = datetime.now()
         seconds = datetime.timestamp(now) - datetime.timestamp(last_redeemed)
         consumption_rate = zkaps_spent / seconds
         return consumption_rate
-
-    def _parse_vouchers(  # noqa: max-complexity
-        self, vouchers: List[dict]
-    ) -> int:
-        total = 0
-        unpaid_vouchers = self.unpaid_vouchers.copy()
-        zkaps_last_redeemed = self.zkaps_last_redeemed
-        for voucher in vouchers:
-            state = voucher.get("state")
-            if not state:
-                continue
-            name = state.get("name")
-            number = voucher.get("number")
-            if name == "unpaid":
-                if number and number not in unpaid_vouchers:
-                    # XXX There is no reliable way of knowing whether the user
-                    # intends to pay for an older voucher -- i.e., one that
-                    # was created before the before the application started --
-                    # so ignore those older vouchers for now and only monitor
-                    # those vouchers that were created during *this* run.
-                    created = voucher.get("created")
-                    if not created:
-                        continue
-                    time_created = datetime.timestamp(
-                        datetime.fromisoformat(created)
-                    )
-                    if time_created > self._time_started:
-                        unpaid_vouchers.append(number)
-            elif name == "redeeming":
-                total += state.get("expected-tokens", 0)
-            elif name == "redeemed":
-                if number and number in unpaid_vouchers:
-                    unpaid_vouchers.remove(number)
-                total += state.get("token-count")
-                finished = state.get("finished")
-                if finished > zkaps_last_redeemed:
-                    zkaps_last_redeemed = finished
-        if unpaid_vouchers != self.unpaid_vouchers:
-            self.unpaid_vouchers = unpaid_vouchers
-            self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
-        if zkaps_last_redeemed != self.zkaps_last_redeemed:
-            self.zkaps_last_redeemed = zkaps_last_redeemed
-            self.zkaps_redeemed.emit(self.zkaps_last_redeemed)
-        return total
 
     def _maybe_emit_low_zkaps_warning(self):
         if (
@@ -371,8 +401,25 @@ class ZKAPChecker(QObject):
                 last_redeemed = f.read()
         except FileNotFoundError:
             return
-        self.zkaps_last_redeemed = last_redeemed
-        self.zkaps_redeemed.emit(last_redeemed)
+        self.update_zkaps_last_redeemed(last_redeemed)
+
+    def _update_unpaid_vouchers(self, unpaid_vouchers):
+        """
+        Record and propagate notification about the set of unpaid vouchers
+        changing, if it has.
+        """
+        if unpaid_vouchers != self.unpaid_vouchers:
+            self.unpaid_vouchers = unpaid_vouchers
+            self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
+
+    def _update_zkaps_last_redeemed(self, zkaps_last_redeemed):
+        """
+        Record and propagate notification about last redemption time moving
+        forward, if it has.
+        """
+        if zkaps_last_redeemed > self.zkaps_last_redeemed:
+            self.zkaps_last_redeemed = zkaps_last_redeemed
+            self.zkaps_redeemed.emit(self.zkaps_last_redeemed)
 
     def _maybe_load_last_total(self) -> int:
         try:
@@ -420,12 +467,10 @@ class ZKAPChecker(QObject):
 
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
-        if not self._time_started:
-            self._time_started = time.time()
-        if (
-            self.gateway.zkap_auth_required is not True
-            or not self.gateway.nodeurl
-        ):
+        if self._time_started is None:
+            self._time_started = datetime.now()
+        if not self.gateway.zkap_auth_required or self.gateway.nodeurl is None:
+            # Either the node doesn't use ZKAPs or isn't running.
             return
         try:
             vouchers = yield self.gateway.zkapauthorizer.get_vouchers()
@@ -436,7 +481,14 @@ class ZKAPChecker(QObject):
                 self._maybe_load_last_redeemed()
             else:
                 self.emit_zkaps_updated(self.zkaps_remaining, self.zkaps_total)
-        total = self._parse_vouchers(vouchers)
+        parse = _parse_vouchers(
+            vouchers,
+            self._time_started,
+        )
+        total = parse.total_tokens
+        self._update_unpaid_vouchers(parse.unpaid_vouchers)
+        self._update_zkaps_last_redeemed(parse.zkaps_last_redeemed)
+
         try:
             zkaps = yield self.gateway.zkapauthorizer.get_zkaps(limit=1)
         except (ConnectError, TahoeWebError):
