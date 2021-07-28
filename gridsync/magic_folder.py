@@ -389,6 +389,9 @@ class MagicFolder:
         path: str,
         author: str,
         name: Optional[str] = "",
+        # Because it is better to waste computing resources than to
+        # waste users' time (and Magic-Folder is slow enough as-is...).
+        # See: https://github.com/LeastAuthority/magic-folder/issues/513
         poll_interval: int = 3,  # XXX Magic-Folder defaults to 60
         scan_interval: int = 3,  # XXX Magic-Folder defaults to 60
     ) -> TwistedDeferred[None]:
