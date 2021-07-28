@@ -197,7 +197,7 @@ class HistoryListWidget(QListWidget):
                 if (
                     widget
                     and widget.data["path"] == data["path"]
-                    and widget.data["member"] == data["member"]
+                    and widget.data.get("member") == data.get("member")  # XXX
                 ):
                     duplicate = i
                     break
