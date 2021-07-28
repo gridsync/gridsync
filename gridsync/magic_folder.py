@@ -178,6 +178,7 @@ class MagicFolderMonitor(QObject):
         self.compare_folders(list(folders))
         self.compare_state(state)
         self._prev_state = state
+        self.do_check()  # XXX
 
     @inlineCallbacks
     def _get_file_status(self, folder_name: str) -> TwistedDeferred[Tuple]:
