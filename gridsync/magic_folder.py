@@ -389,8 +389,8 @@ class MagicFolder:
         path: str,
         author: str,
         name: Optional[str] = "",
-        poll_interval: int = 60,
-        scan_interval: int = 3,  # XXX 60
+        poll_interval: int = 3,  # XXX Magic-Folder defaults to 60
+        scan_interval: int = 3,  # XXX Magic-Folder defaults to 60
     ) -> TwistedDeferred[None]:
         p = Path(path)
         p.mkdir(parents=True, exist_ok=True)
