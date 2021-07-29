@@ -153,10 +153,14 @@ class MagicFolderMonitor(QObject):
                 print("*** FILE REMOVED: ", folder_name, status)
                 self.file_removed.emit(folder_name, status)
 
+        print("### current_size", current_size)
+        print("### prev_size", prev_size)
         if current_size != prev_size:
             print("*** SIZE UPDATED: ", folder_name, current_size)
             self.size_updated.emit(folder_name, current_size)
 
+        print("@@@ current_mtime", current_mtime)
+        print("@@@ prev_mtime", prev_mtime)
         if current_mtime != prev_mtime:
             print("*** MTIME UPDATED: ", folder_name, current_mtime)
             self.mtime_updated.emit(folder_name, current_mtime)
@@ -172,6 +176,9 @@ class MagicFolderMonitor(QObject):
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
+        from pprint import pprint
+
+        pprint(data)
         self.status_message_received.emit(data)
         state = data.get("state")
         folders = state.get("folders")
