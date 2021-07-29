@@ -117,7 +117,21 @@ class MagicFolderMonitor(QObject):
             files[relpath] = item
             size = int(item.get("size", 0))
             sizes.append(size)
-            mtime = item.get("mtime", 0)
+            # XXX Magic-Folder's status API reveals nothing about when
+            # files were added/modified/removed/restored to a *remote*
+            # snapshot/DMD so, for now, use the "last-updated" value
+            # (which corresponds to the timestamp of the *local*
+            # snapshot). This is not ideal since what really matters to
+            # users, presumably, is whether and when their files were
+            # actually stored *on the grid*; users probably don't need
+            # to care -- or even known about the existence of -- local
+            # snapshots at all (given that they already have local
+            # copies of the files to which those snapshots correspond).
+            # (Note that the Magic-Folder status API also provides an
+            # "mtime" value, but this corresponds to the mtime returned
+            # by the stat() syscall and isn't what we want either.)
+            # mtime = item.get("mtime", 0)
+            mtime = item.get("last-updated", 0)
             if mtime > latest_mtime:
                 latest_mtime = mtime
         total_size = sum(sizes)
