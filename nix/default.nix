@@ -18,10 +18,11 @@ let
 
   pytestqt = pkgs.python3Packages.callPackage ./pytestqt.nix { };
   tahoe-lafs-env = pspkgs.callPackage ./tahoe-lafs-env.nix { };
+  magic-folder-env = pspkgs.callPackage ./magic-folder-env.nix { };
   gridsync = pkgs.python3Packages.callPackage ./gridsync.nix {
     inherit qt5reactor zxcvbn pytesttwisted pyqtchart pytestqt;
     inherit (pkgs.qt5) wrapQtAppsHook;
-    inherit tahoe-lafs-env;
+    inherit tahoe-lafs-env magic-folder-env;
   };
 in
   gridsync
