@@ -693,6 +693,7 @@ class Monitor(QObject):
         if (
             MagicFolderChecker.SYNCING in states
             or MagicFolderChecker.SCANNING in states
+            or self.gateway.magic_folder.monitor.syncing_folders
         ):
             # At least one folder is syncing
             state = MagicFolderChecker.SYNCING
@@ -701,6 +702,7 @@ class Monitor(QObject):
             state = MagicFolderChecker.UP_TO_DATE
         else:
             state = MagicFolderChecker.LOADING
+
         if state != self.total_sync_state:
             self.total_sync_state = state
             self.total_sync_state_updated.emit(state)
