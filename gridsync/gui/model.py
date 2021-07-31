@@ -168,9 +168,14 @@ class Model(QStandardItemModel):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
             self.add_folder(magic_folder["directory"])
 
-    def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
+    def update_folder_icon(self, folder_name, overlay_file=None):
         items = self.findItems(folder_name)
         if items:
+            folder_path = self.gateway.get_magic_folder_directory(folder_name)
+            if not folder_path:
+                folder_path = self.gateway.magic_folder.magic_folders.get(
+                    folder_name, {}
+                ).get("magic_path")
             if folder_path:
                 folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
             else:
@@ -183,9 +188,7 @@ class Model(QStandardItemModel):
             items[0].setIcon(QIcon(pixmap))
 
     def set_status_private(self, folder_name):
-        self.update_folder_icon(
-            folder_name, self.gateway.get_magic_folder_directory(folder_name)
-        )
+        self.update_folder_icon(folder_name)
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
@@ -197,11 +200,7 @@ class Model(QStandardItemModel):
             )
 
     def set_status_shared(self, folder_name):
-        self.update_folder_icon(
-            folder_name,
-            self.gateway.get_magic_folder_directory(folder_name),
-            "laptop.png",
-        )
+        self.update_folder_icon(folder_name, "laptop.png")
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
