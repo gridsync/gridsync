@@ -162,12 +162,12 @@ class Model(QStandardItemModel):
         if items:
             self.removeRow(items[0].row())
 
-    # def populate_(self):
-    #    for magic_folder in list(self.gateway.load_magic_folders().values()):
-    #        self.add_folder(magic_folder["directory"])
-
     @inlineCallbacks
     def populate(self):
+        # Load legacy magic-folders (from Tahoe-LAFS 1.14):
+        for magic_folder in list(self.gateway.load_magic_folders().values()):
+            self.add_folder(magic_folder["directory"])
+        # Load new magic-folders (from the standalone Magic-Folder project):
         yield self.gateway.magic_folder.await_running()
         folders = yield self.gateway.magic_folder.get_folders()
         for folder in list(folders.values()):
