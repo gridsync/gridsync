@@ -14,6 +14,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Set,
     Tuple,
     Union,
 )
@@ -67,9 +68,9 @@ class MagicFolderMonitor(QObject):
         self.magic_folder = magic_folder
 
         self._ws_reader: Optional[WebSocketReaderService] = None
-        self.running = False
-        self.syncing_folders = set()
-        self.up_to_date = False
+        self.running: bool = False
+        self.syncing_folders: Set[str] = set()
+        self.up_to_date: bool = False
 
         self._prev_state: Dict = {}
         self._known_folders: List[str] = []
