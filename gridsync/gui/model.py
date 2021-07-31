@@ -65,7 +65,10 @@ class Model(QStandardItemModel):
         )
 
         self.mf_monitor = self.gateway.magic_folder.monitor
-        self.mf_monitor.folder_added.connect(self.add_folder)
+        self.mf_monitor.folder_added.connect(
+            # Make the "Status" column blank until a sync completes
+            lambda x: self.add_folder(x, None)
+        )
         self.mf_monitor.folder_removed.connect(self.remove_folder)
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
@@ -171,7 +174,7 @@ class Model(QStandardItemModel):
         yield self.gateway.magic_folder.await_running()
         folders = yield self.gateway.magic_folder.get_folders()
         for folder in list(folders.values()):
-            self.add_folder(folder["magic_path"])
+            self.add_folder(folder["magic_path"], status_data=None)
 
     def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
         items = self.findItems(folder_name)
