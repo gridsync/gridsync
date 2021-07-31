@@ -57,7 +57,7 @@ class SubprocessProtocol(ProcessProtocol):
         self.stdout_line_collector = stdout_line_collector
         self.stderr_line_collector = stderr_line_collector
         self._output = BytesIO()
-        self.done = Deferred()
+        self.done: Deferred = Deferred()
 
     def _check_triggers(self, line: str) -> None:
         if self.callback_triggers:

@@ -210,7 +210,7 @@ class MagicFolderMonitor(QObject):
     def do_check(self) -> TwistedDeferred[None]:
         folders = yield self.magic_folder.get_folders()
         self.compare_folders(folders)
-        results = yield DeferredList(  # type: ignore
+        results = yield DeferredList(
             [self._get_file_status(f) for f in folders]
         )
         for success, result in results:
@@ -312,7 +312,7 @@ class MagicFolder:
         transport = yield reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
-        output = yield protocol.done  # type: ignore
+        output = yield protocol.done
         if callback_trigger:
             return transport.pid, output
         return output
@@ -374,7 +374,7 @@ class MagicFolder:
     @inlineCallbacks
     def await_running(self) -> TwistedDeferred[None]:
         while not self.monitor.running:  # XXX
-            yield deferLater(reactor, 0.2, lambda: None)
+            yield deferLater(reactor, 0.2, lambda: None)  # type: ignore
 
     @inlineCallbacks
     def _request(
