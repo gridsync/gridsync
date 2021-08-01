@@ -366,14 +366,16 @@ class View(QTreeView):
             d = DeferredList(tasks)
             d.addCallback(self.maybe_rescan_rootcap)
 
+    def _get_magic_folder_directory(self, folder_name: str) -> str:
+        legacy_data = self.gateway.magic_folders.get(folder_name, {})
+        data = self.gateway.magic_folder.magic_folders.get(folder_name, {})
+        return str(data.get("magic_path", legacy_data.get("directory", "")))
+
     def open_folders(self, folders):
         for folder in folders:
-            folder_info = self.gateway.magic_folders.get(folder)
-            if folder_info:
-                try:
-                    open_path(folder_info["directory"])
-                except KeyError:
-                    pass
+            directory = self._get_magic_folder_directory(folder)
+            if directory:
+                open_path(directory)
 
     def _is_local_folder(self, folder_name: str) -> bool:
         if self.gateway.magic_folders.get(
