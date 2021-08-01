@@ -559,7 +559,9 @@ class MagicFolder:
             data_dict = data[1]
             if name.endswith(" (collective)"):
                 prefix = name.split(" (collective)")[0]
-                folders[prefix]["collective_dircap"] = data_dict["ro_uri"]
+                folders[prefix]["collective_dircap"] = data_dict.get(
+                    "rw_uri", data_dict.get("ro_uri")
+                )
             elif name.endswith(" (personal)"):
                 prefix = name.split(" (personal)")[0]
                 folders[prefix]["upload_dircap"] = data_dict["rw_uri"]
