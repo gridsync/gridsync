@@ -565,9 +565,6 @@ class MagicFolder:
             elif name.endswith(" (personal)"):
                 prefix = name.split(" (personal)")[0]
                 folders[prefix]["upload_dircap"] = data_dict["rw_uri"]
-            elif name.endswith(" (admin)"):
-                prefix = name.split(" (admin)")[0]
-                folders[prefix]["admin_dircap"] = data_dict["rw_uri"]
         self.remote_magic_folders = folders
         return dict(folders)
 
