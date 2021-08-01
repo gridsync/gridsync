@@ -56,6 +56,9 @@ class MagicFolderMonitor(QObject):
     folder_added = pyqtSignal(str)  # folder_name
     folder_removed = pyqtSignal(str)  # folder_name
 
+    backup_added = pyqtSignal(str)  # folder_name
+    backup_removed = pyqtSignal(str)  # folder_name
+
     mtime_updated = pyqtSignal(str, int)  # folder_name, mtime
     size_updated = pyqtSignal(str, object)  # folder_name, size
 
@@ -74,6 +77,7 @@ class MagicFolderMonitor(QObject):
 
         self._prev_state: Dict = {}
         self._known_folders: List[str] = []
+        self._known_backups: List[str] = []
         self._prev_folders: Dict = {}
 
     @staticmethod
@@ -114,6 +118,17 @@ class MagicFolderMonitor(QObject):
             if folder not in folders:
                 self.folder_removed.emit(folder)
         self._known_folders = list(folders)
+
+    def compare_backups(self, backups: List[str]) -> None:
+        for backup in backups:
+            print("*** BACKUP ADDED:", backup)
+            if backup not in self._known_backups:
+                self.backup_added.emit(backup)
+        for backup in self._known_backups:
+            print("*** BACKUP REMOVED:", backup)
+            if backup not in backups:
+                self.backup_removed.emit(backup)
+        self._known_backups = list(backups)
 
     @staticmethod
     def _parse_file_status(
@@ -219,6 +234,8 @@ class MagicFolderMonitor(QObject):
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
+        folder_backups = yield self.magic_folder.get_folder_backups()
+        self.compare_backups(list(folder_backups))
         folders = yield self.magic_folder.get_folders()
         self.compare_folders(folders)
         results = yield DeferredList(
