@@ -264,10 +264,10 @@ def test_store_backup_cap_as_attribute(magic_folder):
 
 
 @inlineCallbacks
-def test_backup_folder(magic_folder):
+def test_create_folder_backup(magic_folder):
     folders = yield magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.backup_folder(folder_name)
+    yield magic_folder.create_folder_backup(folder_name)
 
     backup_cap = yield magic_folder.get_backup_cap()
     content = yield magic_folder.gateway.get_json(backup_cap)
@@ -279,32 +279,32 @@ def test_backup_folder(magic_folder):
 
 
 @inlineCallbacks
-def test_get_remote_folders(magic_folder):
+def test_get_folder_backups(magic_folder):
     folders = yield magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.backup_folder(folder_name)
+    yield magic_folder.create_folder_backup(folder_name)
 
-    remote_folders = yield magic_folder.get_remote_folders()
+    remote_folders = yield magic_folder.get_folder_backups()
     assert folder_name in remote_folders
 
 
 @inlineCallbacks
 def test_local_folders_have_backups(magic_folder):
-    remote_folders = yield magic_folder.get_remote_folders()
+    remote_folders = yield magic_folder.get_folder_backups()
     folders = yield magic_folder.get_folders()
     for folder in folders:
         assert folder in remote_folders
 
 
 @inlineCallbacks
-def test_restore_folder(magic_folder, tmp_path):
+def test_restore_folder_backup(magic_folder, tmp_path):
     folders = yield magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.backup_folder(folder_name)
+    yield magic_folder.create_folder_backup(folder_name)
     yield magic_folder.leave_folder(folder_name)
 
     local_path = tmp_path / folder_name
-    yield magic_folder.restore_folder(folder_name, local_path)
+    yield magic_folder.restore_folder_backup(folder_name, local_path)
     folders = yield magic_folder.get_folders()
     assert folder_name in folders
 

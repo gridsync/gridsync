@@ -442,7 +442,7 @@ class MagicFolder:
         yield self._request(
             "POST", "/magic-folder", body=json.dumps(data).encode()
         )
-        yield self.backup_folder(name)  # XXX
+        yield self.create_folder_backup(name)  # XXX
 
     @inlineCallbacks
     def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
@@ -537,7 +537,7 @@ class MagicFolder:
         return self.backup_cap
 
     @inlineCallbacks
-    def backup_folder(self, folder_name: str) -> TwistedDeferred[None]:
+    def create_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
         folders = yield self.get_folders()
         data = folders.get(folder_name)
         collective_dircap = data.get("collective_dircap")
@@ -551,7 +551,7 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_remote_folders(self) -> TwistedDeferred[Dict[str, dict]]:
+    def get_folder_backups(self) -> TwistedDeferred[Dict[str, dict]]:
         folders: DefaultDict[str, dict] = defaultdict(dict)
         backup_cap = yield self.get_backup_cap()
         content = yield self.gateway.get_json(backup_cap)
@@ -570,7 +570,7 @@ class MagicFolder:
         return dict(folders)
 
     @inlineCallbacks
-    def restore_folder(
+    def restore_folder_backup(
         self, folder_name: str, local_path: str
     ) -> TwistedDeferred[None]:
         backup_cap = yield self.get_backup_cap()
