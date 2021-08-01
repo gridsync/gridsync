@@ -289,6 +289,17 @@ def test_get_folder_backups(magic_folder):
 
 
 @inlineCallbacks
+def test_create_folder_backup_preserves_collective_writecap(magic_folder):
+    folders = yield magic_folder.get_folders()
+    folder_name = next(iter(folders))
+    yield magic_folder.create_folder_backup(folder_name)
+
+    remote_folders = yield magic_folder.get_folder_backups()
+    remote_cap = remote_folders[folder_name]["collective_dircap"]
+    assert remote_cap.startswith("URI:DIR2:")
+
+
+@inlineCallbacks
 def test_local_folders_have_backups(magic_folder):
     remote_folders = yield magic_folder.get_folder_backups()
     folders = yield magic_folder.get_folders()
