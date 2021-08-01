@@ -375,13 +375,20 @@ class View(QTreeView):
                 except KeyError:
                     pass
 
+    def _is_local_folder(self, folder_name: str) -> bool:
+        if self.gateway.magic_folders.get(
+            folder_name
+        ) or self.gateway.magic_folder.magic_folders.get(folder_name):
+            return True
+        return False
+
     def deselect_local_folders(self):
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if self.gateway.magic_folders.get(folder):
+                if self._is_local_folder(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -392,7 +399,7 @@ class View(QTreeView):
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if not self.gateway.magic_folders.get(folder):
+                if not self._is_local_folder(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -417,7 +424,7 @@ class View(QTreeView):
             return
         cur_folder = self.model().item(cur_item.row(), 0).text()
 
-        if self.gateway.magic_folders.get(cur_folder):  # is local folder
+        if self._is_local_folder(cur_folder):
             selection_is_remote = False
             self.deselect_remote_folders()
         else:
