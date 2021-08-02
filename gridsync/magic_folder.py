@@ -121,7 +121,10 @@ class MagicFolderMonitor(QObject):
 
     def compare_backups(self, backups: List[str]) -> None:
         for backup in backups:
-            if backup not in self._known_backups:
+            if (
+                backup not in self._known_backups
+                and backup not in self._known_folders
+            ):
                 print("*** BACKUP ADDED:", backup)
                 self.backup_added.emit(backup)
         for backup in self._known_backups:
@@ -234,10 +237,10 @@ class MagicFolderMonitor(QObject):
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
-        folder_backups = yield self.magic_folder.get_folder_backups()
-        self.compare_backups(list(folder_backups))
         folders = yield self.magic_folder.get_folders()
         self.compare_folders(folders)
+        folder_backups = yield self.magic_folder.get_folder_backups()
+        self.compare_backups(list(folder_backups))
         results = yield DeferredList(
             [self._get_file_status(f) for f in folders]
         )
