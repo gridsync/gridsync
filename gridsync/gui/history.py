@@ -38,7 +38,7 @@ class HistoryItemWidget(QWidget):
 
         self.path = data["path"]
         self.size = data["size"]
-        self.action = data["action"]
+        self.action = data.get("action", "Updated")
         self.mtime = data.get("last-updated", data.get("mtime"))
         self._thumbnail_loaded = False
 
@@ -216,17 +216,17 @@ class HistoryListWidget(QListWidget):
 
     def _on_file_added(self, folder_name, data):
         print("### FILE_ADDED", folder_name, data)
-        data["action"] = "added"  # XXX
+        # data["action"] = "added"  # XXX
         self.add_item(folder_name, data)
 
     def _on_file_modified(self, folder_name, data):
         print("### FILE_MODIFIED", folder_name, data)
-        data["action"] = "modified"  # XXX
+        # data["action"] = "modified"  # XXX
         self.add_item(folder_name, data)
 
     def _on_file_removed(self, folder_name, data):
         print("### FILE_REMOVED", folder_name, data)
-        data["action"] = "removed"  # XXX
+        # data["action"] = "removed"  # XXX
         self.add_item(folder_name, data)
 
     def update_visible_widgets(self):
