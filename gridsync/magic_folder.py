@@ -121,12 +121,12 @@ class MagicFolderMonitor(QObject):
 
     def compare_backups(self, backups: List[str]) -> None:
         for backup in backups:
-            print("*** BACKUP ADDED:", backup)
             if backup not in self._known_backups:
+                print("*** BACKUP ADDED:", backup)
                 self.backup_added.emit(backup)
         for backup in self._known_backups:
-            print("*** BACKUP REMOVED:", backup)
             if backup not in backups:
+                print("*** BACKUP REMOVED:", backup)
                 self.backup_removed.emit(backup)
         self._known_backups = list(backups)
 
