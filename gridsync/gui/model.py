@@ -69,6 +69,7 @@ class Model(QStandardItemModel):
             lambda x: self.add_folder(x, None)
         )
         self.mf_monitor.folder_removed.connect(self.remove_folder)
+        self.mf_monitor.backup_added.connect(self.add_remote_folder)
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
         self.mf_monitor.mtime_updated.connect(self.set_mtime)
@@ -362,6 +363,7 @@ class Model(QStandardItemModel):
                     naturaltime(datetime.now() - datetime.fromtimestamp(data))
                 )
 
+    @pyqtSlot(str)
     @pyqtSlot(str, str)
     def add_remote_folder(self, folder_name, overlay_file=None):
         self.add_folder(folder_name, 3)
