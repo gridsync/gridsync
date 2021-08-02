@@ -206,7 +206,9 @@ class View(QTreeView):
     def download_folder(self, folder_name, dest):
         try:
             # yield self.gateway.restore_magic_folder(folder_name, dest)
-            yield self.gateway.magic_folder.restore_folder(folder_name, dest)
+            yield self.gateway.magic_folder.restore_folder_backup(
+                folder_name, dest
+            )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
