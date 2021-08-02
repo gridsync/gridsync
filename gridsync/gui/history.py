@@ -213,6 +213,8 @@ class HistoryListWidget(QListWidget):
         )
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
+        item.setText(str(mtime))
+        self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
     def _on_file_added(self, folder_name, data):
         print("### FILE_ADDED", folder_name, data)
