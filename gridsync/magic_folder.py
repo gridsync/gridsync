@@ -589,6 +589,16 @@ class MagicFolder:
         return dict(folders)
 
     @inlineCallbacks
+    def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
+        backup_cap = yield self.get_backup_cap()
+        yield DeferredList(
+            [
+                self.gateway.unlink(backup_cap, folder_name + " (collective)"),
+                self.gateway.unlink(backup_cap, folder_name + " (personal)"),
+            ]
+        )
+
+    @inlineCallbacks
     def restore_folder_backup(
         self, folder_name: str, local_path: str
     ) -> TwistedDeferred[None]:

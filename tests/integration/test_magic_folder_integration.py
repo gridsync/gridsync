@@ -289,6 +289,22 @@ def test_get_folder_backups(magic_folder):
 
 
 @inlineCallbacks
+def test_remove_folder_backup(magic_folder):
+    folders = yield magic_folder.get_folders()
+    folder_name = next(iter(folders))
+    yield magic_folder.create_folder_backup(folder_name)
+
+    yield magic_folder.remove_folder_backup(folder_name)
+    backup_cap = yield magic_folder.get_backup_cap()
+    content = yield magic_folder.gateway.get_json(backup_cap)
+    children = content[1]["children"]
+    assert (
+        f"{folder_name} (collective)" not in children
+        and f"{folder_name} (personal)" not in children
+    )
+
+
+@inlineCallbacks
 def test_create_folder_backup_preserves_collective_writecap(magic_folder):
     folders = yield magic_folder.get_folders()
     folder_name = next(iter(folders))
