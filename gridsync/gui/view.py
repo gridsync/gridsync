@@ -306,7 +306,8 @@ class View(QTreeView):
                 ),
             )
             return
-        self.model().remove_folder(folder_name)
+        # self.model().remove_folder(folder_name)
+        self.model().on_folder_removed(folder_name)
         self._restart_required = True
         logging.debug(
             'Successfully removed folder "%s"; scheduled restart', folder_name

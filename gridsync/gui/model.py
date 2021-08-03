@@ -68,7 +68,7 @@ class Model(QStandardItemModel):
             # Make the "Status" column blank until a sync completes
             lambda x: self.add_folder(x, None)
         )
-        self.mf_monitor.folder_removed.connect(self.remove_folder)
+        self.mf_monitor.folder_removed.connect(self.on_folder_removed)
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
@@ -369,3 +369,9 @@ class Model(QStandardItemModel):
     def add_remote_folder(self, folder_name, overlay_file=None):
         self.add_folder(folder_name, 3)
         self.fade_row(folder_name, overlay_file)
+
+    @pyqtSlot(str)
+    def on_folder_removed(self, folder_name: str):
+        self.on_sync_finished(folder_name)
+        self.set_status(folder_name, 3)  # "Stored remotely"
+        self.fade_row(folder_name)
