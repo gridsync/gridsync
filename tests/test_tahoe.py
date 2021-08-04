@@ -590,7 +590,7 @@ def test_tahoe_upload(tahoe, monkeypatch):
     monkeypatch.setattr("treq.put", fake_put)
     monkeypatch.setattr("treq.content", lambda _: b"test_cap")
     yield tahoe.create_rootcap()
-    output = yield tahoe.upload(tahoe.rootcap_path)
+    output = yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
     assert output == "test_cap"
 
 
@@ -602,7 +602,7 @@ def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr("treq.content", lambda _: b"test content")
     yield tahoe.create_rootcap()
     with pytest.raises(TahoeWebError):
-        yield tahoe.upload(tahoe.rootcap_path)
+        yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
 
 
 @inlineCallbacks

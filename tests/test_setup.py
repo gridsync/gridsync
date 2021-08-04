@@ -588,7 +588,7 @@ def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
     sr = SetupRunner([])
     sr.gateway = Tahoe(nodedir)
-    sr.gateway.rootcap = "URI"
+    sr.gateway.backup_manager.set_rootcap("URI")
     settings = {"nickname": "TestGrid"}
     yield sr.ensure_recovery(settings)
 
