@@ -89,3 +89,14 @@ def test_ls_exclude_filenodes(tahoe_client, tmp_path):
     yield tahoe_client.link(dircap, "subdir", subdircap)
     output = yield tahoe_client.ls(dircap, exclude_filenodes=True)
     assert ("TestFile.txt" not in output) and ("subdir" in output)
+
+
+@inlineCallbacks
+def test_ls_includes_most_authoritative_cap(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    yield tahoe_client.upload(local_path, dircap)
+    output = yield tahoe_client.ls(dircap)
+    assert output.get("TestFile.txt").get("cap").startswith("URI:CHK:")
