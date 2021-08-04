@@ -40,3 +40,13 @@ def test_upload_convergence_secret_determines_cap(tahoe_client, tmp_path):
         "URI:CHK:rowlspe46wotpra7jruhtad3xy:"
         "lnviruztzbcugtpkrxnnodehpstlcoo6pswfgqjhv3teyn656fja:1:1:64",
     )
+
+
+@inlineCallbacks
+def test_upload_to_dircap(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"1" * 64)
+    local_path = p.resolve()
+    cap = yield tahoe_client.upload(local_path, dircap)
+    assert cap.startswith("URI:CHK:")
