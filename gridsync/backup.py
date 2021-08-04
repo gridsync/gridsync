@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
@@ -18,6 +18,7 @@ class BackupManager:
         self._lock = gateway.lock
         self._rootcap_path = Path(gateway.nodedir, "private", "rootcap")
         self._rootcap: str = ""
+        self._backup_caps: dict = {}
 
     def get_rootcap(self) -> str:
         if self._rootcap:
@@ -51,3 +52,41 @@ class BackupManager:
         finally:
             yield self._lock.release()
         return self._rootcap
+
+    @inlineCallbacks
+    def create_backup_cap(
+        self, name: str, rootcap: str = ""
+    ) -> TwistedDeferred[str]:
+        if not rootcap:
+            rootcap = self.get_rootcap()
+        if not rootcap:
+            rootcap = yield self.create_rootcap()
+        yield self._lock.acquire()
+        try:
+            backup_cap = yield self.gateway.mkdir(rootcap, name)
+        finally:
+            yield self._lock.release()
+        self._backup_caps[name] = backup_cap
+        return backup_cap
+
+    @inlineCallbacks
+    def get_backup_cap(
+        self, name: str, rootcap: str = ""
+    ) -> TwistedDeferred[str]:
+        backup_cap = self._backup_caps.get(name)
+        if backup_cap:
+            return backup_cap
+        if not rootcap:
+            rootcap = self.get_rootcap()
+        if not rootcap:
+            rootcap = yield self.create_rootcap()
+        ls_output = yield self.gateway.ls(rootcap, exclude_filenodes=True)
+        backup_caps = {}
+        for dirname, data in ls_output.items():
+            backup_caps[dirname] = data.get("cap", "")
+        backup_cap = backup_caps.get("name", "")
+        if not backup_cap:
+            backup_cap = yield self.create_backup_cap(name, rootcap)
+            backup_caps[name] = backup_cap
+        self._backup_caps = backup_caps
+        return backup_cap

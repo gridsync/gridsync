@@ -288,7 +288,7 @@ class MagicFolder:
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
         self.remote_magic_folders: Dict[str, dict] = {}
-        self.backup_cap: str = ""
+        self.backup_manager = gateway.backup_manager
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -528,33 +528,43 @@ class MagicFolder:
         )
         return output
 
-    @inlineCallbacks
-    def create_backup_cap(self) -> TwistedDeferred[str]:
-        yield self.gateway.lock.acquire()
-        try:
-            cap = yield self.gateway.mkdir(
-                self.gateway.get_rootcap(), ".magic-folders"
-            )
-        finally:
-            yield self.gateway.lock.release()
-        return cap
+    #    @inlineCallbacks
+    #    def create_backup_cap(self) -> TwistedDeferred[str]:
+    #        yield self.gateway.lock.acquire()
+    #        try:
+    #            cap = yield self.gateway.mkdir(
+    #                self.gateway.get_rootcap(), ".magic-folders"
+    #            )
+    #        finally:
+    #            yield self.gateway.lock.release()
+    #        return cap
 
-    @inlineCallbacks
-    def get_backup_cap(self) -> TwistedDeferred[str]:
-        if self.backup_cap:
-            return self.backup_cap
-        rootcap = self.gateway.get_rootcap()
-        yield self.gateway.await_ready()
-        data = yield self.gateway.get_json(rootcap)
-        try:
-            self.backup_cap = data[1]["children"][".magic-folders"][1][
-                "rw_uri"
-            ]
-        except (KeyError, TypeError):
-            logging.debug("Magic-Folder backup cap not found; creating...")
-            self.backup_cap = yield self.create_backup_cap()
-            logging.debug("Magic-Folder backup cap successfully created")
-        return self.backup_cap
+    #    @inlineCallbacks
+    #    def create_backup_cap(self) -> TwistedDeferred[str]:
+    #        cap = yield self.backup_manager.create_backup_cap(".magic-folders")
+    #        return cap
+
+    #    @inlineCallbacks
+    #    def get_backup_cap(self) -> TwistedDeferred[str]:
+    #        if self.backup_cap:
+    #            return self.backup_cap
+    #        rootcap = self.gateway.get_rootcap()
+    #        yield self.gateway.await_ready()
+    #        data = yield self.gateway.get_json(rootcap)
+    #        try:
+    #            self.backup_cap = data[1]["children"][".magic-folders"][1][
+    #                "rw_uri"
+    #            ]
+    #        except (KeyError, TypeError):
+    #            logging.debug("Magic-Folder backup cap not found; creating...")
+    #            self.backup_cap = yield self.create_backup_cap()
+    #            logging.debug("Magic-Folder backup cap successfully created")
+    #        return self.backup_cap
+
+    # @inlineCallbacks
+    # def get_backup_cap(self) -> TwistedDeferred[str]:
+    #    cap = yield self.backup_manager.get_backup_cap(".magic-folders")
+    #    return cap
 
     @inlineCallbacks
     def create_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
@@ -562,7 +572,8 @@ class MagicFolder:
         data = folders.get(folder_name)
         collective_dircap = data.get("collective_dircap")
         upload_dircap = data.get("upload_dircap")
-        backup_cap = yield self.get_backup_cap()
+        # backup_cap = yield self.get_backup_cap()
+        backup_cap = yield self.backup_manager.get_backup_cap(".magic-folders")
         yield self.gateway.link(
             backup_cap, f"{folder_name} (collective)", collective_dircap
         )
@@ -573,7 +584,8 @@ class MagicFolder:
     @inlineCallbacks
     def get_folder_backups(self) -> TwistedDeferred[Dict[str, dict]]:
         folders: DefaultDict[str, dict] = defaultdict(dict)
-        backup_cap = yield self.get_backup_cap()
+        # backup_cap = yield self.get_backup_cap()
+        backup_cap = yield self.backup_manager.get_backup_cap(".magic-folders")
         content = yield self.gateway.get_json(backup_cap)
         for name, data in content[1]["children"].items():
             data_dict = data[1]
@@ -590,7 +602,8 @@ class MagicFolder:
 
     @inlineCallbacks
     def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
-        backup_cap = yield self.get_backup_cap()
+        # backup_cap = yield self.get_backup_cap()
+        backup_cap = yield self.backup_manager.get_backup_cap(".magic-folders")
         yield DeferredList(
             [
                 self.gateway.unlink(backup_cap, folder_name + " (collective)"),
