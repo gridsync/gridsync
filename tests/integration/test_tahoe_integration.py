@@ -50,3 +50,16 @@ def test_upload_to_dircap(tahoe_client, tmp_path):
     local_path = p.resolve()
     cap = yield tahoe_client.upload(local_path, dircap)
     assert cap.startswith("URI:CHK:")
+
+
+@inlineCallbacks
+def test_ls(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    yield tahoe_client.upload(local_path, dircap)
+    subdircap = yield tahoe_client.mkdir()
+    yield tahoe_client.link(dircap, "subdir", subdircap)
+    output = yield tahoe_client.ls(dircap)
+    assert ("TestFile.txt" in output) and ("subdir" in output)

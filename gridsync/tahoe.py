@@ -10,7 +10,7 @@ import sys
 import tempfile
 from collections import OrderedDict, defaultdict
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 import treq
 import yaml
@@ -1088,9 +1088,13 @@ class Tahoe:
         return None
 
     @inlineCallbacks
-    def ls(self, cap: str) -> TwistedDeferred[dict]:
-        data = yield self.get_json(cap)
-        return data
+    def ls(self, cap: str) -> TwistedDeferred[Dict[str, dict]]:
+        json_output = yield self.get_json(cap)
+        results = {}
+        for name, data in json_output[1]["children"].items():
+            results[name] = data[1]
+            results[name]["type"] = data[0]  # dirnode, filenode
+        return results
 
     def get_rootcap(self) -> str:
         return self.backup_manager.get_rootcap()
