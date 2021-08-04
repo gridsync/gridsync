@@ -805,12 +805,19 @@ class Tahoe:
         return rootcap
 
     @inlineCallbacks
-    def upload(self, local_path):
+    def upload(
+        self, local_path: str, dircap: str = ""
+    ) -> TwistedDeferred[str]:
+        if dircap:
+            filename = Path(local_path).name
+            url = f"{self.nodeurl}uri/{dircap}/{filename}"
+        else:
+            url = f"{self.nodeurl}uri"
         log.debug("Uploading %s...", local_path)
         yield self.await_ready()
         with open(local_path, "rb") as f:
-            resp = yield treq.put("{}uri".format(self.nodeurl), f)
-        if resp.code == 200:
+            resp = yield treq.put(url, f)
+        if resp.code in (200, 201):
             content = yield treq.content(resp)
             log.debug("Successfully uploaded %s", local_path)
             return content.decode("utf-8")
@@ -1079,6 +1086,11 @@ class Tahoe:
             content = yield treq.content(resp)
             return json.loads(content.decode("utf-8"))
         return None
+
+    @inlineCallbacks
+    def ls(self, cap: str) -> TwistedDeferred[dict]:
+        data = yield self.get_json(cap)
+        return data
 
     def get_rootcap(self) -> str:
         return self.backup_manager.get_rootcap()
