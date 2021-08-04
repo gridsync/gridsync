@@ -1103,11 +1103,10 @@ class Tahoe:
                 continue
             if node_type == "filenode" and exclude_filenodes:
                 continue
-            node_data = data[1]
-            results[name] = node_data
+            data = data[1]
+            results[name] = data
             # Include the most "authoritative" capability separately:
-            cap = node_data.get("rw_uri", node_data.get("ro_uri", ""))
-            results[name]["cap"] = cap
+            results[name]["cap"] = data.get("rw_uri", data.get("ro_uri", ""))
             results[name]["type"] = node_type
         return results
 
