@@ -22,6 +22,7 @@ from twisted.python.procutils import which
 
 from gridsync import pkgdir
 from gridsync import settings as global_settings
+from gridsync.backup import BackupManager
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
@@ -78,7 +79,6 @@ class Tahoe:
             self.nodedir = os.path.expanduser(nodedir)
         else:
             self.nodedir = os.path.join(os.path.expanduser("~"), ".tahoe")
-        self.rootcap_path = os.path.join(self.nodedir, "private", "rootcap")
         self.servers_yaml_path = os.path.join(
             self.nodedir, "private", "servers.yaml"
         )
@@ -90,7 +90,6 @@ class Tahoe:
         self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, "magic-folders")
         self.lock = DeferredLock()
-        self.rootcap = None
         self.magic_folders = defaultdict(dict)
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
@@ -115,6 +114,7 @@ class Tahoe:
             self.zkapauthorizer.update_zkap_checkpoint
         )
         self.storage_furl: str = ""
+        self.backup_manager = BackupManager(self)
         self.magic_folder = MagicFolder(self)
 
     @staticmethod
@@ -153,10 +153,7 @@ class Tahoe:
 
         rootcap = settings.get("rootcap")
         if rootcap:
-            with atomic_write(
-                str(Path(self.nodedir, "private", "rootcap")), overwrite=True
-            ) as f:
-                f.write(rootcap)
+            self.backup_manager.set_rootcap(rootcap)
 
         newscap = settings.get("newscap")
         if newscap:
@@ -803,24 +800,8 @@ class Tahoe:
         return output[1]["ro_uri"]
 
     @inlineCallbacks
-    def create_rootcap(self):
-        log.debug("Creating rootcap...")
-        if os.path.exists(self.rootcap_path):
-            raise OSError(
-                "Rootcap file already exists: {}".format(self.rootcap_path)
-            )
-        yield self.lock.acquire()
-        rootcap = yield self.mkdir()
-        try:
-            with atomic_write(self.rootcap_path, mode="w") as f:
-                f.write(rootcap)
-        except FileExistsError:
-            log.warning("Rootcap already exists")
-            return self.get_rootcap()
-        finally:
-            yield self.lock.release()
-        log.debug("Rootcap saved to file: %s", self.rootcap_path)
-        self.rootcap = rootcap
+    def create_rootcap(self) -> TwistedDeferred[str]:
+        rootcap = yield self.backup_manager.create_rootcap()
         return rootcap
 
     @inlineCallbacks
@@ -1099,10 +1080,8 @@ class Tahoe:
             return json.loads(content.decode("utf-8"))
         return None
 
-    def get_rootcap(self):
-        if not self.rootcap:
-            self.rootcap = self.read_cap_from_file(self.rootcap_path)
-        return self.rootcap
+    def get_rootcap(self) -> str:
+        return self.backup_manager.get_rootcap()
 
     def get_admin_dircap(self, name):
         if name in self.magic_folders:

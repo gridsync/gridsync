@@ -330,7 +330,7 @@ class SetupRunner(QObject):
                 os.path.join(self.gateway.nodedir, "private", "settings.json")
             )
             yield self.gateway.link(
-                self.gateway.rootcap, "settings.json", settings_cap
+                self.gateway.get_rootcap(), "settings.json", settings_cap
             )
 
     @inlineCallbacks
