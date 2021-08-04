@@ -1094,6 +1094,7 @@ class Tahoe:
         exclude_dirnodes: bool = False,
         exclude_filenodes: bool = False,
     ) -> TwistedDeferred[Dict[str, dict]]:
+        yield self.await_ready()
         json_output = yield self.get_json(cap)
         results = {}
         for name, data in json_output[1]["children"].items():
