@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Dict
 
 from atomicwrites import atomic_write
-from twisted.internet.defer import inlineCallbacks, DeferredLock
+from twisted.internet.defer import DeferredLock, inlineCallbacks
 
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
