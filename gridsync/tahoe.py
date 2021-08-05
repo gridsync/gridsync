@@ -15,7 +15,7 @@ from typing import Dict, List
 import treq
 import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import DeferredList, DeferredLock, inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
@@ -89,7 +89,6 @@ class Tahoe:
         self.name = os.path.basename(self.nodedir)
         self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, "magic-folders")
-        self.lock = DeferredLock()
         self.magic_folders = defaultdict(dict)
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
@@ -532,13 +531,13 @@ class Tahoe:
             return
         self.state = Tahoe.STOPPING
         self.streamedlogs.stop()
-        if self.lock.locked:
+        if self.backup_manager.lock.locked:
             log.warning(
                 "Delaying stop operation; "
                 "another operation is trying to modify the rootcap..."
             )
-            yield self.lock.acquire()
-            yield self.lock.release()
+            yield self.backup_manager.lock.acquire()
+            yield self.backup_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
 
         self.magic_folder.stop()  # XXX
@@ -848,15 +847,11 @@ class Tahoe:
             dircap_hash,
         )
         yield self.await_ready()
-        yield self.lock.acquire()
-        try:
-            resp = yield treq.post(
-                "{}uri/{}/?t=uri&name={}&uri={}".format(
-                    self.nodeurl, dircap, childname, childcap
-                )
+        resp = yield treq.post(
+            "{}uri/{}/?t=uri&name={}&uri={}".format(
+                self.nodeurl, dircap, childname, childcap
             )
-        finally:
-            yield self.lock.release()
+        )
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
@@ -872,15 +867,11 @@ class Tahoe:
         dircap_hash = trunchash(dircap)
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         yield self.await_ready()
-        yield self.lock.acquire()
-        try:
-            resp = yield treq.post(
-                "{}uri/{}/?t=unlink&name={}".format(
-                    self.nodeurl, dircap, childname
-                )
+        resp = yield treq.post(
+            "{}uri/{}/?t=unlink&name={}".format(
+                self.nodeurl, dircap, childname
             )
-        finally:
-            yield self.lock.release()
+        )
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
