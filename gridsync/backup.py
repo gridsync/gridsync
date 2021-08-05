@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from atomicwrites import atomic_write
 from twisted.internet.defer import DeferredLock, inlineCallbacks
@@ -50,7 +50,7 @@ class BackupManager:
             )
             return self.get_rootcap()
         finally:
-            yield self.lock.release()
+            yield self.lock.release()  # type: ignore
         return self._rootcap
 
     @inlineCallbacks
@@ -65,7 +65,7 @@ class BackupManager:
         try:
             backup_cap = yield self.gateway.mkdir(rootcap, name)
         finally:
-            yield self.lock.release()
+            yield self.lock.release()  # type: ignore
         self._backup_caps[name] = backup_cap
         return backup_cap
 
@@ -100,7 +100,7 @@ class BackupManager:
         try:
             cap = yield self.gateway.link(backup_cap, name, cap)
         finally:
-            yield self.lock.release()
+            yield self.lock.release()  # type: ignore
         return cap
 
     @inlineCallbacks
@@ -116,4 +116,4 @@ class BackupManager:
         try:
             yield self.gateway.unlink(backup_cap, name)
         finally:
-            yield self.lock.release()
+            yield self.lock.release()  # type: ignore
