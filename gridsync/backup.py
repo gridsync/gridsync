@@ -29,8 +29,10 @@ class BackupManager:
             return ""
         return self._rootcap
 
-    def set_rootcap(self, cap: str) -> None:
-        with atomic_write(str(self._rootcap_path), mode="w") as f:
+    def set_rootcap(self, cap: str, overwrite=False) -> None:
+        with atomic_write(
+            str(self._rootcap_path), mode="w", overwrite=overwrite
+        ) as f:
             f.write(cap)
         logging.debug("Rootcap saved to file: %s", self._rootcap_path)
         self._rootcap = cap
