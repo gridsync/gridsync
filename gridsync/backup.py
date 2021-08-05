@@ -90,3 +90,22 @@ class BackupManager:
             backup_caps[name] = backup_cap
         self._backup_caps = backup_caps
         return backup_cap
+
+    @inlineCallbacks
+    def add_backup(
+        self, dirname: str, name: str, cap: str
+    ) -> TwistedDeferred[str]:
+        backup_cap = yield self.get_backup_cap(dirname)
+        cap = yield self.gateway.link(backup_cap, name, cap)
+        return cap
+
+    @inlineCallbacks
+    def get_backups(self, dirname: str) -> TwistedDeferred[None]:
+        backup_cap = yield self.get_backup_cap(dirname)
+        ls_output = yield self.gateway.ls(backup_cap)
+        return ls_output
+
+    @inlineCallbacks
+    def remove_backup(self, dirname: str, name: str) -> TwistedDeferred[None]:
+        backup_cap = yield self.get_backup_cap(dirname)
+        yield self.gateway.unlink(backup_cap, name)
