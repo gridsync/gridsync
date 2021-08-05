@@ -152,7 +152,7 @@ class Tahoe:
 
         rootcap = settings.get("rootcap")
         if rootcap:
-            self.backup_manager.set_rootcap(rootcap)
+            self.backup_manager.set_rootcap(rootcap, overwrite=True)
 
         newscap = settings.get("newscap")
         if newscap:
