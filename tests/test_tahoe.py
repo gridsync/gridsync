@@ -422,7 +422,7 @@ def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
     lock.locked = locked
     lock.acquire = MagicMock()
     lock.release = MagicMock()
-    tahoe.lock = lock
+    tahoe.backup_manager.lock = lock
     monkeypatch.setattr("os.path.isfile", lambda x: True)
     monkeypatch.setattr("sys.platform", "linux")
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", MagicMock())
