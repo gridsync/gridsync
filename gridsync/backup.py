@@ -86,7 +86,7 @@ class BackupManager:
         backup_caps = {}
         for dirname, data in ls_output.items():
             backup_caps[dirname] = data.get("cap", "")
-        backup_cap = backup_caps.get("name", "")
+        backup_cap = backup_caps.get(name, "")
         if not backup_cap:
             backup_cap = yield self.create_backup_cap(name, rootcap)
             backup_caps[name] = backup_cap
