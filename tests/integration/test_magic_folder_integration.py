@@ -260,24 +260,6 @@ def test_scan(magic_folder, tmp_path):
     assert output == {}
 
 
-# @inlineCallbacks
-# def test_create_backup_cap(magic_folder):
-#    cap = yield magic_folder.create_backup_cap()
-#    assert cap.startswith("URI:DIR2")
-
-
-# @inlineCallbacks
-# def test_get_backup_cap(magic_folder):
-#    cap = yield magic_folder.get_backup_cap()
-#    assert cap.startswith("URI:DIR2")
-
-
-# @inlineCallbacks
-# def test_store_backup_cap_as_attribute(magic_folder):
-#    cap = yield magic_folder.get_backup_cap()
-#    assert magic_folder.backup_cap == cap
-
-
 @inlineCallbacks
 def test_create_folder_backup(magic_folder):
     folders = yield magic_folder.get_folders()
