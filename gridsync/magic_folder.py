@@ -520,6 +520,18 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
+    def get_object_sizes(self, folder_name: str) -> TwistedDeferred[List[int]]:
+        # XXX A placeholder for now...
+        # See https://github.com/LeastAuthority/magic-folder/pull/528
+        sizes = []
+        file_status = yield self.get_file_status(folder_name)
+        print(file_status)
+        for item in file_status:
+            # Include size of content, snapshot cap, and metadata cap
+            sizes.extend([item.get("size", 0), 420, 184])
+        return sizes
+
+    @inlineCallbacks
     def scan(self, folder_name: str) -> TwistedDeferred[Dict]:
         output = yield self._request(
             "PUT",
