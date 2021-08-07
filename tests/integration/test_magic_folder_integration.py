@@ -250,6 +250,34 @@ def test_get_object_sizes(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_get_all_object_sizes(magic_folder, tmp_path):
+    folders = yield magic_folder.get_folders()
+    for folder in folders:
+        yield magic_folder.leave_folder(folder)
+
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    filepath_1 = path / "TestFile1.txt"
+    filepath_1.write_text(randstr(32) * 10)
+    filepath_2 = path / "TestFile2.txt"
+    filepath_2.write_text(randstr(32) * 10)
+    yield magic_folder.scan(folder_name)
+
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    filepath_3 = path / "TestFile3.txt"
+    filepath_3.write_text(randstr(32) * 10)
+    yield magic_folder.scan(folder_name)
+
+    output = yield magic_folder.get_all_object_sizes()
+    assert output == [320, 420, 184, 320, 420, 184, 320, 420, 184]
+
+
+@inlineCallbacks
 def test_scan(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name

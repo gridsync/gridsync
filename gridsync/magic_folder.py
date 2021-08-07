@@ -532,6 +532,15 @@ class MagicFolder:
         return sizes
 
     @inlineCallbacks
+    def get_all_object_sizes(self) -> TwistedDeferred[List[int]]:
+        all_sizes = []
+        folders = yield self.get_folders()
+        for folder in folders:
+            sizes = yield self.get_object_sizes(folder)
+            all_sizes.extend(sizes)
+        return all_sizes
+
+    @inlineCallbacks
     def scan(self, folder_name: str) -> TwistedDeferred[Dict]:
         output = yield self._request(
             "PUT",
