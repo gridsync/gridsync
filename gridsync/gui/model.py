@@ -294,7 +294,10 @@ class Model(QStandardItemModel):
         item.setText("Syncing ({}%)".format(percent_done))
 
     def fade_row(self, folder_name, overlay_file=None):
-        folder_item = self.findItems(folder_name)[0]
+        try:
+            folder_item = self.findItems(folder_name)[0]
+        except IndexError:
+            return
         if overlay_file:
             folder_pixmap = self.icon_folder_gray.pixmap(256, 256)
             pixmap = CompositePixmap(folder_pixmap, resource(overlay_file))
