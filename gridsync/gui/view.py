@@ -185,6 +185,7 @@ class View(QTreeView):
 
     @inlineCallbacks
     def maybe_rescan_rootcap(self, _):
+        yield self.gateway.magic_folder.monitor.do_check()  # XXX
         if self._rescan_required:
             self._rescan_required = False
             logging.debug("A rescan was scheduled; rescanning...")
