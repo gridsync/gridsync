@@ -125,11 +125,11 @@ typed-ast==1.4.3 \
     --hash=sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65
 types-attrs==19.1.0 \
     --hash=sha256:d11acf7a2531a7c52a740c30fa3eb8d01d3066c10d34c01ff5e59502caac5352
-types-atomicwrites==0.1.5 \
-    --hash=sha256:778d6ab2d188ac41d08f62a1f671b003af57ae1feba208b59433272d5ac1202a \
-    --hash=sha256:9b73ac447ce007329575d3684d756fc636c89d8652b3bbd9e289953de15c88e7
-types-PyYAML==5.4.3 \
-    --hash=sha256:2e7b81b2b7af751634425107b986086c6ba7cb61270a43a5c290c58be8cdbc3a \
-    --hash=sha256:bca83cbfc0be48600a8abf1e3d87fb762a91e6d35d724029a3321dd2dce2ceb1
+types-atomicwrites==0.1.6 \
+    --hash=sha256:1e98192aa39f9edd46d46f8f0edfa0db7edc41055c736278b6b6035ac1ac0358 \
+    --hash=sha256:f27b5f7c229686615b471f9625328bddc194dcc9723eaf4d7bcf0e854e418710
+types-PyYAML==5.4.6 \
+    --hash=sha256:745dcb4b1522423026bcc83abb9925fba747f1e8602d902f71a4058f9e7fb662 \
+    --hash=sha256:96f8d3d96aa1a18a465e8f6a220e02cff2f52632314845a364ecbacb0aea6e30
 wrapt==1.12.1 \
     --hash=sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7
