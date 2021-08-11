@@ -200,6 +200,9 @@ magic-folder:
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller magic-folder.spec && \
+	rm -rf dist/magic-folder/cryptography-*-py2.7.egg-info && \
+	rm -rf dist/magic-folder/include/python2.7 && \
+	rm -rf dist/magic-folder/lib/python2.7 && \
 	popd && \
 	mv build/magic-folder/dist/magic-folder dist
 
