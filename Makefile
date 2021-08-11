@@ -194,6 +194,7 @@ magic-folder:
 	python -m pip install -r requirements/pyinstaller.txt && \
 	cp misc/magic-folder/* build/magic-folder && \
 	pushd build/magic-folder && \
+	git checkout ba2e1e1f27297eb85a3bf23c29ec2cd103b920b2 && \
 	python $(SCRIPTS)/reproducible-pip.py install --require-hashes -r requirements/base.txt && \
 	python -m pip install --no-deps . && \
 	python -m pip install git+https://github.com/tahoe-lafs/tahoe-lafs.git@c9d5b1f6b98fbd132a85b5cfb244afc458979daa && \
