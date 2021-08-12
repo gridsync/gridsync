@@ -805,13 +805,15 @@ class Tahoe:
 
     @inlineCallbacks
     def upload(
-        self, local_path: str, dircap: str = ""
+        self, local_path: str, dircap: str = "", mutable: bool = False
     ) -> TwistedDeferred[str]:
         if dircap:
             filename = Path(local_path).name
             url = f"{self.nodeurl}uri/{dircap}/{filename}"
         else:
             url = f"{self.nodeurl}uri"
+        if mutable:
+            url = f"{url}?format=MDMF"
         log.debug("Uploading %s...", local_path)
         yield self.await_ready()
         with open(local_path, "rb") as f:
