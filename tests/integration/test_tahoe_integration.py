@@ -53,6 +53,40 @@ def test_upload_to_dircap(tahoe_client, tmp_path):
 
 
 @inlineCallbacks
+def test_upload_mutable(tahoe_client, tmp_path):
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"0" * 64)
+    local_path = p.resolve()
+    cap = yield tahoe_client.upload(local_path, mutable=True)
+    assert cap.startswith("URI:MDMF:")
+
+
+@inlineCallbacks
+def test_upload_to_dircap_mutable(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"1" * 64)
+    local_path = p.resolve()
+    cap = yield tahoe_client.upload(local_path, dircap, mutable=True)
+    assert cap.startswith("URI:MDMF:")
+
+
+@inlineCallbacks
+def test_upload_to_dircap_mutable_uses_same_cap(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"1" * 64)
+    local_path = p.resolve()
+    cap1 = yield tahoe_client.upload(local_path, dircap, mutable=True)
+
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    cap2 = yield tahoe_client.upload(local_path, dircap, mutable=True)
+    assert cap2 == cap1
+
+
+@inlineCallbacks
 def test_ls(tahoe_client, tmp_path):
     dircap = yield tahoe_client.mkdir()
     p = tmp_path / "TestFile.txt"
