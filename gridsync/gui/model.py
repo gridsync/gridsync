@@ -69,11 +69,11 @@ class Model(QStandardItemModel):
             lambda x: self.add_folder(x, None)
         )
         self.mf_monitor.folder_removed.connect(self.on_folder_removed)
+        self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
+        self.mf_monitor.folder_size_updated.connect(self.set_size)
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
-        self.mf_monitor.mtime_updated.connect(self.set_mtime)
-        self.mf_monitor.size_updated.connect(self.set_size)
 
     def on_space_updated(self, size):
         self.available_space = size
