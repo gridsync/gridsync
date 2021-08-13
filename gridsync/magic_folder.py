@@ -97,12 +97,10 @@ class MagicFolderMonitor(QObject):
             is_syncing = self._is_syncing(folder, current_folders)
             was_syncing = self._is_syncing(folder, previous_folders)
             if is_syncing and not was_syncing:
-                print("*** STARTED SYNCING:", folder)
                 self.syncing_folders.add(folder)
                 self.up_to_date = False
                 self.sync_started.emit(folder)
             elif was_syncing and not is_syncing:
-                print("*** STOPPED SYNCING:", folder)
                 try:
                     self.syncing_folders.remove(folder)
                 except KeyError:
@@ -126,11 +124,9 @@ class MagicFolderMonitor(QObject):
                 backup not in self._known_backups
                 and backup not in self._known_folders
             ):
-                print("*** BACKUP ADDED:", backup)
                 self.backup_added.emit(backup)
         for backup in self._known_backups:
             if backup not in backups:
-                print("*** BACKUP REMOVED:", backup)
                 self.backup_removed.emit(backup)
         self._known_backups = list(backups)
 
@@ -147,20 +143,6 @@ class MagicFolderMonitor(QObject):
             files[relpath] = item
             size = int(item.get("size", 0))
             sizes.append(size)
-            # XXX Magic-Folder's status API reveals nothing about when
-            # files were added/modified/removed/restored to a *remote*
-            # snapshot/DMD so, for now, use the "last-updated" value
-            # (which corresponds to the timestamp of the *local*
-            # snapshot). This is not ideal since what really matters to
-            # users, presumably, is whether and when their files were
-            # actually stored *on the grid*; users probably don't need
-            # to care -- or even known about the existence of -- local
-            # snapshots at all (given that they already have local
-            # copies of the files to which those snapshots correspond).
-            # (Note that the Magic-Folder status API also provides an
-            # "mtime" value, but this corresponds to the mtime returned
-            # by the stat() syscall and isn't what we want either.)
-            # mtime = item.get("mtime", 0)
             mtime = item.get("last-updated", 0)
             if mtime > latest_mtime:
                 latest_mtime = mtime
@@ -181,7 +163,6 @@ class MagicFolderMonitor(QObject):
 
         for file, status in current_files.items():
             if file not in prev_files:
-                print("*** FILE_ADDED: ", folder_name, status)
                 self.file_added.emit(folder_name, status)
             else:
                 prev_status = prev_files.get(file, {})
@@ -192,29 +173,18 @@ class MagicFolderMonitor(QObject):
                 modified = False
                 if mtime != prev_mtime:
                     modified = True
-                    print("*** FILE_MTIME_MODIFIED: ", folder_name, status)
                     self.file_mtime_updated.emit(folder_name, status)
                 if size != prev_size:
                     modified = True
-                    print("*** FILE_SIZE_MODIFIED: ", folder_name, status)
                     self.file_size_updated.emit(folder_name, status)
                 if modified:
-                    print("*** FILE_MODIFIED: ", folder_name, status)
                     self.file_modified.emit(folder_name, status)
         for file, status in prev_files.items():
             if file not in prev_files:
-                print("*** FILE REMOVED: ", folder_name, status)
                 self.file_removed.emit(folder_name, status)
-        print("### current_total_size", current_total_size)
-        print("### prev_total_size", prev_total_size)
         if current_total_size != prev_total_size:
-            print("*** SIZE UPDATED: ", folder_name, current_total_size)
             self.folder_size_updated.emit(folder_name, current_total_size)
-
-        print("@@@ current_latest_mtime", current_latest_mtime)
-        print("@@@ prev_latest_mtime", prev_latest_mtime)
         if current_latest_mtime != prev_latest_mtime:
-            print("*** MTIME UPDATED: ", folder_name, current_latest_mtime)
             self.folder_mtime_updated.emit(folder_name, current_latest_mtime)
 
     def compare_files(self, folders: Dict) -> None:
@@ -228,9 +198,6 @@ class MagicFolderMonitor(QObject):
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
-        from pprint import pprint
-
-        pprint(data)
         self.status_message_received.emit(data)
         state = data.get("state")
         folders = state.get("folders")
@@ -534,7 +501,6 @@ class MagicFolder:
         # See https://github.com/LeastAuthority/magic-folder/pull/528
         sizes = []
         file_status = yield self.get_file_status(folder_name)
-        print(file_status)
         for item in file_status:
             # Include size of content, snapshot cap, and metadata cap
             sizes.extend([item.get("size", 0), 420, 184])
