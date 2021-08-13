@@ -63,6 +63,8 @@ class MagicFolderMonitor(QObject):
 
     file_added = pyqtSignal(str, dict)  # folder_name, status
     file_removed = pyqtSignal(str, dict)  # folder_name, status
+    file_mtime_updated = pyqtSignal(str, dict)  # folder_name, status
+    file_size_updated = pyqtSignal(str, dict)  # folder_name, status
     file_modified = pyqtSignal(str, dict)  # folder_name, status
 
     def __init__(self, magic_folder: MagicFolder) -> None:
@@ -187,7 +189,16 @@ class MagicFolderMonitor(QObject):
                 prev_mtime = prev_status.get("mtime", 0)
                 size = status.get("size")
                 mtime = status.get("mtime")
-                if size != prev_size or mtime != prev_mtime:
+                modified = False
+                if mtime != prev_mtime:
+                    modified = True
+                    print("*** FILE_MTIME_MODIFIED: ", folder_name, status)
+                    self.file_mtime_updated.emit(folder_name, status)
+                if size != prev_size:
+                    modified = True
+                    print("*** FILE_SIZE_MODIFIED: ", folder_name, status)
+                    self.file_size_updated.emit(folder_name, status)
+                if modified:
                     print("*** FILE_MODIFIED: ", folder_name, status)
                     self.file_modified.emit(folder_name, status)
         for file, status in prev_files.items():
