@@ -461,6 +461,48 @@ def test_monitor_emits_folder_added_signal_via_status_message(
 
 
 @inlineCallbacks
+def test_monitor_emits_folder_mtime_updated_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    with qtbot.wait_signal(
+        magic_folder.monitor.folder_mtime_updated
+    ) as blocker:
+        yield magic_folder.add_folder(path, author)
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+        yield deferLater(reactor, 1, lambda: None)  # to increment mtime
+        filepath.write_text(randstr() * 16)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args[0] == folder_name
+
+
+@inlineCallbacks
+def test_monitor_emits_folder_size_updated_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    with qtbot.wait_signal(
+        magic_folder.monitor.folder_size_updated
+    ) as blocker:
+        yield magic_folder.add_folder(path, author)
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr(64))
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert (blocker.args[0], blocker.args[1]) == (folder_name, 64)
+
+
+@inlineCallbacks
 def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
     # Removing existing folders first
     folders = yield magic_folder.get_folders()
@@ -487,6 +529,51 @@ def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert (blocker.args[0], blocker.args[1].get("relpath")) == (
+        folder_name,
+        filename,
+    )
+
+
+@inlineCallbacks
+def test_monitor_emits_file_size_updated_signal(magic_folder, tmp_path, qtbot):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    with qtbot.wait_signal(magic_folder.monitor.file_size_updated) as blocker:
+        yield magic_folder.add_folder(path, author)
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+        filepath.write_text(randstr() * 16)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert (blocker.args[0], blocker.args[1].get("relpath")) == (
+        folder_name,
+        filename,
+    )
+
+
+@inlineCallbacks
+def test_monitor_emits_file_mtime_updated_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    with qtbot.wait_signal(magic_folder.monitor.file_mtime_updated) as blocker:
+        yield magic_folder.add_folder(path, author)
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+        yield deferLater(reactor, 1, lambda: None)  # to increment mtime
+        filepath.write_text(randstr() * 16)
         yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
