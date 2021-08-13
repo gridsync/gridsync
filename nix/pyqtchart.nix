@@ -1,10 +1,7 @@
 { fetchurl
 , pkgconfig
 , python3Packages
-, qmake
-, qtbase
-, qtcharts
-, wrapQtAppsHook
+, libsForQt5
 , lib
 }:
 let
@@ -19,7 +16,7 @@ in buildPythonPackage rec {
     url = "https://files.pythonhosted.org/packages/e6/af/dd493297922be2935ae2de34daea818940c4f747a98d09acaaa5e84cd1dd/${pname}-${version}.tar.gz";
     sha256 = "0x409mf3qfv4yq9fb091h85i57cqh20zmz97pkm0bqai51im0xz4";
   };
-  nativeBuildInputs = [
+  nativeBuildInputs = with libsForQt5; [
     pkgconfig
     wrapQtAppsHook
     qmake
@@ -28,7 +25,7 @@ in buildPythonPackage rec {
     qtcharts
     pyqt-builder
   ];
-  buildInputs = [
+  buildInputs = with libsForQt5; [
     sip
     qtbase
     qtcharts
