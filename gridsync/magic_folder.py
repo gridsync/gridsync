@@ -174,9 +174,9 @@ class MagicFolderMonitor(QObject):
         previous_file_status: List[Dict],
     ) -> None:
         current = self._parse_file_status(file_status, magic_path)
-        current_files, _, current_size, current_mtime = current
+        current_files, _, current_total_size, current_latest_mtime = current
         previous = self._parse_file_status(previous_file_status, magic_path)
-        prev_files, _, prev_size, prev_mtime = previous
+        prev_files, _, prev_total_size, prev_latest_mtime = previous
 
         for file, status in current_files.items():
             if file not in prev_files:
@@ -195,18 +195,17 @@ class MagicFolderMonitor(QObject):
             if file not in prev_files:
                 print("*** FILE REMOVED: ", folder_name, status)
                 self.file_removed.emit(folder_name, status)
+        print("### current_total_size", current_total_size)
+        print("### prev_total_size", prev_total_size)
+        if current_total_size != prev_total_size:
+            print("*** SIZE UPDATED: ", folder_name, current_total_size)
+            self.size_updated.emit(folder_name, current_total_size)
 
-        print("### current_size", current_size)
-        print("### prev_size", prev_size)
-        if current_size != prev_size:
-            print("*** SIZE UPDATED: ", folder_name, current_size)
-            self.size_updated.emit(folder_name, current_size)
-
-        print("@@@ current_mtime", current_mtime)
-        print("@@@ prev_mtime", prev_mtime)
-        if current_mtime != prev_mtime:
-            print("*** MTIME UPDATED: ", folder_name, current_mtime)
-            self.mtime_updated.emit(folder_name, current_mtime)
+        print("@@@ current_latest_mtime", current_latest_mtime)
+        print("@@@ prev_latest_mtime", prev_latest_mtime)
+        if current_latest_mtime != prev_latest_mtime:
+            print("*** MTIME UPDATED: ", folder_name, current_latest_mtime)
+            self.mtime_updated.emit(folder_name, current_latest_mtime)
 
     def compare_files(self, folders: Dict) -> None:
         for folder_name, data in folders.items():
