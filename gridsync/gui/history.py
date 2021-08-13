@@ -217,17 +217,14 @@ class HistoryListWidget(QListWidget):
         self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
     def _on_file_added(self, folder_name, data):
-        print("### FILE_ADDED", folder_name, data)
         # data["action"] = "added"  # XXX
         self.add_item(folder_name, data)
 
     def _on_file_modified(self, folder_name, data):
-        print("### FILE_MODIFIED", folder_name, data)
         # data["action"] = "modified"  # XXX
         self.add_item(folder_name, data)
 
     def _on_file_removed(self, folder_name, data):
-        print("### FILE_REMOVED", folder_name, data)
         # data["action"] = "removed"  # XXX
         self.add_item(folder_name, data)
 
