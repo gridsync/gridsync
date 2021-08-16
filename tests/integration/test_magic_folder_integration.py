@@ -294,7 +294,7 @@ def test_create_folder_backup(magic_folder):
     folder_name = next(iter(folders))
     yield magic_folder.create_folder_backup(folder_name)
 
-    backup_cap = yield magic_folder.backup_manager.get_backup_cap(
+    backup_cap = yield magic_folder.rootcap_manager.get_backup_cap(
         ".magic-folders"
     )
     content = yield magic_folder.gateway.get_json(backup_cap)
@@ -322,7 +322,7 @@ def test_remove_folder_backup(magic_folder):
     yield magic_folder.create_folder_backup(folder_name)
 
     yield magic_folder.remove_folder_backup(folder_name)
-    backup_cap = yield magic_folder.backup_manager.get_backup_cap(
+    backup_cap = yield magic_folder.rootcap_manager.get_backup_cap(
         ".magic-folders"
     )
     content = yield magic_folder.gateway.get_json(backup_cap)

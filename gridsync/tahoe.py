@@ -22,7 +22,6 @@ from twisted.python.procutils import which
 
 from gridsync import pkgdir
 from gridsync import settings as global_settings
-from gridsync.backup import BackupManager
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
@@ -30,6 +29,7 @@ from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
+from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import SubprocessProtocol, kill
 from gridsync.types import TwistedDeferred
@@ -113,7 +113,7 @@ class Tahoe:
             self.zkapauthorizer.update_zkap_checkpoint
         )
         self.storage_furl: str = ""
-        self.backup_manager = BackupManager(self)
+        self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self)
 
     @staticmethod
@@ -152,7 +152,7 @@ class Tahoe:
 
         rootcap = settings.get("rootcap")
         if rootcap:
-            self.backup_manager.set_rootcap(rootcap, overwrite=True)
+            self.rootcap_manager.set_rootcap(rootcap, overwrite=True)
 
         newscap = settings.get("newscap")
         if newscap:
@@ -531,13 +531,13 @@ class Tahoe:
             return
         self.state = Tahoe.STOPPING
         self.streamedlogs.stop()
-        if self.backup_manager.lock.locked:
+        if self.rootcap_manager.lock.locked:
             log.warning(
                 "Delaying stop operation; "
                 "another operation is trying to modify the rootcap..."
             )
-            yield self.backup_manager.lock.acquire()
-            yield self.backup_manager.lock.release()
+            yield self.rootcap_manager.lock.acquire()
+            yield self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
 
         self.magic_folder.stop()  # XXX
@@ -800,7 +800,7 @@ class Tahoe:
 
     @inlineCallbacks
     def create_rootcap(self) -> TwistedDeferred[str]:
-        rootcap = yield self.backup_manager.create_rootcap()
+        rootcap = yield self.rootcap_manager.create_rootcap()
         return rootcap
 
     @inlineCallbacks
@@ -1104,7 +1104,7 @@ class Tahoe:
         return results
 
     def get_rootcap(self) -> str:
-        return self.backup_manager.get_rootcap()
+        return self.rootcap_manager.get_rootcap()
 
     def get_admin_dircap(self, name):
         if name in self.magic_folders:

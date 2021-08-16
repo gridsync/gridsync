@@ -264,7 +264,7 @@ class MagicFolder:
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
         self.remote_magic_folders: Dict[str, dict] = {}
-        self.backup_manager = gateway.backup_manager
+        self.rootcap_manager = gateway.rootcap_manager
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -530,17 +530,17 @@ class MagicFolder:
         data = folders.get(folder_name)
         collective_dircap = data.get("collective_dircap")
         upload_dircap = data.get("upload_dircap")
-        yield self.backup_manager.add_backup(
+        yield self.rootcap_manager.add_backup(
             ".magic-folders", f"{folder_name} (collective)", collective_dircap
         )
-        yield self.backup_manager.add_backup(
+        yield self.rootcap_manager.add_backup(
             ".magic-folders", f"{folder_name} (personal)", upload_dircap
         )
 
     @inlineCallbacks
     def get_folder_backups(self) -> TwistedDeferred[Dict[str, dict]]:
         folders: DefaultDict[str, dict] = defaultdict(dict)
-        backups = yield self.backup_manager.get_backups(".magic-folders")
+        backups = yield self.rootcap_manager.get_backups(".magic-folders")
         for name, data in backups.items():
             if name.endswith(" (collective)"):
                 prefix = name.split(" (collective)")[0]
@@ -555,10 +555,10 @@ class MagicFolder:
     def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
         yield DeferredList(
             [
-                self.backup_manager.remove_backup(
+                self.rootcap_manager.remove_backup(
                     ".magic-folders", folder_name + " (collective)"
                 ),
-                self.backup_manager.remove_backup(
+                self.rootcap_manager.remove_backup(
                     ".magic-folders", folder_name + " (personal)"
                 ),
             ]

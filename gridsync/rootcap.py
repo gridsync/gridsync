@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from gridsync.types import TwistedDeferred
 
 
-class BackupManager:
+class RootcapManager:
     def __init__(self, gateway: Tahoe) -> None:
         self.gateway = gateway
         self.lock = DeferredLock()
