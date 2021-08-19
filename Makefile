@@ -192,7 +192,7 @@ magic-folder:
 	source build/venv-magic-folder/bin/activate && \
 	python --version || deactivate && \
 	python -m pip install -r requirements/pyinstaller.txt && \
-	cp misc/magic-folder/* build/magic-folder && \
+	cp misc/magic-folder.spec build/magic-folder && \
 	pushd build/magic-folder && \
 	git checkout 0299ef3363f371c916f170c21758e503066b40f6 && \
 	python $(SCRIPTS)/reproducible-pip.py install --require-hashes -r requirements/base.txt && \

@@ -103,7 +103,7 @@ call git clone https://github.com/LeastAuthority/magic-folder.git build/magic-fo
 call %PYTHON2% -m virtualenv --clear build\venv-magic-folder
 call .\build\venv-magic-folder\Scripts\activate
 call python -m pip install -r requirements\pyinstaller.txt
-call copy misc\magic-folder\* build\magic-folder
+call copy misc\magic-folder.spec build\magic-folder
 call pushd build\magic-folder
 call git checkout 0299ef3363f371c916f170c21758e503066b40f6
 call python .\scripts\reproducible-pip.py install --require-hashes -r requirements\base.txt
