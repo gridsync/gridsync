@@ -105,10 +105,10 @@ call .\build\venv-magic-folder\Scripts\activate
 call python -m pip install -r requirements\pyinstaller.txt
 call copy misc\magic-folder\* build\magic-folder
 call pushd build\magic-folder
-call python -m pip install .
-call python -m pip install git+https://github.com/tahoe-lafs/tahoe-lafs.git@c9d5b1f6b98fbd132a85b5cfb244afc458979daa
+call git checkout 0299ef3363f371c916f170c21758e503066b40f6
+call python .\scripts\reproducible-pip.py install --require-hashes -r requirements\base.txt
+call python -m pip install --no-deps .
 call python -m pip list
-call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
 call python -m PyInstaller magic-folder.spec || goto :error
 call set PYTHONHASHSEED=
