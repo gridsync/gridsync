@@ -106,6 +106,8 @@ call python -m pip install -r requirements\pyinstaller.txt
 call copy misc\magic-folder.spec build\magic-folder
 call pushd build\magic-folder
 call git checkout 0299ef3363f371c916f170c21758e503066b40f6
+:: https://github.com/LeastAuthority/magic-folder/issues/555
+call python -m pip install colorama==0.4.4
 call python ..\..\scripts\reproducible-pip.py install --require-hashes -r requirements\base.txt
 call python -m pip install --no-deps .
 call python -m pip list
