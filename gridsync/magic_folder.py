@@ -31,6 +31,7 @@ if TYPE_CHECKING:
 
 from gridsync.crypto import randstr
 from gridsync.system import SubprocessProtocol, kill
+from gridsync.watchdog import Watchdog
 from gridsync.websocket import WebSocketReaderService
 
 
@@ -77,9 +78,21 @@ class MagicFolderMonitor(QObject):
         self.up_to_date: bool = False
 
         self._prev_state: Dict = {}
-        self._known_folders: List[str] = []
+        self._known_folders: Dict[str, dict] = {}
         self._known_backups: List[str] = []
         self._prev_folders: Dict = {}
+
+        self._watchdog = Watchdog()
+        self._watchdog.directory_modified.connect(self._magic_folder_scan)
+
+    @inlineCallbacks
+    def _magic_folder_scan(self, path: str) -> TwistedDeferred[None]:
+        for folder_name, data in self.magic_folder.magic_folders.items():
+            magic_path = data.get("magic_path", "")
+            if not magic_path:
+                continue
+            if path == magic_path or path.startswith(magic_path + os.sep):
+                yield self.magic_folder.scan(folder_name)
 
     @staticmethod
     def _is_syncing(folder_name: str, folders_state: Dict) -> bool:
@@ -109,14 +122,16 @@ class MagicFolderMonitor(QObject):
                     self.up_to_date = True
                 self.sync_stopped.emit(folder)
 
-    def compare_folders(self, folders: List[str]) -> None:
-        for folder in folders:
+    def compare_folders(self, folders: Dict[str, dict]) -> None:
+        for folder, data in folders.items():
             if folder not in self._known_folders:
+                self._watchdog.add_watch(data.get("magic_path", ""))
                 self.folder_added.emit(folder)
-        for folder in self._known_folders:
+        for folder, data in self._known_folders.items():
             if folder not in folders:
+                self._watchdog.remove_watch(data.get("magic_path", ""))
                 self.folder_removed.emit(folder)
-        self._known_folders = list(folders)
+        self._known_folders = folders
 
     def compare_backups(self, backups: List[str]) -> None:
         for backup in backups:
@@ -232,11 +247,13 @@ class MagicFolderMonitor(QObject):
             collector=self.on_status_message_received,
         )
         self._ws_reader.start()
+        self._watchdog.start()
         self.running = True
         self.do_check()
 
     def stop(self) -> None:
         self.running = False
+        self._watchdog.stop()
         if self._ws_reader:
             self._ws_reader.stop()
             self._ws_reader = None
