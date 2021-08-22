@@ -84,7 +84,7 @@ def resource(filename):
 # so load the version string from a file written at freeze-time instead.
 if getattr(sys, "frozen", False):
     try:
-        with open(resource("version.txt")) as f:
+        with open(resource("version.txt"), encoding="utf-8") as f:
             __version__ = f.read()
     except OSError:
         __version__ = "Unknown"

@@ -36,7 +36,7 @@ wordlist = sorted([word.lower() for word in wordlist])
 def load_settings_from_cheatcode(cheatcode):
     path = os.path.join(pkgdir, "resources", "providers", cheatcode + ".json")
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.loads(f.read())
     except (OSError, json.decoder.JSONDecodeError):
         return None

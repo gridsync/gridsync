@@ -119,7 +119,7 @@ class Tahoe:
     @staticmethod
     def read_cap_from_file(filepath):
         try:
-            with open(filepath) as f:
+            with open(filepath, encoding="utf-8") as f:
                 cap = f.read().strip()
         except OSError:
             return None
@@ -171,7 +171,10 @@ class Tahoe:
 
     def load_settings(self):
         try:
-            with open(Path(self.nodedir, "private", "settings.json")) as f:
+            with open(
+                Path(self.nodedir, "private", "settings.json"),
+                encoding="utf-8",
+            ) as f:
                 settings = json.loads(f.read())
         except FileNotFoundError:
             settings = {}
@@ -188,7 +191,7 @@ class Tahoe:
         icon_path = os.path.join(self.nodedir, "icon")
         icon_url_path = icon_path + ".url"
         if os.path.exists(icon_url_path):
-            with open(icon_url_path) as f:
+            with open(icon_url_path, encoding="utf-8") as f:
                 settings["icon_url"] = f.read().strip()
         self.load_newscap()
         if self.newscap:
@@ -245,7 +248,7 @@ class Tahoe:
         aliases = {}
         aliases_file = os.path.join(self.nodedir, "private", "aliases")
         try:
-            with open(aliases_file) as f:
+            with open(aliases_file, encoding="utf-8") as f:
                 for line in f.readlines():
                     if not line.startswith("#"):
                         try:
@@ -296,7 +299,7 @@ class Tahoe:
 
     def _read_servers_yaml(self):
         try:
-            with open(self.servers_yaml_path) as f:
+            with open(self.servers_yaml_path, encoding="utf-8") as f:
                 return yaml.safe_load(f)
         except OSError:
             return {}
@@ -403,7 +406,7 @@ class Tahoe:
         data = {}
         yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
         try:
-            with open(yaml_path) as f:
+            with open(yaml_path, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
         except OSError:
             pass
@@ -653,10 +656,12 @@ class Tahoe:
 
         self.load_settings()
 
-        with open(os.path.join(self.nodedir, "node.url")) as f:
+        with open(
+            os.path.join(self.nodedir, "node.url"), encoding="utf-8"
+        ) as f:
             self.set_nodeurl(f.read().strip())
         token_file = os.path.join(self.nodedir, "private", "api_auth_token")
-        with open(token_file) as f:
+        with open(token_file, encoding="utf-8") as f:
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get("client", "shares.happy"))
         self.load_magic_folders()
@@ -921,7 +926,7 @@ class Tahoe:
         yield self.link(admin_dircap, "admin", upload_dircap_ro)
         yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
         try:
-            with open(yaml_path) as f:
+            with open(yaml_path, encoding="utf-8") as f:
                 yaml_data = yaml.safe_load(f)
         except OSError:
             yaml_data = {}
