@@ -4,7 +4,7 @@ import logging
 from typing import TYPE_CHECKING, Dict
 
 from PyQt5.QtCore import QObject, pyqtSignal
-from watchdog.events import DirModifiedEvent, FileSystemEventHandler
+from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 if TYPE_CHECKING:
