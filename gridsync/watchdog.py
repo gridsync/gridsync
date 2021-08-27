@@ -32,6 +32,7 @@ class Watchdog(QObject):
         self._watches: Dict[str, ObservedWatch] = {}
 
     def on_event(self, event: FileSystemEvent) -> None:
+        print("###################################", event)  # XXX
         if isinstance(event, DirModifiedEvent):
             self.directory_modified.emit(event.src_path)
 
