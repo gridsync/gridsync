@@ -61,7 +61,6 @@ class Watchdog(QObject):
 
     def stop(self) -> None:
         logging.debug("Stopping Watchdog...")
-        self._observer.unschedule_all()
         self._observer.stop()
         try:
             self._observer.join()
