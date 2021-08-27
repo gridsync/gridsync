@@ -83,7 +83,7 @@ class MagicFolderMonitor(QObject):
         self._prev_folders: Dict = {}
 
         self._watchdog = Watchdog()
-        self._watchdog.directory_modified.connect(self._magic_folder_scan)
+        self._watchdog.path_modified.connect(self._magic_folder_scan)
 
     @inlineCallbacks
     def _magic_folder_scan(self, path: str) -> TwistedDeferred[None]:
