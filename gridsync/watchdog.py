@@ -13,34 +13,29 @@ if TYPE_CHECKING:
 
 
 class _WatchdogEventHandler(FileSystemEventHandler):
-    def __init__(self, watchdog: Watchdog):
+    def __init__(self, watchdog: Watchdog, path: str):
         super().__init__()
         self._watchdog = watchdog
+        self._path = path
 
     def on_any_event(self, event: FileSystemEvent) -> None:
-        self._watchdog.on_event(event)
+        self._watchdog.path_modified.emit(self._path)
 
 
 class Watchdog(QObject):
 
-    directory_modified = pyqtSignal(str)  # src_path
+    path_modified = pyqtSignal(str)
 
     def __init__(self) -> None:
         super().__init__()
         self._observer = Observer()
-        self._event_handler = _WatchdogEventHandler(self)
         self._watches: Dict[str, ObservedWatch] = {}
-
-    def on_event(self, event: FileSystemEvent) -> None:
-        print("###################################", event)  # XXX
-        if isinstance(event, DirModifiedEvent):
-            self.directory_modified.emit(event.src_path)
 
     def add_watch(self, path: str) -> None:
         logging.debug("Scheduling watch for %s...", path)
         try:
             self._watches[path] = self._observer.schedule(
-                self._event_handler, path, recursive=True
+                _WatchdogEventHandler(self, path), path, recursive=True
             )
         except FileNotFoundError:
             logging.warning(
