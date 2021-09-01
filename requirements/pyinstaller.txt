@@ -16,13 +16,14 @@ pefile==2021.5.24; sys_platform == "win32" and python_version >= "3" \
     --hash=sha256:ed79b2353daa58421459abf4d685953bde0adf9f6e188944f97ba9795f100246
 PyInstaller==3.6 ; python_version < "3" \
     --hash=sha256:3730fa80d088f8bb7084d32480eb87cbb4ddb64123363763cf8f2a1378c1c4b7
-pyinstaller==4.4 ; python_version >= "3" \
-    --hash=sha256:0e802c082487719aab6b2a93575819944c008e6e1ba44c7836fc45660a9586c0 \
-    --hash=sha256:2cfef29a878fc54040e2287c19ea4bdc667f473b59918fcb51a1e68366ecb814 \
-    --hash=sha256:4485046ca929e15f6a2db746ce183c14e1fc3c1e8d2102aad8f1403b25d9ebdf \
-    --hash=sha256:af3ef0b9f265a2d3859357a25ab16743fbb6143c89fd7c3570cb84b8d24db0ba \
-    --hash=sha256:b0f13d0a33b9a21659967db65b475c14645b456dc70ba68fa9cebf4bc29ef58e \
-    --hash=sha256:d0b35f885650b9dc69072adf948b608bcb506c5256dd7f0d0967c1f177bb41b1
+pyinstaller==4.5.1 ; python_version >= "3" \
+    --hash=sha256:30733baaf8971902286a0ddf77e5499ac5f7bf8e7c39163e83d4f8c696ef265e \
+    --hash=sha256:4d848cd782ee0893d7ad9fe2bfe535206a79f0b6760cecc5f2add831258b9322 \
+    --hash=sha256:8f747b190e6ad30e2d2fd5da9a64636f61aac8c038c0b7f685efa92c782ea14f \
+    --hash=sha256:aae456205c68355f9597411090576bb31b614e53976b4c102d072bbe5db8392a \
+    --hash=sha256:c587da8f521a7ce1b9efb4e3d0117cd63c92dc6cedff24590aeef89372f53012 \
+    --hash=sha256:ecc2baadeeefd2b6fbf39d13c65d4aa603afdda1c6aaaebc4577ba72893fee9e \
+    --hash=sha256:fed9f5e4802769a416a8f2ca171c6be961d1861cc05a0b71d20dfe05423137e9
 pyinstaller-hooks-contrib==2021.3 \
     --hash=sha256:169b09802a19f83593114821d6ba0416a05c7071ef0ca394f7bfb7e2c0c916c8 \
     --hash=sha256:a52bc3834281266bbf77239cfc9521923336ca622f44f90924546ed6c6d3ad5e
