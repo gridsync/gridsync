@@ -131,8 +131,8 @@ types-attrs==19.1.0 \
 types-atomicwrites==0.1.6 \
     --hash=sha256:1e98192aa39f9edd46d46f8f0edfa0db7edc41055c736278b6b6035ac1ac0358 \
     --hash=sha256:f27b5f7c229686615b471f9625328bddc194dcc9723eaf4d7bcf0e854e418710
-types-PyYAML==5.4.8 \
-    --hash=sha256:e084cfc878c8c8b1d4e89011ae5d65ea962fc5745c3d08b931df2aaaa665de96 \
-    --hash=sha256:f00ad122a78a7d41b0ad4e3fa481751c2b9bc3f34b8f71ea35232211057dd50f
+types-PyYAML==5.4.10 \
+    --hash=sha256:1d9e431e9f1f78a65ea957c558535a3b15ad67ea4912bce48a6c1b613dcf81ad \
+    --hash=sha256:f1d1357168988e45fa20c65aecb3911462246a84809015dd889ebf8b1db74124
 wrapt==1.12.1 \
     --hash=sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7
