@@ -226,7 +226,7 @@ pyinstaller:
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
 	pushd build/pyinstaller && \
-	git checkout --force v4.4 && \
+	git checkout --force v4.5.1 && \
 	pushd bootloader && \
 	case `uname` in \
 		Darwin) \
@@ -323,14 +323,10 @@ all:
 	python3 scripts/sha256sum.py dist/*.*
 
 gpg-sign:
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.AppImage
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS.dmg
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows-setup.exe
+	python3 scripts/gpg.py --sign
 
 gpg-verify:
-	gpg2 --verify release/Gridsync-Linux.AppImage{.asc,}
-	gpg2 --verify release/Gridsync-macOS.dmg{.asc,}
-	gpg2 --verify release/Gridsync-Windows-setup.exe{.asc,}
+	python3 scripts/gpg.py --verify
 
 pypi-release:
 	python setup.py sdist bdist_wheel
