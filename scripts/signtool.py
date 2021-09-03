@@ -41,6 +41,7 @@ if sys.argv[1] == "--sign":
             [
                 signtool_path,
                 "sign",
+                "/v",
                 "/n",
                 signtool_name,
                 "/sha1",
@@ -58,6 +59,6 @@ if sys.argv[1] == "--sign":
             sys.exit(f"Error signing {path}")
 elif sys.argv[1] == "--verify":
     for path in paths:
-        proc = run([signtool_path, "Verify", "/pa", path])
+        proc = run([signtool_path, "Verify", "/v", "/pa", path])
         if proc.returncode:
             sys.exit(f"Error verifying {path}")
