@@ -33,23 +33,31 @@ paths.extend(
 if not paths:
     sys.exit("No files to sign; exiting")
 
-for path in paths:
-    proc = run(
-        [
-            signtool_path,
-            "sign",
-            "/n",
-            signtool_name,
-            "/sha1",
-            signtool_sha1,
-            "/tr",
-            signtool_timestamp_server,
-            "/td",
-            "sha256",
-            "/fd",
-            "sha256",
-            path,
-        ]
-    )
-    if proc.returncode:
-        sys.exit(f"Error signing {path}")
+if len(sys.argv) < 2:
+    sys.exit(f"Usage: {sys.argv[0]} [--sign] [--verify]")
+if sys.argv[1] == "--sign":
+    for path in paths:
+        proc = run(
+            [
+                signtool_path,
+                "sign",
+                "/n",
+                signtool_name,
+                "/sha1",
+                signtool_sha1,
+                "/tr",
+                signtool_timestamp_server,
+                "/td",
+                "sha256",
+                "/fd",
+                "sha256",
+                path,
+            ]
+        )
+        if proc.returncode:
+            sys.exit(f"Error signing {path}")
+elif sys.argv[1] == "--verify":
+    for path in paths:
+        proc = run([signtool_path, "Verify", "/pa", path])
+        if proc.returncode:
+            sys.exit(f"Error verifying {path}")
