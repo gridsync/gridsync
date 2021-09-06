@@ -93,13 +93,13 @@ class Tahoe:
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
-        streamedlogs_maxlen = None
+        logs_maxlen = None
         debug_settings = global_settings.get("debug")
         if debug_settings:
             log_maxlen = debug_settings.get("log_maxlen")
             if log_maxlen is not None:
-                streamedlogs_maxlen = int(log_maxlen)
-        self.streamedlogs = StreamedLogs(reactor, streamedlogs_maxlen)
+                logs_maxlen = int(log_maxlen)
+        self.streamedlogs = StreamedLogs(reactor, logs_maxlen)
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
@@ -114,7 +114,7 @@ class Tahoe:
         )
         self.storage_furl: str = ""
         self.rootcap_manager = RootcapManager(self)
-        self.magic_folder = MagicFolder(self)
+        self.magic_folder = MagicFolder(self, logs_maxlen)
 
     @staticmethod
     def read_cap_from_file(filepath):
