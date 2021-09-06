@@ -264,7 +264,7 @@ class MagicFolder:
         self,
         gateway: Tahoe,
         executable: Optional[str] = "",
-        logs_maxlen: int = 1000000,  # XXX
+        logs_maxlen: Optional[int] = 1000000,
     ) -> None:
         self.gateway = gateway
         self.executable = executable
