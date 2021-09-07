@@ -194,7 +194,7 @@ magic-folder:
 	python -m pip install -r requirements/pyinstaller.txt && \
 	cp misc/magic-folder.spec build/magic-folder && \
 	pushd build/magic-folder && \
-	git checkout 2907f12734c0db4a523fe6f243ac1c6750c47252 && \
+	git checkout 97f923742239cc2bc26ad41b32bc2c985c252204 && \
 	python $(SCRIPTS)/reproducible-pip.py install --require-hashes -r requirements/base.txt && \
 	python -m pip install --no-deps . && \
 	python -m pip list && \
