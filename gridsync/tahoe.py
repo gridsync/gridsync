@@ -114,7 +114,7 @@ class Tahoe:
         )
         self.storage_furl: str = ""
         self.rootcap_manager = RootcapManager(self)
-        self.magic_folder = MagicFolder(self, logs_maxlen)
+        self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
     @staticmethod
     def read_cap_from_file(filepath):
