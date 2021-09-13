@@ -42,6 +42,28 @@ try:
 except KeyError:
     APP_NAME = "Gridsync"
 
+
+grid_invites_enabled: bool = True
+invites_enabled: bool = True
+multiple_grids_enabled: bool = True
+tor_enabled: bool = True
+
+_features = settings.get("features")
+if _features:
+    _grid_invites = _features.get("grid_invites")
+    if _grid_invites and _grid_invites.lower() == "false":
+        grid_invites_enabled = False
+    _invites = _features.get("invites")
+    if _invites and _invites.lower() == "false":
+        invites_enabled = False
+    _multiple_grids = _features.get("multiple_grids")
+    if _multiple_grids and _multiple_grids.lower() == "false":
+        multiple_grids_enabled = False
+    _tor = _features.get("tor")
+    if _tor and _tor.lower() == "false":
+        tor_enabled = False
+
+
 if sys.platform == "win32":
     appdata = str(os.getenv("APPDATA"))
     config_dir = os.path.join(appdata, APP_NAME)
