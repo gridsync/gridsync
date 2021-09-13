@@ -6,7 +6,7 @@ import txtorcon
 from PyQt5.QtWidgets import QMessageBox
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import features, settings
+from gridsync import features
 
 # From https://styleguide.torproject.org/visuals/
 # "The main Tor Project color is Purple. Use Dark Purple as a secondary option"

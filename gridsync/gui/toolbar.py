@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from gridsync import features, resource, settings
+from gridsync import features, resource
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 
