@@ -2,6 +2,7 @@
 
 import os
 import sys
+from collections import namedtuple
 
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
@@ -62,6 +63,11 @@ if _features:
     _tor = _features.get("tor")
     if _tor and _tor.lower() == "false":
         tor_enabled = False
+
+Features = namedtuple("Features", "grid_invites invites multiple_grids tor")
+features = Features(
+    grid_invites_enabled, invites_enabled, multiple_grids_enabled, tor_enabled
+)
 
 
 if sys.platform == "win32":
