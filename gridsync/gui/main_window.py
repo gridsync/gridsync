@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet import reactor
 
-from gridsync import APP_NAME, resource, settings
+from gridsync import APP_NAME, features, resource
 from gridsync.gui.history import HistoryView
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
@@ -95,22 +95,6 @@ class MainWindow(QMainWindow):
         self.active_invite_receiver_dialogs = []
         self.pending_news_message = ()
 
-        self.grid_invites_enabled: bool = True
-        self.invites_enabled: bool = True
-        self.multiple_grids_enabled: bool = True
-
-        features_settings = settings.get("features")
-        if features_settings:
-            grid_invites = features_settings.get("grid_invites")
-            if grid_invites and grid_invites.lower() == "false":
-                self.grid_invites_enabled = False
-            invites = features_settings.get("invites")
-            if invites and invites.lower() == "false":
-                self.invites_enabled = False
-            multiple_grids = features_settings.get("multiple_grids")
-            if multiple_grids and multiple_grids.lower() == "false":
-                self.multiple_grids_enabled = False
-
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(740, 465))
         self.setUnifiedTitleAndToolBarOnMac(True)
@@ -121,7 +105,7 @@ class MainWindow(QMainWindow):
             # See https://github.com/gridsync/gridsync/issues/241
             self.setWindowFlags(Qt.Dialog)
 
-        if self.multiple_grids_enabled:
+        if features.multiple_grids:
             self.shortcut_new = QShortcut(QKeySequence.New, self)
             self.shortcut_new.activated.connect(self.show_welcome_dialog)
 
@@ -288,7 +272,7 @@ class MainWindow(QMainWindow):
         else:
             self.show_folders_view()
             self.toolbar.folders_button.setChecked(True)  # XXX
-        if self.multiple_grids_enabled:
+        if features.multiple_grids:
             self.setWindowTitle(
                 "{} - {}".format(APP_NAME, self.combo_box.currentData().name)
             )
