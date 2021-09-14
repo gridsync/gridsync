@@ -14,11 +14,7 @@ let
 
   # PyQtChart is a Python library, too, but needs to be built a little
   # differently so it can find the various Qt libraries it binds.
-  pyqtchart = pkgs.libsForQt5.callPackage ./pyqtchart.nix {
-    # Make sure we build it for Python 3 since it's for GridSync which is a
-    # Python 3 application.
-    inherit (pkgs) python3Packages;
-  };
+  pyqtchart = pkgs.python3Packages.callPackage ./pyqtchart.nix { };
 
   pytestqt = pkgs.python3Packages.callPackage ./pytestqt.nix { };
   tahoe-lafs-env = pspkgs.callPackage ./tahoe-lafs-env.nix { };
