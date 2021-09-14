@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from gridsync import APP_NAME, resource
+from gridsync import APP_NAME, features, resource
 from gridsync.desktop import (
     autostart_disable,
     autostart_enable,
@@ -83,6 +83,8 @@ class NotificationsPane(QWidget):
         self.checkbox_connection = QCheckBox("Connection status changes")
         self.checkbox_folder = QCheckBox("A folder is updated")
         self.checkbox_invite = QCheckBox("An invite code is used")
+        if not features.invites and not features.grid_invites:
+            self.checkbox_invite.setVisible(False)
 
         notifications_layout = QGridLayout()
         notifications_layout.addWidget(notifications_label)

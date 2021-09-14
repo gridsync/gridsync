@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from gridsync import resource, settings
+from gridsync import features, resource
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 
@@ -77,22 +77,6 @@ class ToolBar(QToolBar):
         self.main_window = main_window
 
         self.recovery_key_exporter = None
-
-        self.grid_invites_enabled: bool = True
-        self.invites_enabled: bool = True
-        self.multiple_grids_enabled: bool = True
-
-        features_settings = settings.get("features")
-        if features_settings:
-            grid_invites = features_settings.get("grid_invites")
-            if grid_invites and grid_invites.lower() == "false":
-                self.grid_invites_enabled = False
-            invites = features_settings.get("invites")
-            if invites and invites.lower() == "false":
-                self.invites_enabled = False
-            multiple_grids = features_settings.get("multiple_grids")
-            if multiple_grids and multiple_grids.lower() == "false":
-                self.multiple_grids_enabled = False
 
         p = self.palette()
         dimmer_grey = BlendedColor(
@@ -161,7 +145,7 @@ class ToolBar(QToolBar):
         )
         self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        if self.grid_invites_enabled:
+        if features.grid_invites:
             self.invites_action = QAction(
                 QIcon(resource("invite.png")), "Invites", self
             )
@@ -204,7 +188,7 @@ class ToolBar(QToolBar):
             )
             self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-        elif self.invites_enabled:
+        elif features.invites:
             self.invite_action = QAction(
                 QIcon(resource("invite.png")), "Enter Code", self
             )
@@ -221,7 +205,7 @@ class ToolBar(QToolBar):
 
         self.combo_box = ComboBox(self)
         # self.combo_box.currentIndexChanged.connect(self.update_actions)
-        if not self.multiple_grids_enabled:
+        if not features.multiple_grids:
             self.combo_box.hide()
 
         spacer_right = QWidget()
@@ -274,9 +258,9 @@ class ToolBar(QToolBar):
 
         self.folder_wa = self.addWidget(self.folder_button)
         self.recovery_wa = self.addWidget(self.recovery_button)
-        if self.grid_invites_enabled:
+        if features.grid_invites:
             self.invites_wa = self.addWidget(self.invites_button)
-        elif self.invites_enabled:
+        elif features.invites:
             self.invite_wa = self.addAction(self.invite_action)
 
         self.addWidget(spacer_left)
@@ -293,7 +277,7 @@ class ToolBar(QToolBar):
             return
         if gateway.zkap_auth_required:
             self.usage_wa.setVisible(True)
-            if self.grid_invites_enabled:
+            if features.grid_invites:
                 self.invites_wa.setVisible(False)
             else:
                 try:
@@ -302,7 +286,7 @@ class ToolBar(QToolBar):
                     pass
         else:
             self.usage_wa.setVisible(False)
-            if self.grid_invites_enabled:
+            if features.grid_invites:
                 self.invites_wa.setVisible(True)
             else:
                 try:
@@ -323,7 +307,7 @@ class ToolBar(QToolBar):
             self.history_button.setEnabled(False)
             self.folders_button.setEnabled(False)
             self.usage_button.setEnabled(False)
-            if self.grid_invites_enabled:
+            if features.grid_invites:
                 self.invites_button.setEnabled(False)
             else:
                 try:
@@ -346,7 +330,7 @@ class ToolBar(QToolBar):
             self.history_button.setEnabled(True)
             self.folders_button.setEnabled(True)
             self.usage_button.setEnabled(True)
-            if self.grid_invites_enabled:
+            if features.grid_invites:
                 self.invites_button.setEnabled(True)
             else:
                 try:
