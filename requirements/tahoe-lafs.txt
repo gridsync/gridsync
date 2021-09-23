@@ -239,9 +239,9 @@ spake2==0.8 \
 treq==21.1.0 \
     --hash=sha256:dc3aa1c9355a7693cc2483a797369d0db8a2c1ef857e4a6684d302b4d380ddfa \
     --hash=sha256:fdae0c872c444ed96c3cb11be8445d22e4afb731e87fdddae3b00c609e77199f
-tqdm==4.62.2 \
-    --hash=sha256:80aead664e6c1672c4ae20dc50e1cdc5e20eeff9b14aa23ecd426375b28be588 \
-    --hash=sha256:a4d6d112e507ef98513ac119ead1159d286deab17dffedd96921412c2d236ff5
+tqdm==4.62.3 \
+    --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
+    --hash=sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d
 Twisted==20.3.0 \
     --hash=sha256:040eb6641125d2a9a09cf198ec7b83dd8858c6f51f6770325ed9959c00f5098f \
     --hash=sha256:147780b8caf21ba2aef3688628eaf13d7e7fe02a86747cd54bfaf2140538f042 \
@@ -276,9 +276,9 @@ typing==3.10.0.0 \
     --hash=sha256:13b4ad211f54ddbf93e5901a9967b1e07720c1d1b78d596ac6a439641aa1b130 \
     --hash=sha256:c7219ef20c5fbf413b4567092adfc46fa6203cb8454eda33c3fc1afe1398a308
 # Required by ZKAPAuthorizer
-urllib3==1.26.6 \
-    --hash=sha256:39fb8672126159acb139a7718dd10806104dec1e2f0f6c88aab05d17df10c8d4 \
-    --hash=sha256:f57b4c16c62fa2760b7e3d97c35b255512fb6b59a259730f36ba32ce9f8e342f
+urllib3==1.26.7 \
+    --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece \
+    --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844
 watchdog==0.10.3 ; sys_platform != "win32" and sys_platform != "linux2" \
     --hash=sha256:4214e1379d128b0588021880ccaf40317ee156d4603ac388b9adcf29165e0c04
 zfec==1.5.5 \
