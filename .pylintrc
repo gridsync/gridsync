@@ -1,6 +1,7 @@
 [MESSAGES CONTROL]
 disable=
     bad-continuation,
+    consider-using-f-string,
     no-name-in-module,
     no-member,
     protected-access,
