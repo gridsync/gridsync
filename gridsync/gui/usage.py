@@ -168,17 +168,17 @@ class UsageView(QWidget):
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
-        voucher = generate_voucher()  # TODO: Cache to disk
+        try:
+            voucher = yield self.add_voucher()
+        except Exception as exc:  # pylint: disable=broad-except
+            error(self, "Error adding voucher", str(exc))
+            return
         payment_url = self.gateway.zkapauthorizer.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)
         if webbrowser.open(payment_url):
             logging.debug("Browser successfully launched")
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
-        try:
-            yield self.add_voucher(voucher)
-        except Exception as exc:  # pylint: disable=broad-except
-            error(self, "Error adding voucher", str(exc))
 
     @Slot()
     def on_button_clicked(self) -> None:
