@@ -26,6 +26,7 @@ from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
+from gridsync.msg import error
 from gridsync.types import TwistedDeferred
 from gridsync.voucher import generate_voucher
 
@@ -156,10 +157,14 @@ class UsageView(QWidget):
         return added
 
     @Slot()
-    def on_voucher_link_clicked(self) -> None:
+    @inlineCallbacks
+    def on_voucher_link_clicked(self) -> TwistedDeferred[None]:
         voucher, ok = VoucherCodeDialog.get_voucher()
         if ok:
-            self.add_voucher(voucher)
+            try:
+                yield self.add_voucher(voucher)
+            except Exception as exc:  # pylint: disable=broad-except
+                error(self, "Error adding voucher", str(exc))
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
@@ -170,7 +175,10 @@ class UsageView(QWidget):
             logging.debug("Browser successfully launched")
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
-        yield self.add_voucher(voucher)
+        try:
+            yield self.add_voucher(voucher)
+        except Exception as exc:  # pylint: disable=broad-except
+            error(self, "Error adding voucher", str(exc))
 
     @Slot()
     def on_button_clicked(self) -> None:
