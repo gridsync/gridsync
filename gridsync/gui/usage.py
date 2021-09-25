@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import traceback
 import webbrowser
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
@@ -156,6 +157,14 @@ class UsageView(QWidget):
             )
         return added
 
+    @staticmethod
+    def _traceback(exc: Exception) -> str:
+        return "".join(
+            traceback.format_exception(
+                etype=type(exc), value=exc, tb=exc.__traceback__
+            )
+        )
+
     @Slot()
     @inlineCallbacks
     def on_voucher_link_clicked(self) -> TwistedDeferred[None]:
@@ -164,14 +173,19 @@ class UsageView(QWidget):
             try:
                 yield self.add_voucher(voucher)
             except Exception as exc:  # pylint: disable=broad-except
-                error(self, "Error adding voucher", str(exc))
+                error(
+                    self,
+                    "Error adding voucher",
+                    str(exc),
+                    self._traceback(exc),
+                )
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
         try:
             voucher = yield self.add_voucher()
         except Exception as exc:  # pylint: disable=broad-except
-            error(self, "Error adding voucher", str(exc))
+            error(self, "Error adding voucher", str(exc), self._traceback(exc))
             return
         payment_url = self.gateway.zkapauthorizer.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)
