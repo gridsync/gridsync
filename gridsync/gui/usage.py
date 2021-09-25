@@ -143,11 +143,23 @@ class UsageView(QWidget):
             self.on_low_zkaps_warning
         )
 
+    @inlineCallbacks
+    def add_voucher(self, voucher: str = "") -> TwistedDeferred[str]:
+        added = yield self.gateway.zkapauthorizer.add_voucher(voucher)
+        data = yield self.gateway.zkapauthorizer.get_voucher(added)
+        actual = data.get("number")
+        if added != actual:
+            raise ValueError(
+                f'Voucher mismatch; the voucher "{added}" was added to '
+                f'ZKAPAuthorizer but was stored as "{actual}"'
+            )
+        return added
+
     @Slot()
     def on_voucher_link_clicked(self) -> None:
         voucher, ok = VoucherCodeDialog.get_voucher()
         if ok:
-            self.gateway.zkapauthorizer.add_voucher(voucher)
+            self.add_voucher(voucher)
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
@@ -158,7 +170,7 @@ class UsageView(QWidget):
             logging.debug("Browser successfully launched")
         else:  # XXX/TODO: Raise a user-facing error
             logging.error("Error launching browser")
-        yield self.gateway.zkapauthorizer.add_voucher(voucher)
+        yield self.add_voucher(voucher)
 
     @Slot()
     def on_button_clicked(self) -> None:
