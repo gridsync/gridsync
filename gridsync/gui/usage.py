@@ -169,16 +169,12 @@ class UsageView(QWidget):
     @inlineCallbacks
     def on_voucher_link_clicked(self) -> TwistedDeferred[None]:
         voucher, ok = VoucherCodeDialog.get_voucher()
-        if ok:
-            try:
-                yield self.add_voucher(voucher)
-            except Exception as exc:  # pylint: disable=broad-except
-                error(
-                    self,
-                    "Error adding voucher",
-                    str(exc),
-                    self._traceback(exc),
-                )
+        if not ok:
+            return
+        try:
+            yield self.add_voucher(voucher)
+        except Exception as exc:  # pylint: disable=broad-except
+            error(self, "Error adding voucher", str(exc), self._traceback(exc))
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
