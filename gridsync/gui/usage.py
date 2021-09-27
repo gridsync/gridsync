@@ -31,7 +31,6 @@ from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
 from gridsync.msg import error
 from gridsync.types import TwistedDeferred
-from gridsync.voucher import generate_voucher
 
 if TYPE_CHECKING:
     from gridsync.gui import Gui  # pylint: disable=cyclic-import
