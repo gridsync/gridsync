@@ -20,11 +20,13 @@ from PyQt5.QtWidgets import (
     QSpacerItem,
     QWidget,
 )
+from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync import APP_NAME, resource
 from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
+from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
 from gridsync.msg import error
@@ -109,6 +111,9 @@ class UsageView(QWidget):
         if not self.is_commercial_grid:
             self.voucher_link.hide()
 
+        self.status_label = QLabel(" ")
+        self.status_label.setFont(Font(10))
+
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(self.title, 20, 0)
@@ -120,6 +125,7 @@ class UsageView(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.status_label, 110, 0, 1, 1, Qt.AlignCenter)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
 
         self.groupbox.setLayout(layout)
@@ -145,9 +151,21 @@ class UsageView(QWidget):
             self.on_low_zkaps_warning
         )
 
+        self._reset_status()
+
+    def _reset_status(self) -> None:
+        p = self.palette()
+        dimmer_grey = BlendedColor(
+            p.windowText().color(), p.window().color()
+        ).name()
+        self.status_label.setStyleSheet(f"color: {dimmer_grey}")
+        self.status_label.setText(" ")
+
     @inlineCallbacks
     def add_voucher(self, voucher: str = "") -> TwistedDeferred[str]:
+        self.status_label.setText("Creating voucher...")
         added = yield self.gateway.zkapauthorizer.add_voucher(voucher)
+        self.status_label.setText("Verifying voucher...")
         data = yield self.gateway.zkapauthorizer.get_voucher(added)
         actual = data.get("number")
         if added != actual:
@@ -174,19 +192,34 @@ class UsageView(QWidget):
         try:
             yield self.add_voucher(voucher)
         except Exception as exc:  # pylint: disable=broad-except
+            self.status_label.setText("Error adding voucher")
+            self.status_label.setStyleSheet("color: red")
+            reactor.callLater(5, self._reset_status)
             error(self, "Error adding voucher", str(exc), self._traceback(exc))
+            return
+        self.status_label.setText(
+            "Voucher successfully added; token redemption should begin shortly"
+        )
+        reactor.callLater(10, self._reset_status)
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
         try:
             voucher = yield self.add_voucher()
         except Exception as exc:  # pylint: disable=broad-except
+            self.status_label.setText("Error adding voucher")
+            self.status_label.setStyleSheet("color: red")
+            reactor.callLater(5, self._reset_status)
             error(self, "Error adding voucher", str(exc), self._traceback(exc))
             return
         payment_url = self.gateway.zkapauthorizer.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)
+        self.status_label.setText("Launching browser...")
         if webbrowser.open(payment_url):
             logging.debug("Browser successfully launched")
+            self.status_label.setText(
+                "Browser window launched; please proceed to payment"
+            )
         else:
             error(
                 self,
@@ -195,6 +228,9 @@ class UsageView(QWidget):
                 f"{self.gateway.name}, please visit the following URL:"
                 f"<p><a href={payment_url}>{payment_url}</a><br>",
             )
+            self.status_label.setText("Error launching browser")
+            self.status_label.setStyleSheet("color: red")
+        reactor.callLater(5, self._reset_status)
 
     @Slot()
     def on_button_clicked(self) -> None:
