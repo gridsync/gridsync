@@ -194,13 +194,13 @@ class UsageView(QWidget):
         except Exception as exc:  # pylint: disable=broad-except
             self.status_label.setText("Error adding voucher")
             self.status_label.setStyleSheet("color: red")
-            reactor.callLater(5, self._reset_status)
+            reactor.callLater(5, self._reset_status)  # type: ignore
             error(self, "Error adding voucher", str(exc), self._traceback(exc))
             return
         self.status_label.setText(
             "Voucher successfully added; token redemption should begin shortly"
         )
-        reactor.callLater(10, self._reset_status)
+        reactor.callLater(10, self._reset_status)  # type: ignore
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
@@ -209,7 +209,7 @@ class UsageView(QWidget):
         except Exception as exc:  # pylint: disable=broad-except
             self.status_label.setText("Error adding voucher")
             self.status_label.setStyleSheet("color: red")
-            reactor.callLater(5, self._reset_status)
+            reactor.callLater(5, self._reset_status)  # type: ignore
             error(self, "Error adding voucher", str(exc), self._traceback(exc))
             return
         payment_url = self.gateway.zkapauthorizer.zkap_payment_url(voucher)
@@ -230,7 +230,7 @@ class UsageView(QWidget):
             )
             self.status_label.setText("Error launching browser")
             self.status_label.setStyleSheet("color: red")
-        reactor.callLater(5, self._reset_status)
+        reactor.callLater(5, self._reset_status)  # type: ignore
 
     @Slot()
     def on_button_clicked(self) -> None:
