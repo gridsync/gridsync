@@ -187,8 +187,14 @@ class UsageView(QWidget):
         logging.debug("Opening payment URL %s ...", payment_url)
         if webbrowser.open(payment_url):
             logging.debug("Browser successfully launched")
-        else:  # XXX/TODO: Raise a user-facing error
-            logging.error("Error launching browser")
+        else:
+            error(
+                self,
+                "Error launching browser",
+                "Could not launch webbrower. To complete payment for "
+                f"{self.gateway.name}, please visit the following URL:"
+                f"<p><a href={payment_url}>{payment_url}</a><br>",
+            )
 
     @Slot()
     def on_button_clicked(self) -> None:
