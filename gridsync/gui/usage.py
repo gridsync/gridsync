@@ -253,6 +253,7 @@ class UsageView(QWidget):
             datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f"), "%d %b %Y"
         )
         self.zkaps_required_label.hide()
+        self._reset_status()
         self.explainer_label.show()
         self.chart_view.show()
         self._update_info_label()
