@@ -83,16 +83,27 @@ class MagicFolderMonitor(QObject):
         self._prev_folders: Dict = {}
 
         self._watchdog = Watchdog()
-        self._watchdog.path_modified.connect(self._magic_folder_scan)
-
-    @inlineCallbacks
-    def _magic_folder_scan(self, path: str) -> TwistedDeferred[None]:
+        self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
+        self._scheduled_scans: set = set()
+  
+    def _maybe_do_scan(self, event_id: str, path: str) -> None:
+        try:
+            self._scheduled_scans.remove(event_id)
+        except KeyError:
+            pass
+        if self._scheduled_scans:
+            return
         for folder_name, data in self.magic_folder.magic_folders.items():
             magic_path = data.get("magic_path", "")
             if not magic_path:
                 continue
             if path == magic_path or path.startswith(magic_path + os.sep):
-                yield self.magic_folder.scan(folder_name)
+                self.magic_folder.scan(folder_name)
+
+    def _schedule_magic_folder_scan(self, path):
+        event_id = randstr(8)
+        self._scheduled_scans.add(event_id)
+        reactor.callLater(0.25, lambda: self._maybe_do_scan(event_id, path))
 
     @staticmethod
     def _is_syncing(folder_name: str, folders_state: Dict) -> bool:
