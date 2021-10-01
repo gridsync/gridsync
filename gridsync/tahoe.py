@@ -221,7 +221,7 @@ class Tahoe:
             settings["rootcap"] = self.get_rootcap()
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
-                .read_text()
+                .read_text(encoding="utf-8")
                 .strip()
             )
         else:
@@ -670,7 +670,9 @@ class Tahoe:
         self.newscap_checker.start()
         storage_furl_path = Path(self.nodedir, "private", "storage.furl")
         if storage_furl_path.exists():
-            self.storage_furl = storage_furl_path.read_text().strip()
+            self.storage_furl = storage_furl_path.read_text(
+                encoding="utf-8"
+            ).strip()
 
         self.state = Tahoe.STARTED
 
