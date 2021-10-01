@@ -100,7 +100,7 @@ class MagicFolderMonitor(QObject):
             if path == magic_path or path.startswith(magic_path + os.sep):
                 self.magic_folder.scan(folder_name)
 
-    def _schedule_magic_folder_scan(self, path):
+    def _schedule_magic_folder_scan(self, path: str) -> None:
         event_id = randstr(8)
         self._scheduled_scans[path].add(event_id)
         reactor.callLater(0.25, lambda: self._maybe_do_scan(event_id, path))
