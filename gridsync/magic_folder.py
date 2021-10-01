@@ -84,14 +84,14 @@ class MagicFolderMonitor(QObject):
 
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
-        self._scheduled_scans: set = set()
-  
+        self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
+
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
         try:
-            self._scheduled_scans.remove(event_id)
+            self._scheduled_scans[path].remove(event_id)
         except KeyError:
             pass
-        if self._scheduled_scans:
+        if self._scheduled_scans[path]:
             return
         for folder_name, data in self.magic_folder.magic_folders.items():
             magic_path = data.get("magic_path", "")
@@ -102,7 +102,7 @@ class MagicFolderMonitor(QObject):
 
     def _schedule_magic_folder_scan(self, path):
         event_id = randstr(8)
-        self._scheduled_scans.add(event_id)
+        self._scheduled_scans[path].add(event_id)
         reactor.callLater(0.25, lambda: self._maybe_do_scan(event_id, path))
 
     @staticmethod
