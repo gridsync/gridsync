@@ -103,7 +103,9 @@ class MagicFolderMonitor(QObject):
     def _schedule_magic_folder_scan(self, path: str) -> None:
         event_id = randstr(8)
         self._scheduled_scans[path].add(event_id)
-        reactor.callLater(0.25, lambda: self._maybe_do_scan(event_id, path))
+        reactor.callLater(  # type: ignore
+            0.25, lambda: self._maybe_do_scan(event_id, path)
+        )
 
     @staticmethod
     def _is_syncing(folder_name: str, folders_state: Dict) -> bool:
