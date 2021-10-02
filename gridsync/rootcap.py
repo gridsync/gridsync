@@ -24,7 +24,7 @@ class RootcapManager:
         if self._rootcap:
             return self._rootcap
         try:
-            self._rootcap = self._rootcap_path.read_text()
+            self._rootcap = self._rootcap_path.read_text(encoding="utf-8")
         except FileNotFoundError:
             return ""
         return self._rootcap
