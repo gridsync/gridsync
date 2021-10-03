@@ -282,9 +282,7 @@ class GridChecker(QObject):
 class _VoucherParse:
     """
     :ivar total_tokens: A number of spendable tokens that are expected to
-        exist due to all of the vouchers that have already been redeemed plus
-        those expected to exist when vouchers currently being redeemed finish
-        being redeemed.
+        exist due to all of the vouchers that have already been redeemed.
 
     :ivar unpaid_vouchers: A list of voucher identifiers which are believed to
         not yet have been paid for.
