@@ -327,7 +327,7 @@ def _parse_vouchers(
         number = voucher["number"]
         state = voucher["state"]
         name = state["name"]
-        if name == "unpaid":
+        if name == "unpaid":  # or "redeeming"?
             # XXX There is no reliable way of knowing whether the user
             # intends to pay for an older voucher -- i.e., one that
             # was created before the application started --
@@ -339,8 +339,6 @@ def _parse_vouchers(
             time_created = datetime.fromisoformat(created)
             if time_created > time_started:
                 unpaid_vouchers.add(number)
-        elif name == "redeeming":
-            total += voucher["expected-tokens"]
         elif name == "redeemed":
             total += state["token-count"]
             finished = state["finished"]
