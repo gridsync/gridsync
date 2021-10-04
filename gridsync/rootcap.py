@@ -62,6 +62,7 @@ class RootcapManager:
             return self.get_rootcap()
         finally:
             yield self.lock.release()  # type: ignore
+        logging.debug("Rootcap successfully created")
         return self._rootcap
    
     @inlineCallbacks
@@ -71,11 +72,13 @@ class RootcapManager:
         rootcap = self.get_rootcap()
         if not rootcap:
             rootcap = yield self.create_rootcap()
+        logging.debug('Creating base ("%s") dircap...', self.basedir)
         yield self.lock.acquire()
         try:
             self._basedircap = yield self.gateway.mkdir(rootcap, self.basedir)
         finally:
             yield self.lock.release()  # type: ignore
+        logging.debug('Base ("%s") dircap successfully created', self.basedir)
         return self._basedircap
 
     @inlineCallbacks
