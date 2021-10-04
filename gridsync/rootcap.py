@@ -13,11 +13,13 @@ if TYPE_CHECKING:
 
 
 class RootcapManager:
-    def __init__(self, gateway: Tahoe) -> None:
+    def __init__(self, gateway: Tahoe, basedir: str = "v0") -> None:
         self.gateway = gateway
+        self.basedir = basedir
         self.lock = DeferredLock()
         self._rootcap_path = Path(gateway.nodedir, "private", "rootcap")
         self._rootcap: str = ""
+        self._basedircap = ""
         self._backup_caps: dict = {}
 
     def get_rootcap(self) -> str:
@@ -54,18 +56,30 @@ class RootcapManager:
         finally:
             yield self.lock.release()  # type: ignore
         return self._rootcap
-
+   
     @inlineCallbacks
-    def create_backup_cap(
-        self, name: str, rootcap: str = ""
-    ) -> TwistedDeferred[str]:
-        if not rootcap:
-            rootcap = self.get_rootcap()
+    def _get_basedircap(self) -> TwistedDeferred[str]:
+        if self._basedircap:
+            return self._basedircap
+        rootcap = self.get_rootcap()
         if not rootcap:
             rootcap = yield self.create_rootcap()
         yield self.lock.acquire()
         try:
-            backup_cap = yield self.gateway.mkdir(rootcap, name)
+            self._basedircap = yield self.gateway.mkdir(rootcap, self.basedir)
+        finally:
+            yield self.lock.release()  # type: ignore
+        return self._basedircap
+
+    @inlineCallbacks
+    def create_backup_cap(
+        self, name: str, basedircap: str = ""
+    ) -> TwistedDeferred[str]:
+        if not basedircap:
+            basedircap = yield self._get_basedircap()
+        yield self.lock.acquire()
+        try:
+            backup_cap = yield self.gateway.mkdir(basedircap, name)
         finally:
             yield self.lock.release()  # type: ignore
         self._backup_caps[name] = backup_cap
@@ -73,22 +87,20 @@ class RootcapManager:
 
     @inlineCallbacks
     def get_backup_cap(
-        self, name: str, rootcap: str = ""
+        self, name: str, basedircap: str = ""
     ) -> TwistedDeferred[str]:
         backup_cap = self._backup_caps.get(name)
         if backup_cap:
             return backup_cap
-        if not rootcap:
-            rootcap = self.get_rootcap()
-        if not rootcap:
-            rootcap = yield self.create_rootcap()
-        ls_output = yield self.gateway.ls(rootcap, exclude_filenodes=True)
+        if not basedircap:
+            basedircap = yield self._get_basedircap()
+        ls_output = yield self.gateway.ls(basedircap, exclude_filenodes=True)
         backup_caps = {}
         for dirname, data in ls_output.items():
             backup_caps[dirname] = data.get("cap", "")
         backup_cap = backup_caps.get(name, "")
         if not backup_cap:
-            backup_cap = yield self.create_backup_cap(name, rootcap)
+            backup_cap = yield self.create_backup_cap(name, basedircap)
             backup_caps[name] = backup_cap
         self._backup_caps = backup_caps
         return backup_cap
