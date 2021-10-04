@@ -49,10 +49,11 @@ class RootcapManager:
             rootcap = yield self.gateway.mkdir()
         finally:
             yield self.lock.release()  # type: ignore
+        yield self.lock.acquire()
         if self._rootcap:
             logging.warning("Rootcap already exists")
+            yield self.lock.release()  # type: ignore
             return self._rootcap
-        yield self.lock.acquire()
         try:
             self.set_rootcap(rootcap)
         except FileExistsError:
