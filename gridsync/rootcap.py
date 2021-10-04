@@ -64,7 +64,7 @@ class RootcapManager:
             yield self.lock.release()  # type: ignore
         logging.debug("Rootcap successfully created")
         return self._rootcap
-   
+
     @inlineCallbacks
     def _get_basedircap(self) -> TwistedDeferred[str]:
         if self._basedircap:
@@ -72,6 +72,11 @@ class RootcapManager:
         rootcap = self.get_rootcap()
         if not rootcap:
             rootcap = yield self.create_rootcap()
+        subdirs = yield self.gateway.ls(rootcap, exclude_filenodes=True)
+        basedircap = subdirs.get(self.basedir, {}).get("cap", "")
+        if basedircap:
+            self._basedircap = basedircap
+            return basedircap
         logging.debug('Creating base ("%s") dircap...', self.basedir)
         yield self.lock.acquire()
         try:
