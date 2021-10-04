@@ -44,8 +44,8 @@ class RootcapManager:
         logging.debug("Creating rootcap...")
         if self._rootcap_path.exists():
             raise OSError(f"Rootcap file already exists: {self._rootcap_path}")
-        yield self.lock.acquire()
         rootcap = yield self.gateway.mkdir()
+        yield self.lock.acquire()
         try:
             self.set_rootcap(rootcap)
         except FileExistsError:
