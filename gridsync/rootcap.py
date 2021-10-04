@@ -77,8 +77,11 @@ class RootcapManager:
         if basedircap:
             self._basedircap = basedircap
             return basedircap
-        logging.debug('Creating base ("%s") dircap...', self.basedir)
         yield self.lock.acquire()
+        if self._basedircap:
+            yield self.lock.release()  # type: ignore
+            return self._basedircap
+        logging.debug('Creating base ("%s") dircap...', self.basedir)
         try:
             self._basedircap = yield self.gateway.mkdir(rootcap, self.basedir)
         finally:
