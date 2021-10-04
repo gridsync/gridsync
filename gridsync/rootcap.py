@@ -73,10 +73,9 @@ class RootcapManager:
         if not rootcap:
             rootcap = yield self.create_rootcap()
         subdirs = yield self.gateway.ls(rootcap, exclude_filenodes=True)
-        basedircap = subdirs.get(self.basedir, {}).get("cap", "")
-        if basedircap:
-            self._basedircap = basedircap
-            return basedircap
+        self._basedircap = subdirs.get(self.basedir, {}).get("cap", "")
+        if self._basedircap:
+            return self._basedircap
         yield self.lock.acquire()
         if self._basedircap:
             yield self.lock.release()  # type: ignore
