@@ -19,6 +19,9 @@
 - Disabled Preferences options for features disabled via `config.txt` (Issue #382; PR #383)
 - Fixed/improved error-handling for failures pertaining to generating/adding ZKAPAuthorizer vouchers (Issue #381; PR #385)
 
+### Deprecated
+- This will be the final release of Gridsync that supports the `tahoe magic-folder` feature/subcommand. Magic-Folder was [removed from Tahoe-LAFS in version 1.15](https://github.com/tahoe-lafs/tahoe-lafs/blob/master/NEWS.rst#release-1150-2020-10-13) and split off into a [standalone project](https://github.com/LeastAuthority/magic-folder). Future releases of Gridsync will ship and use the standalone Magic-Folder application for Tahoe-LAFS-based file-synchronization.
+
 
 ## 0.5.0rc1 - 2021-03-25
 ### Added
