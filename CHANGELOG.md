@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0rc2 - 2021-10-08
 ### Added
 - Added support for preserving/restoring the Tahoe-LAFS convergence secret via the Recovery Key (Issue #347; PR #356)
 - Added/enabled support for fractional scaling of UI elements (Issue #357; PR #358)
