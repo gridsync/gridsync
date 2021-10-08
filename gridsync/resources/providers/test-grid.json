@@ -1,0 +1,7 @@
+{
+    "nickname": "Public Test Grid",
+    "shares-needed": "3",
+    "shares-happy": "6",
+    "shares-total": "8",
+    "introducer": "pb://fodk4doc64febdoxke3a4ddfyanz7ajd@tcp:testgrid.tahoe-lafs.org:5000/el4fo3rm2h22cnilukmjqzyopdgqxrd2"
+}

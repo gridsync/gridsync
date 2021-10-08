@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.0rc2 - 2021-10-08
+### Added
+- Added support for preserving/restoring the Tahoe-LAFS convergence secret via the Recovery Key (Issue #347; PR #356)
+- Added/enabled support for fractional scaling of UI elements (Issue #357; PR #358)
+- Added basic scripts to facilitate GPG and Authenticode signing (PR #380)
+- Added a `0-test-grid` "[cheat code](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md)" for the Tahoe-LAFS "[Public Test Grid](https://tahoe-lafs.org/trac/tahoe-lafs/wiki/TestGrid)" (Issue #386; PR #387)
+
+### Changed
+- Updated Windows packaging to dynamically generate InnoSetup configuration file at build-time (Issue #348; PR #349)
+- Updated Nix packaging -- thanks @exarkun! (PR #365)
+
+### Fixed
+- Fixed an issue with "Create Invite Code" button launching an incorrect dialog (Issue #345; PR #346)
+- Fixed `make.bat` to properly propagate linter errors on Windows CI (Issue #350; PR #351)
+- Improved error-handling when importing invalid Recovery Keys (Issue #359; PR #361)
+- Fixed crash caused by entering non-ASCII voucher codes (Issue #360; PR #362)
+- Disabled Preferences options for features disabled via `config.txt` (Issue #382; PR #383)
+- Fixed/improved error-handling for failures pertaining to generating/adding ZKAPAuthorizer vouchers (Issue #381; PR #385)
+
+### Deprecated
+- This will be the final release of Gridsync that supports the `tahoe magic-folder` feature/subcommand. Magic-Folder was [removed from Tahoe-LAFS in version 1.15](https://github.com/tahoe-lafs/tahoe-lafs/blob/master/NEWS.rst#release-1150-2020-10-13) and split off into a [standalone project](https://github.com/LeastAuthority/magic-folder). Future releases of Gridsync will ship and use the standalone Magic-Folder application for Tahoe-LAFS-based file-synchronization.
+
+
 ## 0.5.0rc1 - 2021-03-25
 ### Added
 - Added support for Python 3.8 (Issues #264, #269; PRs #270, #315)
