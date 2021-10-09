@@ -25,7 +25,7 @@ requirements = [
     "retricon",
     "segno",
     "treq",
-    "twisted[tls]",
+    "twisted[tls] >= 21.7.0",  # 21.7.0 adds Deferred type hinting/annotations
     "txtorcon",
     "zxcvbn",
 ]

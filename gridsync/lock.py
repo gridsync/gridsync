@@ -36,7 +36,7 @@ class FilesystemLock:
                 raise
         else:
             fd = open(  # pylint: disable=consider-using-with
-                self.filepath, "w"
+                self.filepath, "w", encoding="utf-8"
             )
             fd.flush()
             try:

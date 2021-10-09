@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
 from unittest.mock import MagicMock
 
 import pytest
@@ -32,6 +33,8 @@ def test_tor_required(furl, result):
 
 @inlineCallbacks
 def test_get_tor(monkeypatch):
+    f = namedtuple("Features", "tor")
+    monkeypatch.setattr("gridsync.tor.features", f(tor=True))
     fake_tor = MagicMock()
     monkeypatch.setattr("txtorcon.connect", lambda _: fake_tor)
     tor = yield get_tor(None)
@@ -48,9 +51,8 @@ def test_get_tor_return_none(monkeypatch):
 
 @inlineCallbacks
 def test_get_tor_return_none_feature_disabled(monkeypatch):
-    monkeypatch.setattr(
-        "gridsync.tor.settings", {"features": {"tor": "false"}}
-    )
+    f = namedtuple("Features", "tor")
+    monkeypatch.setattr("gridsync.tor.features", f(tor=False))
     tor = yield get_tor(None)
     assert tor is None
 

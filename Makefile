@@ -164,7 +164,7 @@ frozen-tahoe:
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
-	python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@8d66213431e5ea68683d9d1cd4266614314e85a1 && \
+	python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@b08aacee3adc40db8e6c6d7e31700861d5014cb5 && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
@@ -198,7 +198,7 @@ pyinstaller:
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
 	pushd build/pyinstaller && \
-	git checkout --force v4.4 && \
+	git checkout --force v4.5.1 && \
 	pushd bootloader && \
 	case `uname` in \
 		Darwin) \
@@ -295,14 +295,10 @@ all:
 	python3 scripts/sha256sum.py dist/*.*
 
 gpg-sign:
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Linux.AppImage
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-macOS.dmg
-	gpg2 -a --detach-sign --default-key 0xD38A20A62777E1A5 release/Gridsync-Windows-setup.exe
+	python3 scripts/gpg.py --sign
 
 gpg-verify:
-	gpg2 --verify release/Gridsync-Linux.AppImage{.asc,}
-	gpg2 --verify release/Gridsync-macOS.dmg{.asc,}
-	gpg2 --verify release/Gridsync-Windows-setup.exe{.asc,}
+	python3 scripts/gpg.py --verify
 
 pypi-release:
 	python setup.py sdist bdist_wheel

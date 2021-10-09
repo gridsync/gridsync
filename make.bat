@@ -82,7 +82,7 @@ call copy ..\..\misc\rsa-public-exponent.patch .
 call git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-call python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@8d66213431e5ea68683d9d1cd4266614314e85a1
+call python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@b08aacee3adc40db8e6c6d7e31700861d5014cb5
 call python -m pip install .
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list

@@ -153,7 +153,9 @@ class ZKAPAuthorizer:
             log.debug("ZKAP backup %s already uploaded", local_backup_filename)
             return
         try:
-            with open(os.path.join(self.zkapsdir, "last-redeemed")) as f:
+            with open(
+                os.path.join(self.zkapsdir, "last-redeemed"), encoding="utf-8"
+            ) as f:
                 if timestamp == f.read():
                     log.debug(
                         "No ZKAP backup needed for %s; cancelling", timestamp

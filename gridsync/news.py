@@ -50,7 +50,7 @@ class NewscapChecker(QObject):
                 logging.warning("Error downloading '%s': %s", dest, str(e))
         newest_message_filepath = downloads[-1][0]
         if os.path.exists(newest_message_filepath):
-            with open(newest_message_filepath) as f:
+            with open(newest_message_filepath, encoding="utf-8") as f:
                 self.message_received.emit(self.gateway, f.read().strip())
 
     @inlineCallbacks
@@ -124,7 +124,7 @@ class NewscapChecker(QObject):
         if not self._started:
             self._started = True
             try:
-                with open(self._last_checked_path) as f:
+                with open(self._last_checked_path, encoding="utf-8") as f:
                     last_checked = int(f.read())
             except (OSError, ValueError):
                 last_checked = 0

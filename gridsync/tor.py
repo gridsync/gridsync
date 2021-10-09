@@ -6,7 +6,7 @@ import txtorcon
 from PyQt5.QtWidgets import QMessageBox
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import settings
+from gridsync import features
 
 # From https://styleguide.torproject.org/visuals/
 # "The main Tor Project color is Purple. Use Dark Purple as a secondary option"
@@ -33,11 +33,8 @@ def tor_required(furl):
 @inlineCallbacks
 def get_tor(reactor):  # TODO: Add launch option?
     tor = None
-    features_settings = settings.get("features")
-    if features_settings:
-        tor_setting = features_settings.get("tor")
-        if tor_setting and tor_setting.lower() == "false":
-            return tor
+    if not features.tor:
+        return tor
     logging.debug("Looking for a running Tor daemon...")
     try:
         tor = yield txtorcon.connect(reactor)

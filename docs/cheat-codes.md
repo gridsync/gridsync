@@ -35,6 +35,8 @@ What "cheat codes" are available in Gridsync?
 
 Currently, the following "cheat codes" are available in Gridsync:
 
+- `0-test-grid`: The "official" Tahoe-LAFS [Public Test Grid](https://tahoe-lafs.org/trac/tahoe-lafs/wiki/TestGrid) (or "pubgrid"), operated by the Tahoe-LAFS community.
+
 - `0-demo-grid`: A low-capacity, single-node storage grid intended for live demonstration and testing purposes only. Shares stored on this grid will be deleted periodically; do not use it for anything important!
 
 - `0-hro-cloud`: "A secure file storage system to human rights organizations that cannot or do not want to host and maintain their own storage servers" provided by Least Authority. See [this blog post](https://leastauthority.com/blog/the-hro-cloud-least-authority-launches-secure-cloud-storage-for-human-rights-organizations/) for futher details.

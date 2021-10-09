@@ -10,7 +10,7 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
     if pidfile:
         pidfile_path = Path(pidfile)
         try:
-            pid = int(pidfile_path.read_text())
+            pid = int(pidfile_path.read_text(encoding="utf-8"))
         except (EnvironmentError, ValueError) as err:
             logging.error("Error loading pid from %s: %s", pidfile, str(err))
             return

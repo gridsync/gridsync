@@ -193,6 +193,16 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "windows-10" do |b|
     b.vm.box = "gusztavvargadr/windows-10"
+    b.vm.provider "virtualbox" do |vb|
+      vb.customize ['modifyvm', :id, '--usb', 'on']
+      vb.customize ['usbfilter', 'add', '0',
+        '--target', :id,
+        '--name', "SafeNet Token JC [0001]",
+        '--manufacturer', "SafeNet",
+        '--vendorid', "0x0529",
+        '--productid', "0x0620",
+        '--product', "Token JC"]
+    end
     b.vm.synced_folder ".", "/Users/vagrant/vagrant"
     b.vm.provision "devtools", type: "shell", run: "never", path: "scripts/provision_devtools.bat"
     b.vm.provision "test", type: "shell", run: "never", inline: test_windows

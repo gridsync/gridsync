@@ -282,9 +282,7 @@ class GridChecker(QObject):
 class _VoucherParse:
     """
     :ivar total_tokens: A number of spendable tokens that are expected to
-        exist due to all of the vouchers that have already been redeemed plus
-        those expected to exist when vouchers currently being redeemed finish
-        being redeemed.
+        exist due to all of the vouchers that have already been redeemed.
 
     :ivar unpaid_vouchers: A list of voucher identifiers which are believed to
         not yet have been paid for.
@@ -327,7 +325,7 @@ def _parse_vouchers(
         number = voucher["number"]
         state = voucher["state"]
         name = state["name"]
-        if name == "unpaid":
+        if name == "unpaid":  # or "redeeming"?
             # XXX There is no reliable way of knowing whether the user
             # intends to pay for an older voucher -- i.e., one that
             # was created before the application started --
@@ -339,8 +337,6 @@ def _parse_vouchers(
             time_created = datetime.fromisoformat(created)
             if time_created > time_started:
                 unpaid_vouchers.add(number)
-        elif name == "redeeming":
-            total += voucher["expected-tokens"]
         elif name == "redeemed":
             total += state["token-count"]
             finished = state["finished"]
@@ -396,7 +392,10 @@ class ZKAPChecker(QObject):
     def _maybe_load_last_redeemed(self) -> None:
         try:
             with open(
-                Path(self.gateway.nodedir, "private", "zkaps", "last-redeemed")
+                Path(
+                    self.gateway.nodedir, "private", "zkaps", "last-redeemed"
+                ),
+                encoding="utf-8",
             ) as f:
                 last_redeemed = f.read()
         except FileNotFoundError:
@@ -424,7 +423,8 @@ class ZKAPChecker(QObject):
     def _maybe_load_last_total(self) -> int:
         try:
             with open(
-                Path(self.gateway.nodedir, "private", "zkaps", "last-total")
+                Path(self.gateway.nodedir, "private", "zkaps", "last-total"),
+                encoding="utf-8",
             ) as f:
                 return int(f.read())
         except FileNotFoundError:

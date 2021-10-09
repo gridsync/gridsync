@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
-from gridsync import APP_NAME, resource, settings
+from gridsync import APP_NAME, features, resource
 from gridsync.desktop import open_path
 from gridsync.gui.font import Font
 from gridsync.gui.model import Model
@@ -456,12 +456,7 @@ class View(QTreeView):
             QIcon(resource("close.png")), "Remove from Recovery Key..."
         )
         menu.addAction(open_action)
-        features_settings = settings.get("features")
-        if features_settings:
-            invites_setting = features_settings.get("invites")
-            if invites_setting and invites_setting.lower() != "false":
-                menu.addMenu(share_menu)
-        else:
+        if features.invites:
             menu.addMenu(share_menu)
         menu.addSeparator()
         menu.addAction(remove_action)

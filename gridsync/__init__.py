@@ -2,6 +2,7 @@
 
 import os
 import sys
+from collections import namedtuple
 
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
@@ -41,6 +42,33 @@ try:
     APP_NAME = settings["application"]["name"]
 except KeyError:
     APP_NAME = "Gridsync"
+
+
+grid_invites_enabled: bool = True
+invites_enabled: bool = True
+multiple_grids_enabled: bool = True
+tor_enabled: bool = True
+
+_features = settings.get("features")
+if _features:
+    _grid_invites = _features.get("grid_invites")
+    if _grid_invites and _grid_invites.lower() == "false":
+        grid_invites_enabled = False
+    _invites = _features.get("invites")
+    if _invites and _invites.lower() == "false":
+        invites_enabled = False
+    _multiple_grids = _features.get("multiple_grids")
+    if _multiple_grids and _multiple_grids.lower() == "false":
+        multiple_grids_enabled = False
+    _tor = _features.get("tor")
+    if _tor and _tor.lower() == "false":
+        tor_enabled = False
+
+Features = namedtuple("Features", "grid_invites invites multiple_grids tor")
+features = Features(
+    grid_invites_enabled, invites_enabled, multiple_grids_enabled, tor_enabled
+)
+
 
 if sys.platform == "win32":
     appdata = str(os.getenv("APPDATA"))
@@ -83,7 +111,7 @@ def resource(filename):
 # so load the version string from a file written at freeze-time instead.
 if getattr(sys, "frozen", False):
     try:
-        with open(resource("version.txt")) as f:
+        with open(resource("version.txt"), encoding="utf-8") as f:
             __version__ = f.read()
     except OSError:
         __version__ = "Unknown"
