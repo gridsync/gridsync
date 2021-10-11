@@ -115,11 +115,12 @@ The project `Makefile`_ (or `make.bat`_ file on Windows) references the various 
     make
  
 
-This will create a standalone executable distribution of Gridsync with all of its dependencies included (including a "frozen" python interpreter and Tahoe-LAFS, using `PyInstaller`_), placing the resultant files/installers in the `dist/` subdirectory. Should any errors arise regarding missing dependencies, a `provision_devtools.sh`_ script (or `provision_devtools.bat`_ on Windows) is provided to download and install all of the core dependencies needed to build Gridsync on most supported operating systems.
+This will create a standalone executable distribution of Gridsync with all of its dependencies included (including a "frozen" python interpreter and Tahoe-LAFS, using `PyInstaller`_), placing the resultant files/installers in the `dist/` subdirectory. The Gridsync build process is `reproducible`_ such that, given the same set of build inputs (i.e., a particular revision of the source code), the resultant build output(s) (i.e., the application binaries) will always be bit-for-bit identical. Should any errors arise regarding missing dependencies, a `provision_devtools.sh`_ script (or `provision_devtools.bat`_ on Windows) is provided to download and install all of the core dependencies needed to build Gridsync on most supported operating systems.
 
 .. _Makefile: https://github.com/gridsync/gridsync/blob/master/Makefile
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
 .. _PyInstaller: http://www.pyinstaller.org/
+.. _reproducible: https://reproducible-builds.org/
 .. _provision_devtools.sh: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.sh
 .. _provision_devtools.bat: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.bat
 
