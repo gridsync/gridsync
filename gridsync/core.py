@@ -115,7 +115,6 @@ class Core:
             minimize_preference = get_preference("startup", "minimize")
             if not minimize_preference or minimize_preference == "false":
                 self.gui.show_main_window()
-            yield self.select_executable()
             tor_available = yield get_tor(reactor)
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
             for nodedir in nodedirs:
@@ -137,7 +136,6 @@ class Core:
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()
-            yield self.select_executable()
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except
