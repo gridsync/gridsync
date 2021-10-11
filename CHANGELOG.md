@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.0 - 2021-10-11
+- No significant changes since 0.5.0rc2
+
 ## 0.5.0rc2 - 2021-10-08
 ### Added
 - Added support for preserving/restoring the Tahoe-LAFS convergence secret via the Recovery Key (Issue #347; PR #356)
