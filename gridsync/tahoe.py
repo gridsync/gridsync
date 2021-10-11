@@ -7,7 +7,6 @@ import os
 import re
 import shutil
 import sys
-import tempfile
 from collections import OrderedDict, defaultdict
 from pathlib import Path
 from typing import Dict, List
@@ -20,7 +19,6 @@ from twisted.internet.error import ConnectError
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
-from gridsync import pkgdir
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
