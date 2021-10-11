@@ -1260,33 +1260,3 @@ class Tahoe:
             log.debug("Found storage plugins: %s", plugins)
         else:
             log.debug("No storage plugins found")
-
-
-@inlineCallbacks
-def select_executable():
-    if getattr(sys, "frozen", False):
-        # Always select the bundled tahoe executable if using a binary build.
-        # To prevent issues caused by potentially broken or outdated tahoe
-        # installations on the user's PATH.
-        if sys.platform == "win32":
-            return os.path.join(pkgdir, "Tahoe-LAFS", "tahoe.exe")
-        return os.path.join(pkgdir, "Tahoe-LAFS", "tahoe")
-    executables = which("tahoe")
-    if not executables:
-        return None
-    tasks = []
-    with tempfile.TemporaryDirectory() as tmpdir:
-        for executable in executables:
-            log.debug(
-                "Found %s; checking for multi-magic-folder support...",
-                executable,
-            )
-            tasks.append(Tahoe(tmpdir, executable=executable).get_features())
-    results = yield DeferredList(tasks)
-    for success, result in results:
-        if success:
-            path, has_folder_support, has_multi_folder_support = result
-            if has_folder_support and has_multi_folder_support:
-                log.debug("Found suitable executable: %s", path)
-                return path
-    return None

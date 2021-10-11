@@ -19,7 +19,7 @@ from twisted.internet.defer import inlineCallbacks
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
 from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
-from gridsync.tahoe import Tahoe, select_executable
+from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 
 
@@ -282,9 +282,8 @@ class SetupRunner(QObject):
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
 
-        executable = yield select_executable()
         nodedir = os.path.join(config_dir, nickname)
-        self.gateway = Tahoe(nodedir, executable=executable)
+        self.gateway = Tahoe(nodedir)
         yield self.gateway.create_client(**settings)
 
         self.gateway.save_settings(settings)

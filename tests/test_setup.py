@@ -417,9 +417,6 @@ def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
 @inlineCallbacks
 def test_join_grid_emit_update_progress_signal(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr(
-        "gridsync.setup.select_executable", lambda: (None, None)
-    )
-    monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
     monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
@@ -434,9 +431,6 @@ def test_join_grid_emit_update_progress_signal(monkeypatch, qtbot, tmpdir):
 def test_join_grid_emit_update_progress_signal_via_tor(
     monkeypatch, qtbot, tmpdir
 ):
-    monkeypatch.setattr(
-        "gridsync.setup.select_executable", lambda: (None, None)
-    )
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
@@ -453,9 +447,6 @@ def test_join_grid_emit_got_icon_signal_nickname_least_authority_s4(
     monkeypatch, qtbot, tmpdir
 ):
     monkeypatch.setattr(
-        "gridsync.setup.select_executable", lambda: (None, None)
-    )
-    monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
     monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
@@ -471,9 +462,6 @@ def test_join_grid_emit_got_icon_signal_icon_base64(
     monkeypatch, qtbot, tmpdir
 ):
     tmp_config_dir = str(tmpdir.mkdir("config_dir"))
-    monkeypatch.setattr(
-        "gridsync.setup.select_executable", lambda: (None, None)
-    )
     monkeypatch.setattr("gridsync.setup.config_dir", tmp_config_dir)
     monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
     sr = SetupRunner([])
@@ -487,9 +475,6 @@ def test_join_grid_emit_got_icon_signal_icon_base64(
 def test_join_grid_emit_got_icon_signal_icon_url(monkeypatch, qtbot, tmpdir):
     tmp_config_dir = str(tmpdir.mkdir("config_dir"))
     os.makedirs(os.path.join(tmp_config_dir, "TestGrid"))
-    monkeypatch.setattr(
-        "gridsync.setup.select_executable", lambda: (None, None)
-    )
     monkeypatch.setattr("gridsync.setup.config_dir", tmp_config_dir)
     monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
     monkeypatch.setattr("treq.get", fake_get)
@@ -503,9 +488,6 @@ def test_join_grid_emit_got_icon_signal_icon_url(monkeypatch, qtbot, tmpdir):
 
 @inlineCallbacks
 def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
-    monkeypatch.setattr(
-        "gridsync.setup.select_executable", lambda: (None, None)
-    )
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
@@ -524,9 +506,6 @@ def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
 
 @inlineCallbacks
 def test_join_grid_storage_servers(monkeypatch, tmpdir):
-    monkeypatch.setattr(
-        "gridsync.setup.select_executable", lambda: (None, None)
-    )
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
