@@ -60,7 +60,7 @@ class DevicesManager(QObject):
         try:
             devicecap = yield self.gateway.mkdir(root, name)
         finally:
-            yield self._devicescap_lock.release()
+            yield self._devicescap_lock.release()  # type: ignore
         return devicecap
 
     @inlineCallbacks
@@ -74,7 +74,7 @@ class DevicesManager(QObject):
         try:
             yield self.gateway.unlink(root, device_name)
         finally:
-            yield self._devicescap_lock.release()
+            yield self._devicescap_lock.release()  # type: ignore
         self.device_removed.emit(device_name)
         logging.debug("Removed device %s", device_name)
 
@@ -115,7 +115,7 @@ class DevicesManager(QObject):
         tasks = []
         for name, cap in devicecaps:
             tasks.append(self._get_folders_for_device(name, cap))
-        results = yield DeferredList(tasks, consumeErrors=True)  # type: ignore
+        results = yield DeferredList(tasks, consumeErrors=True)
         for success, result in results:
             if success:
                 devices.append(result)
@@ -140,7 +140,7 @@ class DevicesManager(QObject):
         tasks = []
         for folder in folders:
             tasks.append(self._do_invite(device, folder))
-        results = yield DeferredList(tasks, consumeErrors=True)  # type: ignore
+        results = yield DeferredList(tasks, consumeErrors=True)
 
         invites = []
         for success, result in results:
@@ -154,7 +154,7 @@ class DevicesManager(QObject):
                     folder, devicecap, code, grant_admin=False
                 )
             )
-        yield DeferredList(tasks, consumeErrors=True)  # type: ignore
+        yield DeferredList(tasks, consumeErrors=True)
         return devicecap
 
     @inlineCallbacks
@@ -179,7 +179,7 @@ class DevicesManager(QObject):
                 tasks.append(
                     self.gateway.magic_folder_uninvite(folder, device_name)
                 )
-        yield DeferredList(tasks, consumeErrors=True)  # type: ignore
+        yield DeferredList(tasks, consumeErrors=True)
 
         tasks = [self.remove_devicecap(device) for device in filtered]
-        yield DeferredList(tasks, consumeErrors=True)  # type: ignore
+        yield DeferredList(tasks, consumeErrors=True)
