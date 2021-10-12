@@ -21,7 +21,7 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 * "Batteries included" packaging -- Gridsync bundles will include Tahoe-LAFS and all required dependencies for a frictionless installation experience; no python installation or manual compilation is required.
 * A graphical user interface for managing primary Tahoe-LAFS functionality (e.g., starting, stopping, configuring gateways) -- the user will never have to edit a text file by hand or touch the command line.
 * "Native" look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
-* Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' "Magic Folder" feature [*]_ ).
+* Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' "Magic-Folder" feature [*]_ ).
 * Status indicators -- the user will know, at a glance, the number of connected storage nodes, folder sizes and modification times, when folders are synchronizing, recently updated files, etc.
 * Desktop integration -- Gridsync can (optionally) start automatically on login and provide desktop notifications when certain operations have completed.
 * Easy sharing -- Gridsync uses the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
@@ -34,7 +34,7 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 .. _Tor support: https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md
 .. _Tor: https://torproject.org
 
-.. [*] Tahoe-LAFS' "Magic Folder" functionality is not (yet) fully supported on macOS or other BSD-based operating systems and is presently marked as experimental.
+.. [*] Magic-Folder was [removed from Tahoe-LAFS in version 1.15](https://github.com/tahoe-lafs/tahoe-lafs/blob/master/NEWS.rst#release-1150-2020-10-13) and split off into a [standalone project](https://github.com/LeastAuthority/magic-folder). Future releases of Gridsync will ship and use the standalone Magic-Folder application.
 
 
 Screenshots (latest release; running macOS 10.14 with dark mode enabled):
@@ -115,11 +115,12 @@ The project `Makefile`_ (or `make.bat`_ file on Windows) references the various 
     make
  
 
-This will create a standalone executable distribution of Gridsync with all of its dependencies included (including a "frozen" python interpreter and Tahoe-LAFS, using `PyInstaller`_), placing the resultant files/installers in the `dist/` subdirectory. Should any errors arise regarding missing dependencies, a `provision_devtools.sh`_ script (or `provision_devtools.bat`_ on Windows) is provided to download and install all of the core dependencies needed to build Gridsync on most supported operating systems.
+This will create a standalone executable distribution of Gridsync with all of its dependencies included (including a "frozen" python interpreter and Tahoe-LAFS, using `PyInstaller`_), placing the resultant files/installers in the `dist/` subdirectory. The Gridsync build process is `reproducible`_ such that, given the same set of build inputs (i.e., a particular revision of the source code), the resultant build output(s) (i.e., the application binaries) will always be bit-for-bit identical. Should any errors arise regarding missing dependencies, a `provision_devtools.sh`_ script (or `provision_devtools.bat`_ on Windows) is provided to download and install all of the core dependencies needed to build Gridsync on most supported operating systems.
 
 .. _Makefile: https://github.com/gridsync/gridsync/blob/master/Makefile
 .. _make.bat: https://github.com/gridsync/gridsync/blob/master/make.bat
 .. _PyInstaller: http://www.pyinstaller.org/
+.. _reproducible: https://reproducible-builds.org/
 .. _provision_devtools.sh: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.sh
 .. _provision_devtools.bat: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.bat
 
