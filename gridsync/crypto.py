@@ -55,12 +55,12 @@ def create_certificate(pemfile: str, hostname: str, ip_address: str) -> bytes:
     )
     with open(pemfile, "wb") as f:
         f.write(
-            key.private_bytes(
+            cert.public_bytes(serialization.Encoding.PEM)
+            + key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
                 encryption_algorithm=serialization.NoEncryption(),
             )
-            + cert.public_bytes(serialization.Encoding.PEM)
         )
     return cert.fingerprint(hashes.SHA256())
 
