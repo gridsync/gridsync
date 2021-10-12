@@ -66,14 +66,14 @@ def create_certificate(pemfile: str, hostname: str, ip_address: str) -> bytes:
 
 
 def get_certificate_digest(pemfile: str) -> bytes:
-    with open(pemfile) as f:
+    with open(pemfile, encoding="utf-8") as f:
         cert = x509.load_pem_x509_certificate(f.read().encode())
     digest = cert.fingerprint(hashes.SHA256())
     return digest
 
 
 def get_certificate_public_bytes(pemfile: str) -> bytes:
-    with open(pemfile) as f:
+    with open(pemfile, encoding="utf-8") as f:
         cert = x509.load_pem_x509_certificate(f.read().encode())
     public_bytes = cert.public_bytes(serialization.Encoding.PEM)
     return public_bytes

@@ -95,7 +95,7 @@ class Bridge:
 
     def _get_bridge_address(self, port: int = 0) -> Tuple[str, int]:
         if os.path.exists(self.urlfile):
-            with open(self.urlfile) as f:
+            with open(self.urlfile, encoding="utf-8") as f:
                 url = urlparse(f.read().strip())
             bridge_host, bridge_port = url.hostname, url.port
             if not bridge_host:
@@ -111,7 +111,7 @@ class Bridge:
                 bridge_port = port
             else:
                 bridge_port = get_free_port()
-            with open(self.urlfile, "w") as f:
+            with open(self.urlfile, "w", encoding="utf-8") as f:
                 f.write(f"{self.scheme}://{bridge_host}:{bridge_port}")
         return bridge_host, bridge_port
 
@@ -123,7 +123,7 @@ class Bridge:
                 self.__certificate_digest = create_certificate(
                     self.pemfile, ip + ".invalid", ip
                 )
-            with open(self.pemfile) as f:
+            with open(self.pemfile, encoding="utf-8") as f:
                 cert = ssl.PrivateCertificate.loadPEM(f.read()).options()
             return SSL4ServerEndpoint(self._reactor, port, cert, interface=ip)
         return TCP4ServerEndpoint(self._reactor, port, interface=ip)
