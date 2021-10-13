@@ -131,5 +131,6 @@ types-atomicwrites==1.4.1 \
 types-PyYAML==5.4.11 \
     --hash=sha256:09b7e488b8057677b7cdf348d2ba5fdcf0952d2f468e86834631db56e5125058 \
     --hash=sha256:802566879aa630b3199f33f3523d4ba069d248d04cea1a12cfa35ecd0dd86622
+# astroid 2.8.2 depends on wrapt>=1.11,<1.13; keep pinned until astroid 2.8.3
 wrapt==1.12.1 \
     --hash=sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7
