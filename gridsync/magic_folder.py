@@ -138,12 +138,24 @@ class MagicFolderMonitor(QObject):
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():
             if folder not in self._known_folders:
-                self._watchdog.add_watch(data.get("magic_path", ""))
                 self.folder_added.emit(folder)
+                magic_path = data.get("magic_path", "")
+                try:
+                    self._watchdog.add_watch(magic_path)
+                except Exception as exc:  # pylint: disable=broad-except
+                    logging.warning(
+                        "Error adding watch for %s: %s", magic_path, str(exc)
+                    )
         for folder, data in self._known_folders.items():
             if folder not in folders:
-                self._watchdog.remove_watch(data.get("magic_path", ""))
                 self.folder_removed.emit(folder)
+                magic_path = data.get("magic_path", "")
+                try:
+                    self._watchdog.remove_watch(magic_path)
+                except Exception as exc:  # pylint: disable=broad-except
+                    logging.warning(
+                        "Error removing watch for %s: %s", magic_path, str(exc)
+                    )
         self._known_folders = folders
 
     def compare_backups(self, backups: List[str]) -> None:
