@@ -546,7 +546,6 @@ class MagicFolder:
         output = yield self._request(
             "PUT",
             f"/magic-folder/{folder_name}/scan",
-            body=json.dumps({"wait-for-snapshots": True}).encode("utf-8"),
         )
         return output
 
