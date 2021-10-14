@@ -33,26 +33,14 @@ class Watchdog(QObject):
 
     def add_watch(self, path: str) -> None:
         logging.debug("Scheduling watch for %s...", path)
-        try:
-            self._watches[path] = self._observer.schedule(
-                _WatchdogEventHandler(self, path), path, recursive=True
-            )
-        except FileNotFoundError:
-            logging.warning(
-                "Cannot schedule watch for missing path; returning"
-            )
-            return
+        self._watches[path] = self._observer.schedule(
+            _WatchdogEventHandler(self, path), path, recursive=True
+        )
         logging.debug("Watch scheduled for %s", path)
 
     def remove_watch(self, path: str) -> None:
         logging.debug("Unscheduling watch for %s...", path)
-        try:
-            self._observer.unschedule(self._watches.get(path))
-        except (FileNotFoundError, KeyError):
-            logging.warning(
-                "Cannot unschedule watch for missing path; returning"
-            )
-            return
+        self._observer.unschedule(self._watches.get(path))
         try:
             del self._watches[path]
         except KeyError:
