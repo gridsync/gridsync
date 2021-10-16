@@ -252,7 +252,7 @@ def test_get_object_sizes(magic_folder, tmp_path):
 @inlineCallbacks
 def test_get_all_object_sizes(magic_folder, tmp_path):
     folders = yield magic_folder.get_folders()
-    for folder in folders:
+    for folder in list(folders):
         yield magic_folder.leave_folder(folder)
 
     folder_name = randstr()
@@ -506,7 +506,7 @@ def test_monitor_emits_folder_size_updated_signal(
 def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
     # Removing existing folders first
     folders = yield magic_folder.get_folders()
-    for folder in folders:
+    for folder in list(folders):
         yield magic_folder.leave_folder(folder)
     folder_name = randstr()
     path = tmp_path / folder_name
