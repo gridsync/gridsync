@@ -614,3 +614,5 @@ class MagicFolder:
         author = f"Restored-{datetime.now().isoformat()}"
         yield self.add_participant(folder_name, author, personal_dmd)
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
+        # If only there was some way to force a remote poll here...
+        # https://github.com/LeastAuthority/magic-folder/issues/572
