@@ -26,7 +26,6 @@ async def magic_folder(tahoe_client):
 @async_yield_fixture(scope="module")
 async def alice_magic_folder(tmp_path_factory, tahoe_server):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
-    print("Alice's client nodedir:", client.nodedir)
     settings = {
         "nickname": "Test Grid",
         "shares-needed": "1",
@@ -48,7 +47,6 @@ async def alice_magic_folder(tmp_path_factory, tahoe_server):
 @async_yield_fixture(scope="module")
 async def bob_magic_folder(tmp_path_factory, tahoe_server):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
-    print("Bob's client nodedir:", client.nodedir)
     settings = {
         "nickname": "Test Grid",
         "shares-needed": "1",
