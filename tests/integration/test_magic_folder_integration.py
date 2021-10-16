@@ -79,6 +79,13 @@ def until(predicate, timeout=10, period=0.2):
 
 
 @inlineCallbacks
+def leave_all_folders(magic_folder):
+    folders = yield magic_folder.get_folders()
+    for folder in list(folders):
+        yield magic_folder.leave_folder(folder)
+
+
+@inlineCallbacks
 def test_version(magic_folder):
     output = yield magic_folder.version()
     assert output.startswith("Magic")
@@ -251,9 +258,7 @@ def test_get_object_sizes(magic_folder, tmp_path):
 
 @inlineCallbacks
 def test_get_all_object_sizes(magic_folder, tmp_path):
-    folders = yield magic_folder.get_folders()
-    for folder in list(folders):
-        yield magic_folder.leave_folder(folder)
+    yield leave_all_folders(magic_folder)
 
     folder_name = randstr()
     path = tmp_path / folder_name
@@ -505,9 +510,8 @@ def test_monitor_emits_folder_size_updated_signal(
 @inlineCallbacks
 def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
     # Removing existing folders first
-    folders = yield magic_folder.get_folders()
-    for folder in list(folders):
-        yield magic_folder.leave_folder(folder)
+    yield leave_all_folders(magic_folder)
+
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
