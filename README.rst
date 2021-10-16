@@ -21,20 +21,19 @@ The Gridsync project intends to overcome some of Tahoe-LAFS's usability barriers
 * "Batteries included" packaging -- Gridsync bundles will include Tahoe-LAFS and all required dependencies for a frictionless installation experience; no python installation or manual compilation is required.
 * A graphical user interface for managing primary Tahoe-LAFS functionality (e.g., starting, stopping, configuring gateways) -- the user will never have to edit a text file by hand or touch the command line.
 * "Native" look and feel -- Gridsync uses the Qt application framework, emulating native widgets on all target platforms; the user can expect Gridsync to behave like any other desktop application.
-* Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using Tahoe-LAFS' "Magic-Folder" feature [*]_ ).
+* Automated bi-directional file synchronization -- Gridsync will monitor local and remote directories, seamlessly storing or retrieving new versions of files as they appear (using `Magic-Folder`_).
 * Status indicators -- the user will know, at a glance, the number of connected storage nodes, folder sizes and modification times, when folders are synchronizing, recently updated files, etc.
 * Desktop integration -- Gridsync can (optionally) start automatically on login and provide desktop notifications when certain operations have completed.
 * Easy sharing -- Gridsync uses the `magic-wormhole`_ library to provide human-pronounceable "`invite codes`_" for joining storage grids and sharing folders with other users.
 * Simple recovery -- Gridsync's "`Recovery Key`_" subsystem allows connections and folders to be easily restored from a single file in the event of a disaster.
 * `Tor support`_ (experimental) -- Gridsync can tunnel outgoing connections through the `Tor`_ anonymity network, concealing users' network location from storage service providers and each other.
 
+.. _Magic-Folder: https://github.com/LeastAuthority/magic-folder
 .. _magic-wormhole: http://magic-wormhole.io
 .. _invite codes: https://github.com/gridsync/gridsync/blob/master/docs/invite-codes.md
 .. _Recovery Key: https://github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md
 .. _Tor support: https://github.com/gridsync/gridsync/blob/master/docs/tor-integration.md
 .. _Tor: https://torproject.org
-
-.. [*] Magic-Folder was [removed from Tahoe-LAFS in version 1.15](https://github.com/tahoe-lafs/tahoe-lafs/blob/master/NEWS.rst#release-1150-2020-10-13) and split off into a [standalone project](https://github.com/LeastAuthority/magic-folder). Future releases of Gridsync will ship and use the standalone Magic-Folder application.
 
 
 Screenshots (latest release; running macOS 10.14 with dark mode enabled):
@@ -160,12 +159,10 @@ Alternatively, users with `docker` installed can use the CentOS 7-based `gridsyn
 Known issues and limitations:
 -----------------------------
 
-While Gridsync ultimately aims to provide an easy-to-use frontend for users of Tahoe-LAFS, at present, its interface only supports a very limited subset of Tahoe-LAFS's underlying features and potential use-cases (namely, it provides simplified means for joining storage grids, creating and sharing "magic-folders," and receiving status updates and notifications pertaining to those processes). Accordingly, users should not (yet) expect Gridsync to provide a complete backup solution or to serve as a stand-in replacement for other tools with robust sharing and collaboration capabilities.
+While Gridsync ultimately aims to provide an easy-to-use frontend for users of Tahoe-LAFS, at present, its interface only supports a very limited subset of Tahoe-LAFS's underlying features and potential use-cases (namely, it provides simplified means for joining storage grids, creating and sharing "magic-folders," and receiving status updates and notifications pertaining to those processes). Accordingly, users should not (yet) expect Gridsync to provide a complete backup solution or to serve as a stand-in replacement for other tools with robust sharing and collaboration capabilities. In addition, it should be noted that `Magic-Folder`_ is currently under heavy development and has a number of `known issues and limitations`_.
 
-In addition, it should be noted that Tahoe-LAFS's "magic-folder" functionality itself is currently considered "experimental" and has a number of `known issues and limitations`_ and `open development tickets`_.
-
-.. _known issues and limitations: https://tahoe-lafs.readthedocs.io/en/tahoe-lafs-1.12.1/frontends/magic-folder.html#known-issues-and-limitations-with-magic-folder
-.. _open development tickets: https://tahoe-lafs.org/trac/tahoe-lafs/search?q=magic-folder&noquickjump=1&ticket=on
+.. _Magic-Folder: https://github.com/LeastAuthority/magic-folder
+.. _known issues and limitations: https://github.com/LeastAuthority/magic-folder/issues
 
 
 Contributing:
