@@ -256,7 +256,7 @@ class MagicFolderMonitor(QObject):
         folder_backups = yield self.magic_folder.get_folder_backups()
         self.compare_backups(list(folder_backups))
         results = yield DeferredList(
-            [self._get_file_status(f) for f in folders]
+            [self._get_file_status(f) for f in folders], consumeErrors=True
         )
         for success, result in results:
             if success:  # XXX
