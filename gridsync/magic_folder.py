@@ -605,6 +605,7 @@ class MagicFolder:
     def restore_folder_backup(
         self, folder_name: str, local_path: str
     ) -> TwistedDeferred[None]:
+        logging.debug('Restoring "%s" Magic-Folder...', folder_name)
         backups = yield self.get_folder_backups()
         data = backups.get(folder_name, {})
         upload_dircap = data.get("upload_dircap")
@@ -612,3 +613,4 @@ class MagicFolder:
         yield self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
         yield self.add_participant(folder_name, author, personal_dmd)
+        logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
