@@ -484,6 +484,10 @@ class MagicFolder:
             f"/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
         )
+        try:
+            del self.magic_folders[folder_name]
+        except KeyError:
+            pass
 
     @inlineCallbacks
     def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
