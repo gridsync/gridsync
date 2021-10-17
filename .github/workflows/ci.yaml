@@ -152,6 +152,8 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: py -3 -m pip install tox diffoscope
+    - name: Check python3 version
+      run: py -3 --version
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller
