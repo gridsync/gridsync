@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Added
+- Added preliminary support for the new/standalone "[Magic-Folder]" application (Issue #290; PR #389)
+
 ## 0.5.0 - 2021-10-11
 - No significant changes since 0.5.0rc2
 
