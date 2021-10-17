@@ -7,37 +7,29 @@ import os
 import re
 import shutil
 import sys
-import tempfile
 from collections import OrderedDict, defaultdict
-from io import BytesIO
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 import treq
 import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import (
-    Deferred,
-    DeferredList,
-    DeferredLock,
-    inlineCallbacks,
-)
-from twisted.internet.error import ConnectError, ProcessDone
-from twisted.internet.protocol import ProcessProtocol
+from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.error import ConnectError
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
-from gridsync import pkgdir
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
-from gridsync.filter import filter_tahoe_log_message
+from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.preferences import get_preference, set_preference
+from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
-from gridsync.system import kill
+from gridsync.system import SubprocessProtocol, kill
 from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
@@ -58,38 +50,6 @@ def get_nodedirs(basedir):
     except OSError:
         pass
     return sorted(nodedirs)
-
-
-class CommandProtocol(ProcessProtocol):
-    def __init__(self, parent, callback_trigger=None):
-        self.parent = parent
-        self.trigger = callback_trigger
-        self.done = Deferred()
-        self.output = BytesIO()
-
-    def outReceived(self, data):
-        self.output.write(data)
-        data = data.decode("utf-8")
-        for line in data.strip().split("\n"):
-            if line:
-                self.parent.line_received(line)
-            if not self.done.called and self.trigger and self.trigger in line:
-                self.done.callback(self.transport.pid)
-
-    def errReceived(self, data):
-        self.outReceived(data)
-
-    def processEnded(self, reason):
-        if not self.done.called:
-            self.done.callback(self.output.getvalue().decode("utf-8"))
-
-    def processExited(self, reason):
-        if not self.done.called and not isinstance(reason.value, ProcessDone):
-            self.done.errback(
-                TahoeCommandError(
-                    self.output.getvalue().decode("utf-8").strip()
-                )
-            )
 
 
 class Tahoe:
@@ -117,7 +77,6 @@ class Tahoe:
             self.nodedir = os.path.expanduser(nodedir)
         else:
             self.nodedir = os.path.join(os.path.expanduser("~"), ".tahoe")
-        self.rootcap_path = os.path.join(self.nodedir, "private", "rootcap")
         self.servers_yaml_path = os.path.join(
             self.nodedir, "private", "servers.yaml"
         )
@@ -128,19 +87,17 @@ class Tahoe:
         self.name = os.path.basename(self.nodedir)
         self.api_token = None
         self.magic_folders_dir = os.path.join(self.nodedir, "magic-folders")
-        self.lock = DeferredLock()
-        self.rootcap = None
         self.magic_folders = defaultdict(dict)
         self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
-        streamedlogs_maxlen = None
+        logs_maxlen = None
         debug_settings = global_settings.get("debug")
         if debug_settings:
             log_maxlen = debug_settings.get("log_maxlen")
             if log_maxlen is not None:
-                streamedlogs_maxlen = int(log_maxlen)
-        self.streamedlogs = StreamedLogs(reactor, streamedlogs_maxlen)
+                logs_maxlen = int(log_maxlen)
+        self.streamedlogs = StreamedLogs(reactor, logs_maxlen)
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
@@ -154,6 +111,8 @@ class Tahoe:
             self.zkapauthorizer.update_zkap_checkpoint
         )
         self.storage_furl: str = ""
+        self.rootcap_manager = RootcapManager(self)
+        self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
     @staticmethod
     def read_cap_from_file(filepath):
@@ -191,10 +150,7 @@ class Tahoe:
 
         rootcap = settings.get("rootcap")
         if rootcap:
-            with atomic_write(
-                str(Path(self.nodedir, "private", "rootcap")), overwrite=True
-            ) as f:
-                f.write(rootcap)
+            self.rootcap_manager.set_rootcap(rootcap, overwrite=True)
 
         newscap = settings.get("newscap")
         if newscap:
@@ -481,9 +437,16 @@ class Tahoe:
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(logged_args))
-        protocol = CommandProtocol(self, callback_trigger)
-        reactor.spawnProcess(protocol, exe, args=args, env=env)
-        output = yield protocol.done
+        protocol = SubprocessProtocol(
+            callback_triggers=[callback_trigger],
+            stdout_line_collector=self.line_received,
+        )
+        transport = yield reactor.spawnProcess(
+            protocol, exe, args=args, env=env
+        )
+        output = yield protocol.done  # TODO: re-raise TahoeCommandError?
+        if callback_trigger:
+            return transport.pid
         return output
 
     @inlineCallbacks
@@ -556,6 +519,7 @@ class Tahoe:
                 log.debug("Successfully removed %s", fullpath)
 
     def kill(self):
+        self.magic_folder.stop()  # XXX
         kill(pidfile=self.pidfile)
         if sys.platform == "win32":
             self._win32_cleanup()
@@ -568,14 +532,17 @@ class Tahoe:
             return
         self.state = Tahoe.STOPPING
         self.streamedlogs.stop()
-        if self.lock.locked:
+        if self.rootcap_manager.lock.locked:
             log.warning(
                 "Delaying stop operation; "
                 "another operation is trying to modify the rootcap..."
             )
-            yield self.lock.acquire()
-            yield self.lock.release()
+            yield self.rootcap_manager.lock.acquire()
+            yield self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
+
+        self.magic_folder.stop()  # XXX
+
         if sys.platform == "win32":
             self.kill()
         else:
@@ -654,16 +621,6 @@ class Tahoe:
         """
         return self.streamedlogs.get_streamed_log_messages()
 
-    def get_log(self, apply_filter=False, identifier=None):
-        messages = []
-        if apply_filter:
-            for line in self.streamedlogs.get_streamed_log_messages():
-                messages.append(filter_tahoe_log_message(line, identifier))
-        else:
-            for line in self.streamedlogs.get_streamed_log_messages():
-                messages.append(json.dumps(json.loads(line), sort_keys=True))
-        return "\n".join(messages)
-
     @inlineCallbacks
     def start(self):
         log.debug('Starting "%s" tahoe client...', self.name)
@@ -718,6 +675,9 @@ class Tahoe:
         self.state = Tahoe.STARTED
 
         yield self.scan_storage_plugins()
+
+        if not self.storage_furl:  # XXX Is a client (TODO: a better way.)
+            yield self.magic_folder.start()
 
         log.debug(
             'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
@@ -844,33 +804,26 @@ class Tahoe:
         return output[1]["ro_uri"]
 
     @inlineCallbacks
-    def create_rootcap(self):
-        log.debug("Creating rootcap...")
-        if os.path.exists(self.rootcap_path):
-            raise OSError(
-                "Rootcap file already exists: {}".format(self.rootcap_path)
-            )
-        yield self.lock.acquire()
-        rootcap = yield self.mkdir()
-        try:
-            with atomic_write(self.rootcap_path, mode="w") as f:
-                f.write(rootcap)
-        except FileExistsError:
-            log.warning("Rootcap already exists")
-            return self.get_rootcap()
-        finally:
-            yield self.lock.release()
-        log.debug("Rootcap saved to file: %s", self.rootcap_path)
-        self.rootcap = rootcap
+    def create_rootcap(self) -> TwistedDeferred[str]:
+        rootcap = yield self.rootcap_manager.create_rootcap()
         return rootcap
 
     @inlineCallbacks
-    def upload(self, local_path):
+    def upload(
+        self, local_path: str, dircap: str = "", mutable: bool = False
+    ) -> TwistedDeferred[str]:
+        if dircap:
+            filename = Path(local_path).name
+            url = f"{self.nodeurl}uri/{dircap}/{filename}"
+        else:
+            url = f"{self.nodeurl}uri"
+        if mutable:
+            url = f"{url}?format=MDMF"
         log.debug("Uploading %s...", local_path)
         yield self.await_ready()
         with open(local_path, "rb") as f:
-            resp = yield treq.put("{}uri".format(self.nodeurl), f)
-        if resp.code == 200:
+            resp = yield treq.put(url, f)
+        if resp.code in (200, 201):
             content = yield treq.content(resp)
             log.debug("Successfully uploaded %s", local_path)
             return content.decode("utf-8")
@@ -901,15 +854,11 @@ class Tahoe:
             dircap_hash,
         )
         yield self.await_ready()
-        yield self.lock.acquire()
-        try:
-            resp = yield treq.post(
-                "{}uri/{}/?t=uri&name={}&uri={}".format(
-                    self.nodeurl, dircap, childname, childcap
-                )
+        resp = yield treq.post(
+            "{}uri/{}/?t=uri&name={}&uri={}".format(
+                self.nodeurl, dircap, childname, childcap
             )
-        finally:
-            yield self.lock.release()
+        )
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
@@ -925,15 +874,11 @@ class Tahoe:
         dircap_hash = trunchash(dircap)
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         yield self.await_ready()
-        yield self.lock.acquire()
-        try:
-            resp = yield treq.post(
-                "{}uri/{}/?t=unlink&name={}".format(
-                    self.nodeurl, dircap, childname
-                )
+        resp = yield treq.post(
+            "{}uri/{}/?t=unlink&name={}".format(
+                self.nodeurl, dircap, childname
             )
-        finally:
-            yield self.lock.release()
+        )
         if resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
@@ -1140,10 +1085,31 @@ class Tahoe:
             return json.loads(content.decode("utf-8"))
         return None
 
-    def get_rootcap(self):
-        if not self.rootcap:
-            self.rootcap = self.read_cap_from_file(self.rootcap_path)
-        return self.rootcap
+    @inlineCallbacks
+    def ls(
+        self,
+        cap: str,
+        exclude_dirnodes: bool = False,
+        exclude_filenodes: bool = False,
+    ) -> TwistedDeferred[Dict[str, dict]]:
+        yield self.await_ready()
+        json_output = yield self.get_json(cap)
+        results = {}
+        for name, data in json_output[1]["children"].items():
+            node_type = data[0]
+            if node_type == "dirnode" and exclude_dirnodes:
+                continue
+            if node_type == "filenode" and exclude_filenodes:
+                continue
+            data = data[1]
+            results[name] = data
+            # Include the most "authoritative" capability separately:
+            results[name]["cap"] = data.get("rw_uri", data.get("ro_uri", ""))
+            results[name]["type"] = node_type
+        return results
+
+    def get_rootcap(self) -> str:
+        return self.rootcap_manager.get_rootcap()
 
     def get_admin_dircap(self, name):
         if name in self.magic_folders:
@@ -1292,33 +1258,3 @@ class Tahoe:
             log.debug("Found storage plugins: %s", plugins)
         else:
             log.debug("No storage plugins found")
-
-
-@inlineCallbacks
-def select_executable():
-    if getattr(sys, "frozen", False):
-        # Always select the bundled tahoe executable if using a binary build.
-        # To prevent issues caused by potentially broken or outdated tahoe
-        # installations on the user's PATH.
-        if sys.platform == "win32":
-            return os.path.join(pkgdir, "Tahoe-LAFS", "tahoe.exe")
-        return os.path.join(pkgdir, "Tahoe-LAFS", "tahoe")
-    executables = which("tahoe")
-    if not executables:
-        return None
-    tasks = []
-    with tempfile.TemporaryDirectory() as tmpdir:
-        for executable in executables:
-            log.debug(
-                "Found %s; checking for multi-magic-folder support...",
-                executable,
-            )
-            tasks.append(Tahoe(tmpdir, executable=executable).get_features())
-    results = yield DeferredList(tasks)
-    for success, result in results:
-        if success:
-            path, has_folder_support, has_multi_folder_support = result
-            if has_folder_support and has_multi_folder_support:
-                log.debug("Found suitable executable: %s", path)
-                return path
-    return None

@@ -40,3 +40,97 @@ def test_upload_convergence_secret_determines_cap(tahoe_client, tmp_path):
         "URI:CHK:rowlspe46wotpra7jruhtad3xy:"
         "lnviruztzbcugtpkrxnnodehpstlcoo6pswfgqjhv3teyn656fja:1:1:64",
     )
+
+
+@inlineCallbacks
+def test_upload_to_dircap(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"1" * 64)
+    local_path = p.resolve()
+    cap = yield tahoe_client.upload(local_path, dircap)
+    assert cap.startswith("URI:CHK:")
+
+
+@inlineCallbacks
+def test_upload_mutable(tahoe_client, tmp_path):
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"0" * 64)
+    local_path = p.resolve()
+    cap = yield tahoe_client.upload(local_path, mutable=True)
+    assert cap.startswith("URI:MDMF:")
+
+
+@inlineCallbacks
+def test_upload_to_dircap_mutable(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"1" * 64)
+    local_path = p.resolve()
+    cap = yield tahoe_client.upload(local_path, dircap, mutable=True)
+    assert cap.startswith("URI:MDMF:")
+
+
+@inlineCallbacks
+def test_upload_to_dircap_mutable_uses_same_cap(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"1" * 64)
+    local_path = p.resolve()
+    cap1 = yield tahoe_client.upload(local_path, dircap, mutable=True)
+
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    cap2 = yield tahoe_client.upload(local_path, dircap, mutable=True)
+    assert cap2 == cap1
+
+
+@inlineCallbacks
+def test_ls(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    yield tahoe_client.upload(local_path, dircap)
+    subdircap = yield tahoe_client.mkdir()
+    yield tahoe_client.link(dircap, "subdir", subdircap)
+    output = yield tahoe_client.ls(dircap)
+    assert ("TestFile.txt" in output) and ("subdir" in output)
+
+
+@inlineCallbacks
+def test_ls_exclude_dirnodes(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    yield tahoe_client.upload(local_path, dircap)
+    subdircap = yield tahoe_client.mkdir()
+    yield tahoe_client.link(dircap, "subdir", subdircap)
+    output = yield tahoe_client.ls(dircap, exclude_dirnodes=True)
+    assert ("TestFile.txt" in output) and ("subdir" not in output)
+
+
+@inlineCallbacks
+def test_ls_exclude_filenodes(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    yield tahoe_client.upload(local_path, dircap)
+    subdircap = yield tahoe_client.mkdir()
+    yield tahoe_client.link(dircap, "subdir", subdircap)
+    output = yield tahoe_client.ls(dircap, exclude_filenodes=True)
+    assert ("TestFile.txt" not in output) and ("subdir" in output)
+
+
+@inlineCallbacks
+def test_ls_includes_most_authoritative_cap(tahoe_client, tmp_path):
+    dircap = yield tahoe_client.mkdir()
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"2" * 64)
+    local_path = p.resolve()
+    yield tahoe_client.upload(local_path, dircap)
+    output = yield tahoe_client.ls(dircap)
+    assert output.get("TestFile.txt").get("cap").startswith("URI:CHK:")

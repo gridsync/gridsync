@@ -185,6 +185,7 @@ class View(QTreeView):
 
     @inlineCallbacks
     def maybe_rescan_rootcap(self, _):
+        yield self.gateway.magic_folder.monitor.do_check()  # XXX
         if self._rescan_required:
             self._rescan_required = False
             logging.debug("A rescan was scheduled; rescanning...")
@@ -205,7 +206,10 @@ class View(QTreeView):
     @inlineCallbacks
     def download_folder(self, folder_name, dest):
         try:
-            yield self.gateway.restore_magic_folder(folder_name, dest)
+            # yield self.gateway.restore_magic_folder(folder_name, dest)
+            yield self.gateway.magic_folder.restore_folder_backup(
+                folder_name, os.path.join(dest, folder_name)
+            )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
@@ -215,7 +219,7 @@ class View(QTreeView):
                 "{}: {}".format(folder_name, type(e).__name__, str(e)),
             )
             return
-        self._restart_required = True
+        # self._restart_required = True
         logging.debug(
             'Successfully joined folder "%s"; scheduled restart', folder_name
         )
@@ -229,8 +233,7 @@ class View(QTreeView):
         tasks = []
         for folder in folders:
             tasks.append(self.download_folder(folder, dest))
-        d = DeferredList(tasks)
-        d.addCallback(self.maybe_restart_gateway)
+        DeferredList(tasks)  # XXX
 
     def show_failure(self, failure):
         logging.error("%s: %s", str(failure.type.__name__), str(failure.value))
@@ -239,7 +242,8 @@ class View(QTreeView):
     @inlineCallbacks
     def unlink_folder(self, folder_name):
         try:
-            yield self.gateway.unlink_magic_folder_from_rootcap(folder_name)
+            # yield self.gateway.unlink_magic_folder_from_rootcap(folder_name)
+            yield self.gateway.magic_folder.remove_folder_backup(folder_name)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
@@ -291,7 +295,8 @@ class View(QTreeView):
     @inlineCallbacks
     def remove_folder(self, folder_name, unlink=False):
         try:
-            yield self.gateway.remove_magic_folder(folder_name)
+            # yield self.gateway.remove_magic_folder(folder_name)
+            yield self.gateway.magic_folder.leave_folder(folder_name)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
@@ -303,7 +308,8 @@ class View(QTreeView):
                 ),
             )
             return
-        self.model().remove_folder(folder_name)
+        # self.model().remove_folder(folder_name)
+        self.model().on_folder_removed(folder_name)
         self._restart_required = True
         logging.debug(
             'Successfully removed folder "%s"; scheduled restart', folder_name
@@ -364,16 +370,24 @@ class View(QTreeView):
                     tasks.append(self.remove_folder(folder, unlink=True))
             d = DeferredList(tasks)
             d.addCallback(self.maybe_rescan_rootcap)
-            d.addCallback(self.maybe_restart_gateway)
+
+    def _get_magic_folder_directory(self, folder_name: str) -> str:
+        legacy_data = self.gateway.magic_folders.get(folder_name, {})
+        data = self.gateway.magic_folder.magic_folders.get(folder_name, {})
+        return str(data.get("magic_path", legacy_data.get("directory", "")))
 
     def open_folders(self, folders):
         for folder in folders:
-            folder_info = self.gateway.magic_folders.get(folder)
-            if folder_info:
-                try:
-                    open_path(folder_info["directory"])
-                except KeyError:
-                    pass
+            directory = self._get_magic_folder_directory(folder)
+            if directory:
+                open_path(directory)
+
+    def _is_local_folder(self, folder_name: str) -> bool:
+        if self.gateway.magic_folders.get(
+            folder_name
+        ) or self.gateway.magic_folder.magic_folders.get(folder_name):
+            return True
+        return False
 
     def deselect_local_folders(self):
         selected = self.selectedIndexes()
@@ -381,7 +395,7 @@ class View(QTreeView):
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if self.gateway.magic_folders.get(folder):
+                if self._is_local_folder(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -392,7 +406,7 @@ class View(QTreeView):
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if not self.gateway.magic_folders.get(folder):
+                if not self._is_local_folder(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -417,7 +431,7 @@ class View(QTreeView):
             return
         cur_folder = self.model().item(cur_item.row(), 0).text()
 
-        if self.gateway.magic_folders.get(cur_folder):  # is local folder
+        if self._is_local_folder(cur_folder):
             selection_is_remote = False
             self.deselect_remote_folders()
         else:
@@ -468,7 +482,7 @@ class View(QTreeView):
             )
         else:
             for folder in selected:
-                if not self.gateway.magic_folders[folder]["admin_dircap"]:
+                if not self.gateway.magic_folders[folder].get("admin_dircap"):
                     share_menu.setEnabled(False)
                     share_menu.setTitle(
                         "Sync with device (disabled; no admin access)"
@@ -485,7 +499,8 @@ class View(QTreeView):
         self.model().add_folder(path)
         folder_name = os.path.basename(path)
         try:
-            yield self.gateway.create_magic_folder(path)
+            # yield self.gateway.create_magic_folder(path)
+            yield self.gateway.magic_folder.add_folder(path, "admin")
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
@@ -531,8 +546,7 @@ class View(QTreeView):
             tasks = []
             for path in paths_to_add:
                 tasks.append(self.add_folder(path))
-            d = DeferredList(tasks)
-            d.addCallback(self.maybe_restart_gateway)
+            DeferredList(tasks)  # XXX
 
     def select_folder(self):
         dialog = QFileDialog(self, "Please select a folder")

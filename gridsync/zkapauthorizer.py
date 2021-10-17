@@ -113,12 +113,12 @@ class ZKAPAuthorizer:
             return self.zkap_dircap
         if not self.gateway.get_rootcap():
             yield self.gateway.create_rootcap()
-        root_json = yield self.gateway.get_json(self.gateway.rootcap)
+        root_json = yield self.gateway.get_json(self.gateway.get_rootcap())
         try:
             self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]
         except (KeyError, TypeError):
             self.zkap_dircap = yield self.gateway.mkdir(
-                self.gateway.rootcap, ".zkaps"
+                self.gateway.get_rootcap(), ".zkaps"
             )
         return self.zkap_dircap
 
@@ -258,6 +258,8 @@ class ZKAPAuthorizer:
                     size = data[1].get("size", 0)
                     if size:
                         sizes.append(size)
+        mf_sizes = yield self.gateway.magic_folder.get_all_object_sizes()
+        sizes.extend(mf_sizes)
         return sizes
 
     @inlineCallbacks

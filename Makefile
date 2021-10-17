@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := all
 SHELL := /bin/bash
+SCRIPTS := $(CURDIR)/scripts
 .PHONY: clean test all
 
 clean:
@@ -179,6 +180,32 @@ frozen-tahoe:
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
+magic-folder:
+	mkdir -p dist
+	mkdir -p build/magic-folder
+	git clone https://github.com/LeastAuthority/magic-folder.git build/magic-folder
+	python3 -m virtualenv --clear --python=python2 build/venv-magic-folder
+	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
+	# so allow falling back to the user environment.
+	# https://github.com/pypa/virtualenv/issues/2023
+	# https://github.com/pypa/virtualenv/issues/2024
+	source build/venv-magic-folder/bin/activate && \
+	python --version || deactivate && \
+	python -m pip install -r requirements/pyinstaller.txt && \
+	cp misc/magic-folder.spec build/magic-folder && \
+	pushd build/magic-folder && \
+	git checkout d96acfacbd0fa2110bacf08b6d6bd35e4d50d286 && \
+	python $(SCRIPTS)/reproducible-pip.py install --require-hashes -r requirements/base.txt && \
+	python -m pip install --no-deps . && \
+	python -m pip list && \
+	export PYTHONHASHSEED=1 && \
+	python -m PyInstaller magic-folder.spec && \
+	rm -rf dist/magic-folder/cryptography-*-py2.7.egg-info && \
+	rm -rf dist/magic-folder/include/python2.7 && \
+	rm -rf dist/magic-folder/lib/python2.7 && \
+	popd && \
+	mv build/magic-folder/dist/magic-folder dist
+
 install:
 	python3 -m pip install --upgrade .
 
@@ -190,6 +217,7 @@ install:
 # 3: https://github.com/pyinstaller/pyinstaller/issues/5361
 pyinstaller:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
+	if [ ! -d dist/magic-folder ] ; then make magic-folder ; fi
 	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
 	pip install --no-deps -r requirements/gridsync.txt && \

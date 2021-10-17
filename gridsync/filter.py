@@ -2,6 +2,7 @@
 
 import json
 import os
+from typing import List, Optional
 
 from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.crypto import trunchash
@@ -285,3 +286,19 @@ def filter_tahoe_log_message(message, identifier):
         _apply_filter_by_message_type(msg, message_type)
 
     return json.dumps(msg, sort_keys=True)
+
+
+def filter_eliot_logs(
+    messages: List[str], identifier: Optional[str] = None
+) -> List[str]:
+    filtered = []
+    for message in messages:
+        filtered.append(filter_tahoe_log_message(message, identifier))
+    return filtered
+
+
+def join_eliot_logs(messages: List[str]) -> str:
+    reordered = []
+    for message in messages:
+        reordered.append(json.dumps(json.loads(message), sort_keys=True))
+    return "\n".join(reordered)

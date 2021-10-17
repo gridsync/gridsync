@@ -38,8 +38,8 @@ class HistoryItemWidget(QWidget):
 
         self.path = data["path"]
         self.size = data["size"]
-        self.action = data["action"]
-        self.mtime = data["mtime"]
+        self.action = data.get("action", "Updated")
+        self.mtime = data.get("last-updated", data.get("mtime"))
         self._thumbnail_loaded = False
 
         self.setAutoFillBackground(True)
@@ -163,6 +163,11 @@ class HistoryListWidget(QListWidget):
             self.update_visible_widgets
         )
 
+        mf_monitor = self.gateway.magic_folder.monitor
+        mf_monitor.file_added.connect(self._on_file_added)
+        mf_monitor.file_modified.connect(self._on_file_modified)
+        mf_monitor.file_removed.connect(self._on_file_removed)
+
     def on_double_click(self, item):
         open_enclosing_folder(self.itemWidget(item).path)
 
@@ -192,7 +197,7 @@ class HistoryListWidget(QListWidget):
                 if (
                     widget
                     and widget.data["path"] == data["path"]
-                    and widget.data["member"] == data["member"]
+                    and widget.data.get("member") == data.get("member")  # XXX
                 ):
                     duplicate = i
                     break
@@ -201,12 +206,27 @@ class HistoryListWidget(QListWidget):
         else:
             self.takeItem(self.max_items)
             item = QListWidgetItem()
-        self.insertItem(0 - int(data["mtime"]), item)  # Newest on top
+        mtime = int(data.get("last-updated", data.get("mtime")))
+        self.insertItem(1 - mtime, item)  # Newest on top
         custom_widget = HistoryItemWidget(
             self.gateway, folder_name, data, self
         )
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
+        item.setText(str(mtime))
+        self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
+
+    def _on_file_added(self, folder_name, data):
+        # data["action"] = "added"  # XXX
+        self.add_item(folder_name, data)
+
+    def _on_file_modified(self, folder_name, data):
+        # data["action"] = "modified"  # XXX
+        self.add_item(folder_name, data)
+
+    def _on_file_removed(self, folder_name, data):
+        # data["action"] = "removed"  # XXX
+        self.add_item(folder_name, data)
 
     def update_visible_widgets(self):
         if not self.isVisible():

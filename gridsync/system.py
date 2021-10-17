@@ -1,9 +1,19 @@
+from __future__ import annotations
+
 import errno
 import logging
 import os
 import signal
+from io import BytesIO
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
+
+from twisted.internet.defer import Deferred
+from twisted.internet.error import ProcessDone
+from twisted.internet.protocol import ProcessProtocol
+
+if TYPE_CHECKING:
+    from twisted.python.failure import Failure
 
 
 def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
@@ -32,3 +42,60 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
             )
             return
         logging.debug("Successfully removed pidfile: %s", str(pidfile))
+
+
+class SubprocessProtocol(ProcessProtocol):
+    def __init__(
+        self,
+        callback_triggers: Optional[List[str]] = None,
+        errback_triggers: Optional[List[Tuple[str, Type[Exception]]]] = None,
+        stdout_line_collector: Optional[Callable] = None,
+        stderr_line_collector: Optional[Callable] = None,
+    ) -> None:
+        self.callback_triggers = callback_triggers
+        self.errback_triggers = errback_triggers
+        self.stdout_line_collector = stdout_line_collector
+        self.stderr_line_collector = stderr_line_collector
+        self._output = BytesIO()
+        self.done: Deferred = Deferred()
+
+    def _check_triggers(self, line: str) -> None:
+        if self.callback_triggers:
+            for text in self.callback_triggers:
+                if text and text in line:
+                    self.done.callback(
+                        self._output.getvalue().decode("utf-8").strip()
+                    )
+        if self.errback_triggers:
+            for pair in self.errback_triggers:
+                if not pair:
+                    continue
+                text, exception = pair
+                if text and exception and text in line:
+                    self.done.errback(
+                        exception(
+                            self._output.getvalue().decode("utf-8").strip()
+                        )
+                    )
+
+    def childDataReceived(self, childFD: int, data: bytes) -> None:
+        if not self.done.called:
+            self._output.write(data)
+        for line in data.decode("utf-8").strip().split("\n"):
+            if self.stdout_line_collector and childFD == 1:
+                self.stdout_line_collector(line)
+            elif self.stderr_line_collector and childFD == 2:
+                self.stderr_line_collector(line)
+            if not self.done.called:
+                self._check_triggers(line)
+
+    def processEnded(self, reason: Failure) -> None:
+        if self.done.called:
+            return
+        if isinstance(reason.value, ProcessDone):
+            self.done.callback(self._output.getvalue().decode("utf-8").strip())
+        else:
+            self.done.errback(reason)
+
+    def processExited(self, reason: Failure) -> None:
+        self.processEnded(reason)

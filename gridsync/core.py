@@ -44,8 +44,9 @@ from twisted.python.log import PythonLoggingObserver, startLogging
 from gridsync import APP_NAME, config_dir, msg, resource, settings
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
+from gridsync.magic_folder import MagicFolder
 from gridsync.preferences import get_preference, set_preference
-from gridsync.tahoe import Tahoe, get_nodedirs, select_executable
+from gridsync.tahoe import Tahoe, get_nodedirs
 from gridsync.tor import get_tor
 
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
@@ -65,8 +66,8 @@ class Core:
         self.args = args
         self.gui = None
         self.gateways = []
-        self.executable = None
         self.tahoe_version = None
+        self.magic_folder_version: str = ""
         self.operations = []
         log_deque_maxlen = 100000  # XXX
         debug_settings = settings.get("debug")
@@ -77,27 +78,20 @@ class Core:
         self.log_deque = collections.deque(maxlen=log_deque_maxlen)
 
     @inlineCallbacks
-    def select_executable(self):
-        self.executable = yield select_executable()
-        logging.debug("Selected executable: %s", self.executable)
-        if not self.executable:
-            logging.critical("Tahoe-LAFS not found")
-            msg.critical(
-                "Tahoe-LAFS not found",
-                "Could not find a suitable 'tahoe' executable in your PATH. "
-                "Please install Tahoe-LAFS version 1.13.0 or greater and try "
-                "again.",
-            )
-            reactor.stop()
-
-    @inlineCallbacks
     def get_tahoe_version(self):
-        tahoe = Tahoe(None, executable=self.executable)
+        tahoe = Tahoe(None)
         version = yield tahoe.command(["--version"])
         if version:
             self.tahoe_version = version.split("\n")[0]
             if self.tahoe_version.startswith("tahoe-lafs: "):
                 self.tahoe_version = self.tahoe_version.lstrip("tahoe-lafs: ")
+
+    @inlineCallbacks
+    def get_magic_folder_version(self):
+        magic_folder = MagicFolder(Tahoe(None))
+        version = yield magic_folder.version()
+        if version:
+            self.magic_folder_version = version.lstrip("Magic Folder version ")
 
     @inlineCallbacks
     def start_gateways(self):
@@ -106,11 +100,10 @@ class Core:
             minimize_preference = get_preference("startup", "minimize")
             if not minimize_preference or minimize_preference == "false":
                 self.gui.show_main_window()
-            yield self.select_executable()
             tor_available = yield get_tor(reactor)
             logging.debug("Starting Tahoe-LAFS gateway(s)...")
             for nodedir in nodedirs:
-                gateway = Tahoe(nodedir, executable=self.executable)
+                gateway = Tahoe(nodedir)
                 tcp = gateway.config_get("connections", "tcp")
                 if tcp == "tor" and not tor_available:
                     logging.error("No running tor daemon found")
@@ -128,13 +121,21 @@ class Core:
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()
-            yield self.select_executable()
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except
             logging.critical("Error getting Tahoe-LAFS version")
             msg.critical(
                 "Error getting Tahoe-LAFS version",
+                "{}: {}".format(type(e).__name__, str(e)),
+            )
+            reactor.stop()
+        try:
+            yield self.get_magic_folder_version()
+        except Exception as e:  # pylint: disable=broad-except
+            logging.critical("Error getting Magic-Folder version")
+            msg.critical(
+                "Error getting Magic-Folder version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
             reactor.stop()
@@ -212,5 +213,5 @@ class Core:
         reactor.callLater(0, self.start_gateways)
         reactor.run()
         for nodedir in get_nodedirs(config_dir):
-            Tahoe(nodedir, executable=self.executable).kill()
+            Tahoe(nodedir).kill()
         lock.release()

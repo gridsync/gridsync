@@ -63,6 +63,18 @@ class Model(QStandardItemModel):
             self.set_transfer_progress
         )
 
+        self.mf_monitor = self.gateway.magic_folder.monitor
+        self.mf_monitor.folder_added.connect(
+            # Make the "Status" column blank until a sync completes
+            lambda x: self.add_folder(x, None)
+        )
+        self.mf_monitor.folder_removed.connect(self.on_folder_removed)
+        self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
+        self.mf_monitor.folder_size_updated.connect(self.set_size)
+        self.mf_monitor.backup_added.connect(self.add_remote_folder)
+        self.mf_monitor.sync_started.connect(self.on_sync_started)
+        self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
+
     def on_space_updated(self, size):
         self.available_space = size
 
@@ -157,9 +169,15 @@ class Model(QStandardItemModel):
         for magic_folder in list(self.gateway.load_magic_folders().values()):
             self.add_folder(magic_folder["directory"])
 
-    def update_folder_icon(self, folder_name, folder_path, overlay_file=None):
+    def _get_magic_folder_directory(self, folder_name: str) -> str:
+        legacy_data = self.gateway.magic_folders.get(folder_name, {})
+        data = self.gateway.magic_folder.magic_folders.get(folder_name, {})
+        return str(data.get("magic_path", legacy_data.get("directory", "")))
+
+    def update_folder_icon(self, folder_name, overlay_file=None):
         items = self.findItems(folder_name)
         if items:
+            folder_path = self._get_magic_folder_directory(folder_name)
             if folder_path:
                 folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
             else:
@@ -172,31 +190,25 @@ class Model(QStandardItemModel):
             items[0].setIcon(QIcon(pixmap))
 
     def set_status_private(self, folder_name):
-        self.update_folder_icon(
-            folder_name, self.gateway.get_magic_folder_directory(folder_name)
-        )
+        self.update_folder_icon(folder_name)
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
                 "{}\n\nThis folder is private; only you can view and\nmodify "
                 "its contents.".format(
-                    self.gateway.get_magic_folder_directory(folder_name)
+                    self._get_magic_folder_directory(folder_name)
                     or folder_name + " (Stored remotely)"
                 )
             )
 
     def set_status_shared(self, folder_name):
-        self.update_folder_icon(
-            folder_name,
-            self.gateway.get_magic_folder_directory(folder_name),
-            "laptop.png",
-        )
+        self.update_folder_icon(folder_name, "laptop.png")
         items = self.findItems(folder_name)
         if items:
             items[0].setToolTip(
                 "{}\n\nAt least one other device can view and modify\n"
                 "this folder's contents.".format(
-                    self.gateway.get_magic_folder_directory(folder_name)
+                    self._get_magic_folder_directory(folder_name)
                     or folder_name + " (Stored remotely)"
                 )
             )
@@ -282,7 +294,10 @@ class Model(QStandardItemModel):
         item.setText("Syncing ({}%)".format(percent_done))
 
     def fade_row(self, folder_name, overlay_file=None):
-        folder_item = self.findItems(folder_name)[0]
+        try:
+            folder_item = self.findItems(folder_name)[0]
+        except IndexError:
+            return
         if overlay_file:
             folder_pixmap = self.icon_folder_gray.pixmap(256, 256)
             pixmap = CompositePixmap(folder_pixmap, resource(overlay_file))
@@ -309,11 +324,13 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):
+        self.set_status(folder_name, MagicFolderChecker.SYNCING)
         self.gui.core.operations.append((self.gateway, folder_name))
         self.gui.systray.update()
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
+        self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:
@@ -350,7 +367,14 @@ class Model(QStandardItemModel):
                     naturaltime(datetime.now() - datetime.fromtimestamp(data))
                 )
 
+    @pyqtSlot(str)
     @pyqtSlot(str, str)
     def add_remote_folder(self, folder_name, overlay_file=None):
         self.add_folder(folder_name, 3)
         self.fade_row(folder_name, overlay_file)
+
+    @pyqtSlot(str)
+    def on_folder_removed(self, folder_name: str):
+        self.on_sync_finished(folder_name)
+        self.set_status(folder_name, 3)  # "Stored remotely"
+        self.fade_row(folder_name)

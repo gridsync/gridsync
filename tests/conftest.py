@@ -77,6 +77,7 @@ def _tahoe(tmpdir_factory, reactor):
     client.api_token = api_token
     with open(os.path.join(private_dir, "api_auth_token"), "w") as f:
         f.write(api_token)
+    client.magic_folder = Mock()  # XXX
     return client
 
 

@@ -24,7 +24,13 @@ from PyQt5.QtWidgets import (
 
 from gridsync import APP_NAME, __version__, resource
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.filter import apply_filters, get_filters, get_mask
+from gridsync.filter import (
+    apply_filters,
+    filter_eliot_logs,
+    get_filters,
+    get_mask,
+    join_eliot_logs,
+)
 from gridsync.msg import error
 
 if sys.platform == "darwin":
@@ -63,6 +69,17 @@ warning_text = (
 )
 
 
+def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
+    return (
+        f"\n------ Beginning of Tahoe-LAFS log for {gateway_name} ------\n"
+        f"{tahoe_log}"
+        f"\n------ End of Tahoe-LAFS log for {gateway_name} ------\n"
+        f"\n------ Beginning of Magic-Folder log for {gateway_name} ------\n"
+        f"{magic_folder_log}"
+        f"\n------ End of Magic-Folder log for {gateway_name} ------\n"
+    )
+
+
 class LogLoader(QObject):
 
     done = pyqtSignal()
@@ -78,6 +95,7 @@ class LogLoader(QObject):
         self.content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
+            + "Magic-Folder: {}\n".format(self.core.magic_folder_version)
             + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
             + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
@@ -88,19 +106,23 @@ class LogLoader(QObject):
         self.filtered_content = apply_filters(self.content, filters)
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
-            gateway_mask = get_mask(gateway.name, "GatewayName", gateway_id)
-            self.content = self.content + (
-                "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
-                "\n----- End of Tahoe-LAFS log for {0} -----\n".format(
-                    gateway.name, gateway.get_log()
-                )
+            self.content = self.content + log_fmt(
+                gateway.name,
+                join_eliot_logs(gateway.get_streamed_log_messages()),
+                join_eliot_logs(gateway.magic_folder.get_log_messages()),
             )
-            self.filtered_content = self.filtered_content + (
-                "\n----- Beginning of Tahoe-LAFS log for {0} -----\n{1}"
-                "\n----- End of Tahoe-LAFS log for {0} -----\n".format(
-                    gateway_mask,
-                    gateway.get_log(apply_filter=True, identifier=gateway_id),
-                )
+            self.filtered_content = self.filtered_content + log_fmt(
+                get_mask(gateway.name, "GatewayName", gateway_id),
+                join_eliot_logs(
+                    filter_eliot_logs(
+                        gateway.get_streamed_log_messages(), gateway_id
+                    )
+                ),
+                join_eliot_logs(
+                    filter_eliot_logs(
+                        gateway.magic_folder.get_log_messages(), gateway_id
+                    )
+                ),
             )
         self.done.emit()
         logging.debug("Loaded logs in %f seconds", time.time() - start_time)

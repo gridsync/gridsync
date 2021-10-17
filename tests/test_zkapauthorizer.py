@@ -212,7 +212,7 @@ rootcap_json_content_without_zkaps = [
 
 @inlineCallbacks
 def test_get_zkap_dircap_from_rootcap(tahoe, monkeypatch):
-    tahoe.rootcap = "URI:DIR2:aaaa:1111"
+    tahoe.rootcap_manager.set_rootcap("URI:DIR2:aaaa:1111")
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.get_json",
         Mock(return_value=rootcap_json_content_with_zkaps),
@@ -223,7 +223,7 @@ def test_get_zkap_dircap_from_rootcap(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_get_zkap_dircap_without_rootcap(tahoe, monkeypatch):
-    tahoe.rootcap = ""
+    tahoe.rootcap_manager.set_rootcap("")
     monkeypatch.setattr("gridsync.tahoe.Tahoe.create_rootcap", Mock())
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.get_json",
@@ -235,7 +235,7 @@ def test_get_zkap_dircap_without_rootcap(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_get_zkap_dircap_from_attribute_cache(tahoe, monkeypatch):
-    tahoe.rootcap = "URI:DIR2:aaaa:1111"
+    tahoe.rootcap_manager.set_rootcap("URI:DIR2:aaaa:1111")
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.get_json",
         Mock(return_value=rootcap_json_content_with_zkaps),
@@ -248,7 +248,7 @@ def test_get_zkap_dircap_from_attribute_cache(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_get_zkap_dircap_mkdir_if_missing(tahoe, monkeypatch):
-    tahoe.rootcap = "URI:DIR2:aaaa:1111"
+    tahoe.rootcap_manager.set_rootcap("URI:DIR2:aaaa:1111")
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.get_json",
         Mock(return_value=rootcap_json_content_without_zkaps),

@@ -30,13 +30,14 @@ if defined APPVEYOR (
     set PYTHON3=%PYTHON%\python.exe
 ) else (
     set PYTHON2=py -2.7
-    set PYTHON3=py -3
+    set PYTHON3=py -3.9
 )
 
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="test-integration" call :test-integration
 if "%1"=="frozen-tahoe" call :frozen-tahoe
+if "%1"=="magic-folder" call :magic-folder
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="zip" call :zip
 if "%1"=="test-determinism" call :test-determinism
@@ -97,8 +98,28 @@ call popd
 call deactivate
 goto :eof
 
+:magic-folder
+call git clone https://github.com/LeastAuthority/magic-folder.git build/magic-folder
+call %PYTHON2% -m virtualenv --clear build\venv-magic-folder
+call .\build\venv-magic-folder\Scripts\activate
+call python -m pip install -r requirements\pyinstaller.txt
+call copy misc\magic-folder.spec build\magic-folder
+call pushd build\magic-folder
+call git checkout d96acfacbd0fa2110bacf08b6d6bd35e4d50d286
+call python ..\..\scripts\reproducible-pip.py install --require-hashes -r requirements\base.txt
+call python -m pip install --no-deps .
+call python -m pip list
+call set PYTHONHASHSEED=1
+call python -m PyInstaller magic-folder.spec || goto :error
+call set PYTHONHASHSEED=
+call popd
+call move build\magic-folder\dist\magic-folder dist
+call deactivate
+goto :eof
+
 :pyinstaller
 if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
+if not exist ".\dist\magic-folder" call :magic-folder
 %PYTHON3% -m tox -e pyinstaller || goto :error
 goto :eof
 

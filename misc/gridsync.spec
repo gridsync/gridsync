@@ -140,6 +140,22 @@ else:
     print('##################################################################')
 
 
+magic_folder_bundle_path = os.path.join('dist', 'magic-folder')
+if os.path.isdir(magic_folder_bundle_path):
+    if sys.platform == 'darwin':
+        dest = os.path.join(
+            'dist', app_name + '.app', 'Contents', 'MacOS', 'magic-folder')
+    else:
+        dest = os.path.join('dist', app_name, 'magic-folder')
+    print("Copying {} to {}...".format(magic_folder_bundle_path, dest))
+    shutil.copytree(magic_folder_bundle_path, dest)
+    print("Done")
+else:
+    print('#################################################################')
+    print('WARNING: No magic-folder bundle found!')
+    print('#################################################################')
+
+
 # The presence of *.dist-info/RECORD files causes issues with reproducible
 # builds; see: https://github.com/gridsync/gridsync/issues/363
 for p in [p for p in Path("dist", app_name).glob("**/*.dist-info/RECORD")]:
