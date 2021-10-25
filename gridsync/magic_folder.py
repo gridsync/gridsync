@@ -20,7 +20,8 @@ from typing import (
 )
 
 import treq
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal as Signal
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.task import deferLater
@@ -49,26 +50,26 @@ class MagicFolderWebError(MagicFolderError):
 
 class MagicFolderMonitor(QObject):
 
-    status_message_received = pyqtSignal(dict)
+    status_message_received = Signal(dict)
 
-    sync_started = pyqtSignal(str)  # folder_name
-    sync_stopped = pyqtSignal(str)  # folder_name
+    sync_started = Signal(str)  # folder_name
+    sync_stopped = Signal(str)  # folder_name
 
-    error_occurred = pyqtSignal(str, str, int)  # folder_name, summary, timestamp
+    error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
-    folder_added = pyqtSignal(str)  # folder_name
-    folder_removed = pyqtSignal(str)  # folder_name
-    folder_mtime_updated = pyqtSignal(str, int)  # folder_name, mtime
-    folder_size_updated = pyqtSignal(str, object)  # folder_name, size
+    folder_added = Signal(str)  # folder_name
+    folder_removed = Signal(str)  # folder_name
+    folder_mtime_updated = Signal(str, int)  # folder_name, mtime
+    folder_size_updated = Signal(str, object)  # folder_name, size
 
-    backup_added = pyqtSignal(str)  # folder_name
-    backup_removed = pyqtSignal(str)  # folder_name
+    backup_added = Signal(str)  # folder_name
+    backup_removed = Signal(str)  # folder_name
 
-    file_added = pyqtSignal(str, dict)  # folder_name, status
-    file_removed = pyqtSignal(str, dict)  # folder_name, status
-    file_mtime_updated = pyqtSignal(str, dict)  # folder_name, status
-    file_size_updated = pyqtSignal(str, dict)  # folder_name, status
-    file_modified = pyqtSignal(str, dict)  # folder_name, status
+    file_added = Signal(str, dict)  # folder_name, status
+    file_removed = Signal(str, dict)  # folder_name, status
+    file_mtime_updated = Signal(str, dict)  # folder_name, status
+    file_size_updated = Signal(str, dict)  # folder_name, status
+    file_modified = Signal(str, dict)  # folder_name, status
 
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
