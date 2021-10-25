@@ -54,7 +54,7 @@ class MagicFolderMonitor(QObject):
     sync_started = pyqtSignal(str)  # folder_name
     sync_stopped = pyqtSignal(str)  # folder_name
 
-    error_occurred = pyqtSignal(str, str)  # folder_name, summary
+    error_occurred = pyqtSignal(str, str, int)  # folder_name, summary, timestamp
 
     folder_added = pyqtSignal(str)  # folder_name
     folder_removed = pyqtSignal(str)  # folder_name
@@ -143,7 +143,9 @@ class MagicFolderMonitor(QObject):
             prev_errors = previous_folders.get(folder, {}).get("errors", [])
             for error in current_errors:
                 if error not in prev_errors:
-                    self.error_occurred.emit(folder, error.get("summary", ""))
+                    summary = error.get("summary", "")
+                    timestamp = error.get("timestamp", 0)
+                    self.error_occurred.emit(folder, summary, timestamp)
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():
