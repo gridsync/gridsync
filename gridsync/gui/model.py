@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import time
+from collections import defaultdict
 from datetime import datetime
 
 from humanize import naturalsize, naturaltime
@@ -29,6 +30,7 @@ class Model(QStandardItemModel):
         self.members_dict = {}
         self.grid_status = ""
         self.available_space = 0
+        self._magic_folder_errors = defaultdict(dict)
         self.setHeaderData(0, Qt.Horizontal, "Name")
         self.setHeaderData(1, Qt.Horizontal, "Status")
         self.setHeaderData(2, Qt.Horizontal, "Last modified")
@@ -74,6 +76,13 @@ class Model(QStandardItemModel):
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
+        self.mf_monitor.error_occurred.connect(self.on_error_occurred)
+
+    @pyqtSlot(str, str, int)
+    def on_error_occurred(
+        self, folder_name: str, summary: str, timestamp: int
+    ) -> None:
+        self._magic_folder_errors[folder_name][summary] = timestamp
 
     def on_space_updated(self, size):
         self.available_space = size
