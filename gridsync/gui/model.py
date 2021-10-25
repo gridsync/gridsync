@@ -6,6 +6,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime
+from typing import Dict
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
@@ -234,6 +235,13 @@ class Model(QStandardItemModel):
         self.members_dict[folder] = members
         self.update_overlay(folder)
 
+    @staticmethod
+    def _errors_to_str(errors: Dict[str, int]) -> str:
+        lines = []
+        for s, t in sorted(errors.items(), key=lambda x: x[1], reverse=True):
+            lines.append(f"{s} ({datetime.fromtimestamp(t)})")
+        return "\n".join(lines)
+
     @pyqtSlot(str, int)
     def set_status(self, name, status):
         items = self.findItems(name)
@@ -273,6 +281,9 @@ class Model(QStandardItemModel):
             )
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
+        errors = self._magic_folder_errors[name]
+        if errors:
+            item.setToolTip(self._errors_to_str(errors))
 
     @pyqtSlot(str, object, object)
     def set_transfer_progress(self, folder_name, transferred, total):
