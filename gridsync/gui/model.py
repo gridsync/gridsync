@@ -48,6 +48,7 @@ class Model(QStandardItemModel):
         self.icon_folder_gray = QIcon(composite_pixmap)
         self.icon_cloud = QIcon(resource("cloud-icon.png"))
         self.icon_action = QIcon(resource("dots-horizontal-triple.png"))
+        self.icon_error = QIcon(resource("alert-circle-red.png"))
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
@@ -283,6 +284,8 @@ class Model(QStandardItemModel):
         self.status_dict[name] = status
         errors = self._magic_folder_errors[name]
         if errors:
+            item.setIcon(self.icon_error)
+            item.setText("Error syncing folder")
             item.setToolTip(self._errors_to_str(errors))
 
     @pyqtSlot(str, object, object)
