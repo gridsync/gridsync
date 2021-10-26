@@ -79,6 +79,7 @@ class MagicFolderMonitor(QObject):
         self.running: bool = False
         self.syncing_folders: Set[str] = set()
         self.up_to_date: bool = False
+        self.errors: List = []
 
         self._prev_state: Dict = {}
         self._known_folders: Dict[str, dict] = {}
@@ -147,6 +148,8 @@ class MagicFolderMonitor(QObject):
                     summary = error.get("summary", "")
                     timestamp = error.get("timestamp", 0)
                     self.error_occurred.emit(folder, summary, timestamp)
+                    error["folder"] = folder
+                    self.errors.append(error)
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():
