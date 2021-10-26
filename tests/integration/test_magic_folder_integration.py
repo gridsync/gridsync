@@ -434,6 +434,23 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
     assert blocker.args == [folder_name]
 
 
+def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
+    with qtbot.wait_signal(magic_folder.monitor.error_occurred) as blocker:
+        magic_folder.monitor.compare_state(
+            {
+                "folders": {
+                    "TestFolder": {
+                        "downloads": [],
+                        "errors": [{"timestamp": 1234567890, "summary": ":("}],
+                        "uploads": [],
+                        "recent": [],
+                    }
+                }
+            }
+        )
+    assert blocker.args == ["TestFolder", ":(", 1234567890]
+
+
 @inlineCallbacks
 def test_monitor_emits_folder_added_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()

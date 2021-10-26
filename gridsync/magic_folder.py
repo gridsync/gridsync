@@ -20,7 +20,8 @@ from typing import (
 )
 
 import treq
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal as Signal
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.task import deferLater
@@ -49,24 +50,26 @@ class MagicFolderWebError(MagicFolderError):
 
 class MagicFolderMonitor(QObject):
 
-    status_message_received = pyqtSignal(dict)
+    status_message_received = Signal(dict)
 
-    sync_started = pyqtSignal(str)  # folder_name
-    sync_stopped = pyqtSignal(str)  # folder_name
+    sync_started = Signal(str)  # folder_name
+    sync_stopped = Signal(str)  # folder_name
 
-    folder_added = pyqtSignal(str)  # folder_name
-    folder_removed = pyqtSignal(str)  # folder_name
-    folder_mtime_updated = pyqtSignal(str, int)  # folder_name, mtime
-    folder_size_updated = pyqtSignal(str, object)  # folder_name, size
+    error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
-    backup_added = pyqtSignal(str)  # folder_name
-    backup_removed = pyqtSignal(str)  # folder_name
+    folder_added = Signal(str)  # folder_name
+    folder_removed = Signal(str)  # folder_name
+    folder_mtime_updated = Signal(str, int)  # folder_name, mtime
+    folder_size_updated = Signal(str, object)  # folder_name, size
 
-    file_added = pyqtSignal(str, dict)  # folder_name, status
-    file_removed = pyqtSignal(str, dict)  # folder_name, status
-    file_mtime_updated = pyqtSignal(str, dict)  # folder_name, status
-    file_size_updated = pyqtSignal(str, dict)  # folder_name, status
-    file_modified = pyqtSignal(str, dict)  # folder_name, status
+    backup_added = Signal(str)  # folder_name
+    backup_removed = Signal(str)  # folder_name
+
+    file_added = Signal(str, dict)  # folder_name, status
+    file_removed = Signal(str, dict)  # folder_name, status
+    file_mtime_updated = Signal(str, dict)  # folder_name, status
+    file_size_updated = Signal(str, dict)  # folder_name, status
+    file_modified = Signal(str, dict)  # folder_name, status
 
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
@@ -76,6 +79,7 @@ class MagicFolderMonitor(QObject):
         self.running: bool = False
         self.syncing_folders: Set[str] = set()
         self.up_to_date: bool = False
+        self.errors: List = []
 
         self._prev_state: Dict = {}
         self._known_folders: Dict[str, dict] = {}
@@ -119,7 +123,7 @@ class MagicFolderMonitor(QObject):
     def compare_state(self, state: Dict) -> None:
         current_folders = state.get("folders", {})
         previous_folders = self._prev_state.get("folders", {})
-        for folder in current_folders:
+        for folder, data in current_folders.items():
             is_syncing = self._is_syncing(folder, current_folders)
             was_syncing = self._is_syncing(folder, previous_folders)
             if is_syncing and not was_syncing:
@@ -134,6 +138,21 @@ class MagicFolderMonitor(QObject):
                 if not self.syncing_folders:
                     self.up_to_date = True
                 self.sync_stopped.emit(folder)
+
+            current_errors = data.get("errors", [])
+            if not current_errors:
+                continue
+            prev_errors = previous_folders.get(folder, {}).get("errors", [])
+            for error in current_errors:
+                if error not in prev_errors:
+                    summary = error.get("summary", "")
+                    timestamp = error.get("timestamp", 0)
+                    self.error_occurred.emit(folder, summary, timestamp)
+                    error["folder"] = folder
+                    # XXX There is presently no way to "clear" (or
+                    # acknowledge the receipt of) Magic-Folder errors
+                    # so this will persist indefinitely...
+                    self.errors.append(error)
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():

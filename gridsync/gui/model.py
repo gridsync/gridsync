@@ -4,7 +4,9 @@ import logging
 import os
 import sys
 import time
+from collections import defaultdict
 from datetime import datetime
+from typing import Dict
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
@@ -29,6 +31,7 @@ class Model(QStandardItemModel):
         self.members_dict = {}
         self.grid_status = ""
         self.available_space = 0
+        self._magic_folder_errors = defaultdict(dict)
         self.setHeaderData(0, Qt.Horizontal, "Name")
         self.setHeaderData(1, Qt.Horizontal, "Status")
         self.setHeaderData(2, Qt.Horizontal, "Last modified")
@@ -45,6 +48,7 @@ class Model(QStandardItemModel):
         self.icon_folder_gray = QIcon(composite_pixmap)
         self.icon_cloud = QIcon(resource("cloud-icon.png"))
         self.icon_action = QIcon(resource("dots-horizontal-triple.png"))
+        self.icon_error = QIcon(resource("alert-circle-red.png"))
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
@@ -74,6 +78,13 @@ class Model(QStandardItemModel):
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
+        self.mf_monitor.error_occurred.connect(self.on_error_occurred)
+
+    @pyqtSlot(str, str, int)
+    def on_error_occurred(
+        self, folder_name: str, summary: str, timestamp: int
+    ) -> None:
+        self._magic_folder_errors[folder_name][summary] = timestamp
 
     def on_space_updated(self, size):
         self.available_space = size
@@ -225,6 +236,13 @@ class Model(QStandardItemModel):
         self.members_dict[folder] = members
         self.update_overlay(folder)
 
+    @staticmethod
+    def _errors_to_str(errors: Dict[str, int]) -> str:
+        lines = []
+        for s, t in sorted(errors.items(), key=lambda x: x[1], reverse=True):
+            lines.append(f"{s} ({datetime.fromtimestamp(t)})")
+        return "\n".join(lines)
+
     @pyqtSlot(str, int)
     def set_status(self, name, status):
         items = self.findItems(name)
@@ -262,6 +280,12 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
+        elif status == MagicFolderChecker.ERROR:
+            errors = self._magic_folder_errors[name]
+            if errors:
+                item.setIcon(self.icon_error)
+                item.setText("Error syncing folder")
+                item.setToolTip(self._errors_to_str(errors))
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
@@ -330,7 +354,10 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
-        self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
+        if self._magic_folder_errors[folder_name]:
+            self.set_status(folder_name, MagicFolderChecker.ERROR)
+        else:
+            self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:
