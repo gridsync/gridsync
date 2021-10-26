@@ -171,7 +171,7 @@ class StatusPanel(QWidget):
             self.syncing_icon.hide()
             self.error_icon.hide()
             self.checkmark_icon.show()
-        elif self.state == 3:  # MagicFolderChecker.ERROR
+        elif self.state == 8:  # MagicFolderChecker.ERROR
             self.status_label.setText("Error syncing folder")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()

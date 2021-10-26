@@ -23,7 +23,7 @@ class MagicFolderChecker(QObject):
     SYNCING = 1
     SCANNING = 99
     UP_TO_DATE = 2
-    ERROR = 3
+    ERROR = 8
 
     sync_started = pyqtSignal()
     sync_finished = pyqtSignal()
