@@ -280,13 +280,14 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
+        elif status == MagicFolderChecker.ERROR:
+            errors = self._magic_folder_errors[name]
+            if errors:
+                item.setIcon(self.icon_error)
+                item.setText("Error syncing folder")
+                item.setToolTip(self._errors_to_str(errors))
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
-        errors = self._magic_folder_errors[name]
-        if errors:
-            item.setIcon(self.icon_error)
-            item.setText("Error syncing folder")
-            item.setToolTip(self._errors_to_str(errors))
 
     @pyqtSlot(str, object, object)
     def set_transfer_progress(self, folder_name, transferred, total):
@@ -353,7 +354,10 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
-        self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
+        if self._magic_folder_errors[folder_name]:
+            self.set_status(folder_name, MagicFolderChecker.ERROR)
+        else:
+            self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:
