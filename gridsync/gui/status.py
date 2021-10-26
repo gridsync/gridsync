@@ -38,6 +38,9 @@ class StatusPanel(QWidget):
         self.checkmark_icon = QLabel()
         self.checkmark_icon.setPixmap(Pixmap("checkmark.png", 20))
 
+        self.error_icon = QLabel()
+        self.error_icon.setPixmap(Pixmap("alert-circle-red.png", 20))
+
         self.syncing_icon = QLabel()
 
         self.sync_movie = QMovie(resource("sync.gif"))
@@ -109,6 +112,7 @@ class StatusPanel(QWidget):
         left, _, right, bottom = layout.getContentsMargins()
         layout.setContentsMargins(left, 0, right, bottom - 2)
         layout.addWidget(self.checkmark_icon, 1, 1)
+        layout.addWidget(self.error_icon, 1, 1)
         layout.addWidget(self.syncing_icon, 1, 1)
         layout.addWidget(self.status_label, 1, 2)
         layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
@@ -154,16 +158,25 @@ class StatusPanel(QWidget):
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.checkmark_icon.hide()
+            self.error_icon.hide()
         elif self.state == 1:
             self.status_label.setText("Syncing")
             self.checkmark_icon.hide()
+            self.error_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
         elif self.state == 2:
             self.status_label.setText("Up to date")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
+            self.error_icon.hide()
             self.checkmark_icon.show()
+        elif self.state == 3:  # MagicFolderChecker.ERROR
+            self.status_label.setText("Error syncing folder")
+            self.sync_movie.setPaused(True)
+            self.syncing_icon.hide()
+            self.checkmark_icon.hide()
+            self.error_icon.show()
         if self.available_space:
             self.status_label.setToolTip(
                 "Connected to {} of {} storage nodes\n{} available".format(
