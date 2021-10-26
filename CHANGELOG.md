@@ -3,6 +3,7 @@
 ## Unreleased
 ### Added
 - Added preliminary support for the new/standalone "[Magic-Folder]" application (Issue #290; PR #389)
+- Errors contained in Magic-Folder "status" messages will now be surfaced to the user (Issue #390; PR #392)
 
 ## 0.5.0 - 2021-10-11
 - No significant changes since 0.5.0rc2
