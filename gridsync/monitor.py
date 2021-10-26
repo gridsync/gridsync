@@ -673,7 +673,7 @@ class Monitor(QObject):
                 members = yield self.gateway.get_magic_folder_members(name, c)
                 yield self.magic_folder_checkers[name].do_remote_scan(members)
 
-    def _check_total_state(self, states: Set) -> None:
+    def _check_overall_state(self, states: Set) -> None:
         if (
             MagicFolderChecker.SYNCING in states
             or MagicFolderChecker.SCANNING in states
@@ -714,7 +714,7 @@ class Monitor(QObject):
             sizes += magic_folder_checker.sizes
             total_size += magic_folder_checker.size
 
-        self._check_total_state(states)
+        self._check_overall_state(states)
 
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
