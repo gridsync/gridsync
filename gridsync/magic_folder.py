@@ -149,6 +149,9 @@ class MagicFolderMonitor(QObject):
                     timestamp = error.get("timestamp", 0)
                     self.error_occurred.emit(folder, summary, timestamp)
                     error["folder"] = folder
+                    # XXX There is presently no way to "clear" (or
+                    # acknowledge the receipt of) Magic-Folder errors
+                    # so this will persist indefinitely...
                     self.errors.append(error)
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
