@@ -5,7 +5,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Set
 
 import attr
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -673,6 +673,28 @@ class Monitor(QObject):
                 members = yield self.gateway.get_magic_folder_members(name, c)
                 yield self.magic_folder_checkers[name].do_remote_scan(members)
 
+    def _check_total_state(self, states: Set) -> None:
+        if (
+            MagicFolderChecker.SYNCING in states
+            or MagicFolderChecker.SCANNING in states
+            or self.gateway.magic_folder.monitor.syncing_folders
+        ):
+            # At least one folder is syncing
+            state = MagicFolderChecker.SYNCING
+        elif self.gateway.magic_folder.monitor.errors:
+            # At least one folder has an error
+            state = MagicFolderChecker.ERROR
+        elif (
+            len(states) == 1 and MagicFolderChecker.UP_TO_DATE in states
+        ) or self.gateway.magic_folder.monitor.up_to_date:
+            # All folders are up to date
+            state = MagicFolderChecker.UP_TO_DATE
+        else:
+            state = MagicFolderChecker.LOADING
+        if state != self.total_sync_state:
+            self.total_sync_state = state
+            self.total_sync_state_updated.emit(state)
+
     @inlineCallbacks
     def do_checks(self):
         yield self.zkap_checker.do_check()
@@ -691,26 +713,9 @@ class Monitor(QObject):
                 states.add(magic_folder_checker.state)
             sizes += magic_folder_checker.sizes
             total_size += magic_folder_checker.size
-        if (
-            MagicFolderChecker.SYNCING in states
-            or MagicFolderChecker.SCANNING in states
-            or self.gateway.magic_folder.monitor.syncing_folders
-        ):
-            # At least one folder is syncing
-            state = MagicFolderChecker.SYNCING
-        elif self.gateway.magic_folder.monitor.errors:
-            state = MagicFolderChecker.ERROR
-        elif (
-            len(states) == 1 and MagicFolderChecker.UP_TO_DATE in states
-        ) or self.gateway.magic_folder.monitor.up_to_date:
-            # All folders are up to date
-            state = MagicFolderChecker.UP_TO_DATE
-        else:
-            state = MagicFolderChecker.LOADING
 
-        if state != self.total_sync_state:
-            self.total_sync_state = state
-            self.total_sync_state_updated.emit(state)
+        self._check_total_state(states)
+
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
             self.total_folders_size_updated.emit(total_size)
