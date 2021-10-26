@@ -23,6 +23,7 @@ class MagicFolderChecker(QObject):
     SYNCING = 1
     SCANNING = 99
     UP_TO_DATE = 2
+    ERROR = 3
 
     sync_started = pyqtSignal()
     sync_finished = pyqtSignal()
@@ -697,6 +698,8 @@ class Monitor(QObject):
         ):
             # At least one folder is syncing
             state = MagicFolderChecker.SYNCING
+        elif self.gateway.magic_folder.monitor.errors:
+            state = MagicFolderChecker.ERROR
         elif (
             len(states) == 1 and MagicFolderChecker.UP_TO_DATE in states
         ) or self.gateway.magic_folder.monitor.up_to_date:
