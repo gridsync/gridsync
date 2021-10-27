@@ -20,8 +20,8 @@ from gridsync.filter import (
 @pytest.fixture
 def core():
     c = Mock()
-    c.executable = "/tmp/test/tahoe.exe"
     gateway = Mock()
+    gateway.executable = "/tmp/test/tahoe.exe"
     gateway.name = "TestGrid"
     gateway.newscap = "URI:NEWSCAP"
     storage_settings = OrderedDict()  # Because python3.5
