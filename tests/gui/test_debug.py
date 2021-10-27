@@ -30,10 +30,10 @@ def test_warning_text_module_variable_is_not_none():
 @pytest.fixture
 def core():
     fake_core = Mock()
-    fake_core.executable = "/test/tahoe"
     fake_core.tahoe_version = "9.999"
     fake_core.log_deque = deque(["debug msg 1", "/test/tahoe", "debug msg 3"])
     fake_gateway = Mock()
+    fake_gateway.executable = "/test/tahoe"
     fake_gateway.name = "TestGridOne"
     fake_gateway.newscap = "URI:NEWSCAP"
     fake_gateway.magic_folder = Mock()
@@ -45,20 +45,21 @@ def core():
         return_value=['{"test": 123}']
     )
     fake_gateway.get_settings = Mock(return_value={})
-    fake_core.gui.main_window.gateways = [fake_gateway]
+    fake_core.gateways = [fake_gateway]
+    fake_core.gui.main_window.gateways = fake_core.gateways
     return fake_core
 
 
 def test_log_loader_load_content(core):
     log_loader = LogLoader(core)
     log_loader.load()
-    assert core.executable in log_loader.content
+    assert core.gateways[0].executable in log_loader.content
 
 
 def test_log_loader_load_filtered_content(core):
     log_loader = LogLoader(core)
     log_loader.load()
-    assert core.executable not in log_loader.filtered_content
+    assert core.gateways[0].executable not in log_loader.filtered_content
 
 
 def test_log_loader_load_warning_text_in_content(core):
@@ -115,7 +116,7 @@ def test_debug_exporter_load_content(core, qtbot):
     de.checkbox.setCheckState(Qt.Unchecked)  # Filter off
     with qtbot.wait_signal(de.log_loader.done):
         de.load()
-    assert core.executable in de.plaintextedit.toPlainText()
+    assert core.gateways[0].executable in de.plaintextedit.toPlainText()
 
 
 def test_debug_exporter_load_filtered_content(core, qtbot):
@@ -123,7 +124,7 @@ def test_debug_exporter_load_filtered_content(core, qtbot):
     de.checkbox.setCheckState(Qt.Checked)  # Filter on
     with qtbot.wait_signal(de.log_loader.done):
         de.load()
-    assert core.executable not in de.plaintextedit.toPlainText()
+    assert core.gateways[0].executable not in de.plaintextedit.toPlainText()
 
 
 def test_debug_exporter_load_warning_text_in_content(core, qtbot):

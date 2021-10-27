@@ -18,6 +18,7 @@ def get_filters(core):
         gateway_id = i + 1
         filters.append((gateway.name, "GatewayName:{}".format(gateway_id)))
         filters.append((gateway.newscap, "Newscap:{}".format(gateway_id)))
+        filters.append((gateway.executable, "TahoeExecutablePath"))
         tahoe_settings = gateway.get_settings(include_secrets=True)
         filters.append(
             (tahoe_settings.get("rootcap"), "Rootcap:{}".format(gateway_id))
@@ -90,7 +91,6 @@ def get_filters(core):
                     "Folder:{}:{}:Name".format(gateway_id, folder_id),
                 )
             )
-    filters.append((core.executable, "TahoeExecutablePath"))
     filters.append((os.path.expanduser("~"), "HomeDir"))
     return filters
 
