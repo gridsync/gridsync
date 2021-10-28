@@ -576,7 +576,7 @@ class MagicFolder:
     def scan(self, folder_name: str) -> TwistedDeferred[Dict]:
         output = yield self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/scan",
+            f"/magic-folder/{folder_name}/scan-local",
         )
         return output
 
