@@ -292,6 +292,17 @@ def test_scan(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def test_poll(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+
+    output = yield magic_folder.poll(folder_name)
+    assert output == {}
+
+
+@inlineCallbacks
 def test_create_folder_backup(magic_folder):
     folders = yield magic_folder.get_folders()
     folder_name = next(iter(folders))
