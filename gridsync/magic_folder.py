@@ -581,6 +581,14 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
+    def poll(self, folder_name: str) -> TwistedDeferred[Dict]:
+        output = yield self._request(
+            "PUT",
+            f"/magic-folder/{folder_name}/poll-remote",
+        )
+        return output
+
+    @inlineCallbacks
     def create_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
         folders = yield self.get_folders()
         data = folders.get(folder_name)
