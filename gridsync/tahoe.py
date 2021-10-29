@@ -547,10 +547,6 @@ class Tahoe:
         self.magic_folder.stop()  # XXX
 
         self.kill()
-        try:
-            os.remove(self.pidfile)
-        except EnvironmentError:
-            pass
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
