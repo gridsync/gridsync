@@ -384,6 +384,15 @@ def write_pidfile(nodedir):
     return pidfile
 
 
+@inlineCallbacks
+def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
+    write_pidfile(tahoe.nodedir)
+    fake_kill = Mock()
+    monkeypatch.setattr("os.kill", fake_kill)
+    yield tahoe.stop()
+    assert fake_kill.call_args[0][0] == 4194305
+
+
 @pytest.mark.parametrize("locked,call_count", [(True, 1), (False, 0)])
 @inlineCallbacks
 def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
