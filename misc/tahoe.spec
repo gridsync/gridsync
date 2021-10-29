@@ -32,6 +32,9 @@ hidden_imports = [
     'allmydata.stats',
     # Required always:
     'cffi',
+    'commands',
+    'UserList',
+    'UserString',
     # Required previously, but possibly no longer necessary:
     'six.moves.html_parser',
     'yaml',
