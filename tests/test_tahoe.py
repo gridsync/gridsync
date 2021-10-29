@@ -377,16 +377,9 @@ def test__win32_cleanup_log_warning_on_unlink_error(tahoe, monkeypatch):
     assert fake_warning.call_count == 1
 
 
-def write_pidfile(nodedir):
-    pidfile = os.path.join(nodedir, "twistd.pid")
-    with open(pidfile, "w") as f:
-        f.write("4194305")
-    return pidfile
-
-
 @inlineCallbacks
 def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
-    write_pidfile(tahoe.nodedir)
+    Path(tahoe.pidfile).write_text(str("4194305"), encoding="utf-8")
     fake_kill = Mock()
     monkeypatch.setattr("os.kill", fake_kill)
     yield tahoe.stop()
@@ -797,7 +790,7 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
     yield tahoe.start()
-    write_pidfile(tahoe.nodedir)
+    Path(tahoe.pidfile).write_text(str("4194306"), encoding="utf-8")
     yield tahoe.stop()
     assert not tahoe.streamedlogs.running
 
