@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from pytest_twisted import inlineCallbacks
 
@@ -7,6 +8,9 @@ os.environ["PATH"] = (
     + os.pathsep
     + os.environ["PATH"]
 )
+
+def test_tahoe_start_creates_pidfile(tahoe_client):
+    assert Path(tahoe_client.pidfile).exists() == True
 
 
 @inlineCallbacks
