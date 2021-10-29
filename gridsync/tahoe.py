@@ -543,9 +543,6 @@ class Tahoe:
             yield self.rootcap_manager.lock.acquire()
             yield self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
-
-        self.magic_folder.stop()  # XXX
-
         self.kill()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
