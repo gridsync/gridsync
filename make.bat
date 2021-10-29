@@ -76,14 +76,12 @@ call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
-call git checkout tahoe-lafs-1.14.0
+call git checkout tahoe-lafs-1.16.0
 call copy ..\..\misc\storage_client.py.patch .
 call git apply --ignore-space-change --ignore-whitespace storage_client.py.patch
-call copy ..\..\misc\rsa-public-exponent.patch .
-call git apply --ignore-space-change --ignore-whitespace rsa-public-exponent.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-call python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@b08aacee3adc40db8e6c6d7e31700861d5014cb5
+call python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@5bad3a39ae78cb2483d70709b8a7c1cba96571ab
 call python -m pip install .
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list

@@ -63,6 +63,9 @@ chardet==4.0.0 \
 click==7.1.2 \
     --hash=sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a \
     --hash=sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc
+configparser==4.0.2; python_version < "3" \
+    --hash=sha256:254c1d9c79f60c45dfde850850883d5aaa7f19a23f13561243a050d5a7c3fe4c \
+    --hash=sha256:c7d282687a5308319bf3d2e7706e575c635b0a470342641c93bea0ea3b5331df
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
     --hash=sha256:dd2fa9d6b1a51a83f0d7dd76293d734046aa176e384bf6e33b7e44880eb37c5d
@@ -83,6 +86,9 @@ cryptography==3.3.2 \
     --hash=sha256:aa4969f24d536ae2268c902b2c3d62ab464b5a66bcb247630d208a79a8098e9b \
     --hash=sha256:c7390f9b2119b2b43160abb34f63277a638504ef8df99f11cb52c1fda66a2e6f \
     --hash=sha256:e18e6ab84dfb0ab997faf8cca25a86ff15dfea4027b986322026cc99e0a892da
+distro==1.6.0 \
+    --hash=sha256:83f5e5a09f9c5f68f60173de572930effbcc0287bb84fdc4426cb4168c088424 \
+    --hash=sha256:c8713330ab31a034623a9515663ed87696700b55f04556b97c39cd261aa70dc7
 # eliot version 1.7 is the last version to support python2:
 # https://eliot.readthedocs.io/en/stable/python2.html
 eliot==1.7.0 \
@@ -96,6 +102,8 @@ enum34==1.1.10 \
 foolscap==0.13.1 \
     --hash=sha256:4e400e377683f328a70fd5b808202576397c30e2b5a0b8773d22608518fb9f95 \
     --hash=sha256:e2773b4901430b8852da9d691e91984a5e2118da0448c192d9ec5aa81db91d6b
+future==0.18.2 \
+    --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
 hkdf==0.0.3 \
     --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
 humanize==1.0.0 \
@@ -116,9 +124,14 @@ ipaddress==1.0.23 \
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
     --hash=sha256:7c9a8d2a6e89314878dda23efc14c78398f1b6eb80e6c86c895c001c888d086e
-Nevow==0.14.5 \
-    --hash=sha256:afb6ba85a5351953578c018fcdb9dfbd62f29a8d46c58bc9652bc000a27223f3 \
-    --hash=sha256:ddc55935790e6f4a4d09cdae0ae2b5660d8f123216df6988eb8934532f75be76
+netifaces==0.11.0 \
+    --hash=sha256:043a79146eb2907edf439899f262b3dfe41717d34124298ed281139a8b93ca32 \
+    --hash=sha256:08e3f102a59f9eaef70948340aeb6c89bd09734e0dca0f3b82720305729f63ea \
+    --hash=sha256:0f6133ac02521270d9f7c490f0c8c60638ff4aec8338efeff10a1b51506abe85 \
+    --hash=sha256:5f9ca13babe4d845e400921973f6165a4c2f9f3379c7abfc7478160e25d196a4 \
+    --hash=sha256:7dbb71ea26d304e78ccccf6faccef71bb27ea35e259fb883cfd7fd7b4f17ecb1 \
+    --hash=sha256:c03fb2d4ef4e393f2e6ffc6376410a22a3544f164b336b3a355226653e5efd89 \
+    --hash=sha256:eb4813b77d5df99903af4757ce980a98c4d702bbcb81f32a0b305a1537bdf0b1
 pathtools==0.1.2; sys_platform != "win32" and sys_platform != "linux2" \
     --hash=sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0
 pyasn1==0.4.8 \

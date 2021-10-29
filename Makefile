@@ -157,15 +157,13 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
-	git checkout tahoe-lafs-1.14.0 && \
+	git checkout tahoe-lafs-1.16.0 && \
 	cp ../../misc/storage_client.py.patch . && \
 	git apply storage_client.py.patch && \
-	cp ../../misc/rsa-public-exponent.patch . && \
-	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
-	python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@b08aacee3adc40db8e6c6d7e31700861d5014cb5 && \
+	python -m pip install git+git://github.com/PrivateStorageio/ZKAPAuthorizer@5bad3a39ae78cb2483d70709b8a7c1cba96571ab && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \

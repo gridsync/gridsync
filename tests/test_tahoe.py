@@ -377,42 +377,13 @@ def test__win32_cleanup_log_warning_on_unlink_error(tahoe, monkeypatch):
     assert fake_warning.call_count == 1
 
 
-def write_pidfile(nodedir):
-    pidfile = os.path.join(nodedir, "twistd.pid")
-    with open(pidfile, "w") as f:
-        f.write("4194305")
-    return pidfile
-
-
-def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
-    pidfile = write_pidfile(tahoe.nodedir)
-    killed = [None]
-
-    def fake_kill(pid, _):
-        killed[0] = pid
-
-    removed = [None]
-
-    def fake_remove(file):
-        removed[0] = file
-
-    monkeypatch.setattr("os.kill", fake_kill)
-    monkeypatch.setattr("os.remove", fake_remove)
-    monkeypatch.setattr("gridsync.tahoe.get_nodedirs", lambda _: [])
-    monkeypatch.setattr("sys.platform", "win32")
-    tahoe.stop()
-    assert (killed[0], removed[0]) == (4194305, pidfile)
-
-
 @inlineCallbacks
-def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
-    monkeypatch.setattr("sys.platform", "linux")
-    write_pidfile(tahoe.nodedir)
+def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
+    Path(tahoe.pidfile).write_text(str("4194305"), encoding="utf-8")
+    fake_kill = Mock()
+    monkeypatch.setattr("os.kill", fake_kill)
     yield tahoe.stop()
-    args = mocked_command.call_args[0][0]
-    assert args == ["stop"]
+    assert fake_kill.call_args[0][0] == 4194305
 
 
 @pytest.mark.parametrize("locked,call_count", [(True, 1), (False, 0)])
@@ -424,9 +395,6 @@ def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
     lock.release = MagicMock()
     tahoe.rootcap_manager.lock = lock
     monkeypatch.setattr("os.path.isfile", lambda x: True)
-    monkeypatch.setattr("sys.platform", "linux")
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", MagicMock())
-    monkeypatch.setattr("os.remove", MagicMock())
     yield tahoe.stop()
     assert (lock.acquire.call_count, lock.release.call_count) == (
         call_count,
@@ -822,7 +790,7 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
     yield tahoe.start()
-    write_pidfile(tahoe.nodedir)
+    Path(tahoe.pidfile).write_text(str("4194306"), encoding="utf-8")
     yield tahoe.stop()
     assert not tahoe.streamedlogs.running
 

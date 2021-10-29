@@ -444,7 +444,10 @@ class Tahoe:
         transport = yield reactor.spawnProcess(
             protocol, exe, args=args, env=env
         )
-        output = yield protocol.done  # TODO: re-raise TahoeCommandError?
+        try:
+            output = yield protocol.done
+        except Exception as e:  # pylint: disable=broad-except
+            raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
         if callback_trigger:
             return transport.pid
         return output
@@ -540,20 +543,7 @@ class Tahoe:
             yield self.rootcap_manager.lock.acquire()
             yield self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
-
-        self.magic_folder.stop()  # XXX
-
-        if sys.platform == "win32":
-            self.kill()
-        else:
-            try:
-                yield self.command(["stop"])
-            except TahoeCommandError:  # Process already dead/not running
-                pass
-        try:
-            os.remove(self.pidfile)
-        except EnvironmentError:
-            pass
+        self.kill()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
