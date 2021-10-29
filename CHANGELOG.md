@@ -4,7 +4,12 @@
 ### Added
 - Added preliminary support for the new/standalone "[Magic-Folder]" application (Issue #290; PR #389)
 - Errors contained in Magic-Folder "status" messages will now be surfaced to the user (Issue #390; PR #392)
+- Added support for Tahoe-LAFS 1.16.0 (Issue #397; PR #398)
 
+### Changed
+- Binary distributions of Gridsync will now ship with Tahoe-LAFS version 1.16.0 (Issue #397; PR #398)
+
+(Issue #316; PR #336)
 ## 0.5.0 - 2021-10-11
 - No significant changes since 0.5.0rc2
 
