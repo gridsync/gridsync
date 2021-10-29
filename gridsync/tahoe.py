@@ -444,7 +444,10 @@ class Tahoe:
         transport = yield reactor.spawnProcess(
             protocol, exe, args=args, env=env
         )
-        output = yield protocol.done  # TODO: re-raise TahoeCommandError?
+        try:
+            output = yield protocol.done
+        except Exception as e:  # pylint: disable=broad-except
+            raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
         if callback_trigger:
             return transport.pid
         return output
