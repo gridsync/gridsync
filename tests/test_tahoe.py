@@ -384,37 +384,6 @@ def write_pidfile(nodedir):
     return pidfile
 
 
-def test_tahoe_stop_win32_monkeypatch(tahoe, monkeypatch):
-    pidfile = write_pidfile(tahoe.nodedir)
-    killed = [None]
-
-    def fake_kill(pid, _):
-        killed[0] = pid
-
-    removed = [None]
-
-    def fake_remove(file):
-        removed[0] = file
-
-    monkeypatch.setattr("os.kill", fake_kill)
-    monkeypatch.setattr("os.remove", fake_remove)
-    monkeypatch.setattr("gridsync.tahoe.get_nodedirs", lambda _: [])
-    monkeypatch.setattr("sys.platform", "win32")
-    tahoe.stop()
-    assert (killed[0], removed[0]) == (4194305, pidfile)
-
-
-@inlineCallbacks
-def test_tahoe_stop_linux_monkeypatch(tahoe, monkeypatch):
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
-    monkeypatch.setattr("sys.platform", "linux")
-    write_pidfile(tahoe.nodedir)
-    yield tahoe.stop()
-    args = mocked_command.call_args[0][0]
-    assert args == ["stop"]
-
-
 @pytest.mark.parametrize("locked,call_count", [(True, 1), (False, 0)])
 @inlineCallbacks
 def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
