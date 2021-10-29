@@ -546,13 +546,7 @@ class Tahoe:
 
         self.magic_folder.stop()  # XXX
 
-        if sys.platform == "win32":
-            self.kill()
-        else:
-            try:
-                yield self.command(["stop"])
-            except TahoeCommandError:  # Process already dead/not running
-                pass
+        self.kill()
         try:
             os.remove(self.pidfile)
         except EnvironmentError:
