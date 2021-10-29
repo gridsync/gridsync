@@ -576,7 +576,15 @@ class MagicFolder:
     def scan(self, folder_name: str) -> TwistedDeferred[Dict]:
         output = yield self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/scan",
+            f"/magic-folder/{folder_name}/scan-local",
+        )
+        return output
+
+    @inlineCallbacks
+    def poll(self, folder_name: str) -> TwistedDeferred[Dict]:
+        output = yield self._request(
+            "PUT",
+            f"/magic-folder/{folder_name}/poll-remote",
         )
         return output
 
@@ -633,5 +641,4 @@ class MagicFolder:
         author = f"Restored-{datetime.now().isoformat()}"
         yield self.add_participant(folder_name, author, personal_dmd)
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
-        # If only there was some way to force a remote poll here...
-        # https://github.com/LeastAuthority/magic-folder/issues/572
+        yield self.poll(folder_name)
