@@ -402,9 +402,6 @@ def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
     lock.release = MagicMock()
     tahoe.rootcap_manager.lock = lock
     monkeypatch.setattr("os.path.isfile", lambda x: True)
-    monkeypatch.setattr("sys.platform", "linux")
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", MagicMock())
-    monkeypatch.setattr("os.remove", MagicMock())
     yield tahoe.stop()
     assert (lock.acquire.call_count, lock.release.call_count) == (
         call_count,
