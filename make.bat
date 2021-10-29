@@ -76,7 +76,7 @@ call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
-call git checkout tahoe-lafs-1.14.0
+call git checkout tahoe-lafs-1.16.0
 call copy ..\..\misc\storage_client.py.patch .
 call git apply --ignore-space-change --ignore-whitespace storage_client.py.patch
 call copy ..\..\misc\rsa-public-exponent.patch .

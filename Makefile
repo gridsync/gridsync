@@ -157,7 +157,7 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
-	git checkout tahoe-lafs-1.14.0 && \
+	git checkout tahoe-lafs-1.16.0 && \
 	cp ../../misc/storage_client.py.patch . && \
 	git apply storage_client.py.patch && \
 	cp ../../misc/rsa-public-exponent.patch . && \
