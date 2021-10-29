@@ -160,8 +160,6 @@ frozen-tahoe:
 	git checkout tahoe-lafs-1.16.0 && \
 	cp ../../misc/storage_client.py.patch . && \
 	git apply storage_client.py.patch && \
-	cp ../../misc/rsa-public-exponent.patch . && \
-	git apply rsa-public-exponent.patch && \
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
