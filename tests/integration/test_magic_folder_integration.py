@@ -80,6 +80,8 @@ def until(predicate, timeout=10, period=0.2):
 def leave_all_folders(magic_folder):
     folders = yield magic_folder.get_folders()
     for folder in list(folders):
+        # https://github.com/LeastAuthority/magic-folder/issues/587
+        yield deferLater(reactor, 0.1, lambda: None)
         yield magic_folder.leave_folder(folder)
 
 
