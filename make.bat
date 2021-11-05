@@ -103,7 +103,7 @@ call .\build\venv-magic-folder\Scripts\activate
 call python -m pip install -r requirements\pyinstaller.txt
 call copy misc\magic-folder.spec build\magic-folder
 call pushd build\magic-folder
-call git checkout 8e44c20c8695069522abb34cd594875dd80b59dd
+call git checkout ed4af492cf8ce3a76c48d429a44a510ba17ea816
 call python ..\..\scripts\reproducible-pip.py install --require-hashes -r requirements\base.txt
 call python -m pip install --no-deps .
 call python -m pip list
