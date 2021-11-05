@@ -81,7 +81,7 @@ call copy ..\..\misc\storage_client.py.patch .
 call git apply --ignore-space-change --ignore-whitespace storage_client.py.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@5bad3a39ae78cb2483d70709b8a7c1cba96571ab
+call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@7ac2d18de39356b09326e539d199f6cf56c7cdfe
 call python -m pip install .
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
