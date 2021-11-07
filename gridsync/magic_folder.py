@@ -55,6 +55,11 @@ class MagicFolderMonitor(QObject):
     sync_started = Signal(str)  # folder_name
     sync_stopped = Signal(str)  # folder_name
 
+    upload_started = Signal(str, str, dict)  # folder_name, relpath, data
+    upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
+    download_started = Signal(str, str, dict)  # folder_name, relpath, data
+    download_finished = Signal(str, str, dict)  # folder_name, relpath, data
+
     error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
     folder_added = Signal(str)  # folder_name
@@ -142,23 +147,27 @@ class MagicFolderMonitor(QObject):
             for relpath, data in upload.items():
                 if relpath not in previous_uploads[folder]:
                     print("######### UPLOAD_STARTED", folder, relpath, data)
+                    self.upload_started.emit(folder, relpath, data)
 
         for folder, download in current_downloads.items():
             for relpath, data in download.items():
                 if relpath not in previous_downloads[folder]:
                     print("######### DOWNLOAD_STARTED", folder, relpath, data)
+                    self.download_started.emit(folder, relpath, data)
 
         for folder, upload in previous_uploads.items():
             for relpath, data in upload.items():
                 if relpath not in current_uploads[folder]:
                     # XXX: Confirm in "recent" list?
                     print("######### UPLOAD_FINISHED", folder, relpath, data)
+                    self.upload_finished.emit(folder, relpath, data)
 
         for folder, download in previous_downloads.items():
             for relpath, data in download.items():
                 if relpath not in current_downloads[folder]:
                     # XXX: Confirm in "recent" list?
                     print("######### DOWNLOAD_FINISHED", folder, relpath, data)
+                    self.download_finished.emit(folder, relpath, data)
 
     def compare_state(self, state: Dict) -> None:
         current_folders = state.get("folders", {})
