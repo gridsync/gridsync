@@ -120,6 +120,46 @@ class MagicFolderMonitor(QObject):
             return True
         return False
 
+    def compare_operations(
+        self, current_state: Dict, previous_state: Dict
+    ) -> None:
+        current_uploads = defaultdict(dict)
+        current_downloads = defaultdict(dict)
+        for folder, data in current_state.get("folders", {}).items():
+            for upload in data.get("uploads", []):
+                current_uploads[folder][upload["relpath"]] = upload
+            for download in data.get("downloads", []):
+                current_downloads[folder][upload["relpath"]] = upload
+        previous_uploads = defaultdict(dict)
+        previous_downloads = defaultdict(dict)
+        for folder, data in previous_state.get("folders", {}).items():
+            for upload in data.get("uploads", []):
+                previous_uploads[folder][upload["relpath"]] = upload
+            for download in data.get("downloads", []):
+                previous_downloads[folder][upload["relpath"]] = upload
+
+        for folder, upload in current_uploads.items():
+            for relpath, data in upload.items():
+                if relpath not in previous_uploads[folder]:
+                    print("######### UPLOAD_STARTED", folder, relpath, data)
+
+        for folder, download in current_downloads.items():
+            for relpath, data in download.items():
+                if relpath not in previous_downloads[folder]:
+                    print("######### DOWNLOAD_STARTED", folder, relpath, data)
+
+        for folder, upload in previous_uploads.items():
+            for relpath, data in upload.items():
+                if relpath not in current_uploads[folder]:
+                    # XXX: Confirm in "recent" list?
+                    print("######### UPLOAD_FINISHED", folder, relpath, data)
+
+        for folder, download in previous_downloads.items():
+            for relpath, data in download.items():
+                if relpath not in current_downloads[folder]:
+                    # XXX: Confirm in "recent" list?
+                    print("######### DOWNLOAD_FINISHED", folder, relpath, data)
+
     def compare_state(self, state: Dict) -> None:
         current_folders = state.get("folders", {})
         previous_folders = self._prev_state.get("folders", {})
@@ -260,6 +300,7 @@ class MagicFolderMonitor(QObject):
         self.status_message_received.emit(data)
         state = data.get("state")
         self.compare_state(state)
+        self.compare_operations(state, self._prev_state)
         self._prev_state = state
         self.do_check()  # XXX
 
