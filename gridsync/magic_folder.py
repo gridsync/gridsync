@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shutil
+import time
 from collections import defaultdict, deque
 from datetime import datetime
 from pathlib import Path
@@ -91,6 +92,8 @@ class MagicFolderMonitor(QObject):
         self._known_backups: List[str] = []
         self._prev_folders: Dict = {}
 
+        self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
+
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
         self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
@@ -146,12 +149,20 @@ class MagicFolderMonitor(QObject):
         for folder, upload in current_uploads.items():
             for relpath, data in upload.items():
                 if relpath not in previous_uploads[folder]:
+                    if not self._sync_started_time[folder]:
+                        start_time = data.get("queued-at", time.time())
+                        self._sync_started_time[folder] = start_time
+                        print("SYNC STARTED", folder, start_time)
                     print("######### UPLOAD_STARTED", folder, relpath, data)
                     self.upload_started.emit(folder, relpath, data)
 
         for folder, download in current_downloads.items():
             for relpath, data in download.items():
                 if relpath not in previous_downloads[folder]:
+                    if not self._sync_started_time[folder]:
+                        start_time = data.get("queued-at", time.time())
+                        self._sync_started_time[folder] = start_time
+                        print("SYNC STARTED", folder, start_time)
                     print("######### DOWNLOAD_STARTED", folder, relpath, data)
                     self.download_started.emit(folder, relpath, data)
 
@@ -168,6 +179,14 @@ class MagicFolderMonitor(QObject):
                     # XXX: Confirm in "recent" list?
                     print("######### DOWNLOAD_FINISHED", folder, relpath, data)
                     self.download_finished.emit(folder, relpath, data)
+
+        for folder in list(previous_uploads) + list(previous_downloads):
+            if not current_uploads[folder] and not current_downloads[folder]:
+                try:
+                    del self._sync_started_time[folder]
+                except KeyError:
+                    pass
+                print("SYNC FINISHED", folder, time.time())
 
     def compare_state(self, state: Dict) -> None:
         current_folders = state.get("folders", {})
