@@ -80,6 +80,9 @@ class Model(QStandardItemModel):
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
         self.mf_monitor.error_occurred.connect(self.on_error_occurred)
         self.mf_monitor.files_updated.connect(self.on_files_updated)
+        self.mf_monitor.sync_progress_updated.connect(
+            self.set_transfer_progress
+        )
 
     @pyqtSlot(str, str, int)
     def on_error_occurred(
