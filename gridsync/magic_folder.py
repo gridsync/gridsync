@@ -128,15 +128,15 @@ class MagicFolderMonitor(QObject):
     def compare_operations(
         self, current_state: Dict, previous_state: Dict
     ) -> None:
-        current_uploads = defaultdict(dict)
-        current_downloads = defaultdict(dict)
+        current_uploads: DefaultDict[str, dict] = defaultdict(dict)
+        current_downloads: DefaultDict[str, dict] = defaultdict(dict)
         for folder, data in current_state.get("folders", {}).items():
             for upload in data.get("uploads", []):
                 current_uploads[folder][upload["relpath"]] = upload
             for download in data.get("downloads", []):
                 current_downloads[folder][upload["relpath"]] = upload
-        previous_uploads = defaultdict(dict)
-        previous_downloads = defaultdict(dict)
+        previous_uploads: DefaultDict[str, dict] = defaultdict(dict)
+        previous_downloads: DefaultDict[str, dict] = defaultdict(dict)
         for folder, data in previous_state.get("folders", {}).items():
             for upload in data.get("uploads", []):
                 previous_uploads[folder][upload["relpath"]] = upload
