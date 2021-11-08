@@ -60,6 +60,7 @@ class MagicFolderMonitor(QObject):
     upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
     download_started = Signal(str, str, dict)  # folder_name, relpath, data
     download_finished = Signal(str, str, dict)  # folder_name, relpath, data
+    files_updated = Signal(str, list)  # folder_name, relpaths
 
     error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
@@ -195,6 +196,7 @@ class MagicFolderMonitor(QObject):
                     del self._updated_files[folder]
                 except KeyError:
                     pass
+                self.files_updated.emit(folder, updated_files)
                 print("FILES UPDATED", folder, updated_files)
 
     def compare_state(self, state: Dict) -> None:
