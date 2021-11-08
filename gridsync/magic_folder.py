@@ -132,62 +132,71 @@ class MagicFolderMonitor(QObject):
             return True
         return False
 
-    def compare_operations(
-        self, current_state: Dict, previous_state: Dict
-    ) -> None:
-        current_uploads: DefaultDict[str, dict] = defaultdict(dict)
-        current_downloads: DefaultDict[str, dict] = defaultdict(dict)
-        for folder, data in current_state.get("folders", {}).items():
+    @staticmethod
+    def _split_operations(
+        state: Dict,
+    ) -> Tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
+        uploads: DefaultDict[str, dict] = defaultdict(dict)
+        downloads: DefaultDict[str, dict] = defaultdict(dict)
+        for folder, data in state.get("folders", {}).items():
             for upload in data.get("uploads", []):
-                current_uploads[folder][upload["relpath"]] = upload
+                uploads[folder][upload["relpath"]] = upload
             for download in data.get("downloads", []):
-                current_downloads[folder][upload["relpath"]] = upload
-        previous_uploads: DefaultDict[str, dict] = defaultdict(dict)
-        previous_downloads: DefaultDict[str, dict] = defaultdict(dict)
-        for folder, data in previous_state.get("folders", {}).items():
-            for upload in data.get("uploads", []):
-                previous_uploads[folder][upload["relpath"]] = upload
-            for download in data.get("downloads", []):
-                previous_downloads[folder][upload["relpath"]] = upload
+                downloads[folder][download["relpath"]] = download
+        return (uploads, downloads)
 
-        for folder, upload in current_uploads.items():
-            for relpath, data in upload.items():
-                if relpath not in previous_uploads[folder]:
+    def _check_operations_started(
+        self,
+        current_operations: DefaultDict[str, dict],
+        previous_operations: DefaultDict[str, dict],
+        started_signal: Signal[str, str, dict],
+    ) -> None:
+        for folder, operation in current_operations.items():
+            for relpath, data in operation.items():
+                if relpath not in previous_operations[folder]:
                     if not self._sync_started_time[folder]:
                         start_time = data.get("queued-at", time.time())
                         self._sync_started_time[folder] = start_time
                         print("SYNC STARTED", folder, start_time)
                     print("######### UPLOAD_STARTED", folder, relpath, data)
                     self._queued_operations[folder].add(relpath)
-                    self.upload_started.emit(folder, relpath, data)
+                    started_signal.emit(folder, relpath, data)
 
-        for folder, download in current_downloads.items():
-            for relpath, data in download.items():
-                if relpath not in previous_downloads[folder]:
-                    if not self._sync_started_time[folder]:
-                        start_time = data.get("queued-at", time.time())
-                        self._sync_started_time[folder] = start_time
-                        print("SYNC STARTED", folder, start_time)
-                    print("######### DOWNLOAD_STARTED", folder, relpath, data)
-                    self._queued_operations[folder].add(relpath)
-                    self.download_started.emit(folder, relpath, data)
-
-        for folder, upload in previous_uploads.items():
-            for relpath, data in upload.items():
-                if relpath not in current_uploads[folder]:
+    def _check_operations_finished(
+        self,
+        current_operations: DefaultDict[str, dict],
+        previous_operations: DefaultDict[str, dict],
+        finished_signal: Signal[str, str, dict],
+    ) -> None:
+        for folder, operation in previous_operations.items():
+            for relpath, data in operation.items():
+                if relpath not in current_operations[folder]:
                     # XXX: Confirm in "recent" list?
                     self._updated_files[folder][relpath] = data
                     print("######### UPLOAD_FINISHED", folder, relpath, data)
-                    self.upload_finished.emit(folder, relpath, data)
+                    finished_signal.emit(folder, relpath, data)
 
-        for folder, download in previous_downloads.items():
-            for relpath, data in download.items():
-                if relpath not in current_downloads[folder]:
-                    # XXX: Confirm in "recent" list?
-                    self._updated_files[folder][relpath] = data
-                    print("######### DOWNLOAD_FINISHED", folder, relpath, data)
-                    self.download_finished.emit(folder, relpath, data)
-
+    def compare_operations(
+        self, current_state: Dict, previous_state: Dict
+    ) -> None:
+        current_uploads, current_downloads = self._split_operations(
+            current_state
+        )
+        previous_uploads, previous_downloads = self._split_operations(
+            previous_state
+        )
+        self._check_operations_started(
+            current_uploads, previous_uploads, self.upload_started
+        )
+        self._check_operations_started(
+            current_downloads, previous_downloads, self.download_started
+        )
+        self._check_operations_finished(
+            current_uploads, previous_uploads, self.upload_finished
+        )
+        self._check_operations_finished(
+            current_downloads, previous_downloads, self.download_finished
+        )
         for folder in list(previous_uploads) + list(previous_downloads):
             current = len(self._updated_files[folder])
             total = len(self._queued_operations[folder])
