@@ -79,6 +79,7 @@ class Model(QStandardItemModel):
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
         self.mf_monitor.error_occurred.connect(self.on_error_occurred)
+        self.mf_monitor.files_updated.connect(self.on_files_updated)
 
     @pyqtSlot(str, str, int)
     def on_error_occurred(
@@ -130,6 +131,14 @@ class Model(QStandardItemModel):
                     author + " " + action if author else action.capitalize(),
                     humanized_list(files_list),
                 ),
+            )
+
+    @pyqtSlot(str, list)
+    def on_files_updated(self, folder_name: str, files: list) -> None:
+        if get_preference("notifications", "folder") != "false":
+            self.gui.show_message(
+                f"{folder_name} folder updated",
+                f"Updated {humanized_list(files)}",
             )
 
     def data(self, index, role):
