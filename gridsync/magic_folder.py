@@ -94,6 +94,7 @@ class MagicFolderMonitor(QObject):
         self._prev_folders: Dict = {}
 
         self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
+        self._queued_operations: DefaultDict[str, set] = defaultdict(set)
         self._updated_files: DefaultDict[str, dict] = defaultdict(dict)
 
         self._watchdog = Watchdog()
@@ -156,6 +157,7 @@ class MagicFolderMonitor(QObject):
                         self._sync_started_time[folder] = start_time
                         print("SYNC STARTED", folder, start_time)
                     print("######### UPLOAD_STARTED", folder, relpath, data)
+                    self._queued_operations[folder].add(relpath)
                     self.upload_started.emit(folder, relpath, data)
 
         for folder, download in current_downloads.items():
@@ -166,6 +168,7 @@ class MagicFolderMonitor(QObject):
                         self._sync_started_time[folder] = start_time
                         print("SYNC STARTED", folder, start_time)
                     print("######### DOWNLOAD_STARTED", folder, relpath, data)
+                    self._queued_operations[folder].add(relpath)
                     self.download_started.emit(folder, relpath, data)
 
         for folder, upload in previous_uploads.items():
@@ -185,6 +188,8 @@ class MagicFolderMonitor(QObject):
                     self.download_finished.emit(folder, relpath, data)
 
         for folder in list(previous_uploads) + list(previous_downloads):
+            print(len(self._updated_files[folder]))
+            print(len(self._queued_operations[folder]))
             if not current_uploads[folder] and not current_downloads[folder]:
                 try:
                     del self._sync_started_time[folder]
@@ -194,6 +199,10 @@ class MagicFolderMonitor(QObject):
                 updated_files = list(self._updated_files[folder])
                 try:
                     del self._updated_files[folder]
+                except KeyError:
+                    pass
+                try:
+                    del self._queued_operations[folder]
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
