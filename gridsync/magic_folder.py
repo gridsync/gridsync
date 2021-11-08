@@ -93,6 +93,7 @@ class MagicFolderMonitor(QObject):
         self._prev_folders: Dict = {}
 
         self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
+        self._updated_files: DefaultDict[str, dict] = defaultdict(dict)
 
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
@@ -170,6 +171,7 @@ class MagicFolderMonitor(QObject):
             for relpath, data in upload.items():
                 if relpath not in current_uploads[folder]:
                     # XXX: Confirm in "recent" list?
+                    self._updated_files[folder][relpath] = data
                     print("######### UPLOAD_FINISHED", folder, relpath, data)
                     self.upload_finished.emit(folder, relpath, data)
 
@@ -177,6 +179,7 @@ class MagicFolderMonitor(QObject):
             for relpath, data in download.items():
                 if relpath not in current_downloads[folder]:
                     # XXX: Confirm in "recent" list?
+                    self._updated_files[folder][relpath] = data
                     print("######### DOWNLOAD_FINISHED", folder, relpath, data)
                     self.download_finished.emit(folder, relpath, data)
 
@@ -187,6 +190,12 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 print("SYNC FINISHED", folder, time.time())
+                updated_files = list(self._updated_files[folder])
+                try:
+                    del self._updated_files[folder]
+                except KeyError:
+                    pass
+                print("FILES UPDATED", folder, updated_files)
 
     def compare_state(self, state: Dict) -> None:
         current_folders = state.get("folders", {})
