@@ -8,7 +8,9 @@ status_messages = [
                 "Cat Pics": {
                     "downloads": [],
                     "errors": [],
-                    "uploads": [{"queued-at": 1636315601.769834, "relpath": "Empty"}],
+                    "uploads": [
+                        {"queued-at": 1636315601.769834, "relpath": "Empty"}
+                    ],
                     "recent": [],
                 }
             },
@@ -41,7 +43,10 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -61,8 +66,14 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -86,8 +97,14 @@ status_messages = [
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -107,13 +124,22 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -133,14 +159,26 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -160,15 +198,30 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -188,16 +241,34 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -217,17 +288,38 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
-                        {"queued-at": 1636315601.785104, "relpath": "Garfield.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.785104,
+                            "relpath": "Garfield.jpg",
+                        },
                         {
                             "queued-at": 1636315601.769834,
                             "started-at": 1636315601.782498,
@@ -247,16 +339,34 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
                         {
                             "queued-at": 1636315601.785104,
                             "started-at": 1636315602.663326,
@@ -281,16 +391,34 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
                         },
-                        {"queued-at": 1636315601.803485, "relpath": "lolcat.jpg"},
+                        {
+                            "queued-at": 1636315601.803485,
+                            "relpath": "lolcat.jpg",
+                        },
                         {
                             "queued-at": 1636315601.785104,
                             "started-at": 1636315602.663326,
@@ -317,11 +445,26 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
@@ -357,11 +500,26 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "relpath": "Cheshire Cat.jpeg",
@@ -398,11 +556,26 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "started-at": 1636315605.855326,
@@ -440,11 +613,26 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
-                        {"queued-at": 1636315601.850005, "relpath": "Colonel Meow.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.850005,
+                            "relpath": "Colonel Meow.jpg",
+                        },
                         {
                             "queued-at": 1636315601.826877,
                             "started-at": 1636315605.855326,
@@ -483,10 +671,22 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
                         {
                             "queued-at": 1636315601.850005,
                             "started-at": 1636315607.096851,
@@ -530,10 +730,22 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
-                        {"queued-at": 1636315601.869304, "relpath": "subdir/Nala.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.869304,
+                            "relpath": "subdir/Nala.jpg",
+                        },
                         {
                             "queued-at": 1636315601.850005,
                             "started-at": 1636315607.096851,
@@ -578,9 +790,18 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
                         {
                             "queued-at": 1636315601.869304,
                             "started-at": 1636315608.447307,
@@ -630,9 +851,18 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
-                        {"queued-at": 1636315601.886723, "relpath": "subdir/Venus.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.886723,
+                            "relpath": "subdir/Venus.jpg",
+                        },
                         {
                             "queued-at": 1636315601.869304,
                             "started-at": 1636315608.447307,
@@ -683,8 +913,14 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
                         {
                             "queued-at": 1636315601.886723,
                             "started-at": 1636315609.67621,
@@ -740,8 +976,14 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
-                        {"queued-at": 1636315601.90681, "relpath": "Waffles.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
+                        {
+                            "queued-at": 1636315601.90681,
+                            "relpath": "Waffles.jpg",
+                        },
                         {
                             "queued-at": 1636315601.886723,
                             "started-at": 1636315609.67621,
@@ -798,7 +1040,10 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
                         {
                             "queued-at": 1636315601.90681,
                             "started-at": 1636315611.165948,
@@ -860,7 +1105,10 @@ status_messages = [
                     "downloads": [],
                     "errors": [],
                     "uploads": [
-                        {"queued-at": 1636315601.937953, "relpath": "Grumpy Cat.jpg"},
+                        {
+                            "queued-at": 1636315601.937953,
+                            "relpath": "Grumpy Cat.jpg",
+                        },
                         {
                             "queued-at": 1636315601.90681,
                             "started-at": 1636315611.165948,
@@ -1120,6 +1368,7 @@ status_messages = [
         }
     },
 ]
+
 
 def test_compare_operations():
     monitor = MagicFolderMonitor(None)
