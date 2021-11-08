@@ -157,6 +157,7 @@ class MagicFolderMonitor(QObject):
                     if not self._sync_started_time[folder]:
                         start_time = data.get("queued-at", time.time())
                         self._sync_started_time[folder] = start_time
+                        self.sync_started.emit(folder)
                         print("SYNC STARTED", folder, start_time)
                     print("######### UPLOAD_STARTED", folder, relpath, data)
                     self._queued_operations[folder].add(relpath)
@@ -208,6 +209,7 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 print("SYNC FINISHED", folder, time.time())
+                self.sync_stopped.emit(folder)
                 updated_files = list(self._updated_files[folder])
                 try:
                     del self._updated_files[folder]
@@ -229,7 +231,7 @@ class MagicFolderMonitor(QObject):
             if is_syncing and not was_syncing:
                 self.syncing_folders.add(folder)
                 self.up_to_date = False
-                self.sync_started.emit(folder)
+                # XXX self.sync_started.emit(folder)
             elif was_syncing and not is_syncing:
                 try:
                     self.syncing_folders.remove(folder)
@@ -237,7 +239,7 @@ class MagicFolderMonitor(QObject):
                     pass
                 if not self.syncing_folders:
                     self.up_to_date = True
-                self.sync_stopped.emit(folder)
+                # XXX self.sync_stopped.emit(folder)
 
             current_errors = data.get("errors", [])
             if not current_errors:
