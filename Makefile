@@ -163,7 +163,7 @@ frozen-tahoe:
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
-	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@7ac2d18de39356b09326e539d199f6cf56c7cdfe && \
+	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@d59a0b0a81b73742154ed6c3ccc4ba9ac76ee63c && \
 	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
