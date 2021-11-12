@@ -95,8 +95,8 @@ class MagicFolderMonitor(QObject):
         self._prev_folders: Dict = {}
 
         self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
-        self._queued_operations: DefaultDict[str, set] = defaultdict(set)
-        self._updated_files: DefaultDict[str, dict] = defaultdict(dict)
+        self._operations_queued: DefaultDict[str, set] = defaultdict(set)
+        self._operations_completed: DefaultDict[str, dict] = defaultdict(dict)
 
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
@@ -170,7 +170,7 @@ class MagicFolderMonitor(QObject):
                         self.syncing_folders.add(folder)
                         self.up_to_date = False
                         self.sync_started.emit(folder)
-                    self._queued_operations[folder].add(relpath)
+                    self._operations_queued[folder].add(relpath)
                     started_signal.emit(folder, relpath, data)
 
     def _check_operations_finished(
@@ -183,7 +183,7 @@ class MagicFolderMonitor(QObject):
             for relpath, data in operation.items():
                 if relpath not in current_operations[folder]:
                     # XXX: Confirm in "recent" list?
-                    self._updated_files[folder][relpath] = data
+                    self._operations_completed[folder][relpath] = data
                     finished_signal.emit(folder, relpath, data)
 
     def compare_states(
@@ -209,8 +209,8 @@ class MagicFolderMonitor(QObject):
             current_downloads, previous_downloads, self.download_finished
         )
         for folder in list(previous_uploads) + list(previous_downloads):
-            current = len(self._updated_files[folder])
-            total = len(self._queued_operations[folder])
+            current = len(self._operations_completed[folder])
+            total = len(self._operations_queued[folder])
             self.sync_progress_updated.emit(folder, current, total)
             if not current_uploads[folder] and not current_downloads[folder]:
                 try:
@@ -224,13 +224,13 @@ class MagicFolderMonitor(QObject):
                 self.sync_stopped.emit(folder)
                 if not self.syncing_folders:
                     self.up_to_date = True
-                updated_files = list(self._updated_files[folder])
+                updated_files = list(self._operations_completed[folder])
                 try:
-                    del self._updated_files[folder]
+                    del self._operations_completed[folder]
                 except KeyError:
                     pass
                 try:
-                    del self._queued_operations[folder]
+                    del self._operations_queued[folder]
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
