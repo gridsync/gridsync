@@ -123,6 +123,25 @@ class MagicFolderMonitor(QObject):
             0.25, lambda: self._maybe_do_scan(event_id, path)
         )
 
+    def _check_errors(self, current_state: Dict, previous_state: Dict) -> None:
+        current_folders = current_state.get("folders", {})
+        previous_folders = previous_state.get("folders", {})
+        for folder, data in current_folders.items():
+            current_errors = data.get("errors", [])
+            if not current_errors:
+                continue
+            prev_errors = previous_folders.get(folder, {}).get("errors", [])
+            for error in current_errors:
+                if error not in prev_errors:
+                    summary = error.get("summary", "")
+                    timestamp = error.get("timestamp", 0)
+                    self.error_occurred.emit(folder, summary, timestamp)
+                    error["folder"] = folder
+                    # XXX There is presently no way to "clear" (or
+                    # acknowledge the receipt of) Magic-Folder errors
+                    # so this will persist indefinitely...
+                    self.errors.append(error)
+
     @staticmethod
     def _split_operations(
         state: Dict,
@@ -170,6 +189,7 @@ class MagicFolderMonitor(QObject):
     def compare_operations(
         self, current_state: Dict, previous_state: Dict
     ) -> None:
+        self._check_errors(current_state, previous_state)
         current_uploads, current_downloads = self._split_operations(
             current_state
         )
@@ -214,25 +234,6 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
-
-    def _check_errors(self, state: Dict) -> None:
-        current_folders = state.get("folders", {})
-        previous_folders = self._prev_state.get("folders", {})
-        for folder, data in current_folders.items():
-            current_errors = data.get("errors", [])
-            if not current_errors:
-                continue
-            prev_errors = previous_folders.get(folder, {}).get("errors", [])
-            for error in current_errors:
-                if error not in prev_errors:
-                    summary = error.get("summary", "")
-                    timestamp = error.get("timestamp", 0)
-                    self.error_occurred.emit(folder, summary, timestamp)
-                    error["folder"] = folder
-                    # XXX There is presently no way to "clear" (or
-                    # acknowledge the receipt of) Magic-Folder errors
-                    # so this will persist indefinitely...
-                    self.errors.append(error)
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():
@@ -339,7 +340,6 @@ class MagicFolderMonitor(QObject):
         data = json.loads(msg)
         self.status_message_received.emit(data)
         state = data.get("state")
-        self._check_errors(state)
         self.compare_operations(state, self._prev_state)
         self._prev_state = state
         self.do_check()  # XXX

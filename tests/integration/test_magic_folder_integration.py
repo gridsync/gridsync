@@ -527,7 +527,8 @@ def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
                         "recent": [],
                     }
                 }
-            }
+            },
+            {}
         )
     assert blocker.args == ["TestFolder", ":(", 1234567890]
 
