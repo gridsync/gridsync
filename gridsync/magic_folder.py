@@ -124,15 +124,6 @@ class MagicFolderMonitor(QObject):
         )
 
     @staticmethod
-    def _is_syncing(folder_name: str, folders_state: Dict) -> bool:
-        folder_data = folders_state.get(folder_name)
-        if not folder_data:
-            return False
-        if folder_data.get("uploads") or folder_data.get("downloads"):
-            return True
-        return False
-
-    @staticmethod
     def _split_operations(
         state: Dict,
     ) -> Tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
@@ -157,6 +148,8 @@ class MagicFolderMonitor(QObject):
                     if not self._sync_started_time[folder]:
                         start_time = data.get("queued-at", time.time())
                         self._sync_started_time[folder] = start_time
+                        self.syncing_folders.add(folder)
+                        self.up_to_date = False
                         self.sync_started.emit(folder)
                     self._queued_operations[folder].add(relpath)
                     started_signal.emit(folder, relpath, data)
@@ -204,7 +197,13 @@ class MagicFolderMonitor(QObject):
                     del self._sync_started_time[folder]
                 except KeyError:
                     pass
+                try:
+                    self.syncing_folders.remove(folder)
+                except KeyError:
+                    pass
                 self.sync_stopped.emit(folder)
+                if not self.syncing_folders:
+                    self.up_to_date = True
                 updated_files = list(self._updated_files[folder])
                 try:
                     del self._updated_files[folder]
@@ -220,21 +219,6 @@ class MagicFolderMonitor(QObject):
         current_folders = state.get("folders", {})
         previous_folders = self._prev_state.get("folders", {})
         for folder, data in current_folders.items():
-            is_syncing = self._is_syncing(folder, current_folders)
-            was_syncing = self._is_syncing(folder, previous_folders)
-            if is_syncing and not was_syncing:
-                self.syncing_folders.add(folder)
-                self.up_to_date = False
-                # XXX self.sync_started.emit(folder)
-            elif was_syncing and not is_syncing:
-                try:
-                    self.syncing_folders.remove(folder)
-                except KeyError:
-                    pass
-                if not self.syncing_folders:
-                    self.up_to_date = True
-                # XXX self.sync_stopped.emit(folder)
-
             current_errors = data.get("errors", [])
             if not current_errors:
                 continue
