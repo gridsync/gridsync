@@ -517,7 +517,7 @@ def test_monitor_emits_files_updated_signal(magic_folder, tmp_path, qtbot):
 
 def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
     with qtbot.wait_signal(magic_folder.monitor.error_occurred) as blocker:
-        magic_folder.monitor.compare_state(
+        magic_folder.monitor._check_errors(
             {
                 "folders": {
                     "TestFolder": {

@@ -215,7 +215,7 @@ class MagicFolderMonitor(QObject):
                     pass
                 self.files_updated.emit(folder, updated_files)
 
-    def compare_state(self, state: Dict) -> None:
+    def _check_errors(self, state: Dict) -> None:
         current_folders = state.get("folders", {})
         previous_folders = self._prev_state.get("folders", {})
         for folder, data in current_folders.items():
@@ -339,7 +339,7 @@ class MagicFolderMonitor(QObject):
         data = json.loads(msg)
         self.status_message_received.emit(data)
         state = data.get("state")
-        self.compare_state(state)
+        self._check_errors(state)
         self.compare_operations(state, self._prev_state)
         self._prev_state = state
         self.do_check()  # XXX
