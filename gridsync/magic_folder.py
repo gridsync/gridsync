@@ -158,8 +158,6 @@ class MagicFolderMonitor(QObject):
                         start_time = data.get("queued-at", time.time())
                         self._sync_started_time[folder] = start_time
                         self.sync_started.emit(folder)
-                        print("SYNC STARTED", folder, start_time)
-                    print("######### UPLOAD_STARTED", folder, relpath, data)
                     self._queued_operations[folder].add(relpath)
                     started_signal.emit(folder, relpath, data)
 
@@ -174,7 +172,6 @@ class MagicFolderMonitor(QObject):
                 if relpath not in current_operations[folder]:
                     # XXX: Confirm in "recent" list?
                     self._updated_files[folder][relpath] = data
-                    print("######### UPLOAD_FINISHED", folder, relpath, data)
                     finished_signal.emit(folder, relpath, data)
 
     def compare_operations(
@@ -201,14 +198,12 @@ class MagicFolderMonitor(QObject):
         for folder in list(previous_uploads) + list(previous_downloads):
             current = len(self._updated_files[folder])
             total = len(self._queued_operations[folder])
-            print("SYNC PROGRESS UPDATED", current, total, current / total)
             self.sync_progress_updated.emit(folder, current, total)
             if not current_uploads[folder] and not current_downloads[folder]:
                 try:
                     del self._sync_started_time[folder]
                 except KeyError:
                     pass
-                print("SYNC FINISHED", folder, time.time())
                 self.sync_stopped.emit(folder)
                 updated_files = list(self._updated_files[folder])
                 try:
@@ -220,7 +215,6 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
-                print("FILES UPDATED", folder, updated_files)
 
     def compare_state(self, state: Dict) -> None:
         current_folders = state.get("folders", {})
