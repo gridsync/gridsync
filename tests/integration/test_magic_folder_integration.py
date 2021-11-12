@@ -447,9 +447,77 @@ def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
     assert blocker.args == [folder_name]
 
 
+@inlineCallbacks
+def test_monitor_emits_sync_progress_updated_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+
+    with qtbot.wait_signal(
+        magic_folder.monitor.sync_progress_updated
+    ) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield deferLater(reactor, 1, lambda: None)
+    assert blocker.args == [folder_name, 0, 1]
+
+
+@inlineCallbacks
+def test_monitor_emits_upload_started_signal(magic_folder, tmp_path, qtbot):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+
+    with qtbot.wait_signal(magic_folder.monitor.upload_started) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield deferLater(reactor, 1, lambda: None)
+    assert (blocker.args[0], blocker.args[1]) == (folder_name, filename)
+
+
+@inlineCallbacks
+def test_monitor_emits_upload_finished_signal(magic_folder, tmp_path, qtbot):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+
+    with qtbot.wait_signal(magic_folder.monitor.upload_finished) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield deferLater(reactor, 1, lambda: None)
+    assert (blocker.args[0], blocker.args[1]) == (folder_name, filename)
+
+
+@inlineCallbacks
+def test_monitor_emits_files_updated_signal(magic_folder, tmp_path, qtbot):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author, poll_interval=1)
+
+    with qtbot.wait_signal(magic_folder.monitor.files_updated) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield deferLater(reactor, 1, lambda: None)
+    assert blocker.args == [folder_name, [filename]]
+
+
 def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
     with qtbot.wait_signal(magic_folder.monitor.error_occurred) as blocker:
-        magic_folder.monitor.compare_state(
+        magic_folder.monitor._check_errors(
             {
                 "folders": {
                     "TestFolder": {
@@ -459,7 +527,8 @@ def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
                         "recent": [],
                     }
                 }
-            }
+            },
+            {},
         )
     assert blocker.args == ["TestFolder", ":(", 1234567890]
 

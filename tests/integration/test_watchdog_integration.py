@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pytest
 
@@ -14,7 +15,8 @@ def watchdog():
 
 
 @pytest.mark.skipif(
-    "GITHUB_ACTIONS" in os.environ, reason="Flakey on public infrastructure"
+    "GITHUB_ACTIONS" in os.environ and sys.platform == "win32",
+    reason="Flakey on public infrastructure",
 )
 def test_watchdog_emits_path_modified_signal(watchdog, tmp_path, qtbot):
     watchdog.add_watch(str(tmp_path))

@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shutil
+import time
 from collections import defaultdict, deque
 from datetime import datetime
 from pathlib import Path
@@ -14,7 +15,6 @@ from typing import (
     Dict,
     List,
     Optional,
-    Set,
     Tuple,
     Union,
 )
@@ -54,6 +54,13 @@ class MagicFolderMonitor(QObject):
 
     sync_started = Signal(str)  # folder_name
     sync_stopped = Signal(str)  # folder_name
+    sync_progress_updated = Signal(str, object, object)  # folder, cur, total
+
+    upload_started = Signal(str, str, dict)  # folder_name, relpath, data
+    upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
+    download_started = Signal(str, str, dict)  # folder_name, relpath, data
+    download_finished = Signal(str, str, dict)  # folder_name, relpath, data
+    files_updated = Signal(str, list)  # folder_name, relpaths
 
     error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
@@ -77,7 +84,6 @@ class MagicFolderMonitor(QObject):
 
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
-        self.syncing_folders: Set[str] = set()
         self.up_to_date: bool = False
         self.errors: List = []
 
@@ -85,6 +91,10 @@ class MagicFolderMonitor(QObject):
         self._known_folders: Dict[str, dict] = {}
         self._known_backups: List[str] = []
         self._prev_folders: Dict = {}
+
+        self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
+        self._operations_queued: DefaultDict[str, set] = defaultdict(set)
+        self._operations_completed: DefaultDict[str, dict] = defaultdict(dict)
 
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
@@ -111,34 +121,10 @@ class MagicFolderMonitor(QObject):
             0.25, lambda: self._maybe_do_scan(event_id, path)
         )
 
-    @staticmethod
-    def _is_syncing(folder_name: str, folders_state: Dict) -> bool:
-        folder_data = folders_state.get(folder_name)
-        if not folder_data:
-            return False
-        if folder_data.get("uploads") or folder_data.get("downloads"):
-            return True
-        return False
-
-    def compare_state(self, state: Dict) -> None:
-        current_folders = state.get("folders", {})
-        previous_folders = self._prev_state.get("folders", {})
+    def _check_errors(self, current_state: Dict, previous_state: Dict) -> None:
+        current_folders = current_state.get("folders", {})
+        previous_folders = previous_state.get("folders", {})
         for folder, data in current_folders.items():
-            is_syncing = self._is_syncing(folder, current_folders)
-            was_syncing = self._is_syncing(folder, previous_folders)
-            if is_syncing and not was_syncing:
-                self.syncing_folders.add(folder)
-                self.up_to_date = False
-                self.sync_started.emit(folder)
-            elif was_syncing and not is_syncing:
-                try:
-                    self.syncing_folders.remove(folder)
-                except KeyError:
-                    pass
-                if not self.syncing_folders:
-                    self.up_to_date = True
-                self.sync_stopped.emit(folder)
-
             current_errors = data.get("errors", [])
             if not current_errors:
                 continue
@@ -153,6 +139,101 @@ class MagicFolderMonitor(QObject):
                     # acknowledge the receipt of) Magic-Folder errors
                     # so this will persist indefinitely...
                     self.errors.append(error)
+
+    @staticmethod
+    def _parse_operations(
+        state: Dict,
+    ) -> Tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
+        uploads: DefaultDict[str, dict] = defaultdict(dict)
+        downloads: DefaultDict[str, dict] = defaultdict(dict)
+        for folder, data in state.get("folders", {}).items():
+            for upload in data.get("uploads", []):
+                uploads[folder][upload["relpath"]] = upload
+            for download in data.get("downloads", []):
+                downloads[folder][download["relpath"]] = download
+        return (uploads, downloads)
+
+    def _check_operations_started(
+        self,
+        current_operations: DefaultDict[str, dict],
+        previous_operations: DefaultDict[str, dict],
+        started_signal: Signal[str, str, dict],
+    ) -> None:
+        for folder, operation in current_operations.items():
+            for relpath, data in operation.items():
+                if relpath not in previous_operations[folder]:
+                    if not self._sync_started_time[folder]:
+                        start_time = data.get("queued-at", time.time())
+                        self._sync_started_time[folder] = start_time
+                        self.up_to_date = False
+                        self.sync_started.emit(folder)
+                    self._operations_queued[folder].add(relpath)
+                    started_signal.emit(folder, relpath, data)
+
+    def _check_operations_finished(
+        self,
+        current_operations: DefaultDict[str, dict],
+        previous_operations: DefaultDict[str, dict],
+        finished_signal: Signal[str, str, dict],
+    ) -> None:
+        for folder, operation in previous_operations.items():
+            for relpath, data in operation.items():
+                if relpath not in current_operations[folder]:
+                    # XXX: Confirm in "recent" list?
+                    self._operations_completed[folder][relpath] = data
+                    finished_signal.emit(folder, relpath, data)
+
+    def get_syncing_folders(self) -> List[str]:
+        folders = []
+        for folder, sync_started_time in self._sync_started_time.items():
+            if sync_started_time:
+                folders.append(folder)
+        return folders
+
+    def compare_states(
+        self, current_state: Dict, previous_state: Dict
+    ) -> None:
+        self._check_errors(current_state, previous_state)
+        current_uploads, current_downloads = self._parse_operations(
+            current_state
+        )
+        previous_uploads, previous_downloads = self._parse_operations(
+            previous_state
+        )
+        self._check_operations_started(
+            current_uploads, previous_uploads, self.upload_started
+        )
+        self._check_operations_started(
+            current_downloads, previous_downloads, self.download_started
+        )
+        self._check_operations_finished(
+            current_uploads, previous_uploads, self.upload_finished
+        )
+        self._check_operations_finished(
+            current_downloads, previous_downloads, self.download_finished
+        )
+        for folder in list(previous_uploads) + list(previous_downloads):
+            current = len(self._operations_completed[folder])
+            total = len(self._operations_queued[folder])
+            self.sync_progress_updated.emit(folder, current, total)
+            if not current_uploads[folder] and not current_downloads[folder]:
+                try:
+                    del self._sync_started_time[folder]
+                except KeyError:
+                    pass
+                self.sync_stopped.emit(folder)
+                if not self.get_syncing_folders():
+                    self.up_to_date = True
+                updated_files = list(self._operations_completed[folder])
+                try:
+                    del self._operations_completed[folder]
+                except KeyError:
+                    pass
+                try:
+                    del self._operations_queued[folder]
+                except KeyError:
+                    pass
+                self.files_updated.emit(folder, updated_files)
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():
@@ -259,7 +340,7 @@ class MagicFolderMonitor(QObject):
         data = json.loads(msg)
         self.status_message_received.emit(data)
         state = data.get("state")
-        self.compare_state(state)
+        self.compare_states(state, self._prev_state)
         self._prev_state = state
         self.do_check()  # XXX
 
