@@ -143,7 +143,7 @@ class MagicFolderMonitor(QObject):
                     self.errors.append(error)
 
     @staticmethod
-    def _split_operations(
+    def _parse_operations(
         state: Dict,
     ) -> Tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
         uploads: DefaultDict[str, dict] = defaultdict(dict)
@@ -190,10 +190,10 @@ class MagicFolderMonitor(QObject):
         self, current_state: Dict, previous_state: Dict
     ) -> None:
         self._check_errors(current_state, previous_state)
-        current_uploads, current_downloads = self._split_operations(
+        current_uploads, current_downloads = self._parse_operations(
             current_state
         )
-        previous_uploads, previous_downloads = self._split_operations(
+        previous_uploads, previous_downloads = self._parse_operations(
             previous_state
         )
         self._check_operations_started(
