@@ -15,7 +15,6 @@ from typing import (
     Dict,
     List,
     Optional,
-    Set,
     Tuple,
     Union,
 )
@@ -85,7 +84,6 @@ class MagicFolderMonitor(QObject):
 
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
-        self.syncing_folders: Set[str] = set()
         self.up_to_date: bool = False
         self.errors: List = []
 
@@ -167,7 +165,6 @@ class MagicFolderMonitor(QObject):
                     if not self._sync_started_time[folder]:
                         start_time = data.get("queued-at", time.time())
                         self._sync_started_time[folder] = start_time
-                        self.syncing_folders.add(folder)
                         self.up_to_date = False
                         self.sync_started.emit(folder)
                     self._operations_queued[folder].add(relpath)
@@ -185,6 +182,13 @@ class MagicFolderMonitor(QObject):
                     # XXX: Confirm in "recent" list?
                     self._operations_completed[folder][relpath] = data
                     finished_signal.emit(folder, relpath, data)
+
+    def get_syncing_folders(self) -> List[str]:
+        folders = []
+        for folder, sync_started_time in self._sync_started_time.items():
+            if sync_started_time:
+                folders.append(folder)
+        return folders
 
     def compare_states(
         self, current_state: Dict, previous_state: Dict
@@ -217,12 +221,8 @@ class MagicFolderMonitor(QObject):
                     del self._sync_started_time[folder]
                 except KeyError:
                     pass
-                try:
-                    self.syncing_folders.remove(folder)
-                except KeyError:
-                    pass
                 self.sync_stopped.emit(folder)
-                if not self.syncing_folders:
+                if not self.get_syncing_folders():
                     self.up_to_date = True
                 updated_files = list(self._operations_completed[folder])
                 try:
