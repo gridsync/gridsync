@@ -77,8 +77,6 @@ call python -m pip install --upgrade setuptools pip
 call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call git checkout tahoe-lafs-1.16.0
-call copy ..\..\misc\storage_client.py.patch .
-call git apply --ignore-space-change --ignore-whitespace storage_client.py.patch
 call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@d59a0b0a81b73742154ed6c3ccc4ba9ac76ee63c
