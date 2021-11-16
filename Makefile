@@ -167,8 +167,6 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
-	mkdir -p dist/Tahoe-LAFS/challenge_bypass_ristretto && \
-	cp -R $$(python -c 'import site, sys;print site.getsitepackages()[0] if hasattr(sys, "real_prefix") else site.getusersitepackages()')/challenge_bypass_ristretto/*.so dist/Tahoe-LAFS/challenge_bypass_ristretto && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 
