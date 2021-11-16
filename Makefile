@@ -148,7 +148,7 @@ gif: pngs
 frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
-	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
+	python3 -m virtualenv --python=python2 build/venv-tahoe
 	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
 	# so allow falling back to the user environment.
 	# https://github.com/pypa/virtualenv/issues/2023
@@ -158,7 +158,6 @@ frozen-tahoe:
 	pushd build/tahoe-lafs && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
-	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@d59a0b0a81b73742154ed6c3ccc4ba9ac76ee63c && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
 	cp ../../misc/tahoe.spec pyinstaller.spec && \

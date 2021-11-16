@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+
+"""
+Update a pinned github repository.
+
+Pass this path to a JSON file and it will update it to the latest
+version of the branch it specifies. You can also pass a different
+branch or repository owner, which will update the file to point at
+the new branch/repository, and update to the latest version.
+
+If the JSON file inclues a 'archive-url-file' key, then that file (as a sibling
+to the JSON file) will have the archive URL written to it.
+"""
+
+import argparse
+import json
+from pathlib import Path
+
+import httpx
+
+ARCHIVE_TEMPLATE = "https://api.github.com/repos/{owner}/{repo}/tarball/{rev}"
+BRANCH_TEMPLATE = (
+    "https://api.github.com/repos/{owner}/{repo}/commits/{branch}"
+)
+
+
+def get_github_commit(config):
+    response = httpx.get(BRANCH_TEMPLATE.format(**config))
+    response.raise_for_status()
+    return response.json()["sha"]
+
+
+def get_github_archive_url(config):
+    return ARCHIVE_TEMPLATE.format(**config)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "repo_file",
+        metavar="repo-file",
+        type=Path,
+        help="JSON file with pinned configuration.",
+    )
+    parser.add_argument(
+        "--branch",
+        type=str,
+        help="Branch to update to.",
+    )
+    parser.add_argument(
+        "--owner",
+        type=str,
+        help="Repository owner to update to.",
+    )
+    parser.add_argument(
+        "--rev",
+        type=str,
+        help="Revision to pin.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+    )
+    args = parser.parse_args()
+
+    repo_file = args.repo_file
+    config = json.loads(repo_file.read_text())
+
+    for key in ["owner", "branch"]:
+        if getattr(args, key) is not None:
+            config[key] = getattr(args, key)
+
+    if args.rev is not None:
+        config["rev"] = args.rev
+    else:
+        config["rev"] = get_github_commit(config)
+
+    archive_url = get_github_archive_url(config)
+    config["archive-url"] = archive_url
+
+    output = json.dumps(config, indent=2)
+    if args.dry_run:
+        print(output)
+    else:
+        repo_file.write_text(output)
+        if "archive-url-file" in config:
+            archive_url_file = repo_file.with_name(config["archive-url-file"])
+            archive_url_file.write_text(archive_url)
+
+
+if __name__ == "__main__":
+    main()
