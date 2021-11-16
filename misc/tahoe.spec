@@ -5,6 +5,8 @@ from __future__ import print_function
 from distutils.sysconfig import get_python_lib
 import sys
 
+from PyInstaller.utils.hooks import collect_data_files
+
 
 # https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
 sys.modules['FixTk'] = None
@@ -16,34 +18,28 @@ options = [
     ('W ignore::UserWarning', None, 'OPTION')
 ]
 
-added_files = [
-    ('COPYING.*', '.'),
-    ('CREDITS', '.'),
-    ('relnotes.txt', '.'),
-    ('src/allmydata/web/*.xhtml', 'allmydata/web'),
-    ('src/allmydata/web/static/*', 'allmydata/web/static'),
-    ('src/allmydata/web/static/css/*', 'allmydata/web/static/css'),
-    ('src/allmydata/web/static/img/*.png', 'allmydata/web/static/img')]
+added_files = collect_data_files("allmydata.web")
 
 hidden_imports = [
     '__builtin__',
     'allmydata.client',
     'allmydata.introducer',
     'allmydata.stats',
+    'allmydata.web'
     'base64',
     'cffi',
     'collections',
-    'commands',                                                                
-    'Crypto',                                                                  
-    'functools',                                                               
-    'future.backports.misc',                                                   
-    'itertools',                                                               
-    'math',                                                                    
-    'packaging.specifiers',                                                    
-    're',                                                                      
-    'reprlib',                                                                 
-    'six.moves.html_parser',                                                   
-    'subprocess',                                                              
+    'commands',
+    'Crypto',
+    'functools',
+    'future.backports.misc',
+    'itertools',
+    'math',
+    'packaging.specifiers',
+    're',
+    'reprlib',
+    'six.moves.html_parser',
+    'subprocess',
     'twisted.plugins.zkapauthorizer',
     'UserDict',
     'UserList',
@@ -53,7 +49,7 @@ hidden_imports = [
 ]
 
 a = Analysis(
-    ['static/tahoe.py'],
+    ["../../misc/tahoe.py"],
     pathex=[],
     binaries=None,
     datas=added_files,
