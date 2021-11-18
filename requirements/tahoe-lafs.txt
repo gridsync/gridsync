@@ -292,8 +292,6 @@ typing==3.10.0.0 \
 urllib3==1.26.7 \
     --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece \
     --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844
-watchdog==0.10.3 ; sys_platform != "win32" and sys_platform != "linux2" \
-    --hash=sha256:4214e1379d128b0588021880ccaf40317ee156d4603ac388b9adcf29165e0c04
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
     --hash=sha256:08fb04e715448143e51a4f834fa09e8730a009cfa3d7d5a447f0e36ad9312b69 \
