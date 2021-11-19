@@ -264,6 +264,30 @@ def test_add_storage_servers_no_add_missing_furl(tmpdir):
     assert client.get_storage_servers() == {}
 
 
+def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
+    nodedir = str(tmpdir.mkdir("TestGrid"))
+    os.makedirs(os.path.join(nodedir, "private"))
+    client = Tahoe(nodedir)
+    storage_servers = {
+        "node-1": {
+            "anonymous-storage-FURL": "pb://test",
+            "nickname": "One",
+            "storage-options": [
+                {
+                    "name": "privatestorageio-zkapauthz-v1",
+                    "allowed-public-keys": "Key1,Key2,Key3,Key4",
+                }
+            ],
+        }
+    }
+    client.add_storage_servers(storage_servers)
+    allowed_public_keys = client.config_get(
+        "storageclient.plugins.privatestorageio-zkapauthz-v1",
+        "allowed-public-keys",
+    )
+    assert allowed_public_keys == "Key1,Key2,Key3,Key4"
+
+
 def test_load_magic_folders(tahoe):
     tahoe.load_magic_folders()
     assert tahoe.magic_folders["test_folder"]["directory"] == "test_dir"
