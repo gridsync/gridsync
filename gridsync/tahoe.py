@@ -360,6 +360,13 @@ class Tahoe:
                         "default-token-count",
                         default_token_count,
                     )
+                allowed_public_keys = options.get("allowed-public-keys")
+                if allowed_public_keys:
+                    self.config_set(
+                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                        "allowed-public-keys",
+                        allowed_public_keys
+                    )
             else:
                 log.warning(
                     "Skipping unknown storage plugin option: %s", options
