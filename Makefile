@@ -158,8 +158,6 @@ frozen-tahoe:
 	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
 	git checkout tahoe-lafs-1.16.0 && \
-	cp ../../misc/storage_client.py.patch . && \
-	git apply storage_client.py.patch && \
 	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
