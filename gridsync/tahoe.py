@@ -365,7 +365,7 @@ class Tahoe:
                     self.config_set(
                         "storageclient.plugins.privatestorageio-zkapauthz-v1",
                         "allowed-public-keys",
-                        allowed_public_keys
+                        allowed_public_keys,
                     )
             else:
                 log.warning(
