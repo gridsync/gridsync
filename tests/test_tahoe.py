@@ -807,37 +807,3 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     )
     yield client.start()
     assert client.use_tor
-
-
-@pytest.mark.parametrize(
-    "admin_dircap,collective_dircap,upload_dircap,exception_raised,call_count",
-    [
-        ("URI:admin", "URI:collective", "URI:upload", None, 1),
-        ("URI:admin", None, "URI:upload", TahoeError, 0),
-        ("URI:admin", "URI:collective", None, TahoeError, 0),
-    ],
-)
-@inlineCallbacks
-def test_restore_magic_folder_raise_tahoe_error(
-    admin_dircap,
-    collective_dircap,
-    upload_dircap,
-    exception_raised,
-    call_count,
-    monkeypatch,
-    tmpdir_factory,
-):
-    client = Tahoe(str(tmpdir_factory.mktemp("nodedir")))
-    client.remote_magic_folders["TestFolder"] = {
-        "admin_dircap": admin_dircap,
-        "collective_dircap": collective_dircap,
-        "upload_dircap": upload_dircap,
-    }
-    m = MagicMock()
-    dest = str(tmpdir_factory.mktemp("TestFolderDestination"))
-    if exception_raised:
-        with pytest.raises(exception_raised):
-            yield client.restore_magic_folder("TestFolder", dest)
-    else:
-        yield client.restore_magic_folder("TestFolder", dest)
-    assert m.call_count == call_count
