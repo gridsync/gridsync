@@ -98,10 +98,9 @@ enum34==1.1.10 \
     --hash=sha256:a98a201d6de3f2ab3db284e70a33b0f896fbf35f8086594e8c9e74b909058d53 \
     --hash=sha256:c3858660960c984d6ab0ebad691265180da2b43f07e061c0f8dca9ef3cffd328 \
     --hash=sha256:cce6a7477ed816bd2542d03d53db9f0db935dd013b70f336a95c73979289f248
-# Pinned to 0.13.1 upstream; see https://tahoe-lafs.org/trac/tahoe-lafs/ticket/3272
-foolscap==0.13.1 \
-    --hash=sha256:4e400e377683f328a70fd5b808202576397c30e2b5a0b8773d22608518fb9f95 \
-    --hash=sha256:e2773b4901430b8852da9d691e91984a5e2118da0448c192d9ec5aa81db91d6b
+foolscap==21.7.0 \
+    --hash=sha256:7520d5a2b6b2ac0b55d1c41c8bc1cdef65a611bbffc48ce0d1adcbd252e81e54 \
+    --hash=sha256:e9d18553860d9358e85d7662d9cd8bf3826d51b4ecd480a05dfbf4fc45363f84
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
 hkdf==0.0.3 \
