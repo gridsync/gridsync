@@ -846,26 +846,6 @@ class Tahoe:
         return False
 
     @inlineCallbacks
-    def magic_folder_invite(self, name, nickname):
-        yield self.await_ready()
-        admin_dircap = self.get_admin_dircap(name)
-        if not admin_dircap:
-            raise TahoeError(
-                'No admin dircap found for folder "{}"; you do not have the '
-                "authority to create invites for this folder.".format(name)
-            )
-        created = yield self.mkdir(admin_dircap, nickname)
-        code = "{}+{}".format(self.get_collective_dircap(name), created)
-        return code
-
-    @inlineCallbacks
-    def magic_folder_uninvite(self, name, nickname):
-        log.debug('Uninviting "%s" from "%s"...', nickname, name)
-        alias = hashlib.sha256(name.encode()).hexdigest()
-        yield self.unlink(self.get_alias(alias), nickname)
-        log.debug('Uninvited "%s" from "%s"...', nickname, name)
-
-    @inlineCallbacks
     def get_magic_folder_status(self, name):
         if not self.nodeurl or not self.api_token:
             return None
