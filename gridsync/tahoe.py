@@ -242,59 +242,6 @@ class Tahoe:
             f.write(json.dumps(settings))
         log.debug("Exported settings to '%s'", dest)
 
-    def get_aliases(self):
-        aliases = {}
-        aliases_file = os.path.join(self.nodedir, "private", "aliases")
-        try:
-            with open(aliases_file, encoding="utf-8") as f:
-                for line in f.readlines():
-                    if not line.startswith("#"):
-                        try:
-                            name, cap = line.split(":", 1)
-                            aliases[name + ":"] = cap.strip()
-                        except ValueError:
-                            pass
-            return aliases
-        except IOError:
-            return aliases
-
-    def get_alias(self, alias):
-        if not alias.endswith(":"):
-            alias = alias + ":"
-        try:
-            for name, cap in self.get_aliases().items():
-                if name == alias:
-                    return cap
-            return None
-        except AttributeError:
-            return None
-
-    def _set_alias(self, alias, cap=None):
-        if not alias.endswith(":"):
-            alias = alias + ":"
-        aliases = self.get_aliases()
-        if cap:
-            aliases[alias] = cap
-        else:
-            try:
-                del aliases[alias]
-            except (KeyError, TypeError):
-                return
-        tmp_aliases_file = os.path.join(self.nodedir, "private", "aliases.tmp")
-        with atomic_write(tmp_aliases_file, mode="w", overwrite=True) as f:
-            data = ""
-            for name, dircap in aliases.items():
-                data += "{} {}\n".format(name, dircap)
-            f.write(data)
-        aliases_file = os.path.join(self.nodedir, "private", "aliases")
-        shutil.move(tmp_aliases_file, aliases_file)
-
-    def add_alias(self, alias, cap):
-        self._set_alias(alias, cap)
-
-    def remove_alias(self, alias):
-        self._set_alias(alias)
-
     def _read_servers_yaml(self):
         try:
             with open(self.servers_yaml_path, encoding="utf-8") as f:
