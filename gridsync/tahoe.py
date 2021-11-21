@@ -859,82 +859,6 @@ class Tahoe:
         log.debug("Successfully unlinked folder '%s' from rootcap", name)
 
     @inlineCallbacks
-    def _create_magic_folder(self, path, alias, poll_interval=60):
-        log.debug("Creating magic-folder for %s...", path)
-        admin_dircap = yield self.mkdir()
-        admin_dircap_json = yield self.get_json(admin_dircap)
-        collective_dircap = admin_dircap_json[1]["ro_uri"]
-        upload_dircap = yield self.mkdir()
-        upload_dircap_json = yield self.get_json(upload_dircap)
-        upload_dircap_ro = upload_dircap_json[1]["ro_uri"]
-        yield self.link(admin_dircap, "admin", upload_dircap_ro)
-        yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
-        try:
-            with open(yaml_path, encoding="utf-8") as f:
-                yaml_data = yaml.safe_load(f)
-        except OSError:
-            yaml_data = {}
-        folders_data = yaml_data.get("magic-folders", {})
-        folders_data[os.path.basename(path)] = {
-            "directory": path,
-            "collective_dircap": collective_dircap,
-            "upload_dircap": upload_dircap,
-            "poll_interval": poll_interval,
-        }
-        with atomic_write(yaml_path, mode="w", overwrite=True) as f:
-            f.write(yaml.safe_dump({"magic-folders": folders_data}))
-        self.add_alias(alias, admin_dircap)
-
-    @inlineCallbacks
-    def create_magic_folder(
-        self, path, join_code=None, admin_dircap=None, poll_interval=60
-    ):  # XXX See Issue #55
-        from twisted.internet import reactor
-
-        path = os.path.realpath(os.path.expanduser(path))
-        poll_interval = str(poll_interval)
-        try:
-            os.makedirs(path)
-        except OSError:
-            pass
-        name = os.path.basename(path)
-        alias = hashlib.sha256(name.encode()).hexdigest() + ":"
-        if join_code:
-            yield self.command(
-                [
-                    "magic-folder",
-                    "join",
-                    "-p",
-                    poll_interval,
-                    "-n",
-                    name,
-                    join_code,
-                    path,
-                ]
-            )
-            if admin_dircap:
-                self.add_alias(alias, admin_dircap)
-        else:
-            yield self.await_ready()
-            # yield self.command(['magic-folder', 'create', '-p', poll_interval,
-            #                    '-n', name, alias, 'admin', path])
-            try:
-                yield self._create_magic_folder(path, alias, poll_interval)
-            except Exception as e:  # pylint: disable=broad-except
-                log.debug(
-                    'Magic-folder creation failed: "%s: %s"; retrying...',
-                    type(e).__name__,
-                    str(e),
-                )
-                yield deferLater(reactor, 3, lambda: None)  # XXX
-                yield self.await_ready()
-                yield self._create_magic_folder(path, alias, poll_interval)
-        if not self.config_get("magic_folder", "enabled"):
-            self.config_set("magic_folder", "enabled", "True")
-        self.load_magic_folders()
-        yield self.link_magic_folder_to_rootcap(name)
-
-    @inlineCallbacks
     def restore_magic_folder(self, folder_name, dest):
         data = self.remote_magic_folders[folder_name]
         admin_dircap = data.get("admin_dircap")
@@ -991,13 +915,6 @@ class Tahoe:
         alias = hashlib.sha256(name.encode()).hexdigest()
         yield self.unlink(self.get_alias(alias), nickname)
         log.debug('Uninvited "%s" from "%s"...', nickname, name)
-
-    @inlineCallbacks
-    def remove_magic_folder(self, name):
-        if name in self.magic_folders:
-            del self.magic_folders[name]
-            yield self.command(["magic-folder", "leave", "-n", name])
-            self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
 
     @inlineCallbacks
     def get_magic_folder_status(self, name):
