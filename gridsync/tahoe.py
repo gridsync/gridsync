@@ -828,57 +828,6 @@ class Tahoe:
             raise TahoeWebError(content.decode("utf-8"))
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
-    @inlineCallbacks
-    def link_magic_folder_to_rootcap(self, name):
-        log.debug("Linking folder '%s' to rootcap...", name)
-        rootcap = self.get_rootcap()
-        tasks = []
-        admin_dircap = self.get_admin_dircap(name)
-        if admin_dircap:
-            tasks.append(self.link(rootcap, name + " (admin)", admin_dircap))
-        collective_dircap = self.get_collective_dircap(name)
-        tasks.append(
-            self.link(rootcap, name + " (collective)", collective_dircap)
-        )
-        personal_dircap = self.get_magic_folder_dircap(name)
-        tasks.append(self.link(rootcap, name + " (personal)", personal_dircap))
-        yield DeferredList(tasks)
-        log.debug("Successfully linked folder '%s' to rootcap", name)
-
-    @inlineCallbacks
-    def unlink_magic_folder_from_rootcap(self, name):
-        log.debug("Unlinking folder '%s' from rootcap...", name)
-        rootcap = self.get_rootcap()
-        tasks = []
-        tasks.append(self.unlink(rootcap, name + " (collective)"))
-        tasks.append(self.unlink(rootcap, name + " (personal)"))
-        if "admin_dircap" in self.remote_magic_folders[name]:
-            tasks.append(self.unlink(rootcap, name + " (admin)"))
-        del self.remote_magic_folders[name]
-        yield DeferredList(tasks)
-        log.debug("Successfully unlinked folder '%s' from rootcap", name)
-
-    @inlineCallbacks
-    def restore_magic_folder(self, folder_name, dest):
-        data = self.remote_magic_folders[folder_name]
-        admin_dircap = data.get("admin_dircap")
-        collective_dircap = data.get("collective_dircap")
-        upload_dircap = data.get("upload_dircap")
-        if not collective_dircap or not upload_dircap:
-            raise TahoeError(
-                'The capabilities needed to restore the folder "{}" could '
-                "not be found. This probably means that the folder was "
-                "never completely uploaded to begin with -- or worse, "
-                "that your rootcap was corrupted somehow after the fact.\n"
-                "\nYou will need to remove this folder and upload it "
-                "again.".format(folder_name)
-            )
-        yield self.create_magic_folder(
-            os.path.join(dest, folder_name),
-            "{}+{}".format(collective_dircap, upload_dircap),
-            admin_dircap,
-        )
-
     def local_magic_folder_exists(self, folder_name):
         if folder_name in self.magic_folders:
             return True
@@ -1000,43 +949,6 @@ class Tahoe:
 
     def get_magic_folder_directory(self, name):
         return self._get_magic_folder_setting(name, "directory")
-
-    @inlineCallbacks
-    def get_magic_folders_from_rootcap(self, content=None):
-        if not content:
-            content = yield self.get_json(self.get_rootcap())
-        if content:
-            folders = defaultdict(dict)
-            for name, data in content[1]["children"].items():
-                data_dict = data[1]
-                if name.endswith(" (collective)"):
-                    prefix = name.split(" (collective)")[0]
-                    folders[prefix]["collective_dircap"] = data_dict["ro_uri"]
-                elif name.endswith(" (personal)"):
-                    prefix = name.split(" (personal)")[0]
-                    folders[prefix]["upload_dircap"] = data_dict["rw_uri"]
-                elif name.endswith(" (admin)"):
-                    prefix = name.split(" (admin)")[0]
-                    folders[prefix]["admin_dircap"] = data_dict["rw_uri"]
-            self.remote_magic_folders = folders
-            return folders
-        return None
-
-    @inlineCallbacks
-    def ensure_folder_links(self, _):
-        yield self.await_ready()
-        if not self.get_rootcap():
-            yield self.create_rootcap()
-        if self.magic_folders:
-            remote_folders = yield self.get_magic_folders_from_rootcap()
-            for folder in self.magic_folders:
-                if folder not in remote_folders:
-                    self.link_magic_folder_to_rootcap(folder)
-                else:
-                    log.debug(
-                        'Folder "%s" already linked to rootcap; ' "skipping.",
-                        folder,
-                    )
 
     @inlineCallbacks
     def get_magic_folder_members(self, name, content=None):
