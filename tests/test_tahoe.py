@@ -834,7 +834,6 @@ def test_restore_magic_folder_raise_tahoe_error(
         "upload_dircap": upload_dircap,
     }
     m = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.create_magic_folder", m)
     dest = str(tmpdir_factory.mktemp("TestFolderDestination"))
     if exception_raised:
         with pytest.raises(exception_raised):

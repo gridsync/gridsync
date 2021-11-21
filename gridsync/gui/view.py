@@ -295,7 +295,6 @@ class View(QTreeView):
     @inlineCallbacks
     def remove_folder(self, folder_name, unlink=False):
         try:
-            # yield self.gateway.remove_magic_folder(folder_name)
             yield self.gateway.magic_folder.leave_folder(folder_name)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
@@ -499,7 +498,6 @@ class View(QTreeView):
         self.model().add_folder(path)
         folder_name = os.path.basename(path)
         try:
-            # yield self.gateway.create_magic_folder(path)
             yield self.gateway.magic_folder.add_folder(path, "admin")
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
