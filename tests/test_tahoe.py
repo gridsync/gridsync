@@ -651,44 +651,6 @@ def test_magic_folder_exists_false(tahoe):
 
 
 @inlineCallbacks
-def test_tahoe_magic_folder_invite(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", lambda _: True)
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_admin_dircap", lambda x, y: "URI:a"
-    )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_collective_dircap", lambda x, y: "URI:c"
-    )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.mkdir", lambda x, y, z: "URI:u")
-    output = yield tahoe.magic_folder_invite("Test Folder", "Bob")
-    assert output == "URI:c+URI:u"
-
-
-@inlineCallbacks
-def test_tahoe_magic_folder_invite_raise_tahoe_error(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", lambda _: True)
-    with pytest.raises(TahoeError):
-        yield tahoe.magic_folder_invite("Test Folder", "Bob")
-
-
-@inlineCallbacks
-def test_tahoe_magic_folder_uninvite(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.unlink", lambda x, y, z: None)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_alias", lambda x, y: "test")
-    yield tahoe.magic_folder_uninvite("Test Folder", "Bob")
-    assert True
-
-
-@inlineCallbacks
-def test_tahoe_magic_folder_uninvite_from_subclient(tahoe, monkeypatch):
-    tahoe.magic_folders["TestUninviteFolder"] = {"client": MagicMock()}
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.unlink", lambda x, y, z: None)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_alias", lambda x, y: "test")
-    yield tahoe.magic_folder_uninvite("TestUninviteFolder", "Bob")
-    assert True
-
-
-@inlineCallbacks
 def test_upgrade_legacy_config(tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-legacy")))
     os.makedirs(os.path.join(client.nodedir, "private"))
