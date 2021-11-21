@@ -182,38 +182,6 @@ def test_export(tahoe, tmpdir_factory):
     assert os.path.isfile(dest)
 
 
-def test_get_aliases(tahoe):
-    aliases = tahoe.get_aliases()
-    assert aliases["test_alias:"] == "test_cap"
-
-
-def test_get_alias(tahoe):
-    assert tahoe.get_alias("test_alias:") == "test_cap"
-
-
-def test_get_alias_append_colon(tahoe):
-    assert tahoe.get_alias("test_alias") == "test_cap"
-
-
-def test_get_alias_not_found(tahoe):
-    assert not tahoe.get_alias("missing_alias")
-
-
-def test_add_alias(tahoe):
-    tahoe.add_alias("added_alias", "added_cap")
-    assert tahoe.get_alias("added_alias") == "added_cap"
-
-
-def test_remove_alias(tahoe):
-    tahoe.remove_alias("added_alias")
-    assert not tahoe.get_alias("added_alias")
-
-
-def test_remove_alias_idempotent(tahoe):
-    tahoe.remove_alias("added_alias")
-    assert not tahoe.get_alias("added_alias")
-
-
 def test_get_storage_servers_empty(tahoe):
     assert tahoe.get_storage_servers() == {}
 
