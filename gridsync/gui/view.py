@@ -206,7 +206,6 @@ class View(QTreeView):
     @inlineCallbacks
     def download_folder(self, folder_name, dest):
         try:
-            # yield self.gateway.restore_magic_folder(folder_name, dest)
             yield self.gateway.magic_folder.restore_folder_backup(
                 folder_name, os.path.join(dest, folder_name)
             )
@@ -242,7 +241,6 @@ class View(QTreeView):
     @inlineCallbacks
     def unlink_folder(self, folder_name):
         try:
-            # yield self.gateway.unlink_magic_folder_from_rootcap(folder_name)
             yield self.gateway.magic_folder.remove_folder_backup(folder_name)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
