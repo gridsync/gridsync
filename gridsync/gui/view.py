@@ -89,7 +89,6 @@ class View(QTreeView):
         self.gateway = gateway
         self.invite_sender_dialogs = []
         self._rescan_required = False
-        self._restart_required = False
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
 
@@ -195,15 +194,6 @@ class View(QTreeView):
             logging.debug("No rescans were scheduled; not rescanning")
 
     @inlineCallbacks
-    def maybe_restart_gateway(self, _):
-        if self._restart_required:
-            self._restart_required = False
-            logging.debug("A restart was scheduled; restarting...")
-            yield self.gateway.restart()
-        else:
-            logging.debug("No restarts were scheduled; not restarting")
-
-    @inlineCallbacks
     def download_folder(self, folder_name, dest):
         try:
             yield self.gateway.magic_folder.restore_folder_backup(
@@ -218,10 +208,7 @@ class View(QTreeView):
                 "{}: {}".format(folder_name, type(e).__name__, str(e)),
             )
             return
-        # self._restart_required = True
-        logging.debug(
-            'Successfully joined folder "%s"; scheduled restart', folder_name
-        )
+        logging.debug('Successfully joined folder "%s"', folder_name)
 
     def select_download_location(self, folders):
         dest = QFileDialog.getExistingDirectory(
@@ -307,10 +294,7 @@ class View(QTreeView):
             return
         # self.model().remove_folder(folder_name)
         self.model().on_folder_removed(folder_name)
-        self._restart_required = True
-        logging.debug(
-            'Successfully removed folder "%s"; scheduled restart', folder_name
-        )
+        logging.debug('Successfully removed folder "%s"', folder_name)
         if unlink:
             yield self.unlink_folder(folder_name)
 
@@ -509,10 +493,7 @@ class View(QTreeView):
             )
             self.model().remove_folder(folder_name)
             return
-        self._restart_required = True
-        logging.debug(
-            'Successfully added folder "%s"; scheduled restart', folder_name
-        )
+        logging.debug('Successfully added folder "%s"', folder_name)
 
     def add_folders(self, paths):
         paths_to_add = []
