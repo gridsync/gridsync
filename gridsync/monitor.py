@@ -334,8 +334,6 @@ class Monitor(QObject):
     nodes_updated = pyqtSignal(int, int)
     space_updated = pyqtSignal(object)
 
-    remote_folder_added = pyqtSignal(str, str)
-
     total_sync_state_updated = pyqtSignal(int)
     total_folders_size_updated = pyqtSignal(object)  # object avoids overflows
 
