@@ -846,22 +846,6 @@ class Tahoe:
         return False
 
     @inlineCallbacks
-    def get_magic_folder_status(self, name):
-        if not self.nodeurl or not self.api_token:
-            return None
-        try:
-            resp = yield treq.post(
-                self.nodeurl + "magic_folder",
-                {"token": self.api_token, "name": name, "t": "json"},
-            )
-        except ConnectError:
-            return None
-        if resp.code == 200:
-            content = yield treq.content(resp)
-            return json.loads(content.decode("utf-8"))
-        return None
-
-    @inlineCallbacks
     def get_json(self, cap):
         if not cap or not self.nodeurl:
             return None
@@ -900,105 +884,6 @@ class Tahoe:
 
     def get_rootcap(self) -> str:
         return self.rootcap_manager.get_rootcap()
-
-    def get_admin_dircap(self, name):
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]["admin_dircap"]
-            except KeyError:
-                pass
-        cap = self.get_alias(hashlib.sha256(name.encode()).hexdigest())
-        self.magic_folders[name]["admin_dircap"] = cap
-        return cap
-
-    def _get_magic_folder_setting(self, folder_name, setting_name):
-        if folder_name not in self.magic_folders:
-            self.load_magic_folders()
-        if folder_name in self.magic_folders:
-            try:
-                return self.magic_folders[folder_name][setting_name]
-            except KeyError:
-                return None
-        return None
-
-    def get_collective_dircap(self, name):
-        return self._get_magic_folder_setting(name, "collective_dircap")
-
-    def get_magic_folder_dircap(self, name):
-        return self._get_magic_folder_setting(name, "upload_dircap")
-
-    def get_magic_folder_directory(self, name):
-        return self._get_magic_folder_setting(name, "directory")
-
-    @inlineCallbacks
-    def get_magic_folder_members(self, name, content=None):
-        if not content:
-            content = yield self.get_json(self.get_collective_dircap(name))
-        if content:
-            members = []
-            children = content[1]["children"]
-            magic_folder_dircap = self.get_magic_folder_dircap(name)
-            for member in children:
-                readcap = children[member][1]["ro_uri"]
-                if magic_folder_dircap:
-                    my_fingerprint = magic_folder_dircap.split(":")[-1]
-                    fingerprint = readcap.split(":")[-1]
-                    if fingerprint == my_fingerprint:
-                        self.magic_folders[name]["member"] = member
-                        members.insert(0, (member, readcap))
-                    else:
-                        members.append((member, readcap))
-                else:
-                    members.append((member, readcap))
-            return members
-        return None
-
-    @staticmethod
-    def _extract_metadata(metadata):
-        try:
-            deleted = metadata["metadata"]["deleted"]
-        except KeyError:
-            deleted = False
-        if deleted:
-            cap = metadata["metadata"]["last_downloaded_uri"]
-        else:
-            cap = metadata["ro_uri"]
-        return {
-            "size": int(metadata["size"]),
-            "mtime": float(metadata["metadata"]["tahoe"]["linkmotime"]),
-            "deleted": deleted,
-            "cap": cap,
-        }
-
-    @inlineCallbacks
-    def get_magic_folder_state(self, name, members=None):
-        total_size = 0
-        history_dict = {}
-        if not members:
-            members = yield self.get_magic_folder_members(name)
-        if members:
-            for member, dircap in members:
-                json_data = yield self.get_json(dircap)
-                try:
-                    children = json_data[1]["children"]
-                except (TypeError, KeyError):
-                    continue
-                for filenode, data in children.items():
-                    if filenode.endswith("@_"):
-                        # Ignore subdirectories, due to Tahoe-LAFS bug #2924
-                        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2924
-                        continue
-                    try:
-                        metadata = self._extract_metadata(data[1])
-                    except KeyError:
-                        continue
-                    metadata["path"] = filenode.replace("@_", os.path.sep)
-                    metadata["member"] = member
-                    history_dict[metadata["mtime"]] = metadata
-                    total_size += metadata["size"]
-        history_od = OrderedDict(sorted(history_dict.items()))
-        latest_mtime = next(reversed(history_od), 0)
-        return members, total_size, latest_mtime, history_od
 
     @inlineCallbacks
     def scan_storage_plugins(self):
