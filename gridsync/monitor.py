@@ -336,22 +336,6 @@ class Monitor(QObject):
 
     remote_folder_added = pyqtSignal(str, str)
 
-    sync_started = pyqtSignal(str)
-    sync_finished = pyqtSignal(str)
-
-    transfer_progress_updated = pyqtSignal(str, object, object)
-    transfer_speed_updated = pyqtSignal(str, object)
-    transfer_seconds_remaining_updated = pyqtSignal(str, object)
-
-    status_updated = pyqtSignal(str, int)
-    mtime_updated = pyqtSignal(str, int)
-    size_updated = pyqtSignal(str, object)
-
-    members_updated = pyqtSignal(str, list)
-
-    file_updated = pyqtSignal(str, object)
-    files_updated = pyqtSignal(str, list, str, str)
-
     total_sync_state_updated = pyqtSignal(int)
     total_folders_size_updated = pyqtSignal(object)  # object avoids overflows
 
