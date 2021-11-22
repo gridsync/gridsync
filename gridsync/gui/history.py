@@ -44,9 +44,6 @@ class HistoryItemWidget(QWidget):
 
         self.setAutoFillBackground(True)
 
-        directory = self.gateway.get_magic_folder_directory(folder_name)
-        if directory:
-            self.path = os.path.join(directory, self.path)
         self.basename = os.path.basename(os.path.normpath(self.path))
 
         self.setToolTip(
