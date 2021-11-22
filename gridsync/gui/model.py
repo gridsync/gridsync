@@ -188,10 +188,6 @@ class Model(QStandardItemModel):
         if items:
             self.removeRow(items[0].row())
 
-    def populate(self):
-        for magic_folder in list(self.gateway.load_magic_folders().values()):
-            self.add_folder(magic_folder["directory"])
-
     def _get_magic_folder_directory(self, folder_name: str) -> str:
         legacy_data = self.gateway.magic_folders.get(folder_name, {})
         data = self.gateway.magic_folder.magic_folders.get(folder_name, {})

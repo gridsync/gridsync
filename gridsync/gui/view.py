@@ -153,8 +153,6 @@ class View(QTreeView):
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
 
-        self.model().populate()
-
     def show_drop_label(self, _=None):
         if not self.model().rowCount():
             self.setHeaderHidden(True)
