@@ -534,8 +534,6 @@ class Tahoe:
 
         if os.path.isfile(self.pidfile):
             yield self.stop()
-        if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
-            yield self.upgrade_legacy_config()
         pid = yield self.command(["run"], "client running")
         pid = str(pid)
         if sys.platform == "win32" and pid.isdigit():
