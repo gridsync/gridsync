@@ -155,7 +155,6 @@ class HistoryListWidget(QListWidget):
         self.itemDoubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
 
-        self.gateway.monitor.file_updated.connect(self.add_item)
         self.gateway.monitor.check_finished.connect(
             self.update_visible_widgets
         )

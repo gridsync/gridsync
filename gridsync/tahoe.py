@@ -104,9 +104,9 @@ class Tahoe:
         self.zkap_auth_required: bool = False
 
         self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
-        self.monitor.sync_finished.connect(
-            self.zkapauthorizer.update_zkap_checkpoint
-        )
+        # self.monitor.sync_finished.connect(  # XXX
+        #    self.zkapauthorizer.update_zkap_checkpoint
+        # )
         self.storage_furl: str = ""
         self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
