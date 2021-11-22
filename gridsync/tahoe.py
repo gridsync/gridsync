@@ -354,24 +354,6 @@ class Tahoe:
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
 
-    def load_magic_folders(self):
-        data = {}
-        yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
-        try:
-            with open(yaml_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-        except OSError:
-            pass
-        folders_data = data.get("magic-folders")
-        if folders_data:
-            for key, value in folders_data.items():  # to preserve defaultdict
-                self.magic_folders[key] = value
-        for folder in self.magic_folders:
-            admin_dircap = self.get_admin_dircap(folder)
-            if admin_dircap:
-                self.magic_folders[folder]["admin_dircap"] = admin_dircap
-        return self.magic_folders
-
     def line_received(self, line):
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
@@ -528,7 +510,6 @@ class Tahoe:
         with open(token_file, encoding="utf-8") as f:
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get("client", "shares.happy"))
-        self.load_magic_folders()
         self.streamedlogs.start(self.nodeurl, self.api_token)
         self.load_newscap()
         self.newscap_checker.start()

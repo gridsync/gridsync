@@ -256,11 +256,6 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
     assert allowed_public_keys == "Key1,Key2,Key3,Key4"
 
 
-def test_load_magic_folders(tahoe):
-    tahoe.load_magic_folders()
-    assert tahoe.magic_folders["test_folder"]["directory"] == "test_dir"
-
-
 @inlineCallbacks
 def test_tahoe_get_features_multi_magic_folder_support(tahoe, monkeypatch):
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", lambda x, y: "test")
