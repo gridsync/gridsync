@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import config_dir, resource
 from gridsync.gui.pixmap import CompositePixmap
-from gridsync.monitor import MagicFolderChecker
+from gridsync.magic_folder import MagicFolderState
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
@@ -261,12 +261,12 @@ class Model(QStandardItemModel):
         if not items:
             return
         item = self.item(items[0].row(), 1)
-        if status == MagicFolderChecker.LOADING:
+        if status == MagicFolderState.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
         elif status in (
-            MagicFolderChecker.SYNCING,
-            MagicFolderChecker.SCANNING,
+            MagicFolderState.SYNCING,
+            MagicFolderState.SCANNING,
         ):
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
@@ -274,7 +274,7 @@ class Model(QStandardItemModel):
                 "This folder is syncing. New files are being uploaded or "
                 "downloaded."
             )
-        elif status == MagicFolderChecker.UP_TO_DATE:
+        elif status == MagicFolderState.UP_TO_DATE:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
             item.setToolTip(
@@ -292,7 +292,7 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
-        elif status == MagicFolderChecker.ERROR:
+        elif status == MagicFolderState.ERROR:
             errors = self._magic_folder_errors[name]
             if errors:
                 item.setIcon(self.icon_error)
@@ -360,16 +360,16 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):
-        self.set_status(folder_name, MagicFolderChecker.SYNCING)
+        self.set_status(folder_name, MagicFolderState.SYNCING)
         self.gui.core.operations.append((self.gateway, folder_name))
         self.gui.systray.update()
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
         if self._magic_folder_errors[folder_name]:
-            self.set_status(folder_name, MagicFolderChecker.ERROR)
+            self.set_status(folder_name, MagicFolderState.ERROR)
         else:
-            self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
+            self.set_status(folder_name, MagicFolderState.UP_TO_DATE)
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:

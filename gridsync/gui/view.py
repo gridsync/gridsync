@@ -29,7 +29,7 @@ from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
 from gridsync.gui.widgets import ClickableLabel
-from gridsync.monitor import MagicFolderChecker
+from gridsync.magic_folder import MagicFolderState
 from gridsync.msg import error
 from gridsync.util import humanized_list
 
@@ -48,9 +48,9 @@ class Delegate(QStyledItemDelegate):
     def on_frame_changed(self):
         values = self.parent.model().status_dict.values()
         if (
-            MagicFolderChecker.LOADING in values
-            or MagicFolderChecker.SYNCING in values
-            or MagicFolderChecker.SCANNING in values
+            MagicFolderState.LOADING in values
+            or MagicFolderState.SYNCING in values
+            or MagicFolderState.SCANNING in values
         ):
             self.parent.viewport().update()
         else:
@@ -62,14 +62,14 @@ class Delegate(QStyledItemDelegate):
         if column == 1:
             pixmap = None
             status = index.data(Qt.UserRole)
-            if status == MagicFolderChecker.LOADING:
+            if status == MagicFolderState.LOADING:
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
             elif status in (
-                MagicFolderChecker.SYNCING,
-                MagicFolderChecker.SCANNING,
+                MagicFolderState.SYNCING,
+                MagicFolderState.SCANNING,
             ):
                 self.sync_movie.setPaused(False)
                 pixmap = self.sync_movie.currentPixmap().scaled(

@@ -22,6 +22,7 @@ from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
+from gridsync.magic_folder import MagicFolderState
 
 
 class StatusPanel(QWidget):
@@ -139,7 +140,7 @@ class StatusPanel(QWidget):
         self.on_sync_state_updated(0)
 
     def _update_status_label(self):
-        if self.state == 0:
+        if self.state == MagicFolderState.LOADING:  # == 0
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
                     self.status_label.setText(
@@ -159,19 +160,19 @@ class StatusPanel(QWidget):
             self.syncing_icon.hide()
             self.checkmark_icon.hide()
             self.error_icon.hide()
-        elif self.state == 1:
+        elif self.state == MagicFolderState.SYNCING:
             self.status_label.setText("Syncing")
             self.checkmark_icon.hide()
             self.error_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
-        elif self.state == 2:
+        elif self.state == MagicFolderState.UP_TO_DATE:
             self.status_label.setText("Up to date")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.error_icon.hide()
             self.checkmark_icon.show()
-        elif self.state == 8:  # MagicFolderChecker.ERROR
+        elif self.state == MagicFolderState.ERROR:
             self.status_label.setText("Error syncing folder")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()

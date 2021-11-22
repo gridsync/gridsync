@@ -48,6 +48,14 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
+class MagicFolderState:
+    LOADING = 0
+    SYNCING = 1
+    SCANNING = 99
+    UP_TO_DATE = 2
+    ERROR = 8
+
+
 class MagicFolderMonitor(QObject):
 
     status_message_received = Signal(dict)
