@@ -651,43 +651,6 @@ def test_magic_folder_exists_false(tahoe):
 
 
 @inlineCallbacks
-def test_upgrade_legacy_config(tmpdir_factory):
-    client = Tahoe(str(tmpdir_factory.mktemp("tahoe-legacy")))
-    os.makedirs(os.path.join(client.nodedir, "private"))
-    subclient_nodedir = os.path.join(client.magic_folders_dir, "LegacyFolder")
-    privatedir = os.path.join(subclient_nodedir, "private")
-    os.makedirs(privatedir)
-    with open(os.path.join(privatedir, "collective_dircap"), "w") as f:
-        f.write("URI:COLLECTIVE_DIRCAP")
-    with open(os.path.join(privatedir, "magic_folder_dircap"), "w") as f:
-        f.write("URI:MAGIC_FOLDER_DIRCAP")
-    db_path = os.path.join(privatedir, "magicfolderdb.sqlite")
-    with open(db_path, "a"):
-        os.utime(db_path, None)
-    subclient = Tahoe(subclient_nodedir)
-    subclient.config_set("magic_folder", "local.directory", "/LegacyFolder")
-    subclient.config_set("magic_folder", "poll_interval", "10")
-
-    yield client.upgrade_legacy_config()
-
-    yaml_path = os.path.join(client.nodedir, "private", "magic_folders.yaml")
-    with open(yaml_path) as f:
-        data = yaml.safe_load(f)
-    folder_data = data["magic-folders"]["LegacyFolder"]
-    assert folder_data["collective_dircap"] == "URI:COLLECTIVE_DIRCAP"
-    assert folder_data["upload_dircap"] == "URI:MAGIC_FOLDER_DIRCAP"
-    assert folder_data["directory"] == "/LegacyFolder"
-    assert folder_data["poll_interval"] == "10"
-    assert os.path.exists(
-        os.path.join(
-            client.nodedir, "private", "magicfolder_LegacyFolder.sqlite"
-        )
-    )
-    assert os.path.exists(client.magic_folders_dir + ".backup")
-    assert not os.path.exists(client.magic_folders_dir)
-
-
-@inlineCallbacks
 def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-start")))
     client.magic_folder = Mock()  # XXX

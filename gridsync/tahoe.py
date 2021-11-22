@@ -501,60 +501,6 @@ class Tahoe:
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
-    @inlineCallbacks
-    def upgrade_legacy_config(self):
-        log.debug("Upgrading legacy configuration layout..")
-        nodedirs = get_nodedirs(self.magic_folders_dir)
-        if not nodedirs:
-            log.warning("No nodedirs found; returning.")
-            return
-        magic_folders = {}
-        for nodedir in nodedirs:
-            basename = os.path.basename(nodedir)
-            log.debug("Migrating configuration for '%s'...", basename)
-
-            tahoe = Tahoe(nodedir)
-            directory = tahoe.config_get("magic_folder", "local.directory")
-            poll_interval = tahoe.config_get("magic_folder", "poll_interval")
-
-            collective_dircap = self.read_cap_from_file(
-                os.path.join(nodedir, "private", "collective_dircap")
-            )
-            magic_folder_dircap = self.read_cap_from_file(
-                os.path.join(nodedir, "private", "magic_folder_dircap")
-            )
-
-            magic_folders[basename] = {
-                "collective_dircap": collective_dircap,
-                "directory": directory,
-                "poll_interval": poll_interval,
-                "upload_dircap": magic_folder_dircap,
-            }
-
-            db_src = os.path.join(nodedir, "private", "magicfolderdb.sqlite")
-            db_fname = "".join(["magicfolder_", basename, ".sqlite"])
-            db_dest = os.path.join(self.nodedir, "private", db_fname)
-            log.debug("Copying %s to %s...", db_src, db_dest)
-            shutil.copyfile(db_src, db_dest)
-
-            collective_dircap_rw = tahoe.get_alias("magic")
-            if collective_dircap_rw:
-                alias = hashlib.sha256(basename.encode()).hexdigest() + ":"
-                yield self.command(["add-alias", alias, collective_dircap_rw])
-
-        yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
-        log.debug("Writing magic-folder configs to %s...", yaml_path)
-        with atomic_write(yaml_path, mode="w", overwrite=True) as f:
-            f.write(yaml.safe_dump({"magic-folders": magic_folders}))
-
-        log.debug("Backing up legacy configuration...")
-        shutil.move(self.magic_folders_dir, self.magic_folders_dir + ".backup")
-
-        log.debug("Enabling magic-folder for %s...", self.nodedir)
-        self.config_set("magic_folder", "enabled", "True")
-
-        log.debug("Finished upgrading legacy configuration")
-
     def get_streamed_log_messages(self):
         """
         Return a ``deque`` containing all buffered log messages.
