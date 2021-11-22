@@ -415,7 +415,6 @@ class Monitor(QObject):
         yield self.zkap_checker.do_check()
         yield self.grid_checker.do_check()
 
-        sizes = []
         total_size = 0
         # XXX/TODO: Remove total_size?
 
