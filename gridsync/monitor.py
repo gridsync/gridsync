@@ -395,39 +395,7 @@ class Monitor(QObject):
             self.low_zkaps_warning.emit
         )
 
-        self.magic_folder_checkers = {}
         self.total_sync_state = 0
-
-    def add_magic_folder_checker(self, name, remote=False):
-        mfc = MagicFolderChecker(self.gateway, name, remote)
-
-        mfc.sync_started.connect(lambda: self.sync_started.emit(name))
-        mfc.sync_finished.connect(lambda: self.sync_finished.emit(name))
-
-        mfc.transfer_progress_updated.connect(
-            lambda x, y: self.transfer_progress_updated.emit(name, x, y)
-        )
-        mfc.transfer_speed_updated.connect(
-            lambda x: self.transfer_speed_updated.emit(name, x)
-        )
-        mfc.transfer_seconds_remaining_updated.connect(
-            lambda x: self.transfer_seconds_remaining_updated.emit(name, x)
-        )
-
-        mfc.status_updated.connect(lambda x: self.status_updated.emit(name, x))
-        mfc.mtime_updated.connect(lambda x: self.mtime_updated.emit(name, x))
-        mfc.size_updated.connect(lambda x: self.size_updated.emit(name, x))
-
-        mfc.members_updated.connect(
-            lambda x: self.members_updated.emit(name, x)
-        )
-
-        mfc.file_updated.connect(lambda x: self.file_updated.emit(name, x))
-        mfc.files_updated.connect(
-            lambda x, y, z: self.files_updated.emit(name, x, y, z)
-        )
-
-        self.magic_folder_checkers[name] = mfc
 
     @inlineCallbacks
     def update_price(self):
@@ -472,20 +440,11 @@ class Monitor(QObject):
     def do_checks(self):
         yield self.zkap_checker.do_check()
         yield self.grid_checker.do_check()
-        for folder in list(self.gateway.magic_folders.keys()):
-            if folder not in self.magic_folder_checkers:
-                self.add_magic_folder_checker(folder)
-            elif self.magic_folder_checkers[folder].remote:
-                self.magic_folder_checkers[folder].remote = False
+
         states = set()
         sizes = []
         total_size = 0
-        for magic_folder_checker in list(self.magic_folder_checkers.values()):
-            if not magic_folder_checker.remote:
-                yield magic_folder_checker.do_check()
-                states.add(magic_folder_checker.state)
-            sizes += magic_folder_checker.sizes
-            total_size += magic_folder_checker.size
+        # XXX/TODO: Remove total_size? Refactor _check_overall_state?
 
         self._check_overall_state(states)
 
