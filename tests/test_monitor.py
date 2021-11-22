@@ -2,7 +2,6 @@
 
 from unittest.mock import MagicMock, Mock, call
 
-import pytest
 from pytest_twisted import inlineCallbacks
 
 from gridsync.monitor import GridChecker, Monitor

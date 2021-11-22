@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import time
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import List, Optional
 
 import attr
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -13,7 +11,6 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
-from gridsync.crypto import trunchash
 from gridsync.errors import TahoeWebError
 from gridsync.magic_folder import MagicFolderState
 
