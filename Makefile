@@ -172,7 +172,7 @@ frozen-tahoe:
 magic-folder:
 	mkdir -p dist
 	mkdir -p build/magic-folder
-	git clone https://github.com/LeastAuthority/magic-folder.git build/magic-folder
+	python3 $(SCRIPTS)/checkout-github-repo requirements/magic-folder.json build/magic-folder
 	python3 -m virtualenv --clear --python=python2 build/venv-magic-folder
 	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
 	# so allow falling back to the user environment.
@@ -183,7 +183,6 @@ magic-folder:
 	python -m pip install -r requirements/pyinstaller.txt && \
 	cp misc/magic-folder.spec build/magic-folder && \
 	pushd build/magic-folder && \
-	git checkout ed4af492cf8ce3a76c48d429a44a510ba17ea816 && \
 	python $(SCRIPTS)/reproducible-pip.py install --require-hashes -r requirements/base.txt && \
 	python -m pip install --no-deps . && \
 	python -m pip list && \
