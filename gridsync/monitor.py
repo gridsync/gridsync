@@ -15,6 +15,7 @@ from twisted.internet.task import LoopingCall
 
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeWebError
+from gridsync.magic_folder import MagicFolderState
 
 
 class GridChecker(QObject):
@@ -459,22 +460,22 @@ class Monitor(QObject):
 
     def _check_overall_state(self, states: Set) -> None:
         if (
-            MagicFolderChecker.SYNCING in states
-            or MagicFolderChecker.SCANNING in states
+            MagicFolderState.SYNCING in states
+            or MagicFolderState.SCANNING in states
             or self.gateway.magic_folder.monitor.get_syncing_folders()
         ):
             # At least one folder is syncing
-            state = MagicFolderChecker.SYNCING
+            state = MagicFolderState.SYNCING
         elif self.gateway.magic_folder.monitor.errors:
             # At least one folder has an error
-            state = MagicFolderChecker.ERROR
+            state = MagicFolderState.ERROR
         elif (
-            len(states) == 1 and MagicFolderChecker.UP_TO_DATE in states
+            len(states) == 1 and MagicFolderState.UP_TO_DATE in states
         ) or self.gateway.magic_folder.monitor.up_to_date:
             # All folders are up to date
-            state = MagicFolderChecker.UP_TO_DATE
+            state = MagicFolderState.UP_TO_DATE
         else:
-            state = MagicFolderChecker.LOADING
+            state = MagicFolderState.LOADING
         if state != self.total_sync_state:
             self.total_sync_state = state
             self.total_sync_state_updated.emit(state)
