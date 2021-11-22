@@ -396,20 +396,15 @@ class Monitor(QObject):
         yield self.update_price()
         # XXX/TODO: Remove/rename this method?
 
-    def _check_overall_state(self, states: Set) -> None:
-        if (
-            MagicFolderState.SYNCING in states
-            or MagicFolderState.SCANNING in states
-            or self.gateway.magic_folder.monitor.get_syncing_folders()
-        ):
+    def _check_overall_state(self) -> None:
+        # XXX/TODO: Move to MagicFolderMonitor?
+        if self.gateway.magic_folder.monitor.get_syncing_folders():
             # At least one folder is syncing
             state = MagicFolderState.SYNCING
         elif self.gateway.magic_folder.monitor.errors:
             # At least one folder has an error
             state = MagicFolderState.ERROR
-        elif (
-            len(states) == 1 and MagicFolderState.UP_TO_DATE in states
-        ) or self.gateway.magic_folder.monitor.up_to_date:
+        elif self.gateway.magic_folder.monitor.up_to_date:
             # All folders are up to date
             state = MagicFolderState.UP_TO_DATE
         else:
@@ -423,12 +418,11 @@ class Monitor(QObject):
         yield self.zkap_checker.do_check()
         yield self.grid_checker.do_check()
 
-        states = set()
         sizes = []
         total_size = 0
-        # XXX/TODO: Remove total_size? Refactor _check_overall_state?
+        # XXX/TODO: Remove total_size?
 
-        self._check_overall_state(states)
+        self._check_overall_state()
 
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
