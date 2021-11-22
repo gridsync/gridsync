@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import hashlib
 import json
 import logging as log
 import os
 import re
-import shutil
 import sys
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List
 
 import treq
 import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
@@ -22,11 +20,10 @@ from twisted.python.procutils import which
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
-from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
+from gridsync.errors import TahoeCommandError, TahoeWebError
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
-from gridsync.preferences import get_preference, set_preference
 from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import SubprocessProtocol, kill
