@@ -444,19 +444,7 @@ class Monitor(QObject):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
         yield self.gateway.await_ready()
         yield self.update_price()
-        folders = yield self.gateway.get_magic_folders_from_rootcap()
-        if not folders:
-            return
-        for name, caps in folders.items():
-            if name not in self.gateway.magic_folders.keys():
-                logging.debug(
-                    "Found new folder '%s' in rootcap; adding...", name
-                )
-                self.add_magic_folder_checker(name, remote=True)
-                self.remote_folder_added.emit(name, overlay_file)
-                c = yield self.gateway.get_json(caps["collective_dircap"])
-                members = yield self.gateway.get_magic_folder_members(name, c)
-                yield self.magic_folder_checkers[name].do_remote_scan(members)
+        # XXX/TODO: Remove/rename this method?
 
     def _check_overall_state(self, states: Set) -> None:
         if (
