@@ -148,7 +148,6 @@ gif: pngs
 frozen-tahoe:
 	mkdir -p dist
 	mkdir -p build/tahoe-lafs
-	git clone https://github.com/tahoe-lafs/tahoe-lafs.git build/tahoe-lafs
 	python3 -m virtualenv --clear --python=python2 build/venv-tahoe
 	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
 	# so allow falling back to the user environment.
@@ -157,12 +156,9 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	python --version || deactivate && \
 	pushd build/tahoe-lafs && \
-	git checkout tahoe-lafs-1.16.0 && \
-	python setup.py update_version && \
 	export CFLAGS=-g0 && \
 	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
 	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@d59a0b0a81b73742154ed6c3ccc4ba9ac76ee63c && \
-	python -m pip install . && \
 	python -m pip install -r ../../requirements/pyinstaller.txt && \
 	python -m pip list && \
 	cp ../../misc/tahoe.spec pyinstaller.spec && \
@@ -171,8 +167,6 @@ frozen-tahoe:
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
 	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
-	mkdir -p dist/Tahoe-LAFS/challenge_bypass_ristretto && \
-	cp -R $$(python -c 'import site, sys;print site.getsitepackages()[0] if hasattr(sys, "real_prefix") else site.getusersitepackages()')/challenge_bypass_ristretto/*.so dist/Tahoe-LAFS/challenge_bypass_ristretto && \
 	popd && \
 	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
 

@@ -74,21 +74,16 @@ call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
 call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
-call git clone https://github.com/tahoe-lafs/tahoe-lafs.git .\build\tahoe-lafs
+call mkdir .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
-call git checkout tahoe-lafs-1.16.0
-call python setup.py update_version
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
 call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@d59a0b0a81b73742154ed6c3ccc4ba9ac76ee63c
-call python -m pip install .
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
 call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
 call pyinstaller pyinstaller.spec || goto :error
 call set PYTHONHASHSEED=
-call mkdir dist\Tahoe-LAFS\challenge_bypass_ristretto
-call copy ..\venv-tahoe\Lib\site-packages\challenge_bypass_ristretto\*.pyd dist\Tahoe-LAFS\challenge_bypass_ristretto\
 call move dist ..\..
 call popd
 call deactivate
