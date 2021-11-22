@@ -539,28 +539,6 @@ class Tahoe:
         self.nodeurl = nodeurl
 
     @inlineCallbacks
-    def restart(self):
-        from twisted.internet import reactor
-
-        log.debug("Restarting %s client...", self.name)
-        if self.state in (Tahoe.STOPPING, Tahoe.STARTING):
-            log.warning(
-                "Aborting restart operation; "
-                'the "%s" client is already (re)starting',
-                self.name,
-            )
-            return
-        # Temporarily disable desktop notifications for (dis)connect events
-        pref = get_preference("notifications", "connection")
-        set_preference("notifications", "connection", "false")
-        yield self.stop()
-        yield self.start()
-        yield self.await_ready()
-        yield deferLater(reactor, 1, lambda: None)
-        set_preference("notifications", "connection", pref)
-        log.debug("Finished restarting %s client.", self.name)
-
-    @inlineCallbacks
     def get_grid_status(self):
         if not self.nodeurl:
             return None
