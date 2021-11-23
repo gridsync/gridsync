@@ -361,9 +361,8 @@ class View(QTreeView):
                 open_path(directory)
 
     def _is_local_folder(self, folder_name: str) -> bool:
-        if self.gateway.magic_folders.get(
-            folder_name
-        ) or self.gateway.magic_folder.magic_folders.get(folder_name):
+        # XXX/TODO: Replace with Tahoe.local_magic_folder_exists?
+        if self.gateway.magic_folder.magic_folders.get(folder_name):
             return True
         return False
 
