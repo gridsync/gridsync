@@ -677,12 +677,12 @@ class Tahoe:
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     def local_magic_folder_exists(self, folder_name):
-        if folder_name in self.magic_folders:
+        if folder_name in self.magic_folder.magic_folders:
             return True
         return False
 
     def remote_magic_folder_exists(self, folder_name):
-        if folder_name in self.remote_magic_folders:
+        if folder_name in self.magic_folder.remote_magic_folders:
             return True
         return False
 
