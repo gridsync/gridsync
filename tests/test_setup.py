@@ -190,7 +190,7 @@ def test_validate_folders_skip_folder(monkeypatch, tmpdir_factory):
     gateway = Tahoe(
         os.path.join(str(tmpdir_factory.mktemp("config_dir")), "SomeGrid")
     )
-    gateway.magic_folders = {"FolderName": {}}
+    gateway.magic_folder.magic_folders = {"FolderName": {}}
     monkeypatch.setattr(
         "gridsync.setup.prompt_for_folder_name", lambda x, y, z: (None, 0)
     )
@@ -208,7 +208,7 @@ def test_validate_folders_rename_folder(monkeypatch, tmpdir_factory):
     gateway = Tahoe(
         os.path.join(str(tmpdir_factory.mktemp("config_dir")), "SomeGrid")
     )
-    gateway.magic_folders = {"FolderName": {}}
+    gateway.magic_folder.magic_folders = {"FolderName": {}}
     monkeypatch.setattr(
         "gridsync.setup.prompt_for_folder_name",
         lambda x, y, z: ("NewFolderName", 1),
