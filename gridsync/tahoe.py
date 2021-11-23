@@ -111,15 +111,6 @@ class Tahoe:
         self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
-    @staticmethod
-    def read_cap_from_file(filepath):
-        try:
-            with open(filepath, encoding="utf-8") as f:
-                cap = f.read().strip()
-        except OSError:
-            return None
-        return cap
-
     def load_newscap(self):
         news_settings = global_settings.get("news:{}".format(self.name))
         if news_settings:
@@ -127,11 +118,12 @@ class Tahoe:
             if newscap:
                 self.newscap = newscap
                 return
-        newscap = self.read_cap_from_file(
-            os.path.join(self.nodedir, "private", "newscap")
-        )
-        if newscap:
-            self.newscap = newscap
+        try:
+            self.newscap = Path(self.nodedir, "private", "newscap").read_text(
+                encoding="utf-8"
+            )
+        except OSError:
+            pass
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
