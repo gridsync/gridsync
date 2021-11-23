@@ -40,7 +40,7 @@ def core():
     fake_gateway.magic_folder.get_log_messages = Mock(
         return_value=['{"test": 123}']
     )
-    fake_gateway.magic_folders = {}
+    fake_gateway.magic_folder.magic_folders = {}
     fake_gateway.get_streamed_log_messages = Mock(
         return_value=['{"test": 123}']
     )
