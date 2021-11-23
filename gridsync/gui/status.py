@@ -124,9 +124,6 @@ class StatusPanel(QWidget):
         layout.addWidget(self.tor_button, 1, 8)
         layout.addWidget(preferences_button, 1, 9)
 
-        self.gateway.monitor.total_sync_state_updated.connect(
-            self.on_sync_state_updated
-        )
         self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
         # self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
@@ -135,6 +132,9 @@ class StatusPanel(QWidget):
         )
         self.gateway.monitor.days_remaining_updated.connect(
             self.on_days_remaining_updated
+        )
+        self.gateway.magic_folder.monitor.overall_state_changed.connect(
+            self.on_sync_state_updated
         )
 
         self.on_sync_state_updated(0)

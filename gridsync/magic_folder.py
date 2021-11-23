@@ -86,6 +86,8 @@ class MagicFolderMonitor(QObject):
     file_size_updated = Signal(str, dict)  # folder_name, status
     file_modified = Signal(str, dict)  # folder_name, status
 
+    overall_state_changed = Signal(int)  # MagicFolderState
+
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
         self.magic_folder = magic_folder
@@ -107,6 +109,8 @@ class MagicFolderMonitor(QObject):
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
         self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
+
+        self._overall_state: int = MagicFolderState.LOADING
 
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
         try:
@@ -198,6 +202,19 @@ class MagicFolderMonitor(QObject):
                 folders.append(folder)
         return folders
 
+    def _check_overall_state(self) -> None:
+        if self.get_syncing_folders():  # At least one folder is syncing
+            state = MagicFolderState.SYNCING
+        elif self.errors:  # At least one folder has an error
+            state = MagicFolderState.ERROR
+        elif self.up_to_date:  # All folders are up to date
+            state = MagicFolderState.UP_TO_DATE
+        else:
+            state = MagicFolderState.LOADING
+        if state != self._overall_state:
+            self._overall_state = state
+            self.overall_state_changed.emit(state)
+
     def compare_states(
         self, current_state: Dict, previous_state: Dict
     ) -> None:
@@ -242,6 +259,7 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
+        self._check_overall_state()
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():

@@ -331,7 +331,6 @@ class Monitor(QObject):
     nodes_updated = pyqtSignal(int, int)
     space_updated = pyqtSignal(object)
 
-    total_sync_state_updated = pyqtSignal(int)
     total_folders_size_updated = pyqtSignal(object)  # object avoids overflows
 
     check_finished = pyqtSignal()
@@ -374,8 +373,6 @@ class Monitor(QObject):
             self.low_zkaps_warning.emit
         )
 
-        self.total_sync_state = 0
-
     @inlineCallbacks
     def update_price(self):
         if self.gateway.zkap_auth_required:
@@ -393,23 +390,6 @@ class Monitor(QObject):
         yield self.update_price()
         # XXX/TODO: Remove/rename this method?
 
-    def _check_overall_state(self) -> None:
-        # XXX/TODO: Move to MagicFolderMonitor?
-        if self.gateway.magic_folder.monitor.get_syncing_folders():
-            # At least one folder is syncing
-            state = MagicFolderState.SYNCING
-        elif self.gateway.magic_folder.monitor.errors:
-            # At least one folder has an error
-            state = MagicFolderState.ERROR
-        elif self.gateway.magic_folder.monitor.up_to_date:
-            # All folders are up to date
-            state = MagicFolderState.UP_TO_DATE
-        else:
-            state = MagicFolderState.LOADING
-        if state != self.total_sync_state:
-            self.total_sync_state = state
-            self.total_sync_state_updated.emit(state)
-
     @inlineCallbacks
     def do_checks(self):
         yield self.zkap_checker.do_check()
@@ -417,8 +397,6 @@ class Monitor(QObject):
 
         total_size = 0
         # XXX/TODO: Remove total_size?
-
-        self._check_overall_state()
 
         if total_size != self.total_folders_size:
             self.total_folders_size = total_size
