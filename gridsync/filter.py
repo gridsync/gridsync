@@ -50,7 +50,7 @@ def get_filters(core):
                         ),
                     )
                 )
-        for n, items in enumerate(gateway.magic_folders.items()):
+        for n, items in enumerate(gateway.magic_folder.magic_folders.items()):
             folder_id = n + 1
             folder_name, data = items
             filters.append(
@@ -69,20 +69,8 @@ def get_filters(core):
             )
             filters.append(
                 (
-                    data.get("admin_dircap"),
-                    "Folder:{}:{}:AdminDircap".format(gateway_id, folder_id),
-                )
-            )
-            filters.append(
-                (
-                    data.get("directory"),
-                    "Folder:{}:{}:Directory".format(gateway_id, folder_id),
-                )
-            )
-            filters.append(
-                (
-                    data.get("member"),
-                    "Folder:{}:{}:Member".format(gateway_id, folder_id),
+                    data.get("magic_path"),
+                    "Folder:{}:{}:MagicPath".format(gateway_id, folder_id),
                 )
             )
             filters.append(
