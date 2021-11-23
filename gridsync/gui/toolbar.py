@@ -314,7 +314,7 @@ class ToolBar(QToolBar):
                     self.invite_action.setEnabled(False)
                 except AttributeError:
                     pass
-            if not gateway.magic_folders:
+            if not gateway.magic_folder.magic_folders:
                 try:
                     self.main_window.central_widget.setCurrentWidget(  # XXX
                         self.main_window.central_widget.usage_views[gateway]
