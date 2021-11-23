@@ -22,7 +22,6 @@ def hiw(tmpdir_factory):
     gateway.get_magic_folder_directory.return_value = dst
     return HistoryItemWidget(
         gateway,
-        "TestFolder",
         {
             "action": "added",
             "member": "admin",
@@ -125,7 +124,6 @@ def test_history_list_widget_on_right_click_no_item_return(hlw, monkeypatch):
 
 def test_history_list_widget_add_item(hlw):
     hlw.add_item(
-        "TestFolder",
         {
             "action": "added",
             "member": "admin",
@@ -139,7 +137,6 @@ def test_history_list_widget_add_item(hlw):
 
 def test_history_list_widget_add_item_deduplicate(hlw):
     hlw.add_item(
-        "TestFolder",
         {
             "action": "updated",
             "member": "admin",
@@ -149,7 +146,6 @@ def test_history_list_widget_add_item_deduplicate(hlw):
         },
     )
     hlw.add_item(
-        "TestFolder",
         {
             "action": "updated",
             "member": "admin",
@@ -163,7 +159,6 @@ def test_history_list_widget_add_item_deduplicate(hlw):
 
 def test_history_list_widget_update_visible_widgets(hlw, monkeypatch):
     hlw.add_item(
-        "TestFolder",
         {
             "action": "added",
             "member": "admin",
@@ -185,7 +180,6 @@ def test_history_list_widget_update_visible_widgets(hlw, monkeypatch):
 
 def test_history_list_widget_update_visible_widgets_return(hlw, monkeypatch):
     hlw.add_item(
-        "TestFolder",
         {
             "action": "added",
             "member": "admin",
