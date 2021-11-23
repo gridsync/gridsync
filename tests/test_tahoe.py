@@ -542,29 +542,42 @@ def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
 
 
 def test_local_magic_folder_exists_true(tahoe):
-    tahoe.magic_folders["LocalTestFolder"] = {}
+    fake_magic_folders = {"LocalTestFolder": {}}
+    tahoe.magic_folder.magic_folders = fake_magic_folders
     assert tahoe.local_magic_folder_exists("LocalTestFolder")
 
 
 def test_local_magic_folder_exists_false(tahoe):
+    fake_magic_folders = {}
+    tahoe.magic_folder.magic_folders = fake_magic_folders
     assert not tahoe.local_magic_folder_exists("LocalTestFolder")
 
 
 def test_remote_magic_folder_exists_true(tahoe):
-    tahoe.remote_magic_folders["RemoteTestFolder"] = {}
+    fake_remote_magic_folders = {"RemoteTestFolder": {}}
+    tahoe.magic_folder.remote_magic_folders = fake_remote_magic_folders
     assert tahoe.remote_magic_folder_exists("RemoteTestFolder")
 
 
 def test_remote_magic_folder_exists_false(tahoe):
-    assert not tahoe.local_magic_folder_exists("RemoteTestFolder")
+    fake_remote_magic_folders = {}
+    tahoe.magic_folder.remote_magic_folders = fake_remote_magic_folders
+    assert not tahoe.remote_magic_folder_exists("RemoteTestFolder")
 
 
 def test_magic_folder_exists_true(tahoe):
-    tahoe.magic_folders["ExistingTestFolder"] = {}
+    fake_magic_folders = {"ExistingTestFolder" : {}}
+    tahoe.magic_folder.magic_folders = fake_magic_folders
+    fake_remote_magic_folders = {}
+    tahoe.magic_folder.remote_magic_folders = fake_remote_magic_folders
     assert tahoe.magic_folder_exists("ExistingTestFolder")
 
 
 def test_magic_folder_exists_false(tahoe):
+    fake_magic_folders = {}
+    tahoe.magic_folder.magic_folders = fake_magic_folders
+    fake_remote_magic_folders = {}
+    tahoe.magic_folder.remote_magic_folders = fake_remote_magic_folders
     assert not tahoe.magic_folder_exists("ExistingTestFolder")
 
 
