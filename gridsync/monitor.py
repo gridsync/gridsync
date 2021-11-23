@@ -383,7 +383,7 @@ class Monitor(QObject):
             self.zkap_checker.emit_days_remaining_updated()
 
     @inlineCallbacks
-    def scan_rootcap(self, overlay_file=None):
+    def scan_rootcap(self):
         logging.debug("Scanning %s rootcap...", self.gateway.name)
         yield self.gateway.await_ready()
         yield self.update_price()
