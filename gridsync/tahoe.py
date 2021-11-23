@@ -69,7 +69,6 @@ class Tahoe:
         if reactor is None:
             from twisted.internet import reactor
         self.executable = executable
-        self.multi_folder_support = True
         if nodedir:
             self.nodedir = os.path.expanduser(nodedir)
         else:
@@ -83,9 +82,6 @@ class Tahoe:
         self.shares_happy = 0
         self.name = os.path.basename(self.nodedir)
         self.api_token = None
-        self.magic_folders_dir = os.path.join(self.nodedir, "magic-folders")
-        self.magic_folders = defaultdict(dict)
-        self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
         logs_maxlen = None
