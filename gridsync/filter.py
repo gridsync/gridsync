@@ -79,6 +79,29 @@ def get_filters(core):
                     "Folder:{}:{}:Name".format(gateway_id, folder_id),
                 )
             )
+            filters.append(
+                (
+                    data.get("author", {}).get("name"),
+                    "Folder:{}:{}:AuthorName".format(gateway_id, folder_id),
+                )
+            )
+            filters.append(
+                (
+                    data.get("author", {}).get("signing_key"),
+                    "Folder:{}:{}:AuthorSigningKey".format(
+                        gateway_id, folder_id
+                    ),
+                )
+            )
+            filters.append(
+                (
+                    data.get("author", {}).get("verify_key"),
+                    "Folder:{}:{}:AuthorVerifyKey".format(
+                        gateway_id, folder_id
+                    ),
+                )
+            )
+
     filters.append((os.path.expanduser("~"), "HomeDir"))
     return filters
 
