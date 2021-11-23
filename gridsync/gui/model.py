@@ -184,9 +184,8 @@ class Model(QStandardItemModel):
             self.removeRow(items[0].row())
 
     def _get_magic_folder_directory(self, folder_name: str) -> str:
-        legacy_data = self.gateway.magic_folders.get(folder_name, {})
         data = self.gateway.magic_folder.magic_folders.get(folder_name, {})
-        return str(data.get("magic_path", legacy_data.get("directory", "")))
+        return str(data.get("magic_path", ""))
 
     def update_folder_icon(self, folder_name, overlay_file=None):
         items = self.findItems(folder_name)
