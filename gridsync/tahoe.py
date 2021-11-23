@@ -386,21 +386,6 @@ class Tahoe:
         return output
 
     @inlineCallbacks
-    def get_features(self):
-        try:
-            yield self.command(["magic-folder", "list"])
-        except TahoeCommandError as err:
-            if str(err).strip().endswith("Unknown command: list"):
-                # Has magic-folder support but no multi-magic-folder support
-                return self.executable, True, False
-            # Has no magic-folder support ('Unknown command: magic-folder')
-            # or something else went wrong; consider executable unsupported
-            return self.executable, False, False
-        # if output:
-        # Has magic-folder support and multi-magic-folder support
-        return self.executable, True, True
-
-    @inlineCallbacks
     def create_node(self, **kwargs):
         if os.path.exists(self.nodedir):
             raise FileExistsError(
