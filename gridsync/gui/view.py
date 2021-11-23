@@ -167,9 +167,11 @@ class View(QTreeView):
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
         name = self.model().item(item.row(), 0).text()
-        if name in self.gateway.magic_folders:
+        if name in self.gateway.magic_folder.magic_folders:
             try:
-                open_path(self.gateway.magic_folders[name]["directory"])
+                open_path(
+                    self.gateway.magic_folder.magic_folders[name]["directory"]
+                )
             except KeyError:
                 pass
         elif self.gateway.remote_magic_folder_exists(name):
@@ -459,7 +461,10 @@ class View(QTreeView):
             )
         else:
             for folder in selected:
-                if not self.gateway.magic_folders[folder].get("admin_dircap"):
+                # XXX/TODO: Remove?
+                if not self.gateway.magic_folder.magic_folders[folder].get(
+                    "admin_dircap"
+                ):
                     share_menu.setEnabled(False)
                     share_menu.setTitle(
                         "Sync with device (disabled; no admin access)"
