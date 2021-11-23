@@ -101,7 +101,6 @@ def get_filters(core):
                     ),
                 )
             )
-
     filters.append((os.path.expanduser("~"), "HomeDir"))
     return filters
 
