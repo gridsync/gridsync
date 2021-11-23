@@ -12,7 +12,6 @@ from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
 from gridsync.errors import TahoeWebError
-from gridsync.magic_folder import MagicFolderState
 
 
 class GridChecker(QObject):
