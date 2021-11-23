@@ -257,35 +257,6 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
 
 
 @inlineCallbacks
-def test_tahoe_get_features_multi_magic_folder_support(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", lambda x, y: "test")
-    output = yield tahoe.get_features()
-    assert output == ("tahoe_exe", True, True)
-
-
-@inlineCallbacks
-def test_tahoe_get_features_no_multi_magic_folder_support(tahoe, monkeypatch):
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.command",
-        MagicMock(side_effect=TahoeCommandError("Unknown command: list")),
-    )
-    output = yield tahoe.get_features()
-    assert output == ("tahoe_exe", True, False)
-
-
-@inlineCallbacks
-def test_tahoe_get_features_no_magic_folder_support(tahoe, monkeypatch):
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.command",
-        MagicMock(
-            side_effect=TahoeCommandError("Unknown command: magic-folder")
-        ),
-    )
-    output = yield tahoe.get_features()
-    assert output == ("tahoe_exe", False, False)
-
-
-@inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(FileExistsError):
         yield tahoe.create_client()
