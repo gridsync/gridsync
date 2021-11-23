@@ -566,7 +566,7 @@ def test_remote_magic_folder_exists_false(tahoe):
 
 
 def test_magic_folder_exists_true(tahoe):
-    fake_magic_folders = {"ExistingTestFolder" : {}}
+    fake_magic_folders = {"ExistingTestFolder": {}}
     tahoe.magic_folder.magic_folders = fake_magic_folders
     fake_remote_magic_folders = {}
     tahoe.magic_folder.remote_magic_folders = fake_remote_magic_folders
