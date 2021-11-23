@@ -30,7 +30,7 @@ from gridsync.gui.status import StatusPanel
 
 
 class HistoryItemWidget(QWidget):
-    def __init__(self, gateway, folder_name, data, parent):
+    def __init__(self, gateway, data, parent):
         super().__init__()
         self.gateway = gateway
         self.data = data
@@ -185,7 +185,7 @@ class HistoryListWidget(QListWidget):
         menu.addAction(open_folder_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
-    def add_item(self, folder_name, data):
+    def add_item(self, data):
         duplicate = None
         if self.deduplicate:
             for i in range(self.count()):
@@ -204,25 +204,23 @@ class HistoryListWidget(QListWidget):
             item = QListWidgetItem()
         mtime = int(data.get("last-updated", data.get("mtime")))
         self.insertItem(1 - mtime, item)  # Newest on top
-        custom_widget = HistoryItemWidget(
-            self.gateway, folder_name, data, self
-        )
+        custom_widget = HistoryItemWidget(self.gateway, data, self)
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
         item.setText(str(mtime))
         self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
-    def _on_file_added(self, folder_name, data):
+    def _on_file_added(self, _, data):
         # data["action"] = "added"  # XXX
-        self.add_item(folder_name, data)
+        self.add_item(data)
 
-    def _on_file_modified(self, folder_name, data):
+    def _on_file_modified(self, _, data):
         # data["action"] = "modified"  # XXX
-        self.add_item(folder_name, data)
+        self.add_item(data)
 
-    def _on_file_removed(self, folder_name, data):
+    def _on_file_removed(self, _, data):
         # data["action"] = "removed"  # XXX
-        self.add_item(folder_name, data)
+        self.add_item(data)
 
     def update_visible_widgets(self):
         if not self.isVisible():
