@@ -6,6 +6,7 @@ from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
 from gridsync.crypto import randstr
+from gridsync.magic_folder import MagicFolderState
 from gridsync.tahoe import Tahoe
 
 os.environ["PATH"] = (
@@ -760,6 +761,25 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
         folder_name,
         filename,
     )
+
+
+@inlineCallbacks
+def test_monitor_emits_overall_state_changed_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    with qtbot.wait_signal(
+        magic_folder.monitor.overall_state_changed
+    ) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args[0] == MagicFolderState.SYNCING
 
 
 def test_eliot_logs_collected(magic_folder):
