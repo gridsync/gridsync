@@ -130,12 +130,12 @@ def test_folder_is_local_true(magic_folder, tmp_path):
     path = tmp_path / folder_name
     author = randstr()
     yield magic_folder.add_folder(path, author)
-    assert magic_folder.folder_is_local(folder_name) == True
+    assert magic_folder.folder_is_local(folder_name) is True
 
 
 def test_folder_is_local_false(magic_folder, tmp_path):
     folder_name = randstr() + "_1"
-    assert magic_folder.folder_is_local(folder_name) == False
+    assert magic_folder.folder_is_local(folder_name) is False
 
 
 @inlineCallbacks
@@ -145,12 +145,12 @@ def test_folder_is_remote_true(magic_folder, tmp_path):
     author = randstr()
     yield magic_folder.add_folder(path, author)
     yield magic_folder.monitor.do_check()  # XXX
-    assert magic_folder.folder_is_remote(folder_name) == True
+    assert magic_folder.folder_is_remote(folder_name) is True
 
 
 def test_folder_is_remote_false(magic_folder, tmp_path):
     folder_name = randstr() + "_2"
-    assert magic_folder.folder_is_remote(folder_name) == False
+    assert magic_folder.folder_is_remote(folder_name) is False
 
 
 @inlineCallbacks
@@ -159,12 +159,12 @@ def test_folder_exists_true(magic_folder, tmp_path):
     path = tmp_path / folder_name
     author = randstr()
     yield magic_folder.add_folder(path, author)
-    assert magic_folder.folder_exists(folder_name) == True
+    assert magic_folder.folder_exists(folder_name) is True
 
 
 def test_folder_exists_false(magic_folder, tmp_path):
     folder_name = randstr() + "_3"
-    assert magic_folder.folder_is_local(folder_name) == False
+    assert magic_folder.folder_is_local(folder_name) is False
 
 
 @inlineCallbacks
