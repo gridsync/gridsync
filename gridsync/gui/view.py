@@ -174,7 +174,7 @@ class View(QTreeView):
                 )
             except KeyError:
                 pass
-        elif self.gateway.remote_magic_folder_exists(name):
+        elif self.gateway.magic_folder.folder_is_remote(name):
             self.select_download_location([name])
 
     def open_invite_sender_dialog(self, folder_name):
@@ -364,7 +364,7 @@ class View(QTreeView):
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if self.gateway.magic_folder.local_magic_folder_exists(folder):
+                if self.gateway.magic_folder.folder_is_local(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -375,9 +375,7 @@ class View(QTreeView):
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if not self.gateway.magic_folder.local_magic_folder_exists(
-                    folder
-                ):
+                if not self.gateway.magic_folder.folder_is_local(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -402,7 +400,7 @@ class View(QTreeView):
             return
         cur_folder = self.model().item(cur_item.row(), 0).text()
 
-        if self.gateway.magic_folder.local_magic_folder_exists(cur_folder):
+        if self.gateway.magic_folder.folder_is_local(cur_folder):
             selection_is_remote = False
             self.deselect_remote_folders()
         else:
@@ -499,7 +497,7 @@ class View(QTreeView):
                     "{} only supports uploading and syncing folders,"
                     " and not individual files.".format(APP_NAME),
                 )
-            elif self.gateway.magic_folder_exists(basename):
+            elif self.gateway.magic_folder.folder_exists(basename):
                 error(
                     self,
                     "Folder already exists",

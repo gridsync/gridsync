@@ -159,7 +159,7 @@ def validate_folders(settings, known_gateways, parent=None):
         return settings
     for folder, data in settings["magic-folders"].copy().items():
         target = folder
-        while gateway.magic_folder_exists(target):
+        while gateway.magic_folder.folder_exists(target):
             target, ok = prompt_for_folder_name(target, gateway.name, parent)
             if not ok:  # User clicked "Cancel"; skip this folder
                 del settings["magic-folders"][folder]
@@ -167,7 +167,7 @@ def validate_folders(settings, known_gateways, parent=None):
             if not target:
                 target = folder
             elif (
-                not gateway.magic_folder_exists(target)
+                not gateway.magic_folder.folder_exists(target)
                 and target not in settings["magic-folders"]
             ):
                 settings["magic-folders"][target] = data

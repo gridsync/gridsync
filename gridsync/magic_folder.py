@@ -614,20 +614,20 @@ class MagicFolder:
     def get_directory(self, folder_name: str) -> str:
         return self.magic_folders.get(folder_name, {}).get("magic_path", "")
 
-    def local_magic_folder_exists(self, folder_name: str) -> bool:
+    def folder_is_local(self, folder_name: str) -> bool:
         if folder_name in self.magic_folders:
             return True
         return False
 
-    def remote_magic_folder_exists(self, folder_name: str) -> bool:
+    def folder_is_remote(self, folder_name: str) -> bool:
         if folder_name in self.remote_magic_folders:
             return True
         return False
 
-    def magic_folder_exists(self, folder_name: str) -> bool:
-        if self.local_magic_folder_exists(folder_name):
+    def folder_exists(self, folder_name: str) -> bool:
+        if self.folder_is_local(folder_name):
             return True
-        if self.remote_magic_folder_exists(folder_name):
+        if self.folder_is_remote(folder_name):
             return True
         return False
 
