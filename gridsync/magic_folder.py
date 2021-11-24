@@ -615,21 +615,16 @@ class MagicFolder:
         return self.magic_folders.get(folder_name, {}).get("magic_path", "")
 
     def folder_is_local(self, folder_name: str) -> bool:
-        if folder_name in self.magic_folders:
-            return True
-        return False
+        return bool(folder_name in self.magic_folders)
 
     def folder_is_remote(self, folder_name: str) -> bool:
-        if folder_name in self.remote_magic_folders:
-            return True
-        return False
+        return bool(folder_name in self.remote_magic_folders)
 
     def folder_exists(self, folder_name: str) -> bool:
-        if self.folder_is_local(folder_name):
-            return True
-        if self.folder_is_remote(folder_name):
-            return True
-        return False
+        return bool(
+            self.folder_is_local(folder_name)
+            or self.folder_is_remote(folder_name)
+        )
 
     @inlineCallbacks
     def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
