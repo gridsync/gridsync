@@ -183,14 +183,10 @@ class Model(QStandardItemModel):
         if items:
             self.removeRow(items[0].row())
 
-    def _get_magic_folder_directory(self, folder_name: str) -> str:
-        data = self.gateway.magic_folder.magic_folders.get(folder_name, {})
-        return str(data.get("magic_path", ""))
-
     def update_folder_icon(self, folder_name, overlay_file=None):
         items = self.findItems(folder_name)
         if items:
-            folder_path = self._get_magic_folder_directory(folder_name)
+            folder_path = self.gateway.magic_folder.get_directory(folder_name)
             if folder_path:
                 folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
             else:
@@ -209,7 +205,7 @@ class Model(QStandardItemModel):
             items[0].setToolTip(
                 "{}\n\nThis folder is private; only you can view and\nmodify "
                 "its contents.".format(
-                    self._get_magic_folder_directory(folder_name)
+                    self.gateway.magic_folder.get_directory(folder_name)
                     or folder_name + " (Stored remotely)"
                 )
             )
@@ -221,7 +217,7 @@ class Model(QStandardItemModel):
             items[0].setToolTip(
                 "{}\n\nAt least one other device can view and modify\n"
                 "this folder's contents.".format(
-                    self._get_magic_folder_directory(folder_name)
+                    self.gateway.magic_folder.get_directory(folder_name)
                     or folder_name + " (Stored remotely)"
                 )
             )

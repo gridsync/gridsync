@@ -611,6 +611,9 @@ class MagicFolder:
             body=json.dumps({"really-delete-write-capability": True}).encode(),
         )
 
+    def get_directory(self, folder_name: str) -> str:
+        return self.magic_folders.get(folder_name, {}).get("magic_path", "")
+
     @inlineCallbacks
     def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
         snapshots = yield self._request("GET", "/snapshot")

@@ -352,13 +352,9 @@ class View(QTreeView):
             d = DeferredList(tasks)
             d.addCallback(self.maybe_rescan_rootcap)
 
-    def _get_magic_folder_directory(self, folder_name: str) -> str:
-        data = self.gateway.magic_folder.magic_folders.get(folder_name, {})
-        return str(data.get("magic_path", ""))
-
     def open_folders(self, folders):
         for folder in folders:
-            directory = self._get_magic_folder_directory(folder)
+            directory = self.gateway.magic_folder.get_directory(folder_name)
             if directory:
                 open_path(directory)
 
