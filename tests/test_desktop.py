@@ -114,43 +114,61 @@ def test__desktop_open_call_qdesktopservices_openurl(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "platform,mocked_call,args",
+    "platform,mocked_call",
     [
-        (
-            "darwin",
-            "subprocess.Popen",
-            ["open", "--reveal", "/test/path/file.txt"],
-        ),
-        (
-            "win32",
-            "subprocess.Popen",
-            'explorer /select,"/test/path/file.txt"',
-        ),
-        ("linux", "gridsync.desktop._desktop_open", "/test/path"),
+        ("darwin", "subprocess.Popen"),
+        ("win32", "subprocess.Popen"),
+        ("linux", "gridsync.desktop._desktop_open"),
     ],
 )
-def test_open_enclosing_folder(platform, mocked_call, args, monkeypatch):
+def test_open_enclosing_folder(platform, mocked_call, monkeypatch, tmp_path):
     m = MagicMock()
     monkeypatch.setattr(mocked_call, m)
     monkeypatch.setattr("sys.platform", platform)
-    open_enclosing_folder("/test/path/file.txt")
-    assert m.mock_calls == [call(args)]
+    filepath = tmp_path / "file.txt"
+    filepath.touch()
+    open_enclosing_folder(filepath)
+    call_args = m.mock_calls[0][1][0]
+    if type(call_args) != str:
+        call_args = " ".join(call_args)
+    assert str(tmp_path) in call_args
+
+
+def test_open_enclosing_folder_log_warn_if_not_exists(monkeypatch, tmp_path):
+    m = MagicMock()
+    monkeypatch.setattr("logging.warning", m)
+    filepath = tmp_path / "file.txt"
+    open_enclosing_folder(filepath)
+    assert m.call_count > 0
 
 
 @pytest.mark.parametrize(
-    "platform,mocked_call,args",
+    "platform,mocked_call",
     [
-        ("darwin", "subprocess.Popen", ["open", "/test/path/file.txt"]),
-        ("win32", "os.startfile", "/test/path/file.txt"),
-        ("linux", "gridsync.desktop._desktop_open", "/test/path/file.txt"),
+        ("darwin", "subprocess.Popen"),
+        ("win32", "os.startfile"),
+        ("linux", "gridsync.desktop._desktop_open"),
     ],
 )
-def test_open_path(platform, mocked_call, args, monkeypatch):
+def test_open_path(platform, mocked_call, monkeypatch, tmp_path):
     m = MagicMock()
     monkeypatch.setattr(mocked_call, m, raising=False)
     monkeypatch.setattr("sys.platform", platform)
-    open_path("/test/path/file.txt")
-    assert m.mock_calls == [call(args)]
+    filepath = tmp_path / "file.txt"
+    filepath.touch()
+    open_path(filepath)
+    call_args = m.mock_calls[0][1][0]
+    if type(call_args) != str:
+        call_args = " ".join(call_args)
+    assert str(tmp_path) in call_args
+
+
+def test_open_path_log_warn_if_not_exists(monkeypatch, tmp_path):
+    m = MagicMock()
+    monkeypatch.setattr("logging.warning", m)
+    filepath = tmp_path / "file.txt"
+    open_path(filepath)
+    assert m.call_count > 0
 
 
 def test_get_clipboard_modes():
