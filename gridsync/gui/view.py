@@ -358,19 +358,13 @@ class View(QTreeView):
             if directory:
                 open_path(directory)
 
-    def _is_local_folder(self, folder_name: str) -> bool:
-        # XXX/TODO: Replace with Tahoe.local_magic_folder_exists?
-        if self.gateway.magic_folder.magic_folders.get(folder_name):
-            return True
-        return False
-
     def deselect_local_folders(self):
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if self._is_local_folder(folder):
+                if self.gateway.magic_folder.local_magic_folder_exists(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -381,7 +375,9 @@ class View(QTreeView):
             for index in selected:
                 item = self.model().itemFromIndex(index)
                 folder = self.model().item(item.row(), 0).text()
-                if not self._is_local_folder(folder):
+                if not self.gateway.magic_folder.local_magic_folder_exists(
+                    folder
+                ):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
@@ -406,7 +402,7 @@ class View(QTreeView):
             return
         cur_folder = self.model().item(cur_item.row(), 0).text()
 
-        if self._is_local_folder(cur_folder):
+        if self.gateway.magic_folder.local_magic_folder_exists(cur_folder):
             selection_is_remote = False
             self.deselect_remote_folders()
         else:
