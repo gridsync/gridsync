@@ -125,6 +125,21 @@ def test_leave_folder(magic_folder, tmp_path):
 
 
 @inlineCallbacks
+def _test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    folders = yield magic_folder.get_folders()
+    folder_was_added = folder_name in folders
+
+    yield magic_folder.leave_folder(folder_name)
+    folder_was_removed = folder_name not in magic_folder.magic_folders
+
+    assert (folder_was_added, folder_was_removed) == (True, True)
+
+
+@inlineCallbacks
 def test_folder_is_local_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name

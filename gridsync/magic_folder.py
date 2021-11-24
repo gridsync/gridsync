@@ -610,6 +610,11 @@ class MagicFolder:
             f"/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
         )
+        # XXX
+        # try:
+        #    del self.magic_folders[folder_name]
+        # except KeyError:
+        #    pass
 
     def get_directory(self, folder_name: str) -> str:
         return self.magic_folders.get(folder_name, {}).get("magic_path", "")
