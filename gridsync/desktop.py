@@ -74,7 +74,9 @@ def _desktop_open(path):
 
 def open_enclosing_folder(path):
     path = os.path.expanduser(path)
-    if sys.platform == "darwin":
+    if not os.path.exists(path):
+        logging.warning("Tried to open path that doesn't exist: %s", path)
+    elif sys.platform == "darwin":
         subprocess.Popen(  # pylint: disable=consider-using-with
             ["open", "--reveal", path]
         )
@@ -90,7 +92,9 @@ def open_enclosing_folder(path):
 
 def open_path(path):
     path = os.path.expanduser(path)
-    if sys.platform == "darwin":
+    if not os.path.exists(path):
+        logging.warning("Tried to open path that doesn't exist: %s", path)
+    elif sys.platform == "darwin":
         subprocess.Popen(["open", path])  # pylint: disable=consider-using-with
     elif sys.platform == "win32":
         os.startfile(path)
