@@ -167,13 +167,10 @@ class View(QTreeView):
     def on_double_click(self, index):
         item = self.model().itemFromIndex(index)
         name = self.model().item(item.row(), 0).text()
-        if name in self.gateway.magic_folder.magic_folders:
-            try:
-                open_path(
-                    self.gateway.magic_folder.magic_folders[name]["directory"]
-                )
-            except KeyError:
-                pass
+        if self.gateway.magic_folder.folder_is_local(name):
+            directory = self.gateway.magic_folder.get_directory(name)
+            if directory:
+                open_path(directory)
         elif self.gateway.magic_folder.folder_is_remote(name):
             self.select_download_location([name])
 
@@ -353,7 +350,7 @@ class View(QTreeView):
             d.addCallback(self.maybe_rescan_rootcap)
 
     def open_folders(self, folders):
-        for folder in folders:
+        for folder_name in folders:
             directory = self.gateway.magic_folder.get_directory(folder_name)
             if directory:
                 open_path(directory)
