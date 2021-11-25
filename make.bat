@@ -77,7 +77,6 @@ call python -m pip install --upgrade setuptools pip
 call mkdir .\build\tahoe-lafs
 call pushd .\build\tahoe-lafs
 call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@d59a0b0a81b73742154ed6c3ccc4ba9ac76ee63c
 call python -m pip install -r ..\..\requirements\pyinstaller.txt
 call python -m pip list
 call copy ..\..\misc\tahoe.spec pyinstaller.spec
@@ -90,13 +89,12 @@ call deactivate
 goto :eof
 
 :magic-folder
-call git clone https://github.com/LeastAuthority/magic-folder.git build/magic-folder
+call %PYTHON3% scripts/checkout-github-repo requirements/magic-folder.json build/magic-folder
 call %PYTHON2% -m virtualenv --clear build\venv-magic-folder
 call .\build\venv-magic-folder\Scripts\activate
 call python -m pip install -r requirements\pyinstaller.txt
 call copy misc\magic-folder.spec build\magic-folder
 call pushd build\magic-folder
-call git checkout ed4af492cf8ce3a76c48d429a44a510ba17ea816
 call python ..\..\scripts\reproducible-pip.py install --require-hashes -r requirements\base.txt
 call python -m pip install --no-deps .
 call python -m pip list
