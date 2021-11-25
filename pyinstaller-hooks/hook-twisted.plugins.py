@@ -2,6 +2,7 @@
 PyInstaller hook that generates :py:`twisted.plugins`' :file:`dropin.cache`
 for requested plugins.
 """
+from binascii import a2b_base64
 import json
 import os
 
@@ -19,7 +20,7 @@ def hook(api):
         from twisted import plugins
         from twisted.plugin import getCache
 
-        json.dump(getCache(plugins).keys(), sys.stdout)
+        json.dump(list(getCache(plugins).keys()), sys.stdout)
     """
         )
     )
@@ -35,6 +36,7 @@ def hook(api):
     # Generate the dropin.cache for the referenced plugins.
     cache = exec_statement(
         """
+        from binascii import b2a_base64
         import pickle
         import sys
         from twisted import plugins
@@ -45,13 +47,17 @@ def hook(api):
             module: plugin for (module, plugin) in getCache(plugins).items()
             if module in wanted_modules
         }
-        pickle.dump(cache, sys.stdout)
-    """
+        if sys.version < (3,):
+            stdout = sys.stdout
+        else:
+            stdout = sys.stdout.buffer
+        stdout.write(b2a_base64(pickle.dumps(cache)))
+        """
         % (included_modules,)
     )
     # Write the plugin somewhere that pyinstaller can pick it up and
     # request it be packaged.
     cache_path = os.path.join(CONF["workpath"], "dropin.cache")
     with open(cache_path, "wb") as fp:
-        fp.write(cache)
+        fp.write(a2b_base64(cache))
     api.add_datas([(cache_path, "twisted/plugins")])
