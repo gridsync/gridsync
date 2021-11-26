@@ -311,8 +311,14 @@ def test_get_object_sizes(magic_folder, tmp_path):
     filepath_2 = path / "TestFile2.txt"
     filepath_2.write_text(randstr(32) * 10)
     yield magic_folder.scan(folder_name)
+    yield deferLater(reactor, 1, lambda: None)
+    # From https://github.com/LeastAuthority/magic-folder/blob/
+    # 10421379e2e7154708ab9c7380b3da527c284027/docs/interface.rst#
+    # get-v1magic-folderfolder-nametahoe-objects:
+    # "The list is flat; if there are 2 Snapshots on the grid this will
+    # return 6 integers."
     output = yield magic_folder.get_object_sizes(folder_name)
-    assert output == [320, 420, 184, 320, 420, 184]
+    assert output == [416, 320, 217, 416, 320, 217]
 
 
 @inlineCallbacks
@@ -337,8 +343,9 @@ def test_get_all_object_sizes(magic_folder, tmp_path):
     filepath_3.write_text(randstr(32) * 10)
     yield magic_folder.scan(folder_name)
 
+    yield deferLater(reactor, 1, lambda: None)
     output = yield magic_folder.get_all_object_sizes()
-    assert output == [320, 420, 184, 320, 420, 184, 320, 420, 184]
+    assert output == [416, 320, 217, 416, 320, 217, 416, 320, 217]
 
 
 @inlineCallbacks
