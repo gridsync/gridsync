@@ -311,7 +311,7 @@ class MagicFolderMonitor(QObject):
             relpath = item.get("relpath", "")
             item["path"] = str(Path(magic_path, relpath).resolve())
             files[relpath] = item
-            size = int(item.get("size", 0))
+            size = int(item.get("size") or 0)  # XXX "size" is None if deleted
             sizes.append(size)
             mtime = item.get("last-updated", 0)
             if mtime > latest_mtime:
