@@ -51,8 +51,11 @@ class HistoryItemWidget(QWidget):
         self.basename = os.path.basename(os.path.normpath(self.path))
 
         self.setToolTip(
-            "{}\n\nSize: {}\nModified: {}".format(
-                self.path, naturalsize(self.size), time.ctime(self.mtime)
+            "{}\n\nSize: {}\n{}: {}".format(
+                self.path,
+                naturalsize(self.size),
+                self.action,
+                time.ctime(self.mtime),
             )
         )
 
