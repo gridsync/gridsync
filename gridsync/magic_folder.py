@@ -680,14 +680,9 @@ class MagicFolder:
 
     @inlineCallbacks
     def get_object_sizes(self, folder_name: str) -> TwistedDeferred[List[int]]:
-        # XXX A placeholder for now...
-        # See https://github.com/LeastAuthority/magic-folder/pull/528
-        # and https://github.com/LeastAuthority/magic-folder/issues/570
-        sizes = []
-        file_status = yield self.get_file_status(folder_name)
-        for item in file_status:
-            # Include size of content, snapshot cap, and metadata cap
-            sizes.extend([item.get("size", 0), 420, 184])
+        sizes = yield self._request(
+            "GET", f"/magic-folder/{folder_name}/tahoe-objects"
+        )
         return sizes
 
     @inlineCallbacks
