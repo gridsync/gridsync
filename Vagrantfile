@@ -126,23 +126,9 @@ Vagrant.configure("2") do |config|
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
   end
 
-  config.vm.define "ubuntu-20.10" do |b|
-    b.vm.box = "ubuntu/groovy64"
-    b.vm.hostname = "ubuntu-20.10"
-    b.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
-    end
-    b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
-    b.vm.provision "desktop", type: "shell", inline: ubuntu_desktop
-    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
-    b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
-    b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
-    b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
-  end
-
-  config.vm.define "ubuntu-21.04" do |b|
-    b.vm.box = "ubuntu/hirsute64"
-    b.vm.hostname = "ubuntu-20.10"
+  config.vm.define "ubuntu-21.10" do |b|
+    b.vm.box = "ubuntu/impish64"
+    b.vm.hostname = "ubuntu-21.10"
     b.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
     end
@@ -193,6 +179,25 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "windows-10" do |b|
     b.vm.box = "gusztavvargadr/windows-10"
+    b.vm.provider "virtualbox" do |vb|
+      vb.customize ['modifyvm', :id, '--usb', 'on']
+      vb.customize ['usbfilter', 'add', '0',
+        '--target', :id,
+        '--name', "SafeNet Token JC [0001]",
+        '--manufacturer', "SafeNet",
+        '--vendorid', "0x0529",
+        '--productid', "0x0620",
+        '--product', "Token JC"]
+    end
+    b.vm.synced_folder ".", "/Users/vagrant/vagrant"
+    b.vm.provision "devtools", type: "shell", run: "never", path: "scripts/provision_devtools.bat"
+    b.vm.provision "test", type: "shell", run: "never", inline: test_windows
+    b.vm.provision "build", type: "shell", run: "never", inline: make_windows
+    b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.ps1"
+  end
+
+  config.vm.define "windows-11" do |b|
+    b.vm.box = "gusztavvargadr/windows-11"
     b.vm.provider "virtualbox" do |vb|
       vb.customize ['modifyvm', :id, '--usb', 'on']
       vb.customize ['usbfilter', 'add', '0',
