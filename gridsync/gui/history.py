@@ -37,8 +37,12 @@ class HistoryItemWidget(QWidget):
         self.parent = parent
 
         self.path = data["path"]
-        self.size = data["size"] or 0  # XXX "size" is None if deleted
-        self.action = data.get("action", "Updated")
+        self.size = data["size"]
+        if self.size is None:
+            self.action = "Deleted"
+            self.size = 0
+        else:
+            self.action = data.get("action", "Updated")
         self.mtime = data.get("last-updated", data.get("mtime"))
         self._thumbnail_loaded = False
 
