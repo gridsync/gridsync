@@ -51,12 +51,8 @@ class HistoryItemWidget(QWidget):
         self.basename = os.path.basename(os.path.normpath(self.path))
 
         self.setToolTip(
-            "{}\n\nSize: {}\n{}: {}".format(
-                self.path,
-                naturalsize(self.size),
-                self.action,
-                time.ctime(self.mtime),
-            )
+            f"{self.path}\n\nSize: {naturalsize(self.size)}\n"
+            f"{self.action}: {time.ctime(self.mtime)}"
         )
 
         self.icon = QLabel()
