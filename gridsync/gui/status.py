@@ -127,7 +127,7 @@ class StatusPanel(QWidget):
         self.gateway.monitor.space_updated.connect(self.on_space_updated)
         self.gateway.monitor.nodes_updated.connect(self.on_nodes_updated)
         # self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
-        self.gateway.monitor.total_folders_size_updated.connect(
+        self.gateway.magic_folder.monitor.total_folders_size_updated.connect(
             self.on_total_folders_size_updated
         )
         self.gateway.monitor.days_remaining_updated.connect(
