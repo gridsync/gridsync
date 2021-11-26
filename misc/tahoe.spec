@@ -73,13 +73,13 @@ hidden_imports = [
 ]
 
 a = Analysis(
-    ["../../misc/tahoe.py"],
+    ["tahoe.py"],
     pathex=[],
     binaries=binaries,
     datas=added_files,
     hiddenimports=hidden_imports,
-    hookspath=["../../pyinstaller-hooks"],
-    runtime_hooks=["../../pyinstaller-hooks/runtime-twisted.plugins.py"],
+    hookspath=["pyinstaller-hooks"],
+    runtime_hooks=["pyinstaller-hooks/runtime-twisted.plugins.py"],
     excludes=['FixTk', 'tcl', 'tk', '_tkinter', 'tkinter', 'Tkinter'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,

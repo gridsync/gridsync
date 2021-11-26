@@ -3,7 +3,9 @@ PyInstaller hook that generates :py:`twisted.plugins`' :file:`dropin.cache`
 for requested plugins.
 """
 import json
+import os
 
+from PyInstaller.config import CONF
 from PyInstaller.utils.hooks import exec_statement
 
 
@@ -49,6 +51,7 @@ def hook(api):
     )
     # Write the plugin somewhere that pyinstaller can pick it up and
     # request it be packaged.
-    with open("dropin.cache", "wb") as fp:
+    cache_path = os.path.join(CONF["workpath"], "dropin.cache")
+    with open(cache_path, "wb") as fp:
         fp.write(cache)
-    api.add_datas([("dropin.cache", "twisted/plugins")])
+    api.add_datas([(cache_path, "twisted/plugins")])
