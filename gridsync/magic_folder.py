@@ -87,6 +87,7 @@ class MagicFolderMonitor(QObject):
     file_modified = Signal(str, dict)  # folder_name, status
 
     overall_state_changed = Signal(int)  # MagicFolderState
+    total_folders_size_updated = Signal(object)  # "object" avoids overflows
 
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
@@ -101,6 +102,9 @@ class MagicFolderMonitor(QObject):
         self._known_folders: Dict[str, dict] = {}
         self._known_backups: List[str] = []
         self._prev_folders: Dict = {}
+
+        self._folder_sizes: Dict[str, int] = {}
+        self._total_folders_size: int = 0
 
         self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
         self._operations_queued: DefaultDict[str, set] = defaultdict(set)
@@ -353,6 +357,14 @@ class MagicFolderMonitor(QObject):
         if current_latest_mtime != prev_latest_mtime:
             self.folder_mtime_updated.emit(folder_name, current_latest_mtime)
 
+        self._folder_sizes[folder_name] = current_total_size
+
+    def _check_total_folders_size(self) -> None:
+        total = sum(self._folder_sizes.values())
+        if total != self._total_folders_size:
+            self._total_folders_size = total
+            self.total_folders_size_updated.emit(total)
+
     def compare_files(self, folders: Dict) -> None:
         for folder_name, data in folders.items():
             self._compare_file_status(
@@ -361,6 +373,7 @@ class MagicFolderMonitor(QObject):
                 data.get("file_status", []),
                 self._prev_folders.get(folder_name, {}).get("file_status", []),
             )
+        self._check_total_folders_size()
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)

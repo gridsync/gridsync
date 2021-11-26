@@ -330,8 +330,6 @@ class Monitor(QObject):
     nodes_updated = pyqtSignal(int, int)
     space_updated = pyqtSignal(object)
 
-    total_folders_size_updated = pyqtSignal(object)  # object avoids overflows
-
     check_finished = pyqtSignal()
 
     zkaps_updated = pyqtSignal(int, int)
@@ -346,7 +344,6 @@ class Monitor(QObject):
         super().__init__()
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
-        self.total_folders_size: int = 0
         self.price: dict = {}
 
         self.grid_checker = GridChecker(self.gateway)
@@ -393,14 +390,6 @@ class Monitor(QObject):
     def do_checks(self):
         yield self.zkap_checker.do_check()
         yield self.grid_checker.do_check()
-
-        total_size = 0
-        # XXX/TODO: Remove total_size?
-
-        if total_size != self.total_folders_size:
-            self.total_folders_size = total_size
-            self.total_folders_size_updated.emit(total_size)
-            yield self.update_price()
         self.check_finished.emit()
 
     def start(self, interval=2):
