@@ -152,7 +152,6 @@ class ZKAPChecker(QObject):
         self.unpaid_vouchers: list = []
         self.price: dict = {}
 
-
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
         # XXX zkaps_last_redeemed starts as "0" which cannot be parsed as an
