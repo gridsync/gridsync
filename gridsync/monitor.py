@@ -348,7 +348,6 @@ class Monitor(QObject):
 
         self.grid_checker = GridChecker(self.gateway)
         self.grid_checker.connected.connect(self.connected.emit)
-        self.grid_checker.connected.connect(self.scan_rootcap)  # XXX
         self.grid_checker.disconnected.connect(self.disconnected.emit)
         self.grid_checker.nodes_updated.connect(self.nodes_updated.emit)
         self.grid_checker.space_updated.connect(self.space_updated.emit)
@@ -370,7 +369,7 @@ class Monitor(QObject):
         )
 
     @inlineCallbacks
-    def update_price(self):
+    def update_price(self):  # XXX/TODO: Connect somewhere
         if self.gateway.zkap_auth_required:
             price = yield self.gateway.zkapauthorizer.get_price()
             self.zkaps_price_updated.emit(
@@ -378,13 +377,6 @@ class Monitor(QObject):
             )
             self.price = price
             self.zkap_checker.emit_days_remaining_updated()
-
-    @inlineCallbacks
-    def scan_rootcap(self):
-        logging.debug("Scanning %s rootcap...", self.gateway.name)
-        yield self.gateway.await_ready()
-        yield self.update_price()
-        # XXX/TODO: Remove/rename this method?
 
     @inlineCallbacks
     def do_checks(self):

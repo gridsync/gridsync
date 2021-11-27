@@ -88,7 +88,6 @@ class View(QTreeView):
         self.gui = gui
         self.gateway = gateway
         self.invite_sender_dialogs = []
-        self._rescan_required = False
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
 
@@ -180,17 +179,6 @@ class View(QTreeView):
         isd.show()
 
     @inlineCallbacks
-    def maybe_rescan_rootcap(self, _):
-        yield self.gateway.magic_folder.monitor.do_check()  # XXX
-        if self._rescan_required:
-            self._rescan_required = False
-            logging.debug("A rescan was scheduled; rescanning...")
-            yield self.gateway.monitor.scan_rootcap()
-            self.show_drop_label()
-        else:
-            logging.debug("No rescans were scheduled; not rescanning")
-
-    @inlineCallbacks
     def download_folder(self, folder_name, dest):
         try:
             yield self.gateway.magic_folder.restore_folder_backup(
@@ -238,10 +226,7 @@ class View(QTreeView):
             )
             return
         self.model().remove_folder(folder_name)
-        self._rescan_required = True
-        logging.debug(
-            'Successfully unlinked folder "%s"; scheduled rescan', folder_name
-        )
+        logging.debug('Successfully unlinked folder "%s"', folder_name)
 
     def confirm_unlink(self, folders):
         msgbox = QMessageBox(self)
@@ -271,8 +256,7 @@ class View(QTreeView):
             tasks = []
             for folder in folders:
                 tasks.append(self.unlink_folder(folder))
-            d = DeferredList(tasks)
-            d.addCallback(self.maybe_rescan_rootcap)
+            DeferredList(tasks)
 
     @inlineCallbacks
     def remove_folder(self, folder_name, unlink=False):
@@ -346,8 +330,7 @@ class View(QTreeView):
             else:
                 for folder in folders:
                     tasks.append(self.remove_folder(folder, unlink=True))
-            d = DeferredList(tasks)
-            d.addCallback(self.maybe_rescan_rootcap)
+            DeferredList(tasks)
 
     def open_folders(self, folders):
         for folder_name in folders:
