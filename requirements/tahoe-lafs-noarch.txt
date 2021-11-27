@@ -134,10 +134,6 @@ click==7.1.2 \
     --hash=sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a \
     --hash=sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc
     # via magic-wormhole
-collections-extended==1.0.3 \
-    --hash=sha256:47e2559603085c7444b68cac6735c985a011341c34cde578e8550e109b328832 \
-    --hash=sha256:7cda4f6f93f6a42a0b815677628eb8792bca5cffd4f0d78045a66935444f6651
-    # via tahoe-lafs
 colorama==0.4.4 \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
@@ -388,8 +384,9 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
-https://github.com/tahoe-lafs/tahoe-lafs/archive/d3c6f58a8ded7db3324ef97c47f5c1921c3d58b7.zip \
-    --hash=sha256:4b4e6960f23a337bd74fd1f09844c6ff7e520c09b02e06ca5bc4143e801957a0
+tahoe-lafs==1.16.0 \
+    --hash=sha256:0b1e05269b698dcae6b60c7bfa11f10f4e3aa07a681242a66d294aa4b7513525 \
+    --hash=sha256:7777a505ad46d9c7f7884351f587fb5963f3d5aae7d977126e30dd4406fda7fb
     # via zero-knowledge-access-pass-authorizer
 tqdm==4.62.3 \
     --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
@@ -448,8 +445,8 @@ urllib3==1.26.7 \
     --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece \
     --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844
     # via requests
-https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/1d585ed2e1f8fa9dbdb726aaaece88300e25318d \
-    --hash=sha256:c1e0da936943da623a5eed67e78cce83b1af3aa7a33881b724eedd9047004299
+https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/5bad3a39ae78cb2483d70709b8a7c1cba96571ab \
+    --hash=sha256:ad13d69b31effab59c060aa6105c362b744aa35c9e944f932a9f02aee741acf8
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
@@ -575,6 +572,5 @@ setuptools==44.1.1 \
     --hash=sha256:27a714c09253134e60a6fa68130f78c7037e5562c4f21f8f318f2ae900d152d5 \
     --hash=sha256:c67aa55db532a0dadc4d2e20ba9961cbd3ccc84d544e9029699822542b5a476b
     # via
-    #   collections-extended
     #   tahoe-lafs
     #   zope.interface
