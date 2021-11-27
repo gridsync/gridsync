@@ -132,6 +132,7 @@ class ZKAPChecker(QObject):
     zkaps_updated = pyqtSignal(int, int)  # used, remaining
     zkaps_redeemed = pyqtSignal(str)  # timestamp
     zkaps_renewal_cost_updated = pyqtSignal(int)
+    zkaps_price_updated = pyqtSignal(int, int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
     low_zkaps_warning = pyqtSignal()
@@ -149,6 +150,8 @@ class ZKAPChecker(QObject):
         self.zkaps_renewal_cost: int = 0
         self.days_remaining: int = 0
         self.unpaid_vouchers: list = []
+        self.price: dict = {}
+
 
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
@@ -240,12 +243,22 @@ class ZKAPChecker(QObject):
         )
 
     def emit_days_remaining_updated(self):
-        price = self.gateway.monitor.price.get("price", 0)  # XXX
-        period = self.gateway.monitor.price.get("period", 0)  # XXX
+        price = self.price.get("price", 0)  # XXX
+        period = self.price.get("period", 0)  # XXX
         if price and period:
             seconds_remaining = self.zkaps_remaining / price * period
             self.days_remaining = int(seconds_remaining / 86400)
             self.days_remaining_updated.emit(self.days_remaining)
+
+    @inlineCallbacks
+    def update_price(self):  # XXX/TODO: Connect somewhere
+        if self.gateway.zkap_auth_required:
+            price = yield self.gateway.zkapauthorizer.get_price()
+            self.zkaps_price_updated.emit(
+                price.get("price", 0), price.get("period", 0)
+            )
+            self.price = price
+            self.emit_days_remaining_updated()
 
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
@@ -344,7 +357,6 @@ class Monitor(QObject):
         super().__init__()
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
-        self.price: dict = {}
 
         self.grid_checker = GridChecker(self.gateway)
         self.grid_checker.connected.connect(self.connected.emit)
@@ -358,6 +370,7 @@ class Monitor(QObject):
         self.zkap_checker.zkaps_renewal_cost_updated.connect(
             self.zkaps_renewal_cost_updated.emit
         )
+        self.zkap_checker.zkaps_price_updated.connect(self.zkaps_price_updated)
         self.zkap_checker.days_remaining_updated.connect(
             self.days_remaining_updated.emit
         )
@@ -367,16 +380,6 @@ class Monitor(QObject):
         self.zkap_checker.low_zkaps_warning.connect(
             self.low_zkaps_warning.emit
         )
-
-    @inlineCallbacks
-    def update_price(self):  # XXX/TODO: Connect somewhere
-        if self.gateway.zkap_auth_required:
-            price = yield self.gateway.zkapauthorizer.get_price()
-            self.zkaps_price_updated.emit(
-                price.get("price", 0), price.get("period", 0)
-            )
-            self.price = price
-            self.zkap_checker.emit_days_remaining_updated()
 
     @inlineCallbacks
     def do_checks(self):
