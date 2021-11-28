@@ -6,6 +6,7 @@ from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
 from gridsync.crypto import randstr
+from gridsync.magic_folder import MagicFolderState
 from gridsync.tahoe import Tahoe
 
 os.environ["PATH"] = (
@@ -122,6 +123,64 @@ def test_leave_folder(magic_folder, tmp_path):
     folder_was_removed = folder_name not in folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
+
+
+@inlineCallbacks
+def _test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    folders = yield magic_folder.get_folders()
+    folder_was_added = folder_name in folders
+
+    yield magic_folder.leave_folder(folder_name)
+    folder_was_removed = folder_name not in magic_folder.magic_folders
+
+    assert (folder_was_added, folder_was_removed) == (True, True)
+
+
+@inlineCallbacks
+def test_folder_is_local_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    assert magic_folder.folder_is_local(folder_name) is True
+
+
+def test_folder_is_local_false(magic_folder, tmp_path):
+    folder_name = randstr() + "_1"
+    assert magic_folder.folder_is_local(folder_name) is False
+
+
+@inlineCallbacks
+def test_folder_is_remote_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    yield magic_folder.monitor.do_check()  # XXX
+    assert magic_folder.folder_is_remote(folder_name) is True
+
+
+def test_folder_is_remote_false(magic_folder, tmp_path):
+    folder_name = randstr() + "_2"
+    assert magic_folder.folder_is_remote(folder_name) is False
+
+
+@inlineCallbacks
+def test_folder_exists_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    assert magic_folder.folder_exists(folder_name) is True
+
+
+def test_folder_exists_false(magic_folder, tmp_path):
+    folder_name = randstr() + "_3"
+    assert magic_folder.folder_is_local(folder_name) is False
 
 
 @inlineCallbacks
@@ -252,8 +311,14 @@ def test_get_object_sizes(magic_folder, tmp_path):
     filepath_2 = path / "TestFile2.txt"
     filepath_2.write_text(randstr(32) * 10)
     yield magic_folder.scan(folder_name)
+    yield deferLater(reactor, 1.5, lambda: None)
+    # From https://github.com/LeastAuthority/magic-folder/blob/
+    # 10421379e2e7154708ab9c7380b3da527c284027/docs/interface.rst#
+    # get-v1magic-folderfolder-nametahoe-objects:
+    # "The list is flat; if there are 2 Snapshots on the grid this will
+    # return 6 integers."
     output = yield magic_folder.get_object_sizes(folder_name)
-    assert output == [320, 420, 184, 320, 420, 184]
+    assert output == [416, 320, 217, 416, 320, 217]
 
 
 @inlineCallbacks
@@ -278,8 +343,9 @@ def test_get_all_object_sizes(magic_folder, tmp_path):
     filepath_3.write_text(randstr(32) * 10)
     yield magic_folder.scan(folder_name)
 
+    yield deferLater(reactor, 1.5, lambda: None)
     output = yield magic_folder.get_all_object_sizes()
-    assert output == [320, 420, 184, 320, 420, 184, 320, 420, 184]
+    assert output == [416, 320, 217, 416, 320, 217, 416, 320, 217]
 
 
 @inlineCallbacks
@@ -702,6 +768,25 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
         folder_name,
         filename,
     )
+
+
+@inlineCallbacks
+def test_monitor_emits_overall_state_changed_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    with qtbot.wait_signal(
+        magic_folder.monitor.overall_state_changed
+    ) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args[0] == MagicFolderState.SYNCING
 
 
 def test_eliot_logs_collected(magic_folder):

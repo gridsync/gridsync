@@ -143,7 +143,7 @@ class UsageView(QWidget):
         self.gateway.monitor.days_remaining_updated.connect(
             self.on_days_remaining_updated
         )
-        self.gateway.monitor.total_folders_size_updated.connect(
+        self.gateway.magic_folder.monitor.total_folders_size_updated.connect(
             self.on_total_folders_size_updated
         )
         self.gateway.monitor.low_zkaps_warning.connect(

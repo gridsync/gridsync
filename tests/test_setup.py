@@ -190,7 +190,7 @@ def test_validate_folders_skip_folder(monkeypatch, tmpdir_factory):
     gateway = Tahoe(
         os.path.join(str(tmpdir_factory.mktemp("config_dir")), "SomeGrid")
     )
-    gateway.magic_folders = {"FolderName": {}}
+    gateway.magic_folder.magic_folders = {"FolderName": {}}
     monkeypatch.setattr(
         "gridsync.setup.prompt_for_folder_name", lambda x, y, z: (None, 0)
     )
@@ -208,7 +208,7 @@ def test_validate_folders_rename_folder(monkeypatch, tmpdir_factory):
     gateway = Tahoe(
         os.path.join(str(tmpdir_factory.mktemp("config_dir")), "SomeGrid")
     )
-    gateway.magic_folders = {"FolderName": {}}
+    gateway.magic_folder.magic_folders = {"FolderName": {}}
     monkeypatch.setattr(
         "gridsync.setup.prompt_for_folder_name",
         lambda x, y, z: ("NewFolderName", 1),
@@ -661,21 +661,6 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     with qtbot.wait_signal(sr.grid_already_joined) as blocker:
         yield sr.run(settings)
     assert blocker.args == ["TestGrid"]
-
-
-@inlineCallbacks
-def test_run_call_scan_rootcap_after_join_folders(monkeypatch):
-    fake_gateway = Mock()
-    fake_gateway.monitor.scan_rootcap = Mock()
-    monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.get_gateway", lambda x, y, z: fake_gateway
-    )
-    monkeypatch.setattr("gridsync.setup.SetupRunner.join_grid", Mock())
-    monkeypatch.setattr("gridsync.setup.SetupRunner.ensure_recovery", Mock())
-    monkeypatch.setattr("gridsync.setup.SetupRunner.join_folders", Mock())
-    sr = SetupRunner([])
-    yield sr.run({"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}})
-    assert fake_gateway.monitor.scan_rootcap.call_count == 1
 
 
 @inlineCallbacks

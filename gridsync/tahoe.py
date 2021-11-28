@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import hashlib
 import json
 import logging as log
 import os
 import re
-import shutil
 import sys
-from collections import OrderedDict, defaultdict
 from pathlib import Path
 from typing import Dict, List
 
 import treq
 import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import deferLater
 from twisted.python.procutils import which
@@ -22,11 +19,10 @@ from twisted.python.procutils import which
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
-from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
+from gridsync.errors import TahoeCommandError, TahoeWebError
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
-from gridsync.preferences import get_preference, set_preference
 from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import SubprocessProtocol, kill
@@ -72,7 +68,6 @@ class Tahoe:
         if reactor is None:
             from twisted.internet import reactor
         self.executable = executable
-        self.multi_folder_support = True
         if nodedir:
             self.nodedir = os.path.expanduser(nodedir)
         else:
@@ -86,9 +81,6 @@ class Tahoe:
         self.shares_happy = 0
         self.name = os.path.basename(self.nodedir)
         self.api_token = None
-        self.magic_folders_dir = os.path.join(self.nodedir, "magic-folders")
-        self.magic_folders = defaultdict(dict)
-        self.remote_magic_folders = defaultdict(dict)
         self.use_tor = False
         self.monitor = Monitor(self)
         logs_maxlen = None
@@ -106,22 +98,14 @@ class Tahoe:
         self.zkapauthorizer = ZKAPAuthorizer(self)
         self.zkap_auth_required: bool = False
 
-        self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
-        self.monitor.sync_finished.connect(
-            self.zkapauthorizer.update_zkap_checkpoint
-        )
         self.storage_furl: str = ""
         self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
-    @staticmethod
-    def read_cap_from_file(filepath):
-        try:
-            with open(filepath, encoding="utf-8") as f:
-                cap = f.read().strip()
-        except OSError:
-            return None
-        return cap
+        self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
+        self.magic_folder.monitor.sync_stopped.connect(
+            self.zkapauthorizer.update_zkap_checkpoint
+        )
 
     def load_newscap(self):
         news_settings = global_settings.get("news:{}".format(self.name))
@@ -130,11 +114,12 @@ class Tahoe:
             if newscap:
                 self.newscap = newscap
                 return
-        newscap = self.read_cap_from_file(
-            os.path.join(self.nodedir, "private", "newscap")
-        )
-        if newscap:
-            self.newscap = newscap
+        try:
+            self.newscap = Path(self.nodedir, "private", "newscap").read_text(
+                encoding="utf-8"
+            )
+        except OSError:
+            pass
 
     def config_set(self, section, option, value):
         self.config.set(section, option, value)
@@ -241,59 +226,6 @@ class Tahoe:
         with atomic_write(dest, mode="w", overwrite=True) as f:
             f.write(json.dumps(settings))
         log.debug("Exported settings to '%s'", dest)
-
-    def get_aliases(self):
-        aliases = {}
-        aliases_file = os.path.join(self.nodedir, "private", "aliases")
-        try:
-            with open(aliases_file, encoding="utf-8") as f:
-                for line in f.readlines():
-                    if not line.startswith("#"):
-                        try:
-                            name, cap = line.split(":", 1)
-                            aliases[name + ":"] = cap.strip()
-                        except ValueError:
-                            pass
-            return aliases
-        except IOError:
-            return aliases
-
-    def get_alias(self, alias):
-        if not alias.endswith(":"):
-            alias = alias + ":"
-        try:
-            for name, cap in self.get_aliases().items():
-                if name == alias:
-                    return cap
-            return None
-        except AttributeError:
-            return None
-
-    def _set_alias(self, alias, cap=None):
-        if not alias.endswith(":"):
-            alias = alias + ":"
-        aliases = self.get_aliases()
-        if cap:
-            aliases[alias] = cap
-        else:
-            try:
-                del aliases[alias]
-            except (KeyError, TypeError):
-                return
-        tmp_aliases_file = os.path.join(self.nodedir, "private", "aliases.tmp")
-        with atomic_write(tmp_aliases_file, mode="w", overwrite=True) as f:
-            data = ""
-            for name, dircap in aliases.items():
-                data += "{} {}\n".format(name, dircap)
-            f.write(data)
-        aliases_file = os.path.join(self.nodedir, "private", "aliases")
-        shutil.move(tmp_aliases_file, aliases_file)
-
-    def add_alias(self, alias, cap):
-        self._set_alias(alias, cap)
-
-    def remove_alias(self, alias):
-        self._set_alias(alias)
 
     def _read_servers_yaml(self):
         try:
@@ -407,24 +339,6 @@ class Tahoe:
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
 
-    def load_magic_folders(self):
-        data = {}
-        yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
-        try:
-            with open(yaml_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-        except OSError:
-            pass
-        folders_data = data.get("magic-folders")
-        if folders_data:
-            for key, value in folders_data.items():  # to preserve defaultdict
-                self.magic_folders[key] = value
-        for folder in self.magic_folders:
-            admin_dircap = self.get_admin_dircap(folder)
-            if admin_dircap:
-                self.magic_folders[folder]["admin_dircap"] = admin_dircap
-        return self.magic_folders
-
     def line_received(self, line):
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
@@ -460,21 +374,6 @@ class Tahoe:
         return output
 
     @inlineCallbacks
-    def get_features(self):
-        try:
-            yield self.command(["magic-folder", "list"])
-        except TahoeCommandError as err:
-            if str(err).strip().endswith("Unknown command: list"):
-                # Has magic-folder support but no multi-magic-folder support
-                return self.executable, True, False
-            # Has no magic-folder support ('Unknown command: magic-folder')
-            # or something else went wrong; consider executable unsupported
-            return self.executable, False, False
-        # if output:
-        # Has magic-folder support and multi-magic-folder support
-        return self.executable, True, True
-
-    @inlineCallbacks
     def create_node(self, **kwargs):
         if os.path.exists(self.nodedir):
             raise FileExistsError(
@@ -508,31 +407,9 @@ class Tahoe:
         kwargs["listen"] = "none"
         yield self.create_node(**kwargs)
 
-    def _win32_cleanup(self):
-        # XXX A dirty hack to try to remove any stale magic-folder
-        # sqlite databases that could not be removed earlier due to
-        # being in-use by another process (i.e., Tahoe-LAFS).
-        # See https://github.com/gridsync/gridsync/issues/294 and
-        # https://github.com/LeastAuthority/magic-folder/issues/131
-        if not self.magic_folders:
-            self.load_magic_folders()  # XXX
-        for p in Path(self.nodedir, "private").glob("magicfolder_*.sqlite"):
-            folder_name = p.stem[12:]  # len("magicfolder_") -> 12
-            if folder_name not in self.magic_folders:
-                fullpath = p.resolve()
-                log.debug("Trying to remove stale database %s...", fullpath)
-                try:
-                    p.unlink()
-                except OSError as err:
-                    log.warning("Error removing %s: %s", fullpath, str(err))
-                    continue
-                log.debug("Successfully removed %s", fullpath)
-
     def kill(self):
         self.magic_folder.stop()  # XXX
         kill(pidfile=self.pidfile)
-        if sys.platform == "win32":
-            self._win32_cleanup()
 
     @inlineCallbacks
     def stop(self):
@@ -553,60 +430,6 @@ class Tahoe:
         self.kill()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
-
-    @inlineCallbacks
-    def upgrade_legacy_config(self):
-        log.debug("Upgrading legacy configuration layout..")
-        nodedirs = get_nodedirs(self.magic_folders_dir)
-        if not nodedirs:
-            log.warning("No nodedirs found; returning.")
-            return
-        magic_folders = {}
-        for nodedir in nodedirs:
-            basename = os.path.basename(nodedir)
-            log.debug("Migrating configuration for '%s'...", basename)
-
-            tahoe = Tahoe(nodedir)
-            directory = tahoe.config_get("magic_folder", "local.directory")
-            poll_interval = tahoe.config_get("magic_folder", "poll_interval")
-
-            collective_dircap = self.read_cap_from_file(
-                os.path.join(nodedir, "private", "collective_dircap")
-            )
-            magic_folder_dircap = self.read_cap_from_file(
-                os.path.join(nodedir, "private", "magic_folder_dircap")
-            )
-
-            magic_folders[basename] = {
-                "collective_dircap": collective_dircap,
-                "directory": directory,
-                "poll_interval": poll_interval,
-                "upload_dircap": magic_folder_dircap,
-            }
-
-            db_src = os.path.join(nodedir, "private", "magicfolderdb.sqlite")
-            db_fname = "".join(["magicfolder_", basename, ".sqlite"])
-            db_dest = os.path.join(self.nodedir, "private", db_fname)
-            log.debug("Copying %s to %s...", db_src, db_dest)
-            shutil.copyfile(db_src, db_dest)
-
-            collective_dircap_rw = tahoe.get_alias("magic")
-            if collective_dircap_rw:
-                alias = hashlib.sha256(basename.encode()).hexdigest() + ":"
-                yield self.command(["add-alias", alias, collective_dircap_rw])
-
-        yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
-        log.debug("Writing magic-folder configs to %s...", yaml_path)
-        with atomic_write(yaml_path, mode="w", overwrite=True) as f:
-            f.write(yaml.safe_dump({"magic-folders": magic_folders}))
-
-        log.debug("Backing up legacy configuration...")
-        shutil.move(self.magic_folders_dir, self.magic_folders_dir + ".backup")
-
-        log.debug("Enabling magic-folder for %s...", self.nodedir)
-        self.config_set("magic_folder", "enabled", "True")
-
-        log.debug("Finished upgrading legacy configuration")
 
     def get_streamed_log_messages(self):
         """
@@ -641,8 +464,6 @@ class Tahoe:
 
         if os.path.isfile(self.pidfile):
             yield self.stop()
-        if self.multi_folder_support and os.path.isdir(self.magic_folders_dir):
-            yield self.upgrade_legacy_config()
         pid = yield self.command(["run"], "client running")
         pid = str(pid)
         if sys.platform == "win32" and pid.isdigit():
@@ -659,7 +480,6 @@ class Tahoe:
         with open(token_file, encoding="utf-8") as f:
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get("client", "shares.happy"))
-        self.load_magic_folders()
         self.streamedlogs.start(self.nodeurl, self.api_token)
         self.load_newscap()
         self.newscap_checker.start()
@@ -687,31 +507,6 @@ class Tahoe:
         :param str nodeurl: A text string giving the URI root of the web API.
         """
         self.nodeurl = nodeurl
-
-    @inlineCallbacks
-    def restart(self):
-        from twisted.internet import reactor
-
-        log.debug("Restarting %s client...", self.name)
-        if self.state in (Tahoe.STOPPING, Tahoe.STARTING):
-            log.warning(
-                "Aborting restart operation; "
-                'the "%s" client is already (re)starting',
-                self.name,
-            )
-            return
-        # Temporarily disable desktop notifications for (dis)connect events
-        pref = get_preference("notifications", "connection")
-        set_preference("notifications", "connection", "false")
-        yield self.stop()
-        if sys.platform == "win32":
-            yield deferLater(reactor, 0.1, lambda: None)
-            self._win32_cleanup()
-        yield self.start()
-        yield self.await_ready()
-        yield deferLater(reactor, 1, lambda: None)
-        set_preference("notifications", "connection", pref)
-        log.debug("Finished restarting %s client.", self.name)
 
     @inlineCallbacks
     def get_grid_status(self):
@@ -882,193 +677,6 @@ class Tahoe:
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     @inlineCallbacks
-    def link_magic_folder_to_rootcap(self, name):
-        log.debug("Linking folder '%s' to rootcap...", name)
-        rootcap = self.get_rootcap()
-        tasks = []
-        admin_dircap = self.get_admin_dircap(name)
-        if admin_dircap:
-            tasks.append(self.link(rootcap, name + " (admin)", admin_dircap))
-        collective_dircap = self.get_collective_dircap(name)
-        tasks.append(
-            self.link(rootcap, name + " (collective)", collective_dircap)
-        )
-        personal_dircap = self.get_magic_folder_dircap(name)
-        tasks.append(self.link(rootcap, name + " (personal)", personal_dircap))
-        yield DeferredList(tasks)
-        log.debug("Successfully linked folder '%s' to rootcap", name)
-
-    @inlineCallbacks
-    def unlink_magic_folder_from_rootcap(self, name):
-        log.debug("Unlinking folder '%s' from rootcap...", name)
-        rootcap = self.get_rootcap()
-        tasks = []
-        tasks.append(self.unlink(rootcap, name + " (collective)"))
-        tasks.append(self.unlink(rootcap, name + " (personal)"))
-        if "admin_dircap" in self.remote_magic_folders[name]:
-            tasks.append(self.unlink(rootcap, name + " (admin)"))
-        del self.remote_magic_folders[name]
-        yield DeferredList(tasks)
-        log.debug("Successfully unlinked folder '%s' from rootcap", name)
-
-    @inlineCallbacks
-    def _create_magic_folder(self, path, alias, poll_interval=60):
-        log.debug("Creating magic-folder for %s...", path)
-        admin_dircap = yield self.mkdir()
-        admin_dircap_json = yield self.get_json(admin_dircap)
-        collective_dircap = admin_dircap_json[1]["ro_uri"]
-        upload_dircap = yield self.mkdir()
-        upload_dircap_json = yield self.get_json(upload_dircap)
-        upload_dircap_ro = upload_dircap_json[1]["ro_uri"]
-        yield self.link(admin_dircap, "admin", upload_dircap_ro)
-        yaml_path = os.path.join(self.nodedir, "private", "magic_folders.yaml")
-        try:
-            with open(yaml_path, encoding="utf-8") as f:
-                yaml_data = yaml.safe_load(f)
-        except OSError:
-            yaml_data = {}
-        folders_data = yaml_data.get("magic-folders", {})
-        folders_data[os.path.basename(path)] = {
-            "directory": path,
-            "collective_dircap": collective_dircap,
-            "upload_dircap": upload_dircap,
-            "poll_interval": poll_interval,
-        }
-        with atomic_write(yaml_path, mode="w", overwrite=True) as f:
-            f.write(yaml.safe_dump({"magic-folders": folders_data}))
-        self.add_alias(alias, admin_dircap)
-
-    @inlineCallbacks
-    def create_magic_folder(
-        self, path, join_code=None, admin_dircap=None, poll_interval=60
-    ):  # XXX See Issue #55
-        from twisted.internet import reactor
-
-        path = os.path.realpath(os.path.expanduser(path))
-        poll_interval = str(poll_interval)
-        try:
-            os.makedirs(path)
-        except OSError:
-            pass
-        name = os.path.basename(path)
-        alias = hashlib.sha256(name.encode()).hexdigest() + ":"
-        if join_code:
-            yield self.command(
-                [
-                    "magic-folder",
-                    "join",
-                    "-p",
-                    poll_interval,
-                    "-n",
-                    name,
-                    join_code,
-                    path,
-                ]
-            )
-            if admin_dircap:
-                self.add_alias(alias, admin_dircap)
-        else:
-            yield self.await_ready()
-            # yield self.command(['magic-folder', 'create', '-p', poll_interval,
-            #                    '-n', name, alias, 'admin', path])
-            try:
-                yield self._create_magic_folder(path, alias, poll_interval)
-            except Exception as e:  # pylint: disable=broad-except
-                log.debug(
-                    'Magic-folder creation failed: "%s: %s"; retrying...',
-                    type(e).__name__,
-                    str(e),
-                )
-                yield deferLater(reactor, 3, lambda: None)  # XXX
-                yield self.await_ready()
-                yield self._create_magic_folder(path, alias, poll_interval)
-        if not self.config_get("magic_folder", "enabled"):
-            self.config_set("magic_folder", "enabled", "True")
-        self.load_magic_folders()
-        yield self.link_magic_folder_to_rootcap(name)
-
-    @inlineCallbacks
-    def restore_magic_folder(self, folder_name, dest):
-        data = self.remote_magic_folders[folder_name]
-        admin_dircap = data.get("admin_dircap")
-        collective_dircap = data.get("collective_dircap")
-        upload_dircap = data.get("upload_dircap")
-        if not collective_dircap or not upload_dircap:
-            raise TahoeError(
-                'The capabilities needed to restore the folder "{}" could '
-                "not be found. This probably means that the folder was "
-                "never completely uploaded to begin with -- or worse, "
-                "that your rootcap was corrupted somehow after the fact.\n"
-                "\nYou will need to remove this folder and upload it "
-                "again.".format(folder_name)
-            )
-        yield self.create_magic_folder(
-            os.path.join(dest, folder_name),
-            "{}+{}".format(collective_dircap, upload_dircap),
-            admin_dircap,
-        )
-
-    def local_magic_folder_exists(self, folder_name):
-        if folder_name in self.magic_folders:
-            return True
-        return False
-
-    def remote_magic_folder_exists(self, folder_name):
-        if folder_name in self.remote_magic_folders:
-            return True
-        return False
-
-    def magic_folder_exists(self, folder_name):
-        if self.local_magic_folder_exists(folder_name):
-            return True
-        if self.remote_magic_folder_exists(folder_name):
-            return True
-        return False
-
-    @inlineCallbacks
-    def magic_folder_invite(self, name, nickname):
-        yield self.await_ready()
-        admin_dircap = self.get_admin_dircap(name)
-        if not admin_dircap:
-            raise TahoeError(
-                'No admin dircap found for folder "{}"; you do not have the '
-                "authority to create invites for this folder.".format(name)
-            )
-        created = yield self.mkdir(admin_dircap, nickname)
-        code = "{}+{}".format(self.get_collective_dircap(name), created)
-        return code
-
-    @inlineCallbacks
-    def magic_folder_uninvite(self, name, nickname):
-        log.debug('Uninviting "%s" from "%s"...', nickname, name)
-        alias = hashlib.sha256(name.encode()).hexdigest()
-        yield self.unlink(self.get_alias(alias), nickname)
-        log.debug('Uninvited "%s" from "%s"...', nickname, name)
-
-    @inlineCallbacks
-    def remove_magic_folder(self, name):
-        if name in self.magic_folders:
-            del self.magic_folders[name]
-            yield self.command(["magic-folder", "leave", "-n", name])
-            self.remove_alias(hashlib.sha256(name.encode()).hexdigest())
-
-    @inlineCallbacks
-    def get_magic_folder_status(self, name):
-        if not self.nodeurl or not self.api_token:
-            return None
-        try:
-            resp = yield treq.post(
-                self.nodeurl + "magic_folder",
-                {"token": self.api_token, "name": name, "t": "json"},
-            )
-        except ConnectError:
-            return None
-        if resp.code == 200:
-            content = yield treq.content(resp)
-            return json.loads(content.decode("utf-8"))
-        return None
-
-    @inlineCallbacks
     def get_json(self, cap):
         if not cap or not self.nodeurl:
             return None
@@ -1107,142 +715,6 @@ class Tahoe:
 
     def get_rootcap(self) -> str:
         return self.rootcap_manager.get_rootcap()
-
-    def get_admin_dircap(self, name):
-        if name in self.magic_folders:
-            try:
-                return self.magic_folders[name]["admin_dircap"]
-            except KeyError:
-                pass
-        cap = self.get_alias(hashlib.sha256(name.encode()).hexdigest())
-        self.magic_folders[name]["admin_dircap"] = cap
-        return cap
-
-    def _get_magic_folder_setting(self, folder_name, setting_name):
-        if folder_name not in self.magic_folders:
-            self.load_magic_folders()
-        if folder_name in self.magic_folders:
-            try:
-                return self.magic_folders[folder_name][setting_name]
-            except KeyError:
-                return None
-        return None
-
-    def get_collective_dircap(self, name):
-        return self._get_magic_folder_setting(name, "collective_dircap")
-
-    def get_magic_folder_dircap(self, name):
-        return self._get_magic_folder_setting(name, "upload_dircap")
-
-    def get_magic_folder_directory(self, name):
-        return self._get_magic_folder_setting(name, "directory")
-
-    @inlineCallbacks
-    def get_magic_folders_from_rootcap(self, content=None):
-        if not content:
-            content = yield self.get_json(self.get_rootcap())
-        if content:
-            folders = defaultdict(dict)
-            for name, data in content[1]["children"].items():
-                data_dict = data[1]
-                if name.endswith(" (collective)"):
-                    prefix = name.split(" (collective)")[0]
-                    folders[prefix]["collective_dircap"] = data_dict["ro_uri"]
-                elif name.endswith(" (personal)"):
-                    prefix = name.split(" (personal)")[0]
-                    folders[prefix]["upload_dircap"] = data_dict["rw_uri"]
-                elif name.endswith(" (admin)"):
-                    prefix = name.split(" (admin)")[0]
-                    folders[prefix]["admin_dircap"] = data_dict["rw_uri"]
-            self.remote_magic_folders = folders
-            return folders
-        return None
-
-    @inlineCallbacks
-    def ensure_folder_links(self, _):
-        yield self.await_ready()
-        if not self.get_rootcap():
-            yield self.create_rootcap()
-        if self.magic_folders:
-            remote_folders = yield self.get_magic_folders_from_rootcap()
-            for folder in self.magic_folders:
-                if folder not in remote_folders:
-                    self.link_magic_folder_to_rootcap(folder)
-                else:
-                    log.debug(
-                        'Folder "%s" already linked to rootcap; ' "skipping.",
-                        folder,
-                    )
-
-    @inlineCallbacks
-    def get_magic_folder_members(self, name, content=None):
-        if not content:
-            content = yield self.get_json(self.get_collective_dircap(name))
-        if content:
-            members = []
-            children = content[1]["children"]
-            magic_folder_dircap = self.get_magic_folder_dircap(name)
-            for member in children:
-                readcap = children[member][1]["ro_uri"]
-                if magic_folder_dircap:
-                    my_fingerprint = magic_folder_dircap.split(":")[-1]
-                    fingerprint = readcap.split(":")[-1]
-                    if fingerprint == my_fingerprint:
-                        self.magic_folders[name]["member"] = member
-                        members.insert(0, (member, readcap))
-                    else:
-                        members.append((member, readcap))
-                else:
-                    members.append((member, readcap))
-            return members
-        return None
-
-    @staticmethod
-    def _extract_metadata(metadata):
-        try:
-            deleted = metadata["metadata"]["deleted"]
-        except KeyError:
-            deleted = False
-        if deleted:
-            cap = metadata["metadata"]["last_downloaded_uri"]
-        else:
-            cap = metadata["ro_uri"]
-        return {
-            "size": int(metadata["size"]),
-            "mtime": float(metadata["metadata"]["tahoe"]["linkmotime"]),
-            "deleted": deleted,
-            "cap": cap,
-        }
-
-    @inlineCallbacks
-    def get_magic_folder_state(self, name, members=None):
-        total_size = 0
-        history_dict = {}
-        if not members:
-            members = yield self.get_magic_folder_members(name)
-        if members:
-            for member, dircap in members:
-                json_data = yield self.get_json(dircap)
-                try:
-                    children = json_data[1]["children"]
-                except (TypeError, KeyError):
-                    continue
-                for filenode, data in children.items():
-                    if filenode.endswith("@_"):
-                        # Ignore subdirectories, due to Tahoe-LAFS bug #2924
-                        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2924
-                        continue
-                    try:
-                        metadata = self._extract_metadata(data[1])
-                    except KeyError:
-                        continue
-                    metadata["path"] = filenode.replace("@_", os.path.sep)
-                    metadata["member"] = member
-                    history_dict[metadata["mtime"]] = metadata
-                    total_size += metadata["size"]
-        history_od = OrderedDict(sorted(history_dict.items()))
-        latest_mtime = next(reversed(history_od), 0)
-        return members, total_size, latest_mtime, history_od
 
     @inlineCallbacks
     def scan_storage_plugins(self):

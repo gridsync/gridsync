@@ -116,8 +116,7 @@ class Core:
                         "Tor again.".format(gateway.name),
                     )
                 self.gateways.append(gateway)
-                d = gateway.start()
-                d.addCallback(gateway.ensure_folder_links)
+                gateway.start()
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()

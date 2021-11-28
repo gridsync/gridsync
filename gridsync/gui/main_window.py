@@ -307,8 +307,6 @@ class MainWindow(QMainWindow):
 
     def on_invite_received(self, gateway):
         self.populate([gateway])
-        for view in self.central_widget.views:
-            view.model().monitor.scan_rootcap("star.png")
 
     def on_invite_closed(self, obj):
         try:

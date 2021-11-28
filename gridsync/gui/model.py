@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import config_dir, resource
 from gridsync.gui.pixmap import CompositePixmap
-from gridsync.monitor import MagicFolderChecker
+from gridsync.magic_folder import MagicFolderState
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
@@ -54,18 +54,7 @@ class Model(QStandardItemModel):
         self.monitor.disconnected.connect(self.on_disconnected)
         self.monitor.nodes_updated.connect(self.on_nodes_updated)
         self.monitor.space_updated.connect(self.on_space_updated)
-        self.monitor.status_updated.connect(self.set_status)
-        self.monitor.mtime_updated.connect(self.set_mtime)
-        self.monitor.size_updated.connect(self.set_size)
-        self.monitor.members_updated.connect(self.on_members_updated)
-        self.monitor.sync_started.connect(self.on_sync_started)
-        self.monitor.sync_finished.connect(self.on_sync_finished)
-        self.monitor.files_updated.connect(self.on_updated_files)
         self.monitor.check_finished.connect(self.update_natural_times)
-        self.monitor.remote_folder_added.connect(self.add_remote_folder)
-        self.monitor.transfer_progress_updated.connect(
-            self.set_transfer_progress
-        )
 
         self.mf_monitor = self.gateway.magic_folder.monitor
         self.mf_monitor.folder_added.connect(
@@ -188,19 +177,10 @@ class Model(QStandardItemModel):
         if items:
             self.removeRow(items[0].row())
 
-    def populate(self):
-        for magic_folder in list(self.gateway.load_magic_folders().values()):
-            self.add_folder(magic_folder["directory"])
-
-    def _get_magic_folder_directory(self, folder_name: str) -> str:
-        legacy_data = self.gateway.magic_folders.get(folder_name, {})
-        data = self.gateway.magic_folder.magic_folders.get(folder_name, {})
-        return str(data.get("magic_path", legacy_data.get("directory", "")))
-
     def update_folder_icon(self, folder_name, overlay_file=None):
         items = self.findItems(folder_name)
         if items:
-            folder_path = self._get_magic_folder_directory(folder_name)
+            folder_path = self.gateway.magic_folder.get_directory(folder_name)
             if folder_path:
                 folder_icon = QFileIconProvider().icon(QFileInfo(folder_path))
             else:
@@ -219,7 +199,7 @@ class Model(QStandardItemModel):
             items[0].setToolTip(
                 "{}\n\nThis folder is private; only you can view and\nmodify "
                 "its contents.".format(
-                    self._get_magic_folder_directory(folder_name)
+                    self.gateway.magic_folder.get_directory(folder_name)
                     or folder_name + " (Stored remotely)"
                 )
             )
@@ -231,7 +211,7 @@ class Model(QStandardItemModel):
             items[0].setToolTip(
                 "{}\n\nAt least one other device can view and modify\n"
                 "this folder's contents.".format(
-                    self._get_magic_folder_directory(folder_name)
+                    self.gateway.magic_folder.get_directory(folder_name)
                     or folder_name + " (Stored remotely)"
                 )
             )
@@ -261,12 +241,12 @@ class Model(QStandardItemModel):
         if not items:
             return
         item = self.item(items[0].row(), 1)
-        if status == MagicFolderChecker.LOADING:
+        if status == MagicFolderState.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
         elif status in (
-            MagicFolderChecker.SYNCING,
-            MagicFolderChecker.SCANNING,
+            MagicFolderState.SYNCING,
+            MagicFolderState.SCANNING,
         ):
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
@@ -274,7 +254,7 @@ class Model(QStandardItemModel):
                 "This folder is syncing. New files are being uploaded or "
                 "downloaded."
             )
-        elif status == MagicFolderChecker.UP_TO_DATE:
+        elif status == MagicFolderState.UP_TO_DATE:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
             item.setToolTip(
@@ -292,7 +272,7 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
-        elif status == MagicFolderChecker.ERROR:
+        elif status == MagicFolderState.ERROR:
             errors = self._magic_folder_errors[name]
             if errors:
                 item.setIcon(self.icon_error)
@@ -360,16 +340,16 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):
-        self.set_status(folder_name, MagicFolderChecker.SYNCING)
+        self.set_status(folder_name, MagicFolderState.SYNCING)
         self.gui.core.operations.append((self.gateway, folder_name))
         self.gui.systray.update()
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
         if self._magic_folder_errors[folder_name]:
-            self.set_status(folder_name, MagicFolderChecker.ERROR)
+            self.set_status(folder_name, MagicFolderState.ERROR)
         else:
-            self.set_status(folder_name, MagicFolderChecker.UP_TO_DATE)
+            self.set_status(folder_name, MagicFolderState.UP_TO_DATE)
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:

@@ -38,20 +38,27 @@ def core():
             "storage": storage_settings,
         }
     )
-    gateway.magic_folders = OrderedDict()  # Because python3.5
-    gateway.magic_folders["TestFolder"] = {
+    gateway.magic_folder = Mock()
+    gateway.magic_folder.magic_folders = OrderedDict()  # Because python3.5
+    gateway.magic_folder.magic_folders["TestFolder"] = {
         "collective_dircap": "URI:aaa:bbb",
         "upload_dircap": "URI:ccc:ddd",
-        "admin_dircap": "URI:eee:fff",
-        "directory": "/tmp/test/TestFolder",
-        "member": "Alice",
+        "magic_path": "/tmp/test/TestFolder",
+        "author": {
+            "name": "BOB",
+            "signing_key": "SIGNINGKEY12=",
+            "verify_key": "VERIFYKEY34==",
+        },
     }
-    gateway.magic_folders["CatPics"] = {
+    gateway.magic_folder.magic_folders["CatPics"] = {
         "collective_dircap": "URI:ggg:hhh",
         "upload_dircap": "URI:iii:jjj",
-        "admin_dircap": "URI:kkk:lll",
-        "directory": "/tmp/test/CatPics",
-        "member": "Bob",
+        "magic_path": "/tmp/test/CatPics",
+        "author": {
+            "name": "ALICE",
+            "signing_key": "SIGNINGKEY56=",
+            "verify_key": "VERIFYKEY78==",
+        },
     }
     c.gui.main_window.gateways = [gateway]
     return c
@@ -87,15 +94,17 @@ def test_get_filters_pair_in_default_filters(core, pair):
         "TestFolder",
         "URI:aaa:bbb",
         "URI:ccc:ddd",
-        "URI:eee:fff",
         "/tmp/test/TestFolder",
-        "Alice",
+        "BOB",
+        "SIGNINGKEY12=",
+        "VERIFYKEY34==",
         "CatPics",
         "URI:ggg:hhh",
         "URI:iii:jjj",
-        "URI:kkk:lll",
         "/tmp/test/CatPics",
-        "Bob",
+        "ALICE",
+        "SIGNINGKEY56=",
+        "VERIFYKEY78==",
         os.path.expanduser("~"),
         "/tmp/test/tahoe.exe",
     ],
@@ -122,16 +131,18 @@ def test_apply_filters_string_not_in_result(core, string):
         ("pb://777@888.example:1234/9999", "StorageServerFurl:1:2"),
         ("URI:aaa:bbb", "Folder:1:1:CollectiveDircap"),
         ("URI:ccc:ddd", "Folder:1:1:UploadDircap"),
-        ("URI:eee:fff", "Folder:1:1:AdminDircap"),
-        ("/tmp/test/TestFolder", "Folder:1:1:Directory"),
+        ("/tmp/test/TestFolder", "Folder:1:1:MagicPath"),
         ("TestFolder", "Folder:1:1:Name"),
-        ("Alice", "Folder:1:1:Member"),
+        ("BOB", "Folder:1:1:AuthorName"),
+        ("SIGNINGKEY12=", "Folder:1:1:AuthorSigningKey"),
+        ("VERIFYKEY34==", "Folder:1:1:AuthorVerifyKey"),
         ("URI:ggg:hhh", "Folder:1:2:CollectiveDircap"),
         ("URI:iii:jjj", "Folder:1:2:UploadDircap"),
-        ("URI:kkk:lll", "Folder:1:2:AdminDircap"),
-        ("/tmp/test/CatPics", "Folder:1:2:Directory"),
+        ("/tmp/test/CatPics", "Folder:1:2:MagicPath"),
         ("CatPics", "Folder:1:2:Name"),
-        ("Bob", "Folder:1:2:Member"),
+        ("ALICE", "Folder:1:2:AuthorName"),
+        ("SIGNINGKEY56=", "Folder:1:2:AuthorSigningKey"),
+        ("VERIFYKEY78==", "Folder:1:2:AuthorVerifyKey"),
         (os.path.expanduser("~"), "HomeDir"),
         ("/tmp/test/tahoe.exe", "TahoeExecutablePath"),
     ],

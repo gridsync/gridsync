@@ -48,6 +48,14 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
+class MagicFolderState:
+    LOADING = 0
+    SYNCING = 1
+    SCANNING = 99
+    UP_TO_DATE = 2
+    ERROR = 8
+
+
 class MagicFolderMonitor(QObject):
 
     status_message_received = Signal(dict)
@@ -78,6 +86,9 @@ class MagicFolderMonitor(QObject):
     file_size_updated = Signal(str, dict)  # folder_name, status
     file_modified = Signal(str, dict)  # folder_name, status
 
+    overall_state_changed = Signal(int)  # MagicFolderState
+    total_folders_size_updated = Signal(object)  # "object" avoids overflows
+
     def __init__(self, magic_folder: MagicFolder) -> None:
         super().__init__()
         self.magic_folder = magic_folder
@@ -92,6 +103,9 @@ class MagicFolderMonitor(QObject):
         self._known_backups: List[str] = []
         self._prev_folders: Dict = {}
 
+        self._folder_sizes: Dict[str, int] = {}
+        self._total_folders_size: int = 0
+
         self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
         self._operations_queued: DefaultDict[str, set] = defaultdict(set)
         self._operations_completed: DefaultDict[str, dict] = defaultdict(dict)
@@ -99,6 +113,8 @@ class MagicFolderMonitor(QObject):
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
         self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
+
+        self._overall_state: int = MagicFolderState.LOADING
 
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
         try:
@@ -190,6 +206,19 @@ class MagicFolderMonitor(QObject):
                 folders.append(folder)
         return folders
 
+    def _check_overall_state(self) -> None:
+        if self.get_syncing_folders():  # At least one folder is syncing
+            state = MagicFolderState.SYNCING
+        elif self.errors:  # At least one folder has an error
+            state = MagicFolderState.ERROR
+        elif self.up_to_date:  # All folders are up to date
+            state = MagicFolderState.UP_TO_DATE
+        else:
+            state = MagicFolderState.LOADING
+        if state != self._overall_state:
+            self._overall_state = state
+            self.overall_state_changed.emit(state)
+
     def compare_states(
         self, current_state: Dict, previous_state: Dict
     ) -> None:
@@ -234,6 +263,7 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
+        self._check_overall_state()
 
     def compare_folders(self, folders: Dict[str, dict]) -> None:
         for folder, data in folders.items():
@@ -281,7 +311,7 @@ class MagicFolderMonitor(QObject):
             relpath = item.get("relpath", "")
             item["path"] = str(Path(magic_path, relpath).resolve())
             files[relpath] = item
-            size = int(item.get("size", 0))
+            size = int(item.get("size") or 0)  # XXX "size" is None if deleted
             sizes.append(size)
             mtime = item.get("last-updated", 0)
             if mtime > latest_mtime:
@@ -327,6 +357,14 @@ class MagicFolderMonitor(QObject):
         if current_latest_mtime != prev_latest_mtime:
             self.folder_mtime_updated.emit(folder_name, current_latest_mtime)
 
+        self._folder_sizes[folder_name] = current_total_size
+
+    def _check_total_folders_size(self) -> None:
+        total = sum(self._folder_sizes.values())
+        if total != self._total_folders_size:
+            self._total_folders_size = total
+            self.total_folders_size_updated.emit(total)
+
     def compare_files(self, folders: Dict) -> None:
         for folder_name, data in folders.items():
             self._compare_file_status(
@@ -335,6 +373,7 @@ class MagicFolderMonitor(QObject):
                 data.get("file_status", []),
                 self._prev_folders.get(folder_name, {}).get("file_status", []),
             )
+        self._check_total_folders_size()
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
@@ -584,6 +623,26 @@ class MagicFolder:
             f"/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
         )
+        # XXX
+        # try:
+        #    del self.magic_folders[folder_name]
+        # except KeyError:
+        #    pass
+
+    def get_directory(self, folder_name: str) -> str:
+        return self.magic_folders.get(folder_name, {}).get("magic_path", "")
+
+    def folder_is_local(self, folder_name: str) -> bool:
+        return bool(folder_name in self.magic_folders)
+
+    def folder_is_remote(self, folder_name: str) -> bool:
+        return bool(folder_name in self.remote_magic_folders)
+
+    def folder_exists(self, folder_name: str) -> bool:
+        return bool(
+            self.folder_is_local(folder_name)
+            or self.folder_is_remote(folder_name)
+        )
 
     @inlineCallbacks
     def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
@@ -634,14 +693,9 @@ class MagicFolder:
 
     @inlineCallbacks
     def get_object_sizes(self, folder_name: str) -> TwistedDeferred[List[int]]:
-        # XXX A placeholder for now...
-        # See https://github.com/LeastAuthority/magic-folder/pull/528
-        # and https://github.com/LeastAuthority/magic-folder/issues/570
-        sizes = []
-        file_status = yield self.get_file_status(folder_name)
-        for item in file_status:
-            # Include size of content, snapshot cap, and metadata cap
-            sizes.extend([item.get("size", 0), 420, 184])
+        sizes = yield self._request(
+            "GET", f"/magic-folder/{folder_name}/tahoe-objects"
+        )
         return sizes
 
     @inlineCallbacks
