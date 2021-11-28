@@ -150,7 +150,6 @@ class ZKAPChecker(QObject):
         self.zkaps_renewal_cost: int = 0
         self.days_remaining: int = 0
         self.unpaid_vouchers: list = []
-        self.price: dict = {}
 
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
