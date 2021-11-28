@@ -244,6 +244,12 @@ class ZKAPChecker(QObject):
 
     @inlineCallbacks
     def update_price(self):
+        # ZKAPAuthorizer.get_price() can fail with an HTTP 410 error if
+        # called too soon during tahoe startup so wait until connected
+        yield self.gateway.await_ready()
+        # MagicFolder.get_all_object_sizes() will fail with an "API
+        # token not found" error if called before MagicFolder starts
+        yield self.gateway.magic_folder.await_running()
         p = yield self.gateway.zkapauthorizer.get_price()
         price = p.get("price", 0)
         period = p.get("period", 0)
