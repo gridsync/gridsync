@@ -242,23 +242,16 @@ class ZKAPChecker(QObject):
         )
         self.update_price()  # XXX Maybe too expensive to call here?
 
-    def emit_days_remaining_updated(self):
-        price = self.price.get("price", 0)  # XXX
-        period = self.price.get("period", 0)  # XXX
+    @inlineCallbacks
+    def update_price(self):
+        p = yield self.gateway.zkapauthorizer.get_price()
+        price = p.get("price", 0)
+        period = p.get("period", 0)
+        self.zkaps_price_updated.emit(price, period)
         if price and period:
             seconds_remaining = self.zkaps_remaining / price * period
             self.days_remaining = int(seconds_remaining / 86400)
             self.days_remaining_updated.emit(self.days_remaining)
-
-    @inlineCallbacks
-    def update_price(self):
-        if self.gateway.zkap_auth_required:
-            price = yield self.gateway.zkapauthorizer.get_price()
-            self.zkaps_price_updated.emit(
-                price.get("price", 0), price.get("period", 0)
-            )
-            self.price = price
-            self.emit_days_remaining_updated()
 
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
