@@ -305,6 +305,33 @@ class MainWindow(QMainWindow):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
         self.welcome_dialog.on_restore_link_activated()
 
+    def prompt_for_export(self, gateway):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.Yes)
+        button_export = msg.button(QMessageBox.Yes)
+        button_export.setText("&Export...")
+        button_skip = msg.button(QMessageBox.No)
+        button_skip.setText("&Skip")
+        msg.setWindowTitle("Export Recovery Key?")
+        msg.setText(
+            "Before uploading any folders to {}, it is recommended that you "
+            "export a Recovery Key and store it in a safe location (such as "
+            "an encrypted USB drive or password manager).".format(gateway.name)
+        )
+        msg.setInformativeText(
+            "{} does not have access to your folders, and cannot restore "
+            "access to them. But with a Recovery Key, you can restore access "
+            "to uploaded folders in case something goes wrong (e.g., hardware "
+            "failure, accidental data-loss).<p><p><a href=https://github.com/"
+            "gridsync/gridsync/blob/master/docs/recovery-keys.md>More "
+            "information...</a>".format(gateway.name)
+        )
+        reply = msg.exec_()
+        if reply == QMessageBox.Yes:
+            self.export_recovery_key(gateway)
+
     def on_invite_received(self, gateway):
         self.populate([gateway])
 
