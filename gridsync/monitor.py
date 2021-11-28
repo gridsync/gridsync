@@ -240,6 +240,7 @@ class ZKAPChecker(QObject):
             batches_consumed,
             tokens_to_trim,
         )
+        self.update_price()  # XXX Maybe too expensive to call here?
 
     def emit_days_remaining_updated(self):
         price = self.price.get("price", 0)  # XXX
@@ -250,7 +251,7 @@ class ZKAPChecker(QObject):
             self.days_remaining_updated.emit(self.days_remaining)
 
     @inlineCallbacks
-    def update_price(self):  # XXX/TODO: Connect somewhere
+    def update_price(self):
         if self.gateway.zkap_auth_required:
             price = yield self.gateway.zkapauthorizer.get_price()
             self.zkaps_price_updated.emit(
