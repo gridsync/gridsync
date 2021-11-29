@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from pathlib import Path
 
 from PyQt5.QtCore import QItemSelectionModel, QSize, Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence
@@ -278,8 +279,11 @@ class MainWindow(QMainWindow):
             )
         self.toolbar.update_actions()  # XXX
 
-    def confirm_export(self, path):
+    def confirm_exported(self, path, gateway):
         if os.path.isfile(path):
+            Path(gateway.nodedir, "private", "recovery_key_exported").touch(
+                exist_ok=True
+            )
             logging.info("Recovery Key successfully exported")
             info(
                 self,
@@ -298,7 +302,9 @@ class MainWindow(QMainWindow):
         if not gateway:
             gateway = self.combo_box.currentData()
         self.recovery_key_exporter = RecoveryKeyExporter(self)
-        self.recovery_key_exporter.done.connect(self.confirm_export)
+        self.recovery_key_exporter.done.connect(
+            lambda path: self.confirm_exported(path, gateway)
+        )
         self.recovery_key_exporter.do_export(gateway)
 
     def import_recovery_key(self):
