@@ -284,6 +284,7 @@ class MainWindow(QMainWindow):
             Path(gateway.nodedir, "private", "recovery_key_exported").touch(
                 exist_ok=True
             )
+            gateway.recovery_key_exported = True
             logging.info("Recovery Key successfully exported")
             info(
                 self,

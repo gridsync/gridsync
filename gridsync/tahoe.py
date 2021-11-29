@@ -94,6 +94,7 @@ class Tahoe:
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
         self.settings: dict = {}
+        self.recovery_key_exported = False
 
         self.zkapauthorizer = ZKAPAuthorizer(self)
         self.zkap_auth_required: bool = False
@@ -176,6 +177,8 @@ class Tahoe:
         if os.path.exists(icon_url_path):
             with open(icon_url_path, encoding="utf-8") as f:
                 settings["icon_url"] = f.read().strip()
+        if Path(self.nodedir, "private", "recovery_key_exported").exists():
+            self.recovery_key_exported = True
         self.load_newscap()
         if self.newscap:
             settings["newscap"] = self.newscap
