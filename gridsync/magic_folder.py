@@ -406,7 +406,7 @@ class MagicFolderMonitor(QObject):
 
     def start(self) -> None:
         self._ws_reader = WebSocketReaderService(
-            f"ws://127.0.0.1:{self.magic_folder.port}/v1/status",
+            f"ws://127.0.0.1:{self.magic_folder.api_port}/v1/status",
             headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
             collector=self.on_status_message_received,
         )
@@ -437,7 +437,7 @@ class MagicFolder:
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.pidfile = Path(self.configdir, "magic-folder.pid")
         self.pid: int = 0
-        self.port: int = 0
+        self.api_port: int = 0
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
@@ -561,7 +561,7 @@ class MagicFolder:
         self.pid = yield self._run()
         self.pidfile.write_text(str(self.pid), encoding="utf-8")
         self.api_token = self._read_api_token()
-        self.port = self._read_api_port()
+        self.api_port = self._read_api_port()
         self.monitor.start()
         logging.debug("Started magic-folder")
 
@@ -576,11 +576,11 @@ class MagicFolder:
     ) -> TwistedDeferred[dict]:
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
-        if not self.port:
+        if not self.api_port:
             raise MagicFolderWebError("API port not found")
         resp = yield treq.request(
             method,
-            f"http://127.0.0.1:{self.port}/v1{path}",
+            f"http://127.0.0.1:{self.api_port}/v1{path}",
             headers={"Authorization": f"Bearer {self.api_token}"},
             data=body,
         )
