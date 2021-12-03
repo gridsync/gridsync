@@ -524,8 +524,8 @@ class MagicFolder:
             raise MagicFolderError("API client endpoint not found")
         try:
             self.port = int(api_client_endpoint.split(":")[-1])
-        except ValueError as exc:
-            raise MagicFolderError(f"Error parsing API port: {str(exc)}")
+        except ValueError as e:
+            raise MagicFolderError(f"Error parsing API port: {str(e)}") from e
 
     @inlineCallbacks
     def _run(self) -> TwistedDeferred[int]:
