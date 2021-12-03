@@ -511,25 +511,29 @@ class MagicFolder:
         self.monitor.stop()
         kill(pidfile=self.pidfile)
 
-    def _load_config(self) -> TwistedDeferred[None]:
+    def _read_api_token(self) -> str:
         try:
-            self.api_token = Path(self.configdir, "api_token").read_text(
+            api_token = Path(self.configdir, "api_token").read_text(
                 encoding="utf-8"
             )
         except OSError as e:
-            raise MagicFolderError(f"Error loading API token: {str(e)}") from e
+            raise MagicFolderError(f"Error reading API token: {str(e)}") from e
+        return api_token
+
+    def _read_api_port(self) -> int:
         try:
             endpoint = Path(self.configdir, "api_client_endpoint").read_text(
                 encoding="utf-8"
             )
         except OSError as e:
             raise MagicFolderError(
-                f"Error loading API client endpoint: {str(e)}"
+                f"Error reading API client endpoint: {str(e)}"
             ) from e
         try:
-            self.port = int(endpoint.split(":")[-1])
+            port = int(endpoint.split(":")[-1])
         except ValueError as e:
             raise MagicFolderError(f"Error parsing API port: {str(e)}") from e
+        return port
 
     @inlineCallbacks
     def _run(self) -> TwistedDeferred[int]:
@@ -556,7 +560,8 @@ class MagicFolder:
             )
         self.pid = yield self._run()
         self.pidfile.write_text(str(self.pid), encoding="utf-8")
-        self._load_config()
+        self.api_token = self._read_api_token()
+        self.api_port = self._read_api_port()
         self.monitor.start()
         logging.debug("Started magic-folder")
 
