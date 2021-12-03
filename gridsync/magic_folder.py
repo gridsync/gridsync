@@ -438,7 +438,6 @@ class MagicFolder:
         self.pidfile = Path(self.configdir, "magic-folder.pid")
         self.pid: int = 0
         self.port: int = 0
-        self.config: dict = {}
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
