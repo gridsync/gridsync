@@ -40,6 +40,10 @@ class MagicFolderError(Exception):
     pass
 
 
+class MagicFolderConfigError(MagicFolderError):
+    pass
+
+
 class MagicFolderProcessError(MagicFolderError):
     pass
 
@@ -516,7 +520,9 @@ class MagicFolder:
         try:
             api_token = p.read_text(encoding="utf-8").strip()
         except OSError as e:
-            raise MagicFolderError(f"Error reading {p.name}: {str(e)}") from e
+            raise MagicFolderConfigError(
+                f"Error reading {p.name}: {str(e)}"
+            ) from e
         return api_token
 
     def _read_api_port(self) -> int:
@@ -524,7 +530,9 @@ class MagicFolder:
         try:
             api_client_endpoint = p.read_text(encoding="utf-8").strip()
         except OSError as e:
-            raise MagicFolderError(f"Error reading {p.name}: {str(e)}") from e
+            raise MagicFolderConfigError(
+                f"Error reading {p.name}: {str(e)}"
+            ) from e
         if api_client_endpoint == "not running":
             raise MagicFolderError(
                 "API endpoint is not available; Magic-Folder is not running"
@@ -532,7 +540,9 @@ class MagicFolder:
         try:
             port = int(api_client_endpoint.split(":")[-1])
         except ValueError as e:
-            raise MagicFolderError(f"Error parsing API port: {str(e)}") from e
+            raise MagicFolderConfigError(
+                f"Error parsing API port: {str(e)}"
+            ) from e
         return port
 
     @inlineCallbacks
