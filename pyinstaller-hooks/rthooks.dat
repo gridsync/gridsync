@@ -1,0 +1,5 @@
+# Note that this file is only referenced by pyinstaller 4, which python 3 only
+{
+    "twisted.plugins": ["runtime-twisted.plugins.py"],
+    "twisted.internet.reactor": ["runtime-twisted.internet.reactor.py"],
+}
