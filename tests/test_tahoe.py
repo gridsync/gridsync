@@ -434,42 +434,54 @@ def test_concurrent_await_ready(tahoe, monkeypatch):
     The rate of polling the Tahoe node for readiness is independent of the
     number of ``await_ready`` calls made.
     """
+    from twisted.internet.task import deferLater
+
+    # The tahoe fixture gets the mock reactor fixture which can't schedule
+    # anything.  Replace it with a scheduler we control.
+    clock = MemoryReactorClock()
+    tahoe._ready_poller.clock = clock
+
     @inlineCallbacks
     def measure_poll_count(how_many_waiters):
         is_ready = False
         poll_count = 0
-        def make_ready():
-            nonlocal is_ready
-            is_ready = True
         def check_ready(self):
             nonlocal poll_count
             poll_count += 1
             return is_ready
         monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", check_ready)
 
-        # It's this long until we stop polling
-        from twisted.internet import reactor
-        from twisted.internet.task import deferLater
-        d = deferLater(reactor, 1, make_ready)
-
         # Start the polling operations
         waiters = [tahoe.await_ready() for n in range(how_many_waiters)]
 
-        yield d
+        # Let some time pass.  This gives the poller some time to poll.
+        clock.pump([0.1] * 10)
+
+        # Mark the target as ready.
+        is_ready = True
+
+        # Let some time pass so the poller can notice.
+        clock.pump([0.1] * 10)
+
+        # All of the waiters should have their result.
         yield from waiters
 
+        # Give back the counter we accumulated.
         return poll_count
 
     # Get the single caller rate
     single_count = yield measure_poll_count(1)
 
     # Then get the multi-caller rate
-    multi_count = yield measure_poll_count(10)
+    multi_count = yield measure_poll_count(100)
 
-    # There is measurement imprecision so we can't just demand the two counts
-    # are the same.  The second should at least be less than twice the first,
-    # though.
-    assert multi_count < single_count * 2
+    # Since we control the clock this measurement should be precise enough for
+    # an exact equality comparison to be safe.  In practice, floating point
+    # imprecision still means there's a little room for variation between the
+    # two measurements.  This should be stable across runs but it might not be
+    # stable across changes to the exact timing intervals used.  So allow it
+    # to happen - or not.
+    assert abs(multi_count - single_count) <= 1
 
 
 @inlineCallbacks
