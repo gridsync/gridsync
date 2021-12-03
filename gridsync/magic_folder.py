@@ -525,6 +525,10 @@ class MagicFolder:
             api_client_endpoint = p.read_text(encoding="utf-8").strip()
         except OSError as e:
             raise MagicFolderError(f"Error reading {p.name}: {str(e)}") from e
+        if api_client_endpoint == "not running":
+            raise MagicFolderError(
+                "API endpoint is not available; Magic-Folder is not running"
+            )
         try:
             port = int(api_client_endpoint.split(":")[-1])
         except ValueError as e:
