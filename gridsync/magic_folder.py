@@ -519,6 +519,13 @@ class MagicFolder:
         self.api_token = self.config.get("api_token", "")
         if not self.api_token:
             raise MagicFolderError("Could not load magic-folder API token")
+        api_client_endpoint = self.config.get("api_client_endpoint", "")
+        if not api_client_endpoint:
+            raise MagicFolderError("API client endpoint not found")
+        try:
+            self.port = int(api_client_endpoint.split(":")[-1])
+        except ValueError as exc:
+            raise MagicFolderError("Error parsing API port: %s", str(exc))
 
     @inlineCallbacks
     def _run(self) -> TwistedDeferred[Tuple[int, int]]:
