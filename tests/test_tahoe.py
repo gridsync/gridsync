@@ -429,6 +429,50 @@ def test_await_ready(tahoe, monkeypatch):
 
 
 @inlineCallbacks
+def test_concurrent_await_ready(tahoe, monkeypatch):
+    """
+    The rate of polling the Tahoe node for readiness is independent of the
+    number of ``await_ready`` calls made.
+    """
+    @inlineCallbacks
+    def measure_poll_count(how_many_waiters):
+        is_ready = False
+        poll_count = 0
+        def make_ready():
+            nonlocal is_ready
+            is_ready = True
+        def check_ready(self):
+            nonlocal poll_count
+            poll_count += 1
+            return is_ready
+        monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", check_ready)
+
+        # It's this long until we stop polling
+        from twisted.internet import reactor
+        from twisted.internet.task import deferLater
+        d = deferLater(reactor, 1, make_ready)
+
+        # Start the polling operations
+        waiters = [tahoe.await_ready() for n in range(how_many_waiters)]
+
+        yield d
+        yield from waiters
+
+        return poll_count
+
+    # Get the single caller rate
+    single_count = yield measure_poll_count(1)
+
+    # Then get the multi-caller rate
+    multi_count = yield measure_poll_count(10)
+
+    # There is measurement imprecision so we can't just demand the two counts
+    # are the same.  The second should at least be less than twice the first,
+    # though.
+    assert multi_count < single_count * 2
+
+
+@inlineCallbacks
 def test_tahoe_mkdir(tahoe, monkeypatch):
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
     monkeypatch.setattr("treq.post", fake_post)
