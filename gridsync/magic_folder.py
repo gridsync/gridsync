@@ -528,19 +528,12 @@ class MagicFolder:
             raise MagicFolderError("Error parsing API port: %s", str(exc))
 
     @inlineCallbacks
-    def _run(self) -> TwistedDeferred[Tuple[int, int]]:
+    def _run(self) -> TwistedDeferred[int]:
         result = yield self._command(
             ["run"], "Completed initial Magic Folder setup"
         )
-        pid, output = result
-        port = 0
-        for line in output.split("\n"):
-            if "Site starting on " in line and not port:  # XXX
-                try:
-                    port = int(line.split(" ")[-1])
-                except ValueError:
-                    pass
-        return (pid, port)
+        pid, _ = result
+        return pid
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
@@ -557,8 +550,7 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        result = yield self._run()
-        self.pid, self.port = result
+        self.pid = yield self._run()
         self.pidfile.write_text(str(self.pid), encoding="utf-8")
         yield self._load_config()
         self.monitor.start()
