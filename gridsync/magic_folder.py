@@ -557,7 +557,7 @@ class MagicFolder:
         self.pid = yield self._run()
         self.pidfile.write_text(str(self.pid), encoding="utf-8")
         self.api_token = self._read_api_token()
-        self.api_port = self._read_api_port()
+        self.port = self._read_api_port()
         self.monitor.start()
         logging.debug("Started magic-folder")
 
