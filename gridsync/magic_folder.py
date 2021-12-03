@@ -512,25 +512,21 @@ class MagicFolder:
         kill(pidfile=self.pidfile)
 
     def _read_api_token(self) -> str:
+        p = Path(self.configdir, "api_token")
         try:
-            api_token = Path(self.configdir, "api_token").read_text(
-                encoding="utf-8"
-            )
+            api_token = p.read_text(encoding="utf-8").strip()
         except OSError as e:
-            raise MagicFolderError(f"Error reading API token: {str(e)}") from e
+            raise MagicFolderError(f"Error reading {p.name}: {str(e)}") from e
         return api_token
 
     def _read_api_port(self) -> int:
+        p = Path(self.configdir, "api_client_endpoint")
         try:
-            endpoint = Path(self.configdir, "api_client_endpoint").read_text(
-                encoding="utf-8"
-            )
+            api_client_endpoint = p.read_text(encoding="utf-8").strip()
         except OSError as e:
-            raise MagicFolderError(
-                f"Error reading API client endpoint: {str(e)}"
-            ) from e
+            raise MagicFolderError(f"Error reading {p.name}: {str(e)}") from e
         try:
-            port = int(endpoint.split(":")[-1])
+            port = int(api_client_endpoint.split(":")[-1])
         except ValueError as e:
             raise MagicFolderError(f"Error parsing API port: {str(e)}") from e
         return port
