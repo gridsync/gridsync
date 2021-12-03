@@ -3,6 +3,15 @@
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
 
+from typing import Callable, List
+
+import attr
+
+from twisted.internet.interfaces import IReactorTime
+from twisted.internet.task import deferLater
+from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.python.failure import Failure
+
 B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 
@@ -77,3 +86,85 @@ def strip_html_tags(s):
     ts = _TagStripper()
     ts.feed(s)
     return ts.get_data()
+
+
+@attr.s
+class Poller(object):
+    """
+    Poll some asynchronous function until it signals completion, then publish
+    a notification to as many Deferreds as are waiting.
+
+    :ivar clock: The reactor to use to schedule the polling.
+    :ivar target: The asynchronous function to repeatedly call.
+    :ivar interval: The minimum time, in seconds, between polling attempts.
+
+    :ivar _idle: ``True`` if no code is waiting for completion notification,
+        ``False`` if any code is.  This does not necessarily mean the
+        asynchronous function is running at moment but it does mean this
+        ``Poller`` will at least call it again soon.
+
+    :ivar _waiting: The ``Deferred`` instances which will be fired to signal
+        completion of the current polling attempt.
+    """
+    clock : IReactorTime = attr.ib()
+    target : Callable[None, Deferred[bool]] = attr.ib()
+    interval : float = attr.ib()
+    _idle : bool = attr.ib(default=True)
+    _waiting : List[Deferred[None]] = attr.ib(default=attr.Factory(list))
+
+    def wait_for_completion(self):
+        """
+        Wait for the target function to signal completion.  For a single
+        ``Poller`` instance, any number of calls to this function will all
+        share a single polling effort and the completion notification that
+        results.
+
+        :return: A ``Deferred`` on completion.
+        """
+        waiting = Deferred()
+        self._waiting.append(waiting)
+
+        if self._idle:
+            self._idle = False
+            self._iterate_poll()
+
+        return waiting
+
+    @inlineCallbacks
+    def _iterate_poll(self):
+        """
+        Poll the target function once.
+
+        If it signals completion, deliver notifications.  If not, schedule
+        another iteration.
+        """
+        try:
+            ready = yield self.target()
+            if ready:
+                self._completed()
+            else:
+                self._schedule()
+        except Exception:
+            self._deliver_result(Failure())
+
+    def _completed(self):
+        """
+        Return to the idle state and deliver completion notification.
+        """
+        self._idle = True
+        self._deliver_result(None)
+
+    def _deliver_result(self, result):
+        """
+        Fire all waiting ``Deferred`` instances with the given result.
+        """
+        waiting = self._waiting
+        self._waiting = []
+        for w in waiting:
+            w.callback(result)
+
+    def _schedule(self):
+        """
+        Schedule the next polling iteration.
+        """
+        deferLater(self.clock, self.interval, self._iterate_poll)

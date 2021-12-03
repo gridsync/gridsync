@@ -27,6 +27,7 @@ from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import SubprocessProtocol, kill
 from gridsync.types import TwistedDeferred
+from gridsync.util import Poller
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -106,6 +107,18 @@ class Tahoe:
         self.magic_folder.monitor.sync_stopped.connect(
             self.zkapauthorizer.update_zkap_checkpoint
         )
+
+        # TODO: Replace with "readiness" API?
+        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
+        @inlineCallbacks
+        def poll():
+            ready = yield self.is_ready()
+            if ready:
+                log.debug('Connected to "%s"', self.name)
+            else:
+                log.debug('Connecting to "%s"...', self.name)
+            return ready
+        self._ready_poller = Poller(reactor, poll, 0.2)
 
     def load_newscap(self):
         news_settings = global_settings.get("news:{}".format(self.name))
@@ -559,20 +572,8 @@ class Tahoe:
             connected_servers and connected_servers >= self.shares_happy
         )
 
-    @inlineCallbacks
     def await_ready(self):
-        # TODO: Replace with "readiness" API?
-        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
-        from twisted.internet import reactor
-
-        ready = yield self.is_ready()
-        if not ready:
-            log.debug('Connecting to "%s"...', self.name)
-        while not ready:
-            yield deferLater(reactor, 0.2, lambda: None)
-            ready = yield self.is_ready()
-            if ready:
-                log.debug('Connected to "%s"', self.name)
+        return self._ready_poller.wait_for_completion()
 
     @inlineCallbacks
     def mkdir(self, parentcap=None, childname=None):
