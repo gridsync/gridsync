@@ -147,7 +147,6 @@ gif: pngs
 
 frozen-tahoe:
 	mkdir -p dist
-	mkdir -p build/tahoe-lafs
 	python3 -m virtualenv --python=python2 build/venv-tahoe
 	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
 	# so allow falling back to the user environment.
@@ -155,19 +154,15 @@ frozen-tahoe:
 	# https://github.com/pypa/virtualenv/issues/2024
 	source build/venv-tahoe/bin/activate && \
 	python --version || deactivate && \
-	pushd build/tahoe-lafs && \
 	export CFLAGS=-g0 && \
-	python -m pip install -r ../../requirements/tahoe-lafs.txt && \
-	python -m pip install -r ../../requirements/pyinstaller.txt && \
+	python -m pip install -r requirements/tahoe-lafs.txt && \
+	python -m pip install -r requirements/pyinstaller.txt && \
 	python -m pip list && \
-	cp ../../misc/tahoe.spec pyinstaller.spec && \
 	export PYTHONHASHSEED=1 && \
-	python -m PyInstaller pyinstaller.spec && \
+	python -m PyInstaller -y misc/tahoe.spec && \
 	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
 	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
-	rm -rf dist/Tahoe-LAFS/lib/python2.7 && \
-	popd && \
-	mv build/tahoe-lafs/dist/Tahoe-LAFS dist
+	rm -rf dist/Tahoe-LAFS/lib{,64}/python2.7
 
 magic-folder:
 	mkdir -p dist
