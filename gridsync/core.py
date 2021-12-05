@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import collections
 import logging
@@ -48,6 +49,7 @@ from gridsync.magic_folder import MagicFolder
 from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
 from gridsync.tor import get_tor
+from gridsync.types import TwistedDeferred
 
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
@@ -94,6 +96,22 @@ class Core:
             self.magic_folder_version = version.lstrip("Magic Folder version ")
 
     @inlineCallbacks
+    def _start_gateway(self, gateway: Tahoe) -> TwistedDeferred[None]:
+        try:
+            yield gateway.start()
+        except Exception as e:  # pylint: disable=broad-except
+            logging.critical(
+                "Error starting Tahoe-LAFS gateway for %s: %s",
+                gateway.name,
+                str(e),
+            )
+            msg.critical(
+                f"Error starting Tahoe-LAFS gateway for {gateway.name}",
+                f"{type(e).__name__}: {str(e)}",
+            )
+            reactor.stop()
+
+    @inlineCallbacks
     def start_gateways(self):
         nodedirs = get_nodedirs(config_dir)
         if nodedirs:
@@ -116,7 +134,7 @@ class Core:
                         "Tor again.".format(gateway.name),
                     )
                 self.gateways.append(gateway)
-                gateway.start()
+                self._start_gateway(gateway)
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()
