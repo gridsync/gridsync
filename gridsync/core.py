@@ -109,7 +109,7 @@ class Core:
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",
                 f"{type(e).__name__}: {str(e)}",
             )
-            reactor.stop()
+            reactor.stop()  # type: ignore
 
     @inlineCallbacks
     def start_gateways(self):
