@@ -40,6 +40,10 @@ class MagicFolderError(Exception):
     pass
 
 
+class MagicFolderConfigError(MagicFolderError):
+    pass
+
+
 class MagicFolderProcessError(MagicFolderError):
     pass
 
@@ -406,7 +410,7 @@ class MagicFolderMonitor(QObject):
 
     def start(self) -> None:
         self._ws_reader = WebSocketReaderService(
-            f"ws://127.0.0.1:{self.magic_folder.port}/v1/status",
+            f"ws://127.0.0.1:{self.magic_folder.api_port}/v1/status",
             headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
             collector=self.on_status_message_received,
         )
@@ -437,8 +441,7 @@ class MagicFolder:
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.pidfile = Path(self.configdir, "magic-folder.pid")
         self.pid: int = 0
-        self.port: int = 0
-        self.config: dict = {}
+        self.api_port: int = 0
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
@@ -512,28 +515,43 @@ class MagicFolder:
         self.monitor.stop()
         kill(pidfile=self.pidfile)
 
-    @inlineCallbacks
-    def _load_config(self) -> TwistedDeferred[None]:
-        config_output = yield self._command(["show-config"])
-        self.config = json.loads(config_output)
-        self.api_token = self.config.get("api_token", "")
-        if not self.api_token:
-            raise MagicFolderError("Could not load magic-folder API token")
+    def _read_api_token(self) -> str:
+        p = Path(self.configdir, "api_token")
+        try:
+            api_token = p.read_text(encoding="utf-8").strip()
+        except OSError as e:
+            raise MagicFolderConfigError(
+                f"Error reading {p.name}: {str(e)}"
+            ) from e
+        return api_token
+
+    def _read_api_port(self) -> int:
+        p = Path(self.configdir, "api_client_endpoint")
+        try:
+            api_client_endpoint = p.read_text(encoding="utf-8").strip()
+        except OSError as e:
+            raise MagicFolderConfigError(
+                f"Error reading {p.name}: {str(e)}"
+            ) from e
+        if api_client_endpoint == "not running":
+            raise MagicFolderError(
+                "API endpoint is not available; Magic-Folder is not running"
+            )
+        try:
+            port = int(api_client_endpoint.split(":")[-1])
+        except ValueError as e:
+            raise MagicFolderConfigError(
+                f"Error parsing API port: {str(e)}"
+            ) from e
+        return port
 
     @inlineCallbacks
-    def _run(self) -> TwistedDeferred[Tuple[int, int]]:
+    def _run(self) -> TwistedDeferred[int]:
         result = yield self._command(
             ["run"], "Completed initial Magic Folder setup"
         )
-        pid, output = result
-        port = 0
-        for line in output.split("\n"):
-            if "Site starting on " in line and not port:  # XXX
-                try:
-                    port = int(line.split(" ")[-1])
-                except ValueError:
-                    pass
-        return (pid, port)
+        pid, _ = result
+        return pid
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
@@ -550,10 +568,10 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        result = yield self._run()
-        self.pid, self.port = result
+        self.pid = yield self._run()
         self.pidfile.write_text(str(self.pid), encoding="utf-8")
-        yield self._load_config()
+        self.api_token = self._read_api_token()
+        self.api_port = self._read_api_port()
         self.monitor.start()
         logging.debug("Started magic-folder")
 
@@ -568,11 +586,11 @@ class MagicFolder:
     ) -> TwistedDeferred[dict]:
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
-        if not self.port:
+        if not self.api_port:
             raise MagicFolderWebError("API port not found")
         resp = yield treq.request(
             method,
-            f"http://127.0.0.1:{self.port}/v1{path}",
+            f"http://127.0.0.1:{self.api_port}/v1{path}",
             headers={"Authorization": f"Bearer {self.api_token}"},
             data=body,
         )
