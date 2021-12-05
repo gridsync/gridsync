@@ -184,15 +184,12 @@ class Tahoe:
             settings["newscap"] = self.newscap
         if not settings.get("rootcap"):
             settings["rootcap"] = self.get_rootcap()
-
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
             self.zkapauthorizer.zkap_unit_name = zkap_unit_name
-
-        zkap_unit_multiplier = settings.get("zkap_unit_multiplier", 0)
-        if zkap_unit_multiplier:
-            self.zkapauthorizer.zkap_unit_multiplier = zkap_unit_multiplier
-
+        self.zkapauthorizer.zkap_unit_multiplier = settings.get(
+            "zkap_unit_multiplier", 1
+        )
         self.zkapauthorizer.zkap_payment_url_root = settings.get(
             "zkap_payment_url_root", ""
         )
