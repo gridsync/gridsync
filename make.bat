@@ -74,16 +74,12 @@ call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
 call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
-call mkdir .\build\tahoe-lafs
-call pushd .\build\tahoe-lafs
-call python -m pip install -r ..\..\requirements\tahoe-lafs.txt
-call python -m pip install -r ..\..\requirements\pyinstaller.txt
+call python -m pip install -r requirements\tahoe-lafs.txt
+call python -m pip install -r requirements\pyinstaller.txt
 call python -m pip list
-call copy ..\..\misc\tahoe.spec pyinstaller.spec
 call set PYTHONHASHSEED=1
-call pyinstaller pyinstaller.spec || goto :error
+call pyinstaller -y misc/tahoe.spec || goto :error
 call set PYTHONHASHSEED=
-call move dist ..\..
 call popd
 call deactivate
 goto :eof
