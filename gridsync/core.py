@@ -95,8 +95,9 @@ class Core:
         if version:
             self.magic_folder_version = version.lstrip("Magic Folder version ")
 
+    @staticmethod
     @inlineCallbacks
-    def _start_gateway(self, gateway: Tahoe) -> TwistedDeferred[None]:
+    def _start_gateway(gateway: Tahoe) -> TwistedDeferred[None]:
         try:
             yield gateway.start()
         except Exception as e:  # pylint: disable=broad-except
