@@ -21,7 +21,7 @@ from gridsync.gui.font import Font
 
 
 class PasswordDialog(QDialog):
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         label="",
         ok_button_text="",
