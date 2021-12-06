@@ -21,7 +21,9 @@ from gridsync.gui.font import Font
 
 
 class PasswordDialog(QDialog):
-    def __init__(self, parent=None, help_text="", show_stats=True):
+    def __init__(
+        self, parent=None, help_text="", show_stats=True, ok_button_text=""
+    ):
         super().__init__(parent)
         self.setMinimumWidth(400)
 
@@ -41,6 +43,8 @@ class PasswordDialog(QDialog):
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         )
         self.button_ok = self.button_box.button(QDialogButtonBox.Ok)
+        if ok_button_text:
+            self.button_ok.setText(ok_button_text)
         self.button_ok.clicked.connect(self.accept)
         self.button_cancel = self.button_box.button(QDialogButtonBox.Cancel)
         self.button_cancel.clicked.connect(self.reject)
@@ -151,8 +155,14 @@ class PasswordDialog(QDialog):
             self.reject()
 
     @staticmethod
-    def get_password(parent=None, label=None, help_text="", show_stats=True):
-        dialog = PasswordDialog(parent, help_text, show_stats)
+    def get_password(
+        parent=None,
+        label=None,
+        help_text="",
+        show_stats=True,
+        ok_button_text="",
+    ):
+        dialog = PasswordDialog(parent, help_text, show_stats, ok_button_text)
         if label:
             dialog.label.setText(label)
         result = dialog.exec_()
