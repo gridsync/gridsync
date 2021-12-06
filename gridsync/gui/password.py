@@ -40,9 +40,9 @@ class PasswordDialog(QDialog):
         self.button_box = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         )
-        self.button_ok = self.buttonbox.button(QDialogButtonBox.Ok)
+        self.button_ok = self.button_box.button(QDialogButtonBox.Ok)
         self.button_ok.clicked.connect(self.accept)
-        self.button_cancel = self.buttonbox.button(QDialogButtonBox.Cancel)
+        self.button_cancel = self.button_box.button(QDialogButtonBox.Cancel)
         self.button_cancel.clicked.connect(self.reject)
 
         layout = QGridLayout(self)
