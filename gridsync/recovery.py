@@ -107,6 +107,7 @@ class RecoveryKeyExporter(QObject):
             "Encryption passphrase (optional):",
             "A long passphrase will help keep your files safe in the event "
             "that your Recovery Key is ever compromised.",
+            ok_button_text="Save Recovery Key...",
         )
         if ok and password:
             self._export_encrypted_recovery(gateway, password)
