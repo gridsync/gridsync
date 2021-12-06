@@ -22,12 +22,19 @@ from gridsync.gui.font import Font
 
 class PasswordDialog(QDialog):
     def __init__(
-        self, parent=None, help_text="", show_stats=True, ok_button_text=""
+        self,
+        label="",
+        ok_button_text="",
+        help_text="",
+        show_stats=True,
+        parent=None,
     ):
         super().__init__(parent)
         self.setMinimumWidth(400)
 
         self.label = QLabel("Password:")
+        if label:
+            self.label.setText(label)
         self.label.setFont(Font(14))
         self.label.setStyleSheet("color: gray")
 
@@ -156,14 +163,18 @@ class PasswordDialog(QDialog):
 
     @staticmethod
     def get_password(
-        parent=None,
         label=None,
+        ok_button_text="",
         help_text="",
         show_stats=True,
-        ok_button_text="",
+        parent=None,
     ):
-        dialog = PasswordDialog(parent, help_text, show_stats, ok_button_text)
-        if label:
-            dialog.label.setText(label)
+        dialog = PasswordDialog(
+            label=label,
+            ok_button_text=ok_button_text,
+            help_text=help_text,
+            show_stats=show_stats,
+            parent=parent,
+        )
         result = dialog.exec_()
         return (dialog.lineedit.text(), result)
