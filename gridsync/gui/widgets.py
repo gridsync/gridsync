@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import os
-
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialogButtonBox,
-    QFileDialog,
     QFormLayout,
     QGridLayout,
     QGroupBox,
     QLabel,
     QLineEdit,
     QPlainTextEdit,
-    QPushButton,
     QSizePolicy,
     QSpacerItem,
     QSpinBox,
@@ -111,28 +107,6 @@ class EncodingParameters(QWidget):
             self.happy_spinbox.setValue(value)
 
 
-class RestoreSelector(QWidget):
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-        self.lineedit = QLineEdit(self)
-        self.button = QPushButton("Select file...")
-        layout = QGridLayout(self)
-        layout.addWidget(self.lineedit, 1, 1)
-        layout.addWidget(self.button, 1, 2)
-
-        self.button.clicked.connect(self.select_file)
-
-    def select_file(self):
-        dialog = QFileDialog(self, "Select a Recovery Key")
-        dialog.setDirectory(os.path.expanduser("~"))
-        dialog.setFileMode(QFileDialog.ExistingFile)
-        if dialog.exec_():
-            selected_file = dialog.selectedFiles()[0]
-            self.lineedit.setText(selected_file)
-            self.parent.load_from_file(selected_file)
-
-
 class TahoeConfigForm(QWidget):
     def __init__(self):
         super().__init__()
@@ -145,7 +119,6 @@ class TahoeConfigForm(QWidget):
 
         self.connection_settings = ConnectionSettings()
         self.encoding_parameters = EncodingParameters()
-        self.restore_selector = RestoreSelector(self)
 
         connection_settings_gbox = QGroupBox(self)
         connection_settings_gbox.setTitle("Connection settings:")
