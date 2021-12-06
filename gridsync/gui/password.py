@@ -5,6 +5,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction,
     QDialog,
+    QDialogButtonBox,
     QGridLayout,
     QGroupBox,
     QLabel,
@@ -35,6 +36,14 @@ class PasswordDialog(QDialog):
         self.action.triggered.connect(self.toggle_visibility)
         self.lineedit.addAction(self.action, QLineEdit.TrailingPosition)
         self.lineedit.returnPressed.connect(self.accept)
+
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
+        self.button_ok = self.buttonbox.button(QDialogButtonBox.Ok)
+        self.button_ok.clicked.connect(self.accept)
+        self.button_cancel = self.buttonbox.button(QDialogButtonBox.Cancel)
+        self.button_cancel.clicked.connect(self.reject)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label, 1, 1)
@@ -76,6 +85,7 @@ class PasswordDialog(QDialog):
             layout.addWidget(gbox, 5, 1)
 
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addWidget(self.button_box, 7, 1)
 
     def update_color(self, color):
         self.rating_label.setStyleSheet("QLabel {{ color: {} }}".format(color))
