@@ -103,10 +103,10 @@ class RecoveryKeyExporter(QObject):
 
     def do_export(self, gateway):
         password, ok = PasswordDialog.get_password(
-            self.parent,
-            "Encryption passphrase (optional):",
-            "A long passphrase will help keep your files safe in the event "
-            "that your Recovery Key is ever compromised.",
+            parent=self.parent,
+            label="Encryption passphrase (optional):",
+            help_text="A long passphrase will help keep your files safe in "
+            "the event that your Recovery Key is ever compromised.",
             ok_button_text="Save Recovery Key...",
         )
         if ok and password:
@@ -188,11 +188,12 @@ class RecoveryKeyImporter(QObject):
                 "JSON decoding failed; %s is likely encrypted", self.filepath
             )
             password, ok = PasswordDialog.get_password(
-                self.parent,
-                "Decryption passphrase (required):",
-                "This Recovery Key is protected by a passphrase. Enter the "
-                "correct passphrase to decrypt it.",
+                parent=self.parent,
+                label="Decryption passphrase (required):",
+                help_text="This Recovery Key is protected by a passphrase. "
+                "Enter the correct passphrase to decrypt it.",
                 show_stats=False,
+                ok_button_text="Decrypt Recovery Key...",
             )
             if ok:
                 self._decrypt_content(content, password)
