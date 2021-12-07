@@ -105,10 +105,10 @@ class PasswordDialog(QDialog):
         layout.addWidget(self.button_box, 7, 1)
 
     def update_color(self, color: str) -> None:
-        self.rating_label.setStyleSheet("QLabel {{ color: {} }}".format(color))
+        self.rating_label.setStyleSheet(f"QLabel {{ color: {color} }}")
         self.progressbar.setStyleSheet(
-            "QProgressBar {{ background-color: transparent }}"
-            "QProgressBar::chunk {{ background-color: {} }}".format(color)
+            "QProgressBar { background-color: transparent }"
+            f"QProgressBar::chunk {{ background-color: {color} }}"
         )
 
     def toggle_visibility(self) -> None:
@@ -125,7 +125,7 @@ class PasswordDialog(QDialog):
             return
         res = zxcvbn(text)
         t = res["crack_times_display"]["offline_slow_hashing_1e4_per_second"]
-        self.time_label.setText("Time to crack: {}".format(t))
+        self.time_label.setText(f"Time to crack: {t}")
         s = res["crack_times_seconds"]["offline_slow_hashing_1e4_per_second"]
         seconds = int(s)
         if seconds == 0:
