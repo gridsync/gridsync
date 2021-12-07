@@ -6,7 +6,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import treq
 import yaml
@@ -710,9 +710,7 @@ _ZKAPAUTHZ_OPTIONAL_ITEMS = {
 }
 
 
-def storage_options_to_config(
-    options: Dict[str, Any]
-) -> Optional[Dict[str, Any]]:
+def storage_options_to_config(options: Dict) -> Optional[Dict]:
     """
     Reshape a storage-options configuration dictionary into a tahoe.cfg
     configuration dictionary.
@@ -740,3 +738,5 @@ def storage_options_to_config(
             },
             "storageclient.plugins.privatestorageio-zkapauthz-v1": zkapauthz,
         }
+
+    return None
