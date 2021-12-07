@@ -2,14 +2,12 @@
 
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
-
 from typing import Callable, List
 
 import attr
-
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.interfaces import IReactorTime
 from twisted.internet.task import deferLater
-from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.python.failure import Failure
 
 B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"

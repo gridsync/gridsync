@@ -445,10 +445,12 @@ def test_concurrent_await_ready(tahoe, monkeypatch):
     def measure_poll_count(how_many_waiters):
         is_ready = False
         poll_count = 0
+
         def check_ready(self):
             nonlocal poll_count
             poll_count += 1
             return is_ready
+
         monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", check_ready)
 
         # Start the polling operations
