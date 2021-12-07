@@ -697,6 +697,14 @@ class Tahoe:
             log.debug("No storage plugins found")
 
 
+# The names of all of the optional items in a ZKAPAuthorizer configuration
+# section.  These are optional both in the storage options object and the
+# tahoe.cfg section.
+_ZKAPAUTHZ_OPTIONAL_ITEMS = {
+    "pass-value",
+    "default-token-count",
+    "allowed-public-keys",
+}
 def storage_options_to_config(options : Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Reshape a storage-options configuration dictionary into a tahoe.cfg
@@ -712,12 +720,12 @@ def storage_options_to_config(options : Dict[str, Any]) -> Optional[Dict[str, An
             "redeemer": "ristretto",
             "ristretto-issuer-root-url": options.get("ristretto-issuer-root-url"),
         }
-        if pass_value:
-            zkapauthz["pass-value"] = pass_value
-        if default_token_count:
-            zkapauthz["default-token-count"] = default_token_count
-        if allowed_public_keys:
-            zkapauthz["allowed-public-keys"] = allowed_public_keys
+        zkapauthz.update({
+            optional_item: options.get(optional_item)
+            for optional_item
+            in _ZKAPAUTHZ_OPTIONAL_ITEMS
+            if options.get(optional_item) is not None
+        })
 
         return {
             "client": {
