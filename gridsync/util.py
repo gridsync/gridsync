@@ -106,11 +106,12 @@ class Poller(object):
     :ivar _waiting: The ``Deferred`` instances which will be fired to signal
         completion of the current polling attempt.
     """
-    clock : IReactorTime = attr.ib()
-    target : Callable[None, Deferred[bool]] = attr.ib()
-    interval : float = attr.ib()
-    _idle : bool = attr.ib(default=True)
-    _waiting : List[Deferred[None]] = attr.ib(default=attr.Factory(list))
+
+    clock: IReactorTime = attr.ib()
+    target: Callable[None, Deferred[bool]] = attr.ib()
+    interval: float = attr.ib()
+    _idle: bool = attr.ib(default=True)
+    _waiting: List[Deferred[None]] = attr.ib(default=attr.Factory(list))
 
     def wait_for_completion(self):
         """

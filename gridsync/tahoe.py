@@ -118,6 +118,7 @@ class Tahoe:
             else:
                 log.debug('Connecting to "%s"...', self.name)
             return ready
+
         self._ready_poller = Poller(reactor, poll, 0.2)
 
     def load_newscap(self):
