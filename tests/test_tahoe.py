@@ -15,7 +15,12 @@ from twisted.internet.testing import MemoryReactorClock
 
 from gridsync.crypto import randstr
 from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
-from gridsync.tahoe import Tahoe, get_nodedirs, is_valid_furl, storage_options_to_config
+from gridsync.tahoe import (
+    Tahoe,
+    get_nodedirs,
+    is_valid_furl,
+    storage_options_to_config,
+)
 
 
 def fake_get(*args, **kwargs):
@@ -237,13 +242,22 @@ def test_storage_options_to_config_unknown():
     If a storage option name is unrecognized ``storage_options_to_config``
     returns ``None``.
     """
-    assert storage_options_to_config({
-        "name": "privatestorageio-imaginary-v1",
-    }) is None
+    assert (
+        storage_options_to_config(
+            {
+                "name": "privatestorageio-imaginary-v1",
+            }
+        )
+        is None
+    )
+
 
 # The name of the tahoe.cfg section where ZKAPAuthorizer client plugin config
 # goes.
-zkapauthz_plugin_section = "storageclient.plugins.privatestorageio-zkapauthz-v1"
+zkapauthz_plugin_section = (
+    "storageclient.plugins.privatestorageio-zkapauthz-v1"
+)
+
 
 def test_storage_options_to_config_no_optional_values():
     """
@@ -251,14 +265,19 @@ def test_storage_options_to_config_no_optional_values():
     then the resulting tahoe.cfg enables the ZKAPAuthorizer plugin but has
     none of the missing options.
     """
-    config = storage_options_to_config({
-        "name": "privatestorageio-zkapauthz-v1",
-    })
-    assert config["client"]["storage.plugins"] == "privatestorageio-zkapauthz-v1"
+    config = storage_options_to_config(
+        {
+            "name": "privatestorageio-zkapauthz-v1",
+        }
+    )
+    assert (
+        config["client"]["storage.plugins"] == "privatestorageio-zkapauthz-v1"
+    )
     zkapauthz = config[zkapauthz_plugin_section]
     assert "pass_value" not in zkapauthz
     assert "default-token-count" not in zkapauthz
     assert "allowed-public-keys" not in zkapauthz
+
 
 def test_storage_options_to_config_pass_value():
     """
@@ -267,11 +286,14 @@ def test_storage_options_to_config_pass_value():
     """
     pass_value = 12345
     key = "pass-value"
-    zkapauthz = storage_options_to_config({
-        "name": "privatestorageio-zkapauthz-v1",
-        key: pass_value,
-    })[zkapauthz_plugin_section]
+    zkapauthz = storage_options_to_config(
+        {
+            "name": "privatestorageio-zkapauthz-v1",
+            key: pass_value,
+        }
+    )[zkapauthz_plugin_section]
     assert zkapauthz[key] == pass_value
+
 
 def test_storage_options_to_config_default_token_count():
     """
@@ -281,11 +303,14 @@ def test_storage_options_to_config_default_token_count():
     """
     default_token_count = 54321
     key = "default-token-count"
-    zkapauthz = storage_options_to_config({
-        "name": "privatestorageio-zkapauthz-v1",
-        key: default_token_count,
-    })[zkapauthz_plugin_section]
+    zkapauthz = storage_options_to_config(
+        {
+            "name": "privatestorageio-zkapauthz-v1",
+            key: default_token_count,
+        }
+    )[zkapauthz_plugin_section]
     assert zkapauthz[key] == default_token_count
+
 
 def test_storage_options_to_config_allowed_public_keys():
     """
@@ -295,11 +320,14 @@ def test_storage_options_to_config_allowed_public_keys():
     """
     allowed_public_keys = "Key1,Key2,Key3,Key4"
     key = "allowed-public-keys"
-    zkapauthz = storage_options_to_config({
-        "name": "privatestorageio-zkapauthz-v1",
-        key: allowed_public_keys,
-    })[zkapauthz_plugin_section]
+    zkapauthz = storage_options_to_config(
+        {
+            "name": "privatestorageio-zkapauthz-v1",
+            key: allowed_public_keys,
+        }
+    )[zkapauthz_plugin_section]
     assert zkapauthz[key] == allowed_public_keys
+
 
 def test_storage_options_to_config_lease_crawl_interval_mean():
     """
@@ -309,11 +337,14 @@ def test_storage_options_to_config_lease_crawl_interval_mean():
     """
     mean = 234
     key = "lease.crawl-interval.mean"
-    zkapauthz = storage_options_to_config({
-        "name": "privatestorageio-zkapauthz-v1",
-        key: mean,
-    })[zkapauthz_plugin_section]
+    zkapauthz = storage_options_to_config(
+        {
+            "name": "privatestorageio-zkapauthz-v1",
+            key: mean,
+        }
+    )[zkapauthz_plugin_section]
     assert zkapauthz[key] == mean
+
 
 def test_storage_options_to_config_lease_crawl_interval_range():
     """
@@ -323,11 +354,14 @@ def test_storage_options_to_config_lease_crawl_interval_range():
     """
     range_ = 456
     key = "lease.crawl-interval.range"
-    zkapauthz = storage_options_to_config({
-        "name": "privatestorageio-zkapauthz-v1",
-        key: range_,
-    })[zkapauthz_plugin_section]
+    zkapauthz = storage_options_to_config(
+        {
+            "name": "privatestorageio-zkapauthz-v1",
+            key: range_,
+        }
+    )[zkapauthz_plugin_section]
     assert zkapauthz[key] == range_
+
 
 def test_storage_options_to_config_lease_min_time_remaining():
     """
@@ -337,11 +371,14 @@ def test_storage_options_to_config_lease_min_time_remaining():
     """
     min_time = 789
     key = "lease.min-time-remaining"
-    zkapauthz = storage_options_to_config({
-        "name": "privatestorageio-zkapauthz-v1",
-        key: min_time,
-    })[zkapauthz_plugin_section]
+    zkapauthz = storage_options_to_config(
+        {
+            "name": "privatestorageio-zkapauthz-v1",
+            key: min_time,
+        }
+    )[zkapauthz_plugin_section]
     assert zkapauthz[key] == min_time
+
 
 def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
     nodedir = str(tmpdir.mkdir("TestGrid"))

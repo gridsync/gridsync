@@ -6,7 +6,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 import treq
 import yaml
@@ -708,7 +708,11 @@ _ZKAPAUTHZ_OPTIONAL_ITEMS = {
     "lease.crawl-interval.range",
     "lease.min-time-remaining",
 }
-def storage_options_to_config(options : Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+
+def storage_options_to_config(
+    options: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
     """
     Reshape a storage-options configuration dictionary into a tahoe.cfg
     configuration dictionary.
@@ -721,14 +725,17 @@ def storage_options_to_config(options : Dict[str, Any]) -> Optional[Dict[str, An
 
         zkapauthz = {
             "redeemer": "ristretto",
-            "ristretto-issuer-root-url": options.get("ristretto-issuer-root-url"),
+            "ristretto-issuer-root-url": options.get(
+                "ristretto-issuer-root-url"
+            ),
         }
-        zkapauthz.update({
-            optional_item: options.get(optional_item)
-            for optional_item
-            in _ZKAPAUTHZ_OPTIONAL_ITEMS
-            if options.get(optional_item) is not None
-        })
+        zkapauthz.update(
+            {
+                optional_item: options.get(optional_item)
+                for optional_item in _ZKAPAUTHZ_OPTIONAL_ITEMS
+                if options.get(optional_item) is not None
+            }
+        )
 
         return {
             "client": {
