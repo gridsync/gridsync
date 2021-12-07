@@ -301,6 +301,48 @@ def test_storage_options_to_config_allowed_public_keys():
     })[zkapauthz_plugin_section]
     assert zkapauthz[key] == allowed_public_keys
 
+def test_storage_options_to_config_lease_crawl_interval_mean():
+    """
+    If ``lease.crawl-interval.mean`` is present in the storage options then it
+    is included in the resulting configuration's ZKAPAuthorizer client plugin
+    section.
+    """
+    mean = 234
+    key = "lease.crawl-interval.mean"
+    zkapauthz = storage_options_to_config({
+        "name": "privatestorageio-zkapauthz-v1",
+        key: mean,
+    })[zkapauthz_plugin_section]
+    assert zkapauthz[key] == mean
+
+def test_storage_options_to_config_lease_crawl_interval_range():
+    """
+    If ``lease.crawl-interval.range`` is present in the storage options then it
+    is included in the resulting configuration's ZKAPAuthorizer client plugin
+    section.
+    """
+    range_ = 456
+    key = "lease.crawl-interval.range"
+    zkapauthz = storage_options_to_config({
+        "name": "privatestorageio-zkapauthz-v1",
+        key: range_,
+    })[zkapauthz_plugin_section]
+    assert zkapauthz[key] == range_
+
+def test_storage_options_to_config_lease_min_time_remaining():
+    """
+    If ``lease.min-time-remaining`` is present in the storage options then it
+    is included in the resulting configuration's ZKAPAuthorizer client plugin
+    section.
+    """
+    min_time = 789
+    key = "lease.min-time-remaining"
+    zkapauthz = storage_options_to_config({
+        "name": "privatestorageio-zkapauthz-v1",
+        key: min_time,
+    })[zkapauthz_plugin_section]
+    assert zkapauthz[key] == min_time
+
 def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))

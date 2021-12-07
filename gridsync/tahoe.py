@@ -704,6 +704,9 @@ _ZKAPAUTHZ_OPTIONAL_ITEMS = {
     "pass-value",
     "default-token-count",
     "allowed-public-keys",
+    "lease.crawl-interval.mean",
+    "lease.crawl-interval.range",
+    "lease.min-time-remaining",
 }
 def storage_options_to_config(options : Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
