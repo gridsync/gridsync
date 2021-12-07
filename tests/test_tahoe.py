@@ -434,8 +434,6 @@ def test_concurrent_await_ready(tahoe, monkeypatch):
     The rate of polling the Tahoe node for readiness is independent of the
     number of ``await_ready`` calls made.
     """
-    from twisted.internet.task import deferLater
-
     # The tahoe fixture gets the mock reactor fixture which can't schedule
     # anything.  Replace it with a scheduler we control.
     clock = MemoryReactorClock()

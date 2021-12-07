@@ -13,7 +13,6 @@ import yaml
 from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
-from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
 from gridsync import settings as global_settings
