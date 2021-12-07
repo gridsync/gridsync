@@ -63,7 +63,7 @@ warning_text = (
     "#                                                                  #\n"
     "#  WARNING: The following logs may contain sensitive information!  #\n"
     "#  Please exercise appropriate caution and review them carefully   #\n"
-    "#  before copying, exporting, or otherwise sharing with others!    #\n"
+    "#  before copying, saving, or otherwise sharing with others!       #\n"
     "#                                                                  #\n"
     "####################################################################\n\n"
 )
@@ -186,7 +186,7 @@ class DebugExporter(QDialog):
         self.copy_button = QPushButton("Copy to clipboard")
         self.copy_button.clicked.connect(self.copy_to_clipboard)
 
-        self.export_button = QPushButton("Export to file...")
+        self.export_button = QPushButton("Save to file...")
         self.export_button.setDefault(True)
         self.export_button.clicked.connect(self.export_to_file)
 
@@ -263,6 +263,6 @@ class DebugExporter(QDialog):
                 f.write(self.plaintextedit.toPlainText())
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
-            error(self, "Error exporting debug information", str(e))
+            error(self, "Error saving debug information", str(e))
             return
         self.close()
