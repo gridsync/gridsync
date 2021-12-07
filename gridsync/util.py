@@ -87,7 +87,7 @@ def strip_html_tags(s):
 
 
 @attr.s
-class Poller(object):
+class Poller:
     """
     Poll some asynchronous function until it signals completion, then publish
     a notification to as many Deferreds as are waiting.
