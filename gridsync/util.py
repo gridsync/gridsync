@@ -143,7 +143,7 @@ class Poller:
                 self._completed()
             else:
                 self._schedule()
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             self._deliver_result(Failure())
 
     def _completed(self):
