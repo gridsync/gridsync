@@ -106,7 +106,7 @@ class Poller(object):
     """
 
     clock: IReactorTime = attr.ib()
-    target: Callable[None, Deferred[bool]] = attr.ib()
+    target: Callable[[], Deferred[bool]] = attr.ib()
     interval: float = attr.ib()
     _idle: bool = attr.ib(default=True)
     _waiting: List[Deferred[None]] = attr.ib(default=attr.Factory(list))
