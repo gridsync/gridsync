@@ -285,18 +285,18 @@ class MainWindow(QMainWindow):
                 exist_ok=True
             )
             gateway.recovery_key_exported = True
-            logging.info("Recovery Key successfully exported")
+            logging.info("Recovery Key successfully created")
             info(
                 self,
-                "Export successful",
-                "Recovery Key successfully exported to {}".format(path),
+                "Recovery Key created",
+                f"Recovery Key successfully saved to {path}",
             )
         else:
-            logging.error("Error exporting Recovery Key; file not found.")
+            logging.error("Error creating Recovery Key; file not found.")
             error(
                 self,
-                "Error exporting Recovery Key",
-                "Destination file not found after export: {}".format(path),
+                "Error creating Recovery Key",
+                f"Destination file not found after saving: {path}",
             )
 
     def export_recovery_key(self, gateway=None):
@@ -318,22 +318,22 @@ class MainWindow(QMainWindow):
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setDefaultButton(QMessageBox.Yes)
         button_export = msg.button(QMessageBox.Yes)
-        button_export.setText("&Export...")
+        button_export.setText("&Create...")
         button_skip = msg.button(QMessageBox.No)
         button_skip.setText("&Skip")
-        msg.setWindowTitle("Export Recovery Key?")
+        msg.setWindowTitle("Create Recovery Key?")
         msg.setText(
-            "Before uploading any folders to {}, it is recommended that you "
-            "export a Recovery Key and store it in a safe location (such as "
-            "an encrypted USB drive or password manager).".format(gateway.name)
+            f"Before uploading any folders to {gateway.name}, it is "
+            "recommended that you create a Recovery Key and store it in a safe"
+            " location (such as an encrypted USB drive or password manager)."
         )
         msg.setInformativeText(
-            "{} does not have access to your folders, and cannot restore "
-            "access to them. But with a Recovery Key, you can restore access "
-            "to uploaded folders in case something goes wrong (e.g., hardware "
-            "failure, accidental data-loss).<p><p><a href=https://github.com/"
-            "gridsync/gridsync/blob/master/docs/recovery-keys.md>More "
-            "information...</a>".format(gateway.name)
+            f"{gateway.name} does not have access to your folders, and cannot "
+            "restore access to them. But with a Recovery Key, you can restore "
+            "access to uploaded folders in case something goes wrong (e.g., "
+            "hardware failure, accidental data-loss).<p><p><a href=https://"
+            "github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md>"
+            "More information...</a>"
         )
         reply = msg.exec_()
         if reply == QMessageBox.Yes:

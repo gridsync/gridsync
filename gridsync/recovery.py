@@ -97,7 +97,7 @@ class RecoveryKeyExporter(QObject):
         try:
             gateway.export(dest, include_secrets=True)
         except Exception as e:  # pylint: disable=broad-except
-            error(self.parent, "Error exporting Recovery Key", str(e))
+            error(self.parent, "Error creating Recovery Key", str(e))
             return
         self.done.emit(dest)
 
