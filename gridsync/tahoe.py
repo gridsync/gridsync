@@ -719,10 +719,6 @@ def storage_options_to_config(
     """
     name = options.get("name")
     if name == "privatestorageio-zkapauthz-v1":
-        pass_value = options.get("pass-value")
-        default_token_count = options.get("default-token-count")
-        allowed_public_keys = options.get("allowed-public-keys")
-
         zkapauthz = {
             "redeemer": "ristretto",
             "ristretto-issuer-root-url": options.get(
