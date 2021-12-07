@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Tuple
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
@@ -19,15 +22,18 @@ from zxcvbn import zxcvbn
 from gridsync import resource
 from gridsync.gui.font import Font
 
+if TYPE_CHECKING:
+    from PyQt5.QtCore import QEvent
+
 
 class PasswordDialog(QDialog):
     def __init__(  # pylint: disable=too-many-arguments
         self,
-        label="",
-        ok_button_text="",
-        help_text="",
-        show_stats=True,
-        parent=None,
+        label: str = "",
+        ok_button_text: str = "",
+        help_text: str = "",
+        show_stats: bool = True,
+        parent: bool = None,
     ):
         super().__init__(parent)
         self.setMinimumWidth(400)
@@ -98,20 +104,20 @@ class PasswordDialog(QDialog):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
         layout.addWidget(self.button_box, 7, 1)
 
-    def update_color(self, color):
+    def update_color(self, color: str) -> None:
         self.rating_label.setStyleSheet("QLabel {{ color: {} }}".format(color))
         self.progressbar.setStyleSheet(
             "QProgressBar {{ background-color: transparent }}"
             "QProgressBar::chunk {{ background-color: {} }}".format(color)
         )
 
-    def toggle_visibility(self):
+    def toggle_visibility(self) -> None:
         if self.lineedit.echoMode() == QLineEdit.Password:
             self.lineedit.setEchoMode(QLineEdit.Normal)
         else:
             self.lineedit.setEchoMode(QLineEdit.Password)
 
-    def update_stats(self, text):  # noqa: max-complexity=11 XXX
+    def update_stats(self, text: str) -> None:  # noqa: max-complexity=11 XXX
         if not text:
             self.time_label.setText("")
             self.rating_label.setText("")
@@ -157,18 +163,18 @@ class PasswordDialog(QDialog):
         else:
             self.rating_label.setToolTip(None)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.reject()
 
     @staticmethod
     def get_password(
-        label=None,
-        ok_button_text="",
-        help_text="",
-        show_stats=True,
-        parent=None,
-    ):
+        label: str = "",
+        ok_button_text: str = "",
+        help_text: str = "",
+        show_stats: bool = True,
+        parent: bool = None,
+    ) -> Tuple[str, bool]:
         dialog = PasswordDialog(
             label=label,
             ok_button_text=ok_button_text,
