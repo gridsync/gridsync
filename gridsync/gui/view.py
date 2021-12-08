@@ -160,6 +160,7 @@ class View(QTreeView):
         if (
             self.isVisible()
             and self.gateway.state == Tahoe.STARTED
+            and self.gateway.rootcap_manager.get_rootcap()
             and not self.gateway.recovery_key_exported
             and not self.recovery_prompt_shown
         ):
