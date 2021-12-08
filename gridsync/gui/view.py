@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt
+from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
 from PyQt5.QtWidgets import (
     QAbstractItemView,
@@ -573,3 +573,12 @@ class View(QTreeView):
                 geometry.height() - 24,
             )
         super().paintEvent(event)
+
+    def showEvent(self, _) -> None:
+        # Wrapping this in a timer makes it fire *after* all events in
+        # the queue have been processed -- in this case, those needed
+        # to actually render or show this view to the user; without it,
+        # the prompt will be displayed -- and will block -- before the
+        # other underlying UI elements are fully drawn (leading to the
+        # appearance of a "blank" window beneath the dialog).
+        QTimer.singleShot(0, self.maybe_prompt_for_recovery)
