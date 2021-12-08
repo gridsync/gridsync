@@ -167,8 +167,8 @@ class View(QTreeView):
                 self.gateway.monitor.zkap_checker.zkaps_total
                 or not self.gateway.zkap_auth_required
             ):
-                self.gui.main_window.prompt_for_export(self.gateway)
                 self.recovery_prompt_shown = True
+                self.gui.main_window.prompt_for_export(self.gateway)
 
     def show_drop_label(self, _=None):
         if not self.model().rowCount():
