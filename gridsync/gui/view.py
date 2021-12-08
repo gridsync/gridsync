@@ -31,6 +31,7 @@ from gridsync.gui.share import InviteSenderDialog
 from gridsync.gui.widgets import ClickableLabel
 from gridsync.magic_folder import MagicFolderState
 from gridsync.msg import error
+from gridsync.tahoe import Tahoe
 from gridsync.util import humanized_list
 
 
@@ -87,6 +88,7 @@ class View(QTreeView):
         super().__init__()
         self.gui = gui
         self.gateway = gateway
+        self.recovery_prompt_shown: bool = False
         self.invite_sender_dialogs = []
         self.setModel(Model(self))
         self.setItemDelegate(Delegate(self))
@@ -151,6 +153,20 @@ class View(QTreeView):
 
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
+
+    def maybe_prompt_for_recovery(self) -> None:
+        if (
+            self.isVisible()
+            and self.gateway.state == Tahoe.STARTED
+            and not self.gateway.recovery_key_exported
+            and not self.recovery_prompt_shown
+        ):
+            if (
+                self.gateway.monitor.zkap_checker.zkaps_total
+                or not self.gateway.zkap_auth_required
+            ):
+                self.gui.main_window.prompt_for_export(self.gateway)
+                self.recovery_prompt_shown = True
 
     def show_drop_label(self, _=None):
         if not self.model().rowCount():
