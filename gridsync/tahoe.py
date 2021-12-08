@@ -6,7 +6,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import treq
 import yaml
@@ -277,45 +277,13 @@ class Tahoe:
                     "Skipping unknown storage plugin option: %s", options
                 )
                 continue
-            name = options.get("name")
-            if name == "privatestorageio-zkapauthz-v1":
-                # TODO: Append name instead of setting/overriding?
-                self.config_set("client", "storage.plugins", name)
-                self.config_set(
-                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                    "redeemer",
-                    "ristretto",
-                )
-                self.config_set(
-                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                    "ristretto-issuer-root-url",
-                    options.get("ristretto-issuer-root-url"),
-                )
-                pass_value = options.get("pass-value")
-                if pass_value:
-                    self.config_set(
-                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                        "pass-value",
-                        pass_value,
-                    )
-                default_token_count = options.get("default-token-count")
-                if default_token_count:
-                    self.config_set(
-                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                        "default-token-count",
-                        default_token_count,
-                    )
-                allowed_public_keys = options.get("allowed-public-keys")
-                if allowed_public_keys:
-                    self.config_set(
-                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                        "allowed-public-keys",
-                        allowed_public_keys,
-                    )
-            else:
+            config = storage_options_to_config(options)
+            if config is None:
                 log.warning(
                     "Skipping unknown storage plugin option: %s", options
                 )
+            else:
+                self.config.save(config)
 
     def add_storage_server(
         self, server_id, furl, nickname=None, storage_options=None
@@ -728,3 +696,48 @@ class Tahoe:
             log.debug("Found storage plugins: %s", plugins)
         else:
             log.debug("No storage plugins found")
+
+
+# The names of all of the optional items in a ZKAPAuthorizer configuration
+# section.  These are optional both in the storage options object and the
+# tahoe.cfg section.
+_ZKAPAUTHZ_OPTIONAL_ITEMS = {
+    "pass-value",
+    "default-token-count",
+    "allowed-public-keys",
+    "lease.crawl-interval.mean",
+    "lease.crawl-interval.range",
+    "lease.min-time-remaining",
+}
+
+
+def storage_options_to_config(options: Dict) -> Optional[Dict]:
+    """
+    Reshape a storage-options configuration dictionary into a tahoe.cfg
+    configuration dictionary.
+    """
+    name = options.get("name")
+    if name == "privatestorageio-zkapauthz-v1":
+        zkapauthz = {
+            "redeemer": "ristretto",
+            "ristretto-issuer-root-url": options.get(
+                "ristretto-issuer-root-url"
+            ),
+        }
+        zkapauthz.update(
+            {
+                optional_item: options.get(optional_item)
+                for optional_item in _ZKAPAUTHZ_OPTIONAL_ITEMS
+                if options.get(optional_item) is not None
+            }
+        )
+
+        return {
+            "client": {
+                # TODO: Append name instead of setting/overriding?
+                "storage.plugins": name,
+            },
+            "storageclient.plugins.privatestorageio-zkapauthz-v1": zkapauthz,
+        }
+
+    return None
