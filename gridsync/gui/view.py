@@ -154,6 +154,8 @@ class View(QTreeView):
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
 
+        self.gateway.monitor.connected.connect(self.maybe_prompt_for_recovery)
+
     def maybe_prompt_for_recovery(self) -> None:
         if (
             self.isVisible()
