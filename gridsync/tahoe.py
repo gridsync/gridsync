@@ -6,14 +6,13 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import treq
 import yaml
 from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
-from twisted.internet.task import deferLater
 from twisted.python.procutils import which
 
 from gridsync import settings as global_settings
@@ -27,6 +26,7 @@ from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import SubprocessProtocol, kill
 from gridsync.types import TwistedDeferred
+from gridsync.util import Poller
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -107,6 +107,19 @@ class Tahoe:
         self.magic_folder.monitor.sync_stopped.connect(
             self.zkapauthorizer.update_zkap_checkpoint
         )
+
+        # TODO: Replace with "readiness" API?
+        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
+        @inlineCallbacks
+        def poll():
+            ready = yield self.is_ready()
+            if ready:
+                log.debug('Connected to "%s"', self.name)
+            else:
+                log.debug('Connecting to "%s"...', self.name)
+            return ready
+
+        self._ready_poller = Poller(reactor, poll, 0.2)
 
     def load_newscap(self):
         news_settings = global_settings.get("news:{}".format(self.name))
@@ -264,45 +277,13 @@ class Tahoe:
                     "Skipping unknown storage plugin option: %s", options
                 )
                 continue
-            name = options.get("name")
-            if name == "privatestorageio-zkapauthz-v1":
-                # TODO: Append name instead of setting/overriding?
-                self.config_set("client", "storage.plugins", name)
-                self.config_set(
-                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                    "redeemer",
-                    "ristretto",
-                )
-                self.config_set(
-                    "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                    "ristretto-issuer-root-url",
-                    options.get("ristretto-issuer-root-url"),
-                )
-                pass_value = options.get("pass-value")
-                if pass_value:
-                    self.config_set(
-                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                        "pass-value",
-                        pass_value,
-                    )
-                default_token_count = options.get("default-token-count")
-                if default_token_count:
-                    self.config_set(
-                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                        "default-token-count",
-                        default_token_count,
-                    )
-                allowed_public_keys = options.get("allowed-public-keys")
-                if allowed_public_keys:
-                    self.config_set(
-                        "storageclient.plugins.privatestorageio-zkapauthz-v1",
-                        "allowed-public-keys",
-                        allowed_public_keys,
-                    )
-            else:
+            config = storage_options_to_config(options)
+            if config is None:
                 log.warning(
                     "Skipping unknown storage plugin option: %s", options
                 )
+            else:
+                self.config.save(config)
 
     def add_storage_server(
         self, server_id, furl, nickname=None, storage_options=None
@@ -559,20 +540,8 @@ class Tahoe:
             connected_servers and connected_servers >= self.shares_happy
         )
 
-    @inlineCallbacks
     def await_ready(self):
-        # TODO: Replace with "readiness" API?
-        # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
-        from twisted.internet import reactor
-
-        ready = yield self.is_ready()
-        if not ready:
-            log.debug('Connecting to "%s"...', self.name)
-        while not ready:
-            yield deferLater(reactor, 0.2, lambda: None)
-            ready = yield self.is_ready()
-            if ready:
-                log.debug('Connected to "%s"', self.name)
+        return self._ready_poller.wait_for_completion()
 
     @inlineCallbacks
     def mkdir(self, parentcap=None, childname=None):
@@ -727,3 +696,48 @@ class Tahoe:
             log.debug("Found storage plugins: %s", plugins)
         else:
             log.debug("No storage plugins found")
+
+
+# The names of all of the optional items in a ZKAPAuthorizer configuration
+# section.  These are optional both in the storage options object and the
+# tahoe.cfg section.
+_ZKAPAUTHZ_OPTIONAL_ITEMS = {
+    "pass-value",
+    "default-token-count",
+    "allowed-public-keys",
+    "lease.crawl-interval.mean",
+    "lease.crawl-interval.range",
+    "lease.min-time-remaining",
+}
+
+
+def storage_options_to_config(options: Dict) -> Optional[Dict]:
+    """
+    Reshape a storage-options configuration dictionary into a tahoe.cfg
+    configuration dictionary.
+    """
+    name = options.get("name")
+    if name == "privatestorageio-zkapauthz-v1":
+        zkapauthz = {
+            "redeemer": "ristretto",
+            "ristretto-issuer-root-url": options.get(
+                "ristretto-issuer-root-url"
+            ),
+        }
+        zkapauthz.update(
+            {
+                optional_item: options.get(optional_item)
+                for optional_item in _ZKAPAUTHZ_OPTIONAL_ITEMS
+                if options.get(optional_item) is not None
+            }
+        )
+
+        return {
+            "client": {
+                # TODO: Append name instead of setting/overriding?
+                "storage.plugins": name,
+            },
+            "storageclient.plugins.privatestorageio-zkapauthz-v1": zkapauthz,
+        }
+
+    return None
