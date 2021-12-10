@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+import traceback
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
@@ -154,7 +155,25 @@ class View(QTreeView):
         self.doubleClicked.connect(self.on_double_click)
         self.customContextMenuRequested.connect(self.on_right_click)
 
+        self.gateway.monitor.zkaps_available.connect(self._create_rootcap)
         self.gateway.monitor.connected.connect(self.maybe_prompt_for_recovery)
+
+    @inlineCallbacks
+    def _create_rootcap(self):
+        # There's probably a better place/module for this...
+        try:
+            yield self.gateway.create_rootcap()
+        except Exception as exc:  # pylint: disable=broad-except
+            error(
+                self,
+                "Error creating rootcap",
+                f"Could not create rootcap: {str(exc)}",
+                "".join(
+                    traceback.format_exception(
+                        etype=type(exc), value=exc, tb=exc.__traceback__
+                    )
+                ),
+            )
 
     def maybe_prompt_for_recovery(self) -> None:
         if (

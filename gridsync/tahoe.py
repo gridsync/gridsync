@@ -103,7 +103,6 @@ class Tahoe:
         self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
-        self.monitor.zkaps_available.connect(self.create_rootcap)
         self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
         self.magic_folder.monitor.sync_stopped.connect(
             self.zkapauthorizer.update_zkap_checkpoint
