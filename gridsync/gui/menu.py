@@ -49,7 +49,7 @@ class Menu(QMenu):
                     lambda: webbrowser.open(settings["help"]["issues_url"])
                 )
                 help_menu.addAction(issue_action)
-        export_action = QAction(QIcon(""), "Export Debug Information...", self)
+        export_action = QAction(QIcon(""), "View Debug Information...", self)
         export_action.triggered.connect(self.gui.show_debug_exporter)
         help_menu.addAction(export_action)
         help_menu.addSeparator()

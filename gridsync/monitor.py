@@ -130,6 +130,7 @@ def _parse_vouchers(
 class ZKAPChecker(QObject):
 
     zkaps_updated = pyqtSignal(int, int)  # used, remaining
+    zkaps_available = pyqtSignal()
     zkaps_redeemed = pyqtSignal(str)  # timestamp
     zkaps_renewal_cost_updated = pyqtSignal(int)
     zkaps_price_updated = pyqtSignal(int, int)
@@ -260,6 +261,7 @@ class ZKAPChecker(QObject):
 
     @inlineCallbacks  # noqa: max-complexity
     def do_check(self):  # noqa: max-complexity
+        # XXX/TODO This is all truly awful; clean this up.
         if self._time_started is None:
             self._time_started = datetime.now()
         if not self.gateway.zkap_auth_required or self.gateway.nodeurl is None:
@@ -299,9 +301,13 @@ class ZKAPChecker(QObject):
             # https://github.com/PrivateStorageio/ZKAPAuthorizer/issues/124
             total = remaining
         if remaining != self.zkaps_remaining or total != self.zkaps_total:
+            self.emit_zkaps_updated(remaining, total)
+            if not self.zkaps_remaining and remaining:
+                # Some (non-zero) amount of ZKAPs are now available --
+                # in other words, the grid is now "writeable"
+                self.zkaps_available.emit()
             self.zkaps_remaining = remaining
             self.zkaps_total = total
-            self.emit_zkaps_updated(remaining, total)
         elif not remaining or not total:
             self.emit_zkaps_updated(remaining, total)
         spending = zkaps.get("lease-maintenance-spending")
@@ -344,6 +350,7 @@ class Monitor(QObject):
     check_finished = pyqtSignal()
 
     zkaps_updated = pyqtSignal(int, int)
+    zkaps_available = pyqtSignal()
     zkaps_redeemed = pyqtSignal(str)
     zkaps_renewal_cost_updated = pyqtSignal(int)
     zkaps_price_updated = pyqtSignal(int, int)
@@ -364,6 +371,7 @@ class Monitor(QObject):
 
         self.zkap_checker = ZKAPChecker(self.gateway)
         self.zkap_checker.zkaps_updated.connect(self.zkaps_updated.emit)
+        self.zkap_checker.zkaps_available.connect(self.zkaps_available.emit)
         self.zkap_checker.zkaps_redeemed.connect(self.zkaps_redeemed.emit)
         self.zkap_checker.zkaps_renewal_cost_updated.connect(
             self.zkaps_renewal_cost_updated.emit

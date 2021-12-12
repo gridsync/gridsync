@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Tuple
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction,
     QDialog,
+    QDialogButtonBox,
     QGridLayout,
     QGroupBox,
     QLabel,
@@ -18,13 +22,25 @@ from zxcvbn import zxcvbn
 from gridsync import resource
 from gridsync.gui.font import Font
 
+if TYPE_CHECKING:
+    from PyQt5.QtCore import QEvent
+
 
 class PasswordDialog(QDialog):
-    def __init__(self, parent=None, help_text="", show_stats=True):
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        label: str = "",
+        ok_button_text: str = "",
+        help_text: str = "",
+        show_stats: bool = True,
+        parent: bool = None,
+    ):
         super().__init__(parent)
         self.setMinimumWidth(400)
 
         self.label = QLabel("Password:")
+        if label:
+            self.label.setText(label)
         self.label.setFont(Font(14))
         self.label.setStyleSheet("color: gray")
 
@@ -35,6 +51,16 @@ class PasswordDialog(QDialog):
         self.action.triggered.connect(self.toggle_visibility)
         self.lineedit.addAction(self.action, QLineEdit.TrailingPosition)
         self.lineedit.returnPressed.connect(self.accept)
+
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
+        self.button_ok = self.button_box.button(QDialogButtonBox.Ok)
+        if ok_button_text:
+            self.button_ok.setText(ok_button_text)
+        self.button_ok.clicked.connect(self.accept)
+        self.button_cancel = self.button_box.button(QDialogButtonBox.Cancel)
+        self.button_cancel.clicked.connect(self.reject)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label, 1, 1)
@@ -76,21 +102,22 @@ class PasswordDialog(QDialog):
             layout.addWidget(gbox, 5, 1)
 
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addWidget(self.button_box, 7, 1)
 
-    def update_color(self, color):
-        self.rating_label.setStyleSheet("QLabel {{ color: {} }}".format(color))
+    def update_color(self, color: str) -> None:
+        self.rating_label.setStyleSheet(f"QLabel {{ color: {color} }}")
         self.progressbar.setStyleSheet(
-            "QProgressBar {{ background-color: transparent }}"
-            "QProgressBar::chunk {{ background-color: {} }}".format(color)
+            "QProgressBar { background-color: transparent }"
+            f"QProgressBar::chunk {{ background-color: {color} }}"
         )
 
-    def toggle_visibility(self):
+    def toggle_visibility(self) -> None:
         if self.lineedit.echoMode() == QLineEdit.Password:
             self.lineedit.setEchoMode(QLineEdit.Normal)
         else:
             self.lineedit.setEchoMode(QLineEdit.Password)
 
-    def update_stats(self, text):  # noqa: max-complexity=11 XXX
+    def update_stats(self, text: str) -> None:  # noqa: max-complexity=11 XXX
         if not text:
             self.time_label.setText("")
             self.rating_label.setText("")
@@ -98,7 +125,7 @@ class PasswordDialog(QDialog):
             return
         res = zxcvbn(text)
         t = res["crack_times_display"]["offline_slow_hashing_1e4_per_second"]
-        self.time_label.setText("Time to crack: {}".format(t))
+        self.time_label.setText(f"Time to crack: {t}")
         s = res["crack_times_seconds"]["offline_slow_hashing_1e4_per_second"]
         seconds = int(s)
         if seconds == 0:
@@ -136,14 +163,24 @@ class PasswordDialog(QDialog):
         else:
             self.rating_label.setToolTip(None)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.reject()
 
     @staticmethod
-    def get_password(parent=None, label=None, help_text="", show_stats=True):
-        dialog = PasswordDialog(parent, help_text, show_stats)
-        if label:
-            dialog.label.setText(label)
+    def get_password(
+        label: str = "",
+        ok_button_text: str = "",
+        help_text: str = "",
+        show_stats: bool = True,
+        parent: bool = None,
+    ) -> Tuple[str, bool]:
+        dialog = PasswordDialog(
+            label=label,
+            ok_button_text=ok_button_text,
+            help_text=help_text,
+            show_stats=show_stats,
+            parent=parent,
+        )
         result = dialog.exec_()
         return (dialog.lineedit.text(), result)

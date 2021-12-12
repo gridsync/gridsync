@@ -43,7 +43,10 @@ class RootcapManager:
     def create_rootcap(self) -> TwistedDeferred[str]:
         logging.debug("Creating rootcap...")
         if self._rootcap_path.exists():
-            raise OSError(f"Rootcap file already exists: {self._rootcap_path}")
+            logging.warning(
+                "Rootcap file already exists: %s", self._rootcap_path
+            )
+            return self.get_rootcap()
         yield self.lock.acquire()
         try:
             rootcap = yield self.gateway.mkdir()

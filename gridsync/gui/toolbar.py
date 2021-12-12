@@ -118,16 +118,18 @@ class ToolBar(QToolBar):
             QIcon(resource("key-outline.png")), "Recovery", self
         )
         recovery_action.setEnabled(False)
-        recovery_action.setToolTip("Import or Export a Recovery Key")
+        recovery_action.setToolTip("Create or Restore from a Recovery Key")
         recovery_action.setFont(font)
 
-        self.import_action = QAction(QIcon(), "Import Recovery Key...", self)
-        self.import_action.setToolTip("Import Recovery Key...")
+        self.import_action = QAction(
+            QIcon(), "Restore from Recovery Key...", self
+        )
+        self.import_action.setToolTip("Restore from Recovery Key...")
         # import_action.triggered.connect(self.import_recovery_key)
         self.import_action.triggered.connect(self.import_action_triggered.emit)
 
-        self.export_action = QAction(QIcon(), "Export Recovery Key...", self)
-        self.export_action.setToolTip("Export Recovery Key...")
+        self.export_action = QAction(QIcon(), "Create Recovery Key...", self)
+        self.export_action.setToolTip("Create Recovery Key...")
         # export_action.setShortcut(QKeySequence.Save)
         # export_action.triggered.connect(self.export_recovery_key)
         self.export_action.triggered.connect(self.export_action_triggered.emit)

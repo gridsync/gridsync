@@ -94,6 +94,7 @@ class Tahoe:
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
         self.settings: dict = {}
+        self.recovery_key_exported = False
 
         self.zkapauthorizer = ZKAPAuthorizer(self)
         self.zkap_auth_required: bool = False
@@ -189,20 +190,19 @@ class Tahoe:
         if os.path.exists(icon_url_path):
             with open(icon_url_path, encoding="utf-8") as f:
                 settings["icon_url"] = f.read().strip()
+        if Path(self.nodedir, "private", "recovery_key_exported").exists():
+            self.recovery_key_exported = True
         self.load_newscap()
         if self.newscap:
             settings["newscap"] = self.newscap
         if not settings.get("rootcap"):
             settings["rootcap"] = self.get_rootcap()
-
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
             self.zkapauthorizer.zkap_unit_name = zkap_unit_name
-
-        zkap_unit_multiplier = settings.get("zkap_unit_multiplier", 0)
-        if zkap_unit_multiplier:
-            self.zkapauthorizer.zkap_unit_multiplier = zkap_unit_multiplier
-
+        self.zkapauthorizer.zkap_unit_multiplier = settings.get(
+            "zkap_unit_multiplier", 1
+        )
         self.zkapauthorizer.zkap_payment_url_root = settings.get(
             "zkap_payment_url_root", ""
         )
