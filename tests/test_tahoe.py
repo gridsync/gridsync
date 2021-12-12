@@ -651,21 +651,6 @@ def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
 
 
 @inlineCallbacks
-def test_create_rootcap(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.mkdir", lambda _: "URI:DIR2:abc")
-    output = yield tahoe.create_rootcap()
-    assert output == "URI:DIR2:abc"
-
-
-@inlineCallbacks
-def test_create_rootcap_already_exists(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.mkdir", lambda _: "URI:DIR2:abc")
-    yield tahoe.create_rootcap()
-    with pytest.raises(OSError):
-        yield tahoe.create_rootcap()
-
-
-@inlineCallbacks
 def test_tahoe_upload(tahoe, monkeypatch):
     monkeypatch.setattr("gridsync.tahoe.Tahoe.mkdir", lambda _: "URI:DIR2:abc")
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
