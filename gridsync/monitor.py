@@ -336,8 +336,19 @@ class ZKAPChecker(QObject):
 
 class Monitor(QObject):
     """
+    Look at ZKAPAuthorizer and on-grid state and detect changes in interesting
+    things.
 
     :ivar bool _started: Whether or not ``start`` has already been called.
+
+    :ivar pyqtSignal zkaps_updated: A signal that is emitted periodically when
+        we notice that the number of available or total ZKAPs has changed.  Is
+        it emitted near startup?  I don't know.
+
+    :ivar zkaps_redeemed: A signal that is emitted whenever we notice that the
+        timestamp of the most recent voucher redemption has changed.  Also
+        maybe it is emitted near startup when we learn the current timestamp
+        since we don't have a previous value to compare it to.
     """
 
     _started = False
