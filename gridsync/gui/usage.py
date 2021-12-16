@@ -86,6 +86,7 @@ class UsageView(QWidget):
     # The rest of these don't use attr.Factory because they depend on
     # something from self or they're so trivial there didn't seem to be a
     # point exposing the logic to outsiders.
+    loading_storage_time = attr.ib(init=False)
     zkaps_required_label = attr.ib(init=False)
     chart_view = attr.ib(init=False)
     info_label = attr.ib(init=False)
@@ -93,6 +94,13 @@ class UsageView(QWidget):
     voucher_link = attr.ib(init=False)
     status_label = attr.ib(init=False)
     groupbox = attr.ib(init=False)
+
+    @loading_storage_time.default
+    def _loading_storage_time_default(self):
+        label = QLabel("Loading storage-time information...")
+        label.setAlignment(Qt.AlignCenter)
+        label.setWordWrap(True)
+        return label
 
     @zkaps_required_label.default
     def _zkaps_required_label_default(self):
@@ -106,6 +114,7 @@ class UsageView(QWidget):
         )
         zkaps_required_label.setAlignment(Qt.AlignCenter)
         zkaps_required_label.setWordWrap(True)
+        zkaps_required_label.hide()
         return zkaps_required_label
 
     @chart_view.default
@@ -157,6 +166,7 @@ class UsageView(QWidget):
         layout.addWidget(self.title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
+        layout.addWidget(self.loading_storage_time, 50, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
         layout.addWidget(self.chart_view, 60, 0)
         layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
@@ -307,18 +317,24 @@ class UsageView(QWidget):
         self._last_purchase_date = datetime.strftime(
             datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f"), "%d %b %Y"
         )
-        self.zkaps_required_label.hide()
         self._reset_status()
-        self.explainer_label.show()
-        self.chart_view.show()
+        self._update_chart()
         self._update_info_label()
 
     def _update_chart(self) -> None:
+        self.loading_storage_time.hide()
         if self._zkaps_remaining:
             self.zkaps_required_label.hide()
+
             self.title.show()
             self.explainer_label.show()
             self.chart_view.show()
+        else:
+            self.title.hide()
+            self.explainer_label.hide()
+            self.chart_view.hide()
+
+            self.zkaps_required_label.show()
         self.chart_view.chart.update(
             self._zkaps_used,
             self._zkaps_cost,
