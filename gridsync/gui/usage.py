@@ -37,6 +37,82 @@ if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
+def make_explainer_label():
+    explainer_label = QLabel(
+        f"The {APP_NAME} app will gradually consume your storage-time to "
+        "keep your data saved."
+    )
+    font = Font(10)
+    font.setItalic(True)
+    explainer_label.setFont(font)
+    explainer_label.setAlignment(Qt.AlignCenter)
+    explainer_label.hide()
+    return explainer_label
+
+def make_zkaps_required_label(is_commercial_grid):
+    if is_commercial_grid:
+        action = "buy storage-time"
+    else:
+        action = "add storage-time using a voucher code"
+    zkaps_required_label = QLabel(
+        "You currently have 0 GB-months available.\n\nIn order to store "
+        f"data with {gateway.name}, you will need to {action}."
+    )
+    zkaps_required_label.setAlignment(Qt.AlignCenter)
+    zkaps_required_label.setWordWrap(True)
+    return zkaps_required_label
+
+def make_chart_view(gateway):
+    chart_view = ZKAPBarChartView(gateway)
+    chart_view.setFixedHeight(128)
+    chart_view.setRenderHint(QPainter.Antialiasing)
+    chart_view.hide()
+    return chart_view
+
+def make_purchase_button(is_commercial_grid):
+    if is_commercial_grid:
+        browser = get_browser_name()
+        button = QPushButton(f"Buy storage-time in {browser} ")
+        button.setIcon(QIcon(resource("globe-white.png")))
+        button.setLayoutDirection(Qt.RightToLeft)
+    else:
+        button = QPushButton("Use voucher code")
+    button.setStyleSheet("background: green; color: white")
+    button.setFixedSize(240, 32)
+    return button
+
+def make_voucher_link(is_commercial_grid):
+    voucher_link = QLabel("<a href>I have a voucher code</a>")
+    if not is_commercial_grid:
+        voucher_link.hide()
+    return voucher_link
+
+def make_layout(
+        title,
+        explainer_label,
+        zkaps_required_label,
+        chart_view,
+        info_label,
+        button,
+        voucher_link,
+        status_label,
+):
+    layout = QGridLayout()
+    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
+    layout.addWidget(title, 20, 0)
+    layout.addWidget(explainer_label, 30, 0)
+    layout.addWidget(zkaps_required_label, 40, 0)
+    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
+    layout.addWidget(chart_view, 60, 0)
+    layout.addWidget(info_label, 70, 0, Qt.AlignCenter)
+    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
+    layout.addWidget(button, 90, 0, 1, 1, Qt.AlignCenter)
+    layout.addWidget(voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
+    layout.addWidget(status_label, 110, 0, 1, 1, Qt.AlignCenter)
+    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
+    return layout
+
+
 class UsageView(QWidget):
     def __init__(self, gateway: Tahoe, gui: Gui) -> None:
         super().__init__()
@@ -65,68 +141,32 @@ class UsageView(QWidget):
         self.title.setAlignment(Qt.AlignCenter)
         self.title.hide()
 
-        self.explainer_label = QLabel(
-            f"The {APP_NAME} app will gradually consume your storage-time to "
-            "keep your data saved."
-        )
-        font = Font(10)
-        font.setItalic(True)
-        self.explainer_label.setFont(font)
-        self.explainer_label.setAlignment(Qt.AlignCenter)
-        self.explainer_label.hide()
-
-        if self.is_commercial_grid:
-            action = "buy storage-time"
-        else:
-            action = "add storage-time using a voucher code"
-        self.zkaps_required_label = QLabel(
-            "You currently have 0 GB-months available.\n\nIn order to store "
-            f"data with {gateway.name}, you will need to {action}."
-        )
-        self.zkaps_required_label.setAlignment(Qt.AlignCenter)
-        self.zkaps_required_label.setWordWrap(True)
-
-        self.chart_view = ZKAPBarChartView(self.gateway)
-        self.chart_view.setFixedHeight(128)
-        self.chart_view.setRenderHint(QPainter.Antialiasing)
-        self.chart_view.hide()
+        self.explainer_label = make_explainer_label()
+        self.zkaps_required_label = make_zkaps_required_label(self.is_commercial_grid)
+        self.chart_view = make_chart_view(self.gateway)
 
         self.info_label = QLabel()
         self.info_label.setFont(Font(10))
 
-        if self.is_commercial_grid:
-            browser = get_browser_name()
-            self.button = QPushButton(f"Buy storage-time in {browser} ")
-            self.button.setIcon(QIcon(resource("globe-white.png")))
-            self.button.setLayoutDirection(Qt.RightToLeft)
-        else:
-            self.button = QPushButton("Use voucher code")
-        self.button.setStyleSheet("background: green; color: white")
-        self.button.setFixedSize(240, 32)
+        self.button = make_purchase_button()
         self.button.clicked.connect(self.on_button_clicked)
 
-        self.voucher_link = QLabel("<a href>I have a voucher code</a>")
+        self.voucher_link = make_voucher_link(self.is_commercial_grid)
         self.voucher_link.linkActivated.connect(self.on_voucher_link_clicked)
-        if not self.is_commercial_grid:
-            self.voucher_link.hide()
 
         self.status_label = QLabel(" ")
         self.status_label.setFont(Font(10))
 
-        layout = QGridLayout()
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
-        layout.addWidget(self.title, 20, 0)
-        layout.addWidget(self.explainer_label, 30, 0)
-        layout.addWidget(self.zkaps_required_label, 40, 0)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
-        layout.addWidget(self.chart_view, 60, 0)
-        layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
-        layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
-        layout.addWidget(self.voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
-        layout.addWidget(self.status_label, 110, 0, 1, 1, Qt.AlignCenter)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
-
+        layout = make_layout(
+            self.title,
+            self.explainer_label,
+            self.zkaps_required_label,
+            self.chart_view,
+            self.info_label,
+            self.button,
+            self.voucher_link,
+            self.status_label,
+        )
         self.groupbox.setLayout(layout)
 
         main_layout = QGridLayout(self)
