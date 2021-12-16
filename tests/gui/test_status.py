@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock
 
 import pytest
 
 from gridsync.gui.status import StatusPanel
-
-
-@pytest.fixture()
-def fake_tahoe():
-    t = Mock()
-    t.name = "TestGrid"
-    t.shares_happy = 3
-    return t
 
 
 def test_status_panel_hide_tor_button(fake_tahoe):
