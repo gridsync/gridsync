@@ -7,6 +7,7 @@ import webbrowser
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
+import attr
 from humanize import naturalsize
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
@@ -49,129 +50,143 @@ def make_explainer_label():
     explainer_label.hide()
     return explainer_label
 
-def make_zkaps_required_label(is_commercial_grid):
-    if is_commercial_grid:
-        action = "buy storage-time"
-    else:
-        action = "add storage-time using a voucher code"
-    zkaps_required_label = QLabel(
-        "You currently have 0 GB-months available.\n\nIn order to store "
-        f"data with {gateway.name}, you will need to {action}."
-    )
-    zkaps_required_label.setAlignment(Qt.AlignCenter)
-    zkaps_required_label.setWordWrap(True)
-    return zkaps_required_label
 
-def make_chart_view(gateway):
-    chart_view = ZKAPBarChartView(gateway)
-    chart_view.setFixedHeight(128)
-    chart_view.setRenderHint(QPainter.Antialiasing)
-    chart_view.hide()
-    return chart_view
-
-def make_purchase_button(is_commercial_grid):
-    if is_commercial_grid:
-        browser = get_browser_name()
-        button = QPushButton(f"Buy storage-time in {browser} ")
-        button.setIcon(QIcon(resource("globe-white.png")))
-        button.setLayoutDirection(Qt.RightToLeft)
-    else:
-        button = QPushButton("Use voucher code")
-    button.setStyleSheet("background: green; color: white")
-    button.setFixedSize(240, 32)
-    return button
-
-def make_voucher_link(is_commercial_grid):
-    voucher_link = QLabel("<a href>I have a voucher code</a>")
-    if not is_commercial_grid:
-        voucher_link.hide()
-    return voucher_link
-
-def make_layout(
-        title,
-        explainer_label,
-        zkaps_required_label,
-        chart_view,
-        info_label,
-        button,
-        voucher_link,
-        status_label,
-):
-    layout = QGridLayout()
-    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
-    layout.addWidget(title, 20, 0)
-    layout.addWidget(explainer_label, 30, 0)
-    layout.addWidget(zkaps_required_label, 40, 0)
-    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
-    layout.addWidget(chart_view, 60, 0)
-    layout.addWidget(info_label, 70, 0, Qt.AlignCenter)
-    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
-    layout.addWidget(button, 90, 0, 1, 1, Qt.AlignCenter)
-    layout.addWidget(voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
-    layout.addWidget(status_label, 110, 0, 1, 1, Qt.AlignCenter)
-    layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
-    return layout
+def make_title():
+    title = QLabel("Storage-time")
+    font = Font(11)
+    font.setBold(True)
+    title.setFont(font)
+    title.setAlignment(Qt.AlignCenter)
+    title.hide()
+    return title
 
 
+@attr.s
 class UsageView(QWidget):
-    def __init__(self, gateway: Tahoe, gui: Gui) -> None:
-        super().__init__()
-        self.gateway = gateway
-        self.gui = gui
+    gateway: Tahoe = attr.ib()
+    gui: Gui = attr.ib()
 
-        self._zkaps_used: int = 0
-        self._zkaps_cost: int = 0
-        self._zkaps_remaining: int = 0
-        self._zkaps_total: int = 0
-        self._zkaps_period: int = 0
-        self._last_purchase_date: str = "Not available"
-        self._expiry_date: str = "Not available"
-        self._amount_stored: str = "Not available"
+    _zkaps_used: int = attr.ib(default=0, init=False)
+    _zkaps_cost: int = attr.ib(default=0, init=False)
+    _zkaps_remaining: int = attr.ib(default=0, init=False)
+    _zkaps_total: int = attr.ib(default=0, init=False)
+    _zkaps_period: int = attr.ib(default=0, init=False)
+    _last_purchase_date: str = attr.ib(default="Not available", init=False)
+    _expiry_date: str = attr.ib(default="Not available", init=False)
+    _amount_stored: str = attr.ib(default="Not available", init=False)
 
-        self.is_commercial_grid = bool(
-            "zkap_payment_url_root" in gateway.settings
+    # Some of these widgets depend on the values of other attributes.  This is
+    # okay as long as the dependency is of attributes defined lower on
+    # attributes defined higher.  attrs will initialize the attributes in the
+    # order they are defined on the class.
+    title = attr.ib(default=attr.Factory(make_title), init=False)
+    explainer_label = attr.ib(
+        default=attr.Factory(make_explainer_label), init=False
+    )
+    # The rest of these don't use attr.Factory because they depend on
+    # something from self or they're so trivial there didn't seem to be a
+    # point exposing the logic to outsiders.
+    zkaps_required_label = attr.ib(init=False)
+    chart_view = attr.ib(init=False)
+    info_label = attr.ib(init=False)
+    button = attr.ib(init=False)
+    voucher_link = attr.ib(init=False)
+    status_label = attr.ib(init=False)
+    groupbox = attr.ib(init=False)
+
+    @zkaps_required_label.default
+    def _zkaps_required_label_default(self):
+        if self.is_commercial_grid:
+            action = "buy storage-time"
+        else:
+            action = "add storage-time using a voucher code"
+        zkaps_required_label = QLabel(
+            "You currently have 0 GB-months available.\n\nIn order to store "
+            f"data with {self.gateway.name}, you will need to {action}."
         )
+        zkaps_required_label.setAlignment(Qt.AlignCenter)
+        zkaps_required_label.setWordWrap(True)
+        return zkaps_required_label
 
-        self.groupbox = QGroupBox()
+    @chart_view.default
+    def _chart_view_default(self):
+        chart_view = ZKAPBarChartView(self.gateway)
+        chart_view.setFixedHeight(128)
+        chart_view.setRenderHint(QPainter.Antialiasing)
+        chart_view.hide()
+        return chart_view
 
-        self.title = QLabel("Storage-time")
-        font = Font(11)
-        font.setBold(True)
-        self.title.setFont(font)
-        self.title.setAlignment(Qt.AlignCenter)
-        self.title.hide()
+    @info_label.default
+    def _info_label_default(self):
+        label = QLabel()
+        label.setFont(Font(10))
+        return label
 
-        self.explainer_label = make_explainer_label()
-        self.zkaps_required_label = make_zkaps_required_label(self.is_commercial_grid)
-        self.chart_view = make_chart_view(self.gateway)
+    @button.default
+    def _button_default(self):
+        if self.is_commercial_grid:
+            browser = get_browser_name()
+            button = QPushButton(f"Buy storage-time in {browser} ")
+            button.setIcon(QIcon(resource("globe-white.png")))
+            button.setLayoutDirection(Qt.RightToLeft)
+        else:
+            button = QPushButton("Use voucher code")
+        button.setStyleSheet("background: green; color: white")
+        button.setFixedSize(240, 32)
+        button.clicked.connect(self.on_button_clicked)
+        return button
 
-        self.info_label = QLabel()
-        self.info_label.setFont(Font(10))
+    @voucher_link.default
+    def _voucher_link_default(self):
+        voucher_link = QLabel("<a href>I have a voucher code</a>")
+        voucher_link.linkActivated.connect(self.on_voucher_link_clicked)
+        if not self.is_commercial_grid:
+            voucher_link.hide()
+        return voucher_link
 
-        self.button = make_purchase_button()
-        self.button.clicked.connect(self.on_button_clicked)
+    @status_label.default
+    def _status_label_default(self):
+        status_label = QLabel(" ")
+        status_label.setFont(Font(10))
+        return status_label
 
-        self.voucher_link = make_voucher_link(self.is_commercial_grid)
-        self.voucher_link.linkActivated.connect(self.on_voucher_link_clicked)
+    @groupbox.default
+    def _groupbox_default(self):
+        layout = QGridLayout()
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
+        layout.addWidget(self.title, 20, 0)
+        layout.addWidget(self.explainer_label, 30, 0)
+        layout.addWidget(self.zkaps_required_label, 40, 0)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
+        layout.addWidget(self.chart_view, 60, 0)
+        layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
+        layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
+        layout.addWidget(self.status_label, 110, 0, 1, 1, Qt.AlignCenter)
+        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
 
-        self.status_label = QLabel(" ")
-        self.status_label.setFont(Font(10))
-
-        layout = make_layout(
-            self.title,
-            self.explainer_label,
-            self.zkaps_required_label,
-            self.chart_view,
-            self.info_label,
-            self.button,
-            self.voucher_link,
-            self.status_label,
-        )
-        self.groupbox.setLayout(layout)
+        groupbox = QGroupBox()
+        groupbox.setLayout(layout)
 
         main_layout = QGridLayout(self)
-        main_layout.addWidget(self.groupbox)
+        main_layout.addWidget(groupbox)
 
+        return groupbox
+
+    @property
+    def is_commercial_grid(self):
+        return "zkap_payment_url_root" in self.gateway.settings
+
+    def __attrs_pre_init__(self):
+        # Accessing Slot() attributes is broken until QWidget is initialized.
+        # If we don't force that to happen here then any attr.ib defaults that
+        # depend on `self` have trouble.
+        super().__init__()
+
+    def __attrs_post_init__(self):
+        # Do a bunch of other initialization that doesn't obviously belong to
+        # one of the attributes on self that we had to initialize.
         self.gateway.monitor.zkaps_redeemed.connect(self.on_zkaps_redeemed)
         self.gateway.monitor.zkaps_updated.connect(self.on_zkaps_updated)
         # self.gateway.monitor.zkaps_renewal_cost_updated.connect(
