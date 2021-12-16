@@ -141,7 +141,7 @@ collections-extended==1.0.3 \
 colorama==0.4.4 \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
-    # via -r requirements/tahoe-lafs.in
+    # via zero-knowledge-access-pass-authorizer
 configparser==4.0.2 \
     --hash=sha256:254c1d9c79f60c45dfde850850883d5aaa7f19a23f13561243a050d5a7c3fe4c \
     --hash=sha256:c7d282687a5308319bf3d2e7706e575c635b0a470342641c93bea0ea3b5331df
@@ -452,8 +452,8 @@ urllib3==1.26.7 \
     --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece \
     --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844
     # via requests
-https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/2b6d79b843a7d287e0edc09a7de3b9fbea3cd63e \
-    --hash=sha256:718a798f6e567dde5c428b758a3a787c5508a9c10d526607008d8fc84be8ca8d
+https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/4cf7f0f014f498777c1be3119ef2337ca313ce7e \
+    --hash=sha256:1f30830a4916d54a1c9b10a39bb31a2d83899f1e8a8a7e749ecdbe2c35588371
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
