@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import List, Tuple
+
 import attr
 
 from gridsync.desktop import notify
