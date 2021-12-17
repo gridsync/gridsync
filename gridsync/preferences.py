@@ -19,6 +19,7 @@ class Preferences:
     Read and write simple values from a ini-syntax configuration file at a
     certain location.
     """
+
     config_file: FilePath = attr.ib(default=_default_config_path)
 
     def set(self, section: str, option: str, value) -> None:
@@ -35,7 +36,9 @@ class Preferences:
         return get_preference(section, option, self.config_file.path)
 
 
-def set_preference(section: str, option: str, value, config_file: Optional[str]=None) -> None:
+def set_preference(
+    section: str, option: str, value, config_file: Optional[str] = None
+) -> None:
     if not config_file:
         config_file = os.path.join(config_dir, "preferences.ini")
     config = Config(config_file)
@@ -43,7 +46,9 @@ def set_preference(section: str, option: str, value, config_file: Optional[str]=
     logging.debug("Set user preference: %s %s %s", section, option, value)
 
 
-def get_preference(section: str, option: str, config_file: Optional[str]=None) -> str:
+def get_preference(
+    section: str, option: str, config_file: Optional[str] = None
+) -> str:
     if not config_file:
         config_file = os.path.join(config_dir, "preferences.ini")
     config = Config(config_file)

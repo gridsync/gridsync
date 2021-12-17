@@ -22,7 +22,9 @@ def preferences_config_file(tmpdir_factory) -> FilePath:
     The value of this fixture is a path suitable for use as a preferences
     configuration file.  It does not exist initially.
     """
-    return FilePath(str(tmpdir_factory.mktemp("config"))).child("preferences.ini")
+    return FilePath(str(tmpdir_factory.mktemp("config"))).child(
+        "preferences.ini"
+    )
 
 
 @pytest.fixture
