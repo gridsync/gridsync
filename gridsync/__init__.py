@@ -19,7 +19,7 @@ if getattr(sys, "frozen", False):
     if sys.platform == "win32":
         # Workaround for PyInstaller being unable to find Qt5Core.dll on PATH.
         # See https://github.com/pyinstaller/pyinstaller/issues/4293
-        _meipass = getattr(sys, "_MEIPASS", False)
+        _meipass = getattr(sys, "_MEIPASS", "")
         if _meipass:
             os.environ["PATH"] = _meipass + os.pathsep + os.environ["PATH"]
     try:
