@@ -27,13 +27,20 @@ class Preferences:
         Rewrite the configuration file with the given [section]option value added
         or changed.
         """
-        set_preference(section, option, value, cast(str, self.config_file.asTextMode().path))
+        set_preference(
+            section,
+            option,
+            value,
+            cast(str, self.config_file.asTextMode().path),
+        )
 
     def get(self, section: str, option: str) -> str:
         """
         Read the value for the requested [section]option.
         """
-        return get_preference(section, option, cast(str, self.config_file.asTextMode().path))
+        return get_preference(
+            section, option, cast(str, self.config_file.asTextMode().path)
+        )
 
 
 def set_preference(
