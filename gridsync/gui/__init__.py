@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from typing import List, Tuple
 import attr
 
 from gridsync.desktop import notify
@@ -16,7 +17,7 @@ class Gui:
     core = attr.ib()
 
     preferences: Preferences = attr.ib(default=attr.Factory(Preferences))
-    unread_messages: list[tuple] = attr.ib(default=attr.Factory(list))
+    unread_messages: List[Tuple] = attr.ib(default=attr.Factory(list))
 
     welcome_dialog: WelcomeDialog = attr.ib()
     main_window: MainWindow = attr.ib()
