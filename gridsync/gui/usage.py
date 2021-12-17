@@ -61,6 +61,25 @@ def make_title() -> QLabel:
     return title
 
 
+def make_info_label() -> QLabel:
+    label = QLabel()
+    label.setFont(Font(10))
+    return label
+
+
+def make_status_label() -> QLabel:
+    status_label = QLabel(" ")
+    status_label.setFont(Font(10))
+    return status_label
+
+
+def make_loading_storage_time() -> QLabel:
+    label = QLabel("Loading storage-time information...")
+    label.setAlignment(Qt.AlignCenter)
+    label.setWordWrap(True)
+    return label
+
+
 @attr.s
 class UsageView(QWidget):
     gateway: Tahoe = attr.ib()
@@ -86,21 +105,16 @@ class UsageView(QWidget):
     # The rest of these don't use attr.Factory because they depend on
     # something from self or they're so trivial there didn't seem to be a
     # point exposing the logic to outsiders.
-    loading_storage_time = attr.ib(init=False)
+    loading_storage_time = attr.ib(
+        default=attr.Factory(make_loading_storage_time), init=False
+    )
     zkaps_required_label = attr.ib(init=False)
     chart_view = attr.ib(init=False)
-    info_label = attr.ib(init=False)
+    info_label = attr.ib(default=attr.Factory(make_info_label), init=False)
     button = attr.ib(init=False)
     voucher_link = attr.ib(init=False)
-    status_label = attr.ib(init=False)
+    status_label = attr.ib(default=attr.Factory(make_status_label), init=False)
     groupbox = attr.ib(init=False)
-
-    @loading_storage_time.default
-    def _loading_storage_time_default(self) -> QLabel:
-        label = QLabel("Loading storage-time information...")
-        label.setAlignment(Qt.AlignCenter)
-        label.setWordWrap(True)
-        return label
 
     @zkaps_required_label.default
     def _zkaps_required_label_default(self) -> QLabel:
@@ -125,12 +139,6 @@ class UsageView(QWidget):
         chart_view.hide()
         return chart_view
 
-    @info_label.default
-    def _info_label_default(self) -> QLabel:
-        label = QLabel()
-        label.setFont(Font(10))
-        return label
-
     @button.default
     def _button_default(self) -> QPushButton:
         if self.is_commercial_grid:
@@ -152,12 +160,6 @@ class UsageView(QWidget):
         if not self.is_commercial_grid:
             voucher_link.hide()
         return voucher_link
-
-    @status_label.default
-    def _status_label_default(self) -> QLabel:
-        status_label = QLabel(" ")
-        status_label.setFont(Font(10))
-        return status_label
 
     @groupbox.default
     def _groupbox_default(self) -> QGroupBox:
