@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
-def make_explainer_label():
+def make_explainer_label() -> QLabel:
     explainer_label = QLabel(
         f"The {APP_NAME} app will gradually consume your storage-time to "
         "keep your data saved."
@@ -51,7 +51,7 @@ def make_explainer_label():
     return explainer_label
 
 
-def make_title():
+def make_title() -> QLabel:
     title = QLabel("Storage-time")
     font = Font(11)
     font.setBold(True)
@@ -96,14 +96,14 @@ class UsageView(QWidget):
     groupbox = attr.ib(init=False)
 
     @loading_storage_time.default
-    def _loading_storage_time_default(self):
+    def _loading_storage_time_default(self) -> QLabel:
         label = QLabel("Loading storage-time information...")
         label.setAlignment(Qt.AlignCenter)
         label.setWordWrap(True)
         return label
 
     @zkaps_required_label.default
-    def _zkaps_required_label_default(self):
+    def _zkaps_required_label_default(self) -> QLabel:
         if self.is_commercial_grid:
             action = "buy storage-time"
         else:
@@ -118,7 +118,7 @@ class UsageView(QWidget):
         return zkaps_required_label
 
     @chart_view.default
-    def _chart_view_default(self):
+    def _chart_view_default(self) -> ZKAPBarChartView:
         chart_view = ZKAPBarChartView(self.gateway)
         chart_view.setFixedHeight(128)
         chart_view.setRenderHint(QPainter.Antialiasing)
@@ -126,13 +126,13 @@ class UsageView(QWidget):
         return chart_view
 
     @info_label.default
-    def _info_label_default(self):
+    def _info_label_default(self) -> QLabel:
         label = QLabel()
         label.setFont(Font(10))
         return label
 
     @button.default
-    def _button_default(self):
+    def _button_default(self) -> QPushButton:
         if self.is_commercial_grid:
             browser = get_browser_name()
             button = QPushButton(f"Buy storage-time in {browser} ")
@@ -146,7 +146,7 @@ class UsageView(QWidget):
         return button
 
     @voucher_link.default
-    def _voucher_link_default(self):
+    def _voucher_link_default(self) -> QLabel:
         voucher_link = QLabel("<a href>I have a voucher code</a>")
         voucher_link.linkActivated.connect(self.on_voucher_link_clicked)
         if not self.is_commercial_grid:
@@ -154,13 +154,13 @@ class UsageView(QWidget):
         return voucher_link
 
     @status_label.default
-    def _status_label_default(self):
+    def _status_label_default(self) -> QLabel:
         status_label = QLabel(" ")
         status_label.setFont(Font(10))
         return status_label
 
     @groupbox.default
-    def _groupbox_default(self):
+    def _groupbox_default(self) -> QGroupBox:
         layout = QGridLayout()
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(self.title, 20, 0)
@@ -185,16 +185,16 @@ class UsageView(QWidget):
         return groupbox
 
     @property
-    def is_commercial_grid(self):
+    def is_commercial_grid(self) -> bool:
         return "zkap_payment_url_root" in self.gateway.settings
 
-    def __attrs_pre_init__(self):
+    def __attrs_pre_init__(self) -> None:
         # Accessing Slot() attributes is broken until QWidget is initialized.
         # If we don't force that to happen here then any attr.ib defaults that
         # depend on `self` have trouble.
         super().__init__()
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         # Do a bunch of other initialization that doesn't obviously belong to
         # one of the attributes on self that we had to initialize.
         self.gateway.monitor.zkaps_redeemed.connect(self.on_zkaps_redeemed)
