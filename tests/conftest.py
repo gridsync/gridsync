@@ -89,3 +89,16 @@ def tahoe_factory(tmpdir_factory):
 @pytest.fixture()
 def tahoe(tmpdir_factory, reactor):
     return _tahoe(tmpdir_factory, reactor)
+
+
+@pytest.fixture()
+def fake_tahoe():
+    t = Mock()
+    t.name = "TestGrid"
+    t.shares_happy = 3
+    t.settings = {"zkap_payment_url_root": "https://example.invalid./"}
+    t.zkapauthorizer = Mock()
+    t.zkapauthorizer.zkap_unit_multiplier = 0.001
+    t.zkapauthorizer.zkap_unit_name = "MB"
+    t.zkapauthorizer.zkap_batch_size = 10000
+    return t

@@ -1,22 +1,50 @@
 # -*- coding: utf-8 -*-
 
+from typing import List, Tuple
+
+import attr
+
 from gridsync.desktop import notify
 from gridsync.gui.debug import DebugExporter
 from gridsync.gui.main_window import MainWindow
 from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.systray import SystemTrayIcon
 from gridsync.gui.welcome import WelcomeDialog
+from gridsync.preferences import Preferences
 
 
+@attr.s
 class Gui:
-    def __init__(self, core):
-        self.core = core
-        self.welcome_dialog = WelcomeDialog(self)
-        self.main_window = MainWindow(self)
-        self.preferences_window = PreferencesWindow()
-        self.systray = SystemTrayIcon(self)
-        self.debug_exporter = DebugExporter(core)
-        self.unread_messages = []
+    core = attr.ib()
+
+    preferences: Preferences = attr.ib(default=attr.Factory(Preferences))
+    unread_messages: List[Tuple] = attr.ib(default=attr.Factory(list))
+
+    welcome_dialog: WelcomeDialog = attr.ib()
+    main_window: MainWindow = attr.ib()
+    preferences_window: PreferencesWindow = attr.ib()
+    systray: SystemTrayIcon = attr.ib()
+    debug_exporter: DebugExporter = attr.ib()
+
+    @welcome_dialog.default
+    def _default_welcome_dialog(self):
+        return WelcomeDialog(self)
+
+    @main_window.default
+    def _main_window_default(self):
+        return MainWindow(self)
+
+    @preferences_window.default
+    def _default_preferences_window(self):
+        return PreferencesWindow(self.preferences)
+
+    @systray.default
+    def _systray_default(self):
+        return SystemTrayIcon(self)
+
+    @debug_exporter.default
+    def _debug_exporter_default(self):
+        return DebugExporter(self.core)
 
     def show_message(self, title, message, duration=5000):
         notify(self.systray, title, message, duration)

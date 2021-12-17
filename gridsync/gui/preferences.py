@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from typing import Optional
+
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
@@ -22,12 +24,14 @@ from gridsync.desktop import (
     autostart_enable,
     autostart_is_enabled,
 )
-from gridsync.preferences import get_preference, set_preference
+from gridsync.preferences import Preferences
 
 
 class GeneralPane(QWidget):
-    def __init__(self):
+    def __init__(self, preferences: Preferences):
         super().__init__()
+        self.preferences = preferences
+
         startup_groupbox = QGroupBox("Startup:", self)
         self.checkbox_autostart = QCheckBox("Start automatically on login")
         self.checkbox_minimize = QCheckBox("Start minimized")
@@ -51,7 +55,7 @@ class GeneralPane(QWidget):
         self.load_preferences()
 
     def load_preferences(self):
-        if get_preference("startup", "minimize") == "true":
+        if self.preferences.get("startup", "minimize") == "true":
             self.checkbox_minimize.setCheckState(Qt.Checked)
         else:
             self.checkbox_minimize.setCheckState(Qt.Unchecked)
@@ -60,12 +64,11 @@ class GeneralPane(QWidget):
         else:
             self.checkbox_autostart.setCheckState(Qt.Unchecked)
 
-    @staticmethod
-    def on_checkbox_minimize_changed(state):
+    def on_checkbox_minimize_changed(self, state):
         if state:
-            set_preference("startup", "minimize", "true")
+            self.preferences.set("startup", "minimize", "true")
         else:
-            set_preference("startup", "minimize", "false")
+            self.preferences.set("startup", "minimize", "false")
 
     @staticmethod
     def on_checkbox_autostart_changed(state):
@@ -76,8 +79,10 @@ class GeneralPane(QWidget):
 
 
 class NotificationsPane(QWidget):
-    def __init__(self):
+    def __init__(self, preferences: Preferences):
         super().__init__()
+        self.preferences = preferences
+
         notifications_groupbox = QGroupBox("Notifications:", self)
         notifications_label = QLabel("Show a desktop notification when...")
         self.checkbox_connection = QCheckBox("Connection status changes")
@@ -110,44 +115,46 @@ class NotificationsPane(QWidget):
         self.load_preferences()
 
     def load_preferences(self):
-        if get_preference("notifications", "connection") == "true":
+        if self.preferences.get("notifications", "connection") == "true":
             self.checkbox_connection.setCheckState(Qt.Checked)
         else:
             self.checkbox_connection.setCheckState(Qt.Unchecked)
-        if get_preference("notifications", "folder") == "false":
+        if self.preferences.get("notifications", "folder") == "false":
             self.checkbox_folder.setCheckState(Qt.Unchecked)
         else:
             self.checkbox_folder.setCheckState(Qt.Checked)
-        if get_preference("notifications", "invite") == "false":
+        if self.preferences.get("notifications", "invite") == "false":
             self.checkbox_invite.setCheckState(Qt.Unchecked)
         else:
             self.checkbox_invite.setCheckState(Qt.Checked)
 
-    @staticmethod
-    def on_checkbox_connection_changed(state):
+    def on_checkbox_connection_changed(self, state):
         if state:
-            set_preference("notifications", "connection", "true")
+            self.preferences.set("notifications", "connection", "true")
         else:
-            set_preference("notifications", "connection", "false")
+            self.preferences.set("notifications", "connection", "false")
 
-    @staticmethod
-    def on_checkbox_folder_changed(state):
+    def on_checkbox_folder_changed(self, state):
         if state:
-            set_preference("notifications", "folder", "true")
+            self.preferences.set("notifications", "folder", "true")
         else:
-            set_preference("notifications", "folder", "false")
+            self.preferences.set("notifications", "folder", "false")
 
-    @staticmethod
-    def on_checkbox_invite_changed(state):
+    def on_checkbox_invite_changed(self, state):
         if state:
-            set_preference("notifications", "invite", "true")
+            self.preferences.set("notifications", "invite", "true")
         else:
-            set_preference("notifications", "invite", "false")
+            self.preferences.set("notifications", "invite", "false")
 
 
 class PreferencesWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, preferences: Optional[Preferences] = None):
         super().__init__()
+
+        if preferences is None:
+            preferences = Preferences()
+        self.preferences = preferences
+
         self.setMinimumSize(500, 300)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
@@ -179,8 +186,8 @@ class PreferencesWindow(QMainWindow):
         self.toolbar.addWidget(self.general_button)
         self.toolbar.addWidget(self.notifications_button)
 
-        self.general_pane = GeneralPane()
-        self.notifications_pane = NotificationsPane()
+        self.general_pane = GeneralPane(preferences)
+        self.notifications_pane = NotificationsPane(preferences)
 
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.addWidget(self.general_pane)
