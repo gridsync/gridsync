@@ -452,8 +452,8 @@ urllib3==1.26.7 \
     --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece \
     --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844
     # via requests
-https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/4cf7f0f014f498777c1be3119ef2337ca313ce7e \
-    --hash=sha256:1f30830a4916d54a1c9b10a39bb31a2d83899f1e8a8a7e749ecdbe2c35588371
+https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/b61f3d4a3f5eb72cb600dd83796a1aaca2931e07 \
+    --hash=sha256:9b8670215edf6e0cdd57a26c7bf1becab309f38c04d3e5d10d5ac6e889ae27f7
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
