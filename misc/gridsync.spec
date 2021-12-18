@@ -134,6 +134,12 @@ if os.path.isdir(tahoe_bundle_path):
     print("Copying {} to {}...".format(tahoe_bundle_path, dest))
     shutil.copytree(tahoe_bundle_path, dest)
     print("Done")
+    exe_name = "tahoe.exe" if sys.platform == "win32" else "tahoe"
+    exe_path = Path(dest, exe_name)
+    exe_dest = Path(dest, f"{app_name}-{exe_name}")
+    print(f"Moving {exe_path} to {exe_dest}...")
+    shutil.move(exe_path, exe_dest)
+    print("Done")
 else:
     print('##################################################################')
     print('WARNING: No Tahoe-LAFS bundle found!')
@@ -149,6 +155,12 @@ if os.path.isdir(magic_folder_bundle_path):
         dest = os.path.join('dist', app_name, 'magic-folder')
     print("Copying {} to {}...".format(magic_folder_bundle_path, dest))
     shutil.copytree(magic_folder_bundle_path, dest)
+    print("Done")
+    exe_name = "magic-folder.exe" if sys.platform == "win32" else "magic-folder"
+    exe_path = Path(dest, exe_name)
+    exe_dest = Path(dest, f"{app_name}-{exe_name}")
+    print(f"Moving {exe_path} to {exe_dest}...")
+    shutil.move(exe_path, exe_dest)
     print("Done")
 else:
     print('#################################################################')
