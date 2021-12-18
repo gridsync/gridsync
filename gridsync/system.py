@@ -3,6 +3,7 @@ from __future__ import annotations
 import errno
 import logging
 import os
+import shutil
 import signal
 from io import BytesIO
 from pathlib import Path
@@ -12,8 +13,30 @@ from twisted.internet.defer import Deferred
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 
+from gridsync import APP_NAME
+
 if TYPE_CHECKING:
     from twisted.python.failure import Failure
+
+
+def which(cmd: str) -> str:
+    """
+    Return the path to an executable which would be run if the given
+    cmd was called. If a version of the executable exists whose name is
+    prefixed with the name of this application (e.g., "Gridsync-tahoe"),
+    prefer and return that path instead. If no such paths can be found,
+    raise an EnvironmentError.
+
+    :param str cmd: The command
+    :return str: The path to the executable
+    """
+    path = shutil.which(f"{APP_NAME}-{cmd}") or shutil.which(cmd)
+    if not path:
+        raise EnvironmentError(
+            f'Could not find a "{cmd}" (or "{APP_NAME}-{cmd}") executable. '
+            "Please ensure that it exists on your PATH."
+        )
+    return path
 
 
 def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
