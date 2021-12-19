@@ -327,25 +327,18 @@ class Tahoe:
     def command(self, args, callback_trigger=None):
         from twisted.internet import reactor
 
-        # Some args may contain sensitive information. Don't show them in logs.
-        if args[0] == "magic-folder":
-            first_args = args[0:2]
-        else:
-            first_args = args[0:1]
         if not self.executable:
             self.executable = which("tahoe")
-        exe = self.executable if self.executable else which("tahoe")[0]
-        args = [exe] + ["-d", self.nodedir] + args
-        logged_args = [exe] + ["-d", self.nodedir] + first_args
+        args = [self.executable, "-d", self.nodedir] + args
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
-        log.debug("Executing: %s...", " ".join(logged_args))
+        log.debug("Executing: %s...", " ".join(args))
         protocol = SubprocessProtocol(
             callback_triggers=[callback_trigger],
             stdout_line_collector=self.line_received,
         )
         transport = yield reactor.spawnProcess(
-            protocol, exe, args=args, env=env
+            protocol, self.executable, args=args, env=env
         )
         try:
             output = yield protocol.done
