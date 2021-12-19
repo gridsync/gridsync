@@ -4,7 +4,18 @@ from unittest.mock import Mock
 
 import pytest
 
-from gridsync.system import kill
+from gridsync.crypto import randstr
+from gridsync.system import kill, which
+
+
+def test_which():
+    path = which("python")
+    assert "python" in path
+
+
+def test_which_raises_environment_error():
+    with pytest.raises(EnvironmentError):
+        which(randstr(32))
 
 
 def test_kill_uses_SIGTERM(monkeypatch):
