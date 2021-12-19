@@ -3,8 +3,10 @@ from pathlib import Path
 
 from pytest_twisted import inlineCallbacks
 
+from gridsync import APP_NAME
+
 os.environ["PATH"] = (
-    os.path.join(os.getcwd(), "dist", "Tahoe-LAFS")
+    str(Path(os.getcwd(), "dist", APP_NAME, "Tahoe-LAFS").resolve())
     + os.pathsep
     + os.environ["PATH"]
 )
