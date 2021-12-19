@@ -13,7 +13,6 @@ import yaml
 from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
-from twisted.python.procutils import which
 
 from gridsync import settings as global_settings
 from gridsync.config import Config
@@ -24,7 +23,7 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
-from gridsync.system import SubprocessProtocol, kill
+from gridsync.system import SubprocessProtocol, kill, which
 from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
 from gridsync.zkapauthorizer import ZKAPAuthorizer
@@ -333,6 +332,8 @@ class Tahoe:
             first_args = args[0:2]
         else:
             first_args = args[0:1]
+        if not self.executable:
+            self.executable = which("tahoe")
         exe = self.executable if self.executable else which("tahoe")[0]
         args = [exe] + ["-d", self.nodedir] + args
         logged_args = [exe] + ["-d", self.nodedir] + first_args
