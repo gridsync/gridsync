@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import shutil
 import time
 from collections import defaultdict, deque
 from datetime import datetime
@@ -31,7 +30,7 @@ if TYPE_CHECKING:
     from gridsync.types import TwistedDeferred
 
 from gridsync.crypto import randstr
-from gridsync.system import SubprocessProtocol, kill
+from gridsync.system import SubprocessProtocol, kill, which
 from gridsync.watchdog import Watchdog
 from gridsync.websocket import WebSocketReaderService
 
@@ -480,11 +479,7 @@ class MagicFolder:
         self, args: List[str], callback_trigger: str = ""
     ) -> TwistedDeferred[Union[Tuple[int, str], str]]:
         if not self.executable:
-            self.executable = shutil.which("magic-folder")
-        if not self.executable:
-            raise EnvironmentError(
-                'Could not find "magic-folder" executable on PATH.'
-            )
+            self.executable = which("magic-folder")
         args = [
             self.executable,
             "--eliot-fd=2",  # redirect log output to stderr

@@ -1,19 +1,34 @@
 import os
+import sys
 import time
+from pathlib import Path
 
 from pytest_twisted import async_yield_fixture, inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
+from gridsync import APP_NAME
 from gridsync.crypto import randstr
 from gridsync.magic_folder import MagicFolderState
 from gridsync.tahoe import Tahoe
 
-os.environ["PATH"] = (
-    os.path.join(os.getcwd(), "dist", "magic-folder")
-    + os.pathsep
-    + os.environ["PATH"]
-)
+if sys.platform == "darwin":
+    application_bundle_path = str(
+        Path(
+            os.getcwd(),
+            "dist",
+            APP_NAME + ".app",
+            "Contents",
+            "MacOS",
+            "magic-folder",
+        ).resolve()
+    )
+else:
+    application_bundle_path = str(
+        Path(os.getcwd(), "dist", APP_NAME, "magic-folder").resolve()
+    )
+
+os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
 
 
 @async_yield_fixture(scope="module")

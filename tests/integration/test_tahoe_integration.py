@@ -1,13 +1,28 @@
 import os
+import sys
 from pathlib import Path
 
 from pytest_twisted import inlineCallbacks
 
-os.environ["PATH"] = (
-    os.path.join(os.getcwd(), "dist", "Tahoe-LAFS")
-    + os.pathsep
-    + os.environ["PATH"]
-)
+from gridsync import APP_NAME
+
+if sys.platform == "darwin":
+    application_bundle_path = str(
+        Path(
+            os.getcwd(),
+            "dist",
+            APP_NAME + ".app",
+            "Contents",
+            "MacOS",
+            "Tahoe-LAFS",
+        ).resolve()
+    )
+else:
+    application_bundle_path = str(
+        Path(os.getcwd(), "dist", APP_NAME, "Tahoe-LAFS").resolve()
+    )
+
+os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
 
 
 def test_tahoe_start_creates_pidfile(tahoe_client):

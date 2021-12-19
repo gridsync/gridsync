@@ -124,36 +124,25 @@ if sys.platform.startswith('linux'):
         print("Deleted {} from bundle".format(lib))
 
 
-tahoe_bundle_path = os.path.join('dist', 'Tahoe-LAFS')
-if os.path.isdir(tahoe_bundle_path):
-    if sys.platform == 'darwin':
-        dest = os.path.join(
-            'dist', app_name + '.app', 'Contents', 'MacOS', 'Tahoe-LAFS')
+def add_bundle(basename, executable_name):
+    bundle_path = Path("dist", basename)
+    if not bundle_path.exists():
+        raise FileNotFoundError(f"No {basename} bundle found")
+    if sys.platform == "darwin":
+        dest = Path("dist", app_name + ".app", "Contents", "MacOS", basename)
     else:
-        dest = os.path.join('dist', app_name, 'Tahoe-LAFS')
-    print("Copying {} to {}...".format(tahoe_bundle_path, dest))
-    shutil.copytree(tahoe_bundle_path, dest)
-    print("Done")
-else:
-    print('##################################################################')
-    print('WARNING: No Tahoe-LAFS bundle found!')
-    print('##################################################################')
+        dest = Path("dist", app_name, basename)
+    print(f"Copying {str(bundle_path)} to {str(dest)}...")
+    shutil.copytree(bundle_path, dest)
+    if sys.platform == "win32":
+        executable_name = executable_name + ".exe"
+    exe_path = Path(dest, executable_name)
+    exe_dest = Path(dest, f"{app_name}-{executable_name}")
+    print(f"Moving {str(exe_path)} to {str(exe_dest)}...")
+    shutil.move(exe_path, exe_dest)
 
-
-magic_folder_bundle_path = os.path.join('dist', 'magic-folder')
-if os.path.isdir(magic_folder_bundle_path):
-    if sys.platform == 'darwin':
-        dest = os.path.join(
-            'dist', app_name + '.app', 'Contents', 'MacOS', 'magic-folder')
-    else:
-        dest = os.path.join('dist', app_name, 'magic-folder')
-    print("Copying {} to {}...".format(magic_folder_bundle_path, dest))
-    shutil.copytree(magic_folder_bundle_path, dest)
-    print("Done")
-else:
-    print('#################################################################')
-    print('WARNING: No magic-folder bundle found!')
-    print('#################################################################')
+add_bundle("Tahoe-LAFS", "tahoe")
+add_bundle("magic-folder", "magic-folder")
 
 
 # The presence of *.dist-info/RECORD files causes issues with reproducible
