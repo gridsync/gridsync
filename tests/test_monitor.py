@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from unittest.mock import MagicMock, Mock, call
+from datetime import datetime, timedelta
+from pathlib import Path
 
 from pytest_twisted import inlineCallbacks
 
-from gridsync.monitor import GridChecker, Monitor
+from gridsync.monitor import GridChecker, Monitor, ZKAPChecker
 
 
 @inlineCallbacks
@@ -76,3 +78,37 @@ def test_monitor_multiple_start():
     monitor.start()
     monitor.start()
     assert monitor.timer.mock_calls == [call.start(2, now=True)]
+
+
+def test_zkaps_update_last_redeemed(tahoe):
+    """
+    ``ZKAPChecker._maybe_load_last_redeemed`` emits the contents of
+    ``last-redeemed`` to ``zkaps_redeemed`` when the last-redeemed time
+    advances.
+    """
+    now = datetime(2021, 12, 21, 13, 23, 50)
+    zkaps = Path(tahoe.nodedir, "private", "zkaps")
+    zkaps.mkdir()
+    last_redeemed_path = Path(zkaps, "last-redeemed")
+    with open(last_redeemed_path, "w", encoding="utf-8") as f:
+        f.write(now.isoformat())
+
+    zkaps_redeemed = []
+
+    checker = ZKAPChecker(tahoe)
+    checker.zkaps_redeemed.connect(zkaps_redeemed.append)
+
+    checker._maybe_load_last_redeemed()
+    assert zkaps_redeemed == [now.isoformat()]
+
+    # Nothing has changed so it is not emitted again.
+    checker._maybe_load_last_redeemed()
+    assert zkaps_redeemed == [now.isoformat()]
+
+    # Advance it so that it is emitted again.
+    later = now + timedelta(seconds=1)
+    with open(last_redeemed_path, "w", encoding="utf-8") as f:
+        f.write(later.isoformat())
+
+    checker._maybe_load_last_redeemed()
+    assert zkaps_redeemed == [now.isoformat(), later.isoformat()]

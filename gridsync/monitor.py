@@ -184,7 +184,7 @@ class ZKAPChecker(QObject):
                 last_redeemed = f.read()
         except FileNotFoundError:
             return
-        self.update_zkaps_last_redeemed(last_redeemed)
+        self._update_zkaps_last_redeemed(last_redeemed)
 
     def _update_unpaid_vouchers(self, unpaid_vouchers):
         """
