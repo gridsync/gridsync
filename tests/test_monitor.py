@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import MagicMock, Mock, call
 from datetime import datetime, timedelta
 from pathlib import Path
+from unittest.mock import MagicMock, Mock, call
 
 from pytest_twisted import inlineCallbacks
 
