@@ -111,17 +111,6 @@ if sys.platform.startswith('linux'):
     src = os.path.join('dist', app_name, app_name)
     dest = os.path.join('dist', app_name, app_name.lower())
     shutil.move(src, dest)
-    bad_libs = [
-        'libX11.so.6',  # https://github.com/gridsync/gridsync/issues/43
-        'libdrm.so.2',  # https://github.com/gridsync/gridsync/issues/47
-        'libstdc++.so.6',  # https://github.com/gridsync/gridsync/issues/189
-    ]
-    for lib in bad_libs:
-        try:
-            os.remove(os.path.join('dist', app_name, lib))
-        except Exception as exc:
-            print("WARNING: Could not delete {}: {}".format(lib, str(exc)))
-        print("Deleted {} from bundle".format(lib))
 
 
 def add_bundle(basename, executable_name):
