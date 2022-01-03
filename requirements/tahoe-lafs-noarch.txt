@@ -485,8 +485,8 @@ werkzeug==1.0.1 \
     --hash=sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43 \
     --hash=sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c
     # via klein
-https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/94cd16ce2d3ffb0aa18e7dfd58765eebda372117 \
-    --hash=sha256:d039934789348b0db87fc9f6251e95dbb63132ea0a7513d5a99fd82f0eeff664
+https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/d66d60641213f4aea7c7c694823a843e41d2cb2f \
+    --hash=sha256:68d7091d933d723eec9068153250af2e3dff56242b1f144ce33dfba6194f7049
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
