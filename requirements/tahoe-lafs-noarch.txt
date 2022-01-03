@@ -21,6 +21,7 @@ attrs==21.2.0 \
     --hash=sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb
     # via
     #   automat
+    #   klein
     #   magic-wormhole
     #   python-challenge-bypass-ristretto
     #   service-identity
@@ -66,6 +67,9 @@ boltons==21.0.0 \
     --hash=sha256:65e70a79a731a7fe6e98592ecfb5ccf2115873d01dbc576079874629e5c90f13 \
     --hash=sha256:b9bb7b58b2b420bbe11a6025fdef6d3e5edc9f76a42fb467afe7ca212ef9948b
     # via eliot
+cbor2==5.2.0.post1 \
+    --hash=sha256:2fa9c263065e4967667ebedcc9a23fa0fc27aad1e970ed81be0ac1af7e80ed52
+    # via tahoe-lafs
 certifi==2021.10.8 \
     --hash=sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872 \
     --hash=sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569
@@ -126,6 +130,10 @@ cffi==1.15.0 \
     #   cryptography
     #   pynacl
     #   python-challenge-bypass-ristretto
+characteristic==14.3.0 \
+    --hash=sha256:5324ca333fc9705bf0f1a38d36021baa37888590ccfe8c3738c68adfa609bbbb \
+    --hash=sha256:ded68d4e424115ed44e5c83c2a901a0b6157a959079d7591d92106ffd3ada380
+    # via tubes
 chardet==4.0.0 \
     --hash=sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa \
     --hash=sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5
@@ -186,7 +194,9 @@ enum34==1.1.10 \
     --hash=sha256:a98a201d6de3f2ab3db284e70a33b0f896fbf35f8086594e8c9e74b909058d53 \
     --hash=sha256:c3858660960c984d6ab0ebad691265180da2b43f07e061c0f8dca9ef3cffd328 \
     --hash=sha256:cce6a7477ed816bd2542d03d53db9f0db935dd013b70f336a95c73979289f248
-    # via cryptography
+    # via
+    #   cryptography
+    #   klein
 foolscap==0.13.1 \
     --hash=sha256:4e400e377683f328a70fd5b808202576397c30e2b5a0b8773d22608518fb9f95 \
     --hash=sha256:e2773b4901430b8852da9d691e91984a5e2118da0448c192d9ec5aa81db91d6b
@@ -207,6 +217,7 @@ hyperlink==21.0.0 \
     --hash=sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b \
     --hash=sha256:e6b14c37ecb73e89c77d78cdb4c2cc8f3fb59a885c5b3f819ff4ed80f25af1b4
     # via
+    #   klein
     #   treq
     #   twisted
 idna==2.10 \
@@ -220,6 +231,7 @@ incremental==21.3.0 \
     --hash=sha256:02f5de5aff48f6b9f665d99d48bfc7ec03b6e3943210de7cfc88856d755d6f57 \
     --hash=sha256:92014aebc6a20b78a8084cdd5645eeaa7f74b8933f70fa3ada2cfbd1e3b54321
     # via
+    #   klein
     #   treq
     #   twisted
     #   txtorcon
@@ -230,6 +242,10 @@ ipaddress==1.0.23 \
     #   cryptography
     #   service-identity
     #   txtorcon
+klein==20.6.0 \
+    --hash=sha256:00a74f4da360259cfa0a3cfb949fa04f7c17cd8698b64b3c1a3ad2cd6c52dc8b \
+    --hash=sha256:6584b9cdff4959b9dcee95a1c1c20010f521a2a12c4ff3cdd8b903a9b0e993f6
+    # via tahoe-lafs
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
     --hash=sha256:7c9a8d2a6e89314878dda23efc14c78398f1b6eb80e6c86c895c001c888d086e
@@ -379,6 +395,7 @@ six==1.16.0 \
     #   bcrypt
     #   cryptography
     #   eliot
+    #   klein
     #   magic-wormhole
     #   pyhamcrest
     #   pynacl
@@ -387,13 +404,15 @@ six==1.16.0 \
     #   service-identity
     #   tahoe-lafs
     #   treq
+    #   tubes
     #   txaio
 spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
-https://github.com/tahoe-lafs/tahoe-lafs/archive/d3c6f58a8ded7db3324ef97c47f5c1921c3d58b7.zip \
-    --hash=sha256:4b4e6960f23a337bd74fd1f09844c6ff7e520c09b02e06ca5bc4143e801957a0
+tahoe-lafs==1.17.0 \
+    --hash=sha256:4f7139e6aac06c2e94219dffd2f3aea6cc05e2c1f07b36ef0b2aec4fc24b888a \
+    --hash=sha256:79d473b67f9ef15fb954153287805c38dbb42ec4ccc26283ea6e8ab96fab2000
     # via zero-knowledge-access-pass-authorizer
 tqdm==4.62.3 \
     --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
@@ -402,7 +421,13 @@ tqdm==4.62.3 \
 treq==21.1.0 \
     --hash=sha256:dc3aa1c9355a7693cc2483a797369d0db8a2c1ef857e4a6684d302b4d380ddfa \
     --hash=sha256:fdae0c872c444ed96c3cb11be8445d22e4afb731e87fdddae3b00c609e77199f
-    # via zero-knowledge-access-pass-authorizer
+    # via
+    #   tahoe-lafs
+    #   zero-knowledge-access-pass-authorizer
+tubes==0.2.0 \
+    --hash=sha256:8d55ffda4c332deda399bf89a335ac7cea307fc8f6bfd89fee010a00c47be169 \
+    --hash=sha256:de7bc347cb0a04ed6056e28a6b567228abc0f25861cbfad825466bea672d500d
+    # via klein
 twisted[conch,tls]==20.3.0 \
     --hash=sha256:040eb6641125d2a9a09cf198ec7b83dd8858c6f51f6770325ed9959c00f5098f \
     --hash=sha256:147780b8caf21ba2aef3688628eaf13d7e7fe02a86747cd54bfaf2140538f042 \
@@ -430,9 +455,11 @@ twisted[conch,tls]==20.3.0 \
     # via
     #   autobahn
     #   foolscap
+    #   klein
     #   magic-wormhole
     #   tahoe-lafs
     #   treq
+    #   tubes
     #   txtorcon
     #   zero-knowledge-access-pass-authorizer
 txaio==18.8.1 \
@@ -447,13 +474,19 @@ typing==3.10.0.0 \
     --hash=sha256:12fbdfbe7d6cca1a42e485229afcb0b0c8259258cfb919b8a5e2a5c953742f89 \
     --hash=sha256:13b4ad211f54ddbf93e5901a9967b1e07720c1d1b78d596ac6a439641aa1b130 \
     --hash=sha256:c7219ef20c5fbf413b4567092adfc46fa6203cb8454eda33c3fc1afe1398a308
-    # via hyperlink
+    # via
+    #   hyperlink
+    #   klein
 urllib3==1.26.7 \
     --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece \
     --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844
     # via requests
-https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/b61f3d4a3f5eb72cb600dd83796a1aaca2931e07 \
-    --hash=sha256:9b8670215edf6e0cdd57a26c7bf1becab309f38c04d3e5d10d5ac6e889ae27f7
+werkzeug==1.0.1 \
+    --hash=sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43 \
+    --hash=sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c
+    # via klein
+https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/94cd16ce2d3ffb0aa18e7dfd58765eebda372117 \
+    --hash=sha256:d039934789348b0db87fc9f6251e95dbb63132ea0a7513d5a99fd82f0eeff664
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
@@ -569,6 +602,7 @@ zope.interface==5.4.0 \
     # via
     #   autobahn
     #   eliot
+    #   klein
     #   tahoe-lafs
     #   twisted
     #   txtorcon
