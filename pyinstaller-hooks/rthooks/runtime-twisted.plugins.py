@@ -14,7 +14,7 @@ plugin_cache = None
 
 def load_cache():
     global plugin_cache
-    with open(cache_path) as fp:
+    with open(cache_path, "rb") as fp:
         plugin_cache = pickle.load(fp)
 
 def getCache(module):
