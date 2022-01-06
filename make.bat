@@ -76,6 +76,7 @@ call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call python -m pip install -r requirements\tahoe-lafs.txt
 call python -m pip install -r requirements\pyinstaller.txt
+call python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@python3
 call python -m pip list
 call set PYTHONHASHSEED=1
 call pyinstaller -y misc/tahoe.spec || goto :error
