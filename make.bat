@@ -85,8 +85,9 @@ call deactivate
 goto :eof
 
 :magic-folder
-call %PYTHON3% scripts/checkout-github-repo requirements/magic-folder.json build/magic-folder
-call %PYTHON2% -m virtualenv --clear build\venv-magic-folder
+::call %PYTHON3% scripts/checkout-github-repo requirements/magic-folder.json build/magic-folder
+call git clone -b python3-support.2 https://github.com/meejah/magic-folder build\magic-folder
+call %PYTHON3% -m virtualenv --clear build\venv-magic-folder
 call .\build\venv-magic-folder\Scripts\activate
 call python -m pip install -r requirements\pyinstaller.txt
 call copy misc\magic-folder.spec build\magic-folder
