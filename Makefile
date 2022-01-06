@@ -155,9 +155,8 @@ frozen-tahoe:
 	source build/venv-tahoe/bin/activate && \
 	python --version || deactivate && \
 	export CFLAGS=-g0 && \
-	python -m pip install -r requirements/tahoe-lafs.txt && \
-	python -m pip install -r requirements/pyinstaller.txt && \
 	python -m pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@python3 && \
+	python -m pip install -r requirements/pyinstaller.txt && \
 	python -m pip list && \
 	export PYTHONHASHSEED=1 && \
 	python -m PyInstaller -y misc/tahoe.spec && \
