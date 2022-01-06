@@ -167,8 +167,9 @@ frozen-tahoe:
 magic-folder:
 	mkdir -p dist
 	mkdir -p build/magic-folder
-	python3 $(SCRIPTS)/checkout-github-repo requirements/magic-folder.json build/magic-folder
-	python3 -m virtualenv --clear --python=python2 build/venv-magic-folder
+	# python3 $(SCRIPTS)/checkout-github-repo requirements/magic-folder.json build/magic-folder
+	git clone -b python3-support.2 https://github.com/meejah/magic-folder build/magic-folder
+	python3 -m virtualenv --clear --python=python3 build/venv-magic-folder
 	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
 	# so allow falling back to the user environment.
 	# https://github.com/pypa/virtualenv/issues/2023
