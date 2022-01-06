@@ -70,8 +70,8 @@ goto :eof
 goto :eof
 
 :frozen-tahoe
-call %PYTHON2% -m pip install --upgrade setuptools pip virtualenv
-call %PYTHON2% -m virtualenv --clear .\build\venv-tahoe
+call %PYTHON3% -m pip install --upgrade setuptools pip virtualenv
+call %PYTHON3% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call python -m pip install -r requirements\tahoe-lafs.txt

@@ -147,7 +147,7 @@ gif: pngs
 
 frozen-tahoe:
 	mkdir -p dist
-	python3 -m virtualenv --python=python2 build/venv-tahoe
+	python3 -m virtualenv --python=python3 build/venv-tahoe
 	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
 	# so allow falling back to the user environment.
 	# https://github.com/pypa/virtualenv/issues/2023
