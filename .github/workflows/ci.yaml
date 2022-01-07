@@ -151,7 +151,9 @@ jobs:
         key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
-      run: py -3.9 -m pip install tox diffoscope
+      run: |
+        py -3.9 -m pip install tox diffoscope
+        py -3.8 -m pip install tox diffoscope
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller
