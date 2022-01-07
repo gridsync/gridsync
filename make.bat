@@ -3,11 +3,11 @@
 
 @echo off
 
-:: Tahoe-LAFS' `zfec` and `netifaces` dependencies currently do not provide
-:: binary wheels for CPython 3.9 (or later) so, for now, use 3.8 to avoid
-:: building C extensions -- and to keep PyInstaller builds deterministic.
 set PYTHON3=py -3.9
-set CL=/Brepro
+
+:: Normalize timestamps via undocumented MSVC flag.
+:: https://nikhilism.com/post/2020/windows-deterministic-builds/
+:: https://blog.conan.io/2019/09/02/Deterministic-builds-with-C-C++.html
 set LINK=/Brepro
 
 
