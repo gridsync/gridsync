@@ -36,9 +36,10 @@ app_name = settings["application"]["name"]
 
 
 version = settings["build"].get("version", get_versions()["version"])
+version_file = Path("gridsync", "resources", "version.txt")
 # When running frozen, Versioneer returns a version string of "0+unknown"
 # so write the version string from a file that can be read/loaded later.
-with open(os.path.join("gridsync", "resources", "version.txt"), "w") as f:
+with open(version_file, "w") as f:
     f.write(version)
 
 
@@ -239,6 +240,12 @@ app = BUNDLE(
 )
 
 
+print(f"Removing {version_file}...")
+try:
+    version_file.unlink(missing_ok=True)
+except Exception as exc:
+    print(f"WARNING: Could not remove {version_file}: {str(exc)}")
+
 if sys.platform.startswith("linux"):
     src = os.path.join("dist", app_name, app_name)
     dest = os.path.join("dist", app_name, app_name.lower())
@@ -254,7 +261,6 @@ if sys.platform.startswith("linux"):
         except Exception as exc:
             print(f"WARNING: Could not delete {lib}: {str(exc)}")
         print(f"Deleted {lib} from bundle")
-
 
 # The presence of *.dist-info/RECORD files causes issues with reproducible
 # builds; see: https://github.com/gridsync/gridsync/issues/363
