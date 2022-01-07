@@ -199,9 +199,44 @@ install:
 # 1: https://github.com/gridsync/gridsync/issues/267#issuecomment-609980411
 # 2: https://github.com/pyinstaller/pyinstaller/issues/5330
 # 3: https://github.com/pyinstaller/pyinstaller/issues/5361
-pyinstaller:
+pyinstaller-separated:
 	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
 	if [ ! -d dist/magic-folder ] ; then make magic-folder ; fi
+	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
+	source .tox/pyinstaller/bin/activate && \
+	pip install --no-deps -r requirements/gridsync.txt && \
+	pip install --no-deps -r requirements/pyinstaller.txt && \
+	pip install -e . && \
+	rm -rf build/pyinstaller ; \
+	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
+	pushd build/pyinstaller && \
+	git checkout --force v4.7 && \
+	pushd bootloader && \
+	case `uname` in \
+		Darwin) \
+			export MACOSX_DEPLOYMENT_TARGET=10.13 && \
+			export CFLAGS=-mmacosx-version-min=10.13 && \
+			export CPPFLAGS=-mmacosx-version-min=10.13 && \
+			export LDFLAGS=-mmacosx-version-min=10.13 && \
+			export LINKFLAGS=-mmacosx-version-min=10.13 \
+		;; \
+		*) \
+			if [ $$(python -c "import distro;print(distro.id() + distro.version())") == "centos7" ] ; then \
+				export CFLAGS="-std=gnu99" ; \
+			else \
+				export CC="gcc -no-pie" ; \
+			fi \
+		;; \
+		esac && \
+	python ./waf all && \
+	popd && \
+	pip install . && \
+	popd && \
+	pip list && \
+	export PYTHONHASHSEED=1 && \
+	pyinstaller -y misc/gridsync.spec
+
+pyinstaller-merged:
 	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
 	pip install --no-deps -r requirements/gridsync.txt && \
@@ -236,7 +271,7 @@ pyinstaller:
 	popd && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
-	pyinstaller -y misc/gridsync.spec
+	pyinstaller -y gridsync.spec
 
 zip:
 	python3 scripts/update_permissions.py dist
