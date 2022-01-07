@@ -8,4 +8,5 @@ choco install -y --no-progress --require-checksums innosetup
 refreshenv
 py -2 -m pip install --upgrade setuptools pip
 py -3 -m pip install --upgrade setuptools pip tox diffoscope
+py -3.8 -m pip install --upgrade setuptools pip tox
 git config --global core.autocrlf false
