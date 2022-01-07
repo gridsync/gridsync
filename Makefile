@@ -273,6 +273,9 @@ pyinstaller-merged:
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y gridsync.spec
 
+pyinstaller:
+	$(MAKE) pyinstaller-merged
+
 zip:
 	python3 scripts/update_permissions.py dist
 	python3 scripts/update_timestamps.py dist
