@@ -6,7 +6,9 @@
 :: Tahoe-LAFS' `zfec` and `netifaces` dependencies currently do not provide
 :: binary wheels for CPython 3.9 (or later) so, for now, use 3.8 to avoid
 :: building C extensions -- and to keep PyInstaller builds deterministic.
-set PYTHON3=py -3.8
+set PYTHON3=py -3.9
+set CL=/Brepro
+set LINK=/Brepro
 
 
 if "%1"=="clean" call :clean
