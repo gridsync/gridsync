@@ -74,7 +74,7 @@ call %PYTHON3% -m pip install --upgrade setuptools pip virtualenv
 call %PYTHON3% -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
-call python ..\..\scripts\reproducible-pip.py install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@python3
+call python .\scripts\reproducible-pip.py install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@python3
 call python -m pip install -r requirements\pyinstaller.txt
 call python -m pip list
 call set PYTHONHASHSEED=1
