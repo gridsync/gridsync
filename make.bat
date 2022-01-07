@@ -3,7 +3,7 @@
 
 @echo off
 
-set PYTHON3=py -3.9
+set PY_PYTHON=3.9
 
 :: Normalize timestamps for compiled C extensions via undocumented MSVC flag.
 :: See https://nikhilism.com/post/2020/windows-deterministic-builds/ and/or
@@ -40,16 +40,16 @@ call del .\.coverage
 goto :eof
 
 :test
-%PYTHON3% -m tox || goto :error
+py -m tox || goto :error
 goto :eof
 
 :test-integration
-%PYTHON3% -m tox -e integration || goto :error
+py -m tox -e integration || goto :error
 goto :eof
 
 :frozen-tahoe
-call %PYTHON3% -m pip install --upgrade setuptools pip virtualenv
-call %PYTHON3% -m virtualenv --clear .\build\venv-tahoe
+call py -m pip install --upgrade setuptools pip virtualenv
+call py -m virtualenv --clear .\build\venv-tahoe
 call .\build\venv-tahoe\Scripts\activate
 call python -m pip install --upgrade setuptools pip
 call python .\scripts\reproducible-pip.py install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@python3
@@ -63,9 +63,9 @@ call deactivate
 goto :eof
 
 :magic-folder
-::call %PYTHON3% scripts/checkout-github-repo requirements/magic-folder.json build/magic-folder
+::call py scripts/checkout-github-repo requirements/magic-folder.json build/magic-folder
 call git clone -b python3-support.2 https://github.com/meejah/magic-folder build\magic-folder
-call %PYTHON3% -m virtualenv --clear build\venv-magic-folder
+call py -m virtualenv --clear build\venv-magic-folder
 call .\build\venv-magic-folder\Scripts\activate
 call python -m pip install -r requirements\pyinstaller.txt
 call copy misc\magic-folder.spec build\magic-folder
@@ -84,21 +84,21 @@ goto :eof
 :pyinstaller
 if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
 if not exist ".\dist\magic-folder" call :magic-folder
-%PYTHON3% -m tox -e pyinstaller || goto :error
+py -m tox -e pyinstaller || goto :error
 goto :eof
 
 :zip
-%PYTHON3% .\scripts\update_permissions.py .\dist || goto :error
-%PYTHON3% .\scripts\update_timestamps.py .\dist || goto :error
-%PYTHON3% .\scripts\make_zip.py || goto :error
+py .\scripts\update_permissions.py .\dist || goto :error
+py .\scripts\update_timestamps.py .\dist || goto :error
+py .\scripts\make_zip.py || goto :error
 goto :eof
 
 :test-determinism
-%PYTHON3% .\scripts\test_determinism.py || goto :error
+py .\scripts\test_determinism.py || goto :error
 goto :eof
 
 :installer
-call %PYTHON3% .\scripts\make_installer.py || goto :error
+call py .\scripts\make_installer.py || goto :error
 goto :eof
 
 
@@ -120,7 +120,7 @@ goto :eof
 call :pyinstaller
 call :zip
 call :installer
-call %PYTHON3% .\scripts\sha256sum.py .\dist\*.*
+call py .\scripts\sha256sum.py .\dist\*.*
 goto :eof
 
 :error
