@@ -8,7 +8,7 @@
 :: building C extensions -- and to keep PyInstaller builds deterministic.
 set PYTHON3=py -3.9
 set CL=/Brepro
-set LINK=/Brepro
+::set LINK=/Brepro
 
 
 if "%1"=="clean" call :clean
