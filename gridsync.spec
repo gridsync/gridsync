@@ -16,6 +16,11 @@ from PyInstaller.utils.hooks import (
 
 from versioneer import get_versions
 
+# https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
+sys.modules["FixTk"] = None
+excludes = ["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"]
+
+
 config = RawConfigParser(allow_no_value=True)
 config.read(Path("gridsync", "resources", "config.txt"))
 settings = {}
@@ -116,23 +121,42 @@ if sys.platform == "win32":
 else:
     paths = []
 
-mac_background_only = settings["build"].get("mac_background_only", False)
-if mac_background_only and mac_background_only.lower() != "false":
-    mac_background_only = True
+
+a = Analysis(
+    ["gridsync/cli.py"],
+    pathex=paths,
+    binaries=None,
+    datas=[
+        ("gridsync/resources/*", "resources"),
+        ("gridsync/resources/providers/*", "resources/providers"),
+    ],
+    hiddenimports=["cffi", "PyQt5.sip", "pkg_resources.py2_warn"],
+    hookspath=["pyinstaller-hooks"],
+    runtime_hooks=[],
+    excludes=excludes,
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=None,
+)
 
 
-# https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
-sys.modules["FixTk"] = None
+from magic_folder import __main__ as magic_folder_script_module
 
-options = [
-    # Enable unbuffered stdio:
-    ("u", None, "OPTION"),
-    # Supress cryptography.io's python2 CryptographyDeprecationWarning:
-    ("W ignore::UserWarning", None, "OPTION"),
-]
-
-
-tahoe_added_files = collect_data_files("allmydata.web")
+magic_folder_script_path = inspect.getsourcefile(magic_folder_script_module)
+magic_folder_a = Analysis(
+    [magic_folder_script_path],
+    pathex=[],
+    binaries=[],
+    datas=[],
+    hiddenimports=["UserList", "UserString", "commands"],
+    hookspath=[],
+    runtime_hooks=[],
+    excludes=excludes,
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=None,
+    noarchive=False,
+)
 
 
 def collect_dynamic_libs(package):
@@ -151,84 +175,44 @@ def collect_dynamic_libs(package):
     return dylibs
 
 
-tahoe_binaries = collect_dynamic_libs("challenge_bypass_ristretto")
-
-tahoe_hidden_imports = [
-    "__builtin__",
-    "allmydata.client",
-    "allmydata.introducer",
-    "allmydata.stats",
-    "allmydata.web",
-    "base64",
-    "cffi",
-    "collections",
-    "commands",
-    "Crypto",
-    "functools",
-    "future.backports.misc",
-    "itertools",
-    "math",
-    "packaging.specifiers",
-    "re",
-    "reprlib",
-    "six.moves.html_parser",
-    "subprocess",
-    "twisted.plugins.zkapauthorizer",
-    "UserDict",
-    "UserList",
-    "UserString",
-    "yaml",
-    "zfec",
-]
-
-
-a = Analysis(
-    ["gridsync/cli.py"],
-    pathex=paths,
-    binaries=None,
-    datas=[
-        ("gridsync/resources/*", "resources"),
-        ("gridsync/resources/providers/*", "resources/providers"),
-    ],
-    hiddenimports=["cffi", "PyQt5.sip", "pkg_resources.py2_warn"],
-    hookspath=["pyinstaller-hooks"],
-    runtime_hooks=[],
-    excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=None,
-)
-
-
-
-from magic_folder import __main__ as magic_folder_script_module
-magic_folder_script_path = inspect.getsourcefile(magic_folder_script_module)
-magic_folder_a = Analysis(
-    [magic_folder_script_path],
-    pathex=[],
-    binaries=[],
-    datas=[],
-    hiddenimports=["UserList", "UserString", "commands"],
-    hookspath=[],
-    runtime_hooks=[],
-    excludes=["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=None,
-    noarchive=False,
-)
-
 from allmydata import __main__ as tahoe_script_module
+
 tahoe_script_path = inspect.getsourcefile(tahoe_script_module)
 tahoe_a = Analysis(
     [tahoe_script_path],
     pathex=[],
-    binaries=tahoe_binaries,
-    datas=tahoe_added_files,
-    hiddenimports=tahoe_hidden_imports,
+    binaries=collect_dynamic_libs("challenge_bypass_ristretto"),
+    datas=collect_data_files("allmydata.web"),
+    hiddenimports=[
+        "__builtin__",
+        "allmydata.client",
+        "allmydata.introducer",
+        "allmydata.stats",
+        "allmydata.web",
+        "base64",
+        "cffi",
+        "collections",
+        "commands",
+        "Crypto",
+        "functools",
+        "future.backports.misc",
+        "itertools",
+        "math",
+        "packaging.specifiers",
+        "re",
+        "reprlib",
+        "six.moves.html_parser",
+        "subprocess",
+        "twisted.plugins.zkapauthorizer",
+        "UserDict",
+        "UserList",
+        "UserString",
+        "yaml",
+        "zfec",
+    ],
     hookspath=["pyinstaller-hooks"],
     runtime_hooks=["pyinstaller-hooks/rthooks/runtime-twisted.plugins.py"],
-    excludes=["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"],
+    excludes=excludes,
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=None,
@@ -260,7 +244,7 @@ magic_folder_pyz = PYZ(
 magic_folder_exe = EXE(
     magic_folder_pyz,
     magic_folder_a.scripts,
-    options,
+    [("u", None, "OPTION")],  # Enable unbuffered stdio
     exclude_binaries=True,
     name="magic-folder",
     debug=False,
@@ -274,7 +258,7 @@ tahoe_pyz = PYZ(tahoe_a.pure, tahoe_a.zipped_data, cipher=None)
 tahoe_exe = EXE(
     tahoe_pyz,
     tahoe_a.scripts,
-    options,
+    [("u", None, "OPTION")],  # Enable unbuffered stdio
     exclude_binaries=True,
     name="tahoe",
     debug=False,
@@ -302,6 +286,10 @@ coll = COLLECT(
     name=app_name,
 )
 
+
+mac_background_only = settings["build"].get("mac_background_only", False)
+if mac_background_only and mac_background_only.lower() != "false":
+    mac_background_only = True
 
 app = BUNDLE(
     coll,
