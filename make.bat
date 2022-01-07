@@ -5,8 +5,8 @@
 
 set PYTHON3=py -3.9
 
-:: Normalize timestamps via undocumented MSVC flag.
-:: https://nikhilism.com/post/2020/windows-deterministic-builds/
+:: Normalize timestamps for compiled C extensions via undocumented MSVC flag.
+:: See https://nikhilism.com/post/2020/windows-deterministic-builds/ and/or
 :: https://blog.conan.io/2019/09/02/Deterministic-builds-with-C-C++.html
 set LINK=/Brepro
 
