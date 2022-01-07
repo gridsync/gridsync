@@ -84,9 +84,9 @@ a = Analysis(
     cipher=None,
 )
 
-
+from magic_folder import __main__ as magic_folder_script_module
 magic_folder_a = Analysis(
-    [inspect.getsourcefile(magic_folder.__main__)],
+    [inspect.getsourcefile(magic_folder_script_module)],
     pathex=[],
     binaries=[],
     datas=[],
@@ -116,8 +116,9 @@ def collect_dynamic_libs(package):
             dylibs.append((file, pkg_rel_path))
     return dylibs
 
+from allmydata import __main__ as tahoe_script_module
 tahoe_a = Analysis(
-    [inspect.getsourcefile(allmydata.__main__)],
+    [inspect.getsourcefile(tahoe_script_module)],
     pathex=[],
     binaries=collect_dynamic_libs("challenge_bypass_ristretto"),
     datas=collect_data_files("allmydata.web"),
