@@ -43,80 +43,13 @@ with open(os.path.join("gridsync", "resources", "version.txt"), "w") as f:
 
 
 if sys.platform == "win32":
+    kit = Path(Path.home().anchor, "Program Files (x86)", "Windows Kits", "10")
     paths = [
-        os.path.join(get_python_lib(), "PyQt5", "Qt", "bin"),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files (x86)",
-            "Windows Kits",
-            "10",
-            "bin",
-            "x86",
-        ),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files (x86)",
-            "Windows Kits",
-            "10",
-            "bin",
-            "x64",
-        ),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files (x86)",
-            "Windows Kits",
-            "10",
-            "Redist",
-            "ucrt",
-            "DLLs",
-            "x86",
-        ),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files (x86)",
-            "Windows Kits",
-            "10",
-            "Redist",
-            "ucrt",
-            "DLLs",
-            "x64",
-        ),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files",
-            "Windows Kits",
-            "10",
-            "bin",
-            "x86",
-        ),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files",
-            "Windows Kits",
-            "10",
-            "bin",
-            "x64",
-        ),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files",
-            "Windows Kits",
-            "10",
-            "Redist",
-            "ucrt",
-            "DLLs",
-            "x86",
-        ),
-        os.path.join(
-            os.path.abspath(os.sep),
-            "Program Files",
-            "Windows Kits",
-            "10",
-            "Redist",
-            "ucrt",
-            "DLLs",
-            "x64",
-        ),
+        str(Path(get_python_lib(), "PyQt5", "Qt", "bin")),
+        str(Path(kit, "bin", "x86")),
+        str(Path(kit, "bin", "x64")),
+        str(Path(kit, "Redist", "ucrc", "DLLs", "x86")),
+        str(Path(kit, "Redist", "ucrc", "DLLs", "x64")),
     ]
 else:
     paths = []
