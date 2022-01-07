@@ -16,6 +16,17 @@ from PyInstaller.utils.hooks import (
 
 from versioneer import get_versions
 
+try:
+    import magic_folder
+except ImportError:
+    magic_folder = None
+
+try:
+    import allmydata
+except ImportError:
+    allmydata = None
+
+
 # https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
 sys.modules["FixTk"] = None
 excludes = ["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"]
@@ -74,11 +85,8 @@ a = Analysis(
 )
 
 
-from magic_folder import __main__ as magic_folder_script_module
-
-magic_folder_script_path = inspect.getsourcefile(magic_folder_script_module)
 magic_folder_a = Analysis(
-    [magic_folder_script_path],
+    [inspect.getsourcefile(magic_folder.__main__)],
     pathex=[],
     binaries=[],
     datas=[],
@@ -108,12 +116,8 @@ def collect_dynamic_libs(package):
             dylibs.append((file, pkg_rel_path))
     return dylibs
 
-
-from allmydata import __main__ as tahoe_script_module
-
-tahoe_script_path = inspect.getsourcefile(tahoe_script_module)
 tahoe_a = Analysis(
-    [tahoe_script_path],
+    [inspect.getsourcefile(allmydata.__main__)],
     pathex=[],
     binaries=collect_dynamic_libs("challenge_bypass_ristretto"),
     datas=collect_data_files("allmydata.web"),
