@@ -1,37 +1,10 @@
-::
-:: This script assumes that the following dependencies have been installed:
-::
-::  1) Git <https://git-scm.com/download/win>
-::
-::  2) Python 2.7 <https://www.python.org>
-::
-::  3) Python 3.7 <https://www.python.org>
-::      -Select "Add Python 3.7 to PATH" option during install
-::      -On Windows Server 2012, if installation fails, try installing update "KB2919355". See https://bugs.python.org/issue29583
-::
-::  4) Microsoft Visual C++ Compiler for Python 2.7 <https://aka.ms/vcpython27>
-::
-::  5) Microsoft .NET Framework Dev Pack <https://aka.ms/dotnet-download>
-::
-::  6) Microsoft Visual C++ Build Tools 2015 <https://aka.ms/buildtools>
-::      -Select "Windows 8.1 SDK" and "Windows 10 SDK" options during install
-::
-::  7) Inno Setup <http://www.jrsoftware.org/isinfo.php>
-::
+:: This script assumes that the dependencies listed in
+:: scripts/provision_devtools.bat have already been installed.
 
 @echo off
 
-if defined APPVEYOR (
-    if "%PYTHON_ARCH%" == "64" (
-        set PYTHON2=C:\Python27-x64\python.exe
-    ) else (
-        set PYTHON2=C:\Python27\python.exe
-    )
-    set PYTHON3=%PYTHON%\python.exe
-) else (
-    set PYTHON2=py -2.7
-    set PYTHON3=py -3.8
-)
+set PYTHON3=py -3.8
+
 
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
