@@ -241,11 +241,12 @@ BUNDLE(
 )
 
 
-paths_to_move = []
 if sys.platform == "darwin":
     dist = Path("dist", f"{app_name}.app", "Contents", "MacOS")
 else:
     dist = Path("dist", app_name)
+
+paths_to_move = []
 # Prepend the app_name to avoid confusion regarding process names/ownership.
 # See https://github.com/gridsync/gridsync/issues/422
 if allmydata:
@@ -266,13 +267,10 @@ for src, dst in paths_to_move:
     print(f"Moving {src} to {dst}...")
     shutil.move(src, dst)
 
-
 paths_to_remove = [version_file]
 # The presence of *.dist-info/RECORD files causes issues with reproducible
 # builds; see: https://github.com/gridsync/gridsync/issues/363
-paths_to_remove.extend(
-    [path for path in Path("dist", app_name).glob("**/*.dist-info/RECORD")]
-)
+paths_to_remove.extend([path for path in dist.glob("**/*.dist-info/RECORD")])
 if sys.platform not in ("darwin", "win32"):
     bad_libs = [
         "libX11.so.6",  # https://github.com/gridsync/gridsync/issues/43
@@ -280,7 +278,7 @@ if sys.platform not in ("darwin", "win32"):
         "libstdc++.so.6",  # https://github.com/gridsync/gridsync/issues/189
     ]
     for lib in bad_libs:
-        paths_to_remove.append(Path("dist", app_name, lib))
+        paths_to_remove.append(Path(dist, lib))
 for path in paths_to_remove:
     if path.exists():
         print(f"Removing {path}...")
