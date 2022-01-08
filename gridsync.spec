@@ -242,7 +242,10 @@ BUNDLE(
 
 
 paths_to_move = []
-dist = Path("dist", app_name)
+if sys.platform == "darwin":
+    dist = Path("dist", f"{app_name}.app", "Contents", "MacOS")
+else:
+    dist = Path("dist", app_name)
 # Prepend the app_name to avoid confusion regarding process names/ownership.
 # See https://github.com/gridsync/gridsync/issues/422
 if allmydata:
