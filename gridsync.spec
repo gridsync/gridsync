@@ -83,7 +83,6 @@ a = Analysis(
 
 bundles = []
 
-
 def collect_dynamic_libs(package):
     """
     This is a version of :py:`PyInstaller.utils.hooks.collect_dynamic_libs`
@@ -266,7 +265,11 @@ for src, dst in paths_to_move:
 
 
 paths_to_remove = [version_file]
-
+# The presence of *.dist-info/RECORD files causes issues with reproducible
+# builds; see: https://github.com/gridsync/gridsync/issues/363
+paths_to_remove.extend(
+    [path for path in Path("dist", app_name).glob("**/*.dist-info/RECORD")]
+)
 if sys.platform not in ("darwin", "win32"):
     bad_libs = [
         "libX11.so.6",  # https://github.com/gridsync/gridsync/issues/43
@@ -275,13 +278,6 @@ if sys.platform not in ("darwin", "win32"):
     ]
     for lib in bad_libs:
         paths_to_remove.append(Path("dist", app_name, lib))
-
-# The presence of *.dist-info/RECORD files causes issues with reproducible
-# builds; see: https://github.com/gridsync/gridsync/issues/363
-paths_to_remove.extend(
-    [path for path in Path("dist", app_name).glob("**/*.dist-info/RECORD")]
-)
-
 for path in paths_to_remove:
     if path.exists():
         print(f"Removing {path}...")
