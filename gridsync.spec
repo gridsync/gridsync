@@ -83,6 +83,7 @@ a = Analysis(
 
 bundles = []
 
+
 def collect_dynamic_libs(package):
     """
     This is a version of :py:`PyInstaller.utils.hooks.collect_dynamic_libs`
@@ -97,6 +98,7 @@ def collect_dynamic_libs(package):
         for path in Path(pkg_path).glob(lib_ext):
             dylibs.append((str(path.resolve()), pkg_rel_path))
     return dylibs
+
 
 if allmydata:
     from allmydata import __main__ as tahoe_script_module
@@ -240,13 +242,32 @@ BUNDLE(
 )
 
 
+paths_to_move = []
+dist = Path("dist", app_name)
+# Prepend the app_name to avoid confusion regarding process names/ownership.
+# See https://github.com/gridsync/gridsync/issues/422
+if allmydata:
+    executable = "tahoe.exe" if sys.platform == "win32" else "tahoe"
+    paths_to_move.append(
+        (Path(dist, executable), Path(dist, f"{app_name}-{executable}"))
+    )
+if magic_folder:
+    executable = (
+        "magic-folder.exe" if sys.platform == "win32" else "magic-folder"
+    )
+    paths_to_move.append(
+        (Path(dist, executable), Path(dist, f"{app_name}-{executable}"))
+    )
+if sys.platform not in ("darwin", "win32"):
+    paths_to_move.append((Path(dist, app_name), Path(dist, app_name.lower())))
+for src, dst in paths_to_move:
+    print(f"Moving {src} to {dst}...")
+    shutil.move(src, dst)
+
+
 paths_to_remove = [version_file]
 
 if sys.platform not in ("darwin", "win32"):
-    shutil.move(
-        Path("dist", app_name, app_name),
-        Path("dist", app_name, app_name.lower())
-    )
     bad_libs = [
         "libX11.so.6",  # https://github.com/gridsync/gridsync/issues/43
         "libdrm.so.2",  # https://github.com/gridsync/gridsync/issues/47
