@@ -243,11 +243,7 @@ BUNDLE(
 )
 
 
-print(f"Removing {version_file}...")
-try:
-    version_file.unlink(missing_ok=True)
-except Exception as exc:
-    print(f"WARNING: Could not remove {version_file}: {str(exc)}")
+paths_to_remove = [version_file]
 
 if sys.platform.startswith("linux"):
     src = os.path.join("dist", app_name, app_name)
@@ -259,17 +255,15 @@ if sys.platform.startswith("linux"):
         "libstdc++.so.6",  # https://github.com/gridsync/gridsync/issues/189
     ]
     for lib in bad_libs:
-        try:
-            Path("dist", app_name, lib).unlink(missing_ok=True)
-        except Exception as exc:
-            print(f"WARNING: Could not delete {lib}: {str(exc)}")
-        print(f"Deleted {lib} from bundle")
+        paths_to_remove.append(Path("dist", app_name, lib))
 
 # The presence of *.dist-info/RECORD files causes issues with reproducible
 # builds; see: https://github.com/gridsync/gridsync/issues/363
-for p in [p for p in Path("dist", app_name).glob("**/*.dist-info/RECORD")]:
-    print(f"Removing {p}...")
-    try:
-        os.remove(p)
-    except Exception as exc:
-        print(f"WARNING: Could not remove {p}: {str(exc)}")
+paths_to_remove.extend(
+    [path for path in Path("dist", app_name).glob("**/*.dist-info/RECORD")]
+)
+
+for path in paths_to_remove:
+    if path.exists():
+        print(f"Removing {path}...")
+        path.unlink()
