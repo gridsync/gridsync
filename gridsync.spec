@@ -245,7 +245,7 @@ BUNDLE(
 
 paths_to_remove = [version_file]
 
-if sys.platform.startswith("linux"):
+if sys.platform not in ("darwin", "win32"):
     src = os.path.join("dist", app_name, app_name)
     dest = os.path.join("dist", app_name, app_name.lower())
     shutil.move(src, dest)
