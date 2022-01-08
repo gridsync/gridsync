@@ -1,5 +1,4 @@
 import inspect
-import re
 import shutil
 import sys
 from configparser import RawConfigParser
