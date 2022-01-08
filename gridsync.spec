@@ -17,19 +17,14 @@ from PyInstaller.utils.hooks import (
 from versioneer import get_versions
 
 try:
-    import magic_folder
-except ImportError:
-    magic_folder = None
-
-try:
     import allmydata
 except ImportError:
     allmydata = None
 
-
-# https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
-sys.modules["FixTk"] = None
-excludes = ["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"]
+try:
+    import magic_folder
+except ImportError:
+    magic_folder = None
 
 
 config = RawConfigParser(allow_no_value=True)
@@ -49,9 +44,14 @@ app_name = settings["application"]["name"]
 version = settings["build"].get("version", get_versions()["version"])
 version_file = Path("gridsync", "resources", "version.txt")
 # When running frozen, Versioneer returns a version string of "0+unknown"
-# so write the version string from a file that can be read/loaded later.
+# so write the real version string to a file that can be read at runtime.
 with open(version_file, "w") as f:
     f.write(version)
+
+
+# https://github.com/pyinstaller/pyinstaller/wiki/Recipe-remove-tkinter-tcl
+sys.modules["FixTk"] = None
+excludes = ["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"]
 
 
 if sys.platform == "win32":
@@ -65,7 +65,6 @@ if sys.platform == "win32":
     ]
 else:
     paths = []
-
 
 a = Analysis(
     ["gridsync/cli.py"],
@@ -84,29 +83,15 @@ a = Analysis(
     cipher=None,
 )
 
-from magic_folder import __main__ as magic_folder_script_module
-magic_folder_a = Analysis(
-    [inspect.getsourcefile(magic_folder_script_module)],
-    pathex=[],
-    binaries=[],
-    datas=[],
-    hiddenimports=["UserList", "UserString", "commands"],
-    hookspath=[],
-    runtime_hooks=[],
-    excludes=excludes,
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=None,
-    noarchive=False,
-)
 
+bundles = []
 
 def collect_dynamic_libs(package):
     """
-    This is a version of :py:`PyInstaller.utils.hooks.collect_dynamic_libs` that
-    will include linux shared libraries without a `lib` prefix.
+    This is a version of :py:`PyInstaller.utils.hooks.collect_dynamic_libs`
+    that will include linux shared libraries without a `lib` prefix.
 
-    It also only handles dymaic libraries in the root of the package.
+    It also only handles dynamic libraries in the root of the package.
     """
     base_path, pkg_path = get_package_paths(package)
     pkg_rel_path = remove_prefix(pkg_path, base_path)
@@ -116,122 +101,135 @@ def collect_dynamic_libs(package):
             dylibs.append((file, pkg_rel_path))
     return dylibs
 
-from allmydata import __main__ as tahoe_script_module
-tahoe_a = Analysis(
-    [inspect.getsourcefile(tahoe_script_module)],
-    pathex=[],
-    binaries=collect_dynamic_libs("challenge_bypass_ristretto"),
-    datas=collect_data_files("allmydata.web"),
-    hiddenimports=[
-        "__builtin__",
-        "allmydata.client",
-        "allmydata.introducer",
-        "allmydata.stats",
-        "allmydata.web",
-        "base64",
-        "cffi",
-        "collections",
-        "commands",
-        "Crypto",
-        "functools",
-        "future.backports.misc",
-        "itertools",
-        "math",
-        "packaging.specifiers",
-        "re",
-        "reprlib",
-        "six.moves.html_parser",
-        "subprocess",
-        "twisted.plugins.zkapauthorizer",
-        "UserDict",
-        "UserList",
-        "UserString",
-        "yaml",
-        "zfec",
-    ],
-    hookspath=["pyinstaller-hooks"],
-    runtime_hooks=["pyinstaller-hooks/rthooks/runtime-twisted.plugins.py"],
-    excludes=excludes,
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=None,
-)
+if allmydata:
+    from allmydata import __main__ as tahoe_script_module
 
-MERGE(
-    (a, app_name, app_name),
-    (magic_folder_a, "magic-folder", "magic-folder"),
-    (tahoe_a, "Tahoe-LAFS", "Tahoe-LAFS"),
-)
+    tahoe_a = Analysis(
+        [inspect.getsourcefile(tahoe_script_module)],
+        pathex=[],
+        binaries=collect_dynamic_libs("challenge_bypass_ristretto"),
+        datas=collect_data_files("allmydata.web"),
+        hiddenimports=[
+            "__builtin__",
+            "allmydata.client",
+            "allmydata.introducer",
+            "allmydata.stats",
+            "allmydata.web",
+            "base64",
+            "cffi",
+            "collections",
+            "commands",
+            "Crypto",
+            "functools",
+            "future.backports.misc",
+            "itertools",
+            "math",
+            "packaging.specifiers",
+            "re",
+            "reprlib",
+            "six.moves.html_parser",
+            "subprocess",
+            "twisted.plugins.zkapauthorizer",
+            "UserDict",
+            "UserList",
+            "UserString",
+            "yaml",
+            "zfec",
+        ],
+        hookspath=["pyinstaller-hooks"],
+        runtime_hooks=["pyinstaller-hooks/rthooks/runtime-twisted.plugins.py"],
+        excludes=excludes,
+        win_no_prefer_redirects=False,
+        win_private_assemblies=False,
+        cipher=None,
+    )
+    bundles.append((tahoe_a, "tahoe", "tahoe"))
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=None)
-exe = EXE(
-    pyz,
-    a.scripts,
-    exclude_binaries=True,
-    name=app_name,
-    debug=False,
-    strip=False,
-    upx=False,
-    console=False,
-    icon=os.path.abspath(settings["build"]["win_icon"]),
-)
+if magic_folder:
+    from magic_folder import __main__ as magic_folder_script_module
 
+    magic_folder_a = Analysis(
+        [inspect.getsourcefile(magic_folder_script_module)],
+        pathex=[],
+        binaries=[],
+        datas=[],
+        hiddenimports=["UserList", "UserString", "commands"],
+        hookspath=[],
+        runtime_hooks=[],
+        excludes=excludes,
+        win_no_prefer_redirects=False,
+        win_private_assemblies=False,
+        cipher=None,
+        noarchive=False,
+    )
+    bundles.append((magic_folder_a, "magic-folder", "magic-folder"))
 
-magic_folder_pyz = PYZ(
-    magic_folder_a.pure, magic_folder_a.zipped_data, cipher=None
-)
-magic_folder_exe = EXE(
-    magic_folder_pyz,
-    magic_folder_a.scripts,
-    [("u", None, "OPTION")],  # Enable unbuffered stdio
-    exclude_binaries=True,
-    name="magic-folder",
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=False,
-    console=True,
-)
-
-tahoe_pyz = PYZ(tahoe_a.pure, tahoe_a.zipped_data, cipher=None)
-tahoe_exe = EXE(
-    tahoe_pyz,
-    tahoe_a.scripts,
-    [("u", None, "OPTION")],  # Enable unbuffered stdio
-    exclude_binaries=True,
-    name="tahoe",
-    debug=False,
-    strip=False,
-    upx=False,
-    console=True,
-)
+if bundles:
+    # https://pyinstaller.readthedocs.io/en/stable/spec-files.html#multipackage-bundles
+    bundles.insert(0, (a, app_name, app_name))
+    MERGE(*bundles)
 
 
-coll = COLLECT(
-    exe,
+files = [
+    EXE(
+        PYZ(a.pure, a.zipped_data, cipher=None),
+        a.scripts,
+        exclude_binaries=True,
+        name=app_name,
+        debug=False,
+        strip=False,
+        upx=False,
+        console=False,
+        icon=os.path.abspath(settings["build"]["win_icon"]),
+    ),
     a.binaries,
     a.zipfiles,
     a.datas,
-    magic_folder_exe,
-    magic_folder_a.binaries,
-    magic_folder_a.zipfiles,
-    magic_folder_a.datas,
-    tahoe_exe,
-    tahoe_a.binaries,
-    tahoe_a.zipfiles,
-    tahoe_a.datas,
-    strip=False,
-    upx=False,
-    name=app_name,
-)
+]
 
+if allmydata:
+    files += [
+        EXE(
+            PYZ(tahoe_a.pure, tahoe_a.zipped_data, cipher=None),
+            tahoe_a.scripts,
+            [("u", None, "OPTION")],  # Enable unbuffered stdio
+            exclude_binaries=True,
+            name="tahoe",
+            debug=False,
+            strip=False,
+            upx=False,
+            console=True,
+        ),
+        tahoe_a.binaries,
+        tahoe_a.zipfiles,
+        tahoe_a.datas,
+    ]
+
+if magic_folder:
+    files += [
+        EXE(
+            PYZ(magic_folder_a.pure, magic_folder_a.zipped_data, cipher=None),
+            magic_folder_a.scripts,
+            [("u", None, "OPTION")],  # Enable unbuffered stdio
+            exclude_binaries=True,
+            name="magic-folder",
+            debug=False,
+            bootloader_ignore_signals=False,
+            strip=False,
+            upx=False,
+            console=True,
+        ),
+        magic_folder_a.binaries,
+        magic_folder_a.zipfiles,
+        magic_folder_a.datas,
+    ]
 
 mac_background_only = settings["build"].get("mac_background_only", False)
 if mac_background_only and mac_background_only.lower() != "false":
     mac_background_only = True
 
-app = BUNDLE(
-    coll,
+BUNDLE(
+    COLLECT(*files, strip=False, upx=False, name=app_name),
     name=(app_name + ".app"),
     icon=os.path.abspath(settings["build"]["mac_icon"]),
     bundle_identifier=settings["build"]["mac_bundle_identifier"],
