@@ -274,7 +274,7 @@ pyinstaller-merged:
 	pyinstaller -y gridsync.spec
 
 pyinstaller:
-	$(MAKE) pyinstaller-separated
+	$(MAKE) pyinstaller-merged
 
 zip:
 	python3 scripts/update_permissions.py dist
