@@ -152,7 +152,7 @@ if magic_folder:
         pathex=[],
         binaries=[],
         datas=[],
-        hiddenimports=["UserList", "UserString", "commands"],
+        hiddenimports=["UserList", "UserString", "commands", "pywin32"],
         hookspath=[],
         runtime_hooks=[],
         excludes=excludes,
