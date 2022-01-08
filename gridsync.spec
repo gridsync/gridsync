@@ -1,6 +1,4 @@
-import glob
 import inspect
-import os
 import re
 import shutil
 import sys
@@ -97,8 +95,8 @@ def collect_dynamic_libs(package):
     pkg_rel_path = remove_prefix(pkg_path, base_path)
     dylibs = []
     for lib_ext in ["*.dll", "*.dylib", "*.pyd", "*.so"]:
-        for file in glob.glob(os.path.join(pkg_path, lib_ext)):
-            dylibs.append((file, pkg_rel_path))
+        for path in Path(pkg_path).glob(lib_ext):
+            dylibs.append((str(path.resolve()), pkg_rel_path))
     return dylibs
 
 if allmydata:
@@ -180,7 +178,7 @@ files = [
         strip=False,
         upx=False,
         console=False,
-        icon=os.path.abspath(settings["build"]["win_icon"]),
+        icon=str(Path(settings["build"]["win_icon"]).resolve()),
     ),
     a.binaries,
     a.zipfiles,
@@ -231,7 +229,7 @@ if mac_background_only and mac_background_only.lower() != "false":
 BUNDLE(
     COLLECT(*files, strip=False, upx=False, name=app_name),
     name=(app_name + ".app"),
-    icon=os.path.abspath(settings["build"]["mac_icon"]),
+    icon=str(Path(settings["build"]["mac_icon"]).resolve()),
     bundle_identifier=settings["build"]["mac_bundle_identifier"],
     info_plist={
         "CFBundleShortVersionString": version,
@@ -246,9 +244,10 @@ BUNDLE(
 paths_to_remove = [version_file]
 
 if sys.platform not in ("darwin", "win32"):
-    src = os.path.join("dist", app_name, app_name)
-    dest = os.path.join("dist", app_name, app_name.lower())
-    shutil.move(src, dest)
+    shutil.move(
+        Path("dist", app_name, app_name),
+        Path("dist", app_name, app_name.lower())
+    )
     bad_libs = [
         "libX11.so.6",  # https://github.com/gridsync/gridsync/issues/43
         "libdrm.so.2",  # https://github.com/gridsync/gridsync/issues/47
