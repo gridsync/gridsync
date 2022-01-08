@@ -262,6 +262,10 @@ if magic_folder:
     paths_to_move.append(
         (Path(dist, executable), Path(dist, f"{app_name}-{executable}"))
     )
+# XXX Sometimes .json files from `gridsync/resources/providers/` end up
+# in `gridsync/resources/`. I'm not sure why PyInstaller does this.. :/
+for p in Path(dist, "resources").glob("*-*.json"):
+    paths_to_move.append((p, Path(dist, "resources", "providers", p.name)))
 if sys.platform not in ("darwin", "win32"):
     paths_to_move.append((Path(dist, app_name), Path(dist, app_name.lower())))
 for src, dst in paths_to_move:
