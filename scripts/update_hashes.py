@@ -14,6 +14,7 @@ for f in REQUIREMENTS_DIR.iterdir():
     if f.suffix != ".txt":
         continue
     if f.name == "lint.txt":
+        # `black` is currently published as a "pre-release"
         args.extend(["--include-prereleases"])
     elif f.name.startswith("tahoe-lafs"):
         # tahoe-lafs dependencies are handled elsewhere.
