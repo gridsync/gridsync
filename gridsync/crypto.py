@@ -42,7 +42,7 @@ def encrypt(message: bytes, password: bytes) -> str:
     return version + b58encode(salt + encrypted).encode()
 
 
-def decrypt(ciphertext: bytes, password: bytes) -> str:
+def decrypt(ciphertext: bytes, password: bytes) -> bytes:
     version = ciphertext[:1]
     ciphertext = b58decode(ciphertext[1:].decode())
     if version == b"1":
