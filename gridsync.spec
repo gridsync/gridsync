@@ -279,7 +279,12 @@ for src, dst in paths_to_move:
     print(f"Moving {src} to {dst}...")
     shutil.move(src, dst)
 
-paths_to_remove = [version_file]
+paths_to_remove = []
+if sys.platform != "win32":
+    # The script used to generate an Inno Setup installer configuration
+    # currently loads the version from `gridsync/resources/version.txt`
+    # so don't delete it on Windows; see `scripts/make_installer.py`
+    paths_to_remove.append(version_file)
 # The presence of *.dist-info/RECORD files causes issues with reproducible
 # builds; see: https://github.com/gridsync/gridsync/issues/363
 paths_to_remove.extend([path for path in dist.glob("**/*.dist-info/RECORD")])
