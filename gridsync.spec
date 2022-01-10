@@ -155,7 +155,7 @@ if magic_folder:
         pathex=[],
         binaries=[],
         datas=[],
-        hiddenimports=["win32com"],
+        hiddenimports=["win32com.shell"],
         hookspath=[],
         runtime_hooks=[],
         excludes=excludes,
