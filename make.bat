@@ -82,8 +82,8 @@ call deactivate
 goto :eof
 
 :pyinstaller
-if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
-if not exist ".\dist\magic-folder" call :magic-folder
+::if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
+::if not exist ".\dist\magic-folder" call :magic-folder
 py -m tox -e pyinstaller || goto :error
 goto :eof
 
