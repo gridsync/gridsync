@@ -152,20 +152,20 @@ jobs:
         restore-keys: pip-${{ matrix.os.runs-on }}-
     - name: Install dependencies
       run: py -3.9 -m pip install tox diffoscope
-#    - name: Test
-#      run: .\make.bat test
-#    - name: Make pyinstaller
-#      run: |
-#        .\make.bat pyinstaller
-#        .\make.bat zip
-#    - name: Verify
-#      run: |
-#        .\dist\Gridsync\Gridsync-tahoe.exe --version-and-path
-#        .\dist\Gridsync\Gridsync-magic-folder.exe --version
-#        .\dist\Gridsync\Gridsync.exe --version
-#    - name: Test integration
-#      run: |
-#        .\make.bat test-integration
+    - name: Test
+      run: .\make.bat test
+    - name: Make pyinstaller
+      run: |
+        .\make.bat pyinstaller
+        .\make.bat zip
+    - name: Verify
+      run: |
+        .\dist\Gridsync\Gridsync-tahoe.exe --version-and-path
+        .\dist\Gridsync\Gridsync-magic-folder.exe --version
+        .\dist\Gridsync\Gridsync.exe --version
+    - name: Test integration
+      run: |
+        .\make.bat test-integration
     - name: Test determinism
       run: |
         .\make.bat test-determinism
@@ -175,13 +175,13 @@ jobs:
       with:
         name: zipfiles.zip
         path: .\dist\*.zip
-#    - name: Make installer
-#      run: |
-#        .\make.bat installer
-#    - name: sha256sum
-#      run: python3 scripts/sha256sum.py .\dist\*.*
-#    - name: Upload artifacts
-#      uses: actions/upload-artifact@v2
-#      with:
-#        path: .\dist\Gridsync-setup.exe
-#        name: Gridsync-${{ matrix.os.runs-on }}-setup.exe
+    - name: Make installer
+      run: |
+        .\make.bat installer
+    - name: sha256sum
+      run: python3 scripts/sha256sum.py .\dist\*.*
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: .\dist\Gridsync-setup.exe
+        name: Gridsync-${{ matrix.os.runs-on }}-setup.exe
