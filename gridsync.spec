@@ -24,7 +24,7 @@ except ImportError:
     magic_folder = None
 
 
-SEPARATE_BUNDLES = True
+SEPARATE_BUNDLES = False
 
 
 config = RawConfigParser(allow_no_value=True)
