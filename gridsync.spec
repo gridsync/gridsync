@@ -24,6 +24,9 @@ except ImportError:
     magic_folder = None
 
 
+SEPARATE_BUNDLES = False
+
+
 config = RawConfigParser(allow_no_value=True)
 config.read(Path("gridsync", "resources", "config.txt"))
 settings = {}
@@ -36,6 +39,7 @@ for section in config.sections():
         settings[section][option] = value
 import os
 from pprint import pprint
+
 pprint(dict(os.environ))
 print("--------------------------------------------------------------------")
 app_name = settings["application"]["name"]
@@ -85,6 +89,7 @@ a = Analysis(
 
 
 bundles = []
+
 
 def collect_dynamic_libs(package):
     """
@@ -173,7 +178,7 @@ if magic_folder:
     )
     bundles.append((magic_folder_a, "magic-folder", "magic-folder"))
 
-if bundles:
+if bundles and not SEPARATE_BUNDLES:
     # https://pyinstaller.readthedocs.io/en/stable/spec-files.html#multipackage-bundles
     bundles.insert(0, (a, app_name, app_name))
     MERGE(*bundles)
@@ -197,7 +202,7 @@ files = [
 ]
 
 if allmydata:
-    files += [
+    tahoe_files = [
         EXE(
             PYZ(tahoe_a.pure, tahoe_a.zipped_data, cipher=None),
             tahoe_a.scripts,
@@ -213,9 +218,14 @@ if allmydata:
         tahoe_a.zipfiles,
         tahoe_a.datas,
     ]
+    if SEPARATE_BUNDLES:
+        COLLECT(*tahoe_files, strip=False, upx=False, name="Tahoe-LAFS")
+    else:
+        files.extend(tahoe_files)
+
 
 if magic_folder:
-    files += [
+    magic_folder_files = [
         EXE(
             PYZ(magic_folder_a.pure, magic_folder_a.zipped_data, cipher=None),
             magic_folder_a.scripts,
@@ -232,6 +242,12 @@ if magic_folder:
         magic_folder_a.zipfiles,
         magic_folder_a.datas,
     ]
+    if SEPARATE_BUNDLES:
+        COLLECT(
+            *magic_folder_files, strip=False, upx=False, name="magic-folder"
+        )
+    else:
+        files.extend(magic_folder_files)
 
 mac_background_only = settings["build"].get("mac_background_only", False)
 if mac_background_only and mac_background_only.lower() != "false":
@@ -262,16 +278,34 @@ paths_to_move = []
 # See https://github.com/gridsync/gridsync/issues/422
 if allmydata:
     executable = "tahoe.exe" if sys.platform == "win32" else "tahoe"
-    paths_to_move.append(
-        (Path(dist, executable), Path(dist, f"{app_name}-{executable}"))
-    )
+    if SEPARATE_BUNDLES:
+        paths_to_move.append((Path("dist", "Tahoe-LAFS"), dist))
+        paths_to_move.append(
+            (
+                Path(dist, "Tahoe-LAFS", executable),
+                Path(dist, "Tahoe-LAFS", f"{app_name}-{executable}"),
+            )
+        )
+    else:
+        paths_to_move.append(
+            (Path(dist, executable), Path(dist, f"{app_name}-{executable}"))
+        )
 if magic_folder:
     executable = (
         "magic-folder.exe" if sys.platform == "win32" else "magic-folder"
     )
-    paths_to_move.append(
-        (Path(dist, executable), Path(dist, f"{app_name}-{executable}"))
-    )
+    if SEPARATE_BUNDLES:
+        paths_to_move.append((Path("dist", "magic-folder"), dist))
+        paths_to_move.append(
+            (
+                Path(dist, "magic-folder", executable),
+                Path(dist, "magic-folder", f"{app_name}-{executable}"),
+            )
+        )
+    else:
+        paths_to_move.append(
+            (Path(dist, executable), Path(dist, f"{app_name}-{executable}"))
+        )
 # XXX Sometimes .json files from `gridsync/resources/providers/` end up
 # in `gridsync/resources/`. I'm not sure why PyInstaller does this.. :/
 for p in Path(dist, "resources").glob("*-*.json"):
