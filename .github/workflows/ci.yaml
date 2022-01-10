@@ -169,13 +169,19 @@ jobs:
     - name: Test determinism
       run: |
         .\make.bat test-determinism
-    - name: Make installer
-      run: |
-        .\make.bat installer
-    - name: sha256sum
-      run: python3 scripts/sha256sum.py .\dist\*.*
-    - name: Upload artifacts
+    - name: Upload zipfiles
       uses: actions/upload-artifact@v2
+      if: failure()
       with:
-        path: .\dist\Gridsync-setup.exe
-        name: Gridsync-${{ matrix.os.runs-on }}-setup.exe
+        name: zipfiles.zip
+        path: .\dist\*.zip
+#    - name: Make installer
+#      run: |
+#        .\make.bat installer
+#    - name: sha256sum
+#      run: python3 scripts/sha256sum.py .\dist\*.*
+#    - name: Upload artifacts
+#      uses: actions/upload-artifact@v2
+#      with:
+#        path: .\dist\Gridsync-setup.exe
+#        name: Gridsync-${{ matrix.os.runs-on }}-setup.exe
