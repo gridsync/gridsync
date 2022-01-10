@@ -34,6 +34,9 @@ for section in config.sections():
     for option, value in config.items(section):
         print(f"[{section}] {option} = {value}")
         settings[section][option] = value
+import os
+from pprint import pprint
+pprint(dict(os.environ))
 print("--------------------------------------------------------------------")
 app_name = settings["application"]["name"]
 
