@@ -112,7 +112,7 @@ if allmydata:
         datas=collect_data_files("allmydata.web"),
         hiddenimports=[
             "__builtin__",
-	    "_zkapauthorizer",
+            "_zkapauthorizer",
             "allmydata.client",
             "allmydata.introducer",
             "allmydata.stats",
