@@ -14,8 +14,6 @@ set LINK=/Brepro
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="test-integration" call :test-integration
-if "%1"=="frozen-tahoe" call :frozen-tahoe
-if "%1"=="magic-folder" call :magic-folder
 if "%1"=="pyinstaller" call :pyinstaller
 if "%1"=="zip" call :zip
 if "%1"=="test-determinism" call :test-determinism
@@ -47,43 +45,7 @@ goto :eof
 py -m tox -e integration || goto :error
 goto :eof
 
-:frozen-tahoe
-call py -m pip install --upgrade setuptools pip virtualenv
-call py -m virtualenv --clear .\build\venv-tahoe
-call .\build\venv-tahoe\Scripts\activate
-call python -m pip install --upgrade setuptools pip
-call python .\scripts\reproducible-pip.py install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@python3
-call python -m pip install -r requirements\pyinstaller.txt
-call python -m pip list
-call set PYTHONHASHSEED=1
-call pyinstaller -y misc/tahoe.spec || goto :error
-call set PYTHONHASHSEED=
-call popd
-call deactivate
-goto :eof
-
-:magic-folder
-::call py scripts/checkout-github-repo requirements/magic-folder.json build/magic-folder
-call git clone -b python3-support.2 https://github.com/meejah/magic-folder build\magic-folder
-call py -m virtualenv --clear build\venv-magic-folder
-call .\build\venv-magic-folder\Scripts\activate
-call python -m pip install -r requirements\pyinstaller.txt
-call copy misc\magic-folder.spec build\magic-folder
-call pushd build\magic-folder
-call python ..\..\scripts\reproducible-pip.py install --require-hashes -r requirements\base.txt
-call python -m pip install --no-deps .
-call python -m pip list
-call set PYTHONHASHSEED=1
-call python -m PyInstaller magic-folder.spec || goto :error
-call set PYTHONHASHSEED=
-call popd
-call move build\magic-folder\dist\magic-folder dist
-call deactivate
-goto :eof
-
 :pyinstaller
-::if not exist ".\dist\Tahoe-LAFS" call :frozen-tahoe
-::if not exist ".\dist\magic-folder" call :magic-folder
 py -m tox -e pyinstaller || goto :error
 goto :eof
 
