@@ -156,6 +156,7 @@ install:
 pyinstaller:
 	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
+	export CFLAGS=-g0 && \
 	pip install --no-deps -r requirements/gridsync.txt && \
 	pip install --no-deps -r requirements/pyinstaller.txt && \
 	pip install --no-deps -r requirements/tahoe-lafs.txt && \
