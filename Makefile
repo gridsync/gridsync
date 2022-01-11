@@ -150,24 +150,21 @@ install:
 
 # PyInstaller's bootloader needs to be recompiled in order to properly
 # support for dark mode on macOS[1] and to fix binaries on Linux[2][3].
+# The PYINSTALLER_COMPILE_BOOTLOADER env var can now be used for this[4].
 # 1: https://github.com/gridsync/gridsync/issues/267#issuecomment-609980411
 # 2: https://github.com/pyinstaller/pyinstaller/issues/5330
 # 3: https://github.com/pyinstaller/pyinstaller/issues/5361
+# 4: https://github.com/pyinstaller/pyinstaller/pull/6384
 pyinstaller:
 	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
 	export CFLAGS=-g0 && \
 	pip install --no-deps -r requirements/gridsync.txt && \
-	pip install --no-deps -r requirements/pyinstaller.txt && \
 	pip install --no-deps -r requirements/tahoe-lafs.txt && \
 	pip install --no-deps -r requirements/magic-folder.txt && \
 	pip install --no-deps -r requirements/magic-folder.in && \
 	pip install -e . && \
-	rm -rf build/pyinstaller ; \
-	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
-	pushd build/pyinstaller && \
-	git checkout --force v4.7 && \
-	pushd bootloader && \
+	export PYINSTALLER_COMPILE_BOOTLOADER=1 && \
 	case `uname` in \
 		Darwin) \
 			export MACOSX_DEPLOYMENT_TARGET=10.13 && \
@@ -184,10 +181,8 @@ pyinstaller:
 			fi \
 		;; \
 		esac && \
-	python ./waf all && \
-	popd && \
-	pip install . && \
-	popd && \
+	env | sort && \
+	pip install --no-deps -r requirements/pyinstaller.txt && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y gridsync.spec
