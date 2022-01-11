@@ -407,9 +407,9 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
-tahoe-lafs==1.17.0 \
-    --hash=sha256:4f7139e6aac06c2e94219dffd2f3aea6cc05e2c1f07b36ef0b2aec4fc24b888a \
-    --hash=sha256:79d473b67f9ef15fb954153287805c38dbb42ec4ccc26283ea6e8ab96fab2000
+tahoe-lafs==1.17.1 \
+    --hash=sha256:2dc7fc103fe0e4f9fc69953934089f55e4428bd5d94670e844e64c210d7c1672 \
+    --hash=sha256:329dca7bc9d23b670ac2e513bf7aab7eb948f40ffbc6bf8fc92376cb1cceaf8f
     # via zero-knowledge-access-pass-authorizer
 tqdm==4.62.3 \
     --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
@@ -458,8 +458,8 @@ werkzeug==2.0.2 \
     --hash=sha256:63d3dc1cf60e7b7e35e97fa9861f7397283b75d765afcaefd993d6046899de8f \
     --hash=sha256:aa2bb6fc8dee8d6c504c0ac1e7f5f7dc5810a9903e793b6f715a9f015bdadb9a
     # via klein
-zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/4f59ff8c639eb8bc2c0ff1229563e426a8f3b7a5 \
-    --hash=sha256:59063ff8dbae7b68716d23e23fc309eb7e0787f46fa05e65e46df5a0685bd30e
+zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/acc2fae6239007400625cf3f1357498ff3294174 \
+    --hash=sha256:ee7aeb9a14b9550a44bab2ce5922ce18c486e06031ff964f7e1cbcc1659028bb
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
