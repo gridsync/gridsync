@@ -1,7 +1,8 @@
 {
-  "owner": "LeastAuthority",
-  "branch": "main",
+  "owner": "meejah",
+  "branch": "python3-support.2",
   "repo": "magic-folder",
-  "rev": "9423ee1dd61517d70f3844fc89e61567259ff60d",
-  "archive-url": "https://api.github.com/repos/LeastAuthority/magic-folder/tarball/9423ee1dd61517d70f3844fc89e61567259ff60d"
+  "rev": "e7adc4ab1a01c77fc84d41f2e6158fea149bed48",
+  "archive-url": "https://api.github.com/repos/meejah/magic-folder/tarball/e7adc4ab1a01c77fc84d41f2e6158fea149bed48",
+  "archive-url-file": "magic-folder.in"
 }

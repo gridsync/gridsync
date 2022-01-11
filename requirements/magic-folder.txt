@@ -1,0 +1,2 @@
+-r magic-folder-base.txt
+-r magic-folder-platform.txt

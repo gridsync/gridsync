@@ -160,7 +160,8 @@ pyinstaller:
 	pip install --no-deps -r requirements/gridsync.txt && \
 	pip install --no-deps -r requirements/pyinstaller.txt && \
 	pip install --no-deps -r requirements/tahoe-lafs.txt && \
-	pip install git+https://github.com/meejah/magic-folder@python3-support.2 && \
+	pip install --no-deps -r requirements/magic-folder.txt && \
+	pip install --no-deps -r requirements/magic-folder.in && \
 	pip install -e . && \
 	rm -rf build/pyinstaller ; \
 	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
