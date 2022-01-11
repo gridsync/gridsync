@@ -158,7 +158,7 @@ pyinstaller:
 	source .tox/pyinstaller/bin/activate && \
 	pip install --no-deps -r requirements/gridsync.txt && \
 	pip install --no-deps -r requirements/pyinstaller.txt && \
-	pip install git+https://github.com/PrivateStorageio/ZKAPAuthorizer@python3 && \
+	pip install --no-deps -r requirements/tahoe-lafs.txt && \
 	pip install git+https://github.com/meejah/magic-folder@python3-support.2 && \
 	pip install -e . && \
 	rm -rf build/pyinstaller ; \
