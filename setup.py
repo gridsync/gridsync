@@ -53,7 +53,7 @@ setup(
     url=metadata["url"],
     license=metadata["license"],
     keywords="gridsync tahoe-lafs tahoe lafs allmydata-tahoe magic-wormhole",
-    python_requires=">=3.7, <3.10",
+    python_requires=">=3.9, <3.10",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: MacOS X",
@@ -78,8 +78,6 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Communications :: File Sharing",

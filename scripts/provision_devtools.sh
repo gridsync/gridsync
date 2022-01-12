@@ -42,18 +42,9 @@ echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
 
 . "$SHELLRC"
 
-pyenv install --skip-existing 2.7.18
 pyenv install --skip-existing 3.9.7
-if [ "${SKIP_OLD_PYTHON_VERSIONS}" ]; then
-    pyenv rehash
-    pyenv global 2.7.18 3.9.7
-else
-    pyenv install --skip-existing 3.8.12
-    pyenv install --skip-existing 3.7.11
-    pyenv rehash
-    pyenv global 2.7.18 3.9.7 3.8.12 3.7.11
-fi
+pyenv rehash
+pyenv global 3.9.7
 pyenv versions
 
-python2 -m pip install --upgrade setuptools pip
 python3 -m pip install --upgrade setuptools pip tox diffoscope
