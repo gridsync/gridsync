@@ -1,6 +1,7 @@
 import inspect
 import os
 import shutil
+import subprocess
 import sys
 from configparser import RawConfigParser
 from distutils.sysconfig import get_python_lib
@@ -25,7 +26,21 @@ except ImportError:
     magic_folder = None
 
 
-os.environ["SOURCE_DATE_EPOCH"] = "1641774040"
+def git_timestamp():
+    output = subprocess.check_output(["git", "log", "-1", "--pretty=%ct"])
+    return int(output.strip())
+
+
+if not os.environ.get("SOURCE_DATE_EPOCH"):
+    try:
+        timestamp = git_timestamp()
+    except (OSError, ValueError):
+        timestamp = 1641774040
+        print(
+            "Warning: Could not get timestamp from git; falling back to "
+	    f"SOURCE_DATE_EPOCH={timestamp}"
+	)
+    os.environ["SOURCE_DATE_EPOCH"] = str(timestamp)
 
 
 SEPARATE_BUNDLES = False
