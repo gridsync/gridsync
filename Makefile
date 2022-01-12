@@ -150,6 +150,8 @@ install:
 
 
 pyinstaller:
+	# Disable debug information for reproducible builds.
+	export CFLAGS=-g0
 	python3 -m tox -e pyinstaller
 
 zip:
