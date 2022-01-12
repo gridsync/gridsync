@@ -38,8 +38,8 @@ if not os.environ.get("SOURCE_DATE_EPOCH"):
         timestamp = 1641774040
         print(
             "Warning: Could not get timestamp from git; falling back to "
-	    f"SOURCE_DATE_EPOCH={timestamp}"
-	)
+            f"SOURCE_DATE_EPOCH={timestamp}"
+        )
     os.environ["SOURCE_DATE_EPOCH"] = str(timestamp)
 
 
