@@ -1,0 +1,21 @@
+atomicwrites
+attrs
+autobahn
+#distro ; sys_platform != "darwin" and sys_platform != "win32"
+humanize
+hyperlink
+magic-wormhole
+# PyNaCl 1.2.0 adds Argon2id KDF
+pynacl >= 1.2.0
+# Qt 5.15.2 is broken on Debian 10; see https://bugreports.qt.io/browse/QTBUG-88688
+pyqt5 == 5.15.1
+pyqt5-sip == 12.8.1
+pyqtchart == 5.15.1
+pyyaml
+qt5reactor
+treq
+# Twisted 21.7.0 adds Deferred type hinting/annotations
+twisted[tls] >= 21.7.0
+txtorcon
+watchdog
+zxcvbn
