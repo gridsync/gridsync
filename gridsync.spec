@@ -1,4 +1,5 @@
 import inspect
+import os
 import shutil
 import sys
 from configparser import RawConfigParser
@@ -22,6 +23,9 @@ try:
     import magic_folder
 except ImportError:
     magic_folder = None
+
+
+os.environ["SOURCE_DATE_EPOCH"] = "1641774040"
 
 
 SEPARATE_BUNDLES = False
