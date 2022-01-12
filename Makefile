@@ -155,7 +155,7 @@ install:
 # 2: https://github.com/pyinstaller/pyinstaller/issues/5330
 # 3: https://github.com/pyinstaller/pyinstaller/issues/5361
 # 4: https://github.com/pyinstaller/pyinstaller/pull/6384
-pyinstaller:
+_pyinstaller:
 	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
 	source .tox/pyinstaller/bin/activate && \
 	export CFLAGS=-g0 && \
@@ -164,10 +164,31 @@ pyinstaller:
 	pip install --no-deps -r requirements/magic-folder.txt && \
 	pip install --no-deps -r requirements/magic-folder.in && \
 	pip install -e . && \
+	export PYINSTALLER_COMPILE_BOOTLOADER=1 && \
+	case `uname` in \
+		Darwin) \
+			export MACOSX_DEPLOYMENT_TARGET=10.13 && \
+			export CFLAGS=-mmacosx-version-min=10.13 && \
+			export CPPFLAGS=-mmacosx-version-min=10.13 && \
+			export LDFLAGS=-mmacosx-version-min=10.13 && \
+			export LINKFLAGS=-mmacosx-version-min=10.13 \
+		;; \
+		*) \
+			if [ $$(python -c "import distro;print(distro.id() + distro.version())") == "centos7" ] ; then \
+				export CFLAGS="-std=gnu99" ; \
+			else \
+				export CC="gcc -no-pie" ; \
+			fi \
+		;; \
+		esac && \
+	env | sort && \
 	pip install --no-deps -r requirements/pyinstaller.txt && \
 	pip list && \
 	export PYTHONHASHSEED=1 && \
 	pyinstaller -y gridsync.spec
+
+pyinstaller:
+	python3 -m tox -e pyinstaller
 
 zip:
 	python3 scripts/update_permissions.py dist
