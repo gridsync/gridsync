@@ -1,8 +1,9 @@
 {
   "owner": "PrivateStorageio",
-  "branch": "280.tahoe-lafs-1.17.1",
+  "branch": "main",
   "repo": "ZKAPAuthorizer",
-  "rev": "acc2fae6239007400625cf3f1357498ff3294174",
-  "archive-url": "https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/acc2fae6239007400625cf3f1357498ff3294174",
-  "archive-url-file": "tahoe-lafs.in"
+  "rev": "635f9d83d5842810fc448d48613dd7ed41c76b4b",
+  "archive-url": "https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/635f9d83d5842810fc448d48613dd7ed41c76b4b",
+  "archive-url-file": "tahoe-lafs.in",
+  "repo-url": "git+https://github.com/PrivateStorageio/ZKAPAuthorizer@main"
 }
