@@ -149,10 +149,18 @@ install:
 	python3 -m pip install --upgrade .
 
 
+pyinstaller-separate:
+	python3 -m tox -e pyinstaller-tahoe
+	python3 -m tox -e pyinstaller-magic-folder
+	python3 -m tox -e pyinstaller-gridsync
+
+pyinstaller-merged:
+	python3 -m tox -e pyinstaller
+
 pyinstaller:
 	# Disable debug information for reproducible builds.
 	export CFLAGS=-g0
-	python3 -m tox -e pyinstaller
+	$(MAKE) pyinstaller-merged
 
 zip:
 	python3 scripts/update_permissions.py dist
