@@ -173,10 +173,8 @@ def analyze_gridsync():
         ]
     else:
         paths = []
-    from gridsync import cli as script_module
-
     return Analysis(
-        [inspect.getsourcefile(script_module)],
+        ["gridsync/cli.py"],
         pathex=paths,
         binaries=None,
         datas=[
