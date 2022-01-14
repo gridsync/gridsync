@@ -2,8 +2,8 @@
   "owner": "LeastAuthority",
   "branch": "main",
   "repo": "magic-folder",
-  "rev": "c5460e1033beea7e23eb19dfe2a7c92f0aa07927",
-  "archive-url": "https://api.github.com/repos/LeastAuthority/magic-folder/tarball/c5460e1033beea7e23eb19dfe2a7c92f0aa07927",
+  "rev": "31732069980316b467affb0c2fdc9d4421d4fc49",
+  "archive-url": "https://api.github.com/repos/LeastAuthority/magic-folder/tarball/31732069980316b467affb0c2fdc9d4421d4fc49",
   "repo-url": "git+https://github.com/LeastAuthority/magic-folder@main",
-  "repo-url-file": "magic-folder.in"
+  "archive-url-file": "magic-folder.in"
 }
