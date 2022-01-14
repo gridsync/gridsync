@@ -45,8 +45,18 @@ goto :eof
 py -m tox -e integration || goto :error
 goto :eof
 
-:pyinstaller
+:pyinstaller-separate
+py -m tox -e pyinstaller-tahoe || goto :error
+py -m tox -e pyinstaller-magic-folder || goto :error
+py -m tox -e pyinstaller-gridsync || goto :error
+goto :eof
+
+:pyinstaller-merged
 py -m tox -e pyinstaller || goto :error
+goto :eof
+
+:pyinstaller
+call :pyinstaller-merged
 goto :eof
 
 :zip
