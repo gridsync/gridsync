@@ -1,0 +1,8 @@
+black
+flake8
+isort
+mypy
+pylint
+types-attrs
+types-atomicwrites
+types-pyyaml

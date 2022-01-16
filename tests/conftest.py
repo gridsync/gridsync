@@ -1,13 +1,34 @@
+import os
 import os.path
+import sys
 from base64 import b64encode
 from functools import partial
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 from pytest_twisted import async_yield_fixture
 
+from gridsync import APP_NAME
 from gridsync.network import get_free_port
 from gridsync.tahoe import Tahoe
+
+if sys.platform == "darwin":
+    application_bundle_path = str(
+        Path(
+            os.getcwd(),
+            "dist",
+            APP_NAME + ".app",
+            "Contents",
+            "MacOS",
+        ).resolve()
+    )
+else:
+    application_bundle_path = str(
+        Path(os.getcwd(), "dist", APP_NAME).resolve()
+    )
+
+os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
 
 
 @async_yield_fixture(scope="module")

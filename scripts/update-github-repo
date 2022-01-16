@@ -19,6 +19,7 @@ from pathlib import Path
 import httpx
 
 ARCHIVE_TEMPLATE = "https://api.github.com/repos/{owner}/{repo}/tarball/{rev}"
+REPO_TEMPLATE = "git+https://github.com/{owner}/{repo}@{branch}"
 BRANCH_TEMPLATE = (
     "https://api.github.com/repos/{owner}/{repo}/commits/{branch}"
 )
@@ -32,6 +33,9 @@ def get_github_commit(config):
 
 def get_github_archive_url(config):
     return ARCHIVE_TEMPLATE.format(**config)
+
+def get_github_repo_url(config):
+    return REPO_TEMPLATE.format(**config)
 
 
 def main():
@@ -78,6 +82,9 @@ def main():
     archive_url = get_github_archive_url(config)
     config["archive-url"] = archive_url
 
+    repo_url = get_github_repo_url(config)
+    config["repo-url"] = repo_url
+
     output = json.dumps(config, indent=2)
     if args.dry_run:
         print(output)
@@ -86,7 +93,9 @@ def main():
         if "archive-url-file" in config:
             archive_url_file = repo_file.with_name(config["archive-url-file"])
             archive_url_file.write_text(archive_url)
-
+        if "repo-url-file" in config:
+            repo_url_file = repo_file.with_name(config["repo-url-file"])
+            repo_url_file.write_text(repo_url)
 
 if __name__ == "__main__":
     main()

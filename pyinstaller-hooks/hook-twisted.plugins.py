@@ -47,11 +47,7 @@ def hook(api):
             module: plugin for (module, plugin) in getCache(plugins).items()
             if module in wanted_modules
         }
-        if sys.version < (3,):
-            stdout = sys.stdout
-        else:
-            stdout = sys.stdout.buffer
-        stdout.write(b2a_base64(pickle.dumps(cache)))
+        sys.stdout.buffer.write(b2a_base64(pickle.dumps(cache)))
         """
         % (included_modules,)
     )

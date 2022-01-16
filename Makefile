@@ -145,95 +145,20 @@ gif: pngs
 		-loop 0 \
 		images/frames/sync-*.png build/sync.gif
 
-frozen-tahoe:
-	mkdir -p dist
-	python3 -m virtualenv --python=python2 build/venv-tahoe
-	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
-	# so allow falling back to the user environment.
-	# https://github.com/pypa/virtualenv/issues/2023
-	# https://github.com/pypa/virtualenv/issues/2024
-	source build/venv-tahoe/bin/activate && \
-	python --version || deactivate && \
-	export CFLAGS=-g0 && \
-	python -m pip install -r requirements/tahoe-lafs.txt && \
-	python -m pip install -r requirements/pyinstaller.txt && \
-	python -m pip list && \
-	export PYTHONHASHSEED=1 && \
-	python -m PyInstaller -y misc/tahoe.spec && \
-	rm -rf dist/Tahoe-LAFS/cryptography-*-py2.7.egg-info && \
-	rm -rf dist/Tahoe-LAFS/include/python2.7 && \
-	rm -rf dist/Tahoe-LAFS/lib{,64}/python2.7
-
-magic-folder:
-	mkdir -p dist
-	mkdir -p build/magic-folder
-	python3 $(SCRIPTS)/checkout-github-repo requirements/magic-folder.json build/magic-folder
-	python3 -m virtualenv --clear --python=python2 build/venv-magic-folder
-	# CPython2 virtualenvs are (irredeemably?) broken on Apple Silicon
-	# so allow falling back to the user environment.
-	# https://github.com/pypa/virtualenv/issues/2023
-	# https://github.com/pypa/virtualenv/issues/2024
-	source build/venv-magic-folder/bin/activate && \
-	python --version || deactivate && \
-	python -m pip install -r requirements/pyinstaller.txt && \
-	cp misc/magic-folder.spec build/magic-folder && \
-	pushd build/magic-folder && \
-	python $(SCRIPTS)/reproducible-pip.py install --require-hashes -r requirements/base.txt && \
-	python -m pip install --no-deps . && \
-	python -m pip list && \
-	export PYTHONHASHSEED=1 && \
-	python -m PyInstaller magic-folder.spec && \
-	rm -rf dist/magic-folder/cryptography-*-py2.7.egg-info && \
-	rm -rf dist/magic-folder/include/python2.7 && \
-	rm -rf dist/magic-folder/lib/python2.7 && \
-	popd && \
-	mv build/magic-folder/dist/magic-folder dist
-
 install:
 	python3 -m pip install --upgrade .
 
 
-# PyInstaller's bootloader needs to be recompiled in order to properly
-# support for dark mode on macOS[1] and to fix binaries on Linux[2][3].
-# 1: https://github.com/gridsync/gridsync/issues/267#issuecomment-609980411
-# 2: https://github.com/pyinstaller/pyinstaller/issues/5330
-# 3: https://github.com/pyinstaller/pyinstaller/issues/5361
+pyinstaller-separate:
+	python3 -m tox -e pyinstaller-tahoe
+	python3 -m tox -e pyinstaller-magic-folder
+	python3 -m tox -e pyinstaller-gridsync
+
+pyinstaller-merged:
+	python3 -m tox -e pyinstaller
+
 pyinstaller:
-	if [ ! -d dist/Tahoe-LAFS ] ; then make frozen-tahoe ; fi
-	if [ ! -d dist/magic-folder ] ; then make magic-folder ; fi
-	python3 -m virtualenv --clear --python=python3 .tox/pyinstaller && \
-	source .tox/pyinstaller/bin/activate && \
-	pip install --no-deps -r requirements/gridsync.txt && \
-	pip install --no-deps -r requirements/pyinstaller.txt && \
-	pip install -e . && \
-	rm -rf build/pyinstaller ; \
-	git clone https://github.com/pyinstaller/pyinstaller.git build/pyinstaller && \
-	pushd build/pyinstaller && \
-	git checkout --force v4.7 && \
-	pushd bootloader && \
-	case `uname` in \
-		Darwin) \
-			export MACOSX_DEPLOYMENT_TARGET=10.13 && \
-			export CFLAGS=-mmacosx-version-min=10.13 && \
-			export CPPFLAGS=-mmacosx-version-min=10.13 && \
-			export LDFLAGS=-mmacosx-version-min=10.13 && \
-			export LINKFLAGS=-mmacosx-version-min=10.13 \
-		;; \
-		*) \
-			if [ $$(python -c "import distro;print(distro.id() + distro.version())") == "centos7" ] ; then \
-				export CFLAGS="-std=gnu99" ; \
-			else \
-				export CC="gcc -no-pie" ; \
-			fi \
-		;; \
-		esac && \
-	python ./waf all && \
-	popd && \
-	pip install . && \
-	popd && \
-	pip list && \
-	export PYTHONHASHSEED=1 && \
-	pyinstaller -y misc/gridsync.spec
+	$(MAKE) pyinstaller-merged
 
 zip:
 	python3 scripts/update_permissions.py dist

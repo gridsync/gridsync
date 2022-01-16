@@ -14,6 +14,7 @@ __license__ = "GPLv3"
 
 if getattr(sys, "frozen", False):
     pkgdir = os.path.dirname(os.path.realpath(sys.executable))
+    os.environ["PATH"] += os.pathsep + pkgdir
     os.environ["PATH"] += os.pathsep + os.path.join(pkgdir, "Tahoe-LAFS")
     os.environ["PATH"] += os.pathsep + os.path.join(pkgdir, "magic-folder")
     if sys.platform == "win32":

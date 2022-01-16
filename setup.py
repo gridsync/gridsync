@@ -3,30 +3,29 @@
 import re
 import struct
 import sys
+from pathlib import Path
 
 from setuptools import setup
 
 import versioneer
 
-requirements = [
-    "atomicwrites",
-    "attrs",
-    "autobahn",
-    'distro ; sys_platform != "darwin" and sys_platform != "win32"',
-    "humanize",
-    "hyperlink",
-    "magic-wormhole",
-    "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
-    "PyQt5",
-    "PyQtChart",
-    "pyyaml",
-    "qt5reactor",
-    "treq",
-    "twisted[tls] >= 21.7.0",  # 21.7.0 adds Deferred type hinting/annotations
-    "txtorcon",
-    "watchdog",
-    "zxcvbn",
-]
+
+def load_requirements(filepath):
+    with filepath.open() as f:
+        return [
+            line.replace("\\", "").strip()
+            for line in f.readlines()
+            if not line.startswith(("#", "-r"))
+            and not line.strip().startswith("--hash")
+        ]
+
+
+requirements_base = load_requirements(Path("requirements", "gridsync.in"))
+requirements_platform = load_requirements(
+    Path("requirements", "gridsync-platform.txt")
+)
+requirements = requirements_base + requirements_platform
+
 
 if sys.platform.startswith("linux") and (struct.calcsize("P") * 8) == 32:
     try:
@@ -53,7 +52,7 @@ setup(
     url=metadata["url"],
     license=metadata["license"],
     keywords="gridsync tahoe-lafs tahoe lafs allmydata-tahoe magic-wormhole",
-    python_requires=">=3.7, <3.10",
+    python_requires=">=3.9, <3.10",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: MacOS X",
@@ -78,8 +77,6 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Communications :: File Sharing",

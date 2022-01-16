@@ -107,7 +107,7 @@ To install and run Gridsync on Windows (64-bit only; supporting Windows Server 2
 
 **From source:**
 
-The project `Makefile`_ (or `make.bat`_ file on Windows) references the various scripts and commands necessary for building Gridsync from source. For most users with Python 2 and 3 already installed, building the application should simply be a matter of issuing a `make` command at the top-level of the source tree:
+The project `Makefile`_ (or `make.bat`_ file on Windows) references the various scripts and commands necessary for building Gridsync from source. For most users with Python already installed, building the application should simply be a matter of issuing a `make` command at the top-level of the source tree:
 
 .. code-block:: shell-session
 
