@@ -160,7 +160,7 @@ pyinstaller-merged:
 pyinstaller:
 	# Disable debug information for reproducible builds.
 	export CFLAGS=-g0
-	$(MAKE) pyinstaller-merged
+	$(MAKE) pyinstaller-separate
 
 zip:
 	python3 scripts/update_permissions.py dist

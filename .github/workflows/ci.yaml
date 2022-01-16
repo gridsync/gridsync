@@ -42,8 +42,8 @@ jobs:
         make all
     - name: Verify
       run: |
-        xvfb-run -a dist/Gridsync/Gridsync-tahoe --version-and-path
-        xvfb-run -a dist/Gridsync/Gridsync-magic-folder --version
+        xvfb-run -a dist/Gridsync/Tahoe-LAFS/Gridsync-tahoe --version-and-path
+        xvfb-run -a dist/Gridsync/magic-folder/Gridsync-magic-folder --version
         xvfb-run -a dist/Gridsync/gridsync --version
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test determinism
@@ -111,8 +111,8 @@ jobs:
         make zip
     - name: Verify
       run: |
-        dist/Gridsync.app/Contents/MacOS/Gridsync-tahoe --version-and-path
-        dist/Gridsync.app/Contents/MacOS/Gridsync-magic-folder --version
+        dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/Gridsync-tahoe --version-and-path
+        dist/Gridsync.app/Contents/MacOS/magic-folder/Gridsync-magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test integration
       run: |
@@ -160,8 +160,8 @@ jobs:
         .\make.bat zip
     - name: Verify
       run: |
-        .\dist\Gridsync\Gridsync-tahoe.exe --version-and-path
-        .\dist\Gridsync\Gridsync-magic-folder.exe --version
+        .\dist\Gridsync\Tahoe-LAFS\Gridsync-tahoe.exe --version-and-path
+        .\dist\Gridsync\magic-folder\Gridsync-magic-folder.exe --version
         .\dist\Gridsync\Gridsync.exe --version
     - name: Test integration
       run: |
