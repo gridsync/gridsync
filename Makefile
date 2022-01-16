@@ -158,8 +158,6 @@ pyinstaller-merged:
 	python3 -m tox -e pyinstaller
 
 pyinstaller:
-	# Disable debug information for reproducible builds.
-	export CFLAGS=-g0
 	$(MAKE) pyinstaller-merged
 
 zip:
