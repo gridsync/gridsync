@@ -8,7 +8,6 @@ import tempfile
 
 import pip
 
-
 # Normalize timestamps for compiled C extensions via undocumented MSVC flag.
 # See https://nikhilism.com/post/2020/windows-deterministic-builds/ and/or
 # https://blog.conan.io/2019/09/02/Deterministic-builds-with-C-C++.html
@@ -17,7 +16,6 @@ if sys.platform == "win32":
 else:
     # Disable debug information.
     os.environ["CFLAGS"] = "-g0"
-
 
 # When `--require-hashes` is passed to pip, it will not use locally built
 # wheels in its cache, for packages that are only available as sdists. This
