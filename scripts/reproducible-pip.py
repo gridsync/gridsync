@@ -12,7 +12,7 @@ import pip
 # Normalize timestamps for compiled C extensions via undocumented MSVC flag.
 # See https://nikhilism.com/post/2020/windows-deterministic-builds/ and/or
 # https://blog.conan.io/2019/09/02/Deterministic-builds-with-C-C++.html
-if sys.platform == "win32"
+if sys.platform == "win32":
     os.environ["LINK"] = "/Brepro"
 else:
     # Disable debug information.
