@@ -147,6 +147,7 @@ class ZKAPChecker(QObject):
     zkaps_price_updated = pyqtSignal(int, int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
+    redeeming_vouchers_updated = pyqtSignal(list)
     low_zkaps_warning = pyqtSignal()
 
     def __init__(self, gateway):
@@ -162,6 +163,7 @@ class ZKAPChecker(QObject):
         self.zkaps_renewal_cost: int = 0
         self.days_remaining: int = 0
         self.unpaid_vouchers: list = []
+        self.redeeming_vouchers: list = []
 
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
@@ -205,6 +207,15 @@ class ZKAPChecker(QObject):
         if unpaid_vouchers != self.unpaid_vouchers:
             self.unpaid_vouchers = unpaid_vouchers
             self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
+
+    def _update_redeeming_vouchers(self, redeeming_vouchers):
+        """
+        Record and propagate notification about the set of redeeming vouchers
+        changing, if it has.
+        """
+        if redeeming_vouchers != self.redeeming_vouchers:
+            self.redeeming_vouchers = redeeming_vouchers
+            self.redeeming_vouchers_updated.emit(self.redeeming_vouchers)
 
     def _update_zkaps_last_redeemed(self, zkaps_last_redeemed):
         """
@@ -293,6 +304,7 @@ class ZKAPChecker(QObject):
         )
         total = parse.total_tokens
         self._update_unpaid_vouchers(parse.unpaid_vouchers)
+        self._update_redeeming_vouchers(parse.redeeming_vouchers)
         self._update_zkaps_last_redeemed(parse.zkaps_last_redeemed)
 
         try:
@@ -378,6 +390,7 @@ class Monitor(QObject):
     zkaps_price_updated = pyqtSignal(int, int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
+    redeeming_vouchers_updated = pyqtSignal(list)
     low_zkaps_warning = pyqtSignal()
 
     def __init__(self, gateway):
@@ -404,6 +417,9 @@ class Monitor(QObject):
         )
         self.zkap_checker.unpaid_vouchers_updated.connect(
             self.unpaid_vouchers_updated.emit
+        )
+        self.zkap_checker.redeeming_vouchers_updated.connect(
+            self.redeeming_vouchers_updated.emit
         )
         self.zkap_checker.low_zkaps_warning.connect(
             self.low_zkaps_warning.emit
