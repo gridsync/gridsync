@@ -69,6 +69,9 @@ class _VoucherParse:
     :ivar unpaid_vouchers: A list of voucher identifiers which are believed to
         not yet have been paid for.
 
+    :ivar unpaid_vouchers: A list of voucher identifiers which are currently
+        in the process of being redeemed for tokens.
+
     :ivar zkaps_last_redeemed: An ISO8601 datetime string giving the latest
         time at which a voucher was seen to have been redeemed.  If no
         redemption was seen then the value is an empty string instead.
@@ -76,6 +79,7 @@ class _VoucherParse:
 
     total_tokens = attr.ib()
     unpaid_vouchers = attr.ib()
+    redeeming_vouchers = attr.ib()
     zkaps_last_redeemed = attr.ib()
 
 
@@ -103,6 +107,7 @@ def _parse_vouchers(
     total = 0
     zkaps_last_redeemed = ""
     unpaid_vouchers = set()
+    redeeming_vouchers = set()
     for voucher in vouchers:
         number = voucher["number"]
         state = voucher["state"]
@@ -119,12 +124,18 @@ def _parse_vouchers(
             time_created = datetime.fromisoformat(created)
             if time_created > time_started:
                 unpaid_vouchers.add(number)
+        elif name == "redeeming" and state.get("counter", 0):
+            redeeming_vouchers.add(number)
         elif name == "redeemed":
             total += state["token-count"]
             finished = state["finished"]
             zkaps_last_redeemed = max(zkaps_last_redeemed, finished)
-
-    return _VoucherParse(total, sorted(unpaid_vouchers), zkaps_last_redeemed)
+    return _VoucherParse(
+        total,
+        sorted(unpaid_vouchers),
+        sorted(redeeming_vouchers),
+        zkaps_last_redeemed,
+    )
 
 
 class ZKAPChecker(QObject):
