@@ -634,12 +634,14 @@ class MagicFolder:
         yield self.create_folder_backup(name)  # XXX
 
     @inlineCallbacks
-    def leave_folder(self, folder_name: str) -> TwistedDeferred[None]:
+    def leave_folder(
+        self, folder_name: str, missing_ok=False
+    ) -> TwistedDeferred[None]:
         yield self._request(
             "DELETE",
             f"/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
-            code_404_ok=True,
+            code_404_ok=missing_ok,
         )
         # XXX
         # try:
