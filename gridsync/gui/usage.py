@@ -5,7 +5,7 @@ import logging
 import traceback
 import webbrowser
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import attr
 from humanize import naturalsize
@@ -51,6 +51,19 @@ def make_explainer_label() -> QLabel:
     return explainer_label
 
 
+def make_redeeming_label() -> QLabel:
+    redeeming_label = QLabel(
+        "A voucher is being redeemed for storage-time. You may add folders "
+        "during this time."
+    )
+    font = Font(10)
+    font.setItalic(True)
+    redeeming_label.setFont(font)
+    redeeming_label.setAlignment(Qt.AlignCenter)
+    redeeming_label.hide()
+    return redeeming_label
+
+
 def make_title() -> QLabel:
     title = QLabel("Storage-time")
     font = Font(11)
@@ -90,6 +103,9 @@ class UsageView(QWidget):
     _zkaps_remaining: int = attr.ib(default=0, init=False)
     _zkaps_total: int = attr.ib(default=0, init=False)
     _zkaps_period: int = attr.ib(default=0, init=False)
+    _redeeming_vouchers: List[str] = attr.ib(
+        default=attr.Factory(list), init=False
+    )
     _last_purchase_date: str = attr.ib(default="Not available", init=False)
     _expiry_date: str = attr.ib(default="Not available", init=False)
     _amount_stored: str = attr.ib(default="Not available", init=False)
@@ -101,6 +117,9 @@ class UsageView(QWidget):
     title = attr.ib(default=attr.Factory(make_title), init=False)
     explainer_label = attr.ib(
         default=attr.Factory(make_explainer_label), init=False
+    )
+    redeeming_label = attr.ib(
+        default=attr.Factory(make_redeeming_label), init=False
     )
     # The rest of these don't use attr.Factory because they depend on
     # something from self or they're so trivial there didn't seem to be a
@@ -167,6 +186,7 @@ class UsageView(QWidget):
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
         layout.addWidget(self.title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
+        layout.addWidget(self.redeeming_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addWidget(self.loading_storage_time, 50, 0)
         layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
@@ -212,6 +232,9 @@ class UsageView(QWidget):
         )
         self.gateway.magic_folder.monitor.total_folders_size_updated.connect(
             self.on_total_folders_size_updated
+        )
+        self.gateway.monitor.redeeming_vouchers_updated.connect(
+            self.on_redeeming_vouchers_updated
         )
         self.gateway.monitor.low_zkaps_warning.connect(
             self.on_low_zkaps_warning
@@ -325,17 +348,23 @@ class UsageView(QWidget):
 
     def _update_chart(self) -> None:
         self.loading_storage_time.hide()
-        if self._zkaps_remaining:
+        if self._redeeming_vouchers:
             self.zkaps_required_label.hide()
-
+            self.explainer_label.hide()
+            self.title.show()
+            self.redeeming_label.show()
+            self.chart_view.show()
+        elif self._zkaps_remaining:
+            self.zkaps_required_label.hide()
+            self.redeeming_label.hide()
             self.title.show()
             self.explainer_label.show()
             self.chart_view.show()
         else:
             self.title.hide()
             self.explainer_label.hide()
+            self.redeeming_label.hide()
             self.chart_view.hide()
-
             self.zkaps_required_label.show()
         self.chart_view.chart.update(
             self._zkaps_used,
@@ -344,6 +373,11 @@ class UsageView(QWidget):
             self._zkaps_period,
         )
         self.gui.main_window.toolbar.update_actions()  # XXX
+
+    @Slot(list)
+    def on_redeeming_vouchers_updated(self, vouchers):
+        self._redeeming_vouchers = vouchers
+        self._update_chart()
 
     @Slot(int, int)
     def on_zkaps_updated(self, used: int, remaining: int) -> None:
