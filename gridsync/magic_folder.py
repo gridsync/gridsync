@@ -639,6 +639,7 @@ class MagicFolder:
             "DELETE",
             f"/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
+            code_404_ok=True,
         )
         # XXX
         # try:
