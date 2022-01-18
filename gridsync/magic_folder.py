@@ -577,7 +577,11 @@ class MagicFolder:
 
     @inlineCallbacks
     def _request(
-        self, method: str, path: str, body: bytes = b""
+        self,
+        method: str,
+        path: str,
+        body: bytes = b"",
+        code_404_ok: bool = False,
     ) -> TwistedDeferred[dict]:
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
@@ -590,7 +594,7 @@ class MagicFolder:
             data=body,
         )
         content = yield treq.content(resp)
-        if resp.code in (200, 201):
+        if resp.code in (200, 201) or (resp.code == 404 and code_404_ok):
             return json.loads(content)
         raise MagicFolderWebError(
             f"Error {resp.code} requesting {method} /v1{path}: {content}"
