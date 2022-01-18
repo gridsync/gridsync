@@ -2,6 +2,8 @@
 Tests for ``gridsync.gui.usage``.
 """
 
+import pytest
+
 from gridsync.gui.usage import UsageView
 
 
@@ -46,3 +48,21 @@ def test_on_zkaps_updated_none_remaining(fake_tahoe, gui):
     assert not view.title.isVisible()
     assert view.zkaps_required_label.isVisible()
     assert not view.chart_view.isVisible()
+
+
+@pytest.mark.parametrize(
+    "vouchers, expected_visibility",
+    [(["AAAA"], True), (["AAAA", "BBBB"], True), ([], False)],
+)
+def test_on_redeeming_vouchers_updated_redeeming_label_visibility(
+    fake_tahoe, gui, vouchers, expected_visibility
+):
+    """
+    After ``UsageView.on_redeeming_vouchers`` is called, the "redeeming"
+    label is visible if some vouchers are being redeemed -- and is not
+    visible if there are no vouchers being redeemed.
+    """
+    view = UsageView(fake_tahoe, gui)
+    view.groupbox.parent().show()
+    view.on_redeeming_vouchers_updated(vouchers)
+    assert view.redeeming_label.isVisible() == expected_visibility
