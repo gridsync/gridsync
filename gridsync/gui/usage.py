@@ -375,7 +375,7 @@ class UsageView(QWidget):
         self.gui.main_window.toolbar.update_actions()  # XXX
 
     @Slot(list)
-    def on_redeeming_vouchers_updated(self, vouchers):
+    def on_redeeming_vouchers_updated(self, vouchers: List) -> None:
         self._redeeming_vouchers = vouchers
         self._update_chart()
 
