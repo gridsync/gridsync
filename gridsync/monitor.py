@@ -69,6 +69,9 @@ class _VoucherParse:
     :ivar unpaid_vouchers: A list of voucher identifiers which are believed to
         not yet have been paid for.
 
+    :ivar unpaid_vouchers: A list of voucher identifiers which are currently
+        in the process of being redeemed for tokens.
+
     :ivar zkaps_last_redeemed: An ISO8601 datetime string giving the latest
         time at which a voucher was seen to have been redeemed.  If no
         redemption was seen then the value is an empty string instead.
@@ -76,6 +79,7 @@ class _VoucherParse:
 
     total_tokens = attr.ib()
     unpaid_vouchers = attr.ib()
+    redeeming_vouchers = attr.ib()
     zkaps_last_redeemed = attr.ib()
 
 
@@ -103,6 +107,7 @@ def _parse_vouchers(
     total = 0
     zkaps_last_redeemed = ""
     unpaid_vouchers = set()
+    redeeming_vouchers = set()
     for voucher in vouchers:
         number = voucher["number"]
         state = voucher["state"]
@@ -119,12 +124,18 @@ def _parse_vouchers(
             time_created = datetime.fromisoformat(created)
             if time_created > time_started:
                 unpaid_vouchers.add(number)
+        elif name == "redeeming" and state.get("counter", 0):
+            redeeming_vouchers.add(number)
         elif name == "redeemed":
             total += state["token-count"]
             finished = state["finished"]
             zkaps_last_redeemed = max(zkaps_last_redeemed, finished)
-
-    return _VoucherParse(total, sorted(unpaid_vouchers), zkaps_last_redeemed)
+    return _VoucherParse(
+        total,
+        sorted(unpaid_vouchers),
+        sorted(redeeming_vouchers),
+        zkaps_last_redeemed,
+    )
 
 
 class ZKAPChecker(QObject):
@@ -136,6 +147,7 @@ class ZKAPChecker(QObject):
     zkaps_price_updated = pyqtSignal(int, int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
+    redeeming_vouchers_updated = pyqtSignal(list)
     low_zkaps_warning = pyqtSignal()
 
     def __init__(self, gateway):
@@ -151,6 +163,7 @@ class ZKAPChecker(QObject):
         self.zkaps_renewal_cost: int = 0
         self.days_remaining: int = 0
         self.unpaid_vouchers: list = []
+        self.redeeming_vouchers: list = []
 
     def consumption_rate(self):
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
@@ -194,6 +207,15 @@ class ZKAPChecker(QObject):
         if unpaid_vouchers != self.unpaid_vouchers:
             self.unpaid_vouchers = unpaid_vouchers
             self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
+
+    def _update_redeeming_vouchers(self, redeeming_vouchers):
+        """
+        Record and propagate notification about the set of redeeming vouchers
+        changing, if it has.
+        """
+        if redeeming_vouchers != self.redeeming_vouchers:
+            self.redeeming_vouchers = redeeming_vouchers
+            self.redeeming_vouchers_updated.emit(self.redeeming_vouchers)
 
     def _update_zkaps_last_redeemed(self, zkaps_last_redeemed):
         """
@@ -282,6 +304,7 @@ class ZKAPChecker(QObject):
         )
         total = parse.total_tokens
         self._update_unpaid_vouchers(parse.unpaid_vouchers)
+        self._update_redeeming_vouchers(parse.redeeming_vouchers)
         self._update_zkaps_last_redeemed(parse.zkaps_last_redeemed)
 
         try:
@@ -367,6 +390,7 @@ class Monitor(QObject):
     zkaps_price_updated = pyqtSignal(int, int)
     days_remaining_updated = pyqtSignal(int)
     unpaid_vouchers_updated = pyqtSignal(list)
+    redeeming_vouchers_updated = pyqtSignal(list)
     low_zkaps_warning = pyqtSignal()
 
     def __init__(self, gateway):
@@ -393,6 +417,9 @@ class Monitor(QObject):
         )
         self.zkap_checker.unpaid_vouchers_updated.connect(
             self.unpaid_vouchers_updated.emit
+        )
+        self.zkap_checker.redeeming_vouchers_updated.connect(
+            self.redeeming_vouchers_updated.emit
         )
         self.zkap_checker.low_zkaps_warning.connect(
             self.low_zkaps_warning.emit

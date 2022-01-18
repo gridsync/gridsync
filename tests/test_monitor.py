@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, Mock, call
 
 from pytest_twisted import inlineCallbacks
 
-from gridsync.monitor import GridChecker, Monitor, ZKAPChecker
+from gridsync.monitor import GridChecker, Monitor, ZKAPChecker, _parse_vouchers
 
 
 @inlineCallbacks
@@ -112,3 +112,45 @@ def test_zkaps_update_last_redeemed(tahoe):
 
     checker._maybe_load_last_redeemed()
     assert zkaps_redeemed == [now.isoformat(), later.isoformat()]
+
+
+def test__parse_voucher_contains_redeeming_vouchers(tahoe):
+    vouchers = [
+        {
+            "created": "2022-01-17T13:53:16.865887",
+            "expected-tokens": 50000,
+            "number": "0MH30nxh9iup727nTi3u51Ir9HcQYIM8",
+            "state": {
+                "counter": 15,
+                "name": "redeeming",
+                "started": "2022-01-17T13:55:15.177781",
+            },
+            "version": 1,
+        }
+    ]
+    now = datetime(2021, 12, 21, 13, 23, 50)
+    parsed = _parse_vouchers(vouchers, now)
+    assert parsed.redeeming_vouchers == ["0MH30nxh9iup727nTi3u51Ir9HcQYIM8"]
+
+
+def test__update_redeeming_vouchers_emits_redeeming_vouchers_updated(tahoe):
+    vouchers = [
+        {
+            "created": "2022-01-17T13:53:16.865887",
+            "expected-tokens": 50000,
+            "number": "0MH30nxh9iup727nTi3u51Ir9HcQYIM8",
+            "state": {
+                "counter": 15,
+                "name": "redeeming",
+                "started": "2022-01-17T13:55:15.177781",
+            },
+            "version": 1,
+        }
+    ]
+    now = datetime(2021, 12, 21, 13, 23, 50)
+    parsed = _parse_vouchers(vouchers, now)
+    redeeming_vouchers = []
+    checker = ZKAPChecker(tahoe)
+    checker.redeeming_vouchers_updated.connect(redeeming_vouchers.extend)
+    checker._update_redeeming_vouchers(parsed.redeeming_vouchers)
+    assert redeeming_vouchers == ["0MH30nxh9iup727nTi3u51Ir9HcQYIM8"]
