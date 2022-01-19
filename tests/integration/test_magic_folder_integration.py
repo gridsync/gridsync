@@ -3,13 +3,14 @@ import sys
 import time
 from pathlib import Path
 
+import pytest
 from pytest_twisted import async_yield_fixture, inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
-from gridsync.magic_folder import MagicFolderState
+from gridsync.magic_folder import MagicFolderState, MagicFolderWebError
 from gridsync.tahoe import Tahoe
 
 if sys.platform == "darwin":
@@ -138,6 +139,37 @@ def test_leave_folder(magic_folder, tmp_path):
     folder_was_removed = folder_name not in folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
+
+
+@inlineCallbacks
+def test_leave_folder_with_missing_ok_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    folders = yield magic_folder.get_folders()
+    folder_was_added = folder_name in folders
+
+    yield magic_folder.leave_folder(folder_name)
+    yield magic_folder.leave_folder(folder_name, missing_ok=True)
+    folders = yield magic_folder.get_folders()
+    folder_was_removed = folder_name not in folders
+
+    assert (folder_was_added, folder_was_removed) == (True, True)
+
+
+@inlineCallbacks
+def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    folders = yield magic_folder.get_folders()
+    folder_was_added = folder_name in folders
+
+    yield magic_folder.leave_folder(folder_name)
+    with pytest.raises(MagicFolderWebError):
+        yield magic_folder.leave_folder(folder_name, missing_ok=False)
 
 
 @inlineCallbacks
