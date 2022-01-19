@@ -264,9 +264,9 @@ class View(QTreeView):
             )
             return
         self.model().remove_folder(folder_name)
-        logging.debug('Successfully unlinked folder "%s"', folder_name)
+        logging.debug('Successfully removed "%s" folder backup', folder_name)
 
-    def confirm_unlink(self, folders):
+    def confirm_remove_folder_backup(self, folders):
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
         humanized_folders = humanized_list(folders, "folders")
@@ -467,7 +467,7 @@ class View(QTreeView):
             open_action.setEnabled(False)
             share_menu.setEnabled(False)
             remove_action.triggered.connect(
-                lambda: self.confirm_unlink(selected)
+                lambda: self.confirm_remove_folder_backup(selected)
             )
         else:
             for folder in selected:
