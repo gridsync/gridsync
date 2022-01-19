@@ -249,7 +249,7 @@ class View(QTreeView):
         error(self, str(failure.type.__name__), str(failure.value))
 
     @inlineCallbacks
-    def unlink_folder(self, folder_name):
+    def remove_folder_backup(self, folder_name):
         try:
             yield self.gateway.magic_folder.remove_folder_backup(folder_name)
         except Exception as e:  # pylint: disable=broad-except
@@ -293,11 +293,11 @@ class View(QTreeView):
         if msgbox.exec_() == QMessageBox.Yes:
             tasks = []
             for folder in folders:
-                tasks.append(self.unlink_folder(folder))
+                tasks.append(self.remove_folder_backup(folder))
             DeferredList(tasks)
 
     @inlineCallbacks
-    def remove_folder(self, folder_name, unlink=False):
+    def remove_folder(self, folder_name, remove_backup=False):
         try:
             yield self.gateway.magic_folder.leave_folder(
                 folder_name, missing_ok=True
@@ -316,8 +316,8 @@ class View(QTreeView):
         # self.model().remove_folder(folder_name)
         self.model().on_folder_removed(folder_name)
         logging.debug('Successfully removed folder "%s"', folder_name)
-        if unlink:
-            yield self.unlink_folder(folder_name)
+        if remove_backup:
+            yield self.remove_folder_backup(folder_name)
 
     def confirm_stop_syncing(self, folders):
         msgbox = QMessageBox(self)
@@ -366,10 +366,10 @@ class View(QTreeView):
             tasks = []
             if checkbox.checkState() == Qt.Checked:
                 for folder in folders:
-                    tasks.append(self.remove_folder(folder, unlink=False))
+                    tasks.append(self.remove_folder(folder, remove_backup=False))
             else:
                 for folder in folders:
-                    tasks.append(self.remove_folder(folder, unlink=True))
+                    tasks.append(self.remove_folder(folder, remove_backup=True))
             DeferredList(tasks)
 
     def open_folders(self, folders):
