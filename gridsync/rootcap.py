@@ -149,6 +149,6 @@ class RootcapManager:
         backup_cap = yield self.get_backup_cap(dirname)
         yield self.lock.acquire()
         try:
-            yield self.gateway.unlink(backup_cap, name)
+            yield self.gateway.unlink(backup_cap, name, missing_ok=True)
         finally:
             yield self.lock.release()  # type: ignore
