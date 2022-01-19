@@ -643,11 +643,10 @@ class MagicFolder:
             body=json.dumps({"really-delete-write-capability": True}).encode(),
             error_404_ok=missing_ok,
         )
-        # XXX
-        # try:
-        #    del self.magic_folders[folder_name]
-        # except KeyError:
-        #    pass
+        try:
+            del self.magic_folders[folder_name]
+        except KeyError:
+            pass
 
     def get_directory(self, folder_name: str) -> str:
         return self.magic_folders.get(folder_name, {}).get("magic_path", "")
