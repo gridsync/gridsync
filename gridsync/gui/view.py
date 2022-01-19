@@ -256,8 +256,8 @@ class View(QTreeView):
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
-                'Error unlinking folder "{}"'.format(folder_name),
-                'An exception was raised when unlinking the "{}" folder:\n\n'
+                'Error removing "{}" backup'.format(folder_name),
+                'An exception was raised when removing the "{}" backup:\n\n'
                 "{}: {}\n\nPlease try again later.".format(
                     folder_name, type(e).__name__, str(e)
                 ),
