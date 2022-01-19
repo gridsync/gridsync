@@ -635,7 +635,7 @@ class MagicFolder:
 
     @inlineCallbacks
     def leave_folder(
-        self, folder_name: str, missing_ok=False
+        self, folder_name: str, missing_ok: bool = False
     ) -> TwistedDeferred[None]:
         yield self._request(
             "DELETE",
