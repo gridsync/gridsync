@@ -164,9 +164,6 @@ def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
     path = tmp_path / folder_name
     author = randstr()
     yield magic_folder.add_folder(path, author)
-    folders = yield magic_folder.get_folders()
-    folder_was_added = folder_name in folders
-
     yield magic_folder.leave_folder(folder_name)
     with pytest.raises(MagicFolderWebError):
         yield magic_folder.leave_folder(folder_name, missing_ok=False)
