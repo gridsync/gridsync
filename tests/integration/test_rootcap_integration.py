@@ -45,6 +45,9 @@ def test_remove_backup_is_idempotent(tahoe_client, rootcap_manager):
     dircap = yield tahoe_client.mkdir()
     yield rootcap_manager.add_backup("TestBackups-3", "backup-3", dircap)
     yield rootcap_manager.remove_backup("TestBackups-3", "backup-3")
-    yield rootcap_manager.remove_backup("TestBackups-3", "backup-3")
-    backups = yield rootcap_manager.get_backups("TestBackups-3")
-    assert "backup-3" not in backups
+    exception_raised = None
+    try:
+        yield rootcap_manager.remove_backup("TestBackups-3", "backup-3")
+    except Exception as exc:
+        exception_raised = exc
+    assert not exception_raised
