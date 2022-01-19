@@ -313,7 +313,6 @@ class View(QTreeView):
                 ),
             )
             return
-        # self.model().remove_folder(folder_name)
         self.model().on_folder_removed(folder_name)
         logging.debug('Successfully removed folder "%s"', folder_name)
         if remove_backup:
@@ -366,10 +365,14 @@ class View(QTreeView):
             tasks = []
             if checkbox.checkState() == Qt.Checked:
                 for folder in folders:
-                    tasks.append(self.remove_folder(folder, remove_backup=False))
+                    tasks.append(
+                        self.remove_folder(folder, remove_backup=False)
+                    )
             else:
                 for folder in folders:
-                    tasks.append(self.remove_folder(folder, remove_backup=True))
+                    tasks.append(
+                        self.remove_folder(folder, remove_backup=True)
+                    )
             DeferredList(tasks)
 
     def open_folders(self, folders):
