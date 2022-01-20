@@ -104,7 +104,6 @@ class MagicFolderMonitor(QObject):
         self._prev_state: Dict = {}
         self._known_folders: Dict[str, dict] = {}
         self._known_backups: List[str] = []
-        self._prev_folders: Dict = {}
 
         self._folder_sizes: Dict[str, int] = {}
         self._total_folders_size: int = 0
@@ -268,10 +267,15 @@ class MagicFolderMonitor(QObject):
                 self.files_updated.emit(folder, updated_files)
         self._check_overall_state()
 
-    def compare_folders(self, folders: Dict[str, dict]) -> None:
-        for folder, data in folders.items():
-            if folder not in self._known_folders:
+    def compare_folders(
+        self,
+        current_folders: Dict[str, dict],
+        previous_folders: Dict[str, dict],
+    ) -> None:
+        for folder, data in current_folders.items():
+            if folder not in previous_folders:
                 self.folder_added.emit(folder)
+                print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDED", folder)
                 magic_path = data.get("magic_path", "")
                 try:
                     self._watchdog.add_watch(magic_path)
@@ -279,9 +283,10 @@ class MagicFolderMonitor(QObject):
                     logging.warning(
                         "Error adding watch for %s: %s", magic_path, str(exc)
                     )
-        for folder, data in self._known_folders.items():
-            if folder not in folders:
+        for folder, data in previous_folders.items():
+            if folder not in current_folders:
                 self.folder_removed.emit(folder)
+                print("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRREMOVED", folder)
                 magic_path = data.get("magic_path", "")
                 try:
                     self._watchdog.remove_watch(magic_path)
@@ -289,19 +294,19 @@ class MagicFolderMonitor(QObject):
                     logging.warning(
                         "Error removing watch for %s: %s", magic_path, str(exc)
                     )
-        self._known_folders = folders
 
-    def compare_backups(self, backups: List[str]) -> None:
-        for backup in backups:
+    def compare_backups(
+        self, current_backups: List[str], previous_backups: List[str]
+    ) -> None:
+        for backup in current_backups:
             if (
-                backup not in self._known_backups
-                and backup not in self._known_folders
+                backup not in previous_backups
+                and backup not in self._known_folders  # XXX
             ):
                 self.backup_added.emit(backup)
-        for backup in self._known_backups:
-            if backup not in backups:
+        for backup in previous_backups:
+            if backup not in current_backups:
                 self.backup_removed.emit(backup)
-        self._known_backups = list(backups)
 
     @staticmethod
     def _parse_file_status(
@@ -368,13 +373,15 @@ class MagicFolderMonitor(QObject):
             self._total_folders_size = total
             self.total_folders_size_updated.emit(total)
 
-    def compare_files(self, folders: Dict) -> None:
-        for folder_name, data in folders.items():
+    def compare_files(
+        self, current_folders: Dict, previous_folders: Dict
+    ) -> None:
+        for folder_name, data in current_folders.items():
             self._compare_file_status(
                 folder_name,
                 data.get("magic_path", ""),
                 data.get("file_status", []),
-                self._prev_folders.get(folder_name, {}).get("file_status", []),
+                previous_folders.get(folder_name, {}).get("file_status", []),
             )
         self._check_total_folders_size()
 
@@ -394,18 +401,27 @@ class MagicFolderMonitor(QObject):
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
         folders = yield self.magic_folder.get_folders()
-        self.compare_folders(folders)
-        folder_backups = yield self.magic_folder.get_folder_backups()
-        self.compare_backups(list(folder_backups))
+        current_folders = dict(folders)
+        previous_folders = dict(self._known_folders)
+        self.compare_folders(current_folders, previous_folders)
+        self._known_folders = current_folders
+
+        backups = yield self.magic_folder.get_folder_backups()
+        current_backups = list(backups)
+        previous_backups = list(self._known_backups)
+        self.compare_backups(current_backups, previous_backups)
+        self._known_backups = current_backups
+
         results = yield DeferredList(
-            [self._get_file_status(f) for f in folders], consumeErrors=True
+            [self._get_file_status(f) for f in current_folders],
+            consumeErrors=True,
         )
         for success, result in results:
             if success:  # XXX
                 folder_name, file_status = result
-                folders[folder_name]["file_status"] = file_status
-        self.compare_files(folders)
-        self._prev_folders = folders
+                current_folders[folder_name]["file_status"] = file_status
+        self.compare_files(current_folders, previous_folders)
+        self._known_folders = current_folders
 
     def start(self) -> None:
         self._ws_reader = WebSocketReaderService(
