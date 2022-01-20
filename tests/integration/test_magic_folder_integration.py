@@ -676,6 +676,8 @@ def test_monitor_emits_folder_added_signal_via_status_message(
 def test_monitor_emits_folder_mtime_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
@@ -699,6 +701,8 @@ def test_monitor_emits_folder_mtime_updated_signal(
 def test_monitor_emits_folder_size_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
