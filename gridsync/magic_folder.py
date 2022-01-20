@@ -781,6 +781,10 @@ class MagicFolder:
                 ),
             ]
         )
+        try:
+            del self.remote_magic_folders[folder_name]
+        except KeyError:
+            pass
 
     @inlineCallbacks
     def restore_folder_backup(
