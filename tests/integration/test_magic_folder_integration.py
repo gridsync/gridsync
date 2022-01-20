@@ -773,6 +773,8 @@ def test_monitor_emits_file_size_updated_signal(magic_folder, tmp_path, qtbot):
 def test_monitor_emits_file_mtime_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
@@ -795,6 +797,8 @@ def test_monitor_emits_file_mtime_updated_signal(
 
 @inlineCallbacks
 def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
