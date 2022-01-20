@@ -802,7 +802,7 @@ def test_monitor_emits_file_mtime_updated_signal(
         filepath.write_text(randstr() * 10)
         yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
-        yield deferLater(reactor, 1, lambda: None)  # to increment mtime
+        yield deferLater(reactor, 2, lambda: None)  # to increment mtime
         filepath.write_text(randstr() * 16)
         yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
