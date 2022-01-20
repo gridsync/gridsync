@@ -170,7 +170,7 @@ def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
 
 
 @inlineCallbacks
-def _test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
+def test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
