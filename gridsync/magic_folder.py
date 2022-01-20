@@ -275,7 +275,6 @@ class MagicFolderMonitor(QObject):
         for folder, data in current_folders.items():
             if folder not in previous_folders:
                 self.folder_added.emit(folder)
-                print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDED", folder)
                 magic_path = data.get("magic_path", "")
                 try:
                     self._watchdog.add_watch(magic_path)
@@ -286,7 +285,6 @@ class MagicFolderMonitor(QObject):
         for folder, data in previous_folders.items():
             if folder not in current_folders:
                 self.folder_removed.emit(folder)
-                print("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRREMOVED", folder)
                 magic_path = data.get("magic_path", "")
                 try:
                     self._watchdog.remove_watch(magic_path)
