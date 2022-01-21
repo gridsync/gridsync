@@ -96,7 +96,7 @@ def analyze_tahoe():
     from allmydata import __main__ as script_module
 
     return Analysis(
-        [inspect.getsourcefile(script_module)],
+        ["tahoe.py"],
         pathex=[],
         binaries=collect_dynamic_libs("challenge_bypass_ristretto"),
         datas=collect_data_files("allmydata.web"),
