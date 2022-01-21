@@ -160,8 +160,8 @@ jobs:
         .\make.bat zip
     - name: Verify
       run: |
-        .\dist\Gridsync\Gridsync-tahoe.exe --version-and-path
-        .\dist\Gridsync\Gridsync-magic-folder.exe --version
+        .\dist\Gridsync\Tahoe-LAFS\Gridsync-tahoe.exe --version-and-path
+        .\dist\Gridsync\magic-folder\Gridsync-magic-folder.exe --version
         .\dist\Gridsync\Gridsync.exe --version
     - name: Test integration
       run: |
