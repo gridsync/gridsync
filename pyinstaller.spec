@@ -108,6 +108,7 @@ def analyze_tahoe():
             "allmydata.stats",
             "allmydata.web",
             "base64",
+            "certifi",
             "cffi",
             "collections",
             "functools",
