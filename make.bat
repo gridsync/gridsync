@@ -51,7 +51,7 @@ py -m tox -e pyinstaller || goto :error
 goto :eof
 
 :pyinstaller
-call :pyinstaller-merged
+call :pyinstaller-separate
 goto :eof
 
 :zip
