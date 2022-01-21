@@ -625,7 +625,7 @@ class Tahoe:
         )
 
     @inlineCallbacks
-    def unlink(self, dircap, childname):
+    def unlink(self, dircap, childname, missing_ok=False):
         dircap_hash = trunchash(dircap)
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         yield self.await_ready()
@@ -634,7 +634,9 @@ class Tahoe:
                 self.nodeurl, dircap, childname
             )
         )
-        if resp.code != 200:
+        if resp.code == 404 and missing_ok:
+            pass
+        elif resp.code != 200:
             content = yield treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)

@@ -3,13 +3,14 @@ import sys
 import time
 from pathlib import Path
 
+import pytest
 from pytest_twisted import async_yield_fixture, inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
-from gridsync.magic_folder import MagicFolderState
+from gridsync.magic_folder import MagicFolderState, MagicFolderWebError
 from gridsync.tahoe import Tahoe
 
 if sys.platform == "darwin":
@@ -141,7 +142,35 @@ def test_leave_folder(magic_folder, tmp_path):
 
 
 @inlineCallbacks
-def _test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
+def test_leave_folder_with_missing_ok_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    folders = yield magic_folder.get_folders()
+    folder_was_added = folder_name in folders
+
+    yield magic_folder.leave_folder(folder_name)
+    yield magic_folder.leave_folder(folder_name, missing_ok=True)
+    folders = yield magic_folder.get_folders()
+    folder_was_removed = folder_name not in folders
+
+    assert (folder_was_added, folder_was_removed) == (True, True)
+
+
+@inlineCallbacks
+def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    yield magic_folder.leave_folder(folder_name)
+    with pytest.raises(MagicFolderWebError):
+        yield magic_folder.leave_folder(folder_name, missing_ok=False)
+
+
+@inlineCallbacks
+def test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
@@ -431,6 +460,19 @@ def test_remove_folder_backup(magic_folder):
 
 
 @inlineCallbacks
+def test_remote_magic_folders_dict_is_updated_by_folder_backups(magic_folder):
+    folders = yield magic_folder.get_folders()
+    folder_name = next(iter(folders))
+    yield magic_folder.create_folder_backup(folder_name)
+    backups = yield magic_folder.get_folder_backups()
+    folder_backed_up = folder_name in backups
+    folder_added = folder_name in magic_folder.remote_magic_folders
+    yield magic_folder.remove_folder_backup(folder_name)
+    folder_removed = folder_name not in magic_folder.remote_magic_folders
+    assert folder_backed_up and folder_added and folder_removed
+
+
+@inlineCallbacks
 def test_create_folder_backup_preserves_collective_writecap(magic_folder):
     folders = yield magic_folder.get_folders()
     folder_name = next(iter(folders))
@@ -647,6 +689,8 @@ def test_monitor_emits_folder_added_signal_via_status_message(
 def test_monitor_emits_folder_mtime_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
@@ -670,6 +714,8 @@ def test_monitor_emits_folder_mtime_updated_signal(
 def test_monitor_emits_folder_size_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
@@ -744,6 +790,8 @@ def test_monitor_emits_file_size_updated_signal(magic_folder, tmp_path, qtbot):
 def test_monitor_emits_file_mtime_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
@@ -758,6 +806,10 @@ def test_monitor_emits_file_mtime_updated_signal(
         filepath.write_text(randstr() * 16)
         yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
+        yield deferLater(reactor, 1, lambda: None)  # to increment mtime
+        filepath.write_text(randstr() * 16)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
         folder_name,
         filename,
@@ -766,6 +818,8 @@ def test_monitor_emits_file_mtime_updated_signal(
 
 @inlineCallbacks
 def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
+    yield leave_all_folders(magic_folder)
+    yield magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
