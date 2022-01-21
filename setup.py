@@ -9,7 +9,6 @@ from setuptools import setup
 
 import versioneer
 
-
 # These requirements are also declared via requirements/gridsync.in. Please
 # ensure that changes made to this list are propagated there (and vice versa).
 requirements = [
