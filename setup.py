@@ -3,29 +3,32 @@
 import re
 import struct
 import sys
-from pathlib import Path
 
 from setuptools import setup
 
 import versioneer
 
-
-def load_requirements(filepath):
-    with filepath.open() as f:
-        return [
-            line.replace("\\", "").strip()
-            for line in f.readlines()
-            if not line.startswith(("#", "-r"))
-            and not line.strip().startswith("--hash")
-        ]
-
-
-requirements_base = load_requirements(Path("requirements", "gridsync.in"))
-requirements_platform = load_requirements(
-    Path("requirements", "gridsync-platform.txt")
-)
-requirements = requirements_base + requirements_platform
-
+# These requirements are also declared via requirements/gridsync.in. Please
+# ensure that changes made to this list are propagated there (and vice versa).
+requirements = [
+    "atomicwrites",
+    "attrs",
+    "autobahn",
+    'distro ; sys_platform != "darwin" and sys_platform != "win32"',
+    "humanize",
+    "hyperlink",
+    "magic-wormhole",
+    "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
+    "PyQt5",
+    "PyQtChart",
+    "pyyaml",
+    "qt5reactor",
+    "treq",
+    "twisted[tls] >= 21.7.0",  # 21.7.0 adds Deferred type hinting/annotations
+    "txtorcon",
+    "watchdog",
+    "zxcvbn",
+]
 
 if sys.platform.startswith("linux") and (struct.calcsize("P") * 8) == 32:
     try:
