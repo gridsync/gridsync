@@ -7,6 +7,8 @@ import treq
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import react
 
+os.environ["SSL_CERT_FILE"] = certifi.where()
+
 print("#####################################################################")
 pprint.pprint(dict(os.environ))
 print("#####################################################################")
