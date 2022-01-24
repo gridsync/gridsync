@@ -12,6 +12,14 @@ __url__ = "https://github.com/gridsync/gridsync"
 __license__ = "GPLv3"
 
 
+if sys.platform == "win32":
+    import certifi
+
+    # Workaround for broken-by-default certificate verification on Windows.
+    # See https://github.com/twisted/treq/issues/94#issuecomment-116226820
+    os.environ["SSL_CERT_FILE"] = certifi.where()
+
+
 if getattr(sys, "frozen", False):
     pkgdir = os.path.dirname(os.path.realpath(sys.executable))
     os.environ["PATH"] += os.pathsep + pkgdir
