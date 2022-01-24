@@ -5,4 +5,5 @@ mypy
 pylint
 types-attrs
 types-atomicwrites
+types-certifi
 types-pyyaml
