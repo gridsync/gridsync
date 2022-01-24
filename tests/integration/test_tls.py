@@ -1,7 +1,7 @@
 import os
 import sys
 
-import cerctifi
+import certifi
 import treq
 from pytest_twisted import inlineCallbacks
 
