@@ -108,6 +108,7 @@ def analyze_tahoe():
             "allmydata.stats",
             "allmydata.web",
             "base64",
+            "certifi",
             "cffi",
             "collections",
             "functools",
@@ -168,8 +169,8 @@ def analyze_gridsync():
             str(Path(get_python_lib(), "PyQt5", "Qt", "bin")),
             str(Path(kit, "bin", "x86")),
             str(Path(kit, "bin", "x64")),
-            str(Path(kit, "Redist", "ucrc", "DLLs", "x86")),
-            str(Path(kit, "Redist", "ucrc", "DLLs", "x64")),
+            str(Path(kit, "Redist", "ucrt", "DLLs", "x86")),
+            str(Path(kit, "Redist", "ucrt", "DLLs", "x64")),
         ]
     else:
         paths = []

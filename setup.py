@@ -14,6 +14,7 @@ requirements = [
     "atomicwrites",
     "attrs",
     "autobahn",
+    'certifi ; sys_platform == "win32"',
     'distro ; sys_platform != "darwin" and sys_platform != "win32"',
     "humanize",
     "hyperlink",

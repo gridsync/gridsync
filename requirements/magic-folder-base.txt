@@ -142,9 +142,9 @@ click==8.0.3 \
     --hash=sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3 \
     --hash=sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b
     # via magic-wormhole
-collections-extended==2.0.0 \
-    --hash=sha256:079248b493895b0245e2e67e858623489b158ef4f6a7afdbdbcf4b4029957b11 \
-    --hash=sha256:651d780054e510f46ab205c50b20d48c4ad459b898bb2be5f70dd35718ea7e9b
+collections-extended==2.0.2 \
+    --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
+    --hash=sha256:d68ebd1e2208444e392aa0016e5c085bd897f89296f5c1860787de5935994114
     # via tahoe-lafs
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
