@@ -371,32 +371,35 @@ class MainWindow(QMainWindow):
             invite_sender_dialog.show()
             self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
-    def confirm_quit(self):
-        folder_loading = False
-        folder_syncing = False
+    def _is_folder_syncing(self) -> bool:
         for model in [view.model() for view in self.central_widget.views]:
-            for row in range(model.rowCount()):
-                status = model.item(row, 1).data(Qt.UserRole)
-                mtime = model.item(row, 2).data(Qt.UserRole)
-                if not status and not mtime:  # "Loading..." and not yet synced
-                    folder_loading = True
-                    break
-                if status == 1:  # "Syncing"
-                    folder_syncing = True
-                    break
+            if model.is_folder_syncing():
+                return True
+        return False
+
+    def _is_zkap_auth_required(self) -> bool:
+        for gateway in self.gateways:
+            if gateway.zkap_auth_required:
+                return True
+        return False
+
+    def confirm_quit(self):
         msg = QMessageBox(self)
-        if folder_loading:
-            msg.setIcon(QMessageBox.Warning)
-            informative_text = (
-                "One or more folders have not finished loading. If these "
-                "folders were recently added, you may need to add them again."
-            )
-        elif folder_syncing:
+        if self._is_folder_syncing():
             msg.setIcon(QMessageBox.Warning)
             informative_text = (
                 "One or more folders are currently syncing. If you quit, any "
                 "pending upload or download operations will be cancelled "
                 "until you launch {} again.".format(APP_NAME)
+            )
+        elif self._is_zkap_auth_required():
+            msg.setIcon(QMessageBox.Warning)
+            # XXX/TODO: Include lease-renewal period/schedule? e.g.,
+            # "Failing to to launch {APP_NAME} within X days..."?
+            informative_text = (
+                f"If you quit, {APP_NAME} will stop renewing the data that "
+                f"you have previously uploaded. Failing to launch {APP_NAME} "
+                "for extended periods of time may result in data-loss."
             )
         else:
             msg.setIcon(QMessageBox.Question)
