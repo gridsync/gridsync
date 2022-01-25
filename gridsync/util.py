@@ -54,6 +54,12 @@ def b58decode(s):  # Adapted from python-bitcoinlib
     return b"\x00" * pad + res
 
 
+def to_bool(s: str) -> bool:
+    if s.lower() in ("false", "f", "no", "n", "off", "0", "none", ""):
+        return False
+    return True
+
+
 def humanized_list(list_, kind="files"):
     if not list_:
         return None
