@@ -4,7 +4,13 @@ from binascii import hexlify, unhexlify
 
 import pytest
 
-from gridsync.util import b58decode, b58encode, humanized_list, strip_html_tags
+from gridsync.util import (
+    b58decode,
+    b58encode,
+    humanized_list,
+    strip_html_tags,
+    to_bool,
+)
 
 # From https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
 base58_test_pairs = [
@@ -42,6 +48,31 @@ def test_b58decode(decoded, s):
 def test_b58decode_value_error():
     with pytest.raises(ValueError):
         b58decode("abcl23")
+
+
+@pytest.mark.parametrize(
+    "s, result",
+    [
+        ("True", True),
+        ("False", False),
+        ("FaLsE", False),
+        ("f", False),
+        ("t", True),
+        ("No", False),
+        ("Yes", True),
+        ("N", False),
+        ("Y", True),
+        ("off", False),
+        ("on", True),
+        ("None", False),
+        ("0", False),
+        ("1", True),
+        ("", False),
+        ("X", True),
+    ],
+)
+def test_to_bool(s, result):
+    assert to_bool(s) == result
 
 
 @pytest.mark.parametrize(
