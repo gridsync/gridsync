@@ -1,6 +1,9 @@
 colorama==0.4.4; sys_platform == "win32" \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
+certifi==2021.10.8; sys_platform == "win32" \
+    --hash=sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872 \
+    --hash=sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569
 distro==1.6.0; sys_platform != "darwin" and sys_platform != "win32" \
     --hash=sha256:83f5e5a09f9c5f68f60173de572930effbcc0287bb84fdc4426cb4168c088424 \
     --hash=sha256:c8713330ab31a034623a9515663ed87696700b55f04556b97c39cd261aa70dc7

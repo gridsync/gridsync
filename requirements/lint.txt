@@ -138,6 +138,10 @@ types-atomicwrites==1.4.3 \
 types-attrs==19.1.0 \
     --hash=sha256:d11acf7a2531a7c52a740c30fa3eb8d01d3066c10d34c01ff5e59502caac5352
     # via -r requirements/lint.in
+types-certifi==2021.10.8.1 \
+    --hash=sha256:2290008f32e6ac7c69e779d04fa1bc4c6bb4c7200aa3b3b072ad5475a8968aa5 \
+    --hash=sha256:546cd3ca4466855959fbc8868fd7139a50eb55a2d1fae497e13b60af439597a3
+    # via -r requirements/lint.in
 types-pyyaml==6.0.3 \
     --hash=sha256:6ea4eefa8579e0ce022f785a62de2bcd647fad4a81df5cf946fd67e4b059920b \
     --hash=sha256:8b50294b55a9db89498cdc5a65b1b4545112b6cd1cf4465bd693d828b0282a17
