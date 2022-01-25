@@ -43,6 +43,7 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import APP_NAME, config_dir, msg, resource, settings
+from gridsync.desktop import autostart_enable
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
 from gridsync.magic_folder import MagicFolder
@@ -50,6 +51,7 @@ from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
 from gridsync.tor import get_tor
 from gridsync.types import TwistedDeferred
+from gridsync.util import to_bool
 
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
@@ -139,6 +141,9 @@ class Core:
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()
+            if to_bool(settings.get("defaults", {}).get("autostart", "")):
+                autostart_enable()
+                self.gui.preferences_window.general_pane.load_preferences()
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except
