@@ -235,6 +235,12 @@ class Model(QStandardItemModel):
             lines.append(f"{s} ({datetime.fromtimestamp(t)})")
         return "\n".join(lines)
 
+    def is_folder_syncing(self) -> bool:
+        for row in range(self.rowCount()):
+            if self.item(row, 1).data(Qt.UserRole) == MagicFolderState.SYNCING:
+                return True
+        return False
+
     @pyqtSlot(str, int)
     def set_status(self, name, status):
         items = self.findItems(name)
