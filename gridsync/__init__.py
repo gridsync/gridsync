@@ -6,6 +6,7 @@ from collections import namedtuple
 
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
+from gridsync.util import to_bool
 
 __author__ = "Christopher R. Wood"
 __url__ = "https://github.com/gridsync/gridsync"
@@ -52,6 +53,8 @@ try:
     APP_NAME = settings["application"]["name"]
 except KeyError:
     APP_NAME = "Gridsync"
+
+DEFAULT_AUTOSTART = to_bool(settings.get("defaults", {}).get("autostart", ""))
 
 
 grid_invites_enabled: bool = True
