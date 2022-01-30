@@ -13,6 +13,9 @@ linux_icon = images/gridsync.svg
 [debug]
 log_maxlen = 100000
 
+[defaults]
+autostart = false
+
 [features]
 grid_invites = true
 # Disable invites (at least) until new Magic-Folder re-implements them.

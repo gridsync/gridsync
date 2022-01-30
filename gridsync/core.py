@@ -42,7 +42,15 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.python.log import PythonLoggingObserver, startLogging
 
-from gridsync import APP_NAME, config_dir, msg, resource, settings
+from gridsync import (
+    APP_NAME,
+    DEFAULT_AUTOSTART,
+    config_dir,
+    msg,
+    resource,
+    settings,
+)
+from gridsync.desktop import autostart_enable
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
 from gridsync.magic_folder import MagicFolder
@@ -139,6 +147,9 @@ class Core:
             self.gui.populate(self.gateways)
         else:
             self.gui.show_welcome_dialog()
+            if DEFAULT_AUTOSTART:
+                autostart_enable()
+                self.gui.preferences_window.general_pane.load_preferences()
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except

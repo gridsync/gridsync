@@ -18,12 +18,13 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from gridsync import APP_NAME, features, resource
+from gridsync import APP_NAME, DEFAULT_AUTOSTART, features, resource
 from gridsync.desktop import (
     autostart_disable,
     autostart_enable,
     autostart_is_enabled,
 )
+from gridsync.msg import question
 from gridsync.preferences import Preferences
 
 
@@ -70,9 +71,19 @@ class GeneralPane(QWidget):
         else:
             self.preferences.set("startup", "minimize", "false")
 
-    @staticmethod
-    def on_checkbox_autostart_changed(state):
-        if state:
+    def on_checkbox_autostart_changed(self, state):
+        if DEFAULT_AUTOSTART and not state:
+            if question(
+                self,
+                "Are you sure you wish to disable autostart?",
+                f"{APP_NAME} will only update and renew folders while it is "
+                f"running. Failing to launch {APP_NAME} for extended periods "
+                "of time may result in data-loss.",
+            ):
+                autostart_disable()
+            else:
+                self.checkbox_autostart.setCheckState(Qt.Checked)
+        elif state:
             autostart_enable()
         else:
             autostart_disable()
