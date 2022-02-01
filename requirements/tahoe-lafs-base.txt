@@ -423,9 +423,9 @@ tqdm==4.62.3 \
     --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
     --hash=sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d
     # via magic-wormhole
-treq==21.5.0 \
-    --hash=sha256:02ea86383fc4b57539c45a965eaa1e9fd28302cdf382d21da8430050c97be9b8 \
-    --hash=sha256:abf44b7b1b44bcade28b5ae2b440a94a72a96df45f5d6fec76d73b73f69e705c
+treq==22.1.0 \
+    --hash=sha256:775581604919a3d79c845401598a0fd070cabc6de83840472d8e9fa715f2d36c \
+    --hash=sha256:bc6e8f613c0e10b49987a02998541a1ee32b30821ef58775dbf142aeaedc84d1
     # via
     #   tahoe-lafs
     #   zero-knowledge-access-pass-authorizer
