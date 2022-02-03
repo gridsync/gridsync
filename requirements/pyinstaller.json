@@ -3,7 +3,7 @@
   "branch": "develop",
   "repo": "pyinstaller",
   "archive-url-file": "pyinstaller.in",
-  "rev": "cad0725b3cd9717c6a46c1f90107a0f59d1d95bb",
-  "archive-url": "https://api.github.com/repos/pyinstaller/pyinstaller/tarball/cad0725b3cd9717c6a46c1f90107a0f59d1d95bb",
+  "rev": "fe7a0e33df42db0808454820161016747529e0e7",
+  "archive-url": "https://api.github.com/repos/pyinstaller/pyinstaller/tarball/fe7a0e33df42db0808454820161016747529e0e7",
   "repo-url": "git+https://github.com/pyinstaller/pyinstaller@develop"
 }

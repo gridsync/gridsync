@@ -8,18 +8,8 @@ altgraph==0.17.2 \
     --hash=sha256:743628f2ac6a7c26f5d9223c91ed8ecbba535f506f4b6f558885a8a56a105857 \
     --hash=sha256:ebf2269361b47d97b3b88e696439f6e4cbc607c17c51feb1754f90fb79839158
     # via pyinstaller
-pyinstaller==4.8 \
-    --hash=sha256:15d9266d78dc757c103962826e62bce1513825078160be580534ead2ef53087c \
-    --hash=sha256:44783d58ac4cb0a74a4f2180da4dacbe6a7a013a62b3aa10be6082252e296954 \
-    --hash=sha256:4c848720a65a5bd41249bc804d1bd3dd089bb56aef7f1c5e11f774f11e649443 \
-    --hash=sha256:53ed05214dd67624756fe4e82e861857921a79d0392debf8c9f5bb0ba5a479b6 \
-    --hash=sha256:5c2fd5f18c0397f3d9160446035556afc7f6446fd88048887fdf46eadf85c5ec \
-    --hash=sha256:6f5cdc39fbdec7b2e0c46cc0f5bd0071bb85e592e324bf4e15375c5ff19e55fc \
-    --hash=sha256:7ae868bbcc502832a2c802c84a1dbb9f48b44445c50144c29bfcd7b760140e13 \
-    --hash=sha256:9fbb05f5f67862005234da8c7eac69ef87e086f90e345749260051b031774c52 \
-    --hash=sha256:b0b3a31aa60292469f9595f298e2c147cba29c30edcd92a38fdce27727809625 \
-    --hash=sha256:b720853a00bd9547b7d6403d85f23b7f7e451e41bc907673d9fc7f8d9d274594 \
-    --hash=sha256:f00e1296abac71f3b5bb9fdc2e0d4c079201d62faeeeb894ccadd0616179fee3
+pyinstaller @ https://api.github.com/repos/pyinstaller/pyinstaller/tarball/fe7a0e33df42db0808454820161016747529e0e7 \
+    --hash=sha256:9efcba8890e289cc91df9fa209d42e1ff7f768f47174ebea1b71278a1c712563
     # via -r requirements/pyinstaller.in
 pyinstaller-hooks-contrib==2022.0 \
     --hash=sha256:29f0bd8fbb2ff6f2df60a0c147e5b5ad65ae5c1a982d90641a5f712de03fa161 \
