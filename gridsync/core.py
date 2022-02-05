@@ -5,6 +5,7 @@ import collections
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
@@ -69,6 +70,11 @@ class DequeHandler(logging.Handler):
 
     def emit(self, record):
         self.deque.append(self.format(record))
+
+
+class LogFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        return datetime.now(timezone.utc).isoformat()
 
 
 class Core:
@@ -212,7 +218,7 @@ class Core:
             observer = PythonLoggingObserver()
             observer.start()
         fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
-        handler.setFormatter(logging.Formatter(fmt))
+        handler.setFormatter(LogFormatter(fmt=fmt))
         logger = logging.getLogger()
         logger.addHandler(handler)
         logger.setLevel(logging.DEBUG)
