@@ -5,7 +5,7 @@ import os
 import platform
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 from atomicwrites import atomic_write
 from PyQt5.QtCore import QObject, QSize, Qt, QThread, pyqtSignal
@@ -96,7 +96,9 @@ class LogLoader(QObject):
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
             + "Magic-Folder: {}\n".format(self.core.magic_folder_version)
-            + "Datetime:     {}\n\n\n".format(datetime.utcnow().isoformat())
+            + "Datetime:     {}\n\n\n".format(
+                datetime.now(timezone.utc).isoformat()
+            )
             + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
             + "\n".join(self.core.log_deque)
