@@ -255,7 +255,7 @@ class RecoveryKeyImporter(QObject):
                 "data-loss. As a result, you should only restore from a "
                 "Recovery Key in the event that the original device is no "
                 f"longer running {APP_NAME}.\n\n"
-                "Are you sure you wish to continue?"
+                "Are you sure you wish to continue?",
             ):
                 return selected
         return None
