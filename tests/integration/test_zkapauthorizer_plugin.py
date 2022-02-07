@@ -1,6 +1,7 @@
 from pytest_twisted import async_yield_fixture, inlineCallbacks
 
 from gridsync.tahoe import Tahoe
+from gridsync.zkapauthorizer import PLUGIN_NAME
 
 
 @async_yield_fixture(scope="module")
@@ -18,7 +19,7 @@ async def zkapauthorizer(tmp_path_factory, tahoe_server):
                 "nickname": "test-grid-storage-server-1",
                 "storage-options": [
                     {
-                        "name": "privatestorageio-zkapauthz-v1",
+                        "name": PLUGIN_NAME,
                         "ristretto-issuer-root-url": "https://example.org/",
                         "storage-server-FURL": tahoe_server.storage_furl,
                         "allowed-public-keys": "AAAAAAAAAAAAAAAA",

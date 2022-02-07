@@ -8,7 +8,7 @@ import pytest
 from pytest_twisted import inlineCallbacks
 
 from gridsync.tahoe import TahoeWebError
-from gridsync.zkapauthorizer import ZKAPAuthorizer
+from gridsync.zkapauthorizer import PLUGIN_NAME, ZKAPAuthorizer
 
 
 def fake_treq_request_resp_code_200(*args, **kwargs):
@@ -31,7 +31,7 @@ def test__request_url(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_request)
     yield ZKAPAuthorizer(tahoe)._request("GET", "/test")
     assert fake_request.call_args[0][1] == (
-        tahoe.nodeurl + "storage-plugins/privatestorageio-zkapauthz-v1/test"
+        tahoe.nodeurl + f"storage-plugins/{PLUGIN_NAME}/test"
     )
 
 
