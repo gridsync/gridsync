@@ -3,14 +3,16 @@
 import json
 import logging
 import os
+from pathlib import Path
 
 from atomicwrites import atomic_write
 from PyQt5.QtCore import QObject, QPropertyAnimation, QThread, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
+from gridsync import APP_NAME
 from gridsync.crypto import Crypter
 from gridsync.gui.password import PasswordDialog
-from gridsync.msg import error
+from gridsync.msg import error, question
 
 
 class RecoveryKeyExporter(QObject):
@@ -241,7 +243,21 @@ class RecoveryKeyImporter(QObject):
         dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_():
-            return dialog.selectedFiles()[0]
+            selected = dialog.selectedFiles()[0]
+            if question(
+                self.parent,
+                f'Restore from "{Path(selected).name}"?',
+                "By restoring from a Recovery Key, the configuration from "
+                "the original device will be applied to this device -- "
+                "including access to any previously-uploaded folders. Once "
+                f"this process has completed, continuing to run {APP_NAME} "
+                "on the original device can, in some circumstances, lead to "
+                "data-loss. As a result, you should only restore from a "
+                "Recovery Key in the event that the original device is no "
+                f"longer running {APP_NAME}.\n\n"
+                "Are you sure you wish to continue?"
+            ):
+                return selected
         return None
 
     def do_import(self, filepath=None):
