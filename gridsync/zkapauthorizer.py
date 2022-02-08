@@ -20,6 +20,8 @@ from gridsync.voucher import generate_voucher
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
+PLUGIN_NAME = "privatestorageio-zkapauthz-v1"
+
 
 class ZKAPAuthorizer:
     def __init__(self, gateway: Tahoe) -> None:
@@ -41,7 +43,7 @@ class ZKAPAuthorizer:
         api_token = self.gateway.api_token
         resp = yield treq.request(
             method,
-            f"{nodeurl}storage-plugins/privatestorageio-zkapauthz-v1{path}",
+            f"{nodeurl}storage-plugins/{PLUGIN_NAME}{path}",
             headers={
                 "Authorization": f"tahoe-lafs {api_token}",
                 "Content-Type": "application/json",

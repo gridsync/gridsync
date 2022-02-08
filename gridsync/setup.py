@@ -21,6 +21,7 @@ from gridsync.config import Config
 from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
+from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 
 
 def is_onion_grid(settings):
@@ -52,7 +53,7 @@ def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
             if not storage_options:
                 continue
             for group in storage_options:
-                if group.get("name") == "privatestorageio-zkapauthz-v1":
+                if group.get("name") == ZKAPAUTHZ_PLUGIN_NAME:
                     zkapauthz = True
                 url = group.get("ristretto-issuer-root-url")
                 if url:

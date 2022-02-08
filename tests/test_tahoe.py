@@ -21,6 +21,7 @@ from gridsync.tahoe import (
     is_valid_furl,
     storage_options_to_config,
 )
+from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 
 
 def fake_get(*args, **kwargs):
@@ -254,9 +255,7 @@ def test_storage_options_to_config_unknown():
 
 # The name of the tahoe.cfg section where ZKAPAuthorizer client plugin config
 # goes.
-zkapauthz_plugin_section = (
-    "storageclient.plugins.privatestorageio-zkapauthz-v1"
-)
+zkapauthz_plugin_section = f"storageclient.plugins.{ZKAPAUTHZ_PLUGIN_NAME}"
 
 
 def test_storage_options_to_config_no_optional_values():
@@ -267,12 +266,10 @@ def test_storage_options_to_config_no_optional_values():
     """
     config = storage_options_to_config(
         {
-            "name": "privatestorageio-zkapauthz-v1",
+            "name": ZKAPAUTHZ_PLUGIN_NAME,
         }
     )
-    assert (
-        config["client"]["storage.plugins"] == "privatestorageio-zkapauthz-v1"
-    )
+    assert config["client"]["storage.plugins"] == ZKAPAUTHZ_PLUGIN_NAME
     zkapauthz = config[zkapauthz_plugin_section]
     assert "pass_value" not in zkapauthz
     assert "default-token-count" not in zkapauthz
@@ -288,7 +285,7 @@ def test_storage_options_to_config_pass_value():
     key = "pass-value"
     zkapauthz = storage_options_to_config(
         {
-            "name": "privatestorageio-zkapauthz-v1",
+            "name": ZKAPAUTHZ_PLUGIN_NAME,
             key: pass_value,
         }
     )[zkapauthz_plugin_section]
@@ -305,7 +302,7 @@ def test_storage_options_to_config_default_token_count():
     key = "default-token-count"
     zkapauthz = storage_options_to_config(
         {
-            "name": "privatestorageio-zkapauthz-v1",
+            "name": ZKAPAUTHZ_PLUGIN_NAME,
             key: default_token_count,
         }
     )[zkapauthz_plugin_section]
@@ -322,7 +319,7 @@ def test_storage_options_to_config_allowed_public_keys():
     key = "allowed-public-keys"
     zkapauthz = storage_options_to_config(
         {
-            "name": "privatestorageio-zkapauthz-v1",
+            "name": ZKAPAUTHZ_PLUGIN_NAME,
             key: allowed_public_keys,
         }
     )[zkapauthz_plugin_section]
@@ -339,7 +336,7 @@ def test_storage_options_to_config_lease_crawl_interval_mean():
     key = "lease.crawl-interval.mean"
     zkapauthz = storage_options_to_config(
         {
-            "name": "privatestorageio-zkapauthz-v1",
+            "name": ZKAPAUTHZ_PLUGIN_NAME,
             key: mean,
         }
     )[zkapauthz_plugin_section]
@@ -356,7 +353,7 @@ def test_storage_options_to_config_lease_crawl_interval_range():
     key = "lease.crawl-interval.range"
     zkapauthz = storage_options_to_config(
         {
-            "name": "privatestorageio-zkapauthz-v1",
+            "name": ZKAPAUTHZ_PLUGIN_NAME,
             key: range_,
         }
     )[zkapauthz_plugin_section]
@@ -373,7 +370,7 @@ def test_storage_options_to_config_lease_min_time_remaining():
     key = "lease.min-time-remaining"
     zkapauthz = storage_options_to_config(
         {
-            "name": "privatestorageio-zkapauthz-v1",
+            "name": ZKAPAUTHZ_PLUGIN_NAME,
             key: min_time,
         }
     )[zkapauthz_plugin_section]
@@ -390,7 +387,7 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
             "nickname": "One",
             "storage-options": [
                 {
-                    "name": "privatestorageio-zkapauthz-v1",
+                    "name": ZKAPAUTHZ_PLUGIN_NAME,
                     "allowed-public-keys": "Key1,Key2,Key3,Key4",
                 }
             ],
@@ -398,7 +395,7 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
     }
     client.add_storage_servers(storage_servers)
     allowed_public_keys = client.config_get(
-        "storageclient.plugins.privatestorageio-zkapauthz-v1",
+        f"storageclient.plugins.{ZKAPAUTHZ_PLUGIN_NAME}",
         "allowed-public-keys",
     )
     assert allowed_public_keys == "Key1,Key2,Key3,Key4"

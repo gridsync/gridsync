@@ -26,6 +26,7 @@ from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import SubprocessProtocol, kill, which
 from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
+from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
@@ -425,13 +426,13 @@ class Tahoe:
         if tcp and tcp.lower() == "tor":
             self.use_tor = True
         if self.config_get(
-            "storageclient.plugins.privatestorageio-zkapauthz-v1",
+            f"storageclient.plugins.{ZKAPAUTHZ_PLUGIN_NAME}",
             "ristretto-issuer-root-url",
         ):
             self.zkap_auth_required = True
         if self.zkap_auth_required:
             default_token_count = self.config_get(
-                "storageclient.plugins.privatestorageio-zkapauthz-v1",
+                f"storageclient.plugins.{ZKAPAUTHZ_PLUGIN_NAME}",
                 "default-token-count",
             )
             if default_token_count:
@@ -713,7 +714,7 @@ def storage_options_to_config(options: Dict) -> Optional[Dict]:
     configuration dictionary.
     """
     name = options.get("name")
-    if name == "privatestorageio-zkapauthz-v1":
+    if name == ZKAPAUTHZ_PLUGIN_NAME:
         zkapauthz = {
             "redeemer": "ristretto",
             "ristretto-issuer-root-url": options.get(
@@ -733,7 +734,7 @@ def storage_options_to_config(options: Dict) -> Optional[Dict]:
                 # TODO: Append name instead of setting/overriding?
                 "storage.plugins": name,
             },
-            "storageclient.plugins.privatestorageio-zkapauthz-v1": zkapauthz,
+            f"storageclient.plugins.{ZKAPAUTHZ_PLUGIN_NAME}": zkapauthz,
         }
 
     return None
