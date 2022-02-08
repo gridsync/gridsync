@@ -26,10 +26,8 @@ from gridsync.streamedlogs import StreamedLogs
 from gridsync.system import SubprocessProtocol, kill, which
 from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
-from gridsync.zkapauthorizer import (
-    PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME,
-    ZKAPAuthorizer,
-)
+from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
+from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 
 def is_valid_furl(furl):
