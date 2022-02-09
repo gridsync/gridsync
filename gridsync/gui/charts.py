@@ -16,6 +16,7 @@ from PyQt5.QtCore import QMargins, Qt
 from PyQt5.QtGui import QColor, QPainter, QPalette, QPen
 
 from gridsync.gui.color import is_dark
+from gridsync.gui.font import Font
 
 COLOR_USED = "#D42020"
 COLOR_COST = "#EE9A1D"
@@ -122,6 +123,7 @@ class ZKAPBarChart(QChart):
             legend.setLabelColor(palette.color(QPalette.Text))
         legend.setAlignment(Qt.AlignBottom)
         legend.setShowToolTips(True)
+        legend.setFont(Font(9))
         legend_layout = legend.layout()
         _, top, _, bottom = legend_layout.getContentsMargins()
         legend_layout.setContentsMargins(0, top, 0, bottom)
