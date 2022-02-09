@@ -122,6 +122,9 @@ class ZKAPBarChart(QChart):
             legend.setLabelColor(palette.color(QPalette.Text))
         legend.setAlignment(Qt.AlignBottom)
         legend.setShowToolTips(True)
+        legend_layout = legend.layout()
+        _, top, _, bottom = legend_layout.getContentsMargins()
+        legend_layout.setContentsMargins(0, top, 0, bottom)
         legend.markers(series)[-1].setVisible(False)  # Hide set_expected
 
         self.update(10, 30, 40)  # XXX
