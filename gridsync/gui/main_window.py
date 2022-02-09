@@ -97,7 +97,7 @@ class MainWindow(QMainWindow):
         self.pending_news_message = ()
 
         self.setWindowTitle(APP_NAME)
-        self.setMinimumSize(QSize(740, 465))
+        self.setMinimumSize(QSize(755, 470))
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.setContextMenuPolicy(Qt.NoContextMenu)
 
