@@ -415,9 +415,9 @@ tqdm==4.62.3 \
     --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
     --hash=sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d
     # via magic-wormhole
-treq==22.1.0 \
-    --hash=sha256:775581604919a3d79c845401598a0fd070cabc6de83840472d8e9fa715f2d36c \
-    --hash=sha256:bc6e8f613c0e10b49987a02998541a1ee32b30821ef58775dbf142aeaedc84d1
+treq==22.2.0 \
+    --hash=sha256:27d95b07c5c14be3e7b280416139b036087617ad5595be913b1f9b3ce981b9b2 \
+    --hash=sha256:df757e3f141fc782ede076a604521194ffcb40fa2645cf48e5a37060307f52ec
     # via
     #   magic-folder
     #   tahoe-lafs
@@ -425,9 +425,9 @@ tubes==0.2.0 \
     --hash=sha256:8d55ffda4c332deda399bf89a335ac7cea307fc8f6bfd89fee010a00c47be169 \
     --hash=sha256:de7bc347cb0a04ed6056e28a6b567228abc0f25861cbfad825466bea672d500d
     # via klein
-twisted[conch,tls]==21.7.0 \
-    --hash=sha256:13c1d1d2421ae556d91e81e66cf0d4f4e4e1e4a36a0486933bee4305c6a4fb9b \
-    --hash=sha256:2cd652542463277378b0d349f47c62f20d9306e57d1247baabd6d1d38a109006
+twisted[conch,tls]==22.1.0 \
+    --hash=sha256:b7971ec9805b0f80e1dcb1a3721d7bfad636d5f909de687430ce373979d67b61 \
+    --hash=sha256:ccd638110d9ccfdc003042aa3e1b6d6af272eaca45d36e083359560549e3e848
     # via
     #   autobahn
     #   foolscap
@@ -453,9 +453,9 @@ urllib3==1.26.8 \
     --hash=sha256:000ca7f471a233c2251c6c7023ee85305721bfdf18621ebff4fd17a8653427ed \
     --hash=sha256:0e7c33d9a63e7ddfcb86780aac87befc2fbddf46c58dbb487e0855f7ceec283c
     # via requests
-werkzeug==2.0.2 \
-    --hash=sha256:63d3dc1cf60e7b7e35e97fa9861f7397283b75d765afcaefd993d6046899de8f \
-    --hash=sha256:aa2bb6fc8dee8d6c504c0ac1e7f5f7dc5810a9903e793b6f715a9f015bdadb9a
+werkzeug==2.0.3 \
+    --hash=sha256:1421ebfc7648a39a5c58c601b154165d05cf47a3cd0ccb70857cbdacf6c8f2b8 \
+    --hash=sha256:b863f8ff057c522164b6067c9e28b041161b4be5ba4d0daceeaa50a163822d3c
     # via klein
 zfec==1.5.5 \
     --hash=sha256:06625356fc35cba2aa08f850125e81ff28de565b8e0acfa1c3cfea68cb023e93 \
@@ -578,10 +578,10 @@ zope-interface==5.4.0 \
     #   txtorcon
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==60.7.1 \
-    --hash=sha256:a4dc3af29a67e7a45620aba43dde2c1af2dd6bc49726d78168f0cc6c4fb0c01b \
-    --hash=sha256:c9097cbcdefe88a64da966a764f2d95feb1cfaff77cc304528a23cefe3359d9a
+setuptools==60.8.2 \
+    --hash=sha256:43a5575eea6d3459789316e1596a3d2a0d215260cacf4189508112f35c9a145b \
+    --hash=sha256:66b8598da112b8dc8cd941d54cf63ef91d3b50657b374457eda5851f3ff6a899
     # via
     #   autobahn
     #   tahoe-lafs
-    #   zope.interface
+    #   zope-interface

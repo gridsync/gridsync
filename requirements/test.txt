@@ -152,9 +152,9 @@ pytest-twisted==1.13.4 \
     --hash=sha256:1ae215f71247d0d75dc2611fa744291aebf40dbd6c260d528cb82bbbbe252d97 \
     --hash=sha256:4b9644258a267f63f8ba24b91b83c9f3372caec393722f8d8263674fc51168e1
     # via -r requirements/test.in
-tomli==2.0.0 \
-    --hash=sha256:b5bde28da1fed24b9bd1d4d2b8cba62300bfb4ec9a6187a957e8ddb9434c5224 \
-    --hash=sha256:c292c34f58502a1eb2bbb9f5bbc9a5ebc37bee10ffb8c2d6bbdfa8eb13cc14e1
+tomli==2.0.1 \
+    --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
+    --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
     # via
     #   coverage
     #   pytest
