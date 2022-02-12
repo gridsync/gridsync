@@ -438,9 +438,20 @@ class Tahoe:
             if default_token_count:
                 self.zkapauthorizer.zkap_batch_size = int(default_token_count)
 
-        if os.path.isfile(self.pidfile):
-            yield self.stop()
-        pid = yield self.command(["run"], "client running")
+        # if os.path.isfile(self.pidfile):
+        #    yield self.stop()
+        # pid = yield self.command(["run"], "client running")
+        from gridsync.supervisor import Supervisor
+
+        if not self.executable:
+            self.executable = which("tahoe")
+        s = Supervisor()
+        pid = yield s.start(
+            [self.executable, "-d", self.nodedir, "run"],
+            self.pidfile,
+            started_trigger="client running",
+            stdout_line_collector=print,
+        )
         pid = str(pid)
         if sys.platform == "win32" and pid.isdigit():
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
