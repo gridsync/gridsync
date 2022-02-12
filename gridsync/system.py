@@ -119,6 +119,3 @@ class SubprocessProtocol(ProcessProtocol):
             self.done.callback(self._output.getvalue().decode("utf-8").strip())
         else:
             self.done.errback(reason)
-
-    def processExited(self, reason: Failure) -> None:
-        self.processEnded(reason)
