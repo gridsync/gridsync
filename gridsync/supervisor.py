@@ -18,6 +18,7 @@ class Supervisor:
         self._started_trigger = ""
         self._stdout_line_collector: Optional[Callable] = None
         self._stderr_line_collector: Optional[Callable] = None
+        self._on_process_ended: Optional[Callable] = None
 
     def stop(self) -> None:
         kill(pidfile=self._pidfile)
@@ -28,6 +29,7 @@ class Supervisor:
             callback_triggers=[self._started_trigger],
             stdout_line_collector=self._stdout_line_collector,
             stderr_line_collector=self._stderr_line_collector,
+            on_process_ended=self._schedule_restart,
         )
         transport = yield reactor.spawnProcess(  # type: ignore
             protocol, self._args[0], args=self._args, env=os.environ
@@ -36,6 +38,10 @@ class Supervisor:
             yield protocol.done
         Path(self._pidfile).write_text(str(transport.pid), encoding="utf-8")
         return transport.pid
+
+    def _schedule_restart(self, _) -> None:
+        # TODO Don't restart if caused by self.stop()
+        reactor.callLater(2, self._start_process)
 
     @inlineCallbacks
     def start(  # pylint: disable=too-many-arguments
