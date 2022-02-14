@@ -68,17 +68,19 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
 
 
 class SubprocessProtocol(ProcessProtocol):
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         callback_triggers: Optional[List[str]] = None,
         errback_triggers: Optional[List[Tuple[str, Type[Exception]]]] = None,
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
+        on_process_ended: Optional[Callable] = None,
     ) -> None:
         self.callback_triggers = callback_triggers
         self.errback_triggers = errback_triggers
         self.stdout_line_collector = stdout_line_collector
         self.stderr_line_collector = stderr_line_collector
+        self._on_process_ended = on_process_ended
         self._output = BytesIO()
         self.done: Deferred = Deferred()
 
@@ -113,9 +115,12 @@ class SubprocessProtocol(ProcessProtocol):
                 self._check_triggers(line)
 
     def processEnded(self, reason: Failure) -> None:
-        if self.done.called:
-            return
-        if isinstance(reason.value, ProcessDone):
-            self.done.callback(self._output.getvalue().decode("utf-8").strip())
-        else:
-            self.done.errback(reason)
+        if not self.done.called:
+            if isinstance(reason.value, ProcessDone):
+                self.done.callback(
+                    self._output.getvalue().decode("utf-8").strip()
+                )
+            else:
+                self.done.errback(reason)
+        if self._on_process_ended:
+            self._on_process_ended(reason)
