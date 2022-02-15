@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import traceback
+from pathlib import Path
 
 from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
@@ -528,6 +529,13 @@ class View(QTreeView):
                     "rename it and try again.".format(
                         basename, self.gateway.name
                     ),
+                )
+            elif not any(Path(path).iterdir()):
+                error(
+                    self,
+                    "Folder is empty",
+                    f'The "{basename}" folder is empty. Please add some files '
+                    "to it -- or select a different folder -- and try again.",
                 )
             else:
                 paths_to_add.append(path)
