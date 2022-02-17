@@ -32,4 +32,4 @@ def test_supervisor_does_not_restart_process_when_stopped(tmp_path):
     yield supervisor.start(["python"], pidfile)
     supervisor.stop()
     yield deferLater(reactor, 0.1, lambda: None)
-    assert pidfile.exists() == False
+    assert pidfile.exists() is False
