@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 
@@ -23,6 +24,7 @@ class Supervisor:
         self._on_process_ended: Optional[Callable] = None
 
     def stop(self) -> None:
+        logging.debug("Stopping supervised process: %s", "".join(self._args))
         self._keep_alive = False
         kill(pidfile=self._pidfile)
 
@@ -41,10 +43,18 @@ class Supervisor:
         if self._started_trigger:
             yield protocol.done
         Path(self._pidfile).write_text(str(transport.pid), encoding="utf-8")
+        logging.debug(
+            "Supervised process (re)started: %s (PID %i)",
+            "".join(self._args),
+            transport.pid,
+        )
         return transport.pid
 
     def _schedule_restart(self, _) -> None:  # type: ignore
         if self._keep_alive:
+            logging.debug(
+                "Restarting supervised process: %s", "".join(self._args)
+            )
             reactor.callLater(  # type: ignore
                 self.restart_delay, self._start_process
             )
@@ -67,6 +77,7 @@ class Supervisor:
 
         if self._pidfile.exists():
             self.stop()
+        logging.debug("Starting supervised process: %s", "".join(self._args))
         pid = yield self._start_process()
         return pid
 
