@@ -1,4 +1,4 @@
-from pytest_twisted import async_yield_fixture, inlineCallbacks
+from pytest_twisted import inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
