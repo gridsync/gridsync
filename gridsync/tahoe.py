@@ -23,6 +23,7 @@ from gridsync.monitor import Monitor
 from gridsync.news import NewscapChecker
 from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
+from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, kill, which
 from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
@@ -107,6 +108,7 @@ class Tahoe:
         self.magic_folder.monitor.sync_stopped.connect(
             self.zkapauthorizer.update_zkap_checkpoint
         )
+        self.supervisor = Supervisor()
 
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
@@ -438,15 +440,9 @@ class Tahoe:
             if default_token_count:
                 self.zkapauthorizer.zkap_batch_size = int(default_token_count)
 
-        # if os.path.isfile(self.pidfile):
-        #    yield self.stop()
-        # pid = yield self.command(["run"], "client running")
-        from gridsync.supervisor import Supervisor
-
         if not self.executable:
             self.executable = which("tahoe")
-        s = Supervisor()
-        pid = yield s.start(
+        pid = yield self.supervisor.start(
             [self.executable, "-d", self.nodedir, "run"],
             self.pidfile,
             started_trigger="client running",
