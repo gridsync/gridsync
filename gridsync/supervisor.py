@@ -43,9 +43,11 @@ class Supervisor:
         Path(self._pidfile).write_text(str(transport.pid), encoding="utf-8")
         return transport.pid
 
-    def _schedule_restart(self, _) -> None:
+    def _schedule_restart(self, _) -> None:  # type: ignore
         if self._keep_alive:
-            reactor.callLater(self.restart_delay, self._start_process)
+            reactor.callLater(  # type: ignore
+                self.restart_delay, self._start_process
+            )
 
     @inlineCallbacks
     def start(  # pylint: disable=too-many-arguments
