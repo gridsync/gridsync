@@ -740,7 +740,9 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     with open(os.path.join(privatedir, "api_auth_token"), "w") as f:
         f.write("1234567890")
     client.config_set("client", "shares.happy", "99999")
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", lambda x, y, z: 9999)
+    monkeypatch.setattr(
+        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
+    )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
     )
@@ -751,8 +753,7 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 @inlineCallbacks
 def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.command",
-        lambda self, args, callback_trigger=None: 9999,
+        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
@@ -772,8 +773,7 @@ def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
 @inlineCallbacks
 def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.command",
-        lambda self, args, callback_trigger=None: 9999,
+        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
@@ -803,7 +803,9 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
         f.write("1234567890")
     client.config_set("client", "shares.happy", "99999")
     client.config_set("connections", "tcp", "tor")
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", lambda x, y, z: 9999)
+    monkeypatch.setattr(
+        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
+    )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
     )
