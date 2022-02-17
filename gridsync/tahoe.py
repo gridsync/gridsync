@@ -448,10 +448,6 @@ class Tahoe:
             started_trigger="client running",
             stdout_line_collector=self.line_received,
         )
-        pid = str(pid)
-        if sys.platform == "win32" and pid.isdigit():
-            with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
-                f.write(pid)
 
         self.load_settings()
 
@@ -480,7 +476,7 @@ class Tahoe:
             yield self.magic_folder.start()
 
         log.debug(
-            'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
+            'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
         )
 
     def set_nodeurl(self, nodeurl):
