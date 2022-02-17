@@ -14,6 +14,7 @@ from gridsync.types import TwistedDeferred
 class Supervisor:
     def __init__(self, restart_delay: int = 1) -> None:
         self.restart_delay: int = restart_delay
+        self._keep_alive: bool = True
         self._args: List[str] = []
         self._pidfile: Path = Path()
         self._started_trigger = ""
@@ -22,10 +23,12 @@ class Supervisor:
         self._on_process_ended: Optional[Callable] = None
 
     def stop(self) -> None:
+        self._keep_alive = False
         kill(pidfile=self._pidfile)
 
     @inlineCallbacks
     def _start_process(self) -> TwistedDeferred[int]:
+        self._keep_alive = True
         protocol = SubprocessProtocol(
             callback_triggers=[self._started_trigger],
             stdout_line_collector=self._stdout_line_collector,
@@ -41,8 +44,8 @@ class Supervisor:
         return transport.pid
 
     def _schedule_restart(self, _) -> None:
-        # TODO Don't restart if caused by self.stop()
-        reactor.callLater(self.restart_delay, self._start_process)
+        if self._keep_alive:
+            reactor.callLater(self.restart_delay, self._start_process)
 
     @inlineCallbacks
     def start(  # pylint: disable=too-many-arguments
