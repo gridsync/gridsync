@@ -446,7 +446,7 @@ class Tahoe:
             [self.executable, "-d", self.nodedir, "run"],
             self.pidfile,
             started_trigger="client running",
-            stdout_line_collector=print,
+            stdout_line_collector=self.line_received,
         )
         pid = str(pid)
         if sys.platform == "win32" and pid.isdigit():
