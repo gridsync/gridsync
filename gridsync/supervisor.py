@@ -1,8 +1,6 @@
 import logging
 import os
 from pathlib import Path
-
-# from subprocess import SubprocessError
 from typing import Callable, List, Optional
 
 from twisted.internet import reactor
