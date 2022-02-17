@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from typing import Callable, List, Optional
 
+from atomicwrites import atomic_write
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -40,7 +41,8 @@ class Supervisor:
         )
         if self._started_trigger:
             yield protocol.done
-        Path(self._pidfile).write_text(str(transport.pid), encoding="utf-8")
+        with atomic_write(self._pidfile, mode="w", overwrite=True) as f:
+            f.write(str(transport.pid))
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
             "".join(self._args),
