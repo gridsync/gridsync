@@ -740,6 +740,7 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     with open(os.path.join(privatedir, "api_auth_token"), "w") as f:
         f.write("1234567890")
     client.config_set("client", "shares.happy", "99999")
+    monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
     )
@@ -803,6 +804,7 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
         f.write("1234567890")
     client.config_set("client", "shares.happy", "99999")
     client.config_set("connections", "tcp", "tor")
+    monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
     )
