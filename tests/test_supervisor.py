@@ -24,7 +24,7 @@ def test_supervisor_restarts_process_when_killed(tmp_path):
     pidfile = tmp_path / "python.pid"
     pid_1 = yield supervisor.start(PROCESS_ARGS, pidfile, started_trigger="OK")
     kill(pidfile=pidfile)
-    yield deferLater(reactor, 0.5, lambda: None)
+    yield deferLater(reactor, 2, lambda: None)
     pid_2 = int(pidfile.read_text())
     assert pid_1 != pid_2
 
