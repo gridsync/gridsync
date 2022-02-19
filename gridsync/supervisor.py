@@ -34,6 +34,7 @@ class Supervisor:
         self._keep_alive = False
         if self.pidfile:
             kill(pidfile=self.pidfile)
+        self.pid = None
 
     @inlineCallbacks
     def _start_process(self) -> TwistedDeferred[int]:
