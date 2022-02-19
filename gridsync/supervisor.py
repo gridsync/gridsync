@@ -48,8 +48,9 @@ class Supervisor:
         )
         if self._started_trigger:
             yield protocol.done
-        with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
-            f.write(str(transport.pid))
+        if self.pidfile:
+            with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
+                f.write(str(transport.pid))
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
             "".join(self._args),
