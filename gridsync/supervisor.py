@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 from atomicwrites import atomic_write
 from twisted.internet import reactor
@@ -12,11 +12,17 @@ from gridsync.types import TwistedDeferred
 
 
 class Supervisor:
-    def __init__(self, restart_delay: int = 1) -> None:
+    def __init__(
+        self,
+        pidfile: Union[Path, str] = "",
+        restart_delay: int = 1,
+    ) -> None:
+        if pidfile:
+            pidfile = Path(pidfile)
+        self.pidfile = pidfile
         self.restart_delay: int = restart_delay
         self._keep_alive: bool = True
         self._args: List[str] = []
-        self._pidfile: Path = Path()
         self._started_trigger = ""
         self._stdout_line_collector: Optional[Callable] = None
         self._stderr_line_collector: Optional[Callable] = None
@@ -25,7 +31,8 @@ class Supervisor:
     def stop(self) -> None:
         logging.debug("Stopping supervised process: %s", "".join(self._args))
         self._keep_alive = False
-        kill(pidfile=self._pidfile)
+        if self.pidfile:
+            kill(pidfile=self.pidfile)
 
     @inlineCallbacks
     def _start_process(self) -> TwistedDeferred[int]:
@@ -41,7 +48,7 @@ class Supervisor:
         )
         if self._started_trigger:
             yield protocol.done
-        with atomic_write(self._pidfile, mode="w", overwrite=True) as f:
+        with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
             f.write(str(transport.pid))
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
@@ -63,19 +70,17 @@ class Supervisor:
     def start(  # pylint: disable=too-many-arguments
         self,
         args: list[str],
-        pidfile: Path,
         started_trigger: str = "",
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
     ) -> TwistedDeferred[int]:
 
         self._args = args
-        self._pidfile = Path(pidfile)
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
         self._stderr_line_collector = stderr_line_collector
 
-        if self._pidfile.exists():
+        if self.pidfile and self.pidfile.exists():
             self.stop()
         logging.debug("Starting supervised process: %s", "".join(self._args))
         pid = yield self._start_process()

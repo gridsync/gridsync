@@ -107,7 +107,7 @@ class Tahoe:
         self.magic_folder.monitor.sync_stopped.connect(
             self.zkapauthorizer.update_zkap_checkpoint
         )
-        self.supervisor = Supervisor()
+        self.supervisor = Supervisor(pidfile=self.pidfile)
 
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
@@ -444,7 +444,6 @@ class Tahoe:
             self.executable = which("tahoe")
         pid = yield self.supervisor.start(
             [self.executable, "-d", self.nodedir, "run"],
-            self.pidfile,
             started_trigger="client running",
             stdout_line_collector=self.line_received,
         )
