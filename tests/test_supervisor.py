@@ -11,6 +11,13 @@ PROCESS_ARGS = [sys.executable, "-c", "while True: print('OK')"]
 
 
 @inlineCallbacks
+def test_supervisor_sets_pid_attribute(tmp_path):
+    supervisor = Supervisor()
+    pid = yield supervisor.start(PROCESS_ARGS)
+    assert supervisor.pid == pid
+
+
+@inlineCallbacks
 def test_supervisor_writes_pid_to_pidfile(tmp_path):
     pidfile = tmp_path / "python.pid"
     supervisor = Supervisor(pidfile=pidfile)
