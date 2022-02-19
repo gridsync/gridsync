@@ -386,7 +386,8 @@ class Tahoe:
 
     def kill(self):
         self.magic_folder.stop()  # XXX
-        kill(pidfile=self.pidfile)
+        # kill(pidfile=self.pidfile)
+        self.supervisor.stop()
 
     @inlineCallbacks
     def stop(self):
