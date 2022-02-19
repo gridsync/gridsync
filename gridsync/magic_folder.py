@@ -497,24 +497,18 @@ class MagicFolder:
         return [self.executable, "--eliot-fd=2", f"--config={self.configdir}"]
 
     @inlineCallbacks
-    def _command(
-        self, args: List[str], callback_trigger: str = ""
-    ) -> TwistedDeferred[Union[Tuple[int, str], str]]:
+    def _command(self, args: List[str]) -> TwistedDeferred[str]:
         args = self._base_command_args() + args
-        env = os.environ
-        env["PYTHONUNBUFFERED"] = "1"
         logging.debug("Executing %s...", " ".join(args))
+        os.environ["PYTHONUNBUFFERED"] = "1"
         protocol = SubprocessProtocol(
-            callback_triggers=[callback_trigger],
             stdout_line_collector=self.on_stdout_line_received,
             stderr_line_collector=self.on_stderr_line_received,
         )
-        transport = yield reactor.spawnProcess(  # type: ignore
-            protocol, self.executable, args=args, env=env
+        yield reactor.spawnProcess(  # type: ignore
+            protocol, self.executable, args=args
         )
         output = yield protocol.done
-        if callback_trigger:
-            return transport.pid, output
         return output
 
     @inlineCallbacks
