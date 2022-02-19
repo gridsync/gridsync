@@ -80,7 +80,7 @@ class Supervisor:
         self._stdout_line_collector = stdout_line_collector
         self._stderr_line_collector = stderr_line_collector
 
-        if self.pidfile and self.pidfile.exists():
+        if self.pidfile and self.pidfile.exists():  # type: ignore
             self.stop()
         logging.debug("Starting supervised process: %s", "".join(self._args))
         pid = yield self._start_process()
