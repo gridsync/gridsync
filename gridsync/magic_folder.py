@@ -453,15 +453,15 @@ class MagicFolder:
         self._log_buffer: Deque[bytes] = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
-        self.pidfile = Path(self.configdir, "magic-folder.pid")
-        self.pid: int = 0
         self.api_port: int = 0
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
         self.remote_magic_folders: Dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
-        self.supervisor = Supervisor(pidfile=self.pidfile)
+        self.supervisor = Supervisor(
+            pidfile=Path(self.configdir, "magic-folder.pid")
+        )
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -576,8 +576,6 @@ class MagicFolder:
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
-        if self.pidfile.exists():
-            self.stop()
         if not self.configdir.exists():
             yield self._command(
                 [
@@ -588,8 +586,7 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        self.pid = yield self._run()
-        # self.pidfile.write_text(str(self.pid), encoding="utf-8")
+        yield self._run()
         self.api_token = self._read_api_token()
         self.api_port = self._read_api_port()
         self.monitor.start()
