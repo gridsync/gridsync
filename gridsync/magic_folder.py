@@ -551,16 +551,6 @@ class MagicFolder:
         return port
 
     @inlineCallbacks
-    def _run(self) -> TwistedDeferred[int]:
-        pid = yield self.supervisor.start(
-            self._base_command_args() + ["run"],
-            started_trigger="Completed initial Magic Folder setup",
-            stdout_line_collector=self.on_stdout_line_received,
-            stderr_line_collector=self.on_stderr_line_received,
-        )
-        return pid
-
-    @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
         if not self.configdir.exists():
@@ -573,7 +563,12 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        yield self._run()
+        yield self.supervisor.start(
+            self._base_command_args() + ["run"],
+            started_trigger="Completed initial Magic Folder setup",
+            stdout_line_collector=self.on_stdout_line_received,
+            stderr_line_collector=self.on_stderr_line_received,
+        )
         self.api_token = self._read_api_token()
         self.api_port = self._read_api_port()
         self.monitor.start()
