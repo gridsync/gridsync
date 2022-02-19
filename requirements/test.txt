@@ -140,6 +140,7 @@ pytest==7.0.1 \
     #   pytest-cov
     #   pytest-qt
     #   pytest-twisted
+    #   pytest-xvfb
 pytest-cov==3.0.0 \
     --hash=sha256:578d5d15ac4a25e5f961c938b85a05b09fdaae9deef3bb6de9a6e766622ca7a6 \
     --hash=sha256:e7f0f5b1617d2210a2cabc266dfe2f4c75a8d32fb89eafb7ad9d06f6d076d470
@@ -152,6 +153,14 @@ pytest-twisted==1.13.4 \
     --hash=sha256:1ae215f71247d0d75dc2611fa744291aebf40dbd6c260d528cb82bbbbe252d97 \
     --hash=sha256:4b9644258a267f63f8ba24b91b83c9f3372caec393722f8d8263674fc51168e1
     # via -r requirements/test.in
+pytest-xvfb==2.0.0 \
+    --hash=sha256:6d21b46f099c06d6b8b200e73341da3adb73d67e9139c55d617930881779360b \
+    --hash=sha256:c4ba642de05499940db7f65ee111621939be513e3e75c3da9156b7235e2ed8cf
+    # via -r requirements/test.in
+pyvirtualdisplay==3.0 \
+    --hash=sha256:09755bc3ceb6eb725fb07eca5425f43f2358d3bf08e00d2a9b792a1aedd16159 \
+    --hash=sha256:40d4b8dfe4b8de8552e28eb367647f311f88a130bf837fe910e7f180d5477f0e
+    # via pytest-xvfb
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f

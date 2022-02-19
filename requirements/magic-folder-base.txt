@@ -146,9 +146,9 @@ charset-normalizer==2.0.12 \
     --hash=sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597 \
     --hash=sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df
     # via requests
-click==8.0.3 \
-    --hash=sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3 \
-    --hash=sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b
+click==8.0.4 \
+    --hash=sha256:6a7a62563bbfabfda3a38f3023a1db4a35978c0abd76f6c9605ecd6554d6d9b1 \
+    --hash=sha256:8458d7b1287c5fb128c90e23381cf99dcde74beaf6c7ff6384ce84d6fe090adb
     # via magic-wormhole
 collections-extended==2.0.2 \
     --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
@@ -187,9 +187,9 @@ cryptography==36.0.1 \
     #   tahoe-lafs
     #   twisted
     #   txtorcon
-distro==1.6.0 \
-    --hash=sha256:83f5e5a09f9c5f68f60173de572930effbcc0287bb84fdc4426cb4168c088424 \
-    --hash=sha256:c8713330ab31a034623a9515663ed87696700b55f04556b97c39cd261aa70dc7
+distro==1.7.0 \
+    --hash=sha256:151aeccf60c216402932b52e40ee477a939f8d58898927378a02abbe852c1c39 \
+    --hash=sha256:d596311d707e692c2160c37807f83e3820c5d539d5a83e87cfb6babd8ba3a06b
     # via tahoe-lafs
 eliot==1.14.0 \
     --hash=sha256:adc9c05263aa5527f1679e9af65728a06df1485f5a5e1ea94bc6f7081c14e479 \
@@ -578,9 +578,9 @@ zope-interface==5.4.0 \
     #   txtorcon
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==60.9.0 \
-    --hash=sha256:716f9d20b4c3513d1720245eb1dac009b40c9694c88e940e54b67b8b65d09493 \
-    --hash=sha256:d181db00651bce5268b8f559795053d5e8f645e4dbafac6d262b22d7e72e19eb
+setuptools==60.9.3 \
+    --hash=sha256:2347b2b432c891a863acadca2da9ac101eae6169b1d3dfee2ec605ecd50dbfe5 \
+    --hash=sha256:e4f30b9f84e5ab3decf945113119649fec09c1fc3507c6ebffec75646c56e62b
     # via
     #   autobahn
     #   tahoe-lafs
