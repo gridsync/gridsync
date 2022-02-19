@@ -21,6 +21,7 @@ class Supervisor:
             pidfile = Path(pidfile)
         self.pidfile = pidfile
         self.restart_delay: int = restart_delay
+        self.pid: Optional[int] = None
         self._keep_alive: bool = True
         self._args: List[str] = []
         self._started_trigger = ""
@@ -48,15 +49,17 @@ class Supervisor:
         )
         if self._started_trigger:
             yield protocol.done
+        pid = transport.pid
         if self.pidfile:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
-                f.write(str(transport.pid))
+                f.write(str(pid))
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
             "".join(self._args),
-            transport.pid,
+            pid,
         )
-        return transport.pid
+        self.pid = pid
+        return pid
 
     def _schedule_restart(self, _) -> None:  # type: ignore
         if self._keep_alive:
