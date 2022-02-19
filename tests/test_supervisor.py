@@ -11,10 +11,20 @@ PROCESS_ARGS = [sys.executable, "-c", "while True: print('OK')"]
 
 
 @inlineCallbacks
-def test_supervisor_sets_pid_attribute(tmp_path):
+def test_supervisor_sets_pid_attribute_on_start(tmp_path):
     supervisor = Supervisor()
     pid = yield supervisor.start(PROCESS_ARGS)
     assert supervisor.pid == pid
+
+
+@inlineCallbacks
+def test_supervisor_unsets_pid_attribute_on_stop(tmp_path):
+    supervisor = Supervisor()
+    pid = yield supervisor.start(PROCESS_ARGS)
+    pid_was_set = supervisor.pid == pid
+    supervisor.stop()
+    pid_was_unset = supervisor.pid is None
+    assert pid_was_set and pid_was_unset
 
 
 @inlineCallbacks
