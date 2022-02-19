@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from gridsync.types import TwistedDeferred
 
 from gridsync.crypto import randstr
+from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, kill, which
 from gridsync.watchdog import Watchdog
 from gridsync.websocket import WebSocketReaderService
@@ -460,6 +461,7 @@ class MagicFolder:
         self.magic_folders: Dict[str, dict] = {}
         self.remote_magic_folders: Dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
+        self.supervisor = Supervisor(pidfile=self.pidfile)
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -522,7 +524,7 @@ class MagicFolder:
 
     def stop(self) -> None:
         self.monitor.stop()
-        kill(pidfile=self.pidfile)
+        self.supervisor.stop()
 
     def _read_api_token(self) -> str:
         p = Path(self.configdir, "api_token")
@@ -556,10 +558,19 @@ class MagicFolder:
 
     @inlineCallbacks
     def _run(self) -> TwistedDeferred[int]:
-        result = yield self._command(
-            ["run"], "Completed initial Magic Folder setup"
+        if not self.executable:
+            self.executable = which("magic-folder")
+        pid = yield self.supervisor.start(
+            [
+                self.executable,
+                "--eliot-fd=2",  # redirect log output to stderr
+                f"--config={self.configdir}",
+                "run",
+            ],
+            started_trigger="Completed initial Magic Folder setup",
+            stdout_line_collector=self.on_stdout_line_received,
+            stderr_line_collector=self.on_stderr_line_received,
         )
-        pid, _ = result
         return pid
 
     @inlineCallbacks
@@ -578,7 +589,7 @@ class MagicFolder:
                 ]
             )
         self.pid = yield self._run()
-        self.pidfile.write_text(str(self.pid), encoding="utf-8")
+        # self.pidfile.write_text(str(self.pid), encoding="utf-8")
         self.api_token = self._read_api_token()
         self.api_port = self._read_api_port()
         self.monitor.start()
