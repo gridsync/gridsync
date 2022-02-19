@@ -34,6 +34,8 @@ class Supervisor:
         self._keep_alive = False
         if self.pidfile:
             kill(pidfile=self.pidfile)
+        elif self.pid:
+            kill(pid=self.pid)
         self.pid = None
 
     @inlineCallbacks
