@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 from gridsync.crypto import randstr
 from gridsync.supervisor import Supervisor
-from gridsync.system import SubprocessProtocol, kill, which
+from gridsync.system import SubprocessProtocol, which
 from gridsync.watchdog import Watchdog
 from gridsync.websocket import WebSocketReaderService
 
