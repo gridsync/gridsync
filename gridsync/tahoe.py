@@ -23,7 +23,7 @@ from gridsync.news import NewscapChecker
 from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
-from gridsync.system import SubprocessProtocol, kill, which
+from gridsync.system import SubprocessProtocol, which
 from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
