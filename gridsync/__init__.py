@@ -4,6 +4,8 @@ import os
 import sys
 from collections import namedtuple
 
+import certifi
+
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
 from gridsync.util import to_bool
@@ -13,12 +15,9 @@ __url__ = "https://github.com/gridsync/gridsync"
 __license__ = "GPLv3"
 
 
-if sys.platform == "win32":
-    import certifi
-
-    # Workaround for broken-by-default certificate verification on Windows.
-    # See https://github.com/twisted/treq/issues/94#issuecomment-116226820
-    os.environ["SSL_CERT_FILE"] = certifi.where()
+# Workaround for broken-by-default certificate verification on Windows.
+# See https://github.com/twisted/treq/issues/94#issuecomment-116226820
+os.environ["SSL_CERT_FILE"] = certifi.where()
 
 
 if getattr(sys, "frozen", False):
