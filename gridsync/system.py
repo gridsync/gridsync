@@ -9,6 +9,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
 
+from psutil import Process
 from twisted.internet.defer import Deferred
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
@@ -48,8 +49,9 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
             logging.error("Error loading pid from %s: %s", pidfile, str(err))
             return
     logging.debug("Trying to kill PID %i...", pid)
+    proc = Process(pid)
     try:
-        os.kill(pid, signal.SIGTERM)
+        proc.terminate()
     except OSError as err:
         if err.errno not in (errno.ESRCH, errno.EINVAL):
             logging.error("Error killing PID %i: %s", pid, str(err))
