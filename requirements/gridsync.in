@@ -9,6 +9,7 @@ autobahn
 humanize
 hyperlink
 magic-wormhole
+psutil
 # PyNaCl 1.2.0 adds Argon2id KDF
 pynacl >= 1.2.0
 # Qt 5.15.2 is broken on Debian 10; see https://bugreports.qt.io/browse/QTBUG-88688
