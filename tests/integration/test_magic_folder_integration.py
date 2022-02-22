@@ -36,8 +36,11 @@ os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
 async def magic_folder(tahoe_client):
     mf = tahoe_client.magic_folder
     await mf.start()
+    pid = mf.supervisor.pid
+    print("### STARTED", pid)
     yield mf
     mf.stop()
+    print("### STOPPED", pid, mf.supervisor.pid)
 
 
 @async_yield_fixture(scope="module")
@@ -57,8 +60,11 @@ async def alice_magic_folder(tmp_path_factory, tahoe_server):
     }
     await client.create_client(**settings)
     await client.start()
+    pid = client.magic_folder.supervisor.pid
+    print("A STARTED", pid)
     yield client.magic_folder
     await client.stop()
+    print("A STOPPED", pid)
 
 
 @async_yield_fixture(scope="module")
@@ -78,8 +84,11 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
     }
     await client.create_client(**settings)
     await client.start()
+    pid = client.magic_folder.supervisor.pid
+    print("B STARTED", pid)
     yield client.magic_folder
     await client.stop()
+    print("B STOPPED", pid)
 
 
 @inlineCallbacks
