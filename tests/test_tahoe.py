@@ -458,10 +458,10 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
 @inlineCallbacks
 def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
     Path(tahoe.pidfile).write_text(str("4194305"), encoding="utf-8")
-    fake_kill = Mock()
-    monkeypatch.setattr("os.kill", fake_kill)
+    fake_process = Mock()
+    monkeypatch.setattr("gridsync.system.Process", fake_process)
     yield tahoe.stop()
-    assert fake_kill.call_args[0][0] == 4194305
+    assert fake_process.call_args[0][0] == 4194305
 
 
 @pytest.mark.parametrize("locked,call_count", [(True, 1), (False, 0)])
@@ -776,6 +776,7 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
     )
+    monkeypatch.setattr("gridsync.supervisor.kill", Mock())
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
     )
