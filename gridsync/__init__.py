@@ -13,11 +13,14 @@ __url__ = "https://github.com/gridsync/gridsync"
 __license__ = "GPLv3"
 
 
-if sys.platform == "win32":
+if sys.platform in ("win32", "darwin"):
     import certifi
 
     # Workaround for broken-by-default certificate verification on Windows.
     # See https://github.com/twisted/treq/issues/94#issuecomment-116226820
+    # TLS certificate verification was also observed to be broken on macOS
+    # 10.16 <https://github.com/gridsync/gridsync/issues/459> -- and using
+    # `certifi`'s CA bundle reportedly fixed it.
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
 
