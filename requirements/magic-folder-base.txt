@@ -27,8 +27,8 @@ attrs==21.4.0 \
     #   tahoe-lafs
     #   treq
     #   twisted
-autobahn[twisted]==22.1.1 \
-    --hash=sha256:17e1b58b6ae1a63ca7d926b1d71bb9e4fd6b9ac9a1a2277d8ee40e0b61f54746
+autobahn[twisted]==22.2.1 \
+    --hash=sha256:a43ef32f177c016c88039b26b852e804265473fc3fadf9cf518d1cd88787d0e7
     # via
     #   magic-folder
     #   magic-wormhole
@@ -245,9 +245,9 @@ klein==21.8.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-magic-folder==22.2.0 \
-    --hash=sha256:3e20bf5e65a9c055cdd4a5331edd0f84d30ed50e47c88ab530ecf74c2936bb31 \
-    --hash=sha256:af00e417f0f4458d2e2653052d6bcc9d8c1c9f9ba8ab6c2ea0365aaa546385e6
+# WARNING: pip install will require the following package to be hashed.
+# Consider using a hashable URL like https://github.com/jazzband/pip-tools/archive/SOMECOMMIT.zip
+magic-folder @ git+https://github.com/LeastAuthority/magic-folder@9d2a84a2632a9b65579f2d361d5f7652146464f3
     # via -r requirements/magic-folder.in
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
@@ -437,9 +437,9 @@ twisted[conch,tls]==22.1.0 \
     #   treq
     #   tubes
     #   txtorcon
-txaio==21.2.1 \
-    --hash=sha256:7d6f89745680233f1c4db9ddb748df5e88d2a7a37962be174c0fd04c8dba1dc8 \
-    --hash=sha256:c16b55f9a67b2419cfdf8846576e2ec9ba94fe6978a83080c352a80db31c93fb
+txaio==22.2.1 \
+    --hash=sha256:2e4582b70f04b2345908254684a984206c0d9b50e3074a24a4c55aba21d24d01 \
+    --hash=sha256:41223af4a9d5726e645a8ee82480f413e5e300dd257db94bc38ae12ea48fb2e5
     # via autobahn
 txtorcon==21.1.0 \
     --hash=sha256:aebf0b9ec6c69a029f6b61fd534e785692e28fdcd2fd003ce3cc132b9393b7d6 \

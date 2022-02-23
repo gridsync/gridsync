@@ -19,8 +19,8 @@ attrs==21.4.0 \
     #   service-identity
     #   treq
     #   twisted
-autobahn[twisted]==22.1.1 \
-    --hash=sha256:17e1b58b6ae1a63ca7d926b1d71bb9e4fd6b9ac9a1a2277d8ee40e0b61f54746
+autobahn[twisted]==22.2.1 \
+    --hash=sha256:a43ef32f177c016c88039b26b852e804265473fc3fadf9cf518d1cd88787d0e7
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
@@ -314,9 +314,9 @@ twisted[tls]==22.1.0 \
     #   qt5reactor
     #   treq
     #   txtorcon
-txaio==21.2.1 \
-    --hash=sha256:7d6f89745680233f1c4db9ddb748df5e88d2a7a37962be174c0fd04c8dba1dc8 \
-    --hash=sha256:c16b55f9a67b2419cfdf8846576e2ec9ba94fe6978a83080c352a80db31c93fb
+txaio==22.2.1 \
+    --hash=sha256:2e4582b70f04b2345908254684a984206c0d9b50e3074a24a4c55aba21d24d01 \
+    --hash=sha256:41223af4a9d5726e645a8ee82480f413e5e300dd257db94bc38ae12ea48fb2e5
     # via autobahn
 txtorcon==21.1.0 \
     --hash=sha256:aebf0b9ec6c69a029f6b61fd534e785692e28fdcd2fd003ce3cc132b9393b7d6 \
