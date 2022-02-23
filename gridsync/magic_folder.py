@@ -460,6 +460,7 @@ class MagicFolder:
         self.magic_folders: Dict[str, dict] = {}
         self.remote_magic_folders: Dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
+        self.time_started: float = 0.0
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -582,6 +583,7 @@ class MagicFolder:
         self.api_token = self._read_api_token()
         self.api_port = self._read_api_port()
         self.monitor.start()
+        self.time_started = time.time()
         logging.debug("Started magic-folder")
 
     @inlineCallbacks
