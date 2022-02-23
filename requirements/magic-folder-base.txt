@@ -245,9 +245,9 @@ klein==21.8.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-# WARNING: pip install will require the following package to be hashed.
-# Consider using a hashable URL like https://github.com/jazzband/pip-tools/archive/SOMECOMMIT.zip
-magic-folder @ git+https://github.com/LeastAuthority/magic-folder@9d2a84a2632a9b65579f2d361d5f7652146464f3
+magic-folder==22.2.1 \
+    --hash=sha256:18a7b3848a679ffdd7250ef43ac11abd847d6ec5df19ac1ed00db39f1b092683 \
+    --hash=sha256:a7d642b4197ed09616c88baec4278a1e1105d04d0cddb0fa56540c2f4afeac9b
     # via -r requirements/magic-folder.in
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
