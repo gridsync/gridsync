@@ -67,6 +67,7 @@ class Model(QStandardItemModel):
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
         self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
+        self.mf_monitor.folder_state_changed.connect(self.set_status)
         self.mf_monitor.error_occurred.connect(self.on_error_occurred)
         self.mf_monitor.files_updated.connect(self.on_files_updated)
         self.mf_monitor.sync_progress_updated.connect(
