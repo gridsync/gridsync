@@ -251,6 +251,9 @@ class Model(QStandardItemModel):
         if status == MagicFolderState.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
+        elif status == MagicFolderState.WAITING:
+            item.setIcon(self.icon_blank)
+            item.setText("Waiting to scan...")
         elif status in (
             MagicFolderState.SYNCING,
             MagicFolderState.SCANNING,
