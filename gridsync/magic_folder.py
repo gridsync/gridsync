@@ -82,7 +82,7 @@ class MagicFolderMonitor(QObject):
     folder_removed = Signal(str)  # folder_name
     folder_mtime_updated = Signal(str, int)  # folder_name, mtime
     folder_size_updated = Signal(str, object)  # folder_name, size
-    folder_state_changed = Signal(str, int)  # folder_name, state
+    folder_state_changed = Signal(str, object)  # folder_name, state
 
     backup_added = Signal(str)  # folder_name
     backup_removed = Signal(str)  # folder_name

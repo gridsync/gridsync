@@ -242,7 +242,7 @@ class Model(QStandardItemModel):
                 return True
         return False
 
-    @pyqtSlot(str, int)
+    @pyqtSlot(str, object)
     def set_status(self, name, status):
         items = self.findItems(name)
         if not items:
