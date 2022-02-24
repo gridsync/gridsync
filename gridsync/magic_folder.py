@@ -57,7 +57,8 @@ class MagicFolderState:
     SCANNING = 99
     UP_TO_DATE = 2
     ERROR = 8
-    WAITING = 3
+    STORED_REMOTELY = 3
+    WAITING = 4
 
 
 class MagicFolderMonitor(QObject):
