@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import enum
 import json
 import logging
 import os
@@ -51,14 +52,14 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
-class MagicFolderState:
-    LOADING = 0
-    SYNCING = 1
-    SCANNING = 99
-    UP_TO_DATE = 2
-    ERROR = 8
-    STORED_REMOTELY = 3
-    WAITING = 4
+class MagicFolderState(enum.Enum):
+    LOADING = enum.auto()
+    SYNCING = enum.auto()
+    SCANNING = enum.auto()
+    UP_TO_DATE = enum.auto()
+    ERROR = enum.auto()
+    STORED_REMOTELY = enum.auto()
+    WAITING = enum.auto()
 
 
 class MagicFolderMonitor(QObject):
