@@ -57,6 +57,7 @@ class MagicFolderState:
     SCANNING = 99
     UP_TO_DATE = 2
     ERROR = 8
+    WAITING = 3
 
 
 class MagicFolderMonitor(QObject):
@@ -395,6 +396,8 @@ class MagicFolderMonitor(QObject):
                 last_scan = data.get("scanner", {}).get("last-scan") or 0
                 if min(last_poll, last_scan) > self.magic_folder.time_started:
                     folder_statuses[folder] = MagicFolderState.UP_TO_DATE
+                else:
+                    folder_statuses[folder] = MagicFolderState.WAITING
         # XXX
         from pprint import pprint
         pprint(folder_statuses)
