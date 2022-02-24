@@ -271,7 +271,7 @@ class Model(QStandardItemModel):
             )
             self.update_overlay(name)
             self.unfade_row(name)
-        elif status == 3:
+        elif status == MagicFolderState.STORED_REMOTELY:
             item.setIcon(self.icon_cloud)
             item.setText("Stored remotely")
             item.setToolTip(
@@ -396,11 +396,11 @@ class Model(QStandardItemModel):
     @pyqtSlot(str)
     @pyqtSlot(str, str)
     def add_remote_folder(self, folder_name, overlay_file=None):
-        self.add_folder(folder_name, 3)
+        self.add_folder(folder_name, MagicFolderState.STORED_REMOTELY)
         self.fade_row(folder_name, overlay_file)
 
     @pyqtSlot(str)
     def on_folder_removed(self, folder_name: str):
         self.on_sync_finished(folder_name)
-        self.set_status(folder_name, 3)  # "Stored remotely"
+        self.set_status(folder_name, MagicFolderState.STORED_REMOTELY)
         self.fade_row(folder_name)
