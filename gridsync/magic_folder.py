@@ -386,15 +386,15 @@ class MagicFolderMonitor(QObject):
     def _check_folder_statuses(self, folders: Dict) -> None:
         folder_statuses = {}
         for folder, data in folders.items():
-            uploads = data.get("uploads")
-            downloads = data.get("downloads")
-            if uploads or downloads:
+            if data.get("uploads") or data.get("downloads"):
                 folder_statuses[folder] = MagicFolderState.SYNCING
-                continue
-            last_poll = data.get("poller").get("last-poll") or 0
-            last_scan = data.get("scanner").get("last-scan") or 0
-            if min(last_poll, last_scan) > self.magic_folder.time_started:
-                folder_statuses[folder] = MagicFolderState.UP_TO_DATE
+            elif data.get("errors"):
+                folder_statuses[folder] = MagicFolderState.ERROR
+            else:
+                last_poll = data.get("poller", {}).get("last-poll") or 0
+                last_scan = data.get("scanner", {}).get("last-scan") or 0
+                if min(last_poll, last_scan) > self.magic_folder.time_started:
+                    folder_statuses[folder] = MagicFolderState.UP_TO_DATE
         # XXX
         from pprint import pprint
         pprint(folder_statuses)
