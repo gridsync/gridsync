@@ -52,6 +52,7 @@ class Delegate(QStyledItemDelegate):
         values = self.parent.model().status_dict.values()
         if (
             MagicFolderState.LOADING in values
+            or MagicFolderState.WAITING in values
             or MagicFolderState.SYNCING in values
             or MagicFolderState.SCANNING in values
         ):
@@ -65,7 +66,7 @@ class Delegate(QStyledItemDelegate):
         if column == 1:
             pixmap = None
             status = index.data(Qt.UserRole)
-            if status == MagicFolderState.LOADING:
+            if status in (MagicFolderState.LOADING, MagicFolderState.WAITING):
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
