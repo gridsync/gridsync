@@ -31,7 +31,7 @@ class StatusPanel(QWidget):
         self.gateway = gateway
         self.gui = gui
 
-        self.state = 0
+        self.state = MagicFolderState.LOADING
         self.num_connected = 0
         self.num_known = 0
         self.available_space = 0
@@ -137,10 +137,10 @@ class StatusPanel(QWidget):
             self.on_sync_state_updated
         )
 
-        self.on_sync_state_updated(0)
+        self.on_sync_state_updated(self.state)
 
     def _update_status_label(self):
-        if self.state == MagicFolderState.LOADING:  # == 0
+        if self.state == MagicFolderState.LOADING:
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
                     self.status_label.setText(
