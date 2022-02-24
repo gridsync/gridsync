@@ -80,6 +80,7 @@ class MagicFolderMonitor(QObject):
     folder_removed = Signal(str)  # folder_name
     folder_mtime_updated = Signal(str, int)  # folder_name, mtime
     folder_size_updated = Signal(str, object)  # folder_name, size
+    folder_state_changed = Signal(str, int)  # folder_name, state
 
     backup_added = Signal(str)  # folder_name
     backup_removed = Signal(str)  # folder_name
@@ -388,16 +389,18 @@ class MagicFolderMonitor(QObject):
         folder_statuses = {}
         for folder, data in folders.items():
             if data.get("uploads") or data.get("downloads"):
-                folder_statuses[folder] = MagicFolderState.SYNCING
+                state = MagicFolderState.SYNCING
             elif data.get("errors"):
-                folder_statuses[folder] = MagicFolderState.ERROR
+                state = MagicFolderState.ERROR
             else:
                 last_poll = data.get("poller", {}).get("last-poll") or 0
                 last_scan = data.get("scanner", {}).get("last-scan") or 0
                 if min(last_poll, last_scan) > self.magic_folder.time_started:
-                    folder_statuses[folder] = MagicFolderState.UP_TO_DATE
+                    state = MagicFolderState.UP_TO_DATE
                 else:
-                    folder_statuses[folder] = MagicFolderState.WAITING
+                    state = MagicFolderState.WAITING
+            self.folder_state_changed.emit(folder, state)
+
         # XXX
         from pprint import pprint
         pprint(folder_statuses)
