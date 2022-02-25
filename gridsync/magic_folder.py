@@ -214,14 +214,15 @@ class MagicFolderMonitor(QObject):
         return folders
 
     def _check_overall_state(self) -> None:
-        if self.get_syncing_folders():  # At least one folder is syncing
+        statuses = set(self._folder_statuses.values())
+        if MagicFolderStatus.SYNCING in statuses:  # At least one is syncing
             state = MagicFolderStatus.SYNCING
-        elif self.errors:  # At least one folder has an error
+        elif MagicFolderStatus.ERROR in statuses:  # At least one has an error
             state = MagicFolderStatus.ERROR
-        elif self.up_to_date:  # All folders are up to date
+        elif statuses == {MagicFolderStatus.UP_TO_DATE}:  # All are up to date
             state = MagicFolderStatus.UP_TO_DATE
         else:
-            state = MagicFolderStatus.LOADING
+            state = MagicFolderStatus.WAITING
         if state != self._overall_state:
             self._overall_state = state
             self.overall_state_changed.emit(state)
