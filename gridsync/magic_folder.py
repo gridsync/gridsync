@@ -110,6 +110,7 @@ class MagicFolderMonitor(QObject):
         self._known_backups: List[str] = []
 
         self._folder_sizes: Dict[str, int] = {}
+        self._folder_statuses: Dict[str, MagicFolderState] = {}
         self._total_folders_size: int = 0
 
         self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
@@ -388,19 +389,23 @@ class MagicFolderMonitor(QObject):
         self._check_total_folders_size()
 
     def _check_folder_statuses(self, folders: Dict) -> None:
+        folder_statuses = {}
         for folder, data in folders.items():
             if data.get("uploads") or data.get("downloads"):
-                state = MagicFolderState.SYNCING
+                folder_statuses[folder] = MagicFolderState.SYNCING
             elif data.get("errors"):
-                state = MagicFolderState.ERROR
+                folder_statuses[folder] = MagicFolderState.ERROR
             else:
                 last_poll = data.get("poller", {}).get("last-poll") or 0
                 last_scan = data.get("scanner", {}).get("last-scan") or 0
                 if min(last_poll, last_scan) > self.magic_folder.time_started:
-                    state = MagicFolderState.UP_TO_DATE
+                    folder_statuses[folder] = MagicFolderState.UP_TO_DATE
                 else:
-                    state = MagicFolderState.WAITING
-            self.folder_state_changed.emit(folder, state)
+                    folder_statuses[folder] = MagicFolderState.WAITING
+        for folder, status in folder_statuses.items():
+            if status != self._folder_statuses.get(folder):
+                self.folder_state_changed.emit(folder, status)
+        self._folder_statuses = folder_statuses
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
