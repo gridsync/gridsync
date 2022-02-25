@@ -840,7 +840,7 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
 
 
 @inlineCallbacks
-def test_monitor_emits_overall_state_changed_signal(
+def test_monitor_emits_overall_status_changed_signal(
     magic_folder, tmp_path, qtbot
 ):
     folder_name = randstr()
@@ -848,7 +848,7 @@ def test_monitor_emits_overall_state_changed_signal(
     author = randstr()
     yield magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.monitor.overall_state_changed
+        magic_folder.monitor.overall_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename

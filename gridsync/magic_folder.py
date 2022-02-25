@@ -93,7 +93,7 @@ class MagicFolderMonitor(QObject):
     file_size_updated = Signal(str, dict)  # folder_name, status
     file_modified = Signal(str, dict)  # folder_name, status
 
-    overall_state_changed = Signal(object)  # MagicFolderStatus
+    overall_status_changed = Signal(object)  # MagicFolderStatus
     total_folders_size_updated = Signal(object)  # "object" avoids overflows
 
     def __init__(self, magic_folder: MagicFolder) -> None:
@@ -121,7 +121,7 @@ class MagicFolderMonitor(QObject):
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
         self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
 
-        self._overall_state: MagicFolderStatus = MagicFolderStatus.LOADING
+        self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
         try:
@@ -213,19 +213,19 @@ class MagicFolderMonitor(QObject):
                 folders.append(folder)
         return folders
 
-    def _check_overall_state(self) -> None:
+    def _check_overall_status(self) -> None:
         statuses = set(self._folder_statuses.values())
         if MagicFolderStatus.SYNCING in statuses:  # At least one is syncing
-            state = MagicFolderStatus.SYNCING
+            status = MagicFolderStatus.SYNCING
         elif MagicFolderStatus.ERROR in statuses:  # At least one has an error
-            state = MagicFolderStatus.ERROR
+            status = MagicFolderStatus.ERROR
         elif statuses == {MagicFolderStatus.UP_TO_DATE}:  # All are up to date
-            state = MagicFolderStatus.UP_TO_DATE
+            status = MagicFolderStatus.UP_TO_DATE
         else:
-            state = MagicFolderStatus.WAITING
-        if state != self._overall_state:
-            self._overall_state = state
-            self.overall_state_changed.emit(state)
+            status = MagicFolderStatus.WAITING
+        if status != self._overall_status:
+            self._overall_status = status
+            self.overall_status_changed.emit(status)
 
     def compare_states(
         self, current_state: Dict, previous_state: Dict
@@ -271,7 +271,7 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
-        self._check_overall_state()
+        self._check_overall_status()
 
     def compare_folders(
         self,

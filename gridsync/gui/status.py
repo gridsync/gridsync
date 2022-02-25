@@ -133,7 +133,7 @@ class StatusPanel(QWidget):
         self.gateway.monitor.days_remaining_updated.connect(
             self.on_days_remaining_updated
         )
-        self.gateway.magic_folder.monitor.overall_state_changed.connect(
+        self.gateway.magic_folder.monitor.overall_status_changed.connect(
             self.on_sync_state_updated
         )
 
