@@ -102,7 +102,6 @@ class MagicFolderMonitor(QObject):
 
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
-        self.up_to_date: bool = False
         self.errors: List = []
 
         self._prev_state: Dict = {}
@@ -188,7 +187,6 @@ class MagicFolderMonitor(QObject):
                     if not self._sync_started_time[folder]:
                         start_time = data.get("queued-at", time.time())
                         self._sync_started_time[folder] = start_time
-                        self.up_to_date = False
                         self.sync_started.emit(folder)
                     self._operations_queued[folder].add(relpath)
                     started_signal.emit(folder, relpath, data)
@@ -205,13 +203,6 @@ class MagicFolderMonitor(QObject):
                     # XXX: Confirm in "recent" list?
                     self._operations_completed[folder][relpath] = data
                     finished_signal.emit(folder, relpath, data)
-
-    def get_syncing_folders(self) -> List[str]:
-        folders = []
-        for folder, sync_started_time in self._sync_started_time.items():
-            if sync_started_time:
-                folders.append(folder)
-        return folders
 
     def _check_overall_status(self) -> None:
         statuses = set(self._folder_statuses.values())
@@ -259,8 +250,6 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.sync_stopped.emit(folder)
-                if not self.get_syncing_folders():
-                    self.up_to_date = True
                 updated_files = list(self._operations_completed[folder])
                 try:
                     del self._operations_completed[folder]
