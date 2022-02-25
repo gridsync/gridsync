@@ -93,7 +93,7 @@ class MagicFolderMonitor(QObject):
     file_size_updated = Signal(str, dict)  # folder_name, status
     file_modified = Signal(str, dict)  # folder_name, status
 
-    overall_state_changed = Signal(int)  # MagicFolderStatus
+    overall_state_changed = Signal(object)  # MagicFolderStatus
     total_folders_size_updated = Signal(object)  # "object" avoids overflows
 
     def __init__(self, magic_folder: MagicFolder) -> None:
