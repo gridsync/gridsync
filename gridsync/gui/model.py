@@ -254,10 +254,7 @@ class Model(QStandardItemModel):
         elif status == MagicFolderStatus.WAITING:
             item.setIcon(self.icon_blank)
             item.setText("Waiting to scan...")
-        elif status in (
-            MagicFolderStatus.SYNCING,
-            MagicFolderStatus.SCANNING,
-        ):
+        elif status == MagicFolderStatus.SYNCING:
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
             item.setToolTip(

@@ -55,7 +55,6 @@ class MagicFolderWebError(MagicFolderError):
 class MagicFolderStatus(Enum):
     LOADING = auto()
     SYNCING = auto()
-    SCANNING = auto()
     UP_TO_DATE = auto()
     ERROR = auto()
     STORED_REMOTELY = auto()

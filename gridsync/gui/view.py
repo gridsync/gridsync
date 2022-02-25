@@ -54,7 +54,6 @@ class Delegate(QStyledItemDelegate):
             MagicFolderStatus.LOADING in values
             or MagicFolderStatus.WAITING in values
             or MagicFolderStatus.SYNCING in values
-            or MagicFolderStatus.SCANNING in values
         ):
             self.parent.viewport().update()
         else:
@@ -74,10 +73,7 @@ class Delegate(QStyledItemDelegate):
                 pixmap = self.waiting_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
-            elif status in (
-                MagicFolderStatus.SYNCING,
-                MagicFolderStatus.SCANNING,
-            ):
+            elif status == MagicFolderStatus.SYNCING:
                 self.sync_movie.setPaused(False)
                 pixmap = self.sync_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
