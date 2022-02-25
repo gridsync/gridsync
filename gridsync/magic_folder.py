@@ -120,7 +120,7 @@ class MagicFolderMonitor(QObject):
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
         self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
 
-        self._overall_state: int = MagicFolderState.LOADING
+        self._overall_state: MagicFolderState = MagicFolderState.LOADING
 
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
         try:
