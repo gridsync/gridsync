@@ -388,7 +388,6 @@ class MagicFolderMonitor(QObject):
         self._check_total_folders_size()
 
     def _check_folder_statuses(self, folders: Dict) -> None:
-        folder_statuses = {}
         for folder, data in folders.items():
             if data.get("uploads") or data.get("downloads"):
                 state = MagicFolderState.SYNCING
@@ -402,10 +401,6 @@ class MagicFolderMonitor(QObject):
                 else:
                     state = MagicFolderState.WAITING
             self.folder_state_changed.emit(folder, state)
-
-        # XXX
-        from pprint import pprint
-        pprint(folder_statuses)
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
