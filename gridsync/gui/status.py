@@ -22,7 +22,7 @@ from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
-from gridsync.magic_folder import MagicFolderState
+from gridsync.magic_folder import MagicFolderStatus
 
 
 class StatusPanel(QWidget):
@@ -31,7 +31,7 @@ class StatusPanel(QWidget):
         self.gateway = gateway
         self.gui = gui
 
-        self.state = MagicFolderState.LOADING
+        self.state = MagicFolderStatus.LOADING
         self.num_connected = 0
         self.num_known = 0
         self.available_space = 0
@@ -140,7 +140,7 @@ class StatusPanel(QWidget):
         self.on_sync_state_updated(self.state)
 
     def _update_status_label(self):
-        if self.state == MagicFolderState.LOADING:
+        if self.state == MagicFolderStatus.LOADING:
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
                     self.status_label.setText(
@@ -160,19 +160,19 @@ class StatusPanel(QWidget):
             self.syncing_icon.hide()
             self.checkmark_icon.hide()
             self.error_icon.hide()
-        elif self.state == MagicFolderState.SYNCING:
+        elif self.state == MagicFolderStatus.SYNCING:
             self.status_label.setText("Syncing")
             self.checkmark_icon.hide()
             self.error_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
-        elif self.state == MagicFolderState.UP_TO_DATE:
+        elif self.state == MagicFolderStatus.UP_TO_DATE:
             self.status_label.setText("Up to date")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.error_icon.hide()
             self.checkmark_icon.show()
-        elif self.state == MagicFolderState.ERROR:
+        elif self.state == MagicFolderStatus.ERROR:
             self.status_label.setText("Error syncing folder")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()

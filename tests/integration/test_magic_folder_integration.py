@@ -10,7 +10,7 @@ from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
-from gridsync.magic_folder import MagicFolderState, MagicFolderWebError
+from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
 from gridsync.tahoe import Tahoe
 
 if sys.platform == "darwin":
@@ -855,7 +855,7 @@ def test_monitor_emits_overall_state_changed_signal(
         filepath.write_text(randstr() * 10)
         yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
-    assert blocker.args[0] == MagicFolderState.SYNCING
+    assert blocker.args[0] == MagicFolderStatus.SYNCING
 
 
 def test_eliot_logs_collected(magic_folder):

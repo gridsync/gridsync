@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 from gridsync import config_dir, resource
 from gridsync.gui.pixmap import CompositePixmap
-from gridsync.magic_folder import MagicFolderState
+from gridsync.magic_folder import MagicFolderStatus
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
@@ -238,7 +238,7 @@ class Model(QStandardItemModel):
 
     def is_folder_syncing(self) -> bool:
         for row in range(self.rowCount()):
-            if self.item(row, 1).data(Qt.UserRole) == MagicFolderState.SYNCING:
+            if self.item(row, 1).data(Qt.UserRole) == MagicFolderStatus.SYNCING:
                 return True
         return False
 
@@ -248,15 +248,15 @@ class Model(QStandardItemModel):
         if not items:
             return
         item = self.item(items[0].row(), 1)
-        if status == MagicFolderState.LOADING:
+        if status == MagicFolderStatus.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
-        elif status == MagicFolderState.WAITING:
+        elif status == MagicFolderStatus.WAITING:
             item.setIcon(self.icon_blank)
             item.setText("Waiting to scan...")
         elif status in (
-            MagicFolderState.SYNCING,
-            MagicFolderState.SCANNING,
+            MagicFolderStatus.SYNCING,
+            MagicFolderStatus.SCANNING,
         ):
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
@@ -264,7 +264,7 @@ class Model(QStandardItemModel):
                 "This folder is syncing. New files are being uploaded or "
                 "downloaded."
             )
-        elif status == MagicFolderState.UP_TO_DATE:
+        elif status == MagicFolderStatus.UP_TO_DATE:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
             item.setToolTip(
@@ -274,7 +274,7 @@ class Model(QStandardItemModel):
             )
             self.update_overlay(name)
             self.unfade_row(name)
-        elif status == MagicFolderState.STORED_REMOTELY:
+        elif status == MagicFolderStatus.STORED_REMOTELY:
             item.setIcon(self.icon_cloud)
             item.setText("Stored remotely")
             item.setToolTip(
@@ -282,7 +282,7 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
-        elif status == MagicFolderState.ERROR:
+        elif status == MagicFolderStatus.ERROR:
             errors = self._magic_folder_errors[name]
             if errors:
                 item.setIcon(self.icon_error)
@@ -350,16 +350,16 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):
-        self.set_status(folder_name, MagicFolderState.SYNCING)
+        self.set_status(folder_name, MagicFolderStatus.SYNCING)
         self.gui.core.operations.append((self.gateway, folder_name))
         self.gui.systray.update()
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
         if self._magic_folder_errors[folder_name]:
-            self.set_status(folder_name, MagicFolderState.ERROR)
+            self.set_status(folder_name, MagicFolderStatus.ERROR)
         else:
-            self.set_status(folder_name, MagicFolderState.UP_TO_DATE)
+            self.set_status(folder_name, MagicFolderStatus.UP_TO_DATE)
         try:
             self.gui.core.operations.remove((self.gateway, folder_name))
         except ValueError:
@@ -399,11 +399,11 @@ class Model(QStandardItemModel):
     @pyqtSlot(str)
     @pyqtSlot(str, str)
     def add_remote_folder(self, folder_name, overlay_file=None):
-        self.add_folder(folder_name, MagicFolderState.STORED_REMOTELY)
+        self.add_folder(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name, overlay_file)
 
     @pyqtSlot(str)
     def on_folder_removed(self, folder_name: str):
         self.on_sync_finished(folder_name)
-        self.set_status(folder_name, MagicFolderState.STORED_REMOTELY)
+        self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name)
