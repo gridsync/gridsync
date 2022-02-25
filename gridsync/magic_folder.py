@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import enum
 import json
 import logging
 import os
 import time
 from collections import defaultdict, deque
 from datetime import datetime
+from enum import Enum, auto
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -52,14 +52,14 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
-class MagicFolderStatus(enum.Enum):
-    LOADING = enum.auto()
-    SYNCING = enum.auto()
-    SCANNING = enum.auto()
-    UP_TO_DATE = enum.auto()
-    ERROR = enum.auto()
-    STORED_REMOTELY = enum.auto()
-    WAITING = enum.auto()
+class MagicFolderStatus(Enum):
+    LOADING = auto()
+    SYNCING = auto()
+    SCANNING = auto()
+    UP_TO_DATE = auto()
+    ERROR = auto()
+    STORED_REMOTELY = auto()
+    WAITING = auto()
 
 
 class MagicFolderMonitor(QObject):
