@@ -400,9 +400,9 @@ class MagicFolderMonitor(QObject):
         data = json.loads(msg)
         self.status_message_received.emit(data)
         state = data.get("state")
+        self.compare_states(state, self._prev_state)
         folders = state.get("folders")
         self._check_folder_statuses(folders)
-        self.compare_states(state, self._prev_state)
         self._prev_state = state
         self.do_check()  # XXX
 
