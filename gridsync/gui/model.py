@@ -348,7 +348,7 @@ class Model(QStandardItemModel):
     @pyqtSlot(str)
     def on_sync_started(self, folder_name):
         self.set_status(folder_name, MagicFolderStatus.SYNCING)
-        self.gui.core.operations.append((self.gateway, folder_name))
+        self.gui.systray.add_operation((self.gateway, folder_name))
         self.gui.systray.update()
 
     @pyqtSlot(str)
@@ -357,10 +357,7 @@ class Model(QStandardItemModel):
             self.set_status(folder_name, MagicFolderStatus.ERROR)
         else:
             self.set_status(folder_name, MagicFolderStatus.UP_TO_DATE)
-        try:
-            self.gui.core.operations.remove((self.gateway, folder_name))
-        except ValueError:
-            pass
+        self.gui.systray.remove_operation((self.gateway, folder_name))
 
     @pyqtSlot(str, int)
     def set_mtime(self, name, mtime):

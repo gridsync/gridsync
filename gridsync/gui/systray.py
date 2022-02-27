@@ -14,6 +14,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, gui):
         super().__init__()
         self.gui = gui
+        self._operations: set = set()
 
         tray_icon_path = resource(settings["application"]["tray_icon"])
         self.app_pixmap = QPixmap(tray_icon_path)
@@ -33,8 +34,17 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.animation.updated.connect(self.update)
         self.animation.setCacheMode(True)
 
+    def add_operation(self, obj):
+        self._operations.add(obj)
+
+    def remove_operation(self, obj):
+        try:
+            self._operations.add(obj)
+        except KeyError:
+            pass
+
     def update(self):
-        if self.gui.core.operations:
+        if self._operations:
             self.animation.setPaused(False)
             pixmap = self.animation.currentPixmap()
             if self.gui.unread_messages:

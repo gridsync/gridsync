@@ -84,7 +84,6 @@ class Core:
         self.gateways = []
         self.tahoe_version = None
         self.magic_folder_version: str = ""
-        self.operations = []
         log_deque_maxlen = 100000  # XXX
         debug_settings = settings.get("debug")
         if debug_settings:
