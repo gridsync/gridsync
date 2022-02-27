@@ -236,7 +236,10 @@ class Model(QStandardItemModel):
 
     def is_folder_syncing(self) -> bool:
         for row in range(self.rowCount()):
-            if self.item(row, 1).data(Qt.UserRole) == MagicFolderStatus.SYNCING:
+            if (
+                self.item(row, 1).data(Qt.UserRole)
+                == MagicFolderStatus.SYNCING
+            ):
                 return True
         return False
 
