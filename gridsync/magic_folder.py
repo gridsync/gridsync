@@ -79,7 +79,7 @@ class MagicFolderMonitor(QObject):
     folder_removed = Signal(str)  # folder_name
     folder_mtime_updated = Signal(str, int)  # folder_name, mtime
     folder_size_updated = Signal(str, object)  # folder_name, size
-    folder_state_changed = Signal(str, object)  # folder_name, state
+    folder_status_changed = Signal(str, object)  # folder_name, status
 
     backup_added = Signal(str)  # folder_name
     backup_removed = Signal(str)  # folder_name
@@ -381,7 +381,7 @@ class MagicFolderMonitor(QObject):
                     folder_statuses[folder] = MagicFolderStatus.WAITING
         for folder, status in folder_statuses.items():
             if status != self._folder_statuses.get(folder):
-                self.folder_state_changed.emit(folder, status)
+                self.folder_status_changed.emit(folder, status)
         self._folder_statuses = folder_statuses
 
     def on_status_message_received(self, msg: str) -> None:
