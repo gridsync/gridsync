@@ -65,7 +65,6 @@ class Model(QStandardItemModel):
         self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
         self.mf_monitor.folder_size_updated.connect(self.set_size)
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
-        self.mf_monitor.sync_started.connect(self.on_sync_started)
         self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
         self.mf_monitor.folder_state_changed.connect(self.set_status)
         self.mf_monitor.error_occurred.connect(self.on_error_occurred)
@@ -349,12 +348,6 @@ class Model(QStandardItemModel):
             font.setItalic(False)
             item.setFont(font)
             item.setForeground(self.view.palette().text())
-
-    @pyqtSlot(str)
-    def on_sync_started(self, folder_name):
-        self.set_status(folder_name, MagicFolderStatus.SYNCING)
-        self.gui.systray.add_operation((self.gateway, folder_name))
-        self.gui.systray.update()
 
     @pyqtSlot(str)
     def on_sync_finished(self, folder_name):
