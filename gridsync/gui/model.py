@@ -135,7 +135,7 @@ class Model(QStandardItemModel):
             return QSize(0, 30)
         return value
 
-    def add_folder(self, path, status_data=0):
+    def add_folder(self, path):
         basename = os.path.basename(os.path.normpath(path))
         if self.findItems(basename):
             logging.warning(
@@ -165,7 +165,6 @@ class Model(QStandardItemModel):
         action_bar.addAction(action_bar_action)
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
-        self.set_status(basename, status_data)
 
     def remove_folder(self, folder_name):
         self.gui.systray.remove_operation((self.gateway, folder_name))
@@ -382,7 +381,8 @@ class Model(QStandardItemModel):
     @pyqtSlot(str)
     @pyqtSlot(str, str)
     def add_remote_folder(self, folder_name, overlay_file=None):
-        self.add_folder(folder_name, MagicFolderStatus.STORED_REMOTELY)
+        self.add_folder(folder_name)
+        self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name, overlay_file)
 
     @pyqtSlot(str)
