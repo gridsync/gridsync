@@ -125,9 +125,7 @@ class ZKAPAuthorizer:
         return self.zkap_dircap
 
     @inlineCallbacks
-    def update_zkap_checkpoint(
-        self, _: Optional[str] = ""
-    ) -> TwistedDeferred[None]:
+    def update_zkap_checkpoint(self) -> TwistedDeferred[None]:
         if not self.gateway.zkap_auth_required:
             return
         os.makedirs(self.zkapsdir, exist_ok=True)
