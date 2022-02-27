@@ -65,7 +65,6 @@ class Model(QStandardItemModel):
         self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
         self.mf_monitor.folder_size_updated.connect(self.set_size)
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
-        self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
         self.mf_monitor.folder_state_changed.connect(self.set_status)
         self.mf_monitor.error_occurred.connect(self.on_error_occurred)
         self.mf_monitor.files_updated.connect(self.on_files_updated)
@@ -172,7 +171,7 @@ class Model(QStandardItemModel):
         self.set_status(basename, status_data)
 
     def remove_folder(self, folder_name):
-        self.on_sync_finished(folder_name)
+        self.gui.systray.remove_operation((self.gateway, folder_name))
         items = self.findItems(folder_name)
         if items:
             self.removeRow(items[0].row())
@@ -349,14 +348,6 @@ class Model(QStandardItemModel):
             item.setFont(font)
             item.setForeground(self.view.palette().text())
 
-    @pyqtSlot(str)
-    def on_sync_finished(self, folder_name):
-        if self._magic_folder_errors[folder_name]:
-            self.set_status(folder_name, MagicFolderStatus.ERROR)
-        else:
-            self.set_status(folder_name, MagicFolderStatus.UP_TO_DATE)
-        self.gui.systray.remove_operation((self.gateway, folder_name))
-
     @pyqtSlot(str, int)
     def set_mtime(self, name, mtime):
         if not mtime:
@@ -396,6 +387,5 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     def on_folder_removed(self, folder_name: str):
-        self.on_sync_finished(folder_name)
         self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name)
