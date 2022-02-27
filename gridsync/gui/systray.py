@@ -39,7 +39,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def remove_operation(self, obj):
         try:
-            self._operations.add(obj)
+            self._operations.remove(obj)
         except KeyError:
             pass
 
