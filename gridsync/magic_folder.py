@@ -65,8 +65,6 @@ class MagicFolderMonitor(QObject):
 
     status_message_received = Signal(dict)
 
-    sync_started = Signal(str)  # folder_name
-    sync_stopped = Signal(str)  # folder_name
     sync_progress_updated = Signal(str, object, object)  # folder, cur, total
 
     upload_started = Signal(str, str, dict)  # folder_name, relpath, data
@@ -111,7 +109,6 @@ class MagicFolderMonitor(QObject):
         self._folder_statuses: Dict[str, MagicFolderStatus] = {}
         self._total_folders_size: int = 0
 
-        self._sync_started_time: DefaultDict[str, float] = defaultdict(float)
         self._operations_queued: DefaultDict[str, set] = defaultdict(set)
         self._operations_completed: DefaultDict[str, dict] = defaultdict(dict)
 
@@ -183,10 +180,6 @@ class MagicFolderMonitor(QObject):
         for folder, operation in current_operations.items():
             for relpath, data in operation.items():
                 if relpath not in previous_operations[folder]:
-                    if not self._sync_started_time[folder]:
-                        start_time = data.get("queued-at", time.time())
-                        self._sync_started_time[folder] = start_time
-                        self.sync_started.emit(folder)
                     self._operations_queued[folder].add(relpath)
                     started_signal.emit(folder, relpath, data)
 
@@ -244,11 +237,6 @@ class MagicFolderMonitor(QObject):
             total = len(self._operations_queued[folder])
             self.sync_progress_updated.emit(folder, current, total)
             if not current_uploads[folder] and not current_downloads[folder]:
-                try:
-                    del self._sync_started_time[folder]
-                except KeyError:
-                    pass
-                self.sync_stopped.emit(folder)
                 updated_files = list(self._operations_completed[folder])
                 try:
                     del self._operations_completed[folder]
