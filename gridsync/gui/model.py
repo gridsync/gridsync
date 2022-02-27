@@ -57,10 +57,7 @@ class Model(QStandardItemModel):
         self.monitor.check_finished.connect(self.update_natural_times)
 
         self.mf_monitor = self.gateway.magic_folder.monitor
-        self.mf_monitor.folder_added.connect(
-            # Make the "Status" column blank until a sync completes
-            lambda x: self.add_folder(x, None)
-        )
+        self.mf_monitor.folder_added.connect(self.add_folder)
         self.mf_monitor.folder_removed.connect(self.on_folder_removed)
         self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
         self.mf_monitor.folder_size_updated.connect(self.set_size)
