@@ -285,6 +285,11 @@ class Model(QStandardItemModel):
                 item.setIcon(self.icon_error)
                 item.setText("Error syncing folder")
                 item.setToolTip(self._errors_to_str(errors))
+        if status == MagicFolderStatus.SYNCING:
+            self.gui.systray.add_operation((self.gateway, name))
+            self.gui.systray.update()
+        else:
+            self.gui.systray.remove_operation((self.gateway, name))
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
