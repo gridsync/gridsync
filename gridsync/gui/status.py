@@ -31,7 +31,7 @@ class StatusPanel(QWidget):
         self.gateway = gateway
         self.gui = gui
 
-        self.state = MagicFolderStatus.LOADING
+        self.status = MagicFolderStatus.LOADING
         self.num_connected = 0
         self.num_known = 0
         self.available_space = 0
@@ -134,13 +134,13 @@ class StatusPanel(QWidget):
             self.on_days_remaining_updated
         )
         self.gateway.magic_folder.monitor.overall_status_changed.connect(
-            self.on_sync_state_updated
+            self.on_sync_status_updated
         )
 
-        self.on_sync_state_updated(self.state)
+        self.on_sync_status_updated(self.status)
 
     def _update_status_label(self):
-        if self.state == MagicFolderStatus.LOADING:
+        if self.status == MagicFolderStatus.LOADING:
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
                     self.status_label.setText(
@@ -160,19 +160,19 @@ class StatusPanel(QWidget):
             self.syncing_icon.hide()
             self.checkmark_icon.hide()
             self.error_icon.hide()
-        elif self.state == MagicFolderStatus.SYNCING:
+        elif self.status == MagicFolderStatus.SYNCING:
             self.status_label.setText("Syncing")
             self.checkmark_icon.hide()
             self.error_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
-        elif self.state == MagicFolderStatus.UP_TO_DATE:
+        elif self.status == MagicFolderStatus.UP_TO_DATE:
             self.status_label.setText("Up to date")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.error_icon.hide()
             self.checkmark_icon.show()
-        elif self.state == MagicFolderStatus.ERROR:
+        elif self.status == MagicFolderStatus.ERROR:
             self.status_label.setText("Error syncing folder")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
@@ -191,8 +191,8 @@ class StatusPanel(QWidget):
                 )
             )
 
-    def on_sync_state_updated(self, state):
-        self.state = state
+    def on_sync_status_updated(self, status):
+        self.status = status
         self._update_status_label()
 
     def on_space_updated(self, space):
