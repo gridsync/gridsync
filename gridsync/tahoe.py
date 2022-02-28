@@ -662,7 +662,7 @@ class Tahoe:
         cap: str,
         exclude_dirnodes: bool = False,
         exclude_filenodes: bool = False,
-    ) -> TwistedDeferred[Dict[str, dict]]:
+    ) -> TwistedDeferred[Optional[Dict[str, dict]]]:
         yield self.await_ready()
         json_output = yield self.get_json(cap)
         if json_output is None:
