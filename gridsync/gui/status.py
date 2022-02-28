@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from humanize import naturalsize
 from PyQt5.QtCore import QSize, Qt
@@ -17,6 +20,10 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 
+if TYPE_CHECKING:
+    from gridsync.gui import Gui
+    from gridsync.tahoe import Tahoe
+
 # from gridsync.gui.charts import ZKAPCompactPieChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
@@ -26,7 +33,7 @@ from gridsync.magic_folder import MagicFolderStatus
 
 
 class StatusPanel(QWidget):
-    def __init__(self, gateway, gui):
+    def __init__(self, gateway: Tahoe, gui: Gui) -> None:
         super().__init__()
         self.gateway = gateway
         self.gui = gui
@@ -142,7 +149,7 @@ class StatusPanel(QWidget):
 
         self.on_sync_status_updated(self.status)
 
-    def _update_status_label(self):
+    def _update_status_label(self) -> None:
         if self.status in (
             MagicFolderStatus.LOADING,
             MagicFolderStatus.WAITING,
@@ -199,15 +206,15 @@ class StatusPanel(QWidget):
                 )
             )
 
-    def on_sync_status_updated(self, status):
+    def on_sync_status_updated(self, status: MagicFolderStatus) -> None:
         self.status = status
         self._update_status_label()
 
-    def on_space_updated(self, space):
-        self.available_space = naturalsize(space)
+    def on_space_updated(self, bytes_available: int) -> None:
+        self.available_space = naturalsize(bytes_available)
         self._update_status_label()
 
-    def on_nodes_updated(self, connected, known):
+    def on_nodes_updated(self, connected: int, known: int) -> None:
         self.num_connected = connected
         self.num_known = known
         self._update_status_label()
