@@ -115,6 +115,7 @@ class MagicFolderMonitor(QObject):
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
         self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
+        self._scheduled_polls: DefaultDict[str, set] = defaultdict(set)
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
@@ -137,6 +138,22 @@ class MagicFolderMonitor(QObject):
         self._scheduled_scans[path].add(event_id)
         reactor.callLater(  # type: ignore
             0.25, lambda: self._maybe_do_scan(event_id, path)
+        )
+
+    def _maybe_do_poll(self, event_id: str, folder_name: str) -> None:
+        try:
+            self._scheduled_polls[folder_name].remove(event_id)
+        except KeyError:
+            pass
+        if self._scheduled_polls[folder_name]:
+            return
+        self.magic_folder.poll(folder_name)
+
+    def _schedule_magic_folder_poll(self, folder_name: str) -> None:
+        event_id = randstr(8)
+        self._scheduled_polls[folder_name].add(event_id)
+        reactor.callLater(  # type: ignore
+            1, lambda: self._maybe_do_poll(event_id, folder_name)
         )
 
     def _check_errors(self, current_state: Dict, previous_state: Dict) -> None:
@@ -389,11 +406,17 @@ class MagicFolderMonitor(QObject):
             )
         self._check_total_folders_size()
 
+    def _check_last_polls(self, state: dict) -> None:
+        for folder_name, data in state.get("folders", {}).items():
+            if not (data.get("poller", {}).get("last-poll") or 0):
+                self._schedule_magic_folder_poll(folder_name)
+
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
         self.status_message_received.emit(data)
         state = data.get("state")
         self.compare_states(state, self._prev_state)
+        self._check_last_polls(state)
         self._prev_state = state
         self.do_check()  # XXX
 
