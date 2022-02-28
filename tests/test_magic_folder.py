@@ -136,7 +136,6 @@ def test__read_api_port_raises_magic_folder_config_error_if_not_int(tmp_path):
             },
             MagicFolderStatus.UP_TO_DATE,
         ],
-
     ],
 )
 def test_magic_folder_monitor__parse_folder_statuses(tmp_path, state, status):
