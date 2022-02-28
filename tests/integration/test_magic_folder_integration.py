@@ -808,6 +808,25 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
 
 
 @inlineCallbacks
+def test_monitor_emits_folder_status_changed_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    with qtbot.wait_signal(
+        magic_folder.monitor.folder_status_changed
+    ) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args[1] == MagicFolderStatus.SYNCING
+
+
+@inlineCallbacks
 def test_monitor_emits_overall_status_changed_signal(
     magic_folder, tmp_path, qtbot
 ):
