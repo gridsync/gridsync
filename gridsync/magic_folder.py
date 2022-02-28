@@ -247,7 +247,6 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
-        self._check_overall_status()
 
     def compare_folders(
         self,
@@ -391,6 +390,7 @@ class MagicFolderMonitor(QObject):
         self.compare_states(state, self._prev_state)
         folders = state.get("folders")
         self._check_folder_statuses(folders)
+        self._check_overall_status()
         self._prev_state = state
         self.do_check()  # XXX
 
