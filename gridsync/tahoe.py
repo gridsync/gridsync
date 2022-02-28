@@ -665,6 +665,8 @@ class Tahoe:
     ) -> TwistedDeferred[Dict[str, dict]]:
         yield self.await_ready()
         json_output = yield self.get_json(cap)
+        if json_output is None:
+            return None
         results = {}
         for name, data in json_output[1]["children"].items():
             node_type = data[0]
