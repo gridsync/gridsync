@@ -19,8 +19,8 @@ attrs==21.4.0 \
     #   service-identity
     #   treq
     #   twisted
-autobahn[twisted]==22.2.1 \
-    --hash=sha256:a43ef32f177c016c88039b26b852e804265473fc3fadf9cf518d1cd88787d0e7
+autobahn[twisted]==22.2.2 \
+    --hash=sha256:60e1f4c602aacd052ffe3d46ae40b6b75f8286b3c46922c213b523162e58c17e
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
@@ -296,9 +296,9 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
-tqdm==4.62.3 \
-    --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
-    --hash=sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d
+tqdm==4.63.0 \
+    --hash=sha256:1d9835ede8e394bb8c9dcbffbca02d717217113adc679236873eeaac5bc0b3cd \
+    --hash=sha256:e643e071046f17139dea55b880dc9b33822ce21613b4a4f5ea57f202833dbc29
     # via magic-wormhole
 treq==22.2.0 \
     --hash=sha256:27d95b07c5c14be3e7b280416139b036087617ad5595be913b1f9b3ce981b9b2 \
