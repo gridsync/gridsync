@@ -842,6 +842,10 @@ class MagicFolder:
     ) -> TwistedDeferred[None]:
         logging.debug('Restoring "%s" Magic-Folder...', folder_name)
         backups = yield self.get_folder_backups()
+        if backups is None:
+            raise MagicFolderError(
+                f"Error restoring folder {folder_name}; could not read backups"
+            )
         data = backups.get(folder_name, {})
         upload_dircap = data.get("upload_dircap")
         personal_dmd = yield self.gateway.diminish(upload_dircap)
