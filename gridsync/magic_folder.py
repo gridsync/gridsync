@@ -248,6 +248,7 @@ class MagicFolderMonitor(QObject):
         if status != self._overall_status:
             self._overall_status = status
             self.overall_status_changed.emit(status)
+            self.do_check()  # Update folder sizes, mtimes
 
     def compare_states(
         self, current_state: Dict, previous_state: Dict
@@ -418,7 +419,6 @@ class MagicFolderMonitor(QObject):
         self.compare_states(state, self._prev_state)
         self._check_last_polls(state)
         self._prev_state = state
-        self.do_check()  # XXX
 
     @inlineCallbacks
     def _get_file_status(self, folder_name: str) -> TwistedDeferred[Tuple]:
