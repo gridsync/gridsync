@@ -776,6 +776,7 @@ class MagicFolder:
         output = yield self._request(
             "PUT",
             f"/magic-folder/{folder_name}/scan-local",
+            error_404_ok=True,
         )
         return output
 
@@ -784,6 +785,7 @@ class MagicFolder:
         output = yield self._request(
             "PUT",
             f"/magic-folder/{folder_name}/poll-remote",
+            error_404_ok=True,
         )
         return output
 
