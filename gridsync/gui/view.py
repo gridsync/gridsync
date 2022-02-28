@@ -31,7 +31,7 @@ from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
 from gridsync.gui.widgets import ClickableLabel
-from gridsync.magic_folder import MagicFolderState
+from gridsync.magic_folder import MagicFolderStatus
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.util import humanized_list
@@ -51,9 +51,9 @@ class Delegate(QStyledItemDelegate):
     def on_frame_changed(self):
         values = self.parent.model().status_dict.values()
         if (
-            MagicFolderState.LOADING in values
-            or MagicFolderState.SYNCING in values
-            or MagicFolderState.SCANNING in values
+            MagicFolderStatus.LOADING in values
+            or MagicFolderStatus.WAITING in values
+            or MagicFolderStatus.SYNCING in values
         ):
             self.parent.viewport().update()
         else:
@@ -65,15 +65,15 @@ class Delegate(QStyledItemDelegate):
         if column == 1:
             pixmap = None
             status = index.data(Qt.UserRole)
-            if status == MagicFolderState.LOADING:
+            if status in (
+                MagicFolderStatus.LOADING,
+                MagicFolderStatus.WAITING,
+            ):
                 self.waiting_movie.setPaused(False)
                 pixmap = self.waiting_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
                 )
-            elif status in (
-                MagicFolderState.SYNCING,
-                MagicFolderState.SCANNING,
-            ):
+            elif status == MagicFolderStatus.SYNCING:
                 self.sync_movie.setPaused(False)
                 pixmap = self.sync_movie.currentPixmap().scaled(
                     20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation

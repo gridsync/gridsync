@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
@@ -6,32 +7,35 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict
+from typing import TYPE_CHECKING, Dict, Optional, Union
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
+if TYPE_CHECKING:
+    from pathlib import Path
+    from PyQt5.QtCore import QModelIndex
+    from gridsync.view import View
+
 from gridsync import config_dir, resource
 from gridsync.gui.pixmap import CompositePixmap
-from gridsync.magic_folder import MagicFolderState
+from gridsync.magic_folder import MagicFolderStatus
 from gridsync.preferences import get_preference
 from gridsync.util import humanized_list
 
 
 class Model(QStandardItemModel):
-    def __init__(self, view):
+    def __init__(self, view: View) -> None:
         super().__init__(0, 5)
         self.view = view
         self.gui = self.view.gui
         self.gateway = self.view.gateway
         self.monitor = self.gateway.monitor
-        self.status_dict = {}
-        self.members_dict = {}
-        self.grid_status = ""
-        self.available_space = 0
-        self._magic_folder_errors = defaultdict(dict)
+        self.status_dict: dict[str, MagicFolderStatus] = {}
+        self.members_dict: dict[str, list] = {}
+        self._magic_folder_errors: defaultdict = defaultdict(dict)
         self.setHeaderData(0, Qt.Horizontal, "Name")
         self.setHeaderData(1, Qt.Horizontal, "Status")
         self.setHeaderData(2, Qt.Horizontal, "Last modified")
@@ -52,21 +56,15 @@ class Model(QStandardItemModel):
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
-        self.monitor.nodes_updated.connect(self.on_nodes_updated)
-        self.monitor.space_updated.connect(self.on_space_updated)
         self.monitor.check_finished.connect(self.update_natural_times)
 
         self.mf_monitor = self.gateway.magic_folder.monitor
-        self.mf_monitor.folder_added.connect(
-            # Make the "Status" column blank until a sync completes
-            lambda x: self.add_folder(x, None)
-        )
+        self.mf_monitor.folder_added.connect(self.add_folder)
         self.mf_monitor.folder_removed.connect(self.on_folder_removed)
         self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
         self.mf_monitor.folder_size_updated.connect(self.set_size)
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
-        self.mf_monitor.sync_started.connect(self.on_sync_started)
-        self.mf_monitor.sync_stopped.connect(self.on_sync_finished)
+        self.mf_monitor.folder_status_changed.connect(self.set_status)
         self.mf_monitor.error_occurred.connect(self.on_error_occurred)
         self.mf_monitor.files_updated.connect(self.on_files_updated)
         self.mf_monitor.sync_progress_updated.connect(
@@ -79,35 +77,15 @@ class Model(QStandardItemModel):
     ) -> None:
         self._magic_folder_errors[folder_name][summary] = timestamp
 
-    def on_space_updated(self, size):
-        self.available_space = size
-
-    @pyqtSlot(int, int)
-    def on_nodes_updated(self, num_connected, num_happy):
-        if num_connected < num_happy:
-            self.grid_status = "Connecting ({}/{} nodes){}".format(
-                num_connected,
-                num_happy,
-                (" via Tor..." if self.gateway.use_tor else "..."),
-            )
-        elif num_connected >= num_happy:
-            self.grid_status = "Connected to {} {}{} {} available".format(
-                num_connected,
-                "storage " + ("node" if num_connected == 1 else "nodes"),
-                (" via Tor;" if self.gateway.use_tor else ";"),
-                naturalsize(self.available_space),
-            )
-        self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
-
     @pyqtSlot()
-    def on_connected(self):
+    def on_connected(self) -> None:
         if get_preference("notifications", "connection") == "true":
             self.gui.show_message(
                 self.gateway.name, "Connected to {}".format(self.gateway.name)
             )
 
     @pyqtSlot()
-    def on_disconnected(self):
+    def on_disconnected(self) -> None:
         if get_preference("notifications", "connection") == "true":
             self.gui.show_message(
                 self.gateway.name,
@@ -115,7 +93,9 @@ class Model(QStandardItemModel):
             )
 
     @pyqtSlot(str, list, str, str)
-    def on_updated_files(self, folder_name, files_list, action, author):
+    def on_updated_files(
+        self, folder_name: str, files_list: list, action: str, author: str
+    ) -> None:
         if get_preference("notifications", "folder") != "false":
             self.gui.show_message(
                 folder_name + " folder updated",
@@ -133,13 +113,13 @@ class Model(QStandardItemModel):
                 f"Updated {humanized_list(files)}",
             )
 
-    def data(self, index, role):
+    def data(self, index: QModelIndex, role: int) -> None:
         value = super().data(index, role)
         if role == Qt.SizeHintRole:
             return QSize(0, 30)
         return value
 
-    def add_folder(self, path, status_data=0):
+    def add_folder(self, path: str) -> None:
         basename = os.path.basename(os.path.normpath(path))
         if self.findItems(basename):
             logging.warning(
@@ -169,15 +149,17 @@ class Model(QStandardItemModel):
         action_bar.addAction(action_bar_action)
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
-        self.set_status(basename, status_data)
+        self.set_status(basename, MagicFolderStatus.LOADING)
 
-    def remove_folder(self, folder_name):
-        self.on_sync_finished(folder_name)
+    def remove_folder(self, folder_name: str) -> None:
+        self.gui.systray.remove_operation((self.gateway, folder_name))
         items = self.findItems(folder_name)
         if items:
             self.removeRow(items[0].row())
 
-    def update_folder_icon(self, folder_name, overlay_file=None):
+    def update_folder_icon(
+        self, folder_name: str, overlay_file: Optional[Union[Path, str]] = ""
+    ) -> None:
         items = self.findItems(folder_name)
         if items:
             folder_path = self.gateway.magic_folder.get_directory(folder_name)
@@ -192,7 +174,7 @@ class Model(QStandardItemModel):
                 pixmap = CompositePixmap(folder_pixmap)
             items[0].setIcon(QIcon(pixmap))
 
-    def set_status_private(self, folder_name):
+    def set_status_private(self, folder_name: str) -> None:
         self.update_folder_icon(folder_name)
         items = self.findItems(folder_name)
         if items:
@@ -204,7 +186,7 @@ class Model(QStandardItemModel):
                 )
             )
 
-    def set_status_shared(self, folder_name):
+    def set_status_shared(self, folder_name: str) -> None:
         self.update_folder_icon(folder_name, "laptop.png")
         items = self.findItems(folder_name)
         if items:
@@ -216,7 +198,7 @@ class Model(QStandardItemModel):
                 )
             )
 
-    def update_overlay(self, folder_name):
+    def update_overlay(self, folder_name: str) -> None:
         members = self.members_dict.get(folder_name)
         if members and len(members) > 1:
             self.set_status_shared(folder_name)
@@ -224,7 +206,7 @@ class Model(QStandardItemModel):
             self.set_status_private(folder_name)
 
     @pyqtSlot(str, list)
-    def on_members_updated(self, folder, members):
+    def on_members_updated(self, folder: str, members: list) -> None:
         self.members_dict[folder] = members
         self.update_overlay(folder)
 
@@ -237,30 +219,33 @@ class Model(QStandardItemModel):
 
     def is_folder_syncing(self) -> bool:
         for row in range(self.rowCount()):
-            if self.item(row, 1).data(Qt.UserRole) == MagicFolderState.SYNCING:
+            if (
+                self.item(row, 1).data(Qt.UserRole)
+                == MagicFolderStatus.SYNCING
+            ):
                 return True
         return False
 
-    @pyqtSlot(str, int)
-    def set_status(self, name, status):
+    @pyqtSlot(str, object)
+    def set_status(self, name: str, status: MagicFolderStatus) -> None:
         items = self.findItems(name)
         if not items:
             return
         item = self.item(items[0].row(), 1)
-        if status == MagicFolderState.LOADING:
+        if status == MagicFolderStatus.LOADING:
             item.setIcon(self.icon_blank)
             item.setText("Loading...")
-        elif status in (
-            MagicFolderState.SYNCING,
-            MagicFolderState.SCANNING,
-        ):
+        elif status == MagicFolderStatus.WAITING:
+            item.setIcon(self.icon_blank)
+            item.setText("Waiting to scan...")
+        elif status == MagicFolderStatus.SYNCING:
             item.setIcon(self.icon_blank)
             item.setText("Syncing")
             item.setToolTip(
                 "This folder is syncing. New files are being uploaded or "
                 "downloaded."
             )
-        elif status == MagicFolderState.UP_TO_DATE:
+        elif status == MagicFolderStatus.UP_TO_DATE:
             item.setIcon(self.icon_up_to_date)
             item.setText("Up to date")
             item.setToolTip(
@@ -270,7 +255,7 @@ class Model(QStandardItemModel):
             )
             self.update_overlay(name)
             self.unfade_row(name)
-        elif status == 3:
+        elif status == MagicFolderStatus.STORED_REMOTELY:
             item.setIcon(self.icon_cloud)
             item.setText("Stored remotely")
             item.setToolTip(
@@ -278,44 +263,35 @@ class Model(QStandardItemModel):
                 'Right-click and select "Download" to sync it with your '
                 "local computer.".format(self.gateway.name)
             )
-        elif status == MagicFolderState.ERROR:
+        elif status == MagicFolderStatus.ERROR:
             errors = self._magic_folder_errors[name]
             if errors:
                 item.setIcon(self.icon_error)
                 item.setText("Error syncing folder")
                 item.setToolTip(self._errors_to_str(errors))
+        if status == MagicFolderStatus.SYNCING:
+            self.gui.systray.add_operation((self.gateway, name))
+            self.gui.systray.update()
+        else:
+            self.gui.systray.remove_operation((self.gateway, name))
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
     @pyqtSlot(str, object, object)
-    def set_transfer_progress(self, folder_name, transferred, total):
+    def set_transfer_progress(
+        self, folder_name: str, transferred: int, total: int
+    ) -> None:
         items = self.findItems(folder_name)
         if not items:
             return
         percent_done = int(transferred / total * 100)
-        if not percent_done:
-            # Magic-folder's periodic "full scan" (which occurs every 10
-            # minutes) temporarily adds *all* known files to the queue
-            # exposed by the "status" API for a very brief period (seemingly
-            # for only a second or two). Because of this -- and since we rely
-            # on the magic-folder "status" API to tell us information about
-            # current and pending transfers to calculate total progress --
-            # existing "syncing" operations will briefly display a progress
-            # of "0%" during this time (since the number of bytes to be
-            # transferred briefly becomes equal to the total size of the
-            # entire folder -- even though those transfers do not occur and
-            # vanish from the queue as soon as the the "full scan" is
-            # completed). To compensate for this strange (and rare) event --
-            # and because it's probably jarring to the end-user to see
-            # progress dip down to "0%" for a brief moment before returning to
-            # normal -- we ignore any updates to "0" here (on the assumption
-            # that it's better to have a couple of seconds of no progress
-            # updates than a progress update which is wrong or misleading).
-            return
-        item = self.item(items[0].row(), 1)
-        item.setText("Syncing ({}%)".format(percent_done))
+        if percent_done:
+            item = self.item(items[0].row(), 1)
+            item.setText("Syncing ({}%)".format(percent_done))
 
-    def fade_row(self, folder_name, overlay_file=None):
+    def fade_row(
+        self, folder_name: str, overlay_file: Optional[Union[Path, str]] = ""
+    ) -> None:
         try:
             folder_item = self.findItems(folder_name)[0]
         except IndexError:
@@ -334,7 +310,7 @@ class Model(QStandardItemModel):
             item.setFont(font)
             item.setForeground(QColor("gray"))
 
-    def unfade_row(self, folder_name):
+    def unfade_row(self, folder_name: str) -> None:
         folder_item = self.findItems(folder_name)[0]
         row = folder_item.row()
         for i in range(4):
@@ -344,25 +320,8 @@ class Model(QStandardItemModel):
             item.setFont(font)
             item.setForeground(self.view.palette().text())
 
-    @pyqtSlot(str)
-    def on_sync_started(self, folder_name):
-        self.set_status(folder_name, MagicFolderState.SYNCING)
-        self.gui.core.operations.append((self.gateway, folder_name))
-        self.gui.systray.update()
-
-    @pyqtSlot(str)
-    def on_sync_finished(self, folder_name):
-        if self._magic_folder_errors[folder_name]:
-            self.set_status(folder_name, MagicFolderState.ERROR)
-        else:
-            self.set_status(folder_name, MagicFolderState.UP_TO_DATE)
-        try:
-            self.gui.core.operations.remove((self.gateway, folder_name))
-        except ValueError:
-            pass
-
     @pyqtSlot(str, int)
-    def set_mtime(self, name, mtime):
+    def set_mtime(self, name: str, mtime: int) -> None:
         if not mtime:
             return
         items = self.findItems(name)
@@ -375,7 +334,7 @@ class Model(QStandardItemModel):
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
     @pyqtSlot(str, object)
-    def set_size(self, name, size):
+    def set_size(self, name: str, size: int) -> None:
         items = self.findItems(name)
         if items:
             item = self.item(items[0].row(), 3)
@@ -383,7 +342,7 @@ class Model(QStandardItemModel):
             item.setData(size, Qt.UserRole)
 
     @pyqtSlot()
-    def update_natural_times(self):
+    def update_natural_times(self) -> None:
         for i in range(self.rowCount()):
             item = self.item(i, 2)
             data = item.data(Qt.UserRole)
@@ -394,12 +353,14 @@ class Model(QStandardItemModel):
 
     @pyqtSlot(str)
     @pyqtSlot(str, str)
-    def add_remote_folder(self, folder_name, overlay_file=None):
-        self.add_folder(folder_name, 3)
+    def add_remote_folder(
+        self, folder_name: str, overlay_file: Optional[Union[Path, str]] = ""
+    ) -> None:
+        self.add_folder(folder_name)
+        self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name, overlay_file)
 
     @pyqtSlot(str)
-    def on_folder_removed(self, folder_name: str):
-        self.on_sync_finished(folder_name)
-        self.set_status(folder_name, 3)  # "Stored remotely"
+    def on_folder_removed(self, folder_name: str) -> None:
+        self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name)

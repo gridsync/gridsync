@@ -10,7 +10,7 @@ from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
-from gridsync.magic_folder import MagicFolderState, MagicFolderWebError
+from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
 from gridsync.tahoe import Tahoe
 
 if sys.platform == "darwin":
@@ -539,38 +539,6 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
 
 
 @inlineCallbacks
-def test_monitor_emits_sync_started_signal(magic_folder, tmp_path, qtbot):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    yield magic_folder.add_folder(path, author)
-
-    with qtbot.wait_signal(magic_folder.monitor.sync_started) as blocker:
-        filename = randstr()
-        filepath = path / filename
-        filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield deferLater(reactor, 3, lambda: None)
-    assert blocker.args == [folder_name]
-
-
-@inlineCallbacks
-def test_monitor_emits_sync_stopped_signal(magic_folder, tmp_path, qtbot):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
-
-    with qtbot.wait_signal(magic_folder.monitor.sync_stopped) as blocker:
-        filename = randstr()
-        filepath = path / filename
-        filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield deferLater(reactor, 3, lambda: None)
-    assert blocker.args == [folder_name]
-
-
-@inlineCallbacks
 def test_monitor_emits_sync_progress_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
@@ -840,7 +808,7 @@ def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
 
 
 @inlineCallbacks
-def test_monitor_emits_overall_state_changed_signal(
+def test_monitor_emits_folder_status_changed_signal(
     magic_folder, tmp_path, qtbot
 ):
     folder_name = randstr()
@@ -848,14 +816,33 @@ def test_monitor_emits_overall_state_changed_signal(
     author = randstr()
     yield magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.monitor.overall_state_changed
+        magic_folder.monitor.folder_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
         yield magic_folder.scan(folder_name)
         yield magic_folder.monitor.do_check()
-    assert blocker.args[0] == MagicFolderState.SYNCING
+    assert blocker.args[1] == MagicFolderStatus.SYNCING
+
+
+@inlineCallbacks
+def test_monitor_emits_overall_status_changed_signal(
+    magic_folder, tmp_path, qtbot
+):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    yield magic_folder.add_folder(path, author)
+    with qtbot.wait_signal(
+        magic_folder.monitor.overall_status_changed
+    ) as blocker:
+        filename = randstr()
+        filepath = path / filename
+        filepath.write_text(randstr() * 10)
+        yield magic_folder.scan(folder_name)
+        yield magic_folder.monitor.do_check()
+    assert blocker.args[0] == MagicFolderStatus.SYNCING
 
 
 def test_eliot_logs_collected(magic_folder):

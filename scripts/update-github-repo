@@ -19,7 +19,7 @@ from pathlib import Path
 import httpx
 
 ARCHIVE_TEMPLATE = "https://api.github.com/repos/{owner}/{repo}/tarball/{rev}"
-REPO_TEMPLATE = "git+https://github.com/{owner}/{repo}@{branch}"
+REPO_TEMPLATE = "git+https://github.com/{owner}/{repo}@{rev}"
 BRANCH_TEMPLATE = (
     "https://api.github.com/repos/{owner}/{repo}/commits/{branch}"
 )

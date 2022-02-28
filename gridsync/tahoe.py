@@ -104,8 +104,8 @@ class Tahoe:
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
         self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
-        self.magic_folder.monitor.sync_stopped.connect(
-            self.zkapauthorizer.update_zkap_checkpoint
+        self.magic_folder.monitor.files_updated.connect(
+            lambda *args: self.zkapauthorizer.update_zkap_checkpoint()
         )
 
         # TODO: Replace with "readiness" API?

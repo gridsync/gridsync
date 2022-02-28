@@ -7,6 +7,7 @@ from gridsync.magic_folder import (
     MagicFolder,
     MagicFolderConfigError,
     MagicFolderError,
+    MagicFolderStatus,
 )
 from gridsync.tahoe import Tahoe
 
@@ -55,3 +56,90 @@ def test__read_api_port_raises_magic_folder_config_error_if_not_int(tmp_path):
     Path(magic_folder.configdir / "api_client_endpoint").write_text(endpoint)
     with pytest.raises(MagicFolderConfigError):
         magic_folder._read_api_port()
+
+
+@pytest.mark.parametrize(
+    "state, status",
+    [
+        [
+            {
+                "synchronizing": False,
+                "folders": {
+                    "TestFolder": {
+                        "uploads": [],
+                        "downloads": [],
+                        "errors": [],
+                        "recent": [],
+                        "tahoe": {"happy": True, "connected": 1, "desired": 1},
+                        "scanner": {"last-scan": 1646062769.5709975},
+                        "poller": {"last-poll": None},
+                    },
+                },
+            },
+            MagicFolderStatus.WAITING,
+        ],
+        [
+            {
+                "synchronizing": False,
+                "folders": {
+                    "TestFolder": {
+                        "uploads": [
+                            {
+                                "relpath": "TestFile.txt",
+                                "queued-at": 1646063072.4091136,
+                                "started-at": 1646063073.829324,
+                            },
+                        ],
+                        "downloads": [],
+                        "errors": [],
+                        "recent": [],
+                        "tahoe": {"happy": True, "connected": 1, "desired": 1},
+                        "scanner": {"last-scan": 1646062769.5709975},
+                        "poller": {"last-poll": 1646062770.7937386},
+                    },
+                },
+            },
+            MagicFolderStatus.SYNCING,
+        ],
+        [
+            {
+                "synchronizing": False,
+                "folders": {
+                    "TestFolder": {
+                        "uploads": [],
+                        "downloads": [],
+                        "errors": [{"timestamp": 1234567890, "summary": ":("}],
+                        "recent": [],
+                        "tahoe": {"happy": True, "connected": 1, "desired": 1},
+                        "scanner": {"last-scan": 1646062769.5709975},
+                        "poller": {"last-poll": 1646062770.7937386},
+                    },
+                },
+            },
+            MagicFolderStatus.ERROR,
+        ],
+        [
+            {
+                "synchronizing": False,
+                "folders": {
+                    "TestFolder": {
+                        "uploads": [],
+                        "downloads": [],
+                        "errors": [],
+                        "recent": [],
+                        "tahoe": {"happy": True, "connected": 1, "desired": 1},
+                        "scanner": {"last-scan": 1646062769.5709975},
+                        "poller": {"last-poll": 1646062770.7937386},
+                    },
+                },
+            },
+            MagicFolderStatus.UP_TO_DATE,
+        ],
+    ],
+)
+def test_magic_folder_monitor__parse_folder_statuses(tmp_path, state, status):
+    magic_folder = MagicFolder(Tahoe(tmp_path / "nodedir"))
+    magic_folder.time_started = 1
+    monitor = magic_folder.monitor
+    statuses = monitor._parse_folder_statuses(state)
+    assert statuses.get("TestFolder") == status

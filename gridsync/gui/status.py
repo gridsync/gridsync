@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from humanize import naturalsize
 from PyQt5.QtCore import QSize, Qt
@@ -17,21 +20,25 @@ from PyQt5.QtWidgets import (
 
 from gridsync import resource
 
+if TYPE_CHECKING:
+    from gridsync.gui import Gui
+    from gridsync.tahoe import Tahoe
+
 # from gridsync.gui.charts import ZKAPCompactPieChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
-from gridsync.magic_folder import MagicFolderState
+from gridsync.magic_folder import MagicFolderStatus
 
 
 class StatusPanel(QWidget):
-    def __init__(self, gateway, gui):
+    def __init__(self, gateway: Tahoe, gui: Gui) -> None:
         super().__init__()
         self.gateway = gateway
         self.gui = gui
 
-        self.state = 0
+        self.status = MagicFolderStatus.LOADING
         self.num_connected = 0
         self.num_known = 0
         self.available_space = 0
@@ -82,7 +89,10 @@ class StatusPanel(QWidget):
         )
         self.tor_button.setDefaultAction(self.tor_action)
         self.tor_button.setStyleSheet("QToolButton { border: none }")
-        if not self.gateway.use_tor:
+        if self.gateway.use_tor:
+            self.connection_mode = " via Tor"
+        else:
+            self.connection_mode = ""
             self.tor_button.hide()
 
         preferences_button = QToolButton(self)
@@ -133,46 +143,51 @@ class StatusPanel(QWidget):
         self.gateway.monitor.days_remaining_updated.connect(
             self.on_days_remaining_updated
         )
-        self.gateway.magic_folder.monitor.overall_state_changed.connect(
-            self.on_sync_state_updated
+        self.gateway.magic_folder.monitor.overall_status_changed.connect(
+            self.on_sync_status_updated
         )
 
-        self.on_sync_state_updated(0)
+        self.on_sync_status_updated(self.status)
 
-    def _update_status_label(self):
-        if self.state == MagicFolderState.LOADING:  # == 0
+    def _update_status_label(self) -> None:
+        if self.status in (
+            MagicFolderStatus.LOADING,
+            MagicFolderStatus.WAITING,
+        ):
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
                     self.status_label.setText(
-                        f"Connecting to {self.gateway.name} ("
-                        f"{self.num_connected}/{self.gateway.shares_happy})..."
+                        f"Connecting to {self.gateway.name} "
+                        f"({self.num_connected}/{self.gateway.shares_happy})"
+                        f"{self.connection_mode}..."
                     )
                 else:
                     self.status_label.setText(
                         f"Connected to {self.gateway.name}"
+                        f"{self.connection_mode}"
                     )
-
             else:
                 self.status_label.setText(
-                    f"Connecting to {self.gateway.name}..."
+                    f"Connecting to {self.gateway.name}"
+                    f"{self.connection_mode}..."
                 )
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.checkmark_icon.hide()
             self.error_icon.hide()
-        elif self.state == MagicFolderState.SYNCING:
+        elif self.status == MagicFolderStatus.SYNCING:
             self.status_label.setText("Syncing")
             self.checkmark_icon.hide()
             self.error_icon.hide()
             self.syncing_icon.show()
             self.sync_movie.setPaused(False)
-        elif self.state == MagicFolderState.UP_TO_DATE:
+        elif self.status == MagicFolderStatus.UP_TO_DATE:
             self.status_label.setText("Up to date")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
             self.error_icon.hide()
             self.checkmark_icon.show()
-        elif self.state == MagicFolderState.ERROR:
+        elif self.status == MagicFolderStatus.ERROR:
             self.status_label.setText("Error syncing folder")
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()
@@ -191,15 +206,15 @@ class StatusPanel(QWidget):
                 )
             )
 
-    def on_sync_state_updated(self, state):
-        self.state = state
+    def on_sync_status_updated(self, status: MagicFolderStatus) -> None:
+        self.status = status
         self._update_status_label()
 
-    def on_space_updated(self, space):
-        self.available_space = naturalsize(space)
+    def on_space_updated(self, bytes_available: int) -> None:
+        self.available_space = naturalsize(bytes_available)
         self._update_status_label()
 
-    def on_nodes_updated(self, connected, known):
+    def on_nodes_updated(self, connected: int, known: int) -> None:
         self.num_connected = connected
         self.num_known = known
         self._update_status_label()
