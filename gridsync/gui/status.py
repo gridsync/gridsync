@@ -82,7 +82,10 @@ class StatusPanel(QWidget):
         )
         self.tor_button.setDefaultAction(self.tor_action)
         self.tor_button.setStyleSheet("QToolButton { border: none }")
-        if not self.gateway.use_tor:
+        if self.gateway.use_tor:
+            self.connection_mode = " via Tor"
+        else:
+            self.connection_mode = ""
             self.tor_button.hide()
 
         preferences_button = QToolButton(self)
@@ -144,17 +147,19 @@ class StatusPanel(QWidget):
             if self.gateway.shares_happy:
                 if self.num_connected < self.gateway.shares_happy:
                     self.status_label.setText(
-                        f"Connecting to {self.gateway.name} ("
-                        f"{self.num_connected}/{self.gateway.shares_happy})..."
+                        f"Connecting to {self.gateway.name} "
+                        f"({self.num_connected}/{self.gateway.shares_happy})"
+                        f"{self.connection_mode}..."
                     )
                 else:
                     self.status_label.setText(
                         f"Connected to {self.gateway.name}"
+                        f"{self.connection_mode}"
                     )
-
             else:
                 self.status_label.setText(
-                    f"Connecting to {self.gateway.name}..."
+                    f"Connecting to {self.gateway.name}"
+                    f"{self.connection_mode}..."
                 )
             self.sync_movie.setPaused(True)
             self.syncing_icon.hide()

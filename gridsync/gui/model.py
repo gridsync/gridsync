@@ -29,8 +29,6 @@ class Model(QStandardItemModel):
         self.monitor = self.gateway.monitor
         self.status_dict = {}
         self.members_dict = {}
-        self.grid_status = ""
-        self.available_space = 0
         self._magic_folder_errors = defaultdict(dict)
         self.setHeaderData(0, Qt.Horizontal, "Name")
         self.setHeaderData(1, Qt.Horizontal, "Status")
@@ -52,8 +50,6 @@ class Model(QStandardItemModel):
 
         self.monitor.connected.connect(self.on_connected)
         self.monitor.disconnected.connect(self.on_disconnected)
-        self.monitor.nodes_updated.connect(self.on_nodes_updated)
-        self.monitor.space_updated.connect(self.on_space_updated)
         self.monitor.check_finished.connect(self.update_natural_times)
 
         self.mf_monitor = self.gateway.magic_folder.monitor
@@ -74,26 +70,6 @@ class Model(QStandardItemModel):
         self, folder_name: str, summary: str, timestamp: int
     ) -> None:
         self._magic_folder_errors[folder_name][summary] = timestamp
-
-    def on_space_updated(self, size):
-        self.available_space = size
-
-    @pyqtSlot(int, int)
-    def on_nodes_updated(self, num_connected, num_happy):
-        if num_connected < num_happy:
-            self.grid_status = "Connecting ({}/{} nodes){}".format(
-                num_connected,
-                num_happy,
-                (" via Tor..." if self.gateway.use_tor else "..."),
-            )
-        elif num_connected >= num_happy:
-            self.grid_status = "Connected to {} {}{} {} available".format(
-                num_connected,
-                "storage " + ("node" if num_connected == 1 else "nodes"),
-                (" via Tor;" if self.gateway.use_tor else ";"),
-                naturalsize(self.available_space),
-            )
-        self.gui.main_window.set_current_grid_status()  # TODO: Use pyqtSignal?
 
     @pyqtSlot()
     def on_connected(self):
