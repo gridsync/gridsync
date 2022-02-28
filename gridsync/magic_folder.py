@@ -196,6 +196,42 @@ class MagicFolderMonitor(QObject):
                     self._operations_completed[folder][relpath] = data
                     finished_signal.emit(folder, relpath, data)
 
+    def _parse_folder_statuses(self, state: dict) -> dict:
+        folder_statuses = {}
+        for folder, data in state.get("folders", {}).items():
+            if data.get("uploads") or data.get("downloads"):
+                folder_statuses[folder] = MagicFolderStatus.SYNCING
+            elif data.get("errors"):
+                folder_statuses[folder] = MagicFolderStatus.ERROR
+            else:
+                last_poll = data.get("poller", {}).get("last-poll") or 0
+                last_scan = data.get("scanner", {}).get("last-scan") or 0
+                if min(last_poll, last_scan) > self.magic_folder.time_started:
+                    folder_statuses[folder] = MagicFolderStatus.UP_TO_DATE
+                else:
+                    folder_statuses[folder] = MagicFolderStatus.WAITING
+        return folder_statuses
+
+    def _check_folder_statuses(self, folder_statuses: dict) -> None:
+        for folder, status in folder_statuses.items():
+            if status != self._folder_statuses.get(folder):
+                self.folder_status_changed.emit(folder, status)
+        self._folder_statuses = folder_statuses
+
+    def _check_overall_status(self, folder_statuses: dict) -> None:
+        statuses = set(folder_statuses.values())
+        if MagicFolderStatus.SYNCING in statuses:  # At least one is syncing
+            status = MagicFolderStatus.SYNCING
+        elif MagicFolderStatus.ERROR in statuses:  # At least one has an error
+            status = MagicFolderStatus.ERROR
+        elif statuses == {MagicFolderStatus.UP_TO_DATE}:  # All are up to date
+            status = MagicFolderStatus.UP_TO_DATE
+        else:
+            status = MagicFolderStatus.WAITING
+        if status != self._overall_status:
+            self._overall_status = status
+            self.overall_status_changed.emit(status)
+
     def compare_states(
         self, current_state: Dict, previous_state: Dict
     ) -> None:
@@ -233,6 +269,9 @@ class MagicFolderMonitor(QObject):
                 except KeyError:
                     pass
                 self.files_updated.emit(folder, updated_files)
+        folder_statuses = self._parse_folder_statuses(current_state)
+        self._check_folder_statuses(folder_statuses)
+        self._check_overall_status(folder_statuses)
 
     def compare_folders(
         self,
@@ -350,46 +389,11 @@ class MagicFolderMonitor(QObject):
             )
         self._check_total_folders_size()
 
-    def _check_folder_statuses(self, state: dict) -> None:
-        folder_statuses = {}
-        for folder, data in state.get("folders", {}).items():
-            if data.get("uploads") or data.get("downloads"):
-                folder_statuses[folder] = MagicFolderStatus.SYNCING
-            elif data.get("errors"):
-                folder_statuses[folder] = MagicFolderStatus.ERROR
-            else:
-                last_poll = data.get("poller", {}).get("last-poll") or 0
-                last_scan = data.get("scanner", {}).get("last-scan") or 0
-                if min(last_poll, last_scan) > self.magic_folder.time_started:
-                    folder_statuses[folder] = MagicFolderStatus.UP_TO_DATE
-                else:
-                    folder_statuses[folder] = MagicFolderStatus.WAITING
-        for folder, status in folder_statuses.items():
-            if status != self._folder_statuses.get(folder):
-                self.folder_status_changed.emit(folder, status)
-        self._folder_statuses = folder_statuses
-
-    def _check_overall_status(self) -> None:
-        statuses = set(self._folder_statuses.values())
-        if MagicFolderStatus.SYNCING in statuses:  # At least one is syncing
-            status = MagicFolderStatus.SYNCING
-        elif MagicFolderStatus.ERROR in statuses:  # At least one has an error
-            status = MagicFolderStatus.ERROR
-        elif statuses == {MagicFolderStatus.UP_TO_DATE}:  # All are up to date
-            status = MagicFolderStatus.UP_TO_DATE
-        else:
-            status = MagicFolderStatus.WAITING
-        if status != self._overall_status:
-            self._overall_status = status
-            self.overall_status_changed.emit(status)
-
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
         self.status_message_received.emit(data)
         state = data.get("state")
         self.compare_states(state, self._prev_state)
-        self._check_folder_statuses(state)
-        self._check_overall_status()
         self._prev_state = state
         self.do_check()  # XXX
 
