@@ -803,9 +803,11 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_folder_backups(self) -> TwistedDeferred[Dict[str, dict]]:
+    def get_folder_backups(self) -> TwistedDeferred[Optional[Dict[str, dict]]]:
         folders: DefaultDict[str, dict] = defaultdict(dict)
         backups = yield self.rootcap_manager.get_backups(".magic-folders")
+        if backups is None:
+            return None
         for name, data in backups.items():
             if name.endswith(" (collective)"):
                 prefix = name.split(" (collective)")[0]
