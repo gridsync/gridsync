@@ -23,13 +23,13 @@ def test_status_panel_hide_tor_button(fake_tahoe):
         [2, 5, 5, "Up to date"],
     ],
 )
-def test_on_sync_state_updated(
+def test_on_sync_status_updated(
     state, num_connected, shares_happy, text, fake_tahoe
 ):
     fake_tahoe.shares_happy = shares_happy
     sp = StatusPanel(fake_tahoe, MagicMock())
     sp.num_connected = num_connected
-    sp.on_sync_state_updated(state)
+    sp.on_sync_status_updated(state)
     assert sp.status_label.text() == text
 
 
