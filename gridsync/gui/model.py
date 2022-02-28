@@ -141,6 +141,7 @@ class Model(QStandardItemModel):
         action_bar.addAction(action_bar_action)
         self.view.setIndexWidget(action.index(), action_bar)
         self.view.hide_drop_label()
+        self.set_status(basename, MagicFolderStatus.LOADING)
 
     def remove_folder(self, folder_name):
         self.gui.systray.remove_operation((self.gateway, folder_name))
