@@ -434,7 +434,9 @@ class MagicFolderMonitor(QObject):
         self._known_folders = current_folders
 
         backups = yield self.magic_folder.get_folder_backups()
-        if backups is not None:
+        if backups is None:
+            logging.warning("Could not read Magic-Folder backups during check")
+        else:
             current_backups = list(backups)
             previous_backups = list(self._known_backups)
             self.compare_backups(current_backups, previous_backups)
