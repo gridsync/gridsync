@@ -784,6 +784,10 @@ def test_monitor_emits_file_mtime_updated_signal(
     )
 
 
+@pytest.mark.skipif(
+    "CI" in os.environ,
+    reason="Fails intermittently on GitHub Actions' Windows runners",
+)
 @inlineCallbacks
 def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
     yield leave_all_folders(magic_folder)
