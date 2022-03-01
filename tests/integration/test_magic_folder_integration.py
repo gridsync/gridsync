@@ -737,6 +737,10 @@ def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
     )
 
 
+@pytest.mark.skipif(
+    "CI" in os.environ,
+    reason="Fails intermittently on GitHub Actions' Windows runners",
+)
 @inlineCallbacks
 def test_monitor_emits_file_size_updated_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
