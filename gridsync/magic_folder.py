@@ -434,10 +434,13 @@ class MagicFolderMonitor(QObject):
         self._known_folders = current_folders
 
         backups = yield self.magic_folder.get_folder_backups()
-        current_backups = list(backups)
-        previous_backups = list(self._known_backups)
-        self.compare_backups(current_backups, previous_backups)
-        self._known_backups = current_backups
+        if backups is None:
+            logging.warning("Could not read Magic-Folder backups during check")
+        else:
+            current_backups = list(backups)
+            previous_backups = list(self._known_backups)
+            self.compare_backups(current_backups, previous_backups)
+            self._known_backups = current_backups
 
         results = yield DeferredList(
             [self._get_file_status(f) for f in current_folders],
@@ -803,9 +806,11 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_folder_backups(self) -> TwistedDeferred[Dict[str, dict]]:
+    def get_folder_backups(self) -> TwistedDeferred[Optional[Dict[str, dict]]]:
         folders: DefaultDict[str, dict] = defaultdict(dict)
         backups = yield self.rootcap_manager.get_backups(".magic-folders")
+        if backups is None:
+            return None
         for name, data in backups.items():
             if name.endswith(" (collective)"):
                 prefix = name.split(" (collective)")[0]
@@ -839,6 +844,10 @@ class MagicFolder:
     ) -> TwistedDeferred[None]:
         logging.debug('Restoring "%s" Magic-Folder...', folder_name)
         backups = yield self.get_folder_backups()
+        if backups is None:
+            raise MagicFolderError(
+                f"Error restoring folder {folder_name}; could not read backups"
+            )
         data = backups.get(folder_name, {})
         upload_dircap = data.get("upload_dircap")
         personal_dmd = yield self.gateway.diminish(upload_dircap)

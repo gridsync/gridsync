@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from atomicwrites import atomic_write
 from twisted.internet.defer import DeferredLock, inlineCallbacks
@@ -139,7 +139,7 @@ class RootcapManager:
         return cap
 
     @inlineCallbacks
-    def get_backups(self, dirname: str) -> TwistedDeferred[None]:
+    def get_backups(self, dirname: str) -> TwistedDeferred[Optional[dict]]:
         backup_cap = yield self.get_backup_cap(dirname)
         ls_output = yield self.gateway.ls(backup_cap)
         return ls_output
