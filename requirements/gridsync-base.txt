@@ -19,8 +19,8 @@ attrs==21.4.0 \
     #   service-identity
     #   treq
     #   twisted
-autobahn[twisted]==22.1.1 \
-    --hash=sha256:17e1b58b6ae1a63ca7d926b1d71bb9e4fd6b9ac9a1a2277d8ee40e0b61f54746
+autobahn[twisted]==22.2.2 \
+    --hash=sha256:60e1f4c602aacd052ffe3d46ae40b6b75f8286b3c46922c213b523162e58c17e
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
@@ -330,9 +330,9 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
-tqdm==4.62.3 \
-    --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
-    --hash=sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d
+tqdm==4.63.0 \
+    --hash=sha256:1d9835ede8e394bb8c9dcbffbca02d717217113adc679236873eeaac5bc0b3cd \
+    --hash=sha256:e643e071046f17139dea55b880dc9b33822ce21613b4a4f5ea57f202833dbc29
     # via magic-wormhole
 treq==22.2.0 \
     --hash=sha256:27d95b07c5c14be3e7b280416139b036087617ad5595be913b1f9b3ce981b9b2 \
@@ -348,9 +348,9 @@ twisted[tls]==22.1.0 \
     #   qt5reactor
     #   treq
     #   txtorcon
-txaio==21.2.1 \
-    --hash=sha256:7d6f89745680233f1c4db9ddb748df5e88d2a7a37962be174c0fd04c8dba1dc8 \
-    --hash=sha256:c16b55f9a67b2419cfdf8846576e2ec9ba94fe6978a83080c352a80db31c93fb
+txaio==22.2.1 \
+    --hash=sha256:2e4582b70f04b2345908254684a984206c0d9b50e3074a24a4c55aba21d24d01 \
+    --hash=sha256:41223af4a9d5726e645a8ee82480f413e5e300dd257db94bc38ae12ea48fb2e5
     # via autobahn
 txtorcon==21.1.0 \
     --hash=sha256:aebf0b9ec6c69a029f6b61fd534e785692e28fdcd2fd003ce3cc132b9393b7d6 \

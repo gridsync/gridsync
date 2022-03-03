@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtWidgets import QSystemTrayIcon
+
+if TYPE_CHECKING:
+    from gridsync.gui import Gui
 
 from gridsync import resource, settings
 from gridsync.gui.menu import Menu
@@ -11,9 +16,10 @@ from gridsync.gui.pixmap import BadgedPixmap
 
 
 class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, gui):
+    def __init__(self, gui: Gui) -> None:
         super().__init__()
         self.gui = gui
+        self._operations: set = set()
 
         tray_icon_path = resource(settings["application"]["tray_icon"])
         self.app_pixmap = QPixmap(tray_icon_path)
@@ -33,8 +39,17 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.animation.updated.connect(self.update)
         self.animation.setCacheMode(True)
 
-    def update(self):
-        if self.gui.core.operations:
+    def add_operation(self, operation: tuple) -> None:
+        self._operations.add(operation)
+
+    def remove_operation(self, operation: tuple) -> None:
+        try:
+            self._operations.remove(operation)
+        except KeyError:
+            pass
+
+    def update(self) -> None:
+        if self._operations:
             self.animation.setPaused(False)
             pixmap = self.animation.currentPixmap()
             if self.gui.unread_messages:
@@ -55,6 +70,6 @@ class SystemTrayIcon(QSystemTrayIcon):
             else:
                 self.setIcon(self.app_icon)
 
-    def on_click(self, value):
+    def on_click(self, value: int) -> None:
         if value == QSystemTrayIcon.Trigger and sys.platform != "darwin":
             self.gui.show_main_window()

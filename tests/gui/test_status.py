@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from gridsync.gui.status import StatusPanel
+from gridsync.magic_folder import MagicFolderStatus
 
 
 def test_status_panel_hide_tor_button(fake_tahoe):
@@ -15,21 +16,50 @@ def test_status_panel_hide_tor_button(fake_tahoe):
 
 
 @pytest.mark.parametrize(
-    "state,num_connected,shares_happy,text",
+    "num_connected, shares_happy, overall_status, use_tor, text",
     [
-        [0, 0, 0, "Connecting to TestGrid..."],
-        [0, 3, 5, "Connecting to TestGrid (3/5)..."],
-        [1, 5, 5, "Syncing"],
-        [2, 5, 5, "Up to date"],
+        [0, 0, MagicFolderStatus.LOADING, False, "Connecting to TestGrid..."],
+        [
+            0,
+            0,
+            MagicFolderStatus.LOADING,
+            True,
+            "Connecting to TestGrid via Tor...",
+        ],
+        [
+            3,
+            5,
+            MagicFolderStatus.WAITING,
+            False,
+            "Connecting to TestGrid (3/5)...",
+        ],
+        [
+            3,
+            5,
+            MagicFolderStatus.WAITING,
+            True,
+            "Connecting to TestGrid (3/5) via Tor...",
+        ],
+        [
+            5,
+            5,
+            MagicFolderStatus.WAITING,
+            True,
+            "Connected to TestGrid via Tor",
+        ],
+        [5, 5, MagicFolderStatus.SYNCING, False, "Syncing"],
+        [5, 5, MagicFolderStatus.ERROR, False, "Error syncing folder"],
+        [5, 5, MagicFolderStatus.UP_TO_DATE, False, "Up to date"],
     ],
 )
-def test_on_sync_state_updated(
-    state, num_connected, shares_happy, text, fake_tahoe
+def test_on_sync_status_updated(
+    num_connected, shares_happy, overall_status, use_tor, text, fake_tahoe
 ):
     fake_tahoe.shares_happy = shares_happy
+    fake_tahoe.use_tor = use_tor
     sp = StatusPanel(fake_tahoe, MagicMock())
     sp.num_connected = num_connected
-    sp.on_sync_state_updated(state)
+    sp.on_sync_status_updated(overall_status)
     assert sp.status_label.text() == text
 
 
@@ -58,29 +88,30 @@ def test_on_space_updated_humanize(fake_tahoe):
 
 
 def test_on_nodes_updated_set_num_connected_and_num_known(fake_tahoe):
-    # fake_tahoe = Mock()
-    # fake_tahoe.name = "TestGrid"
-    # fake_tahoe.shares_happy = 3
     sp = StatusPanel(fake_tahoe, MagicMock())
     sp.on_nodes_updated(4, 5)
     assert (sp.num_connected, sp.num_known) == (4, 5)
 
 
 def test_on_nodes_updated_grid_name_in_status_label(fake_tahoe):
-    # fake_tahoe = Mock()
-    # fake_tahoe.name = "TestGrid"
-    # fake_tahoe.shares_happy = 3
+    fake_tahoe.use_tor = False
     sp = StatusPanel(fake_tahoe, MagicMock())
     sp.on_nodes_updated(4, 5)
     assert sp.status_label.text() == "Connected to TestGrid"
 
 
+def test_on_nodes_updated_tor_usage_in_status_label(fake_tahoe):
+    fake_tahoe.use_tor = True
+    sp = StatusPanel(fake_tahoe, MagicMock())
+    sp.on_nodes_updated(4, 5)
+    assert sp.status_label.text() == "Connected to TestGrid via Tor"
+
+
 def test_on_nodes_updated_node_count_in_status_label_when_connecting(
     fake_tahoe,
 ):
-    # fake_tahoe = Mock()
-    # fake_tahoe.name = "TestGrid"
     fake_tahoe.shares_happy = 5
+    fake_tahoe.use_tor = False
     sp = StatusPanel(fake_tahoe, MagicMock())
     sp.on_nodes_updated(4, 5)
     assert sp.status_label.text() == "Connecting to TestGrid (4/5)..."

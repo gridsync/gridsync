@@ -282,7 +282,7 @@ def test_update_zkap_checkpoint_write_checkpoint_to_disk(tahoe, monkeypatch):
     monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
     fake_link = Mock()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
-    yield zkapauthorizer.update_zkap_checkpoint(None)
+    yield zkapauthorizer.update_zkap_checkpoint()
     with open(Path(zkapauthorizer.zkapsdir, "checkpoint")) as f:
         assert f.read() == "TESTZKAP2222"
 
@@ -300,7 +300,7 @@ def test_update_zkap_checkpoint_link_to_zkap_dircap(tahoe, monkeypatch):
     monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
     fake_link = Mock()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
-    yield zkapauthorizer.update_zkap_checkpoint(None)
+    yield zkapauthorizer.update_zkap_checkpoint()
     assert fake_link.call_args[0] == (
         "URI:TestZKAPDircap",  # dircap
         "checkpoint",  # childname
@@ -321,7 +321,7 @@ def test_update_zkap_checkpoint_cancel_if_not_zkap_auth(tahoe, monkeypatch):
     monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload)
     fake_link = Mock()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
-    yield zkapauthorizer.update_zkap_checkpoint(None)
+    yield zkapauthorizer.update_zkap_checkpoint()
     assert fake_upload.call_count == 0
 
 

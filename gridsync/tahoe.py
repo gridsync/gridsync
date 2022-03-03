@@ -104,8 +104,8 @@ class Tahoe:
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
         self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
-        self.magic_folder.monitor.sync_stopped.connect(
-            self.zkapauthorizer.update_zkap_checkpoint
+        self.magic_folder.monitor.files_updated.connect(
+            lambda *args: self.zkapauthorizer.update_zkap_checkpoint()
         )
         self.supervisor = Supervisor(pidfile=self.pidfile)
 
@@ -664,9 +664,11 @@ class Tahoe:
         cap: str,
         exclude_dirnodes: bool = False,
         exclude_filenodes: bool = False,
-    ) -> TwistedDeferred[Dict[str, dict]]:
+    ) -> TwistedDeferred[Optional[Dict[str, dict]]]:
         yield self.await_ready()
         json_output = yield self.get_json(cap)
+        if json_output is None:
+            return None
         results = {}
         for name, data in json_output[1]["children"].items():
             node_type = data[0]
