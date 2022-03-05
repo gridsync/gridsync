@@ -27,6 +27,7 @@ class Supervisor:
         self._started_trigger = ""
         self._stdout_line_collector: Optional[Callable] = None
         self._stderr_line_collector: Optional[Callable] = None
+        self._process_started_callback: Optional[Callable] = None
         self._on_process_ended: Optional[Callable] = None
 
     def stop(self) -> None:
@@ -62,6 +63,8 @@ class Supervisor:
             pid,
         )
         self.pid = pid
+        if self._process_started_callback:
+            self._process_started_callback()
         return pid
 
     def _schedule_restart(self, _) -> None:  # type: ignore
@@ -80,12 +83,14 @@ class Supervisor:
         started_trigger: str = "",
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
+        process_started_callback: Optional[Callable] = None,
     ) -> TwistedDeferred[int]:
 
         self._args = args
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
         self._stderr_line_collector = stderr_line_collector
+        self._process_started_callback = process_started_callback
 
         if self.pidfile and self.pidfile.exists():  # type: ignore
             self.stop()
