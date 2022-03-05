@@ -7,7 +7,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
 
-from psutil import Process
+from psutil import NoSuchProcess, Process
 from twisted.internet.defer import Deferred
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
@@ -55,6 +55,11 @@ def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
             logging.error("Error killing PID %i: %s", pid, str(err))
             raise
         logging.warning("Could not kill PID %i: %s", pid, str(err))
+    proc.wait(timeout=3)
+    try:
+        proc.kill()
+    except NoSuchProcess:
+        pass
     if pidfile:
         logging.debug("Removing pidfile: %s", str(pidfile))
         try:
