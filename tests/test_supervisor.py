@@ -6,7 +6,6 @@ from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
 from gridsync.supervisor import Supervisor
-from gridsync.system import kill
 
 PROCESS_ARGS = [sys.executable, "-c", "while True: print('OK')"]
 
