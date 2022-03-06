@@ -29,11 +29,22 @@ def test_supervisor_unsets_pid_attribute_on_stop(tmp_path):
 
 
 @inlineCallbacks
-def test_supervisor_writes_pid_to_pidfile(tmp_path):
+def test_supervisor_writes_pid_to_pidfile_on_start(tmp_path):
     pidfile = tmp_path / "python.pid"
     supervisor = Supervisor(pidfile=pidfile)
     pid = yield supervisor.start(PROCESS_ARGS)
     assert int(pidfile.read_text()) == pid
+
+
+@inlineCallbacks
+def test_supervisor_removes_pidfile_on_stop(tmp_path):
+    pidfile = tmp_path / "python.pid"
+    supervisor = Supervisor(pidfile=pidfile)
+    pid = yield supervisor.start(PROCESS_ARGS)
+    pidfile_was_written = int(pidfile.read_text()) == pid
+    yield supervisor.stop()
+    pidfile_was_removed = not pidfile.exists()
+    assert pidfile_was_written and pidfile_was_removed
 
 
 @inlineCallbacks
