@@ -58,7 +58,6 @@ def terminate(
         proc.terminate()
     except NoSuchProcess:
         return
-    time_started = time.time()
     while proc.is_running():
         try:
             return proc.wait(timeout=0)
