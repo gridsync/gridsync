@@ -3,16 +3,20 @@ from __future__ import annotations
 import errno
 import logging
 import shutil
+import time
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
 
-from psutil import NoSuchProcess, Process
-from twisted.internet.defer import Deferred
+from psutil import NoSuchProcess, Process, TimeoutExpired
+from twisted.internet import reactor
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
+from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
+from gridsync.types import TwistedDeferred
 
 if TYPE_CHECKING:
     from twisted.python.failure import Failure
@@ -36,6 +40,38 @@ def which(cmd: str) -> str:
             "Please ensure that it exists on your PATH."
         )
     return path
+
+
+@inlineCallbacks
+def terminate(
+    pid: int, kill_after: Optional[Union[int, float]] = None
+) -> TwistedDeferred[None]:
+    try:
+        proc = Process(pid)
+    except NoSuchProcess:
+        return
+    if kill_after:
+        limit = time.time() + kill_after
+    else:
+        limit = 0
+    try:
+        proc.terminate()
+    except NoSuchProcess:
+        return
+    time_started = time.time()
+    while proc.is_running():
+        try:
+            return proc.wait(timeout=0)
+        except NoSuchProcess:
+            return
+        except TimeoutExpired:
+            pass
+        if limit and time.time() >= limit:
+            try:
+                proc.kill()
+            except NoSuchProcess:
+                return
+        yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
 
 
 def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
