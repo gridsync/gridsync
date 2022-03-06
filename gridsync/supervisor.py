@@ -1,24 +1,22 @@
 import logging
 import os
 from pathlib import Path
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional
 
 from atomicwrites import atomic_write
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync.system import SubprocessProtocol, kill, terminate
+from gridsync.system import SubprocessProtocol, terminate
 from gridsync.types import TwistedDeferred
 
 
 class Supervisor:
     def __init__(
         self,
-        pidfile: Union[Path, str] = "",
+        pidfile: Optional[Path] = None,
         restart_delay: int = 1,
     ) -> None:
-        if pidfile:
-            pidfile = Path(pidfile)
         self.pidfile = pidfile
         self.restart_delay: int = restart_delay
         self.pid: Optional[int] = None
@@ -31,7 +29,7 @@ class Supervisor:
         self._on_process_ended: Optional[Callable] = None
 
     @inlineCallbacks
-    def stop(self) -> None:
+    def stop(self) -> TwistedDeferred[None]:
         logging.debug("Stopping supervised process: %s", "".join(self._args))
         self._keep_alive = False
         yield terminate(self.pid, kill_after=5)
@@ -92,7 +90,7 @@ class Supervisor:
         self._stderr_line_collector = stderr_line_collector
         self._process_started_callback = process_started_callback
 
-        if self.pidfile and self.pidfile.exists():  # type: ignore
+        if self.pidfile and self.pidfile.exists():
             yield self.stop()
         logging.debug("Starting supervised process: %s", "".join(self._args))
         pid = yield self._start_process()
