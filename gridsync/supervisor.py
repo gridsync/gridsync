@@ -35,6 +35,8 @@ class Supervisor:
         logging.debug("Stopping supervised process: %s", "".join(self._args))
         self._keep_alive = False
         yield terminate(self.pid, kill_after=5)
+        if self.pidfile and self.pidfile.exists():
+            self.pidfile.unlink()
         self.pid = None
 
     @inlineCallbacks
