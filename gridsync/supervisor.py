@@ -7,7 +7,7 @@ from atomicwrites import atomic_write
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync.system import SubprocessProtocol, kill
+from gridsync.system import SubprocessProtocol, kill, terminate
 from gridsync.types import TwistedDeferred
 
 
@@ -30,13 +30,11 @@ class Supervisor:
         self._process_started_callback: Optional[Callable] = None
         self._on_process_ended: Optional[Callable] = None
 
+    @inlineCallbacks
     def stop(self) -> None:
         logging.debug("Stopping supervised process: %s", "".join(self._args))
         self._keep_alive = False
-        if self.pidfile:
-            kill(pidfile=self.pidfile)
-        elif self.pid:
-            kill(pid=self.pid)
+        yield terminate(self.pid, kill_after=5)
         self.pid = None
 
     @inlineCallbacks
@@ -93,7 +91,7 @@ class Supervisor:
         self._process_started_callback = process_started_callback
 
         if self.pidfile and self.pidfile.exists():  # type: ignore
-            self.stop()
+            yield self.stop()
         logging.debug("Starting supervised process: %s", "".join(self._args))
         pid = yield self._start_process()
         return pid
