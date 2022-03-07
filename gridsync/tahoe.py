@@ -107,7 +107,7 @@ class Tahoe:
         self.magic_folder.monitor.files_updated.connect(
             lambda *args: self.zkapauthorizer.update_zkap_checkpoint()
         )
-        self.supervisor = Supervisor(pidfile=self.pidfile)
+        self.supervisor = Supervisor(pidfile=Path(self.pidfile))
 
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
