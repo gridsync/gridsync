@@ -32,6 +32,11 @@ class Supervisor:
     def stop(self) -> TwistedDeferred[None]:
         logging.debug("Stopping supervised process: %s", "".join(self._args))
         self._keep_alive = False
+        if not self.pid:
+            logging.warning(
+                "Tried to stop a supervised process that wasn't running"
+            )
+            return
         yield terminate(self.pid, kill_after=5)
         if self.pidfile and self.pidfile.exists():
             self.pidfile.unlink()
