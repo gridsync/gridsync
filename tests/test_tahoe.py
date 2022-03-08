@@ -776,7 +776,7 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
     )
-    monkeypatch.setattr("gridsync.supervisor.kill", Mock())
+    monkeypatch.setattr("gridsync.supervisor.Supervisor.stop", Mock())
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
     )
