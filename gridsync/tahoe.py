@@ -473,8 +473,8 @@ class Tahoe:
             [self.executable, "-d", self.nodedir, "run"],
             started_trigger="client running",
             stdout_line_collector=self.line_received,
+            process_started_callback=self._on_started,
         )
-        self._on_started()
         log.debug(
             'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
         )

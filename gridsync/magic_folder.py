@@ -606,8 +606,8 @@ class MagicFolder:
             started_trigger="Completed initial Magic Folder setup",
             stdout_line_collector=self.on_stdout_line_received,
             stderr_line_collector=self.on_stderr_line_received,
+            process_started_callback=self._on_started,
         )
-        self._on_started()
         logging.debug("Started magic-folder")
 
     @inlineCallbacks
