@@ -766,6 +766,7 @@ def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
     yield tahoe.start()
+    tahoe._on_started()  # XXX
     assert tahoe.streamedlogs.running
     (host, port, _, _, _) = reactor.tcpClients.pop(0)
     assert (host, port) == ("example.invalid", 12345)
