@@ -623,6 +623,7 @@ class MagicFolder:
         body: bytes = b"",
         error_404_ok: bool = False,
     ) -> TwistedDeferred[dict]:
+        yield self.await_running()  # XXX
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
         if not self.api_port:
