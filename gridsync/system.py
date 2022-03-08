@@ -43,13 +43,13 @@ def which(cmd: str) -> str:
 
 
 @inlineCallbacks
-def terminate(
+def terminate(  # noqa: max-complexity
     pid: int, kill_after: Optional[Union[int, float]] = None
 ) -> TwistedDeferred[None]:
     try:
         proc = Process(pid)
     except NoSuchProcess:
-        return
+        return None
     if kill_after:
         limit = time.time() + kill_after
     else:
@@ -57,23 +57,25 @@ def terminate(
     try:
         proc.terminate()
     except NoSuchProcess:
-        return
+        return None
     while proc.is_running():
         try:
             return proc.wait(timeout=0)
         except NoSuchProcess:
-            return
+            return None
         except TimeoutExpired:
             pass
         if limit and time.time() >= limit:
             try:
                 proc.kill()
             except NoSuchProcess:
-                return
+                return None
         yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
 
 
-def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
+def kill(  # noqa: max-complexity
+    pid: int = 0, pidfile: Optional[Union[Path, str]] = ""
+) -> None:
     if pidfile:
         pidfile_path = Path(pidfile)
         try:
