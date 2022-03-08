@@ -582,6 +582,12 @@ class MagicFolder:
             ) from e
         return port
 
+    def _on_started(self) -> None:
+        self.api_token = self._read_api_token()
+        self.api_port = self._read_api_port()
+        self.monitor.start()
+        self.time_started = time.time()
+
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
@@ -601,10 +607,7 @@ class MagicFolder:
             stdout_line_collector=self.on_stdout_line_received,
             stderr_line_collector=self.on_stderr_line_received,
         )
-        self.api_token = self._read_api_token()
-        self.api_port = self._read_api_port()
-        self.monitor.start()
-        self.time_started = time.time()
+        self._on_started()
         logging.debug("Started magic-folder")
 
     @inlineCallbacks

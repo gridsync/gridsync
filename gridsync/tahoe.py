@@ -419,6 +419,33 @@ class Tahoe:
         """
         return self.streamedlogs.get_streamed_log_messages()
 
+    def _on_started(self) -> None:
+        self.load_settings()
+
+        with open(
+            os.path.join(self.nodedir, "node.url"), encoding="utf-8"
+        ) as f:
+            self.set_nodeurl(f.read().strip())
+        token_file = os.path.join(self.nodedir, "private", "api_auth_token")
+        with open(token_file, encoding="utf-8") as f:
+            self.api_token = f.read().strip()
+        self.shares_happy = int(self.config_get("client", "shares.happy"))
+        self.streamedlogs.start(self.nodeurl, self.api_token)
+        self.load_newscap()
+        self.newscap_checker.start()
+        storage_furl_path = Path(self.nodedir, "private", "storage.furl")
+        if storage_furl_path.exists():
+            self.storage_furl = storage_furl_path.read_text(
+                encoding="utf-8"
+            ).strip()
+
+        self.state = Tahoe.STARTED
+
+        self.scan_storage_plugins()
+
+        if not self.storage_furl:  # XXX Is a client (TODO: a better way.)
+            self.magic_folder.start()
+
     @inlineCallbacks
     def start(self):
         log.debug('Starting "%s" tahoe client...', self.name)
@@ -447,33 +474,7 @@ class Tahoe:
             started_trigger="client running",
             stdout_line_collector=self.line_received,
         )
-
-        self.load_settings()
-
-        with open(
-            os.path.join(self.nodedir, "node.url"), encoding="utf-8"
-        ) as f:
-            self.set_nodeurl(f.read().strip())
-        token_file = os.path.join(self.nodedir, "private", "api_auth_token")
-        with open(token_file, encoding="utf-8") as f:
-            self.api_token = f.read().strip()
-        self.shares_happy = int(self.config_get("client", "shares.happy"))
-        self.streamedlogs.start(self.nodeurl, self.api_token)
-        self.load_newscap()
-        self.newscap_checker.start()
-        storage_furl_path = Path(self.nodedir, "private", "storage.furl")
-        if storage_furl_path.exists():
-            self.storage_furl = storage_furl_path.read_text(
-                encoding="utf-8"
-            ).strip()
-
-        self.state = Tahoe.STARTED
-
-        yield self.scan_storage_plugins()
-
-        if not self.storage_furl:  # XXX Is a client (TODO: a better way.)
-            yield self.magic_folder.start()
-
+        self._on_started()
         log.debug(
             'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
         )
