@@ -59,6 +59,9 @@ class Supervisor:
         )
         if self._started_trigger:
             yield protocol.done
+        else:
+            # To prevent unhandled ProcessTerminated errors
+            protocol.done.callback(None)
         pid = transport.pid
         if self.pidfile:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
