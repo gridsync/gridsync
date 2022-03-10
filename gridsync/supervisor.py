@@ -38,11 +38,11 @@ class Supervisor:
                 "Tried to stop a supervised process that wasn't running"
             )
             return
-        logging.debug("Stopping supervised process: %s", "".join(self._args))
+        logging.debug("Stopping supervised process: %s", " ".join(self._args))
         yield terminate(self.pid, kill_after=5)
         if self.pidfile and self.pidfile.exists():
             self.pidfile.unlink()
-        logging.debug("Supervised process stopped: %s", "".join(self._args))
+        logging.debug("Supervised process stopped: %s", " ".join(self._args))
         self.pid = None
 
     @inlineCallbacks
