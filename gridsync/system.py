@@ -44,12 +44,14 @@ def which(cmd: str) -> str:
 
 @inlineCallbacks
 def terminate(  # noqa: max-complexity
-    pid: int, kill_after: Optional[Union[int, float]] = None
+    pid: int, name: str = "", kill_after: Optional[Union[int, float]] = None
 ) -> TwistedDeferred[None]:
     try:
         proc = Process(pid)
     except NoSuchProcess:
         return None
+    if name and name.lower() != proc.name().lower():
+        return None  # XXX
     if kill_after:
         limit = time.time() + kill_after
     else:
