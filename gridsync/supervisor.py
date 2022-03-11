@@ -20,6 +20,7 @@ class Supervisor:
         self.pidfile = pidfile
         self.restart_delay: int = restart_delay
         self.pid: Optional[int] = None
+        self.name: str = ""
         self._keep_alive: bool = True
         self._args: List[str] = []
         self._started_trigger = ""
@@ -39,7 +40,7 @@ class Supervisor:
             )
             return
         logging.debug("Stopping supervised process: %s", " ".join(self._args))
-        yield terminate(self.pid, kill_after=5)
+        yield terminate(self.pid, name=self.name, kill_after=5)
         if self.pidfile and self.pidfile.exists():
             self.pidfile.unlink()
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
@@ -94,7 +95,7 @@ class Supervisor:
         stderr_line_collector: Optional[Callable] = None,
         process_started_callback: Optional[Callable] = None,
     ) -> TwistedDeferred[int]:
-
+        self.name = Path(args[0]).name
         self._args = args
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
