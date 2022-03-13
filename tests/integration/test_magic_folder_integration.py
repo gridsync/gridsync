@@ -35,9 +35,8 @@ os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
 @async_yield_fixture(scope="module")
 async def magic_folder(tahoe_client):
     mf = tahoe_client.magic_folder
-    await mf.start()
+    await mf.await_running()
     yield mf
-    mf.stop()
 
 
 @async_yield_fixture(scope="module")
