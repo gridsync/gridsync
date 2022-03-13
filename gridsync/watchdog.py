@@ -63,7 +63,6 @@ class Watchdog(QObject):
         if self._observer.is_alive():
             logging.warning("Tried to start Watchdog that was already started")
             return
-        print(self._observer.is_alive())
         logging.debug("Starting Watchdog...")
         try:
             self._observer.start()
