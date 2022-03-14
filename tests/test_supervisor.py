@@ -52,7 +52,7 @@ def test_supervisor_restarts_process_when_killed(tmp_path):
     supervisor = Supervisor(pidfile=pidfile, restart_delay=0)
     pid_1 = yield supervisor.start(PROCESS_ARGS, started_trigger="OK")
     Process(pid_1).kill()
-    yield deferLater(reactor, 2, lambda: None)
+    yield deferLater(reactor, 10, lambda: None)
     pid_2 = int(pidfile.read_text())
     assert pid_1 != pid_2
 
