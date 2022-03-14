@@ -51,7 +51,9 @@ def terminate(  # noqa: max-complexity
     except NoSuchProcess:
         return None
     if name and name.lower() != proc.name().lower():
-        raise ValueError(f'Process name of PID {pid} does not match "{name}"')
+        raise ValueError(
+            f'Process name of PID {pid} ({proc.name()}) does not match "{name}"'
+        )
     if kill_after:
         limit = time.time() + kill_after
     else:
