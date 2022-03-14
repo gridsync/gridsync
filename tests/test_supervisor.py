@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 from psutil import Process
 from pytest_twisted import inlineCallbacks
@@ -8,6 +9,13 @@ from twisted.internet.task import deferLater
 from gridsync.supervisor import Supervisor
 
 PROCESS_ARGS = [sys.executable, "-c", "while True: print('OK')"]
+
+
+print("############################")
+print(sys.executable)
+print(Path(sys.executable).resolve())
+print(str(Path(sys.executable).resolve()))
+print("############################")
 
 
 @inlineCallbacks
