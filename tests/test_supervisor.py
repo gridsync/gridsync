@@ -8,14 +8,11 @@ from twisted.internet.task import deferLater
 
 from gridsync.supervisor import Supervisor
 
-PROCESS_ARGS = [sys.executable, "-c", "while True: print('OK')"]
-
-
-print("############################")
-print(sys.executable)
-print(Path(sys.executable).resolve())
-print(str(Path(sys.executable).resolve()))
-print("############################")
+PROCESS_ARGS = [
+    str(Path(sys.executable).resolve()),
+    "-c",
+    "while True: print('OK')",
+]
 
 
 @inlineCallbacks
