@@ -95,7 +95,9 @@ class Supervisor:
         stderr_line_collector: Optional[Callable] = None,
         process_started_callback: Optional[Callable] = None,
     ) -> TwistedDeferred[int]:
-        self.name = Path(args[0]).name
+        exe_path = Path(args[0], strict=True).resolve()
+        args[0] = str(exe_path)
+        self.name = exe_path.name
         self._args = args
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
