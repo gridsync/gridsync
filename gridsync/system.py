@@ -42,6 +42,13 @@ def which(cmd: str) -> str:
     return path
 
 
+def process_name(pid: int) -> str:
+    try:
+        return Process(pid).name()
+    except NoSuchProcess:
+        return ""
+
+
 @inlineCallbacks
 def terminate(  # noqa: max-complexity
     pid: int, name: str = "", kill_after: Optional[Union[int, float]] = None
@@ -167,6 +174,8 @@ class SubprocessProtocol(ProcessProtocol):
                     self._output.getvalue().decode("utf-8").strip()
                 )
             else:
+                output = self._output.getvalue().decode("utf-8").strip()
+                print("#################### ERROR", reason, output)
                 self.done.errback(reason)
         if self._on_process_ended:
             self._on_process_ended(reason)
