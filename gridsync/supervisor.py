@@ -49,6 +49,7 @@ class Supervisor:
             self.pidfile.unlink()
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
         self.pid = None
+        self.name = ""
 
     @inlineCallbacks
     def _start_process(self) -> TwistedDeferred[tuple[int, str]]:
