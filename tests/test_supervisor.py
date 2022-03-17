@@ -18,6 +18,13 @@ def test_supervisor_sets_pid_attribute_on_start(tmp_path):
 
 
 @inlineCallbacks
+def test_supervisor_sets_name_attribute_on_start(tmp_path):
+    supervisor = Supervisor()
+    _, name = yield supervisor.start(PROCESS_ARGS)
+    assert supervisor.name == name
+
+
+@inlineCallbacks
 def test_supervisor_unsets_pid_attribute_on_stop(tmp_path):
     supervisor = Supervisor()
     pid, _ = yield supervisor.start(PROCESS_ARGS)
@@ -28,11 +35,29 @@ def test_supervisor_unsets_pid_attribute_on_stop(tmp_path):
 
 
 @inlineCallbacks
+def test_supervisor_unsets_name_attribute_on_stop(tmp_path):
+    supervisor = Supervisor()
+    _, name = yield supervisor.start(PROCESS_ARGS)
+    name_was_set = supervisor.name == name
+    yield supervisor.stop()
+    name_was_unset = supervisor.name == ""
+    assert name_was_set and name_was_unset
+
+
+@inlineCallbacks
 def test_supervisor_writes_pid_to_pidfile_on_start(tmp_path):
     pidfile = tmp_path / "python.pid"
     supervisor = Supervisor(pidfile=pidfile)
     pid, _ = yield supervisor.start(PROCESS_ARGS)
     assert int(pidfile.read_text().split()[0]) == pid
+
+
+@inlineCallbacks
+def test_supervisor_writes_name_to_pidfile_on_start(tmp_path):
+    pidfile = tmp_path / "python.pid"
+    supervisor = Supervisor(pidfile=pidfile)
+    _, name = yield supervisor.start(PROCESS_ARGS)
+    assert " ".join(pidfile.read_text().split()[1:]) == name
 
 
 @inlineCallbacks
