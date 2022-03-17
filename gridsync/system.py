@@ -51,16 +51,12 @@ def process_name(pid: int) -> str:
 
 @inlineCallbacks
 def terminate(  # noqa: max-complexity
-    pid: int, name: str = "", kill_after: Optional[Union[int, float]] = None
+    pid: int, kill_after: Optional[Union[int, float]] = None
 ) -> TwistedDeferred[None]:
     try:
         proc = Process(pid)
     except NoSuchProcess:
         return None
-    if name and name.lower() != proc.name().lower():
-        raise ValueError(
-            f'Process name of PID {pid} ({proc.name()}) does not match "{name}"'
-        )
     if kill_after:
         limit = time.time() + kill_after
     else:
