@@ -7,7 +7,7 @@ from atomicwrites import atomic_write
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync.system import SubprocessProtocol, terminate
+from gridsync.system import SubprocessProtocol, process_name, terminate
 from gridsync.types import TwistedDeferred
 
 
@@ -33,7 +33,10 @@ class Supervisor:
     def stop(self) -> TwistedDeferred[None]:
         self._keep_alive = False
         if not self.pid and self.pidfile and self.pidfile.exists():
-            self.pid = int(self.pidfile.read_text(encoding="utf-8"))
+            contents = self.pidfile.read_text(encoding="utf-8")
+            words = contents.split()
+            self.pid = int(words[0])
+            self.name = " ".join(words[1:])
         if not self.pid:
             logging.warning(
                 "Tried to stop a supervised process that wasn't running"
@@ -64,15 +67,17 @@ class Supervisor:
             # To prevent unhandled ProcessTerminated errors
             protocol.done.callback(None)
         pid = transport.pid
+        name = process_name(pid)
         if self.pidfile:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
-                f.write(str(pid))
+                f.write(f"{pid} {name}")
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
             "".join(self._args),
             pid,
         )
         self.pid = pid
+        self.name = name
         if self._process_started_callback:
             self._process_started_callback()
         return pid
@@ -95,9 +100,6 @@ class Supervisor:
         stderr_line_collector: Optional[Callable] = None,
         process_started_callback: Optional[Callable] = None,
     ) -> TwistedDeferred[int]:
-        exe_path = Path(args[0], strict=True).resolve()
-        args[0] = str(exe_path)
-        self.name = exe_path.name
         self._args = args
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
