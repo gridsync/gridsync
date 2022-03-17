@@ -43,14 +43,15 @@ class Supervisor:
             )
             return
         logging.debug("Stopping supervised process: %s", " ".join(self._args))
-        yield terminate(self.pid, kill_after=5)
+        if self.name.lower() == process_name(self.pid).lower():
+            yield terminate(self.pid, kill_after=5)
         if self.pidfile and self.pidfile.exists():
             self.pidfile.unlink()
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
         self.pid = None
 
     @inlineCallbacks
-    def _start_process(self) -> TwistedDeferred[int]:
+    def _start_process(self) -> TwistedDeferred[tuple[int, str]]:
         self._keep_alive = True
         protocol = SubprocessProtocol(
             callback_triggers=[self._started_trigger],
@@ -80,7 +81,7 @@ class Supervisor:
         self.name = name
         if self._process_started_callback:
             self._process_started_callback()
-        return pid
+        return (pid, name)
 
     def _schedule_restart(self, _) -> None:  # type: ignore
         if self._keep_alive:
@@ -99,7 +100,7 @@ class Supervisor:
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
         process_started_callback: Optional[Callable] = None,
-    ) -> TwistedDeferred[int]:
+    ) -> TwistedDeferred[tuple[int, str]]:
         self._args = args
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
@@ -109,8 +110,9 @@ class Supervisor:
         if self.pidfile and self.pidfile.exists():
             yield self.stop()
         logging.debug("Starting supervised process: %s", "".join(self._args))
-        pid = yield self._start_process()
-        return pid
+        result = yield self._start_process()
+        pid, name = result
+        return (pid, name)
 
     def restart(self) -> None:
         pass
