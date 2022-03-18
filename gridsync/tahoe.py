@@ -469,12 +469,13 @@ class Tahoe:
 
         if not self.executable:
             self.executable = which("tahoe")
-        pid = yield self.supervisor.start(
+        results = yield self.supervisor.start(
             [self.executable, "-d", self.nodedir, "run"],
             started_trigger="client running",
             stdout_line_collector=self.line_received,
             process_started_callback=self._on_started,
         )
+        pid, _ = results
         log.debug(
             'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
         )
