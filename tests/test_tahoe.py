@@ -742,7 +742,8 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client.config_set("client", "shares.happy", "99999")
     monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
-        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
+        "gridsync.supervisor.Supervisor.start",
+        lambda *args, **kwargs: (9999, "tahoe"),
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
@@ -754,7 +755,8 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 @inlineCallbacks
 def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
-        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
+        "gridsync.supervisor.Supervisor.start",
+        lambda *args, **kwargs: (9999, "tahoe"),
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
@@ -775,7 +777,8 @@ def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
 @inlineCallbacks
 def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
-        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
+        "gridsync.supervisor.Supervisor.start",
+        lambda *args, **kwargs: (9999, "tahoe"),
     )
     monkeypatch.setattr("gridsync.supervisor.Supervisor.stop", Mock())
     monkeypatch.setattr(
@@ -808,7 +811,8 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client.config_set("connections", "tcp", "tor")
     monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
-        "gridsync.supervisor.Supervisor.start", lambda *args, **kwargs: 9999
+        "gridsync.supervisor.Supervisor.start",
+        lambda *args, **kwargs: (9999, "tahoe"),
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
