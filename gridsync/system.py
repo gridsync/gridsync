@@ -116,6 +116,10 @@ def kill(  # noqa: max-complexity
         logging.debug("Successfully removed pidfile: %s", str(pidfile))
 
 
+class SubprocessError(Exception):
+    pass
+
+
 class SubprocessProtocol(ProcessProtocol):
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -165,13 +169,10 @@ class SubprocessProtocol(ProcessProtocol):
 
     def processEnded(self, reason: Failure) -> None:
         if not self.done.called:
+            output = self._output.getvalue().decode("utf-8").strip()
             if isinstance(reason.value, ProcessDone):
-                self.done.callback(
-                    self._output.getvalue().decode("utf-8").strip()
-                )
+                self.done.callback(output)
             else:
-                output = self._output.getvalue().decode("utf-8").strip()
-                print("#################### ERROR", reason, output)
-                self.done.errback(reason)
+                self.done.errback(SubprocessError(output))
         if self._on_process_ended:
             self._on_process_ended(reason)
