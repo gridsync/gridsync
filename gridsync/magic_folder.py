@@ -454,6 +454,9 @@ class MagicFolderMonitor(QObject):
         self._known_folders = current_folders
 
     def start(self) -> None:
+        if self._ws_reader is not None:
+            self._ws_reader.stop()
+            self._ws_reader = None
         self._ws_reader = WebSocketReaderService(
             f"ws://127.0.0.1:{self.magic_folder.api_port}/v1/status",
             headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
