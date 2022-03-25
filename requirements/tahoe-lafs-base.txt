@@ -414,9 +414,9 @@ tahoe-lafs==1.17.1 \
     --hash=sha256:2dc7fc103fe0e4f9fc69953934089f55e4428bd5d94670e844e64c210d7c1672 \
     --hash=sha256:329dca7bc9d23b670ac2e513bf7aab7eb948f40ffbc6bf8fc92376cb1cceaf8f
     # via zero-knowledge-access-pass-authorizer
-tqdm==4.63.0 \
-    --hash=sha256:1d9835ede8e394bb8c9dcbffbca02d717217113adc679236873eeaac5bc0b3cd \
-    --hash=sha256:e643e071046f17139dea55b880dc9b33822ce21613b4a4f5ea57f202833dbc29
+tqdm==4.63.1 \
+    --hash=sha256:4230a49119a416c88cc47d0d2d32d5d90f1a282d5e497d49801950704e49863d \
+    --hash=sha256:6461b009d6792008d0000e1b0c7ca50195ec78c0e808a3a6b668a56a3236c3a5
     # via magic-wormhole
 treq==22.2.0 \
     --hash=sha256:27d95b07c5c14be3e7b280416139b036087617ad5595be913b1f9b3ce981b9b2 \
@@ -565,9 +565,9 @@ zope-interface==5.4.0 \
     #   zero-knowledge-access-pass-authorizer
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==60.10.0 \
-    --hash=sha256:6599055eeb23bfef457d5605d33a4d68804266e6cb430b0fb12417c5efeae36c \
-    --hash=sha256:782ef48d58982ddb49920c11a0c5c9c0b02e7d7d1c2ad0aa44e1a1e133051c96
+setuptools==61.0.0 \
+    --hash=sha256:6221e37dc86fcdc9dad9d9eb2002e9f9798fe4aca1bf18f280e66e50c0eb7fca \
+    --hash=sha256:ad88b13f3dc60420259c9877486908ddad12c7befaff0d624c7190f742abd64f
     # via
     #   autobahn
     #   tahoe-lafs
