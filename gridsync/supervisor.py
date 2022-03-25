@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from pathlib import Path
 from typing import Callable, List, Optional
 
@@ -21,6 +22,7 @@ class Supervisor:
         self.restart_delay: int = restart_delay
         self.pid: Optional[int] = None
         self.name: str = ""
+        self.time_started: Optional[float] = None
         self._keep_alive: bool = True
         self._args: List[str] = []
         self._started_trigger = ""
@@ -63,6 +65,7 @@ class Supervisor:
         transport = yield reactor.spawnProcess(  # type: ignore
             protocol, self._args[0], args=self._args, env=os.environ
         )
+        self.time_started = time.time()
         if self._started_trigger:
             yield protocol.done
         else:
