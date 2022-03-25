@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import time
 from collections import defaultdict, deque
 from datetime import datetime
 from enum import Enum, auto
@@ -223,7 +222,8 @@ class MagicFolderMonitor(QObject):
             else:
                 last_poll = data.get("poller", {}).get("last-poll") or 0
                 last_scan = data.get("scanner", {}).get("last-scan") or 0
-                if min(last_poll, last_scan) > self.magic_folder.time_started:
+                time_started = self.magic_folder.supervisor.time_started
+                if time_started and min(last_poll, last_scan) >= time_started:
                     folder_statuses[folder] = MagicFolderStatus.UP_TO_DATE
                 else:
                     folder_statuses[folder] = MagicFolderStatus.WAITING
@@ -493,10 +493,9 @@ class MagicFolder:
         self.magic_folders: Dict[str, dict] = {}
         self.remote_magic_folders: Dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
-        self.supervisor = Supervisor(
+        self.supervisor: Supervisor = Supervisor(
             pidfile=Path(self.configdir, "magic-folder.pid")
         )
-        self.time_started: float = 0.0
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -589,7 +588,6 @@ class MagicFolder:
         self.api_token = self._read_api_token()
         self.api_port = self._read_api_port()
         self.monitor.start()
-        self.time_started = time.time()
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
