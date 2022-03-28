@@ -430,7 +430,6 @@ class Tahoe:
         with open(token_file, encoding="utf-8") as f:
             self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get("client", "shares.happy"))
-        self.streamedlogs.start(self.nodeurl, self.api_token)
         self.load_newscap()
         self.newscap_checker.start()
         storage_furl_path = Path(self.nodedir, "private", "storage.furl")
@@ -438,6 +437,9 @@ class Tahoe:
             self.storage_furl = storage_furl_path.read_text(
                 encoding="utf-8"
             ).strip()
+
+        self.streamedlogs.stop()
+        self.streamedlogs.start(self.nodeurl, self.api_token)
 
         self.state = Tahoe.STARTED
 
