@@ -91,7 +91,10 @@ def kill(  # noqa: max-complexity
             logging.error("Error loading pid from %s: %s", pidfile, str(err))
             return
     logging.debug("Trying to kill PID %i...", pid)
-    proc = Process(pid)
+    try:
+        proc = Process(pid)
+    except NoSuchProcess:
+        return
     try:
         proc.terminate()
     except OSError as err:
