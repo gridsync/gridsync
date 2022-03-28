@@ -26,8 +26,8 @@ attrs==21.4.0 \
     #   treq
     #   twisted
     #   zero-knowledge-access-pass-authorizer
-autobahn[twisted]==22.2.2 \
-    --hash=sha256:60e1f4c602aacd052ffe3d46ae40b6b75f8286b3c46922c213b523162e58c17e
+autobahn[twisted]==22.3.2 \
+    --hash=sha256:58a887c7a196bb08d8b6624cb3695f493a9e5c9f00fd350d8d6f829b47ff9036
     # via
     #   magic-wormhole
     #   tahoe-lafs
@@ -145,9 +145,9 @@ charset-normalizer==2.0.12 \
     --hash=sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597 \
     --hash=sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df
     # via requests
-click==8.0.4 \
-    --hash=sha256:6a7a62563bbfabfda3a38f3023a1db4a35978c0abd76f6c9605ecd6554d6d9b1 \
-    --hash=sha256:8458d7b1287c5fb128c90e23381cf99dcde74beaf6c7ff6384ce84d6fe090adb
+click==8.1.0 \
+    --hash=sha256:19a4baa64da924c5e0cd889aba8e947f280309f1a2ce0947a3e3a7bcb7cc72d6 \
+    --hash=sha256:977c213473c7665d3aa092b41ff12063227751c41d7b17165013e10069cc5cd2
     # via magic-wormhole
 collections-extended==2.0.2 \
     --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
@@ -457,9 +457,9 @@ urllib3==1.26.9 \
     --hash=sha256:44ece4d53fb1706f667c9bd1c648f5469a2ec925fcf3a776667042d645472c14 \
     --hash=sha256:aabaf16477806a5e1dd19aa41f8c2b7950dd3c746362d7e3223dbe6de6ac448e
     # via requests
-werkzeug==2.0.3 \
-    --hash=sha256:1421ebfc7648a39a5c58c601b154165d05cf47a3cd0ccb70857cbdacf6c8f2b8 \
-    --hash=sha256:b863f8ff057c522164b6067c9e28b041161b4be5ba4d0daceeaa50a163822d3c
+werkzeug==2.1.0 \
+    --hash=sha256:094ecfc981948f228b30ee09dbfe250e474823b69b9b1292658301b5894bbf08 \
+    --hash=sha256:9b55466a3e99e13b1f0686a66117d39bda85a992166e0a79aedfcf3586328f7a
     # via klein
 zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/e81dbcf0807195056b9d4a8fe3e881ffe875c41e \
     --hash=sha256:c3dc215d1d62c6773a17e0cc76b194bcea3d9a00e361baf345eb723ba071e8ae
@@ -565,9 +565,9 @@ zope-interface==5.4.0 \
     #   zero-knowledge-access-pass-authorizer
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==61.0.0 \
-    --hash=sha256:6221e37dc86fcdc9dad9d9eb2002e9f9798fe4aca1bf18f280e66e50c0eb7fca \
-    --hash=sha256:ad88b13f3dc60420259c9877486908ddad12c7befaff0d624c7190f742abd64f
+setuptools==61.2.0 \
+    --hash=sha256:8f4813dd6a4d6cc17bde85fb2e635fe19763f96efbb0ddf5575562e5ee0bc47a \
+    --hash=sha256:c3d4e2ab578fbf83775755cd76dae73627915a22832cf4ea5de895978767833b
     # via
     #   autobahn
     #   tahoe-lafs
