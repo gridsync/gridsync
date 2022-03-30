@@ -169,7 +169,7 @@ class ZKAPAuthorizer:
         zkaps = yield self.get_zkaps()
         zkaps["last-redeemed"] = timestamp
 
-        with atomic_write(temp_path, overwrite=True) as f:  # type: ignore
+        with atomic_write(temp_path, overwrite=True) as f:
             f.write(json.dumps(zkaps))
 
         zkap_dircap = yield self.get_zkap_dircap()
