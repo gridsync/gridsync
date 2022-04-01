@@ -20,7 +20,7 @@ from gridsync.voucher import generate_voucher
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
-PLUGIN_NAME = "privatestorageio-zkapauthz-v1"
+PLUGIN_NAME = "privatestorageio-zkapauthz-v2"
 
 
 class ZKAPAuthorizer:
