@@ -145,9 +145,9 @@ charset-normalizer==2.0.12 \
     --hash=sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597 \
     --hash=sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df
     # via requests
-click==8.1.0 \
-    --hash=sha256:19a4baa64da924c5e0cd889aba8e947f280309f1a2ce0947a3e3a7bcb7cc72d6 \
-    --hash=sha256:977c213473c7665d3aa092b41ff12063227751c41d7b17165013e10069cc5cd2
+click==8.1.2 \
+    --hash=sha256:24e1a4a9ec5bf6299411369b208c1df2188d9eb8d916302fe6bf03faed227f1e \
+    --hash=sha256:479707fe14d9ec9a0757618b7a100a0ae4c4e236fac5b7f80ca68028141a1a72
     # via magic-wormhole
 collections-extended==2.0.2 \
     --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
@@ -457,9 +457,9 @@ urllib3==1.26.9 \
     --hash=sha256:44ece4d53fb1706f667c9bd1c648f5469a2ec925fcf3a776667042d645472c14 \
     --hash=sha256:aabaf16477806a5e1dd19aa41f8c2b7950dd3c746362d7e3223dbe6de6ac448e
     # via requests
-werkzeug==2.1.0 \
-    --hash=sha256:094ecfc981948f228b30ee09dbfe250e474823b69b9b1292658301b5894bbf08 \
-    --hash=sha256:9b55466a3e99e13b1f0686a66117d39bda85a992166e0a79aedfcf3586328f7a
+werkzeug==2.1.1 \
+    --hash=sha256:3c5493ece8268fecdcdc9c0b112211acd006354723b280d643ec732b6d4063d6 \
+    --hash=sha256:f8e89a20aeabbe8a893c24a461d3ee5dad2123b05cc6abd73ceed01d39c3ae74
     # via klein
 zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/e81dbcf0807195056b9d4a8fe3e881ffe875c41e \
     --hash=sha256:c3dc215d1d62c6773a17e0cc76b194bcea3d9a00e361baf345eb723ba071e8ae
@@ -565,9 +565,9 @@ zope-interface==5.4.0 \
     #   zero-knowledge-access-pass-authorizer
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==61.2.0 \
-    --hash=sha256:8f4813dd6a4d6cc17bde85fb2e635fe19763f96efbb0ddf5575562e5ee0bc47a \
-    --hash=sha256:c3d4e2ab578fbf83775755cd76dae73627915a22832cf4ea5de895978767833b
+setuptools==61.3.0 \
+    --hash=sha256:425ec0e0014c5bcc1104dd1099de6c8f0584854fc9a4f512575f5ed5ee399fb9 \
+    --hash=sha256:6d59c30ce22dd583b42cacf51eebe4c6ea72febaa648aa8b30e5015d23a191fe
     # via
     #   autobahn
     #   tahoe-lafs
