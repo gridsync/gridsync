@@ -33,7 +33,7 @@ class ZKAPAuthorizer:
         self.zkap_payment_url_root: str = ""
         self.zkap_dircap: str = ""
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
-        self.zkap_batch_size: int = 2**15
+        self.zkap_batch_size: int = 2 ** 15
 
     @inlineCallbacks
     def _request(
@@ -51,6 +51,14 @@ class ZKAPAuthorizer:
             data=data,
         )
         return resp
+
+    @inlineCallbacks
+    def replicate(self) -> TwistedDeferred[str]:
+        resp = yield self._request("POST", "/replicate")
+        if resp.code == 201:
+            content = yield treq.json_content(resp)
+            return content.get("recovery-capability")
+        raise TahoeWebError(f"Error configuring replication: {resp.code}")
 
     @inlineCallbacks
     def add_voucher(
