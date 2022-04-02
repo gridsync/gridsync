@@ -61,6 +61,16 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error configuring replication: {resp.code}")
 
     @inlineCallbacks
+    def recover(self, dircap: str) -> TwistedDeferred[None]:
+        resp = yield self._request(
+            "POST",
+            "/recover",
+            json.dumps({"recovery-capability": dircap}).encode(),
+        )
+        if resp.code != 202:
+            raise TahoeWebError(f"Error starting recovery: {resp.code}")
+
+    @inlineCallbacks
     def add_voucher(
         self, voucher: Optional[str] = None
     ) -> TwistedDeferred[str]:
