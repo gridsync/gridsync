@@ -33,7 +33,7 @@ class ZKAPAuthorizer:
         self.zkap_payment_url_root: str = ""
         self.zkap_dircap: str = ""
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
-        self.zkap_batch_size: int = 2 ** 15
+        self.zkap_batch_size: int = 2**15
 
     @inlineCallbacks
     def _request(
