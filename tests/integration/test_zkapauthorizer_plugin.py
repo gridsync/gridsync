@@ -51,3 +51,22 @@ def test_zkapauthorizer_add_and_get_voucher(zkapauthorizer):
 def test_zkapauthorizer_calculate_price(zkapauthorizer):
     output = yield zkapauthorizer.calculate_price([1024, 2048, 3072, 4096])
     assert output["price"] == 4
+
+
+@inlineCallbacks
+def test_replicate_creates_cap(zkapauthorizer):
+    cap = yield zkapauthorizer.replicate()
+    assert cap.startswith("URI:")
+
+
+@inlineCallbacks
+def test_replicate_is_idempotent(zkapauthorizer):
+    cap_1 = yield zkapauthorizer.replicate()
+    cap_2 = yield zkapauthorizer.replicate()
+    assert cap_1 == cap_2
+
+
+@inlineCallbacks
+def test_get_recovery_status(zkapauthorizer):
+    status = yield zkapauthorizer.get_recovery_status()
+    assert status is not None  # XXX
