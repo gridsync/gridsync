@@ -52,6 +52,17 @@ else:
 
 settings = Config(os.path.join(pkgdir, "resources", "config.txt")).load()
 
+for envvar, value in os.environ.items():
+    if envvar.startswith("GRIDSYNC_"):
+        words = envvar.split("_")
+        if len(words) >= 3:
+            section = words[1].lower()
+            option = "_".join(words[2:]).lower()
+            try:
+                settings[section][option] = value
+            except KeyError:
+                settings[section] = {option: value}
+
 try:
     APP_NAME = settings["application"]["name"]
 except KeyError:
