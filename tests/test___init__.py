@@ -54,6 +54,18 @@ def test_frozen_del_reactor_pass_without_twisted(monkeypatch):
     assert "twisted.internet.reactor" not in sys.modules
 
 
+def test_override_settings_via_environment_variables():
+    os.environ["GRIDSYNC_APPLICATION_NAME"] = "TestApp"
+    reload(gridsync)
+    assert gridsync.settings["application"]["name"] == "TestApp"
+
+
+def test_add_settings_via_environment_variables():
+    os.environ["GRIDSYNC_TEST_SETTING_X"] = "123"
+    reload(gridsync)
+    assert gridsync.settings["test"]["setting_x"] == "123"
+
+
 def test_config_dir_win32(monkeypatch):
     monkeypatch.setattr("sys.platform", "win32")
     monkeypatch.setenv("APPDATA", "C:\\Users\\test\\AppData\\Roaming")
