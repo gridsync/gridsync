@@ -53,6 +53,7 @@ from gridsync import (
 )
 from gridsync.desktop import autostart_enable
 from gridsync.gui import Gui
+from gridsync.invite import cheatcode_used
 from gridsync.lock import FilesystemLock
 from gridsync.magic_folder import MagicFolder
 from gridsync.preferences import get_preference, set_preference
@@ -150,6 +151,9 @@ class Core:
                 self.gateways.append(gateway)
                 self._start_gateway(gateway)
             self.gui.populate(self.gateways)
+            cheatcode = settings.get("connection", {}).get("default")
+            if cheatcode and not cheatcode_used(cheatcode):
+                self.gui.show_welcome_dialog()
         else:
             self.gui.show_welcome_dialog()
             if DEFAULT_AUTOSTART:
