@@ -2,6 +2,7 @@
 
 import json
 import os
+from pathlib import Path
 
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal as Signal
@@ -12,7 +13,7 @@ try:
 except ImportError:  # TODO: Switch to new magic-wormhole completion API?
     from wormhole._wordlist import raw_words
 
-from gridsync import pkgdir
+from gridsync import config_dir, pkgdir
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.util import b58encode
 from gridsync.wormhole_ import Wormhole
@@ -40,6 +41,13 @@ def load_settings_from_cheatcode(cheatcode):
             return json.loads(f.read())
     except (OSError, json.decoder.JSONDecodeError):
         return None
+
+
+def cheatcode_used(cheatcode: str) -> bool:
+    settings = load_settings_from_cheatcode(cheatcode)
+    if not settings:
+        return False
+    return Path(config_dir, settings.get("nickname", ""), "tahoe.cfg").exists()
 
 
 def is_valid_code(code):
