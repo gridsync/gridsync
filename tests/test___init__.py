@@ -7,6 +7,7 @@ from importlib import reload
 import pytest
 
 import gridsync
+from gridsync import load_settings_from_cheatcode
 
 
 def test_the_approval_of_RMS():  # :)
@@ -107,3 +108,20 @@ def test_resource():
     assert gridsync.resource("test") == os.path.join(
         gridsync.pkgdir, "resources", "test"
     )
+
+
+def test_load_settings_from_cheatcode(tmpdir_factory, monkeypatch):
+    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir")
+    providers_path = os.path.join(pkgdir, "resources", "providers")
+    os.makedirs(providers_path)
+    with open(os.path.join(providers_path, "test-test.json"), "w") as f:
+        f.write('{"introducer": "pb://"}')
+    monkeypatch.setattr("gridsync.pkgdir", pkgdir)
+    settings = load_settings_from_cheatcode("test-test")
+    assert settings["introducer"] == "pb://"
+
+
+def test_load_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
+    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir-empty")
+    monkeypatch.setattr("gridsync.pkgdir", pkgdir)
+    assert load_settings_from_cheatcode("test-test") is None
