@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-
-import json
 import os
-from pathlib import Path
 
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal as Signal
@@ -13,18 +10,10 @@ try:
 except ImportError:  # TODO: Switch to new magic-wormhole completion API?
     from wormhole._wordlist import raw_words
 
-from gridsync import config_dir, pkgdir
+from gridsync import cheatcodes, load_settings_from_cheatcode
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.util import b58encode
 from gridsync.wormhole_ import Wormhole
-
-cheatcodes = []
-try:
-    for file in os.listdir(os.path.join(pkgdir, "resources", "providers")):
-        cheatcodes.append(file.split(".")[0].lower())
-except OSError:
-    pass
-
 
 wordlist = []  # type: list
 for word in raw_words.items():
@@ -32,22 +21,6 @@ for word in raw_words.items():
 for c in cheatcodes:
     wordlist.extend(c.split("-"))
 wordlist = sorted([word.lower() for word in wordlist])
-
-
-def load_settings_from_cheatcode(cheatcode):
-    path = os.path.join(pkgdir, "resources", "providers", cheatcode + ".json")
-    try:
-        with open(path, encoding="utf-8") as f:
-            return json.loads(f.read())
-    except (OSError, json.decoder.JSONDecodeError):
-        return None
-
-
-def cheatcode_used(cheatcode: str) -> bool:
-    settings = load_settings_from_cheatcode(cheatcode)
-    if not settings:
-        return False
-    return Path(config_dir, settings.get("nickname", ""), "tahoe.cfg").exists()
 
 
 def is_valid_code(code):

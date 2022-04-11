@@ -46,6 +46,7 @@ from twisted.python.log import PythonLoggingObserver, startLogging
 from gridsync import (
     APP_NAME,
     DEFAULT_AUTOSTART,
+    cheatcode_used,
     config_dir,
     msg,
     resource,
@@ -53,7 +54,6 @@ from gridsync import (
 )
 from gridsync.desktop import autostart_enable
 from gridsync.gui import Gui
-from gridsync.invite import cheatcode_used
 from gridsync.lock import FilesystemLock
 from gridsync.magic_folder import MagicFolder
 from gridsync.preferences import get_preference, set_preference

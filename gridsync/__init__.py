@@ -1,8 +1,10 @@
 """Synchronize local directories with Tahoe-LAFS storage grids."""
 
+import json
 import os
 import sys
 from collections import namedtuple
+from pathlib import Path
 
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
@@ -51,6 +53,7 @@ else:
 
 
 settings = Config(os.path.join(pkgdir, "resources", "config.txt")).load()
+
 
 for envvar, value in os.environ.items():
     if envvar.startswith("GRIDSYNC_"):
@@ -131,6 +134,30 @@ else:
 
 def resource(filename):
     return os.path.join(pkgdir, "resources", filename)
+
+
+cheatcodes = []
+try:
+    for file in os.listdir(os.path.join(pkgdir, "resources", "providers")):
+        cheatcodes.append(file.split(".")[0].lower())
+except OSError:
+    pass
+
+
+def load_settings_from_cheatcode(cheatcode):
+    path = os.path.join(pkgdir, "resources", "providers", cheatcode + ".json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.loads(f.read())
+    except (OSError, json.decoder.JSONDecodeError):
+        return None
+
+
+def cheatcode_used(cheatcode: str) -> bool:
+    settings = load_settings_from_cheatcode(cheatcode)
+    if not settings:
+        return False
+    return Path(config_dir, settings.get("nickname", ""), "tahoe.cfg").exists()
 
 
 # When running frozen, Versioneer returns a version string of "0+unknown"
