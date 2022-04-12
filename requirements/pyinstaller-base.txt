@@ -27,7 +27,7 @@ pyinstaller-hooks-contrib==2022.3 \
     # via pyinstaller
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==61.3.0 \
-    --hash=sha256:425ec0e0014c5bcc1104dd1099de6c8f0584854fc9a4f512575f5ed5ee399fb9 \
-    --hash=sha256:6d59c30ce22dd583b42cacf51eebe4c6ea72febaa648aa8b30e5015d23a191fe
+setuptools==62.1.0 \
+    --hash=sha256:26ead7d1f93efc0f8c804d9fafafbe4a44b179580a7105754b245155f9af05a8 \
+    --hash=sha256:47c7b0c0f8fc10eec4cf1e71c6fdadf8decaa74ffa087e68cd1c20db7ad6a592
     # via pyinstaller
