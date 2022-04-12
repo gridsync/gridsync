@@ -304,9 +304,9 @@ treq==22.2.0 \
     --hash=sha256:27d95b07c5c14be3e7b280416139b036087617ad5595be913b1f9b3ce981b9b2 \
     --hash=sha256:df757e3f141fc782ede076a604521194ffcb40fa2645cf48e5a37060307f52ec
     # via -r requirements/gridsync.in
-twisted[tls]==22.2.0 \
-    --hash=sha256:57f32b1f6838facb8c004c89467840367ad38e9e535f8252091345dba500b4f2 \
-    --hash=sha256:5c63c149eb6b8fe1e32a0215b1cef96fabdba04f705d8efb9174b1ccf5b49d49
+twisted[tls]==22.4.0 \
+    --hash=sha256:a047990f57dfae1e0bd2b7df2526d4f16dcdc843774dc108b78c52f2a5f13680 \
+    --hash=sha256:f9f7a91f94932477a9fc3b169d57f54f96c6e74a23d78d9ce54039a7f48928a2
     # via
     #   -r requirements/gridsync.in
     #   autobahn
@@ -419,9 +419,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/gridsync.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==62.0.0 \
-    --hash=sha256:7999cbd87f1b6e1f33bf47efa368b224bed5e27b5ef2c4d46580186cbcb1a86a \
-    --hash=sha256:a65e3802053e99fc64c6b3b29c11132943d5b8c8facbcc461157511546510967
+setuptools==62.1.0 \
+    --hash=sha256:26ead7d1f93efc0f8c804d9fafafbe4a44b179580a7105754b245155f9af05a8 \
+    --hash=sha256:47c7b0c0f8fc10eec4cf1e71c6fdadf8decaa74ffa087e68cd1c20db7ad6a592
     # via
     #   autobahn
     #   zope-interface
