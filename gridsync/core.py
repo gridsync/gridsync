@@ -127,6 +127,27 @@ class Core:
             reactor.stop()  # type: ignore
 
     @inlineCallbacks
+    def _get_executable_versions(self) -> TwistedDeferred[None]:
+        try:
+            yield self.get_tahoe_version()
+        except Exception as e:  # pylint: disable=broad-except
+            logging.critical("Error getting Tahoe-LAFS version")
+            msg.critical(
+                "Error getting Tahoe-LAFS version",
+                "{}: {}".format(type(e).__name__, str(e)),
+            )
+            reactor.stop()  # type: ignore
+        try:
+            yield self.get_magic_folder_version()
+        except Exception as e:  # pylint: disable=broad-except
+            logging.critical("Error getting Magic-Folder version")
+            msg.critical(
+                "Error getting Magic-Folder version",
+                "{}: {}".format(type(e).__name__, str(e)),
+            )
+            reactor.stop()  # type: ignore
+
+    @inlineCallbacks
     def start_gateways(self):
         nodedirs = get_nodedirs(config_dir)
         if nodedirs:
@@ -159,24 +180,7 @@ class Core:
             if DEFAULT_AUTOSTART:
                 autostart_enable()
                 self.gui.preferences_window.general_pane.load_preferences()
-        try:
-            yield self.get_tahoe_version()
-        except Exception as e:  # pylint: disable=broad-except
-            logging.critical("Error getting Tahoe-LAFS version")
-            msg.critical(
-                "Error getting Tahoe-LAFS version",
-                "{}: {}".format(type(e).__name__, str(e)),
-            )
-            reactor.stop()
-        try:
-            yield self.get_magic_folder_version()
-        except Exception as e:  # pylint: disable=broad-except
-            logging.critical("Error getting Magic-Folder version")
-            msg.critical(
-                "Error getting Magic-Folder version",
-                "{}: {}".format(type(e).__name__, str(e)),
-            )
-            reactor.stop()
+        yield self._get_executable_versions()
 
     @staticmethod
     def show_message():
