@@ -154,10 +154,10 @@ def load_settings_from_cheatcode(cheatcode):
 
 
 def cheatcode_used(cheatcode: str) -> bool:
-    settings = load_settings_from_cheatcode(cheatcode)
-    if not settings:
+    s = load_settings_from_cheatcode(cheatcode)
+    if not s:
         return False
-    return Path(config_dir, settings.get("nickname", ""), "tahoe.cfg").exists()
+    return Path(config_dir, s.get("nickname", ""), "tahoe.cfg").exists()
 
 
 CONNECTION_DEFAULT = settings.get("connection", {}).get("default", "")
@@ -171,11 +171,15 @@ else:
 # When running frozen, Versioneer returns a version string of "0+unknown"
 # due to the application (typically) being executed out of the source tree
 # so load the version string from a file written at freeze-time instead.
-if getattr(sys, "frozen", False):
-    try:
-        with open(resource("version.txt"), encoding="utf-8") as f:
-            __version__ = f.read()
-    except OSError:
-        __version__ = "Unknown"
-else:
-    __version__ = get_versions()["version"]
+def get_version() -> str:
+    if getattr(sys, "frozen", False):
+        try:
+            with open(resource("version.txt"), encoding="utf-8") as f:
+                return f.read()
+        except OSError:
+            return "Unknown"
+    else:
+        return get_versions()["version"]
+
+
+__version__ = get_version()
