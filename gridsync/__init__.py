@@ -160,6 +160,14 @@ def cheatcode_used(cheatcode: str) -> bool:
     return Path(config_dir, settings.get("nickname", ""), "tahoe.cfg").exists()
 
 
+CONNECTION_DEFAULT = settings.get("connection", {}).get("default", "")
+_default_settings = load_settings_from_cheatcode(CONNECTION_DEFAULT)
+if _default_settings:
+    CONNECTION_DEFAULT_NICKNAME = _default_settings.get("nickname", "")
+else:
+    CONNECTION_DEFAULT_NICKNAME = ""
+
+
 # When running frozen, Versioneer returns a version string of "0+unknown"
 # due to the application (typically) being executed out of the source tree
 # so load the version string from a file written at freeze-time instead.
