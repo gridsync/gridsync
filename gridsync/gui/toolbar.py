@@ -58,6 +58,12 @@ class ComboBox(QComboBox):
         self.setCurrentIndex(0)
         self.current_index = 0
 
+    def activate(self, name: str) -> None:
+        for i in range(self.count()):
+            if self.itemText(i) == name:
+                self.setCurrentIndex(i)
+                return
+
 
 class ToolBar(QToolBar):
 

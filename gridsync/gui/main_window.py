@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
 )
 from twisted.internet import reactor
 
-from gridsync import APP_NAME, features, resource
+from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
 from gridsync.gui.history import HistoryView
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
@@ -158,6 +158,8 @@ class MainWindow(QMainWindow):
                     self.on_upgrade_required
                 )
         if gateways:
+            if CONNECTION_DEFAULT_NICKNAME:
+                self.toolbar.combo_box.activate(CONNECTION_DEFAULT_NICKNAME)
             self.toolbar.update_actions()  # XXX
 
     def show_news_message(self, gateway, title, message):
