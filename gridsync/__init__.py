@@ -5,6 +5,7 @@ import os
 import sys
 from collections import namedtuple
 from pathlib import Path
+from typing import Optional
 
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
@@ -132,7 +133,7 @@ else:
     )
 
 
-def resource(filename):
+def resource(filename: str) -> str:
     return os.path.join(pkgdir, "resources", filename)
 
 
@@ -144,7 +145,7 @@ except OSError:
     pass
 
 
-def load_settings_from_cheatcode(cheatcode):
+def load_settings_from_cheatcode(cheatcode: str) -> Optional[dict]:
     path = os.path.join(pkgdir, "resources", "providers", cheatcode + ".json")
     try:
         with open(path, encoding="utf-8") as f:
