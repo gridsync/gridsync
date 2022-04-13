@@ -1,8 +1,11 @@
 """Synchronize local directories with Tahoe-LAFS storage grids."""
 
+import json
 import os
 import sys
 from collections import namedtuple
+from pathlib import Path
+from typing import Optional
 
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
@@ -51,6 +54,18 @@ else:
 
 
 settings = Config(os.path.join(pkgdir, "resources", "config.txt")).load()
+
+
+for envvar, value in os.environ.items():
+    if envvar.startswith("GRIDSYNC_"):
+        words = envvar.split("_")
+        if len(words) >= 3:
+            section = words[1].lower()
+            option = "_".join(words[2:]).lower()
+            try:
+                settings[section][option] = value
+            except KeyError:
+                settings[section] = {option: value}
 
 try:
     APP_NAME = settings["application"]["name"]
@@ -118,18 +133,54 @@ else:
     )
 
 
-def resource(filename):
+def resource(filename: str) -> str:
     return os.path.join(pkgdir, "resources", filename)
+
+
+cheatcodes = []
+try:
+    for file in os.listdir(os.path.join(pkgdir, "resources", "providers")):
+        cheatcodes.append(file.split(".")[0].lower())
+except OSError:
+    pass
+
+
+def load_settings_from_cheatcode(cheatcode: str) -> Optional[dict]:
+    path = os.path.join(pkgdir, "resources", "providers", cheatcode + ".json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.loads(f.read())
+    except (OSError, json.decoder.JSONDecodeError):
+        return None
+
+
+def cheatcode_used(cheatcode: str) -> bool:
+    s = load_settings_from_cheatcode(cheatcode)
+    if not s:
+        return False
+    return Path(config_dir, s.get("nickname", ""), "tahoe.cfg").exists()
+
+
+CONNECTION_DEFAULT = settings.get("connection", {}).get("default", "")
+_default_settings = load_settings_from_cheatcode(CONNECTION_DEFAULT)
+if _default_settings:
+    CONNECTION_DEFAULT_NICKNAME = _default_settings.get("nickname", "")
+else:
+    CONNECTION_DEFAULT_NICKNAME = ""
 
 
 # When running frozen, Versioneer returns a version string of "0+unknown"
 # due to the application (typically) being executed out of the source tree
 # so load the version string from a file written at freeze-time instead.
-if getattr(sys, "frozen", False):
-    try:
-        with open(resource("version.txt"), encoding="utf-8") as f:
-            __version__ = f.read()
-    except OSError:
-        __version__ = "Unknown"
-else:
-    __version__ = get_versions()["version"]
+def get_version() -> str:
+    if getattr(sys, "frozen", False):
+        try:
+            with open(resource("version.txt"), encoding="utf-8") as f:
+                return f.read()
+        except OSError:
+            return "Unknown"
+    else:
+        return get_versions()["version"]
+
+
+__version__ = get_version()

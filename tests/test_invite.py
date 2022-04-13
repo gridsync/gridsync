@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 from unittest.mock import MagicMock
 
 import pytest
@@ -15,7 +14,7 @@ from wormhole.errors import (
 
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.invite import InviteCodeWidget, show_failure  # XXX
-from gridsync.invite import is_valid_code, load_settings_from_cheatcode
+from gridsync.invite import is_valid_code
 
 
 @pytest.mark.parametrize(
@@ -31,23 +30,6 @@ from gridsync.invite import is_valid_code, load_settings_from_cheatcode
 )
 def test_is_valid_code(code, result):
     assert is_valid_code(code) == result
-
-
-def test_load_settings_from_cheatcode(tmpdir_factory, monkeypatch):
-    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir")
-    providers_path = os.path.join(pkgdir, "resources", "providers")
-    os.makedirs(providers_path)
-    with open(os.path.join(providers_path, "test-test.json"), "w") as f:
-        f.write('{"introducer": "pb://"}')
-    monkeypatch.setattr("gridsync.invite.pkgdir", pkgdir)
-    settings = load_settings_from_cheatcode("test-test")
-    assert settings["introducer"] == "pb://"
-
-
-def test_load_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
-    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir-empty")
-    monkeypatch.setattr("gridsync.invite.pkgdir", pkgdir)
-    assert load_settings_from_cheatcode("test-test") is None
 
 
 def test_invite_code_widget_lineedit():

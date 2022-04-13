@@ -7,6 +7,7 @@ from importlib import reload
 import pytest
 
 import gridsync
+from gridsync import load_settings_from_cheatcode
 
 
 def test_the_approval_of_RMS():  # :)
@@ -54,6 +55,18 @@ def test_frozen_del_reactor_pass_without_twisted(monkeypatch):
     assert "twisted.internet.reactor" not in sys.modules
 
 
+def test_override_settings_via_environment_variables():
+    os.environ["GRIDSYNC_APPLICATION_NAME"] = "TestApp"
+    reload(gridsync)
+    assert gridsync.settings["application"]["name"] == "TestApp"
+
+
+def test_add_settings_via_environment_variables():
+    os.environ["GRIDSYNC_TEST_SETTING_X"] = "123"
+    reload(gridsync)
+    assert gridsync.settings["test"]["setting_x"] == "123"
+
+
 def test_config_dir_win32(monkeypatch):
     monkeypatch.setattr("sys.platform", "win32")
     monkeypatch.setenv("APPDATA", "C:\\Users\\test\\AppData\\Roaming")
@@ -95,3 +108,20 @@ def test_resource():
     assert gridsync.resource("test") == os.path.join(
         gridsync.pkgdir, "resources", "test"
     )
+
+
+def test_load_settings_from_cheatcode(tmpdir_factory, monkeypatch):
+    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir")
+    providers_path = os.path.join(pkgdir, "resources", "providers")
+    os.makedirs(providers_path)
+    with open(os.path.join(providers_path, "test-test.json"), "w") as f:
+        f.write('{"introducer": "pb://"}')
+    monkeypatch.setattr("gridsync.pkgdir", pkgdir)
+    settings = load_settings_from_cheatcode("test-test")
+    assert settings["introducer"] == "pb://"
+
+
+def test_load_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
+    pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir-empty")
+    monkeypatch.setattr("gridsync.pkgdir", pkgdir)
+    assert load_settings_from_cheatcode("test-test") is None

@@ -26,7 +26,7 @@ from wormhole.errors import (
     WrongPasswordError,
 )
 
-from gridsync import APP_NAME, resource
+from gridsync import APP_NAME, load_settings_from_cheatcode, resource
 from gridsync import settings as global_settings
 from gridsync.errors import AbortedByUserError, UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
@@ -34,7 +34,7 @@ from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import TahoeConfigForm
-from gridsync.invite import InviteReceiver, load_settings_from_cheatcode
+from gridsync.invite import InviteReceiver
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.tahoe import is_valid_furl

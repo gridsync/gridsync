@@ -7,7 +7,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict, Optional, Union
+from typing import TYPE_CHECKING, Dict, Optional
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
@@ -15,7 +15,6 @@ from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from PyQt5.QtCore import QModelIndex
     from gridsync.view import View
 
@@ -158,7 +157,7 @@ class Model(QStandardItemModel):
             self.removeRow(items[0].row())
 
     def update_folder_icon(
-        self, folder_name: str, overlay_file: Optional[Union[Path, str]] = ""
+        self, folder_name: str, overlay_file: Optional[str] = ""
     ) -> None:
         items = self.findItems(folder_name)
         if items:
@@ -290,7 +289,7 @@ class Model(QStandardItemModel):
             item.setText("Syncing ({}%)".format(percent_done))
 
     def fade_row(
-        self, folder_name: str, overlay_file: Optional[Union[Path, str]] = ""
+        self, folder_name: str, overlay_file: Optional[str] = ""
     ) -> None:
         try:
             folder_item = self.findItems(folder_name)[0]
@@ -354,7 +353,7 @@ class Model(QStandardItemModel):
     @pyqtSlot(str)
     @pyqtSlot(str, str)
     def add_remote_folder(
-        self, folder_name: str, overlay_file: Optional[Union[Path, str]] = ""
+        self, folder_name: str, overlay_file: Optional[str] = ""
     ) -> None:
         self.add_folder(folder_name)
         self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
