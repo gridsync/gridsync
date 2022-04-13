@@ -7,7 +7,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict, Optional, Union
+from typing import TYPE_CHECKING, Dict, Optional
 
 from humanize import naturalsize, naturaltime
 from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
@@ -15,7 +15,6 @@ from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from PyQt5.QtCore import QModelIndex
     from gridsync.view import View
 
