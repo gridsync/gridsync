@@ -164,6 +164,10 @@ magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
     --hash=sha256:7c9a8d2a6e89314878dda23efc14c78398f1b6eb80e6c86c895c001c888d086e
     # via -r requirements/gridsync.in
+packaging==21.3 \
+    --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
+    --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
+    # via qtpy
 pyasn1==0.4.8 \
     --hash=sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d \
     --hash=sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba
@@ -196,6 +200,10 @@ pyopenssl==22.0.0 \
     --hash=sha256:660b1b1425aac4a1bea1d94168a85d99f0b3144c869dd4390d27629d0087f1bf \
     --hash=sha256:ea252b38c87425b64116f808355e8da644ef9b07e429398bfece610f893ee2e0
     # via twisted
+pyparsing==3.0.8 \
+    --hash=sha256:7bf433498c016c4314268d95df76c81b842a4cb2b276fa3312cfb1e1d85f6954 \
+    --hash=sha256:ef7b523f6356f763771559412c0d7134753f037822dad1b16945b7b846f7ad06
+    # via packaging
 pyqt5==5.15.1 \
     --hash=sha256:17a6d5258796bae16e447aa3efa00258425c09cf88ef68238762628a5dde7c6f \
     --hash=sha256:4e47021c2b8e89a3bc64247dfb224144e5c8d77e3ab44f3842d120aab6b3cbd4 \
@@ -276,6 +284,10 @@ pyyaml==6.0 \
 qt5reactor==0.6.3 \
     --hash=sha256:3f01afa5874f51fbfe3cfb7a5fc4cbfcf7b65ddb603824daf145e44c370a225b \
     --hash=sha256:c3470a8a25d9a339f9ca6243502a9b2277f181d772b7acbff551d5bc363b7572
+    # via -r requirements/gridsync.in
+qtpy==2.0.1 \
+    --hash=sha256:adfd073ffbd2de81dc7aaa0b983499ef5c59c96adcfdcc9dea60d42ca885eb8f \
+    --hash=sha256:d93f2c98e97387fcc9d623d509772af5b6c15ab9d8f9f4c5dfbad9a73ad34812
     # via -r requirements/gridsync.in
 requests==2.27.1 \
     --hash=sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61 \
