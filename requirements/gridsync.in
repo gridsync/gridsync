@@ -22,6 +22,7 @@ pyqt5-sip == 12.8.1
 pyqtchart == 5.15.1
 pyyaml
 qt5reactor
+qtpy
 treq
 # Twisted 21.7.0 adds Deferred type hinting/annotations
 twisted[tls] >= 21.7.0
