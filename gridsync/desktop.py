@@ -85,9 +85,9 @@ def notify(systray, title, message, duration=5000):
     logging.debug("Sending desktop notification...")
     if sys.platform.startswith("linux"):
         try:
-            _dbus_notify(title, message, duration)
-        except (OSError, RuntimeError) as err:
-            logging.warning("%s; falling back to showMessage()...", str(err))
+            _txdbus_notify(title, message, duration)
+        except Exception as exc:  # pylint: disable=broad-except
+            logging.warning("%s; falling back to showMessage()...", str(exc))
             systray.showMessage(title, message, msecs=duration)
     else:
         systray.showMessage(title, message, msecs=duration)
