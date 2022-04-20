@@ -35,10 +35,11 @@ app = QApplication(sys.argv)
 # qtreactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
 # See https://github.com/twisted/qt5reactor/blob/master/README.rst
-from gridsync import qtreactor
+from gridsync import qtreactor  # pylint: disable=ungrouped-imports
 
 qtreactor.install()
 
+# pylint: disable=wrong-import-order
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.python.log import PythonLoggingObserver, startLogging
