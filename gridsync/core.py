@@ -34,10 +34,10 @@ app = QApplication(sys.argv)
 
 # qt5reactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
-# See https://github.com/gridsync/qt5reactor/blob/master/README.rst
-import qt5reactor
+# See https://github.com/twisted/qt5reactor/blob/master/README.rst
+from gridsync import qtreactor
 
-qt5reactor.install()
+qtreactor.install()
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
