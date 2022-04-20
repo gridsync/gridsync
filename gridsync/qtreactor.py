@@ -434,7 +434,6 @@ if runtime.platform.getType() == "win32":
         QS_ALLINPUT,
         WAIT_OBJECT_0,
         WAIT_TIMEOUT,
-        CreateEvent,
         MsgWaitForMultipleObjects,
     )
 
