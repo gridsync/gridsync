@@ -83,7 +83,7 @@ def _txdbus_notify(title, message, duration=5000):
 
 def notify(systray, title, message, duration=5000):
     logging.debug("Sending desktop notification...")
-    if sys.platform.startswith("linux"):
+    if sys.platform not in ("darwin", "win32"):
         try:
             _txdbus_notify(title, message, duration)
         except Exception as exc:  # pylint: disable=broad-except
