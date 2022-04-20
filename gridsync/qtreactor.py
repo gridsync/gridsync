@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
+# pylint: skip-file
 # Copyright (c) 2001-2018
 # Allen Short
 # Andy Gayton
