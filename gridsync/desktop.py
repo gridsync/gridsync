@@ -7,7 +7,7 @@ import sys
 import webbrowser
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QCoreApplication, QMetaType, QUrl, QVariant
+from PyQt5.QtCore import QCoreApplication, QUrl
 from PyQt5.QtGui import QClipboard, QDesktopServices
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
@@ -19,6 +19,7 @@ from gridsync import APP_NAME, autostart_file_path, resource, settings
 
 
 def _dbus_notify(title, message, duration=5000):
+    from PyQt5.QtCore import QMetaType, QVariant
     from PyQt5.QtDBus import (
         QDBus,
         QDBusArgument,
