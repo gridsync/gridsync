@@ -32,7 +32,7 @@ QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
 
 app = QApplication(sys.argv)
 
-# qt5reactor must be 'installed' after initializing QApplication but
+# qtreactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
 # See https://github.com/twisted/qt5reactor/blob/master/README.rst
 from gridsync import qtreactor
