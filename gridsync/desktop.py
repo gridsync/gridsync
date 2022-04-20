@@ -9,6 +9,8 @@ import webbrowser
 from atomicwrites import atomic_write
 from PyQt5.QtCore import QCoreApplication, QMetaType, QUrl, QVariant
 from PyQt5.QtGui import QClipboard, QDesktopServices
+from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
 
 if sys.platform == "win32":
     from win32com.client import Dispatch  # pylint: disable=import-error
@@ -54,6 +56,29 @@ def _dbus_notify(title, message, duration=5000):
         {},
         duration,
     )
+
+
+@inlineCallbacks
+def _txdbus_notify(title, message, duration=5000):
+    from txdbus import client  # pylint: disable=import-error
+
+    conn = yield client.connect(reactor)
+    robj = yield conn.getRemoteObject(
+        "org.freedesktop.Notifications", "/org/freedesktop/Notifications"
+    )
+    reply = yield robj.callRemote(
+        "Notify",
+        APP_NAME,
+        0,
+        resource(settings["application"]["tray_icon"]),
+        title,
+        message,
+        [],
+        {},
+        duration,
+    )
+    logging.debug("Got reply from DBus: %s", reply)
+    yield conn.disconnect()
 
 
 def notify(systray, title, message, duration=5000):
