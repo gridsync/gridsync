@@ -63,7 +63,7 @@ def test_notify_call__dbus_notify(monkeypatch):
         dbus_notify_args[2] = duration
 
     monkeypatch.setattr("sys.platform", "linux")
-    monkeypatch.setattr("gridsync.desktop._dbus_notify", fake_dbus_notify)
+    monkeypatch.setattr("gridsync.desktop._txdbus_notify", fake_dbus_notify)
     notify(None, "test_title", "test_message", 9001)
     assert dbus_notify_args == ["test_title", "test_message", 9001]
 
@@ -81,7 +81,7 @@ def test_notify_call__dbus_notify_fallback_on_error(error, monkeypatch):
     fake_systray.showMessage = fake_show_message
     monkeypatch.setattr("sys.platform", "linux")
     monkeypatch.setattr(
-        "gridsync.desktop._dbus_notify", MagicMock(side_effect=error)
+        "gridsync.desktop._txdbus_notify", MagicMock(side_effect=error)
     )
     notify(fake_systray, "test_title", "test_message", 9001)
     assert show_message_args == ["test_title", "test_message", 9001]
@@ -97,7 +97,7 @@ def test_notify_call_systray_show_message(monkeypatch):
 
     fake_systray = MagicMock()
     fake_systray.showMessage = fake_show_message
-    monkeypatch.setattr("sys.platform", "NOT_linux")
+    monkeypatch.setattr("sys.platform", "win32")
     notify(fake_systray, "test_title", "test_message", 9001)
     assert show_message_args == ["test_title", "test_message", 9001]
 
