@@ -28,7 +28,10 @@ else:
     )
 
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
+try:
+    QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
+except AttributeError:  # Not available in Qt6
+    pass
 
 app = QApplication(sys.argv)
 
