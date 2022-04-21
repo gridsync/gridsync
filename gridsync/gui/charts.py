@@ -5,7 +5,7 @@ import datetime as dt
 from typing import TYPE_CHECKING, Union
 
 from humanize import naturaldelta
-from qtpy.QtChart import (
+from qtpy.QtCharts import (
     QBarSet,
     QChart,
     QChartView,
