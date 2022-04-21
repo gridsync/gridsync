@@ -24,7 +24,7 @@ from gridsync.desktop import (
 
 def test__dbus_notify_bus_not_connected(monkeypatch):
     monkeypatch.setattr(
-        "PyQt5.QtDBus.QDBusConnection.isConnected", lambda _: False
+        "qtpy.QtDBus.QDBusConnection.isConnected", lambda _: False
     )
     with pytest.raises(OSError):
         _dbus_notify("", "")
@@ -32,9 +32,9 @@ def test__dbus_notify_bus_not_connected(monkeypatch):
 
 def test__dbus_notify_interface_error(monkeypatch):
     monkeypatch.setattr(
-        "PyQt5.QtDBus.QDBusConnection.isConnected", lambda _: True
+        "qtpy.QtDBus.QDBusConnection.isConnected", lambda _: True
     )
-    monkeypatch.setattr("PyQt5.QtDBus.QDBusError.type", lambda _: 9999)
+    monkeypatch.setattr("qtpy.QtDBus.QDBusError.type", lambda _: 9999)
     with pytest.raises(RuntimeError):
         _dbus_notify("", "")
 
@@ -46,10 +46,10 @@ def test__dbus_notify_interface_called(monkeypatch):
         was_called[0] = True
 
     monkeypatch.setattr(
-        "PyQt5.QtDBus.QDBusConnection.isConnected", lambda _: True
+        "qtpy.QtDBus.QDBusConnection.isConnected", lambda _: True
     )
-    monkeypatch.setattr("PyQt5.QtDBus.QDBusError.type", lambda _: 0)
-    monkeypatch.setattr("PyQt5.QtDBus.QDBusInterface.call", fake_call)
+    monkeypatch.setattr("qtpy.QtDBus.QDBusError.type", lambda _: 0)
+    monkeypatch.setattr("qtpy.QtDBus.QDBusInterface.call", fake_call)
     _dbus_notify("", "")
     assert was_called[0] is True
 
@@ -104,9 +104,9 @@ def test_notify_call_systray_show_message(monkeypatch):
 
 def test__desktop_open_call_qdesktopservices_openurl(monkeypatch):
     fromlocalfile_mock = MagicMock()
-    monkeypatch.setattr("PyQt5.QtCore.QUrl.fromLocalFile", fromlocalfile_mock)
+    monkeypatch.setattr("qtpy.QtCore.QUrl.fromLocalFile", fromlocalfile_mock)
     openurl_mock = MagicMock()
-    monkeypatch.setattr("PyQt5.QtGui.QDesktopServices.openUrl", openurl_mock)
+    monkeypatch.setattr("qtpy.QtGui.QDesktopServices.openUrl", openurl_mock)
     _desktop_open("/test/path/file.txt")
     assert openurl_mock.call_count == 1 and fromlocalfile_mock.mock_calls == [
         call("/test/path/file.txt")

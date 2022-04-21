@@ -8,9 +8,9 @@ import time
 from datetime import datetime, timezone
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, QSize, Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QFontDatabase, QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QObject, QSize, Qt, QThread, pyqtSignal
+from qtpy.QtGui import QFontDatabase, QIcon
+from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
     QFileDialog,

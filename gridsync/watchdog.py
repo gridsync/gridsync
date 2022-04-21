@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Dict
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, pyqtSignal
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 

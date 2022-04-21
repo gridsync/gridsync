@@ -6,10 +6,10 @@ import os
 import sys
 from typing import TYPE_CHECKING, Optional
 
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtCore import pyqtSignal as Signal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QSize, Qt
+from qtpy.QtCore import pyqtSignal as Signal
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import (
     QAction,
     QComboBox,
     QMenu,

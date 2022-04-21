@@ -6,9 +6,9 @@ import sys
 import traceback
 from pathlib import Path
 
-from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
-from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
+from qtpy.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
+from qtpy.QtWidgets import (
     QAbstractItemView,
     QAction,
     QCheckBox,

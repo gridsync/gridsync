@@ -5,15 +5,15 @@ import datetime as dt
 from typing import TYPE_CHECKING, Union
 
 from humanize import naturaldelta
-from PyQt5.QtChart import (
+from qtpy.QtChart import (
     QBarSet,
     QChart,
     QChartView,
     QHorizontalPercentBarSeries,
     QPieSeries,
 )
-from PyQt5.QtCore import QMargins, Qt
-from PyQt5.QtGui import QColor, QPainter, QPalette, QPen
+from qtpy.QtCore import QMargins, Qt
+from qtpy.QtGui import QColor, QPainter, QPalette, QPen
 
 from gridsync.gui.color import is_dark
 from gridsync.gui.font import Font

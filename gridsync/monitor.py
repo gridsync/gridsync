@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import attr
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, pyqtSignal
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall

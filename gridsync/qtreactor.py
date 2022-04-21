@@ -378,7 +378,7 @@ def win32install():
     """Install the Qt reactor."""
     from twisted.internet.main import installReactor
 
-    # As of PyQt5==5.15.0 on Windows, pytest-twisted started hanging in a test
+    # As of qtpy.=5.15.0 on Windows, pytest-twisted started hanging in a test
     # where it installs the qt5reactor twice.  This does occur across Python
     # versions 3.5/6/7/8 but not with PySide2 or on macOS or Linux.  I have not
     # fully isolated the issue but my present guess is that it relates to

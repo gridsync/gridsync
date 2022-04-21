@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, QPropertyAnimation, QThread, pyqtSignal
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
+from qtpy.QtCore import QObject, QPropertyAnimation, QThread, pyqtSignal
+from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
 from gridsync import APP_NAME
 from gridsync.crypto import Crypter

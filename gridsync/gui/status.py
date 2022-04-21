@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from humanize import naturalsize
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QSize, Qt
+from qtpy.QtCore import pyqtSlot as Slot
+from qtpy.QtGui import QIcon, QMovie
+from qtpy.QtWidgets import (
     QAction,
     QGridLayout,
     QLabel,

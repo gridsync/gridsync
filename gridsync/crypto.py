@@ -8,7 +8,7 @@ from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
 from nacl.utils import random
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, pyqtSignal
 
 from gridsync.util import b58decode, b58encode
 

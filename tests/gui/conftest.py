@@ -5,7 +5,7 @@ pytest configuration for GridSync's GUI tests.
 from unittest.mock import MagicMock
 
 import pytest
-from PyQt5.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication
 from twisted.python.filepath import FilePath
 
 from gridsync.gui import Gui

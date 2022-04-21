@@ -7,7 +7,7 @@ import time
 from random import randint
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, pyqtSignal
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import deferLater

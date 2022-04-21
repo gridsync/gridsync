@@ -3,9 +3,9 @@
 import logging as log
 import sys
 
-from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QCoreApplication, Qt
+from qtpy.QtGui import QIcon, QKeySequence
+from qtpy.QtWidgets import (
     QGridLayout,
     QLabel,
     QMessageBox,

@@ -3,9 +3,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Tuple
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import (
     QAction,
     QDialog,
     QDialogButtonBox,
@@ -23,7 +23,7 @@ from gridsync import resource
 from gridsync.gui.font import Font
 
 if TYPE_CHECKING:
-    from PyQt5.QtCore import QEvent
+    from qtpy.QtCore import QEvent
 
 
 class PasswordDialog(QDialog):

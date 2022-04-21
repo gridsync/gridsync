@@ -2,7 +2,7 @@
 
 import sys
 
-from PyQt5.QtWidgets import QMessageBox, QWidget
+from qtpy.QtWidgets import QMessageBox, QWidget
 
 
 def critical(title, text):

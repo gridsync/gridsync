@@ -11,8 +11,8 @@ from urllib.parse import urlparse
 
 import treq
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
+from qtpy.QtCore import QObject, Qt, pyqtSignal
+from qtpy.QtWidgets import QInputDialog, QMessageBox, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 

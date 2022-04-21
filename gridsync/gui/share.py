@@ -6,9 +6,9 @@ import sys
 from datetime import datetime
 
 import wormhole.errors
-from PyQt5.QtCore import QFileInfo, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QFileInfo, Qt, QTimer, pyqtSignal
+from qtpy.QtGui import QFont, QIcon
+from qtpy.QtWidgets import (
     QDialog,
     QFileIconProvider,
     QGridLayout,

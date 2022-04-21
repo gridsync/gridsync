@@ -5,9 +5,9 @@ import time
 from datetime import datetime
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, Qt, QTimer
-from PyQt5.QtGui import QCursor, QIcon, QPixmap
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QFileInfo, Qt, QTimer
+from qtpy.QtGui import QCursor, QIcon, QPixmap
+from qtpy.QtWidgets import (
     QAbstractItemView,
     QAction,
     QFileIconProvider,

@@ -10,12 +10,12 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Dict, Optional
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
-from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
+from qtpy.QtCore import QFileInfo, QSize, Qt, pyqtSlot
+from qtpy.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
+from qtpy.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 if TYPE_CHECKING:
-    from PyQt5.QtCore import QModelIndex
+    from qtpy.QtCore import QModelIndex
     from gridsync.view import View
 
 from gridsync import config_dir, resource

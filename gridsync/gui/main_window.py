@@ -5,9 +5,9 @@ import os
 import sys
 from pathlib import Path
 
-from PyQt5.QtCore import QItemSelectionModel, QSize, Qt, QTimer
-from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QItemSelectionModel, QSize, Qt, QTimer
+from qtpy.QtGui import QIcon, QKeySequence
+from qtpy.QtWidgets import (
     QGridLayout,
     QMainWindow,
     QMessageBox,

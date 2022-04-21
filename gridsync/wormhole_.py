@@ -6,7 +6,7 @@
 import json
 import logging
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, pyqtSignal
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from wormhole import wormhole
