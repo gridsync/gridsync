@@ -2,13 +2,7 @@
 
 import sys
 
-from qtpy.QtCore import (
-    QPropertyAnimation,
-    QSize,
-    QStringListModel,
-    Qt,
-    Signal,
-)
+from qtpy.QtCore import QPropertyAnimation, QSize, QStringListModel, Qt, Signal
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
     QAction,

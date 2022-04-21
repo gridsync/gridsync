@@ -4,8 +4,8 @@ from collections import namedtuple
 from unittest.mock import MagicMock
 
 import pytest
-from qtpy.QtWidgets import QMessageBox
 from pytest_twisted import inlineCallbacks
+from qtpy.QtWidgets import QMessageBox
 
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 
