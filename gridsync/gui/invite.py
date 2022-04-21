@@ -179,10 +179,14 @@ class InviteCodeWidget(QWidget):
 
         label_layout = QGridLayout()
         label_layout.setHorizontalSpacing(6)
-        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        label_layout.addItem(
+            QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Fixed), 1, 1
+        )
         label_layout.addWidget(self.label, 1, 2, Qt.AlignCenter)
         label_layout.addWidget(self.code_info_button, 1, 3, Qt.AlignLeft)
-        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        label_layout.addItem(
+            QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Fixed), 1, 5
+        )
 
         self.lineedit = InviteCodeLineEdit(self)
 
