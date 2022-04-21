@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from atomicwrites import atomic_write
-from qtpy.QtCore import QObject, QPropertyAnimation, QThread, pyqtSignal
+from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
 from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
 from gridsync import APP_NAME
@@ -17,7 +17,7 @@ from gridsync.msg import error, question
 
 class RecoveryKeyExporter(QObject):
 
-    done = pyqtSignal(str)
+    done = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -119,7 +119,7 @@ class RecoveryKeyExporter(QObject):
 
 class RecoveryKeyImporter(QObject):
 
-    done = pyqtSignal(dict)
+    done = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__()

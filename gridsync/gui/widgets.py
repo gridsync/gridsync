@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from qtpy.QtCore import pyqtSignal as Signal
+from qtpy.QtCore import Signal
 from qtpy.QtWidgets import (
     QComboBox,
     QDialogButtonBox,

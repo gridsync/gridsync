@@ -20,8 +20,7 @@ from typing import (
 )
 
 import treq
-from qtpy.QtCore import QObject
-from qtpy.QtCore import pyqtSignal as Signal
+from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.task import deferLater

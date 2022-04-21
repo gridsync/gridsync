@@ -6,8 +6,7 @@ import os
 import sys
 from typing import TYPE_CHECKING, Optional
 
-from qtpy.QtCore import QSize, Qt
-from qtpy.QtCore import pyqtSignal as Signal
+from qtpy.QtCore import QSize, Qt, Signal
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
     QAction,

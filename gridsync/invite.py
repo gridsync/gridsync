@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from qtpy.QtCore import QObject
-from qtpy.QtCore import pyqtSignal as Signal
+from qtpy.QtCore import QObject, Signal
 from twisted.internet.defer import DeferredList, inlineCallbacks
 
 try:

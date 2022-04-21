@@ -7,7 +7,7 @@ from qtpy.QtCore import (
     QSize,
     QStringListModel,
     Qt,
-    pyqtSignal,
+    Signal,
 )
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
@@ -61,8 +61,8 @@ class InviteCodeCompleter(QCompleter):
 
 class InviteCodeLineEdit(QLineEdit):
 
-    error = pyqtSignal(str)
-    go = pyqtSignal(str)
+    error = Signal(str)
+    go = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__()

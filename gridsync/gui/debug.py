@@ -8,7 +8,7 @@ import time
 from datetime import datetime, timezone
 
 from atomicwrites import atomic_write
-from qtpy.QtCore import QObject, QSize, Qt, QThread, pyqtSignal
+from qtpy.QtCore import QObject, QSize, Qt, QThread, Signal
 from qtpy.QtGui import QFontDatabase, QIcon
 from qtpy.QtWidgets import (
     QCheckBox,
@@ -82,7 +82,7 @@ def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
 
 class LogLoader(QObject):
 
-    done = pyqtSignal()
+    done = Signal()
 
     def __init__(self, core):
         super().__init__()

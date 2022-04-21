@@ -6,7 +6,7 @@ import sys
 from datetime import datetime
 
 import wormhole.errors
-from qtpy.QtCore import QFileInfo, Qt, QTimer, pyqtSignal
+from qtpy.QtCore import QFileInfo, Qt, QTimer, Signal
 from qtpy.QtGui import QFont, QIcon
 from qtpy.QtWidgets import (
     QDialog,
@@ -37,8 +37,8 @@ from gridsync.util import b58encode, humanized_list
 
 
 class InviteSenderDialog(QDialog):
-    done = pyqtSignal(QWidget)
-    closed = pyqtSignal(QWidget)
+    done = Signal(QWidget)
+    closed = Signal(QWidget)
 
     def __init__(self, gateway, gui, folder_names=None):
         super().__init__()
@@ -318,8 +318,8 @@ class InviteSenderDialog(QDialog):
 
 
 class InviteReceiverDialog(QDialog):
-    done = pyqtSignal(object)  # Tahoe gateway
-    closed = pyqtSignal(QWidget)
+    done = Signal(object)  # Tahoe gateway
+    closed = Signal(QWidget)
 
     def __init__(self, gateways):
         super().__init__()
