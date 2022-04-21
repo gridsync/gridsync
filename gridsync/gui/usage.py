@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, List
 
 import attr
 from humanize import naturalsize
-from qtpy.QtCore import Qt
-from qtpy.QtCore import pyqtSlot as Slot
+from qtpy.QtCore import Qt, Slot
 from qtpy.QtGui import QIcon, QPainter
 from qtpy.QtWidgets import (
     QGridLayout,

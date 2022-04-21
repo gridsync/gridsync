@@ -5,8 +5,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from humanize import naturalsize
-from qtpy.QtCore import QSize, Qt
-from qtpy.QtCore import pyqtSlot as Slot
+from qtpy.QtCore import QSize, Qt, Slot
 from qtpy.QtGui import QIcon, QMovie
 from qtpy.QtWidgets import (
     QAction,
