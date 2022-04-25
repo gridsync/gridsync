@@ -109,7 +109,10 @@ class ZKAPBarChart(QChart):
         series.append(self.set_expected)
 
         self.addSeries(series)
-        self.setAnimationOptions(QChart.SeriesAnimations)
+        try:
+            self.setAnimationOptions(QChart.SeriesAnimations)
+        except AttributeError:  # Moved(?) in (Py)Qt6
+            self.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
         self.setBackgroundVisible(False)
 
         self.layout().setContentsMargins(0, 0, 0, 0)
