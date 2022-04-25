@@ -44,7 +44,7 @@ class StatusPanel(QWidget):
         self.syncing_icon = QLabel()
 
         self.sync_movie = QMovie(resource("sync.gif"))
-        self.sync_movie.setCacheMode(True)
+        self.sync_movie.setCacheMode(QMovie.CacheAll)
         self.sync_movie.updated.connect(
             lambda: self.syncing_icon.setPixmap(
                 self.sync_movie.currentPixmap().scaled(
