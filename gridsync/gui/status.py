@@ -7,15 +7,7 @@ from typing import TYPE_CHECKING
 from humanize import naturalsize
 from qtpy.QtCore import QSize, Qt, Slot
 from qtpy.QtGui import QIcon, QMovie
-from qtpy.QtWidgets import (
-    QAction,
-    QGridLayout,
-    QLabel,
-    QSizePolicy,
-    QSpacerItem,
-    QToolButton,
-    QWidget,
-)
+from qtpy.QtWidgets import QAction, QGridLayout, QLabel, QToolButton, QWidget
 
 from gridsync import resource
 
@@ -28,6 +20,7 @@ from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
+from gridsync.gui.widgets import HSpacer
 from gridsync.magic_folder import MagicFolderStatus
 
 
@@ -125,7 +118,7 @@ class StatusPanel(QWidget):
         layout.addWidget(self.error_icon, 1, 1)
         layout.addWidget(self.syncing_icon, 1, 1)
         layout.addWidget(self.status_label, 1, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
+        layout.addItem(HSpacer(), 1, 3)
         # layout.addWidget(zkap_chart_view, 1, 5)
         # layout.addWidget(self.zkap_label, 1, 5)
         layout.addWidget(self.stored_label, 1, 6)

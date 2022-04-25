@@ -14,13 +14,12 @@ from qtpy.QtWidgets import (
     QLabel,
     QLineEdit,
     QProgressBar,
-    QSizePolicy,
-    QSpacerItem,
 )
 from zxcvbn import zxcvbn
 
 from gridsync import resource
 from gridsync.gui.font import Font
+from gridsync.gui.widgets import VSpacer
 
 if TYPE_CHECKING:
     from qtpy.QtCore import QEvent
@@ -101,7 +100,7 @@ class PasswordDialog(QDialog):
             gbox.setLayout(gbox_layout)
             layout.addWidget(gbox, 5, 1)
 
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addItem(VSpacer(), 6, 1)
         layout.addWidget(self.button_box, 7, 1)
 
     def update_color(self, color: str) -> None:

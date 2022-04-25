@@ -11,15 +11,7 @@ import attr
 from humanize import naturalsize
 from qtpy.QtCore import Qt, Slot
 from qtpy.QtGui import QIcon, QPainter
-from qtpy.QtWidgets import (
-    QGridLayout,
-    QGroupBox,
-    QLabel,
-    QPushButton,
-    QSizePolicy,
-    QSpacerItem,
-    QWidget,
-)
+from qtpy.QtWidgets import QGridLayout, QGroupBox, QLabel, QPushButton, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -29,6 +21,7 @@ from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
+from gridsync.gui.widgets import VSpacer
 from gridsync.msg import error
 from gridsync.types import TwistedDeferred
 
@@ -182,20 +175,20 @@ class UsageView(QWidget):
     @groupbox.default
     def _groupbox_default(self) -> QGroupBox:
         layout = QGridLayout()
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
+        layout.addItem(VSpacer(), 10, 0)
         layout.addWidget(self.title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.redeeming_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addWidget(self.loading_storage_time, 50, 0)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
+        layout.addItem(VSpacer(), 50, 0)
         layout.addWidget(self.chart_view, 60, 0)
         layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
+        layout.addItem(VSpacer(), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.status_label, 110, 0, 1, 1, Qt.AlignCenter)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
+        layout.addItem(VSpacer(), 110, 0)
 
         groupbox = QGroupBox()
         groupbox.setLayout(layout)

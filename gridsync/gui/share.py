@@ -17,8 +17,6 @@ from qtpy.QtWidgets import (
     QMessageBox,
     QProgressBar,
     QPushButton,
-    QSizePolicy,
-    QSpacerItem,
     QToolButton,
     QWidget,
 )
@@ -30,6 +28,7 @@ from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
+from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.preferences import get_preference
 from gridsync.tor import TOR_PURPLE
@@ -76,14 +75,10 @@ class InviteSenderDialog(QDialog):
         header_text.setAlignment(Qt.AlignCenter)
 
         header_layout = QGridLayout()
-        header_layout.addItem(
-            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1
-        )
+        header_layout.addItem(HSpacer(), 1, 1)
         header_layout.addWidget(header_icon, 1, 2)
         header_layout.addWidget(header_text, 1, 3)
-        header_layout.addItem(
-            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4
-        )
+        header_layout.addItem(HSpacer(), 1, 4)
 
         self.subtext_label = QLabel(self)
         self.subtext_label.setFont(Font(10))
@@ -124,11 +119,11 @@ class InviteSenderDialog(QDialog):
         self.copy_button.hide()
 
         box_layout = QGridLayout(self.box)
-        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        box_layout.addItem(HSpacer(), 1, 1)
         box_layout.addWidget(self.noise_label, 1, 2)
         box_layout.addWidget(self.code_label, 1, 3)
         box_layout.addWidget(self.copy_button, 1, 4)
-        box_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        box_layout.addItem(HSpacer(), 1, 5)
 
         self.close_button = QPushButton("Close and cancel invite")
         self.close_button.setAutoDefault(False)
@@ -151,14 +146,14 @@ class InviteSenderDialog(QDialog):
         self.progress_bar.hide()
 
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addItem(VSpacer(), 0, 0)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
+        layout.addItem(HSpacer(), 1, 3)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
         layout.addLayout(header_layout, 1, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 2, 1)
+        layout.addItem(VSpacer(), 2, 1)
         layout.addWidget(self.box_title, 3, 2, 1, 3)
         layout.addWidget(self.checkmark, 3, 3)
         layout.addWidget(
@@ -167,9 +162,9 @@ class InviteSenderDialog(QDialog):
         layout.addWidget(self.box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addWidget(self.subtext_label, 5, 2, 1, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addItem(VSpacer(), 6, 1)
         layout.addWidget(self.close_button, 7, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 8, 1)
+        layout.addItem(VSpacer(), 8, 1)
 
         self.copy_button.clicked.connect(self.on_copy_button_clicked)
         self.close_button.clicked.connect(self.close)
@@ -374,15 +369,15 @@ class InviteReceiverDialog(QDialog):
         self.close_button.clicked.connect(self.close)
 
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
+        layout.addItem(VSpacer(), 0, 0)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
+        layout.addItem(HSpacer(), 1, 3)
         layout.addWidget(self.mail_closed_icon, 1, 2, 1, 3)
         layout.addWidget(self.mail_open_icon, 1, 2, 1, 3)
         layout.addWidget(self.folder_icon, 1, 2, 1, 3)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
         layout.addWidget(self.invite_code_widget, 2, 2, 1, 3)
         layout.addWidget(self.checkmark, 2, 3, 1, 1)
         layout.addWidget(
@@ -392,7 +387,7 @@ class InviteReceiverDialog(QDialog):
         layout.addWidget(self.message_label, 5, 1, 1, 5)
         layout.addWidget(self.error_label, 5, 2, 1, 3)
         layout.addWidget(self.close_button, 6, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 7, 1)
+        layout.addItem(VSpacer(), 7, 1)
 
         self.reset()
 

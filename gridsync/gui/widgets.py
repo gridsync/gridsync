@@ -21,6 +21,16 @@ from twisted.internet.defer import inlineCallbacks
 from gridsync.tor import get_tor
 
 
+class VSpacer(QSpacerItem):
+    def __init__(self):
+        super().__init__(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+
+class HSpacer(QSpacerItem):
+    def __init__(self):
+        super().__init__(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+
 class ClickableLabel(QLabel):
 
     clicked = Signal()

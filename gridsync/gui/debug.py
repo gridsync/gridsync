@@ -18,8 +18,6 @@ from qtpy.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
-    QSizePolicy,
-    QSpacerItem,
 )
 
 from gridsync import APP_NAME, __version__, resource
@@ -31,6 +29,7 @@ from gridsync.filter import (
     get_mask,
     join_eliot_logs,
 )
+from gridsync.gui.widgets import HSpacer
 from gridsync.msg import error
 
 if sys.platform == "darwin":
@@ -204,9 +203,7 @@ class DebugExporter(QDialog):
 
         bottom_layout = QGridLayout()
         bottom_layout.addLayout(checkbox_layout, 1, 1)
-        bottom_layout.addItem(
-            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2
-        )
+        bottom_layout.addItem(HSpacer(), 1, 2)
         bottom_layout.addLayout(buttons_layout, 1, 3)
 
         layout = QGridLayout(self)

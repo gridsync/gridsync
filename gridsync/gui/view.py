@@ -17,8 +17,6 @@ from qtpy.QtWidgets import (
     QHeaderView,
     QMenu,
     QMessageBox,
-    QSizePolicy,
-    QSpacerItem,
     QStyledItemDelegate,
     QTreeView,
 )
@@ -30,7 +28,7 @@ from gridsync.gui.font import Font
 from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
-from gridsync.gui.widgets import ClickableLabel
+from gridsync.gui.widgets import ClickableLabel, HSpacer, VSpacer
 from gridsync.magic_folder import MagicFolderStatus
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
@@ -143,12 +141,12 @@ class View(QTreeView):
         self.add_folder_label.installEventFilter(self)
 
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
+        layout.addItem(VSpacer(), 1, 1)
         layout.addWidget(self.add_folder_icon, 2, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 3, 1)
+        layout.addItem(HSpacer(), 3, 1)
         layout.addWidget(self.add_folder_label, 3, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 3, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 4, 1)
+        layout.addItem(HSpacer(), 3, 3)
+        layout.addItem(VSpacer(), 4, 1)
 
         self.add_folder_icon.clicked.connect(self.select_folder)
         self.add_folder_label.clicked.connect(self.select_folder)
