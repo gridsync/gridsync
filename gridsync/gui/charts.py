@@ -118,7 +118,7 @@ class ZKAPBarChart(QChart):
         self.layout().setContentsMargins(0, 0, 0, 0)
         legend = self.legend()
         palette = self.palette()
-        if is_dark(palette.color(QPalette.Background)):
+        if is_dark(palette.color(QPalette.Window)):
             # The legend label text does not seem to be dark mode-aware
             # and will appear dark grey with macOS dark mode enabled,
             # making the labels illegible. This may be a bug with
