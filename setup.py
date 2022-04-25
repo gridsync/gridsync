@@ -44,15 +44,8 @@ if qt_api not in qt_requirements:
 requirements += qt_requirements[qt_api]
 
 
-if sys.platform.startswith("linux") and (struct.calcsize("P") * 8) == 32:
-    try:
-        import PyQt5  # noqa; F401 (imported but unused)
-    except ImportError:
-        sys.exit(
-            "PyQt5 wheels are not available for 32-bit GNU/Linux. Please "
-            "manually install PyQt5 into this environment and try again."
-        )
-    requirements.remove("PyQt5")
+if struct.calcsize("P") * 8 == 32:
+    sys.exit("Gridsync is not supported on 32-bit systems.")
 
 
 module_file = open("gridsync/__init__.py").read()
