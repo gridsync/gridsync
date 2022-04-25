@@ -208,7 +208,7 @@ class ToolBar(QToolBar):
             )
 
         spacer_left = QWidget()
-        spacer_left.setSizePolicy(QSizePolicy.Expanding, 0)
+        spacer_left.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.combo_box = ComboBox(self)
         # self.combo_box.currentIndexChanged.connect(self.update_actions)
@@ -216,7 +216,7 @@ class ToolBar(QToolBar):
             self.combo_box.hide()
 
         spacer_right = QWidget()
-        spacer_right.setSizePolicy(QSizePolicy.Expanding, 0)
+        spacer_right.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.history_action = QAction(
             QIcon(resource("clock-outline.png")), "History", self
