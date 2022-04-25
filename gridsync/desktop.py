@@ -18,47 +18,6 @@ if sys.platform == "win32":
 from gridsync import APP_NAME, autostart_file_path, resource, settings
 
 
-def _dbus_notify(title, message, duration=5000):
-    from qtpy.QtCore import QMetaType, QVariant
-    from qtpy.QtDBus import (
-        QDBus,
-        QDBusArgument,
-        QDBusConnection,
-        QDBusInterface,
-    )
-
-    bus = QDBusConnection.sessionBus()
-    if not bus.isConnected():
-        raise OSError("Could not connect to DBus")
-    interface = QDBusInterface(
-        "org.freedesktop.Notifications",
-        "/org/freedesktop/Notifications",
-        "org.freedesktop.Notifications",
-        bus,
-    )
-    error = interface.lastError()
-    if error.type():
-        raise RuntimeError("{}; {}".format(error.name(), error.message()))
-    # See https://developer.gnome.org/notification-spec/
-    # "This allows clients to effectively modify the notification while
-    # it's active. A value of value of 0 means that this notification
-    # won't replace any existing notifications."
-    replaces_id = QVariant(0)
-    replaces_id.convert(QVariant.UInt)
-    interface.call(
-        QDBus.NoBlock,
-        "Notify",
-        APP_NAME,
-        replaces_id,
-        resource(settings["application"]["tray_icon"]),
-        title,
-        message,
-        QDBusArgument([], QMetaType.QStringList),
-        {},
-        duration,
-    )
-
-
 @inlineCallbacks
 def _txdbus_notify(title, message, duration=5000):
     from txdbus import client  # pylint: disable=import-error
