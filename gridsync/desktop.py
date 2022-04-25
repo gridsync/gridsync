@@ -26,10 +26,11 @@ def _txdbus_notify(title, message, duration=5000):
     robj = yield conn.getRemoteObject(
         "org.freedesktop.Notifications", "/org/freedesktop/Notifications"
     )
+    # See https://developer.gnome.org/notification-spec/
     reply = yield robj.callRemote(
         "Notify",
         APP_NAME,
-        0,
+        0,  # 0 means don't replace existing notifications.
         resource(settings["application"]["tray_icon"]),
         title,
         message,
