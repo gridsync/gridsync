@@ -76,9 +76,9 @@ class InviteCodeLineEdit(QLineEdit):
         self.tor_icon = QIcon(resource("tor-onion.png"))
 
         self.status_action = QAction(self.blank_icon, "", self)
-        self.addAction(self.status_action, 0)
+        self.addAction(self.status_action, QLineEdit.LeadingPosition)
         self.action_button = QAction(self.blank_icon, "", self)
-        self.addAction(self.action_button, 1)
+        self.addAction(self.action_button, QLineEdit.TrailingPosition)
 
         completer.highlighted.connect(self.update_action_button)
         self.textChanged.connect(self.update_action_button)
