@@ -21,7 +21,6 @@ requirements = [
     "magic-wormhole",
     "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
     "pyyaml",
-    "qt5reactor",
     "qtpy",
     "treq",
     "twisted[tls] >= 21.7.0",  # 21.7.0 adds Deferred type hinting/annotations
