@@ -40,10 +40,10 @@ class Delegate(QStyledItemDelegate):
         super().__init__(parent=None)
         self.parent = parent
         self.waiting_movie = QMovie(resource("waiting.gif"))
-        self.waiting_movie.setCacheMode(True)
+        self.waiting_movie.setCacheMode(QMovie.CacheAll)
         self.waiting_movie.frameChanged.connect(self.on_frame_changed)
         self.sync_movie = QMovie(resource("sync.gif"))
-        self.sync_movie.setCacheMode(True)
+        self.sync_movie.setCacheMode(QMovie.CacheAll)
         self.sync_movie.frameChanged.connect(self.on_frame_changed)
 
     def on_frame_changed(self):

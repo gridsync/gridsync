@@ -37,7 +37,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             resource(settings["application"]["tray_icon_sync"])
         )
         self.animation.updated.connect(self.update)
-        self.animation.setCacheMode(True)
+        self.animation.setCacheMode(QMovie.CacheAll)
 
     def add_operation(self, operation: tuple) -> None:
         self._operations.add(operation)
