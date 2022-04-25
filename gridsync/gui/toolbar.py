@@ -146,7 +146,7 @@ class ToolBar(QToolBar):
         self.recovery_button = QToolButton(self)
         self.recovery_button.setDefaultAction(recovery_action)
         self.recovery_button.setMenu(recovery_menu)
-        self.recovery_button.setPopupMode(2)
+        self.recovery_button.setPopupMode(QToolButton.InstantPopup)
         self.recovery_button.setStyleSheet(
             "QToolButton::menu-indicator { image: none }"
         )
