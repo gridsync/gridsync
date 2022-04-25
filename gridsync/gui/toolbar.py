@@ -189,7 +189,7 @@ class ToolBar(QToolBar):
             self.invites_button = QToolButton(self)
             self.invites_button.setDefaultAction(self.invites_action)
             self.invites_button.setMenu(self.invites_menu)
-            self.invites_button.setPopupMode(2)
+            self.invites_button.setPopupMode(QToolButton.InstantPopup)
             self.invites_button.setStyleSheet(
                 "QToolButton::menu-indicator { image: none }"
             )
