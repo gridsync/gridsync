@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, Mock, call
 import pytest
 
 from gridsync.desktop import (
-    _dbus_notify,
     _desktop_open,
     autostart_disable,
     autostart_enable,
@@ -22,39 +21,7 @@ from gridsync.desktop import (
 )
 
 
-def test__dbus_notify_bus_not_connected(monkeypatch):
-    monkeypatch.setattr(
-        "qtpy.QtDBus.QDBusConnection.isConnected", lambda _: False
-    )
-    with pytest.raises(OSError):
-        _dbus_notify("", "")
-
-
-def test__dbus_notify_interface_error(monkeypatch):
-    monkeypatch.setattr(
-        "qtpy.QtDBus.QDBusConnection.isConnected", lambda _: True
-    )
-    monkeypatch.setattr("qtpy.QtDBus.QDBusError.type", lambda _: 9999)
-    with pytest.raises(RuntimeError):
-        _dbus_notify("", "")
-
-
-def test__dbus_notify_interface_called(monkeypatch):
-    was_called = [False]
-
-    def fake_call(*_):
-        was_called[0] = True
-
-    monkeypatch.setattr(
-        "qtpy.QtDBus.QDBusConnection.isConnected", lambda _: True
-    )
-    monkeypatch.setattr("qtpy.QtDBus.QDBusError.type", lambda _: 0)
-    monkeypatch.setattr("qtpy.QtDBus.QDBusInterface.call", fake_call)
-    _dbus_notify("", "")
-    assert was_called[0] is True
-
-
-def test_notify_call__dbus_notify(monkeypatch):
+def test_notify_calls__txdbus_notify_on_linux(monkeypatch):
     dbus_notify_args = [None, None, None]
 
     def fake_dbus_notify(title, message, duration):
@@ -69,7 +36,7 @@ def test_notify_call__dbus_notify(monkeypatch):
 
 
 @pytest.mark.parametrize("error", [OSError, RuntimeError])
-def test_notify_call__dbus_notify_fallback_on_error(error, monkeypatch):
+def test_fallback_to_show_message_on_dbus_notify_error(error, monkeypatch):
     show_message_args = [None, None, None]
 
     def fake_show_message(title, message, msecs):
