@@ -39,7 +39,7 @@ def test_history_item_widget_init(hiw):
 
 def test_history_item_widget__do_load_thumbnail(hiw):
     hiw._do_load_thumbnail()
-    assert hiw.icon.pixmap()  # XXX
+    assert hiw.icon.pixmap() is not None
 
 
 def test_history_item_widget_load_thumbnail(hiw, monkeypatch):
