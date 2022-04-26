@@ -18,11 +18,20 @@ if os.environ.get("QREXEC_REMOTE_DOMAIN") or os.environ.get(
     # On Qubes-OS, setting AA_EnableHighDpiScaling to 'True', *always* doubles
     # the window-size -- even on lower-resolution (1080p) displays -- but does
     # not do the same for font-sizes.
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    try:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    except AttributeError:  # Not available in Qt6
+        pass
 elif os.environ.get("DESKTOP_SESSION") == "mate":
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    try:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    except AttributeError:  # Not available in Qt6
+        pass
 else:
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    try:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    except AttributeError:  # Not available in Qt6
+        pass
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
