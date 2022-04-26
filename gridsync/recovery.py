@@ -153,6 +153,8 @@ class RecoveryKeyImporter(QObject):
         except (UnicodeDecodeError, json.decoder.JSONDecodeError) as e:
             error(self, type(e).__name__, str(e))
             return
+        if not isinstance(settings, dict):
+            raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
         self.crypter_thread.wait()
 
@@ -200,6 +202,8 @@ class RecoveryKeyImporter(QObject):
             if ok:
                 self._decrypt_content(content, password)
             return
+        if not isinstance(settings, dict):
+            raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
 
     def _load_from_file(self, path):
