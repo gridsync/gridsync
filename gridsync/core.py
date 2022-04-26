@@ -35,8 +35,10 @@ else:
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
-
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+try:
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+except AttributeError:  # Not available in Qt6
+    pass
 try:
     QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
 except AttributeError:  # Not available in Qt6
