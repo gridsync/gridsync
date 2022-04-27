@@ -205,24 +205,24 @@ container-image-qt5:
 	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt5
 
 in-container-qt5:
-	echo podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt5
+	podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt5
 
 container-image-qt6:
 	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt6
 
 in-container-qt6:
-	echo podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt6
+	podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt6
 
 in-container:
-	if [ "${QT_API}" == "pyqt6" ] ; then \
+	@if [ "${QT_API}" == "pyqt6" ] ; then \
 		$(MAKE) in-container-qt6 ; \
 	elif [ "${QT_API}" == "pyside6" ] ; then \
 		$(MAKE) in-container-qt6 ; \
 	elif [ "${QT_API}" == "pyside2" ] ; then \
-		$(MAKE) in-container-old ; \
+		$(MAKE) in-container-qt5 ; \
 	else \
 		export QT_API=pyqt5 ; \
-		$(MAKE) in-container-old ; \
+		$(MAKE) in-container-qt5 ; \
 	fi
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
