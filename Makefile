@@ -196,7 +196,7 @@ docker-push:
 	docker tag gridsync-builder gridsync/gridsync-builder
 	docker push gridsync/gridsync-builder
 
-in-container:
+in-container-old:
 	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
 		gridsync/gridsync-builder@sha256:211cbc53640f737433389a024620d189022c7d5b4b93b62b1aaa3d47513b6a15
 
@@ -205,8 +205,19 @@ container-image-qt6:
 	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt6
 
 in-container-qt6:
-	podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync localhost/gridsync-builder-qt6
+	echo podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt6
 
+in-container:
+	if [ "${QT_API}" == "pyqt6" ] ; then \
+		$(MAKE) in-container-qt6 ; \
+	elif [ "${QT_API}" == "pyside6" ] ; then \
+		$(MAKE) in-container-qt6 ; \
+	elif [ "${QT_API}" == "pyside2" ] ; then \
+		$(MAKE) in-container-old ; \
+	else \
+		export QT_API=pyqt5 ; \
+		$(MAKE) in-container-old ; \
+	fi
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:
