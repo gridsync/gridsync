@@ -201,6 +201,12 @@ in-container-old:
 		gridsync/gridsync-builder@sha256:211cbc53640f737433389a024620d189022c7d5b4b93b62b1aaa3d47513b6a15
 
 
+container-image-qt5:
+	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt5
+
+in-container-qt5:
+	echo podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt5
+
 container-image-qt6:
 	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt6
 
