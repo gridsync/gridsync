@@ -201,6 +201,13 @@ in-container:
 		gridsync/gridsync-builder@sha256:211cbc53640f737433389a024620d189022c7d5b4b93b62b1aaa3d47513b6a15
 
 
+container-image-qt6:
+	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt6
+
+in-container-qt6:
+	podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync localhost/gridsync-builder-qt6
+
+
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 codesign-app:
 	python3 scripts/codesign.py app
