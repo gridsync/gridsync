@@ -204,13 +204,13 @@ in-container-old:
 container-image-qt5:
 	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt5
 
-in-container-qt5:
+in-container-qt5: container-image-qt5
 	podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt5
 
 container-image-qt6:
 	podman build --tag gridsync-builder-qt6 --timestamp 1651072070 --file Containerfile.qt6
 
-in-container-qt6:
+in-container-qt6: container-image-qt6
 	podman run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync --env QT_API="${QT_API}" localhost/gridsync-builder-qt6
 
 in-container:
