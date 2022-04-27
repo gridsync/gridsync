@@ -42,9 +42,10 @@ echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
 
 . "$SHELLRC"
 
-pyenv install --skip-existing 3.9.7
+pyenv install --skip-existing 3.9.11
+pyenv install --skip-existing 3.10.3
 pyenv rehash
-pyenv global 3.9.7
+pyenv global 3.9.11 3.10.3
 pyenv versions
 
 python3 -m pip install --upgrade setuptools pip tox diffoscope
