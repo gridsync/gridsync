@@ -1,4 +1,4 @@
-FROM centos:7
+FROM docker.io/library/centos:7
 
 RUN yum -y install epel-release && yum -y update && yum -y install \
     # Seemingly required by Gridsync/Qt5, as per scripts/get_yum_packages.py; also provided by GNOME Desktop:
