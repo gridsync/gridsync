@@ -1,8 +1,7 @@
 FROM docker.io/rockylinux/rockylinux:8
 
 RUN yum -y update && yum -y install \
-    # Seemingly required by Gridsync/Qt, as per scripts/get_yum_packages.py
-    findutils gtk3 libicu libxkbcommon-x11 pcre2-utf16 xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm \
+    findutils gtk3 libicu libxkbcommon-x11 mesa-libEGL pcre2-utf16 xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm \
     && yum clean all
 
 COPY scripts/provision_devtools.sh /
