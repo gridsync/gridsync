@@ -23,15 +23,15 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-cache${{ matrix.os }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-cache${{ matrix.os }}-
+        key: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/pip
-        key: pip-${{ matrix.os }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os }}-
+        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
@@ -91,15 +91,15 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-cache${{ matrix.os }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-cache${{ matrix.os }}-
+        key: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/pip
-        key: pip-${{ matrix.os }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os }}-
+        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: |
         sudo rm -rf /Applications/Python*
@@ -155,8 +155,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: c:\users\runneradmin\appdata\local\pip\cache
-        key: pip-${{ matrix.os }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os }}-
+        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: py -3.9 -m pip install tox diffoscope
     - name: Test
