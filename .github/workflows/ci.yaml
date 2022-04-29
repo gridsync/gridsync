@@ -5,7 +5,6 @@ on: [push, pull_request]
 jobs:
   Linux:
     strategy:
-      fail-fast: false
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04]
         qt: [pyqt5, pyqt6]
@@ -78,7 +77,6 @@ jobs:
         name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}.AppImage
   macOS:
     strategy:
-      fail-fast: false
       matrix:
         os: [macos-10.15, macos-11, macos-12]
         qt: [pyqt5, pyqt6]
@@ -144,7 +142,6 @@ jobs:
         name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}.dmg
   Windows:
     strategy:
-      fail-fast: false
       matrix:
         os: [windows-2019, windows-2022]
         qt: [pyqt5, pyqt6]
