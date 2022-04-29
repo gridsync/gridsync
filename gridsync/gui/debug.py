@@ -20,7 +20,13 @@ from qtpy.QtWidgets import (
     QPushButton,
 )
 
-from gridsync import APP_NAME, __version__, resource
+from gridsync import (
+    APP_NAME,
+    QT_API_VERSION,
+    QT_LIB_VERSION,
+    __version__,
+    resource,
+)
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
     apply_filters,
@@ -48,12 +54,15 @@ header = """Application:  {} {}
 System:       {}
 Python:       {}
 Frozen:       {}
+Qt API:       {} (Qt {})
 """.format(
     APP_NAME,
     __version__,
     system,
     platform.python_version(),
     getattr(sys, "frozen", False),
+    QT_API_VERSION,
+    QT_LIB_VERSION,
 )
 
 
