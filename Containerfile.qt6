@@ -1,4 +1,4 @@
-FROM docker.io/rockylinux/rockylinux:8
+FROM docker.io/library/almalinux:8
 
 RUN yum -y update && yum -y install \
     findutils gtk3 libicu libxkbcommon-x11 mesa-libEGL pcre2-utf16 xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm \
