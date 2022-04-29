@@ -7,6 +7,8 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Optional
 
+from qtpy import API_NAME, PYQT_VERSION, PYSIDE_VERSION, QT_VERSION
+
 from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
 from gridsync.util import to_bool
@@ -167,6 +169,13 @@ if _default_settings:
     CONNECTION_DEFAULT_NICKNAME = _default_settings.get("nickname", "")
 else:
     CONNECTION_DEFAULT_NICKNAME = ""
+
+
+if API_NAME.lower().startswith("pyqt"):
+    QT_API_VERSION = f"{API_NAME}-{PYQT_VERSION}"
+else:
+    QT_API_VERSION = f"{API_NAME}-{PYSIDE_VERSION}"
+QT_LIB_VERSION = QT_VERSION
 
 
 # When running frozen, Versioneer returns a version string of "0+unknown"
