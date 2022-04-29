@@ -189,18 +189,6 @@ vagrant-build-windows:
 	vagrant up --provision-with devtools,test,build windows-10
 
 
-docker-image:
-	docker build --tag gridsync-builder $$(pwd)
-
-docker-push:
-	docker tag gridsync-builder gridsync/gridsync-builder
-	docker push gridsync/gridsync-builder
-
-in-container-old:
-	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
-		gridsync/gridsync-builder@sha256:211cbc53640f737433389a024620d189022c7d5b4b93b62b1aaa3d47513b6a15
-
-
 container-image:
 	@if [ -z "${QT_VERSION}" ] ; then export QT_VERSION=5 ; fi ; \
 	podman build --timestamp 1651072070 \
