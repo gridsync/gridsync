@@ -43,9 +43,9 @@ echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
 . "$SHELLRC"
 
 pyenv install --skip-existing 3.9.11
-if [ "$(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)" = '"CentOS Linux 7 (Core)"' ]; then 
+if [ "$(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)" = '"CentOS Linux 7 (Core)"' ]; then
     export CPPFLAGS="-I/usr/include/openssl11"
-    export LDFLAGS="-L/usr/lib64/openssl11" 
+    export LDFLAGS="-L/usr/lib64/openssl11"
 fi
 pyenv install --skip-existing 3.10.3
 pyenv rehash
