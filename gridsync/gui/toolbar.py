@@ -129,13 +129,11 @@ class ToolBar(QToolBar):
             QIcon(), "Restore from Recovery Key...", self
         )
         self.import_action.setToolTip("Restore from Recovery Key...")
-        # import_action.triggered.connect(self.import_recovery_key)
         self.import_action.triggered.connect(self.import_action_triggered.emit)
 
         self.export_action = QAction(QIcon(), "Create Recovery Key...", self)
         self.export_action.setToolTip("Create Recovery Key...")
         # export_action.setShortcut(QKeySequence.Save)
-        # export_action.triggered.connect(self.export_recovery_key)
         self.export_action.triggered.connect(self.export_action_triggered.emit)
 
         recovery_menu = QMenu(self)
@@ -163,9 +161,6 @@ class ToolBar(QToolBar):
                 QIcon(), "Enter Invite Code...", self
             )
             self.enter_invite_action.setToolTip("Enter an Invite Code...")
-            # self.enter_invite_action.triggered.connect(
-            #    self.open_invite_receiver
-            # )
             self.enter_invite_action.triggered.connect(
                 self.enter_invite_action_triggered.emit
             )
@@ -174,9 +169,6 @@ class ToolBar(QToolBar):
                 QIcon(), "Create Invite Code...", self
             )
             self.create_invite_action.setToolTip("Create on Invite Code...")
-            # self.create_invite_action.triggered.connect(
-            #    self.open_invite_sender_dialog
-            # )
             self.create_invite_action.triggered.connect(
                 self.create_invite_action_triggered.emit
             )
@@ -201,7 +193,6 @@ class ToolBar(QToolBar):
             self.invite_action.setEnabled(False)
             self.invite_action.setToolTip("Enter an Invite Code...")
             self.invite_action.setFont(font)
-            # self.invite_action.triggered.connect(self.open_invite_receiver)
             self.invite_action.triggered.connect(
                 self.enter_invite_action_triggered.emit
             )
@@ -224,7 +215,6 @@ class ToolBar(QToolBar):
         self.history_action.setToolTip("Show/Hide History")
         self.history_action.setFont(font)
         self.history_action.setCheckable(True)
-        # self.history_action.triggered.connect(self.show_history_view)
 
         self.history_button = QToolButton(self)
         self.history_button.setDefaultAction(self.history_action)
@@ -238,7 +228,6 @@ class ToolBar(QToolBar):
         self.folders_action.setToolTip("Show Folders")
         self.folders_action.setFont(font)
         self.folders_action.setCheckable(True)
-        # self.folders_action.triggered.connect(self.show_folders_view)
 
         self.folders_button = QToolButton(self)
         self.folders_button.setDefaultAction(self.folders_action)
@@ -252,7 +241,6 @@ class ToolBar(QToolBar):
         self.usage_action.setToolTip("Show Storage-time")
         self.usage_action.setFont(font)
         self.usage_action.setCheckable(True)
-        # self.usage_action.triggered.connect(self.show_usage_view)
 
         self.usage_button = QToolButton(self)
         self.usage_button.setDefaultAction(self.usage_action)
