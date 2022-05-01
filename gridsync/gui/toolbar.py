@@ -18,7 +18,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from gridsync import features, resource
+from gridsync import QT_LIB_VERSION, features, resource
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 
@@ -113,7 +113,6 @@ class ToolBar(QToolBar):
         self.folder_action.setToolTip("Add a Folder...")
         self.folder_action.setFont(font)
         # self.folder_action.triggered.connect(self.select_folder)
-        self.folder_action.triggered.connect(self.folder_action_triggered.emit)
 
         self.folder_button = QToolButton(self)
         self.folder_button.setDefaultAction(self.folder_action)
@@ -226,7 +225,6 @@ class ToolBar(QToolBar):
         self.history_action.setFont(font)
         self.history_action.setCheckable(True)
         # self.history_action.triggered.connect(self.show_history_view)
-        self.history_action.triggered.connect(self.on_history_activated)
 
         self.history_button = QToolButton(self)
         self.history_button.setDefaultAction(self.history_action)
@@ -241,7 +239,6 @@ class ToolBar(QToolBar):
         self.folders_action.setFont(font)
         self.folders_action.setCheckable(True)
         # self.folders_action.triggered.connect(self.show_folders_view)
-        self.folders_action.triggered.connect(self.on_folders_activated)
 
         self.folders_button = QToolButton(self)
         self.folders_button.setDefaultAction(self.folders_action)
@@ -256,7 +253,6 @@ class ToolBar(QToolBar):
         self.usage_action.setFont(font)
         self.usage_action.setCheckable(True)
         # self.usage_action.triggered.connect(self.show_usage_view)
-        self.usage_action.triggered.connect(self.on_usage_activated)
 
         self.usage_button = QToolButton(self)
         self.usage_button.setDefaultAction(self.usage_action)
@@ -277,6 +273,24 @@ class ToolBar(QToolBar):
         self.folders_wa = self.addWidget(self.folders_button)
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
+
+        if QT_LIB_VERSION.startswith("6"):
+            # XXX For some currently-unknown reason, methods connected
+            # to `QAction.triggered` aren't firing here, under Qt6.
+            # Connecting to `QToolButton.clicked`, however, works(?)...
+            self.folder_button.clicked.connect(
+                self.folder_action_triggered.emit
+            )
+            self.history_button.clicked.connect(self.on_history_activated)
+            self.folders_button.clicked.connect(self.on_folders_activated)
+            self.usage_button.clicked.connect(self.on_usage_activated)
+        else:
+            self.folder_action.triggered.connect(
+                self.folder_action_triggered.emit
+            )
+            self.history_action.triggered.connect(self.on_history_activated)
+            self.folders_action.triggered.connect(self.on_folders_activated)
+            self.usage_action.triggered.connect(self.on_usage_activated)
 
     def _update_action_visibility(self) -> None:
         gateway = self.combo_box.currentData()
