@@ -5,18 +5,9 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from humanize import naturalsize
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import (
-    QAction,
-    QGridLayout,
-    QLabel,
-    QSizePolicy,
-    QSpacerItem,
-    QToolButton,
-    QWidget,
-)
+from qtpy.QtCore import QSize, Qt, Slot
+from qtpy.QtGui import QIcon, QMovie
+from qtpy.QtWidgets import QAction, QGridLayout, QLabel, QToolButton, QWidget
 
 from gridsync import resource
 
@@ -29,6 +20,7 @@ from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
+from gridsync.gui.widgets import HSpacer
 from gridsync.magic_folder import MagicFolderStatus
 
 
@@ -52,7 +44,7 @@ class StatusPanel(QWidget):
         self.syncing_icon = QLabel()
 
         self.sync_movie = QMovie(resource("sync.gif"))
-        self.sync_movie.setCacheMode(True)
+        self.sync_movie.setCacheMode(QMovie.CacheAll)
         self.sync_movie.updated.connect(
             lambda: self.syncing_icon.setPixmap(
                 self.sync_movie.currentPixmap().scaled(
@@ -99,7 +91,7 @@ class StatusPanel(QWidget):
         preferences_button.setIcon(QIcon(resource("preferences.png")))
         preferences_button.setIconSize(QSize(20, 20))
         preferences_button.setMenu(Menu(self.gui, show_open_action=False))
-        preferences_button.setPopupMode(2)
+        preferences_button.setPopupMode(QToolButton.InstantPopup)
         preferences_button.setStyleSheet(
             "QToolButton { border: none }"
             "QToolButton::menu-indicator { image: none }"
@@ -126,7 +118,7 @@ class StatusPanel(QWidget):
         layout.addWidget(self.error_icon, 1, 1)
         layout.addWidget(self.syncing_icon, 1, 1)
         layout.addWidget(self.status_label, 1, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 3)
+        layout.addItem(HSpacer(), 1, 3)
         # layout.addWidget(zkap_chart_view, 1, 5)
         # layout.addWidget(self.zkap_label, 1, 5)
         layout.addWidget(self.stored_label, 1, 6)

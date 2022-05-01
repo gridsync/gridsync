@@ -4,8 +4,8 @@ from collections import namedtuple
 from unittest.mock import MagicMock
 
 import pytest
-from PyQt5.QtWidgets import QMessageBox
 from pytest_twisted import inlineCallbacks
+from qtpy.QtWidgets import QMessageBox
 
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 
@@ -63,7 +63,7 @@ def test_get_tor_with_prompt_retry(monkeypatch):
         "gridsync.tor.get_tor", MagicMock(side_effect=[None, "FakeTxtorcon"])
     )
     monkeypatch.setattr(
-        "PyQt5.QtWidgets.QMessageBox.exec_",
+        "qtpy.QtWidgets.QMessageBox.exec_",
         MagicMock(return_value=QMessageBox.Retry),
     )
     tor = yield get_tor_with_prompt(None)
@@ -74,7 +74,7 @@ def test_get_tor_with_prompt_retry(monkeypatch):
 def test_get_tor_with_prompt_abort(monkeypatch):
     monkeypatch.setattr("gridsync.tor.get_tor", MagicMock(return_value=None))
     monkeypatch.setattr(
-        "PyQt5.QtWidgets.QMessageBox.exec_",
+        "qtpy.QtWidgets.QMessageBox.exec_",
         MagicMock(return_value=QMessageBox.Abort),
     )
     tor = yield get_tor_with_prompt(None)

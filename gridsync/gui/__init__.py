@@ -13,7 +13,7 @@ from gridsync.gui.welcome import WelcomeDialog
 from gridsync.preferences import Preferences
 
 
-@attr.s
+@attr.s(eq=False)  # To avoid "TypeError: unhashable type: 'Gui'" on PySide2
 class Gui:
     core = attr.ib()
 

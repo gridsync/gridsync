@@ -33,3 +33,5 @@ twisted-iocpsupport==1.0.2; sys_platform == "win32" \
     --hash=sha256:b76b4eed9b27fd63ddb0877efdd2d15835fdcb6baa745cb85b66e5d016ac2878 \
     --hash=sha256:b9fed67cf0f951573f06d560ac2f10f2a4bbdc6697770113a2fc396ea2cb2565 \
     --hash=sha256:bf4133139d77fc706d8f572e6b7d82871d82ec7ef25d685c2351bdacfb701415
+txdbus==1.1.2; sys_platform != "darwin" and sys_platform != "win32" \
+    --hash=sha256:8375a5fb68a12054f0def91af800c821fb2232949337756ed975f88d8ea2bc97

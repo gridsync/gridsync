@@ -5,15 +5,15 @@ import datetime as dt
 from typing import TYPE_CHECKING, Union
 
 from humanize import naturaldelta
-from PyQt5.QtChart import (
+from qtpy.QtCharts import (
     QBarSet,
     QChart,
     QChartView,
     QHorizontalPercentBarSeries,
     QPieSeries,
 )
-from PyQt5.QtCore import QMargins, Qt
-from PyQt5.QtGui import QColor, QPainter, QPalette, QPen
+from qtpy.QtCore import QMargins, Qt
+from qtpy.QtGui import QColor, QPainter, QPalette, QPen
 
 from gridsync.gui.color import is_dark
 from gridsync.gui.font import Font
@@ -109,13 +109,16 @@ class ZKAPBarChart(QChart):
         series.append(self.set_expected)
 
         self.addSeries(series)
-        self.setAnimationOptions(QChart.SeriesAnimations)
+        try:
+            self.setAnimationOptions(QChart.SeriesAnimations)
+        except AttributeError:  # Moved(?) in (Py)Qt6
+            self.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
         self.setBackgroundVisible(False)
 
         self.layout().setContentsMargins(0, 0, 0, 0)
         legend = self.legend()
         palette = self.palette()
-        if is_dark(palette.color(QPalette.Background)):
+        if is_dark(palette.color(QPalette.Window)):
             # The legend label text does not seem to be dark mode-aware
             # and will appear dark grey with macOS dark mode enabled,
             # making the labels illegible. This may be a bug with

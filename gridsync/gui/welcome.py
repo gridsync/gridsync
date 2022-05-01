@@ -3,17 +3,15 @@
 import logging as log
 import sys
 
-from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QCoreApplication, Qt
+from qtpy.QtGui import QIcon, QKeySequence
+from qtpy.QtWidgets import (
     QGridLayout,
     QLabel,
     QMessageBox,
     QProgressBar,
     QPushButton,
     QShortcut,
-    QSizePolicy,
-    QSpacerItem,
     QStackedWidget,
     QToolButton,
     QWidget,
@@ -33,7 +31,7 @@ from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
-from gridsync.gui.widgets import TahoeConfigForm
+from gridsync.gui.widgets import HSpacer, TahoeConfigForm, VSpacer
 from gridsync.invite import InviteReceiver
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
@@ -127,32 +125,32 @@ class WelcomeWidget(QWidget):
         self.preferences_button.setFocusPolicy(Qt.NoFocus)
 
         links_grid = QGridLayout()
-        links_grid.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
+        links_grid.addItem(VSpacer(), 1, 1)
         links_grid.addWidget(self.restore_link, 2, 1)
-        links_grid.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 3, 1)
+        links_grid.addItem(VSpacer(), 3, 1)
         links_grid.addWidget(self.configure_link, 4, 1)
-        links_grid.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
+        links_grid.addItem(VSpacer(), 5, 1)
 
         prefs_layout = QGridLayout()
-        prefs_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        prefs_layout.addItem(HSpacer(), 1, 1)
         prefs_layout.addWidget(self.preferences_button, 1, 2)
 
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 0, 0)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addItem(VSpacer(), 0, 0)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
         layout.addWidget(self.icon, 1, 3)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
         layout.addWidget(self.slogan, 2, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 3, 1)
+        layout.addItem(VSpacer(), 3, 1)
         layout.addWidget(self.invite_code_widget, 4, 2, 1, 3)
         layout.addWidget(self.connect_button, 4, 2, 1, 3)
         layout.addWidget(self.message, 5, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 6, 1)
+        layout.addItem(HSpacer(), 6, 1)
         layout.addLayout(links_grid, 7, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Minimum), 8, 1)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 9, 1)
+        layout.addItem(HSpacer(), 8, 1)
+        layout.addItem(VSpacer(), 9, 1)
         layout.addLayout(prefs_layout, 10, 1, 1, 5)
 
     def show_error(self, message):
@@ -217,12 +215,12 @@ class ProgressBarWidget(QWidget):
 
         layout = QGridLayout(self)
         layout.addWidget(self.cancel_button, 0, 5)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
         layout.addWidget(self.icon_server, 1, 3)
         layout.addWidget(self.icon_overlay, 1, 3)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
         layout.addWidget(self.icon_connection, 2, 3)
         layout.addWidget(self.icon_client, 3, 3)
         layout.addWidget(self.checkmark, 4, 3, 1, 1)
@@ -230,7 +228,7 @@ class ProgressBarWidget(QWidget):
         layout.addWidget(self.progressbar, 5, 2, 1, 3)
         layout.addWidget(self.message, 6, 3)
         layout.addWidget(self.finish_button, 6, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 7, 1)
+        layout.addItem(VSpacer(), 7, 1)
 
     def update_progress(self, message):
         step = self.progressbar.value() + 1

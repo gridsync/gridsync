@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from PyQt5.QtGui import QColor
+from qtpy.QtGui import QColor
 
 from gridsync.gui.color import is_dark
 

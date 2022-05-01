@@ -8,9 +8,9 @@ import time
 from datetime import datetime, timezone
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, QSize, Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QFontDatabase, QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QObject, QSize, Qt, QThread, Signal
+from qtpy.QtGui import QFontDatabase, QIcon
+from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
     QFileDialog,
@@ -18,11 +18,15 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
-    QSizePolicy,
-    QSpacerItem,
 )
 
-from gridsync import APP_NAME, __version__, resource
+from gridsync import (
+    APP_NAME,
+    QT_API_VERSION,
+    QT_LIB_VERSION,
+    __version__,
+    resource,
+)
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
     apply_filters,
@@ -31,6 +35,7 @@ from gridsync.filter import (
     get_mask,
     join_eliot_logs,
 )
+from gridsync.gui.widgets import HSpacer
 from gridsync.msg import error
 
 if sys.platform == "darwin":
@@ -49,12 +54,15 @@ header = """Application:  {} {}
 System:       {}
 Python:       {}
 Frozen:       {}
+Qt API:       {} (Qt {})
 """.format(
     APP_NAME,
     __version__,
     system,
     platform.python_version(),
     getattr(sys, "frozen", False),
+    QT_API_VERSION,
+    QT_LIB_VERSION,
 )
 
 
@@ -82,7 +90,7 @@ def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
 
 class LogLoader(QObject):
 
-    done = pyqtSignal()
+    done = Signal()
 
     def __init__(self, core):
         super().__init__()
@@ -204,9 +212,7 @@ class DebugExporter(QDialog):
 
         bottom_layout = QGridLayout()
         bottom_layout.addLayout(checkbox_layout, 1, 1)
-        bottom_layout.addItem(
-            QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 2
-        )
+        bottom_layout.addItem(HSpacer(), 1, 2)
         bottom_layout.addLayout(buttons_layout, 1, 3)
 
         layout = QGridLayout(self)

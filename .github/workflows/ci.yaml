@@ -6,10 +6,16 @@ jobs:
   Linux:
     strategy:
       matrix:
-        os:
-          - runs-on: ubuntu-20.04
-          - runs-on: ubuntu-18.04
-    runs-on: ${{ matrix.os.runs-on }}
+        os: [ubuntu-18.04, ubuntu-20.04]
+        qt: [pyqt5, pyqt6]
+        exclude:
+          # Qt 6 is unsupported on Ubuntu 18.04. See:
+          # https://doc.qt.io/qt-6/supported-platforms.html
+          - os: ubuntu-18.04
+            qt: pyqt6
+    runs-on: ${{ matrix.os }}
+    env:
+      QT_API: ${{ matrix.qt }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -21,15 +27,15 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-cache-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-cache-${{ matrix.os.runs-on }}-
+        key: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/pip
-        key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os.runs-on }}-
+        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
@@ -68,14 +74,15 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: dist/Gridsync.AppImage
-        name: Gridsync-${{ matrix.os.runs-on }}.AppImage
+        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}.AppImage
   macOS:
     strategy:
       matrix:
-        os:
-          - runs-on: macos-11.0
-          - runs-on: macos-10.15
-    runs-on: ${{ matrix.os.runs-on }}
+        os: [macos-10.15, macos-11, macos-12]
+        qt: [pyqt5, pyqt6]
+    runs-on: ${{ matrix.os }}
+    env:
+      QT_API: ${{ matrix.qt }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -87,15 +94,15 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-cache-${{ matrix.os.runs-on }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-cache-${{ matrix.os.runs-on }}-
+        key: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/pip
-        key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os.runs-on }}-
+        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: |
         sudo rm -rf /Applications/Python*
@@ -132,13 +139,15 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: dist/Gridsync.dmg
-        name: Gridsync-${{ matrix.os.runs-on }}.dmg
+        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}.dmg
   Windows:
     strategy:
       matrix:
-        os:
-          - runs-on: windows-2019
-    runs-on: ${{ matrix.os.runs-on }}
+        os: [windows-2019, windows-2022]
+        qt: [pyqt5, pyqt6]
+    runs-on: ${{ matrix.os }}
+    env:
+      QT_API: ${{ matrix.qt }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -148,8 +157,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: c:\users\runneradmin\appdata\local\pip\cache
-        key: pip-${{ matrix.os.runs-on }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os.runs-on }}-
+        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: py -3.9 -m pip install tox diffoscope
     - name: Test
@@ -184,4 +193,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: .\dist\Gridsync-setup.exe
-        name: Gridsync-${{ matrix.os.runs-on }}-setup.exe
+        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}-setup.exe

@@ -2,9 +2,9 @@
 
 import webbrowser
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QMenu, QMessageBox
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import QAction, QMenu, QMessageBox
 
 from gridsync import APP_NAME, __version__, resource, settings
 

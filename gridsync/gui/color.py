@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtGui import QColor
+from qtpy.QtGui import QColor
 
 
 class BlendedColor(QColor):

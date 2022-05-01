@@ -189,16 +189,31 @@ vagrant-build-windows:
 	vagrant up --provision-with devtools,test,build windows-10
 
 
-docker-image:
-	docker build --tag gridsync-builder $$(pwd)
+container-image:
+	@if [ -z "${QT_VERSION}" ] ; then export QT_VERSION=5 ; fi ; \
+	podman build --timestamp 1651072070 \
+		--tag gridsync-builder-qt$${QT_VERSION} \
+		--file Containerfile.qt$${QT_VERSION}
 
-docker-push:
-	docker tag gridsync-builder gridsync/gridsync-builder
-	docker push gridsync/gridsync-builder
+push-container-image:
+	@if [ -z "${QT_VERSION}" ] ; then export QT_VERSION=5 ; fi ; \
+	podman login docker.io && \
+	podman push --digestfile misc/gridsync-builder-qt$${QT_VERSION}.digest \
+		gridsync-builder-qt$${QT_VERSION} \
+		docker.io/gridsync/gridsync-builder-qt$${QT_VERSION}
 
 in-container:
-	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync -w /gridsync \
-		gridsync/gridsync-builder@sha256:211cbc53640f737433389a024620d189022c7d5b4b93b62b1aaa3d47513b6a15
+	@if [ "${QT_API}" == "pyqt6" ] || [ "${QT_API}" == "pyside6" ] ; then \
+		export _QT_VERSION=6 ; \
+	elif [ "${QT_API}" == "pyside2" ] ; then \
+		export _QT_VERSION=5 ; \
+	else \
+		export QT_API=pyqt5 ; \
+		export _QT_VERSION=5 ; \
+	fi && \
+	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync \
+		-w /gridsync --env QT_API="$${QT_API}" \
+		docker.io/gridsync/gridsync-builder-qt$${_QT_VERSION}@$$(cat misc/gridsync-builder-qt$${_QT_VERSION}.digest)
 
 
 # https://developer.apple.com/library/archive/technotes/tn2206/_index.html

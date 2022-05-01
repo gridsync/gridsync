@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, QPropertyAnimation, QThread, pyqtSignal
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
+from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
+from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
 from gridsync import APP_NAME
 from gridsync.crypto import Crypter
@@ -17,7 +17,7 @@ from gridsync.msg import error, question
 
 class RecoveryKeyExporter(QObject):
 
-    done = pyqtSignal(str)
+    done = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -31,11 +31,12 @@ class RecoveryKeyExporter(QObject):
 
     def _on_encryption_failed(self, message):
         self.crypter_thread.quit()
-        error(self.parent, "Error encrypting data", message)
         self.crypter_thread.wait()
+        error(self.parent, "Error encrypting data", message)
 
     def _on_encryption_succeeded(self, ciphertext):
         self.crypter_thread.quit()
+        self.crypter_thread.wait()
         if self.filepath:
             with atomic_write(self.filepath, mode="wb", overwrite=True) as f:
                 f.write(ciphertext)
@@ -43,7 +44,6 @@ class RecoveryKeyExporter(QObject):
             self.filepath = None
         else:
             self.ciphertext = ciphertext
-        self.crypter_thread.wait()
 
     def _export_encrypted_recovery(self, gateway, password):
         settings = gateway.get_settings(include_secrets=True)
@@ -119,7 +119,7 @@ class RecoveryKeyExporter(QObject):
 
 class RecoveryKeyImporter(QObject):
 
-    done = pyqtSignal(dict)
+    done = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__()
@@ -133,6 +133,7 @@ class RecoveryKeyImporter(QObject):
     def _on_decryption_failed(self, msg):
         logging.error("%s", msg)
         self.crypter_thread.quit()
+        self.crypter_thread.wait()
         if msg == "Decryption failed. Ciphertext failed verification":
             msg = "The provided passphrase was incorrect. Please try again."
         reply = QMessageBox.critical(
@@ -141,20 +142,21 @@ class RecoveryKeyImporter(QObject):
             msg,
             QMessageBox.Abort | QMessageBox.Retry,
         )
-        self.crypter_thread.wait()
         if reply == QMessageBox.Retry:
             self._load_from_file(self.filepath)
 
     def _on_decryption_succeeded(self, plaintext):
         logging.debug("Decryption of %s succeeded", self.filepath)
         self.crypter_thread.quit()
+        self.crypter_thread.wait()
         try:
             settings = json.loads(plaintext.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError) as e:
             error(self, type(e).__name__, str(e))
             return
+        if not isinstance(settings, dict):
+            raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
-        self.crypter_thread.wait()
 
     def _decrypt_content(self, data, password):
         logging.debug("Trying to decrypt %s...", self.filepath)
@@ -200,6 +202,8 @@ class RecoveryKeyImporter(QObject):
             if ok:
                 self._decrypt_content(content, password)
             return
+        if not isinstance(settings, dict):
+            raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
 
     def _load_from_file(self, path):

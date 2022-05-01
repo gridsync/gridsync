@@ -4,8 +4,8 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING
 
-from PyQt5.QtGui import QIcon, QMovie, QPixmap
-from PyQt5.QtWidgets import QSystemTrayIcon
+from qtpy.QtGui import QIcon, QMovie, QPixmap
+from qtpy.QtWidgets import QSystemTrayIcon
 
 if TYPE_CHECKING:
     from gridsync.gui import Gui
@@ -37,7 +37,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             resource(settings["application"]["tray_icon_sync"])
         )
         self.animation.updated.connect(self.update)
-        self.animation.setCacheMode(True)
+        self.animation.setCacheMode(QMovie.CacheAll)
 
     def add_operation(self, operation: tuple) -> None:
         self._operations.add(operation)

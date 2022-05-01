@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import attr
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, Signal
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
@@ -16,10 +16,10 @@ from gridsync.errors import TahoeWebError
 
 class GridChecker(QObject):
 
-    connected = pyqtSignal()
-    disconnected = pyqtSignal()
-    nodes_updated = pyqtSignal(int, int)
-    space_updated = pyqtSignal(object)
+    connected = Signal()
+    disconnected = Signal()
+    nodes_updated = Signal(int, int)
+    space_updated = Signal(object)
 
     def __init__(self, gateway):
         super().__init__()
@@ -140,15 +140,15 @@ def _parse_vouchers(
 
 class ZKAPChecker(QObject):
 
-    zkaps_updated = pyqtSignal(int, int)  # used, remaining
-    zkaps_available = pyqtSignal()
-    zkaps_redeemed = pyqtSignal(str)  # timestamp
-    zkaps_renewal_cost_updated = pyqtSignal(int)
-    zkaps_price_updated = pyqtSignal(int, int)
-    days_remaining_updated = pyqtSignal(int)
-    unpaid_vouchers_updated = pyqtSignal(list)
-    redeeming_vouchers_updated = pyqtSignal(list)
-    low_zkaps_warning = pyqtSignal()
+    zkaps_updated = Signal(int, int)  # used, remaining
+    zkaps_available = Signal()
+    zkaps_redeemed = Signal(str)  # timestamp
+    zkaps_renewal_cost_updated = Signal(int)
+    zkaps_price_updated = Signal(int, int)
+    days_remaining_updated = Signal(int)
+    unpaid_vouchers_updated = Signal(list)
+    redeeming_vouchers_updated = Signal(list)
+    low_zkaps_warning = Signal()
 
     def __init__(self, gateway):
         super().__init__()
@@ -364,7 +364,7 @@ class Monitor(QObject):
 
     :ivar bool _started: Whether or not ``start`` has already been called.
 
-    :ivar pyqtSignal zkaps_updated: A signal that is emitted periodically when
+    :ivar Signal zkaps_updated: A signal that is emitted periodically when
         we notice that the number of available or total ZKAPs has changed.  Is
         it emitted near startup?  I don't know.
 
@@ -376,22 +376,22 @@ class Monitor(QObject):
 
     _started = False
 
-    connected = pyqtSignal()
-    disconnected = pyqtSignal()
-    nodes_updated = pyqtSignal(int, int)
-    space_updated = pyqtSignal(object)
+    connected = Signal()
+    disconnected = Signal()
+    nodes_updated = Signal(int, int)
+    space_updated = Signal(object)
 
-    check_finished = pyqtSignal()
+    check_finished = Signal()
 
-    zkaps_updated = pyqtSignal(int, int)
-    zkaps_available = pyqtSignal()
-    zkaps_redeemed = pyqtSignal(str)
-    zkaps_renewal_cost_updated = pyqtSignal(int)
-    zkaps_price_updated = pyqtSignal(int, int)
-    days_remaining_updated = pyqtSignal(int)
-    unpaid_vouchers_updated = pyqtSignal(list)
-    redeeming_vouchers_updated = pyqtSignal(list)
-    low_zkaps_warning = pyqtSignal()
+    zkaps_updated = Signal(int, int)
+    zkaps_available = Signal()
+    zkaps_redeemed = Signal(str)
+    zkaps_renewal_cost_updated = Signal(int)
+    zkaps_price_updated = Signal(int, int)
+    days_remaining_updated = Signal(int)
+    unpaid_vouchers_updated = Signal(list)
+    redeeming_vouchers_updated = Signal(list)
+    low_zkaps_warning = Signal()
 
     def __init__(self, gateway):
         super().__init__()

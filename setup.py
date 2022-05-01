@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import os
 import re
 import struct
 import sys
@@ -20,26 +20,32 @@ requirements = [
     "hyperlink",
     "magic-wormhole",
     "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
-    "PyQt5",
-    "PyQtChart",
     "pyyaml",
-    "qt5reactor",
+    "qtpy",
     "treq",
     "twisted[tls] >= 21.7.0",  # 21.7.0 adds Deferred type hinting/annotations
+    "txdbus ; sys_platform != 'darwin' and sys_platform != 'win32'",
     "txtorcon",
     "watchdog",
     "zxcvbn",
 ]
+qt_requirements = {
+    "pyqt5": ["PyQt5", "PyQtChart"],
+    "pyqt6": ["PyQt6", "PyQt6-Charts"],
+    "pyside2": ["PySide2"],
+    "pyside6": ["PySide6"],
+}
+qt_api = os.environ.get("QT_API", "pyqt5").lower()
+if qt_api not in qt_requirements:
+    sys.exit(
+        f'The requested Qt API "{qt_api}" is invalid; '
+        f'valid QT_API options are: {", ".join(qt_requirements.keys())}'
+    )
+requirements += qt_requirements[qt_api]
 
-if sys.platform.startswith("linux") and (struct.calcsize("P") * 8) == 32:
-    try:
-        import PyQt5  # noqa; F401 (imported but unused)
-    except ImportError:
-        sys.exit(
-            "PyQt5 wheels are not available for 32-bit GNU/Linux. Please "
-            "manually install PyQt5 into this environment and try again."
-        )
-    requirements.remove("PyQt5")
+
+if struct.calcsize("P") * 8 == 32:
+    sys.exit("Gridsync is not supported on 32-bit systems.")
 
 
 module_file = open("gridsync/__init__.py").read()

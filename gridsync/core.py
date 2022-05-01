@@ -7,9 +7,9 @@ import os
 import sys
 from datetime import datetime, timezone
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QCheckBox, QMessageBox
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import QApplication, QCheckBox, QMessageBox
 
 # These Qt attributes must be set *before* initializing a QApplication...
 if os.environ.get("QREXEC_REMOTE_DOMAIN") or os.environ.get(
@@ -18,27 +18,42 @@ if os.environ.get("QREXEC_REMOTE_DOMAIN") or os.environ.get(
     # On Qubes-OS, setting AA_EnableHighDpiScaling to 'True', *always* doubles
     # the window-size -- even on lower-resolution (1080p) displays -- but does
     # not do the same for font-sizes.
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    try:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    except AttributeError:  # Not available in Qt6
+        pass
 elif os.environ.get("DESKTOP_SESSION") == "mate":
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    try:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+    except AttributeError:  # Not available in Qt6
+        pass
 else:
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    try:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    except AttributeError:  # Not available in Qt6
+        pass
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
-
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
+try:
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+except AttributeError:  # Not available in Qt6
+    pass
+try:
+    QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
+except AttributeError:  # Not available in Qt6
+    pass
 
 app = QApplication(sys.argv)
 
-# qt5reactor must be 'installed' after initializing QApplication but
+# qtreactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
-# See https://github.com/gridsync/qt5reactor/blob/master/README.rst
-import qt5reactor
+# See https://github.com/twisted/qt5reactor/blob/master/README.rst
+from gridsync import qtreactor  # pylint: disable=ungrouped-imports
 
-qt5reactor.install()
+qtreactor.install()
 
+# pylint: disable=wrong-import-order
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.python.log import PythonLoggingObserver, startLogging

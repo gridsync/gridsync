@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import QRect, Qt
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
+from qtpy.QtCore import QRect, Qt
+from qtpy.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
 
 from gridsync import resource
 

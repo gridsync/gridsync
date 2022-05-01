@@ -2,15 +2,9 @@
 
 import sys
 
-from PyQt5.QtCore import (
-    QPropertyAnimation,
-    QSize,
-    QStringListModel,
-    Qt,
-    pyqtSignal,
-)
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QPropertyAnimation, QSize, QStringListModel, Qt, Signal
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import (
     QAction,
     QCheckBox,
     QCompleter,
@@ -20,8 +14,6 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPushButton,
-    QSizePolicy,
-    QSpacerItem,
     QWidget,
 )
 from twisted.internet import reactor
@@ -38,6 +30,7 @@ from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
+from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
 
@@ -61,8 +54,8 @@ class InviteCodeCompleter(QCompleter):
 
 class InviteCodeLineEdit(QLineEdit):
 
-    error = pyqtSignal(str)
-    go = pyqtSignal(str)
+    error = Signal(str)
+    go = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__()
@@ -83,9 +76,9 @@ class InviteCodeLineEdit(QLineEdit):
         self.tor_icon = QIcon(resource("tor-onion.png"))
 
         self.status_action = QAction(self.blank_icon, "", self)
-        self.addAction(self.status_action, 0)
+        self.addAction(self.status_action, QLineEdit.LeadingPosition)
         self.action_button = QAction(self.blank_icon, "", self)
-        self.addAction(self.action_button, 1)
+        self.addAction(self.action_button, QLineEdit.TrailingPosition)
 
         completer.highlighted.connect(self.update_action_button)
         self.textChanged.connect(self.update_action_button)
@@ -185,10 +178,10 @@ class InviteCodeWidget(QWidget):
 
         label_layout = QGridLayout()
         label_layout.setHorizontalSpacing(6)
-        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        label_layout.addItem(HSpacer(), 1, 1)
         label_layout.addWidget(self.label, 1, 2, Qt.AlignCenter)
         label_layout.addWidget(self.code_info_button, 1, 3, Qt.AlignLeft)
-        label_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 5)
+        label_layout.addItem(HSpacer(), 1, 5)
 
         self.lineedit = InviteCodeLineEdit(self)
 
@@ -271,17 +264,17 @@ class InviteCodeWidget(QWidget):
 
         tor_layout = QGridLayout()
         tor_layout.setHorizontalSpacing(0)
-        tor_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1)
+        tor_layout.addItem(HSpacer(), 1, 1)
         tor_layout.addWidget(self.tor_checkbox, 1, 2, Qt.AlignCenter)
         tor_layout.addWidget(self.tor_info_button, 1, 3, Qt.AlignLeft)
-        tor_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 4)
+        tor_layout.addItem(HSpacer(), 1, 4)
 
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
+        layout.addItem(VSpacer(), 1, 1)
         layout.addLayout(label_layout, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
         layout.addLayout(tor_layout, 4, 1)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 5, 1)
+        layout.addItem(VSpacer(), 5, 1)
 
         self.tor_checkbox.toggled.connect(self.toggle_tor_status)
 

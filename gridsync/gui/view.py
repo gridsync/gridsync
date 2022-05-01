@@ -6,9 +6,9 @@ import sys
 import traceback
 from pathlib import Path
 
-from PyQt5.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
-from PyQt5.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
+from qtpy.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
+from qtpy.QtWidgets import (
     QAbstractItemView,
     QAction,
     QCheckBox,
@@ -17,8 +17,6 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QMenu,
     QMessageBox,
-    QSizePolicy,
-    QSpacerItem,
     QStyledItemDelegate,
     QTreeView,
 )
@@ -30,7 +28,7 @@ from gridsync.gui.font import Font
 from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
-from gridsync.gui.widgets import ClickableLabel
+from gridsync.gui.widgets import ClickableLabel, HSpacer, VSpacer
 from gridsync.magic_folder import MagicFolderStatus
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
@@ -42,10 +40,10 @@ class Delegate(QStyledItemDelegate):
         super().__init__(parent=None)
         self.parent = parent
         self.waiting_movie = QMovie(resource("waiting.gif"))
-        self.waiting_movie.setCacheMode(True)
+        self.waiting_movie.setCacheMode(QMovie.CacheAll)
         self.waiting_movie.frameChanged.connect(self.on_frame_changed)
         self.sync_movie = QMovie(resource("sync.gif"))
-        self.sync_movie.setCacheMode(True)
+        self.sync_movie.setCacheMode(QMovie.CacheAll)
         self.sync_movie.frameChanged.connect(self.on_frame_changed)
 
     def on_frame_changed(self):
@@ -143,12 +141,12 @@ class View(QTreeView):
         self.add_folder_label.installEventFilter(self)
 
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 1, 1)
+        layout.addItem(VSpacer(), 1, 1)
         layout.addWidget(self.add_folder_icon, 2, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 3, 1)
+        layout.addItem(HSpacer(), 3, 1)
         layout.addWidget(self.add_folder_label, 3, 2)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 3, 3)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 4, 1)
+        layout.addItem(HSpacer(), 3, 3)
+        layout.addItem(VSpacer(), 4, 1)
 
         self.add_folder_icon.clicked.connect(self.select_folder)
         self.add_folder_label.clicked.connect(self.select_folder)
