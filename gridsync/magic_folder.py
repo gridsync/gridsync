@@ -26,6 +26,7 @@ from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
+    from qtpy.QtCore import SignalInstance
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
 
@@ -191,7 +192,7 @@ class MagicFolderMonitor(QObject):
         self,
         current_operations: DefaultDict[str, dict],
         previous_operations: DefaultDict[str, dict],
-        started_signal: Signal[str, str, dict],
+        started_signal: SignalInstance,
     ) -> None:
         for folder, operation in current_operations.items():
             for relpath, data in operation.items():
@@ -203,7 +204,7 @@ class MagicFolderMonitor(QObject):
         self,
         current_operations: DefaultDict[str, dict],
         previous_operations: DefaultDict[str, dict],
-        finished_signal: Signal[str, str, dict],
+        finished_signal: SignalInstance,
     ) -> None:
         for folder, operation in previous_operations.items():
             for relpath, data in operation.items():
