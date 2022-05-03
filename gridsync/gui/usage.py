@@ -322,10 +322,10 @@ class UsageView(QWidget):
 
     def _update_info_label(self) -> None:
         zkapauthorizer = self.gateway.zkapauthorizer
+        bs = self.chart_view.chart()._convert(zkapauthorizer.zkap_batch_size)
         self.info_label.setText(
-            f"Last purchase: {self._last_purchase_date} ("
-            f"{self.chart_view.chart._convert(zkapauthorizer.zkap_batch_size)} "
-            f"{zkapauthorizer.zkap_unit_name}s)     "
+            f"Last purchase: {self._last_purchase_date} "
+            f"({bs} {zkapauthorizer.zkap_unit_name}s)     "
             f"Expected expiry: {self._expiry_date}"
         )
 
@@ -358,7 +358,7 @@ class UsageView(QWidget):
             self.redeeming_label.hide()
             self.chart_view.hide()
             self.zkaps_required_label.show()
-        self.chart_view.chart.update_chart(
+        self.chart_view.chart().update_chart(
             self._zkaps_used,
             self._zkaps_cost,
             self._zkaps_remaining,
