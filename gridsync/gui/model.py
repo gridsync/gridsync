@@ -15,6 +15,7 @@ from qtpy.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 if TYPE_CHECKING:
+    from typing import Any
     from qtpy.QtCore import QModelIndex
     from gridsync.view import View
 
@@ -112,7 +113,8 @@ class Model(QStandardItemModel):
                 f"Updated {humanized_list(files)}",
             )
 
-    def data(self, index: QModelIndex, role: int) -> None:
+    # override
+    def data(self, index: QModelIndex, role: int) -> Any:  # type: ignore
         value = super().data(index, role)
         if role == Qt.SizeHintRole:
             return QSize(0, 30)
