@@ -176,15 +176,13 @@ class ZKAPBarChart(QChart):
 class ZKAPCompactPieChartView(QChartView):
     def __init__(self) -> None:
         super().__init__()
-        self.chart = ZKAPPieChart()
         self.setMaximumSize(26, 26)
-        self.setChart(self.chart)
+        self.setChart(ZKAPPieChart())
         self.setRenderHint(QPainter.Antialiasing)
 
 
 class ZKAPBarChartView(QChartView):
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
-        self.chart = ZKAPBarChart(gateway)
-        self.setChart(self.chart)
+        self.setChart(ZKAPBarChart(gateway))
         self.setRenderHint(QPainter.Antialiasing)
