@@ -36,7 +36,7 @@ from gridsync.util import b58encode, humanized_list
 
 
 class InviteSenderDialog(QDialog):
-    done = Signal(QWidget)
+    completed = Signal(QWidget)
     closed = Signal(QWidget)
 
     def __init__(self, gateway, gui, folder_names=None):
@@ -313,7 +313,7 @@ class InviteSenderDialog(QDialog):
 
 
 class InviteReceiverDialog(QDialog):
-    done = Signal(object)  # Tahoe gateway
+    completed = Signal(object)  # Tahoe gateway
     closed = Signal(QWidget)
 
     def __init__(self, gateways):
@@ -433,7 +433,7 @@ class InviteReceiverDialog(QDialog):
         self.progressbar.setValue(self.progressbar.maximum())
         self.close_button.show()
         self.checkmark.show()
-        self.done.emit(gateway)
+        self.completed.emit(gateway)
         if self.joined_folders and len(self.joined_folders) == 1:
             target = self.joined_folders[0]
             self.message_label.setText(
@@ -493,7 +493,7 @@ class InviteReceiverDialog(QDialog):
         self.invite_receiver.update_progress.connect(self.update_progress)
         self.invite_receiver.got_icon.connect(self.on_got_icon)
         self.invite_receiver.joined_folders.connect(self.set_joined_folders)
-        self.invite_receiver.done.connect(self.on_done)
+        self.invite_receiver.completed.connect(self.on_done)
         d = self.invite_receiver.receive(code)
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)

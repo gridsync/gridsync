@@ -352,7 +352,7 @@ class MainWindow(QMainWindow):
 
     def open_invite_receiver(self):
         invite_receiver_dialog = InviteReceiverDialog(self.gateways)
-        invite_receiver_dialog.done.connect(self.on_invite_received)
+        invite_receiver_dialog.completed.connect(self.on_invite_received)
         invite_receiver_dialog.closed.connect(self.on_invite_closed)
         invite_receiver_dialog.show()
         self.active_invite_receiver_dialogs.append(invite_receiver_dialog)
