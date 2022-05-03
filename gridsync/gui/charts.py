@@ -132,7 +132,7 @@ class ZKAPBarChart(QChart):
         legend_layout.setContentsMargins(0, top, 0, bottom)
         legend.markers(series)[-1].setVisible(False)  # Hide set_expected
 
-        self.update(10, 30, 40)  # XXX
+        self.update_chart(10, 30, 40)  # XXX
 
     def _convert(self, value: int) -> Union[int, float]:
         if self.unit_multiplier == 1:
@@ -141,7 +141,7 @@ class ZKAPBarChart(QChart):
             return round(value * self.unit_multiplier, 3)
         return round(value * self.unit_multiplier, 2)
 
-    def update(
+    def update_chart(
         self, used: int = 0, cost: int = 0, available: int = 0, period: int = 0
     ) -> None:
         self.set_used.replace(0, used)
@@ -176,15 +176,13 @@ class ZKAPBarChart(QChart):
 class ZKAPCompactPieChartView(QChartView):
     def __init__(self) -> None:
         super().__init__()
-        self.chart = ZKAPPieChart()
         self.setMaximumSize(26, 26)
-        self.setChart(self.chart)
+        self.setChart(ZKAPPieChart())
         self.setRenderHint(QPainter.Antialiasing)
 
 
 class ZKAPBarChartView(QChartView):
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
-        self.chart = ZKAPBarChart(gateway)
-        self.setChart(self.chart)
+        self.setChart(ZKAPBarChart(gateway))
         self.setRenderHint(QPainter.Antialiasing)

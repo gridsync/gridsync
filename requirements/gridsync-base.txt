@@ -134,9 +134,9 @@ hkdf==0.0.3 \
     # via
     #   magic-wormhole
     #   spake2
-humanize==4.0.0 \
-    --hash=sha256:8d86333b8557dacffd4dce1dbe09c81c189e2caf7bb17a970b2212f0f58f10f2 \
-    --hash=sha256:ee1f872fdfc7d2ef4a28d4f80ddde9f96d36955b5d6b0dac4bdeb99502bddb00
+humanize==4.1.0 \
+    --hash=sha256:3a119b242ec872c029d8b7bf8435a61a5798f124b244a08013aec5617302f80e \
+    --hash=sha256:953b393f5bd67e19d47a4c0fd20c3a3537853967b307e49729c4755d3551753c
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
@@ -241,9 +241,9 @@ pyyaml==6.0 \
     --hash=sha256:e61ceaab6f49fb8bdfaa0f92c4b57bcfbea54c09277b1b4f7ac376bfb7a7c174 \
     --hash=sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5
     # via -r requirements/gridsync.in
-qtpy==2.0.1 \
-    --hash=sha256:adfd073ffbd2de81dc7aaa0b983499ef5c59c96adcfdcc9dea60d42ca885eb8f \
-    --hash=sha256:d93f2c98e97387fcc9d623d509772af5b6c15ab9d8f9f4c5dfbad9a73ad34812
+qtpy==2.1.0 \
+    --hash=sha256:aee0586081f943029312becece9f63977b0a9e3788f77a6ac8cc74802bb173d6 \
+    --hash=sha256:ca8cd4217175186344299ee4c0f7e7adcf362c70852ba35b255a534077025c06
     # via -r requirements/gridsync.in
 requests==2.27.1 \
     --hash=sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61 \
