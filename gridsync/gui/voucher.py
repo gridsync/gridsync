@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFontDatabase
-from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QLineEdit
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QFontDatabase
+from qtpy.QtWidgets import QDialog, QGridLayout, QLabel, QLineEdit
 
 from gridsync.gui.font import Font
 from gridsync.voucher import generate_voucher, is_valid

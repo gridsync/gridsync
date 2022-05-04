@@ -11,8 +11,8 @@ from urllib.parse import urlparse
 
 import treq
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import QInputDialog, QMessageBox, QWidget
+from qtpy.QtCore import QObject, Qt, Signal
+from qtpy.QtWidgets import QInputDialog, QMessageBox, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -189,12 +189,12 @@ def validate_settings(settings, known_gateways, parent, from_wormhole=True):
 
 class SetupRunner(QObject):
 
-    grid_already_joined = pyqtSignal(str)
-    update_progress = pyqtSignal(str)
-    client_started = pyqtSignal(object)
-    joined_folders = pyqtSignal(list)
-    got_icon = pyqtSignal(str)
-    done = pyqtSignal(object)
+    grid_already_joined = Signal(str)
+    update_progress = Signal(str)
+    client_started = Signal(object)
+    joined_folders = Signal(list)
+    got_icon = Signal(str)
+    done = Signal(object)
 
     def __init__(self, known_gateways, use_tor=False):
         super().__init__()

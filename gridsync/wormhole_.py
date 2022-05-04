@@ -6,7 +6,7 @@
 import json
 import logging
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from wormhole import wormhole
@@ -22,12 +22,12 @@ RELAY = settings["wormhole"]["relay"]
 
 class Wormhole(QObject):
 
-    got_welcome = pyqtSignal(dict)
-    got_code = pyqtSignal(str)
-    got_introduction = pyqtSignal()
-    got_message = pyqtSignal(dict)
-    closed = pyqtSignal()
-    send_completed = pyqtSignal()
+    got_welcome = Signal(dict)
+    got_code = Signal(str)
+    got_introduction = Signal()
+    got_message = Signal(dict)
+    closed = Signal()
+    send_completed = Signal()
 
     def __init__(self, use_tor=False):
         super().__init__()

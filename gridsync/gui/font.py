@@ -2,7 +2,7 @@
 
 import sys
 
-from PyQt5.QtGui import QFont
+from qtpy.QtGui import QFont
 
 
 class Font(QFont):

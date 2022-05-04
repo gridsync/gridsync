@@ -2,17 +2,15 @@
 
 from typing import Optional
 
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QSize, Qt
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import (
     QAction,
     QCheckBox,
     QGridLayout,
     QGroupBox,
     QLabel,
     QMainWindow,
-    QSizePolicy,
-    QSpacerItem,
     QStackedWidget,
     QToolButton,
     QWidget,
@@ -24,6 +22,7 @@ from gridsync.desktop import (
     autostart_enable,
     autostart_is_enabled,
 )
+from gridsync.gui.widgets import VSpacer
 from gridsync.msg import question
 from gridsync.preferences import Preferences
 
@@ -44,7 +43,7 @@ class GeneralPane(QWidget):
 
         layout = QGridLayout(self)
         layout.addWidget(startup_groupbox)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
+        layout.addItem(VSpacer())
 
         self.checkbox_minimize.stateChanged.connect(
             self.on_checkbox_minimize_changed
@@ -111,7 +110,7 @@ class NotificationsPane(QWidget):
 
         layout = QGridLayout(self)
         layout.addWidget(notifications_groupbox)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
+        layout.addItem(VSpacer())
 
         self.checkbox_connection.stateChanged.connect(
             self.on_checkbox_connection_changed

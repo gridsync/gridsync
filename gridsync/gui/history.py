@@ -5,9 +5,9 @@ import time
 from datetime import datetime
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, Qt, QTimer
-from PyQt5.QtGui import QCursor, QIcon, QPixmap
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import QFileInfo, Qt, QTimer
+from qtpy.QtGui import QCursor, QIcon, QPixmap
+from qtpy.QtWidgets import (
     QAbstractItemView,
     QAction,
     QFileIconProvider,
@@ -17,8 +17,6 @@ from PyQt5.QtWidgets import (
     QListWidgetItem,
     QMenu,
     QPushButton,
-    QSizePolicy,
-    QSpacerItem,
     QWidget,
 )
 
@@ -27,6 +25,7 @@ from gridsync.desktop import open_enclosing_folder, open_path
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.status import StatusPanel
+from gridsync.gui.widgets import HSpacer
 
 
 class HistoryItemWidget(QWidget):
@@ -81,7 +80,7 @@ class HistoryItemWidget(QWidget):
         self.layout.addWidget(self.icon, 1, 1, 2, 2)
         self.layout.addWidget(self.basename_label, 1, 3)
         self.layout.addWidget(self.details_label, 2, 3)
-        self.layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 4, 4)
+        self.layout.addItem(HSpacer(), 4, 4)
         self.layout.addWidget(self.button, 1, 5, 2, 2)
 
         self.update_text()

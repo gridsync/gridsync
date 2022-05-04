@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import (
     QAction,
     QDialog,
     QDialogButtonBox,
@@ -14,16 +14,16 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QProgressBar,
-    QSizePolicy,
-    QSpacerItem,
 )
 from zxcvbn import zxcvbn
 
 from gridsync import resource
 from gridsync.gui.font import Font
+from gridsync.gui.widgets import VSpacer
 
 if TYPE_CHECKING:
-    from PyQt5.QtCore import QEvent
+    from qtpy.QtCore import QEvent
+    from qtpy.QtWidgets import QWidget
 
 
 class PasswordDialog(QDialog):
@@ -33,7 +33,7 @@ class PasswordDialog(QDialog):
         ok_button_text: str = "",
         help_text: str = "",
         show_stats: bool = True,
-        parent: bool = None,
+        parent: Optional[QWidget] = None,
     ):
         super().__init__(parent)
         self.setMinimumWidth(400)
@@ -101,7 +101,7 @@ class PasswordDialog(QDialog):
             gbox.setLayout(gbox_layout)
             layout.addWidget(gbox, 5, 1)
 
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 6, 1)
+        layout.addItem(VSpacer(), 6, 1)
         layout.addWidget(self.button_box, 7, 1)
 
     def update_color(self, color: str) -> None:
@@ -161,7 +161,7 @@ class PasswordDialog(QDialog):
         elif suggestion:
             self.rating_label.setToolTip(suggestion)
         else:
-            self.rating_label.setToolTip(None)
+            self.rating_label.setToolTip("")
 
     def keyPressEvent(self, event: QEvent) -> None:
         if event.key() == Qt.Key_Escape:
@@ -173,7 +173,7 @@ class PasswordDialog(QDialog):
         ok_button_text: str = "",
         help_text: str = "",
         show_stats: bool = True,
-        parent: bool = None,
+        parent: Optional[QWidget] = None,
     ) -> Tuple[str, bool]:
         dialog = PasswordDialog(
             label=label,

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from PyQt5.QtWidgets import QLineEdit
+from qtpy.QtWidgets import QLineEdit
 
 from gridsync.gui.password import PasswordDialog
 

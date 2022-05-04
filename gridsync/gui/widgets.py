@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSignal as Signal
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import Signal
+from qtpy.QtWidgets import (
     QComboBox,
     QDialogButtonBox,
     QFormLayout,
@@ -19,6 +19,16 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync.tor import get_tor
+
+
+class VSpacer(QSpacerItem):
+    def __init__(self):
+        super().__init__(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+
+class HSpacer(QSpacerItem):
+    def __init__(self):
+        super().__init__(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
 
 class ClickableLabel(QLabel):
@@ -84,7 +94,7 @@ class EncodingParameters(QWidget):
         self.happy_spinbox.setRange(1, 255)
 
         layout = QGridLayout(self)
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, 0), 1, 1, 1, 4)
+        layout.addItem(HSpacer(), 1, 1, 1, 4)
         layout.addWidget(self.total_label, 1, 2)
         layout.addWidget(self.total_spinbox, 1, 3)
         layout.addWidget(self.needed_label, 2, 2)
@@ -137,7 +147,7 @@ class TahoeConfigForm(QWidget):
         layout = QGridLayout(self)
         layout.addWidget(connection_settings_gbox)
         layout.addWidget(encoding_parameters_gbox)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding))
+        layout.addItem(VSpacer())
         layout.addWidget(self.buttonbox)
 
     def set_name(self, name):

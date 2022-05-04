@@ -8,7 +8,7 @@ from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
 from nacl.utils import random
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, Signal
 
 from gridsync.util import b58decode, b58encode
 
@@ -66,8 +66,8 @@ def decrypt(ciphertext: bytes, password: bytes) -> bytes:
 
 class Crypter(QObject):
 
-    succeeded = pyqtSignal(object)
-    failed = pyqtSignal(str)
+    succeeded = Signal(object)
+    failed = Signal(str)
 
     def __init__(self, data: bytes, password: bytes) -> None:
         super().__init__()

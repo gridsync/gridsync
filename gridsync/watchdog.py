@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Dict
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, Signal
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -24,7 +24,7 @@ class _WatchdogEventHandler(FileSystemEventHandler):
 
 class Watchdog(QObject):
 
-    path_modified = pyqtSignal(str)
+    path_modified = Signal(str)
 
     def __init__(self) -> None:
         super().__init__()

@@ -4,7 +4,7 @@ from collections import deque
 from unittest.mock import Mock
 
 import pytest
-from PyQt5.QtCore import Qt
+from qtpy.QtCore import Qt
 
 from gridsync.gui.debug import (
     DebugExporter,

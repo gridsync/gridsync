@@ -7,7 +7,7 @@ import time
 from random import randint
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QObject, pyqtSignal
+from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import deferLater
@@ -17,8 +17,8 @@ from gridsync import settings
 
 class NewscapChecker(QObject):
 
-    message_received = pyqtSignal(object, str)
-    upgrade_required = pyqtSignal(object)
+    message_received = Signal(object, str)
+    upgrade_required = Signal(object)
 
     def __init__(self, gateway):
         super().__init__()

@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, Mock, call
 import pytest
 
 from gridsync.desktop import (
-    _dbus_notify,
     _desktop_open,
     autostart_disable,
     autostart_enable,
@@ -22,39 +21,7 @@ from gridsync.desktop import (
 )
 
 
-def test__dbus_notify_bus_not_connected(monkeypatch):
-    monkeypatch.setattr(
-        "PyQt5.QtDBus.QDBusConnection.isConnected", lambda _: False
-    )
-    with pytest.raises(OSError):
-        _dbus_notify("", "")
-
-
-def test__dbus_notify_interface_error(monkeypatch):
-    monkeypatch.setattr(
-        "PyQt5.QtDBus.QDBusConnection.isConnected", lambda _: True
-    )
-    monkeypatch.setattr("PyQt5.QtDBus.QDBusError.type", lambda _: 9999)
-    with pytest.raises(RuntimeError):
-        _dbus_notify("", "")
-
-
-def test__dbus_notify_interface_called(monkeypatch):
-    was_called = [False]
-
-    def fake_call(*_):
-        was_called[0] = True
-
-    monkeypatch.setattr(
-        "PyQt5.QtDBus.QDBusConnection.isConnected", lambda _: True
-    )
-    monkeypatch.setattr("PyQt5.QtDBus.QDBusError.type", lambda _: 0)
-    monkeypatch.setattr("PyQt5.QtDBus.QDBusInterface.call", fake_call)
-    _dbus_notify("", "")
-    assert was_called[0] is True
-
-
-def test_notify_call__dbus_notify(monkeypatch):
+def test_notify_calls__txdbus_notify_on_linux(monkeypatch):
     dbus_notify_args = [None, None, None]
 
     def fake_dbus_notify(title, message, duration):
@@ -63,13 +30,13 @@ def test_notify_call__dbus_notify(monkeypatch):
         dbus_notify_args[2] = duration
 
     monkeypatch.setattr("sys.platform", "linux")
-    monkeypatch.setattr("gridsync.desktop._dbus_notify", fake_dbus_notify)
+    monkeypatch.setattr("gridsync.desktop._txdbus_notify", fake_dbus_notify)
     notify(None, "test_title", "test_message", 9001)
     assert dbus_notify_args == ["test_title", "test_message", 9001]
 
 
 @pytest.mark.parametrize("error", [OSError, RuntimeError])
-def test_notify_call__dbus_notify_fallback_on_error(error, monkeypatch):
+def test_fallback_to_show_message_on_dbus_notify_error(error, monkeypatch):
     show_message_args = [None, None, None]
 
     def fake_show_message(title, message, msecs):
@@ -81,7 +48,7 @@ def test_notify_call__dbus_notify_fallback_on_error(error, monkeypatch):
     fake_systray.showMessage = fake_show_message
     monkeypatch.setattr("sys.platform", "linux")
     monkeypatch.setattr(
-        "gridsync.desktop._dbus_notify", MagicMock(side_effect=error)
+        "gridsync.desktop._txdbus_notify", MagicMock(side_effect=error)
     )
     notify(fake_systray, "test_title", "test_message", 9001)
     assert show_message_args == ["test_title", "test_message", 9001]
@@ -97,16 +64,16 @@ def test_notify_call_systray_show_message(monkeypatch):
 
     fake_systray = MagicMock()
     fake_systray.showMessage = fake_show_message
-    monkeypatch.setattr("sys.platform", "NOT_linux")
+    monkeypatch.setattr("sys.platform", "win32")
     notify(fake_systray, "test_title", "test_message", 9001)
     assert show_message_args == ["test_title", "test_message", 9001]
 
 
 def test__desktop_open_call_qdesktopservices_openurl(monkeypatch):
     fromlocalfile_mock = MagicMock()
-    monkeypatch.setattr("PyQt5.QtCore.QUrl.fromLocalFile", fromlocalfile_mock)
+    monkeypatch.setattr("qtpy.QtCore.QUrl.fromLocalFile", fromlocalfile_mock)
     openurl_mock = MagicMock()
-    monkeypatch.setattr("PyQt5.QtGui.QDesktopServices.openUrl", openurl_mock)
+    monkeypatch.setattr("qtpy.QtGui.QDesktopServices.openUrl", openurl_mock)
     _desktop_open("/test/path/file.txt")
     assert openurl_mock.call_count == 1 and fromlocalfile_mock.mock_calls == [
         call("/test/path/file.txt")

@@ -7,8 +7,10 @@ import sys
 import webbrowser
 
 from atomicwrites import atomic_write
-from PyQt5.QtCore import QCoreApplication, QMetaType, QUrl, QVariant
-from PyQt5.QtGui import QClipboard, QDesktopServices
+from qtpy.QtCore import QCoreApplication, QUrl
+from qtpy.QtGui import QClipboard, QDesktopServices
+from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
 
 if sys.platform == "win32":
     from win32com.client import Dispatch  # pylint: disable=import-error
@@ -16,53 +18,37 @@ if sys.platform == "win32":
 from gridsync import APP_NAME, autostart_file_path, resource, settings
 
 
-def _dbus_notify(title, message, duration=5000):
-    from PyQt5.QtDBus import (
-        QDBus,
-        QDBusArgument,
-        QDBusConnection,
-        QDBusInterface,
-    )
+@inlineCallbacks
+def _txdbus_notify(title, message, duration=5000):
+    from txdbus import client  # pylint: disable=import-error
 
-    bus = QDBusConnection.sessionBus()
-    if not bus.isConnected():
-        raise OSError("Could not connect to DBus")
-    interface = QDBusInterface(
-        "org.freedesktop.Notifications",
-        "/org/freedesktop/Notifications",
-        "org.freedesktop.Notifications",
-        bus,
+    conn = yield client.connect(reactor)
+    robj = yield conn.getRemoteObject(
+        "org.freedesktop.Notifications", "/org/freedesktop/Notifications"
     )
-    error = interface.lastError()
-    if error.type():
-        raise RuntimeError("{}; {}".format(error.name(), error.message()))
     # See https://developer.gnome.org/notification-spec/
-    # "This allows clients to effectively modify the notification while
-    # it's active. A value of value of 0 means that this notification
-    # won't replace any existing notifications."
-    replaces_id = QVariant(0)
-    replaces_id.convert(QVariant.UInt)
-    interface.call(
-        QDBus.NoBlock,
+    reply = yield robj.callRemote(
         "Notify",
         APP_NAME,
-        replaces_id,
+        0,  # 0 means don't replace existing notifications.
         resource(settings["application"]["tray_icon"]),
         title,
         message,
-        QDBusArgument([], QMetaType.QStringList),
+        [],
         {},
         duration,
     )
+    logging.debug("Got reply from DBus: %s", reply)
+    yield conn.disconnect()
 
 
 def notify(systray, title, message, duration=5000):
     logging.debug("Sending desktop notification...")
-    if sys.platform.startswith("linux"):
+    if sys.platform not in ("darwin", "win32"):
         try:
-            _dbus_notify(title, message, duration)
-        except (OSError, RuntimeError) as err:
-            logging.warning("%s; falling back to showMessage()...", str(err))
+            _txdbus_notify(title, message, duration)
+        except Exception as exc:  # pylint: disable=broad-except
+            logging.warning("%s; falling back to showMessage()...", str(exc))
             systray.showMessage(title, message, msecs=duration)
     else:
         systray.showMessage(title, message, msecs=duration)

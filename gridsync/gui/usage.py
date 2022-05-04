@@ -9,18 +9,9 @@ from typing import TYPE_CHECKING, List
 
 import attr
 from humanize import naturalsize
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QIcon, QPainter
-from PyQt5.QtWidgets import (
-    QGridLayout,
-    QGroupBox,
-    QLabel,
-    QPushButton,
-    QSizePolicy,
-    QSpacerItem,
-    QWidget,
-)
+from qtpy.QtCore import Qt, Slot
+from qtpy.QtGui import QIcon, QPainter
+from qtpy.QtWidgets import QGridLayout, QGroupBox, QLabel, QPushButton, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -30,6 +21,7 @@ from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
+from gridsync.gui.widgets import VSpacer
 from gridsync.msg import error
 from gridsync.types import TwistedDeferred
 
@@ -183,20 +175,20 @@ class UsageView(QWidget):
     @groupbox.default
     def _groupbox_default(self) -> QGroupBox:
         layout = QGridLayout()
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 10, 0)
+        layout.addItem(VSpacer(), 10, 0)
         layout.addWidget(self.title, 20, 0)
         layout.addWidget(self.explainer_label, 30, 0)
         layout.addWidget(self.redeeming_label, 30, 0)
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addWidget(self.loading_storage_time, 50, 0)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 50, 0)
+        layout.addItem(VSpacer(), 50, 0)
         layout.addWidget(self.chart_view, 60, 0)
         layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 80, 0)
+        layout.addItem(VSpacer(), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.voucher_link, 100, 0, 1, 1, Qt.AlignCenter)
         layout.addWidget(self.status_label, 110, 0, 1, 1, Qt.AlignCenter)
-        layout.addItem(QSpacerItem(0, 0, 0, QSizePolicy.Expanding), 110, 0)
+        layout.addItem(VSpacer(), 110, 0)
 
         groupbox = QGroupBox()
         groupbox.setLayout(layout)
@@ -330,10 +322,10 @@ class UsageView(QWidget):
 
     def _update_info_label(self) -> None:
         zkapauthorizer = self.gateway.zkapauthorizer
+        bs = self.chart_view.chart()._convert(zkapauthorizer.zkap_batch_size)
         self.info_label.setText(
-            f"Last purchase: {self._last_purchase_date} ("
-            f"{self.chart_view.chart._convert(zkapauthorizer.zkap_batch_size)} "
-            f"{zkapauthorizer.zkap_unit_name}s)     "
+            f"Last purchase: {self._last_purchase_date} "
+            f"({bs} {zkapauthorizer.zkap_unit_name}s)     "
             f"Expected expiry: {self._expiry_date}"
         )
 
@@ -366,7 +358,7 @@ class UsageView(QWidget):
             self.redeeming_label.hide()
             self.chart_view.hide()
             self.zkaps_required_label.show()
-        self.chart_view.chart.update(
+        self.chart_view.chart().update_chart(
             self._zkaps_used,
             self._zkaps_cost,
             self._zkaps_remaining,

@@ -5,15 +5,15 @@ import datetime as dt
 from typing import TYPE_CHECKING, Union
 
 from humanize import naturaldelta
-from PyQt5.QtChart import (
+from qtpy.QtCharts import (
     QBarSet,
     QChart,
     QChartView,
     QHorizontalPercentBarSeries,
     QPieSeries,
 )
-from PyQt5.QtCore import QMargins, Qt
-from PyQt5.QtGui import QColor, QPainter, QPalette, QPen
+from qtpy.QtCore import QMargins, Qt
+from qtpy.QtGui import QColor, QPainter, QPalette, QPen
 
 from gridsync.gui.color import is_dark
 from gridsync.gui.font import Font
@@ -109,13 +109,16 @@ class ZKAPBarChart(QChart):
         series.append(self.set_expected)
 
         self.addSeries(series)
-        self.setAnimationOptions(QChart.SeriesAnimations)
+        try:
+            self.setAnimationOptions(QChart.SeriesAnimations)
+        except AttributeError:  # Moved(?) in (Py)Qt6
+            self.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
         self.setBackgroundVisible(False)
 
         self.layout().setContentsMargins(0, 0, 0, 0)
         legend = self.legend()
         palette = self.palette()
-        if is_dark(palette.color(QPalette.Background)):
+        if is_dark(palette.color(QPalette.Window)):
             # The legend label text does not seem to be dark mode-aware
             # and will appear dark grey with macOS dark mode enabled,
             # making the labels illegible. This may be a bug with
@@ -129,7 +132,7 @@ class ZKAPBarChart(QChart):
         legend_layout.setContentsMargins(0, top, 0, bottom)
         legend.markers(series)[-1].setVisible(False)  # Hide set_expected
 
-        self.update(10, 30, 40)  # XXX
+        self.update_chart(10, 30, 40)  # XXX
 
     def _convert(self, value: int) -> Union[int, float]:
         if self.unit_multiplier == 1:
@@ -138,7 +141,7 @@ class ZKAPBarChart(QChart):
             return round(value * self.unit_multiplier, 3)
         return round(value * self.unit_multiplier, 2)
 
-    def update(
+    def update_chart(
         self, used: int = 0, cost: int = 0, available: int = 0, period: int = 0
     ) -> None:
         self.set_used.replace(0, used)
@@ -173,15 +176,13 @@ class ZKAPBarChart(QChart):
 class ZKAPCompactPieChartView(QChartView):
     def __init__(self) -> None:
         super().__init__()
-        self.chart = ZKAPPieChart()
         self.setMaximumSize(26, 26)
-        self.setChart(self.chart)
+        self.setChart(ZKAPPieChart())
         self.setRenderHint(QPainter.Antialiasing)
 
 
 class ZKAPBarChartView(QChartView):
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
-        self.chart = ZKAPBarChart(gateway)
-        self.setChart(self.chart)
+        self.setChart(ZKAPBarChart(gateway))
         self.setRenderHint(QPainter.Antialiasing)

@@ -10,12 +10,13 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Dict, Optional
 
 from humanize import naturalsize, naturaltime
-from PyQt5.QtCore import QFileInfo, QSize, Qt, pyqtSlot
-from PyQt5.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import QAction, QFileIconProvider, QToolBar
+from qtpy.QtCore import QFileInfo, QSize, Qt, Slot
+from qtpy.QtGui import QColor, QIcon, QStandardItem, QStandardItemModel
+from qtpy.QtWidgets import QAction, QFileIconProvider, QToolBar
 
 if TYPE_CHECKING:
-    from PyQt5.QtCore import QModelIndex
+    from typing import Any
+    from qtpy.QtCore import QModelIndex
     from gridsync.view import View
 
 from gridsync import config_dir, resource
@@ -70,20 +71,20 @@ class Model(QStandardItemModel):
             self.set_transfer_progress
         )
 
-    @pyqtSlot(str, str, int)
+    @Slot(str, str, int)
     def on_error_occurred(
         self, folder_name: str, summary: str, timestamp: int
     ) -> None:
         self._magic_folder_errors[folder_name][summary] = timestamp
 
-    @pyqtSlot()
+    @Slot()
     def on_connected(self) -> None:
         if get_preference("notifications", "connection") == "true":
             self.gui.show_message(
                 self.gateway.name, "Connected to {}".format(self.gateway.name)
             )
 
-    @pyqtSlot()
+    @Slot()
     def on_disconnected(self) -> None:
         if get_preference("notifications", "connection") == "true":
             self.gui.show_message(
@@ -91,7 +92,7 @@ class Model(QStandardItemModel):
                 "Disconnected from {}".format(self.gateway.name),
             )
 
-    @pyqtSlot(str, list, str, str)
+    @Slot(str, list, str, str)
     def on_updated_files(
         self, folder_name: str, files_list: list, action: str, author: str
     ) -> None:
@@ -104,7 +105,7 @@ class Model(QStandardItemModel):
                 ),
             )
 
-    @pyqtSlot(str, list)
+    @Slot(str, list)
     def on_files_updated(self, folder_name: str, files: list) -> None:
         if get_preference("notifications", "folder") != "false":
             self.gui.show_message(
@@ -112,7 +113,8 @@ class Model(QStandardItemModel):
                 f"Updated {humanized_list(files)}",
             )
 
-    def data(self, index: QModelIndex, role: int) -> None:
+    # override
+    def data(self, index: QModelIndex, role: int) -> Any:  # type: ignore
         value = super().data(index, role)
         if role == Qt.SizeHintRole:
             return QSize(0, 30)
@@ -204,7 +206,7 @@ class Model(QStandardItemModel):
         else:
             self.set_status_private(folder_name)
 
-    @pyqtSlot(str, list)
+    @Slot(str, list)
     def on_members_updated(self, folder: str, members: list) -> None:
         self.members_dict[folder] = members
         self.update_overlay(folder)
@@ -225,7 +227,7 @@ class Model(QStandardItemModel):
                 return True
         return False
 
-    @pyqtSlot(str, object)
+    @Slot(str, object)
     def set_status(self, name: str, status: MagicFolderStatus) -> None:
         items = self.findItems(name)
         if not items:
@@ -276,7 +278,7 @@ class Model(QStandardItemModel):
         item.setData(status, Qt.UserRole)
         self.status_dict[name] = status
 
-    @pyqtSlot(str, object, object)
+    @Slot(str, object, object)
     def set_transfer_progress(
         self, folder_name: str, transferred: int, total: int
     ) -> None:
@@ -319,7 +321,7 @@ class Model(QStandardItemModel):
             item.setFont(font)
             item.setForeground(self.view.palette().text())
 
-    @pyqtSlot(str, int)
+    @Slot(str, int)
     def set_mtime(self, name: str, mtime: int) -> None:
         if not mtime:
             return
@@ -332,7 +334,7 @@ class Model(QStandardItemModel):
             )
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
-    @pyqtSlot(str, object)
+    @Slot(str, object)
     def set_size(self, name: str, size: int) -> None:
         items = self.findItems(name)
         if items:
@@ -340,7 +342,7 @@ class Model(QStandardItemModel):
             item.setText(naturalsize(size))
             item.setData(size, Qt.UserRole)
 
-    @pyqtSlot()
+    @Slot()
     def update_natural_times(self) -> None:
         for i in range(self.rowCount()):
             item = self.item(i, 2)
@@ -350,8 +352,8 @@ class Model(QStandardItemModel):
                     naturaltime(datetime.now() - datetime.fromtimestamp(data))
                 )
 
-    @pyqtSlot(str)
-    @pyqtSlot(str, str)
+    @Slot(str)
+    @Slot(str, str)
     def add_remote_folder(
         self, folder_name: str, overlay_file: Optional[str] = ""
     ) -> None:
@@ -359,7 +361,7 @@ class Model(QStandardItemModel):
         self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name, overlay_file)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_folder_removed(self, folder_name: str) -> None:
         self.set_status(folder_name, MagicFolderStatus.STORED_REMOTELY)
         self.fade_row(folder_name)
