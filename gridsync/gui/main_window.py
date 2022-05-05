@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import Optional, Union
 
 from qtpy.QtCore import QItemSelectionModel, QSize, Qt, QTimer
 from qtpy.QtGui import QIcon, QKeySequence
@@ -18,30 +19,32 @@ from qtpy.QtWidgets import (
 from twisted.internet import reactor
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
+from gridsync.gui import AbstractGui
 from gridsync.gui.history import HistoryView
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
-from gridsync.gui.toolbar import ToolBar
+from gridsync.gui.toolbar import ComboBox, ToolBar
 from gridsync.gui.usage import UsageView
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.msg import error, info
 from gridsync.recovery import RecoveryKeyExporter
+from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
 
 
 class CentralWidget(QStackedWidget):
-    def __init__(self, gui):
+    def __init__(self, gui: AbstractGui):
         super().__init__()
         self.gui = gui
-        self.views = []
-        self.folders_views = {}
-        self.history_views = {}
-        self.usage_views = {}
+        self.views: list[View] = []
+        self.folders_views: dict[Tahoe, QWidget] = {}
+        self.history_views: dict[Tahoe, HistoryView] = {}
+        self.usage_views: dict[Tahoe, QWidget] = {}
 
         # XXX/TODO: There is no need for multiple StatusPanels. Clean this up.
 
-    def _add_folders_view(self, gateway):
+    def _add_folders_view(self, gateway: Tahoe) -> None:
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
@@ -57,12 +60,12 @@ class CentralWidget(QStackedWidget):
         self.views.append(view)
         self.folders_views[gateway] = widget
 
-    def _add_history_view(self, gateway):
+    def _add_history_view(self, gateway) -> None:
         view = HistoryView(gateway, self.gui)
         self.addWidget(view)
         self.history_views[gateway] = view
 
-    def _add_usage_view(self, gateway):
+    def _add_usage_view(self, gateway) -> None:
         gateway.load_settings()  # Ensure that zkap_unit_name is read/updated
         view = UsageView(gateway, self.gui)
         widget = QWidget()
@@ -78,23 +81,26 @@ class CentralWidget(QStackedWidget):
         self.addWidget(widget)
         self.usage_views[gateway] = widget
 
-    def add_gateway(self, gateway):
+    def add_gateway(self, gateway) -> None:
         self._add_folders_view(gateway)
         self._add_history_view(gateway)
         self._add_usage_view(gateway)
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, gui):
+    def __init__(self, gui: AbstractGui):
         super().__init__()
         self.gui = gui
 
-        self.gateways = []
-        self.welcome_dialog = None
-        self.recovery_key_exporter = None
-        self.active_invite_sender_dialogs = []
-        self.active_invite_receiver_dialogs = []
-        self.pending_news_message = ()
+        self.gateways: list[Tahoe] = []
+        self.welcome_dialog: Optional[WelcomeDialog] = None
+        self.recovery_key_exporter: Optional[RecoveryKeyExporter] = None
+        self.active_invite_sender_dialogs: list[InviteSenderDialog] = []
+        self.active_invite_receiver_dialogs: list[InviteReceiverDialog] = []
+        # XXX Probably should be Optional[tuple[Tahoe, str, str]]
+        self.pending_news_message: Union[
+            tuple[()], tuple[Tahoe, str, str]
+        ] = ()
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(755, 470))
@@ -107,29 +113,31 @@ class MainWindow(QMainWindow):
             self.setWindowFlags(Qt.Dialog)
 
         if features.multiple_grids:
-            self.shortcut_new = QShortcut(QKeySequence.New, self)
+            self.shortcut_new: QShortcut = QShortcut(QKeySequence.New, self)
             self.shortcut_new.activated.connect(self.show_welcome_dialog)
 
-        self.shortcut_open = QShortcut(QKeySequence.Open, self)
+        self.shortcut_open: QShortcut = QShortcut(QKeySequence.Open, self)
         self.shortcut_open.activated.connect(self.select_folder)
 
-        self.shortcut_preferences = QShortcut(QKeySequence.Preferences, self)
+        self.shortcut_preferences: QShortcut = QShortcut(
+            QKeySequence.Preferences, self
+        )
         self.shortcut_preferences.activated.connect(
             self.gui.show_preferences_window
         )
 
-        self.shortcut_close = QShortcut(QKeySequence.Close, self)
+        self.shortcut_close: QShortcut = QShortcut(QKeySequence.Close, self)
         self.shortcut_close.activated.connect(self.close)
 
-        self.shortcut_quit = QShortcut(QKeySequence.Quit, self)
+        self.shortcut_quit: QShortcut = QShortcut(QKeySequence.Quit, self)
         self.shortcut_quit.activated.connect(self.confirm_quit)
 
-        self.central_widget = CentralWidget(self.gui)
+        self.central_widget: CentralWidget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        self.toolbar = ToolBar(self)
+        self.toolbar: ToolBar = ToolBar(self)
         self.addToolBar(self.toolbar)
-        self.combo_box = self.toolbar.combo_box  # XXX
+        self.combo_box: ComboBox = self.toolbar.combo_box  # XXX
         self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
 
         self.toolbar.folder_action_triggered.connect(self.select_folder)

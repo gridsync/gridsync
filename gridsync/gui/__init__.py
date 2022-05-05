@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Tuple
+from typing import List, Protocol, Tuple
 
 import attr
 
@@ -11,6 +11,22 @@ from gridsync.gui.preferences import PreferencesWindow
 from gridsync.gui.systray import SystemTrayIcon
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.preferences import Preferences
+
+
+class AbstractGui(Protocol):
+    main_window: MainWindow
+
+    def show(self) -> None:
+        """
+        """
+
+    def show_preferences_window(self) -> None:
+        """
+        """
+
+    def show_debug_exporter(self) -> None:
+        pass
+
 
 
 @attr.s(eq=False)  # To avoid "TypeError: unhashable type: 'Gui'" on PySide2

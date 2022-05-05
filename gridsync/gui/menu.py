@@ -6,11 +6,12 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QAction, QMenu, QMessageBox
 
+from gridsync.ui import AbstractGui
 from gridsync import APP_NAME, __version__, resource, settings
 
 
 class Menu(QMenu):
-    def __init__(self, gui, show_open_action=True):
+    def __init__(self, gui: AbstractGui, show_open_action: bool = True):
         super().__init__()
         self.gui = gui
 
