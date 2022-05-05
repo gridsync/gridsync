@@ -1,26 +1,42 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
+
+import json
 import logging
 import os
 import sys
+from functools import partial
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-from qtpy.QtCore import QItemSelectionModel, QSize, Qt, QTimer
+from qtpy.QtCore import (
+    QItemSelectionModel,
+    QPropertyAnimation,
+    QSize,
+    Qt,
+    QTimer,
+)
 from qtpy.QtGui import QIcon, QKeySequence
 from qtpy.QtWidgets import (
     QFileDialog,
     QGridLayout,
     QMainWindow,
     QMessageBox,
+    QProgressDialog,
     QShortcut,
     QStackedWidget,
     QWidget,
 )
 from twisted.internet import reactor
+from twisted.internet.defer import Deferred, succeed
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
-from gridsync.gui import AbstractGui
+from gridsync.gui.password import PasswordDialog
+
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
+
 from gridsync.gui.history import HistoryView
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel

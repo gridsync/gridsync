@@ -18,7 +18,6 @@ from twisted.internet.defer import inlineCallbacks
 
 from gridsync import APP_NAME, resource
 from gridsync.desktop import get_browser_name
-from gridsync.gui import AbstractGui
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
@@ -28,7 +27,7 @@ from gridsync.msg import error
 from gridsync.types import TwistedDeferred
 
 if TYPE_CHECKING:
-    from gridsync.gui import Gui  # pylint: disable=cyclic-import
+    from gridsync.gui import AbstractGui  # pylint: disable=cyclic-import
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
