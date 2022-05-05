@@ -339,6 +339,7 @@ class MainWindow(QMainWindow):
                 f"Destination file not found after saving: {path}",
             )
 
+    # XXX Qt does not like this async def!
     async def export_recovery_key(self, gateway=None):
         if not gateway:
             gateway = self.combo_box.currentData()
