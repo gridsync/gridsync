@@ -9,6 +9,7 @@ from typing import Optional, Union
 from qtpy.QtCore import QItemSelectionModel, QSize, Qt, QTimer
 from qtpy.QtGui import QIcon, QKeySequence
 from qtpy.QtWidgets import (
+    QFileDialog,
     QGridLayout,
     QMainWindow,
     QMessageBox,
@@ -28,7 +29,7 @@ from gridsync.gui.usage import UsageView
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.msg import error, info
-from gridsync.recovery import RecoveryKeyExporter
+from gridsync.recovery import encrypt_in_thread, export_recovery_key
 from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
 
@@ -87,6 +88,20 @@ class CentralWidget(QStackedWidget):
         self._add_usage_view(gateway)
 
 
+def get_save_filename(parent, prompt, more) -> Optional[Path]:
+    dest, _ = QFileDialog.getSaveFileName(
+        parent,
+        prompt,
+        os.path.join(
+            os.path.expanduser("~"),
+            more,
+        ),
+    )
+    if dest:
+        return Path(dest)
+    return None
+
+
 class MainWindow(QMainWindow):
     def __init__(self, gui: AbstractGui):
         super().__init__()
@@ -94,7 +109,6 @@ class MainWindow(QMainWindow):
 
         self.gateways: list[Tahoe] = []
         self.welcome_dialog: Optional[WelcomeDialog] = None
-        self.recovery_key_exporter: Optional[RecoveryKeyExporter] = None
         self.active_invite_sender_dialogs: list[InviteSenderDialog] = []
         self.active_invite_receiver_dialogs: list[InviteReceiverDialog] = []
         # XXX Probably should be Optional[tuple[Tahoe, str, str]]
@@ -309,14 +323,55 @@ class MainWindow(QMainWindow):
                 f"Destination file not found after saving: {path}",
             )
 
-    def export_recovery_key(self, gateway=None):
+    async def export_recovery_key(self, gateway=None):
         if not gateway:
             gateway = self.combo_box.currentData()
-        self.recovery_key_exporter = RecoveryKeyExporter(self)
-        self.recovery_key_exporter.done.connect(
-            lambda path: self.confirm_exported(path, gateway)
+        settings = gateway.get_settings(include_secrets=True)
+        if gateway.use_tor:
+            settings["hide-ip"] = True
+        recovery_key = json.dumps(settings)
+
+        password, ok = PasswordDialog.get_password(
+            label="Encryption passphrase (optional):",
+            ok_button_text="Save Recovery Key...",
+            help_text="A long passphrase will help keep your files safe in "
+            "the event that your Recovery Key is ever compromised.",
+            parent=self.parent,
         )
-        self.recovery_key_exporter.do_export(gateway)
+        if ok and password:
+            ciphertext_d = Deferred.fromCoroutine(
+                encrypt_in_thread(recovery_key, password)
+            )
+        elif ok:
+            ciphertext_d = succeed(recovery_key)
+        else:
+            return
+
+        progress = QProgressDialog("Encrypting...", None, 0, 100)
+        progress.show()
+        animation = QPropertyAnimation(progress, b"value")
+        animation.setDuration(6000)  # XXX
+        animation.setStartValue(0)
+        animation.setEndValue(99)
+        animation.start()
+
+        get_path = partial(
+            get_save_filename,
+            self,
+            "Select a destination",
+            gateway.name + " Recovery Key.json.encrypted",
+        )
+        try:
+            try:
+                path = await export_recovery_key(ciphertext_d, get_path)
+            finally:
+                animation.stop()
+                progress.close()
+        except Exception as e:
+            # TODO Check if self is the right parent to pass here
+            error(self, "Error encrypting data", str(e))
+        else:
+            self.confirm_exported(path.path, gateway)
 
     def import_recovery_key(self):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)

@@ -17,16 +17,13 @@ class AbstractGui(Protocol):
     main_window: MainWindow
 
     def show(self) -> None:
-        """
-        """
+        pass
 
     def show_preferences_window(self) -> None:
-        """
-        """
+        pass
 
     def show_debug_exporter(self) -> None:
         pass
-
 
 
 @attr.s(eq=False)  # To avoid "TypeError: unhashable type: 'Gui'" on PySide2

@@ -6,8 +6,8 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QAction, QMenu, QMessageBox
 
-from gridsync.ui import AbstractGui
 from gridsync import APP_NAME, __version__, resource, settings
+from gridsync.ui import AbstractGui
 
 
 class Menu(QMenu):

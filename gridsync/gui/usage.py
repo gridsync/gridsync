@@ -126,7 +126,9 @@ class UsageView(QWidget):
     info_label: str = field(default=attr.Factory(make_info_label), init=False)
     button: QPushButton = field(init=False)
     voucher_link: QLabel = field(init=False)
-    status_label: QLabel = field(default=attr.Factory(make_status_label), init=False)
+    status_label: QLabel = field(
+        default=attr.Factory(make_status_label), init=False
+    )
     groupbox: QGroupBox = field(init=False)
 
     @zkaps_required_label.default
