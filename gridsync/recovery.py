@@ -10,9 +10,11 @@ from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
 from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 from twisted.internet.defer import Deferred
+from twisted.internet.threads import deferToThreadPool
+from twisted.python.failure import Failure
 
 from gridsync import APP_NAME
-from gridsync.crypto import Crypter
+from gridsync.crypto import Crypter, encrypt
 from gridsync.gui.password import PasswordDialog
 from gridsync.msg import error, question
 
@@ -21,27 +23,17 @@ def encrypt_in_thread(message: str, password: str) -> Deferred[str]:
     """
     Encrypt a message with a password in a QThread.
 
-    :return: An awaitable that completes with the ciphertext.
+    :return: A Deferred that fires with the ciphertext.
     """
-    crypter = Crypter(message.encode(), password.encode())
-    crypter_thread = QThread()
-    crypter.moveToThread(crypter_thread)
+    from twisted.internet import reactor
 
-    d: Deferred[str] = Deferred()
-
-    crypter.succeeded.connect(d.callback)
-    crypter.failed.connect(d.errback)
-    crypter_thread.started.connect(crypter.encrypt)
-    crypter_thread.start()
-
-    def cleanup(passthrough: str) -> str:
-        crypter_thread.quit()
-        crypter_thread.wait()
-        return passthrough
-
-    d.addBoth(cleanup)
-
-    return d
+    return deferToThreadPool(
+        reactor,
+        reactor.getThreadPool(),
+        encrypt,
+        message.encode("utf-8"),
+        password.encode("utf-8"),
+    )
 
 
 async def export_recovery_key(

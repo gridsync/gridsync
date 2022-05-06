@@ -30,6 +30,7 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks, succeed
+from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
 from gridsync.gui.password import PasswordDialog
@@ -62,6 +63,7 @@ def run_coroutine(
         yield Deferred.fromCoroutine(coro)
     except Exception as e:
         error(parent, "ohnoes", str(e))  # XXX
+        print(Failure().getTraceback())
 
 
 class CentralWidget(QStackedWidget):
@@ -346,8 +348,8 @@ class MainWindow(QMainWindow):
             )
         self.toolbar.update_actions()  # XXX
 
-    def confirm_exported(self, path, gateway):
-        if os.path.isfile(path):
+    def confirm_exported(self, path: Path, gateway: Tahoe) -> None:
+        if path.is_file():
             Path(gateway.nodedir, "private", "recovery_key_exported").touch(
                 exist_ok=True
             )
@@ -373,7 +375,7 @@ class MainWindow(QMainWindow):
         """
         # The real work is done by _export_recovery_key but we can't give a
         # coroutine back to Qt and have anything useful happen.
-        run_coroutine(self._export_recovery_key(gateway))
+        run_coroutine(self, self._export_recovery_key(gateway))
 
     async def _export_recovery_key(self, gateway: Optional[Tahoe]) -> None:
         """
@@ -391,14 +393,14 @@ class MainWindow(QMainWindow):
             ok_button_text="Save Recovery Key...",
             help_text="A long passphrase will help keep your files safe in "
             "the event that your Recovery Key is ever compromised.",
-            parent=self.parent,
+            parent=self,
         )
         if ok and password:
             ciphertext_d: Deferred[str] = encrypt_in_thread(
                 recovery_key, password
             )
         elif ok:
-            ciphertext_d = succeed(recovery_key)
+            ciphertext_d = succeed(recovery_key.encode("utf-8"))
         else:
             return
 
@@ -427,7 +429,7 @@ class MainWindow(QMainWindow):
             error(self, "Error encrypting data", str(e))
         else:
             if path is not None:
-                self.confirm_exported(path.path, gateway)
+                self.confirm_exported(path, gateway)
 
     def import_recovery_key(self):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
