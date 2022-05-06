@@ -8,7 +8,7 @@ import os
 import sys
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union
 
 from qtpy.QtCore import (
     QItemSelectionModel,
@@ -29,7 +29,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, succeed
+from twisted.internet.defer import Deferred, inlineCallbacks, succeed
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
 from gridsync.gui.password import PasswordDialog
@@ -48,6 +48,20 @@ from gridsync.msg import error, info
 from gridsync.recovery import encrypt_in_thread, export_recovery_key
 from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
+
+
+@inlineCallbacks
+def run_coroutine(
+    parent: QWidget, coro: Coroutine
+) -> Generator[Deferred[object], object, None]:
+    """
+    Run a coroutine, discarding its success result and reporting its failure
+    report in a child window of ``parent``.
+    """
+    try:
+        yield Deferred.fromCoroutine(coro)
+    except Exception as e:
+        error(parent, "ohnoes", str(e))  # XXX
 
 
 class CentralWidget(QStackedWidget):
@@ -104,7 +118,20 @@ class CentralWidget(QStackedWidget):
         self._add_usage_view(gateway)
 
 
-def get_save_filename(parent, prompt, more) -> Optional[Path]:
+def get_save_filename(
+    parent: QWidget, prompt: str, more: str
+) -> Optional[Path]:
+    """
+    Ask the user for a path to which some data may be saved.
+
+    Block until the user enters the path.
+
+    :param parent: A parent widget to contain the modal dialog created.
+    :param prompt: Some of the prompt to include in the dialog. (XXX)
+    :param more: More of the prompt to include in the dialog. (XXX)
+
+    :return: If a path is chosen, the path.
+    """
     dest, _ = QFileDialog.getSaveFileName(
         parent,
         prompt,
@@ -339,9 +366,20 @@ class MainWindow(QMainWindow):
                 f"Destination file not found after saving: {path}",
             )
 
-    # XXX Qt does not like this async def!
-    async def export_recovery_key(self, gateway=None):
-        if not gateway:
+    def export_recovery_key(self, gateway: Optional[Tahoe] = None):
+        """
+        Export the recovery key to a user-specific path on the filesystem,
+        possibly encrypting it with a user-specified password.
+        """
+        # The real work is done by _export_recovery_key but we can't give a
+        # coroutine back to Qt and have anything useful happen.
+        run_coroutine(self._export_recovery_key(gateway))
+
+    async def _export_recovery_key(self, gateway: Optional[Tahoe]) -> None:
+        """
+        The asynchronous implementation of ``export_recovery_key``.
+        """
+        if gateway is None:
             gateway = self.combo_box.currentData()
         settings = gateway.get_settings(include_secrets=True)
         if gateway.use_tor:
@@ -356,8 +394,8 @@ class MainWindow(QMainWindow):
             parent=self.parent,
         )
         if ok and password:
-            ciphertext_d = Deferred.fromCoroutine(
-                encrypt_in_thread(recovery_key, password)
+            ciphertext_d: Deferred[str] = encrypt_in_thread(
+                recovery_key, password
             )
         elif ok:
             ciphertext_d = succeed(recovery_key)
@@ -388,7 +426,8 @@ class MainWindow(QMainWindow):
             # TODO Check if self is the right parent to pass here
             error(self, "Error encrypting data", str(e))
         else:
-            self.confirm_exported(path.path, gateway)
+            if path is not None:
+                self.confirm_exported(path.path, gateway)
 
     def import_recovery_key(self):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)

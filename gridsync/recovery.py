@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable, Optional
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
@@ -17,7 +17,7 @@ from gridsync.gui.password import PasswordDialog
 from gridsync.msg import error, question
 
 
-def encrypt_in_thread(message: str, password: str) -> Awaitable[str]:
+def encrypt_in_thread(message: str, password: str) -> Deferred[str]:
     """
     Encrypt a message with a password in a QThread.
 
@@ -27,14 +27,14 @@ def encrypt_in_thread(message: str, password: str) -> Awaitable[str]:
     crypter_thread = QThread()
     crypter.moveToThread(crypter_thread)
 
-    d = Deferred()
+    d: Deferred[str] = Deferred()
 
     crypter.succeeded.connect(d.callback)
     crypter.failed.connect(d.errback)
     crypter_thread.started.connect(crypter.encrypt)
     crypter_thread.start()
 
-    def cleanup(passthrough):
+    def cleanup(passthrough: str) -> str:
         crypter_thread.quit()
         crypter_thread.wait()
         return passthrough
@@ -46,8 +46,8 @@ def encrypt_in_thread(message: str, password: str) -> Awaitable[str]:
 
 async def export_recovery_key(
     ciphertext_d: Deferred[str],
-    get_path: Callable[[], Path],
-) -> Path:
+    get_path: Callable[[], Optional[Path]],
+) -> Optional[Path]:
     """
     Export a recovery key to the filesystem.
 
@@ -55,6 +55,8 @@ async def export_recovery_key(
     """
     # XXX BLOCKING CALL
     path = get_path()
+    if path is None:
+        return None
 
     # We have the path, wait for encryption to complete.
     recovery_key = await ciphertext_d
