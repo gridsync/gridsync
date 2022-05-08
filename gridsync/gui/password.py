@@ -174,7 +174,7 @@ class PasswordDialog(QDialog):
         help_text: str = "",
         show_stats: bool = True,
         parent: Optional[QWidget] = None,
-    ) -> Tuple[str, bool]:
+    ) -> Tuple[str, int]:
         dialog = PasswordDialog(
             label=label,
             ok_button_text=ok_button_text,
