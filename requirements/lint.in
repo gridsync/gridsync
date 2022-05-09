@@ -3,6 +3,7 @@ flake8
 isort
 mypy
 pylint
+pyqt5-stubs
 types-attrs
 types-atomicwrites
 types-certifi

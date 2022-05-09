@@ -149,6 +149,10 @@ pylint==2.13.8 \
     --hash=sha256:ced8968c3b699df0615e2a709554dec3ddac2f5cd06efadb69554a69eeca364a \
     --hash=sha256:f87e863a0b08f64b5230e7e779bcb75276346995737b2c0dc2793070487b1ff6
     # via -r requirements/lint.in
+pyqt5-stubs==5.15.6.0 \
+    --hash=sha256:7fb8177c72489a8911f021b7bd7c33f12c87f6dba92dcef3fdcdb5d9400f0f3f \
+    --hash=sha256:91270ac23ebf38a1dc04cd97aa852cd08af82dc839100e5395af1447e3e99707
+    # via -r requirements/lint.in
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
@@ -156,9 +160,9 @@ tomli==2.0.1 \
     #   black
     #   mypy
     #   pylint
-types-atomicwrites==1.4.4 \
-    --hash=sha256:425d2399f1a7fcbd31666a4b257ca371e560be757c76a78ab8c6297601224e4b \
-    --hash=sha256:a1b6951d68acc524cdf3cec51fc3e32d5df1036e832d531e2e558933a3bff82a
+types-atomicwrites==1.4.5 \
+    --hash=sha256:458a985b2cfaa963becec21ba63faaa5dd241e237ba8bf024732b37b18690de6 \
+    --hash=sha256:ef824f7e639c178e3e571f60d228c7745198756ebfcc5d249a0e3e02e04b2858
     # via -r requirements/lint.in
 types-attrs==19.1.0 \
     --hash=sha256:d11acf7a2531a7c52a740c30fa3eb8d01d3066c10d34c01ff5e59502caac5352

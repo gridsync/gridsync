@@ -22,7 +22,7 @@ from gridsync.gui.font import Font
 from gridsync.gui.widgets import VSpacer
 
 if TYPE_CHECKING:
-    from qtpy.QtCore import QEvent
+    from qtpy.QtGui import QKeyEvent
     from qtpy.QtWidgets import QWidget
 
 
@@ -163,7 +163,7 @@ class PasswordDialog(QDialog):
         else:
             self.rating_label.setToolTip("")
 
-    def keyPressEvent(self, event: QEvent) -> None:
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.reject()
 
@@ -174,7 +174,7 @@ class PasswordDialog(QDialog):
         help_text: str = "",
         show_stats: bool = True,
         parent: Optional[QWidget] = None,
-    ) -> Tuple[str, bool]:
+    ) -> Tuple[str, int]:
         dialog = PasswordDialog(
             label=label,
             ok_button_text=ok_button_text,
