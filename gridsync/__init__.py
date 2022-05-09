@@ -175,7 +175,7 @@ if API_NAME.lower().startswith("pyqt"):
     QT_API_VERSION = f"{API_NAME}-{PYQT_VERSION}"
 else:
     QT_API_VERSION = f"{API_NAME}-{PYSIDE_VERSION}"
-QT_LIB_VERSION = QT_VERSION
+QT_LIB_VERSION = QT_VERSION or ""
 
 
 # When running frozen, Versioneer returns a version string of "0+unknown"
