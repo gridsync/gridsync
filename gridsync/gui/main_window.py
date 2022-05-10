@@ -9,6 +9,7 @@ import sys
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union
+from contextlib import contextmanager
 
 from qtpy.QtCore import (
     QItemSelectionModel,
@@ -46,7 +47,7 @@ from gridsync.gui.usage import UsageView
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.msg import error, info
-from gridsync.recovery import encrypt_in_thread, export_recovery_key
+from gridsync.recovery import export_recovery_key, get_recovery_key
 from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
 
@@ -145,6 +146,42 @@ def get_save_filename(
     if dest:
         return Path(dest)
     return None
+
+def _get_encrypt_password(parent: QWidget) -> Optional[str]:
+    """
+    Prompt the user for an encryption password.
+    """
+    password, ok = PasswordDialog.get_password(
+        label="Encryption passphrase (optional):",
+        ok_button_text="Save Recovery Key...",
+        help_text="A long passphrase will help keep your files safe in "
+        "the event that your Recovery Key is ever compromised.",
+        parent=parent,
+    )
+    if ok:
+        # This includes the empty string which signals no encryption
+        # ... Should probably represent this tri-state differently.
+        return password
+    return None
+
+
+@contextmanager
+def _encryption_animation():
+    """
+    Create and start an animated progress dialog for the encryption process.
+    """
+    progress = QProgressDialog("Encrypting...", None, 0, 100)
+    progress.show()
+    animation = QPropertyAnimation(progress, b"value")
+    animation.setDuration(6000)  # XXX
+    animation.setStartValue(0)
+    animation.setEndValue(99)
+    animation.start()
+
+    yield
+
+    animation.stop()
+    progress.close()
 
 
 class MainWindow(QMainWindow):
@@ -373,63 +410,45 @@ class MainWindow(QMainWindow):
         Export the recovery key to a user-specific path on the filesystem,
         possibly encrypting it with a user-specified password.
         """
+        if gateway is None:
+            gateway = self.combo_box.currentData()
         # The real work is done by _export_recovery_key but we can't give a
         # coroutine back to Qt and have anything useful happen.
         run_coroutine(self, self._export_recovery_key(gateway))
 
-    async def _export_recovery_key(self, gateway: Optional[Tahoe]) -> None:
+    async def _export_recovery_key(self, gateway: Tahoe) -> None:
         """
         The asynchronous implementation of ``export_recovery_key``.
         """
-        if gateway is None:
-            gateway = self.combo_box.currentData()
-        settings = gateway.get_settings(include_secrets=True)
-        if gateway.use_tor:
-            settings["hide-ip"] = True
-        recovery_key = json.dumps(settings)
-
-        password, ok = PasswordDialog.get_password(
-            label="Encryption passphrase (optional):",
-            ok_button_text="Save Recovery Key...",
-            help_text="A long passphrase will help keep your files safe in "
-            "the event that your Recovery Key is ever compromised.",
-            parent=self,
-        )
-        if ok and password:
-            ciphertext_d: Deferred[str] = encrypt_in_thread(
-                recovery_key, password
-            )
-        elif ok:
-            ciphertext_d = succeed(recovery_key.encode("utf-8"))
-        else:
+        # Blocking call!
+        password = _get_encrypt_password(self)
+        if password is None:
             return
 
-        progress = QProgressDialog("Encrypting...", None, 0, 100)
-        progress.show()
-        animation = QPropertyAnimation(progress, b"value")
-        animation.setDuration(6000)  # XXX
-        animation.setStartValue(0)
-        animation.setEndValue(99)
-        animation.start()
-
-        get_path = partial(
-            get_save_filename,
-            self,
-            "Select a destination",
-            gateway.name + " Recovery Key.json.encrypted",
-        )
+        # Begin the encryption progress animation.
         try:
-            try:
-                path = await export_recovery_key(ciphertext_d, get_path)
-            finally:
-                animation.stop()
-                progress.close()
+            with _encryption_animation():
+                # Begin to gather and encrypt the information for the recovery key.
+                ciphertext_d = get_recovery_key(password, gateway)
+
+                # Blocking call!  If this were async the factoring could be
+                # much cleaner.  Just `gatherResults([ciphertext_d, path_d])`
+                # and feed the result to an export_recovery_key that does all
+                # the rest of the work.
+                path = get_save_filename(
+                    self,
+                    "Select a destination",
+                    gateway.name + " Recovery Key.json.encrypted",
+                )
+                if path is None:
+                    return
+                ciphertext = await ciphertext_d
+                export_recovery_key(ciphertext, path)
         except Exception as e:
             # TODO Check if self is the right parent to pass here
             error(self, "Error encrypting data", str(e))
         else:
-            if path is not None:
-                self.confirm_exported(path, gateway)
+            self.confirm_exported(path, gateway)
 
     def import_recovery_key(self):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)

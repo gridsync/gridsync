@@ -9,7 +9,7 @@ from typing import Awaitable, Callable, Optional
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
 from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred, succeed
 from twisted.internet.threads import deferToThreadPool
 from twisted.python.failure import Failure
 
@@ -17,46 +17,35 @@ from gridsync import APP_NAME
 from gridsync.crypto import Crypter, encrypt
 from gridsync.gui.password import PasswordDialog
 from gridsync.msg import error, question
+from gridsync.tahoe import Tahoe
 
-
-def encrypt_in_thread(message: str, password: str) -> Deferred[str]:
+def get_recovery_key(password: Optional[str], gateway: Tahoe) -> Awaitable[bytes]:
     """
-    Encrypt a message with a password in a QThread.
-
-    :return: A Deferred that fires with the ciphertext.
+    Get the recovery material and, if a password is given, encrypt it.
     """
     from twisted.internet import reactor
 
-    return deferToThreadPool(
-        reactor,
-        reactor.getThreadPool(),
-        encrypt,
-        message.encode("utf-8"),
-        password.encode("utf-8"),
-    )
+    settings = gateway.get_settings(include_secrets=True)
+    if gateway.use_tor:
+        settings["hide-ip"] = True
+    plaintext = json.dumps(settings).encode("utf-8")
+    if password:
+        return deferToThreadPool(reactor, reactor.getThreadPool(), encrypt, plaintext.encode("utf-8"), password)
+    return succeed(plaintext)
 
 
-async def export_recovery_key(
-    ciphertext_d: Deferred[str],
-    get_path: Callable[[], Optional[Path]],
-) -> Optional[Path]:
+
+def export_recovery_key(
+    ciphertext: bytes,
+    path: Path,
+) -> None:
     """
     Export a recovery key to the filesystem.
 
     :param plaintext: The plaintext of the recovery key.
     """
-    # XXX BLOCKING CALL
-    path = get_path()
-    if path is None:
-        return None
-
-    # We have the path, wait for encryption to complete.
-    recovery_key = await ciphertext_d
-
     with atomic_write(path, mode="wb", overwrite=True) as f:
-        f.write(recovery_key)
-
-    return path
+        f.write(ciphertext)
 
 
 class RecoveryKeyImporter(QObject):
