@@ -4,7 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Awaitable, Callable, Optional
+from typing import Awaitable, Callable, Optional, cast
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
@@ -12,6 +12,7 @@ from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 from twisted.internet.defer import Deferred, succeed
 from twisted.internet.threads import deferToThreadPool
 from twisted.python.failure import Failure
+from twisted.internet.interfaces import IReactorThreads
 
 from gridsync import APP_NAME
 from gridsync.crypto import Crypter, encrypt
@@ -30,7 +31,14 @@ def get_recovery_key(password: Optional[str], gateway: Tahoe) -> Awaitable[bytes
         settings["hide-ip"] = True
     plaintext = json.dumps(settings).encode("utf-8")
     if password:
-        return deferToThreadPool(reactor, reactor.getThreadPool(), encrypt, plaintext.encode("utf-8"), password)
+        return deferToThreadPool(
+            reactor,
+            # Module has no attribute "getThreadPool"
+            reactor.getThreadPool(), # type: ignore
+            encrypt,
+            plaintext,
+            password,
+        )
     return succeed(plaintext)
 
 
