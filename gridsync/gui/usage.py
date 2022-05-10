@@ -107,11 +107,11 @@ class UsageView(QWidget):
     # okay as long as the dependency is of attributes defined lower on
     # attributes defined higher.  attrs will initialize the attributes in the
     # order they are defined on the class.
-    title: str = field(default=attr.Factory(make_title), init=False)
-    explainer_label: str = field(
+    title: QLabel = field(default=attr.Factory(make_title), init=False)
+    explainer_label: QLabel = field(
         default=attr.Factory(make_explainer_label), init=False
     )
-    redeeming_label: str = field(
+    redeeming_label: QLabel = field(
         default=attr.Factory(make_redeeming_label), init=False
     )
     # The rest of these don't use attr.Factory because they depend on
@@ -122,7 +122,7 @@ class UsageView(QWidget):
     )
     zkaps_required_label: QLabel = field(init=False)
     chart_view: ZKAPBarChartView = field(init=False)
-    info_label: str = field(default=attr.Factory(make_info_label), init=False)
+    info_label: QLabel = field(default=attr.Factory(make_info_label), init=False)
     button: QPushButton = field(init=False)
     voucher_link: QLabel = field(init=False)
     status_label: QLabel = field(
