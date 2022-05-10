@@ -1,9 +1,2 @@
-# Qt 5.15.2 is broken on Debian 10; see https://bugreports.qt.io/browse/QTBUG-88688
-# Note that these version-pins are purposefully *not* propagated to setup.py
-# in order to allow unaffected systems/environments that rely on distutils to
-# use newer versions of PyQt5; we still want to keep a Qt 5.15.1 pin here,
-# however -- mostly so that our PyInstaller-generated binaries will continue
-# to run on as many systems as possible.
-pyqt5 == 5.15.1
-pyqt5-sip == 12.8.1
-pyqtchart == 5.15.1
+pyqt5
+pyqtchart
