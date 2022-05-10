@@ -134,35 +134,29 @@ class ZKAPBarChart(QChart):
 
         self.update_chart(10, 30, 40)  # XXX
 
-    def _convert(self, value: int) -> Union[int, float]:
-        if self.unit_multiplier == 1:
-            return value
-        if value < 10:
-            return round(value * self.unit_multiplier, 3)
-        return round(value * self.unit_multiplier, 2)
-
     def update_chart(
         self, used: int = 0, cost: int = 0, available: int = 0, period: int = 0
     ) -> None:
+        convert = self.gateway.zkapauthorizer.converted_batch_size
         self.set_used.replace(0, used)
         self.set_used.setLabel(
-            f"{self.unit_name}s used ({self._convert(used)})"
+            f"{self.unit_name}s used ({convert(used)})"
         )
         self.set_cost.replace(0, cost)
         if period == 2678400:  # 31 days
             self.set_cost.setLabel(
-                f"Expected 31 day cost ({self._convert(cost)})"
+                f"Expected 31 day cost ({convert(cost)})"
             )
         elif period:
             h = naturaldelta(dt.timedelta(seconds=period))
             self.set_cost.setLabel(
-                f"Expected cost for {h} ({self._convert(cost)})"
+                f"Expected cost for {h} ({convert(cost)})"
             )
         else:
-            self.set_cost.setLabel(f"Expected cost ({self._convert(used)})")
+            self.set_cost.setLabel(f"Expected cost ({convert(used)})")
         self.set_available.replace(0, available)
         self.set_available.setLabel(
-            f"{self.unit_name}s available ({self._convert(available)})"
+            f"{self.unit_name}s available ({convert(available)})"
         )
         total = used + available
         batch_size = self.gateway.zkapauthorizer.zkap_batch_size

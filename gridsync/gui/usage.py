@@ -325,7 +325,7 @@ class UsageView(QWidget):
 
     def _update_info_label(self) -> None:
         zkapauthorizer = self.gateway.zkapauthorizer
-        bs = self.chart_view.chart()._convert(zkapauthorizer.zkap_batch_size)
+        bs = zkapauthorizer.converted_batch_size()
         self.info_label.setText(
             f"Last purchase: {self._last_purchase_date} "
             f"({bs} {zkapauthorizer.zkap_unit_name}s)     "

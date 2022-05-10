@@ -35,6 +35,22 @@ class ZKAPAuthorizer:
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2**15
 
+    def converted_batch_size(self, value: Optional[int]) -> float:
+        """
+        Compute an effective batch size for the given raw batch size which
+        reflects things like Tahoe-LAFS erasure encoding overhead.
+
+        The effective size more directly represents how much user-facing data
+        you might expect to be able to store.
+        """
+        if value is None:
+            value = self.zkap_batch_size
+        if self.zkap_unit_multiplier == 1:
+            return value
+        if value < 10:
+            return round(value * self.zkap_unit_multiplier, 3)
+        return round(value * self.zkap_unit_multiplier, 2)
+
     @inlineCallbacks
     def _request(
         self, method: str, path: str, data: Optional[bytes] = None
