@@ -130,11 +130,6 @@ class Core:
         try:
             yield gateway.start()
         except Exception as e:  # pylint: disable=broad-except
-            logging.critical(
-                "Error starting Tahoe-LAFS gateway for %s: %s",
-                gateway.name,
-                str(e),
-            )
             msg.error(
                 None,
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",
@@ -150,7 +145,6 @@ class Core:
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except
-            logging.critical("Error getting Tahoe-LAFS version")
             msg.critical(
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e)),
@@ -159,7 +153,6 @@ class Core:
         try:
             yield self.get_magic_folder_version()
         except Exception as e:  # pylint: disable=broad-except
-            logging.critical("Error getting Magic-Folder version")
             msg.critical(
                 "Error getting Magic-Folder version",
                 "{}: {}".format(type(e).__name__, str(e)),
