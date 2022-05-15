@@ -618,7 +618,7 @@ class MagicFolder:
                 "Error starting Magic-Folder",
                 "A critical error occurred when attempting to start a "
                 f"Magic-Folder subprocess for {self.gateway.name}. {APP_NAME} "
-                'will now exit.\n\nClick "Show details..." for more '
+                'will now exit.\n\nClick "Show Details..." for more '
                 "information.",
                 str(exc),
             )
