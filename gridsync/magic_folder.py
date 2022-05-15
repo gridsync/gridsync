@@ -621,7 +621,7 @@ class MagicFolder:
                 "information.",
                 str(exc),
             )
-            reactor.stop()  # XXX
+            reactor.stop()  # type: ignore
         logging.debug("Started magic-folder")
 
     @inlineCallbacks
