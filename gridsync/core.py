@@ -130,8 +130,7 @@ class Core:
         try:
             yield gateway.start()
         except Exception as e:  # pylint: disable=broad-except
-            msg.error(
-                None,
+            msg.critical(
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",
                 "A critical error occurred when attempting to start the "
                 f'Tahoe-LAFS gateway for "{gateway.name}". {APP_NAME} will '

@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
-from gridsync.msg import error as show_error
+from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
 from gridsync.watchdog import Watchdog
@@ -613,8 +613,7 @@ class MagicFolder:
                 process_started_callback=self._on_started,
             )
         except Exception as exc:  # pylint: disable=broad-except
-            show_error(
-                None,
+            critical(
                 "Error starting Magic-Folder",
                 "A critical error occurred when attempting to start a "
                 f"Magic-Folder subprocess for {self.gateway.name}. {APP_NAME} "
