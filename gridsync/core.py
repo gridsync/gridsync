@@ -137,7 +137,6 @@ class Core:
                 'now exit.\n\nClick "Show Details..." for more information.',
                 str(e),
             )
-            reactor.stop()  # type: ignore
 
     @inlineCallbacks
     def _get_executable_versions(self) -> TwistedDeferred[None]:
@@ -148,7 +147,6 @@ class Core:
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
-            reactor.stop()  # type: ignore
         try:
             yield self.get_magic_folder_version()
         except Exception as e:  # pylint: disable=broad-except
@@ -156,7 +154,6 @@ class Core:
                 "Error getting Magic-Folder version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
-            reactor.stop()  # type: ignore
 
     @inlineCallbacks
     def start_gateways(self):
