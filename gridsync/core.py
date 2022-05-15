@@ -138,7 +138,7 @@ class Core:
             msg.error(
                 None,
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",
-                "A critical error occured when attempting to start the "
+                "A critical error occurred when attempting to start the "
                 f'Tahoe-LAFS gateway for "{gateway.name}". {APP_NAME} will '
                 'now exit.\n\nClick "Show details..." for more information.',
                 str(e),
