@@ -56,4 +56,11 @@ def critical(title: str, text: str, detailed_text: str = "") -> None:
     msgbox = _msgbox(None, title, text, detailed_text)
     msgbox.setIcon(QMessageBox.Critical)
     msgbox.exec_()
-    # TODO: Stop reactor?
+
+    from twisted.internet import reactor
+    from twisted.internet.error import ReactorNotRunning
+
+    try:
+        reactor.stop()  # type: ignore
+    except ReactorNotRunning:
+        pass
