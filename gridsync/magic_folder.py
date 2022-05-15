@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
 
+from gridsync import APP_NAME, msg
 from gridsync.crypto import randstr
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
@@ -602,13 +603,25 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        yield self.supervisor.start(
-            self._base_command_args() + ["run"],
-            started_trigger="Completed initial Magic Folder setup",
-            stdout_line_collector=self.on_stdout_line_received,
-            stderr_line_collector=self.on_stderr_line_received,
-            process_started_callback=self._on_started,
-        )
+        try:
+            yield self.supervisor.start(
+                self._base_command_args() + ["run"],
+                started_trigger="Completed initial Magic Folder setup",
+                stdout_line_collector=self.on_stdout_line_received,
+                stderr_line_collector=self.on_stderr_line_received,
+                process_started_callback=self._on_started,
+            )
+        except Exception as exc:  # pylint: disable=broad-except
+            msg.error(
+                None,
+                "Error starting Magic-Folder",
+                "A critical error occurred when attempting to start a "
+                f"Magic-Folder subprocess for {self.gateway.name}. {APP_NAME} "
+                'will now exit.\n\nClick "Show details..." for more '
+                "information.",
+                str(exc),
+            )
+            reactor.stop()  # XXX
         logging.debug("Started magic-folder")
 
     @inlineCallbacks
