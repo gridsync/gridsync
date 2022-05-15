@@ -13,12 +13,14 @@ from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 
+from gridsync import APP_NAME
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeWebError
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
+from gridsync.msg import critical
 from gridsync.news import NewscapChecker
 from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
@@ -471,12 +473,22 @@ class Tahoe:
 
         if not self.executable:
             self.executable = which("tahoe")
-        results = yield self.supervisor.start(
-            [self.executable, "-d", self.nodedir, "run"],
-            started_trigger="client running",
-            stdout_line_collector=self.line_received,
-            process_started_callback=self._on_started,
-        )
+        try:
+            results = yield self.supervisor.start(
+                [self.executable, "-d", self.nodedir, "1run"],
+                started_trigger="client running",
+                stdout_line_collector=self.line_received,
+                process_started_callback=self._on_started,
+            )
+        except Exception as exc:  # pylint: disable=broad-except
+            critical(
+                f"Error starting Tahoe-LAFS gateway for {self.name}",
+                "A critical error occurred when attempting to start the "
+                f'Tahoe-LAFS gateway for "{self.name}". {APP_NAME} will '
+                'now exit.\n\nClick "Show Details..." for more information.',
+                str(exc),
+            )
+            return
         pid, _ = results
         log.debug(
             'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
