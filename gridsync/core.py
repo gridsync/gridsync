@@ -135,9 +135,13 @@ class Core:
                 gateway.name,
                 str(e),
             )
-            msg.critical(
+            msg.error(
+                None,
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",
-                f"{type(e).__name__}: {str(e)}",
+                "A critical error occured when attempting to start the "
+                f'Tahoe-LAFS gateway for "{gateway.name}". {APP_NAME} will '
+                'now exit.\n\nClick "Show details..." for more information.',
+                str(e),
             )
             reactor.stop()  # type: ignore
 
