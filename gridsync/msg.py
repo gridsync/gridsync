@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import sys
 from typing import Optional
 
@@ -22,7 +23,10 @@ def _msgbox(
     return msgbox
 
 
-def info(parent: Optional[QWidget], title: str, text: str) -> int:
+def info(
+    parent: Optional[QWidget], title: str, text: str, detailed_text: str = ""
+) -> int:
+    logging.info("%s: %s %s", title, text, detailed_text)
     msgbox = _msgbox(parent, title, text)
     msgbox.setIcon(QMessageBox.Information)
     return msgbox.exec_()
@@ -41,11 +45,15 @@ def question(parent: Optional[QWidget], title: str, text: str) -> bool:
 def error(
     parent: Optional[QWidget], title: str, text: str, detailed_text: str = ""
 ) -> int:
+    logging.error("%s: %s %s", title, text, detailed_text)
     msgbox = _msgbox(parent, title, text, detailed_text)
     msgbox.setIcon(QMessageBox.Critical)
     return msgbox.exec_()
 
 
 def critical(title: str, text: str, detailed_text: str = "") -> None:
-    error(None, title, text, detailed_text)
+    logging.critical("%s: %s %s", title, text, detailed_text)
+    msgbox = _msgbox(None, title, text, detailed_text)
+    msgbox.setIcon(QMessageBox.Critical)
+    msgbox.exec_()
     # TODO: Stop reactor?
