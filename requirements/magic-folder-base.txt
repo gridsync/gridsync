@@ -251,9 +251,9 @@ klein==21.8.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-magic-folder==22.2.1 \
-    --hash=sha256:18a7b3848a679ffdd7250ef43ac11abd847d6ec5df19ac1ed00db39f1b092683 \
-    --hash=sha256:a7d642b4197ed09616c88baec4278a1e1105d04d0cddb0fa56540c2f4afeac9b
+magic-folder==22.5.0 \
+    --hash=sha256:82e6df3c58cfd6247b3391b3e60894c32e8166f1df171a24409b7bd09b168f93 \
+    --hash=sha256:b3588a288864bc9ff6d24ec3c57ccf1f95f87fa0a169fdd323d00f12097cc524
     # via -r requirements/magic-folder.in
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
@@ -291,6 +291,40 @@ netifaces==0.11.0 \
     --hash=sha256:e76c7f351e0444721e85f975ae92718e21c1f361bda946d60a214061de1f00a1 \
     --hash=sha256:eb4813b77d5df99903af4757ce980a98c4d702bbcb81f32a0b305a1537bdf0b1
     # via tahoe-lafs
+psutil==5.9.0 \
+    --hash=sha256:072664401ae6e7c1bfb878c65d7282d4b4391f1bc9a56d5e03b5a490403271b5 \
+    --hash=sha256:1070a9b287846a21a5d572d6dddd369517510b68710fca56b0e9e02fd24bed9a \
+    --hash=sha256:1d7b433519b9a38192dfda962dd8f44446668c009833e1429a52424624f408b4 \
+    --hash=sha256:3151a58f0fbd8942ba94f7c31c7e6b310d2989f4da74fcbf28b934374e9bf841 \
+    --hash=sha256:32acf55cb9a8cbfb29167cd005951df81b567099295291bcfd1027365b36591d \
+    --hash=sha256:3611e87eea393f779a35b192b46a164b1d01167c9d323dda9b1e527ea69d697d \
+    --hash=sha256:3d00a664e31921009a84367266b35ba0aac04a2a6cad09c550a89041034d19a0 \
+    --hash=sha256:4e2fb92e3aeae3ec3b7b66c528981fd327fb93fd906a77215200404444ec1845 \
+    --hash=sha256:539e429da49c5d27d5a58e3563886057f8fc3868a5547b4f1876d9c0f007bccf \
+    --hash=sha256:55ce319452e3d139e25d6c3f85a1acf12d1607ddedea5e35fb47a552c051161b \
+    --hash=sha256:58c7d923dc209225600aec73aa2c4ae8ea33b1ab31bc11ef8a5933b027476f07 \
+    --hash=sha256:7336292a13a80eb93c21f36bde4328aa748a04b68c13d01dfddd67fc13fd0618 \
+    --hash=sha256:742c34fff804f34f62659279ed5c5b723bb0195e9d7bd9907591de9f8f6558e2 \
+    --hash=sha256:7641300de73e4909e5d148e90cc3142fb890079e1525a840cf0dfd39195239fd \
+    --hash=sha256:76cebf84aac1d6da5b63df11fe0d377b46b7b500d892284068bacccf12f20666 \
+    --hash=sha256:7779be4025c540d1d65a2de3f30caeacc49ae7a2152108adeaf42c7534a115ce \
+    --hash=sha256:7d190ee2eaef7831163f254dc58f6d2e2a22e27382b936aab51c835fc080c3d3 \
+    --hash=sha256:8293942e4ce0c5689821f65ce6522ce4786d02af57f13c0195b40e1edb1db61d \
+    --hash=sha256:869842dbd66bb80c3217158e629d6fceaecc3a3166d3d1faee515b05dd26ca25 \
+    --hash=sha256:90a58b9fcae2dbfe4ba852b57bd4a1dded6b990a33d6428c7614b7d48eccb492 \
+    --hash=sha256:9b51917c1af3fa35a3f2dabd7ba96a2a4f19df3dec911da73875e1edaf22a40b \
+    --hash=sha256:b2237f35c4bbae932ee98902a08050a27821f8f6dfa880a47195e5993af4702d \
+    --hash=sha256:c3400cae15bdb449d518545cbd5b649117de54e3596ded84aacabfbb3297ead2 \
+    --hash=sha256:c51f1af02334e4b516ec221ee26b8fdf105032418ca5a5ab9737e8c87dafe203 \
+    --hash=sha256:cb8d10461c1ceee0c25a64f2dd54872b70b89c26419e147a05a10b753ad36ec2 \
+    --hash=sha256:d62a2796e08dd024b8179bd441cb714e0f81226c352c802fca0fd3f89eeacd94 \
+    --hash=sha256:df2c8bd48fb83a8408c8390b143c6a6fa10cb1a674ca664954de193fdcab36a9 \
+    --hash=sha256:e5c783d0b1ad6ca8a5d3e7b680468c9c926b804be83a3a8e95141b05c39c9f64 \
+    --hash=sha256:e9805fed4f2a81de98ae5fe38b75a74c6e6ad2df8a5c479594c7629a1fe35f56 \
+    --hash=sha256:ea42d747c5f71b5ccaa6897b216a7dadb9f52c72a0fe2b872ef7d3e1eacf3ba3 \
+    --hash=sha256:ef216cc9feb60634bda2f341a9559ac594e2eeaadd0ba187a4c2eb5b5d40b91c \
+    --hash=sha256:ff0d41f8b3e9ebb6b6110057e40019a432e96aae2008951121ba4e56040b84f3
+    # via magic-folder
 pyasn1==0.4.8 \
     --hash=sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d \
     --hash=sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba
@@ -563,9 +597,9 @@ zope-interface==5.4.0 \
     #   txtorcon
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==62.1.0 \
-    --hash=sha256:26ead7d1f93efc0f8c804d9fafafbe4a44b179580a7105754b245155f9af05a8 \
-    --hash=sha256:47c7b0c0f8fc10eec4cf1e71c6fdadf8decaa74ffa087e68cd1c20db7ad6a592
+setuptools==62.2.0 \
+    --hash=sha256:5534570b9980fc650d45c62877ff603c7aaaf24893371708736cc016bd221c3c \
+    --hash=sha256:ca6ba73b7fd5f734ae70ece8c4c1f7062b07f3352f6428f6277e27c8f5c64237
     # via
     #   autobahn
     #   tahoe-lafs
