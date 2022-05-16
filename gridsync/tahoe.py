@@ -78,7 +78,7 @@ class Tahoe:
             self.nodedir, "private", "servers.yaml"
         )
         self.config = Config(os.path.join(self.nodedir, "tahoe.cfg"))
-        self.pidfile = os.path.join(self.nodedir, "twistd.pid")
+        self.pidfile = os.path.join(self.nodedir, f"{APP_NAME}-tahoe.pid")
         self.nodeurl = None
         self.shares_happy = 0
         self.name = os.path.basename(self.nodedir)
