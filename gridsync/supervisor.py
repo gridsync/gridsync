@@ -48,7 +48,9 @@ class Supervisor:
         if self.name.lower() == process_name(self.pid).lower():
             yield terminate(self.pid, kill_after=5)
         if self.pidfile and self.pidfile.exists():
+            logging.debug("Removing pidfile: %s", str(self.pidfile))
             self.pidfile.unlink()
+            logging.debug("Pidfile removed: %s", str(self.pidfile))
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
         self.pid = None
         self.name = ""
@@ -76,9 +78,12 @@ class Supervisor:
         if self.pidfile:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
                 f.write(f"{pid} {name}")
+            logging.debug(
+                'Wrote "%s %s" to pidfile: %s', pid, name, str(self.pidfile)
+            )
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
-            "".join(self._args),
+            " ".join(self._args),
             pid,
         )
         self.pid = pid
@@ -90,7 +95,7 @@ class Supervisor:
     def _schedule_restart(self, _) -> None:  # type: ignore
         if self._keep_alive:
             logging.debug(
-                "Restarting supervised process: %s", "".join(self._args)
+                "Restarting supervised process: %s", " ".join(self._args)
             )
             reactor.callLater(  # type: ignore
                 self.restart_delay, self._start_process
@@ -113,7 +118,7 @@ class Supervisor:
 
         if self.pidfile and self.pidfile.exists():
             yield self.stop()
-        logging.debug("Starting supervised process: %s", "".join(self._args))
+        logging.debug("Starting supervised process: %s", " ".join(self._args))
         result = yield self._start_process()
         pid, name = result
         return (pid, name)
