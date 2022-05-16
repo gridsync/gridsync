@@ -55,7 +55,7 @@ qtreactor.install()
 
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks, DeferredList
+from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import (
