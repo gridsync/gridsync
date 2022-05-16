@@ -4,7 +4,7 @@ import logging
 import sys
 from typing import Optional
 
-from qtpy.QtWidgets import QMessageBox, QWidget
+from qtpy.QtWidgets import QApplication, QMessageBox, QWidget
 
 
 def _msgbox(
@@ -25,14 +25,20 @@ def _msgbox(
 
 def info(
     parent: Optional[QWidget], title: str, text: str, detailed_text: str = ""
-) -> int:
+) -> Optional[int]:
     logging.info("%s: %s %s", title, text, detailed_text)
+    if not QApplication.instance():
+        return None
     msgbox = _msgbox(parent, title, text)
     msgbox.setIcon(QMessageBox.Information)
     return msgbox.exec_()
 
 
-def question(parent: Optional[QWidget], title: str, text: str) -> bool:
+def question(
+    parent: Optional[QWidget], title: str, text: str
+) -> Optional[bool]:
+    if not QApplication.instance():
+        return None
     msgbox = _msgbox(parent, title, text)
     msgbox.setIcon(QMessageBox.Question)
     msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -44,8 +50,10 @@ def question(parent: Optional[QWidget], title: str, text: str) -> bool:
 
 def error(
     parent: Optional[QWidget], title: str, text: str, detailed_text: str = ""
-) -> int:
+) -> Optional[int]:
     logging.error("%s: %s %s", title, text, detailed_text)
+    if not QApplication.instance():
+        return None
     msgbox = _msgbox(parent, title, text, detailed_text)
     msgbox.setIcon(QMessageBox.Critical)
     return msgbox.exec_()
@@ -53,9 +61,10 @@ def error(
 
 def critical(title: str, text: str, detailed_text: str = "") -> None:
     logging.critical("%s: %s %s", title, text, detailed_text)
-    msgbox = _msgbox(None, title, text, detailed_text)
-    msgbox.setIcon(QMessageBox.Critical)
-    msgbox.exec_()
+    if QApplication.instance():
+        msgbox = _msgbox(None, title, text, detailed_text)
+        msgbox.setIcon(QMessageBox.Critical)
+        msgbox.exec_()
 
     from twisted.internet import reactor
     from twisted.internet.error import ReactorNotRunning
