@@ -55,7 +55,7 @@ qtreactor.install()
 
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, DeferredList
 from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import (
@@ -239,6 +239,10 @@ class Core:
         logger.setLevel(logging.DEBUG)
         logging.debug("Hello World!")
 
+    @inlineCallbacks
+    def stop_gateways(self):
+        yield DeferredList([gateway.stop() for gateway in self.gateways])
+
     def start(self):
         self.initialize_logger(self.args.debug)
         try:
@@ -261,7 +265,6 @@ class Core:
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)
+        reactor.addSystemEventTrigger("before", "shutdown", self.stop_gateways)
         reactor.run()
-        for nodedir in get_nodedirs(config_dir):
-            Tahoe(nodedir).kill()
         lock.release()
