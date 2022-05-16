@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import errno
-import logging
 import shutil
 import time
 from io import BytesIO
-from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
