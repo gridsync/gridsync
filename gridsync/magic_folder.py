@@ -553,7 +553,7 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
-    def stop(self) -> None:
+    def stop(self) -> TwistedDeferred[None]:
         self.monitor.stop()
         yield self.supervisor.stop()
 
