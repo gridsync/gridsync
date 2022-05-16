@@ -34,7 +34,6 @@ os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
 @async_yield_fixture(scope="module")
 async def tahoe_server(tmp_path_factory):
     server = Tahoe(tmp_path_factory.mktemp("tahoe_server") / "nodedir")
-    print("Server nodedir:", server.nodedir)
     port = get_free_port()
     await server.create_node(
         port=f"tcp:{port}:interface=127.0.0.1",
@@ -49,7 +48,6 @@ async def tahoe_server(tmp_path_factory):
 @async_yield_fixture(scope="module")
 async def tahoe_client(tmp_path_factory, tahoe_server):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
-    print("Client nodedir:", client.nodedir)
     settings = {
         "nickname": "Test Grid",
         "shares-needed": "1",

@@ -7,7 +7,6 @@ from gridsync.zkapauthorizer import PLUGIN_NAME
 @async_yield_fixture(scope="module")
 async def zkapauthorizer(tmp_path_factory, tahoe_server):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
-    print("ZKAPAuthorizer-enabled client nodedir:", client.nodedir)
     settings = {
         "nickname": "ZKAPAuthorizer-enabled Test Grid",
         "shares-needed": "1",
