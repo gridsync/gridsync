@@ -391,6 +391,11 @@ class Tahoe:
         # kill(pidfile=self.pidfile)
         self.supervisor.stop()
 
+    def is_storage_node(self) -> bool:
+        if self.storage_furl:
+            return True
+        return False
+
     @inlineCallbacks
     def stop(self):
         log.debug('Stopping "%s" tahoe client...', self.name)
@@ -407,7 +412,9 @@ class Tahoe:
             yield self.rootcap_manager.lock.acquire()
             yield self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
-        self.kill()
+        if not self.is_storage_node():
+            yield self.magic_folder.stop()
+        yield self.supervisor.stop()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
@@ -447,7 +454,7 @@ class Tahoe:
 
         self.scan_storage_plugins()
 
-        if not self.storage_furl:  # XXX Is a client (TODO: a better way.)
+        if not self.is_storage_node():
             self.magic_folder.start()
 
     @inlineCallbacks
