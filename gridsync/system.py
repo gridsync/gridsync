@@ -80,45 +80,6 @@ def terminate(  # noqa: max-complexity
         yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
 
 
-def kill(  # noqa: max-complexity
-    pid: int = 0, pidfile: Optional[Union[Path, str]] = ""
-) -> None:
-    if pidfile:
-        pidfile_path = Path(pidfile)
-        try:
-            pid = int(pidfile_path.read_text(encoding="utf-8"))
-        except (EnvironmentError, ValueError) as err:
-            logging.error("Error loading pid from %s: %s", pidfile, str(err))
-            return
-    logging.debug("Trying to kill PID %i...", pid)
-    try:
-        proc = Process(pid)
-    except NoSuchProcess:
-        return
-    try:
-        proc.terminate()
-    except OSError as err:
-        if err.errno not in (errno.ESRCH, errno.EINVAL):
-            logging.error("Error killing PID %i: %s", pid, str(err))
-            raise
-        logging.warning("Could not kill PID %i: %s", pid, str(err))
-    proc.wait(timeout=3)
-    try:
-        proc.kill()
-    except NoSuchProcess:
-        pass
-    if pidfile:
-        logging.debug("Removing pidfile: %s", str(pidfile))
-        try:
-            pidfile_path.unlink()
-        except OSError as err:
-            logging.warning(
-                "Error removing pidfile %s: %s", str(pidfile), str(err)
-            )
-            return
-        logging.debug("Successfully removed pidfile: %s", str(pidfile))
-
-
 class SubprocessError(Exception):
     pass
 
