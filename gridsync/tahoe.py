@@ -475,7 +475,7 @@ class Tahoe:
             self.executable = which("tahoe")
         try:
             results = yield self.supervisor.start(
-                [self.executable, "-d", self.nodedir, "1run"],
+                [self.executable, "-d", self.nodedir, "run"],
                 started_trigger="client running",
                 stdout_line_collector=self.line_received,
                 process_started_callback=self._on_started,
