@@ -122,6 +122,3 @@ class Supervisor:
         result = yield self._start_process()
         pid, name = result
         return (pid, name)
-
-    def restart(self) -> None:
-        pass
