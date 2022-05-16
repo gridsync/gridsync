@@ -19,6 +19,7 @@ requirements = [
     "humanize",
     "hyperlink",
     "magic-wormhole",
+    "psutil",
     "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
     "pyyaml",
     "qtpy",

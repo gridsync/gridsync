@@ -55,7 +55,7 @@ qtreactor.install()
 
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import (
@@ -130,37 +130,30 @@ class Core:
         try:
             yield gateway.start()
         except Exception as e:  # pylint: disable=broad-except
-            logging.critical(
-                "Error starting Tahoe-LAFS gateway for %s: %s",
-                gateway.name,
-                str(e),
-            )
             msg.critical(
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",
-                f"{type(e).__name__}: {str(e)}",
+                "A critical error occurred when attempting to start the "
+                f'Tahoe-LAFS gateway for "{gateway.name}". {APP_NAME} will '
+                'now exit.\n\nClick "Show Details..." for more information.',
+                str(e),
             )
-            reactor.stop()  # type: ignore
 
     @inlineCallbacks
     def _get_executable_versions(self) -> TwistedDeferred[None]:
         try:
             yield self.get_tahoe_version()
         except Exception as e:  # pylint: disable=broad-except
-            logging.critical("Error getting Tahoe-LAFS version")
             msg.critical(
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
-            reactor.stop()  # type: ignore
         try:
             yield self.get_magic_folder_version()
         except Exception as e:  # pylint: disable=broad-except
-            logging.critical("Error getting Magic-Folder version")
             msg.critical(
                 "Error getting Magic-Folder version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
-            reactor.stop()  # type: ignore
 
     @inlineCallbacks
     def start_gateways(self):
@@ -246,6 +239,10 @@ class Core:
         logger.setLevel(logging.DEBUG)
         logging.debug("Hello World!")
 
+    @inlineCallbacks
+    def stop_gateways(self):
+        yield DeferredList([gateway.stop() for gateway in self.gateways])
+
     def start(self):
         self.initialize_logger(self.args.debug)
         try:
@@ -268,7 +265,6 @@ class Core:
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)
+        reactor.addSystemEventTrigger("before", "shutdown", self.stop_gateways)
         reactor.run()
-        for nodedir in get_nodedirs(config_dir):
-            Tahoe(nodedir).kill()
         lock.release()

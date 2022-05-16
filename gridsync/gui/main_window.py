@@ -151,6 +151,8 @@ class MainWindow(QMainWindow):
                 self.central_widget.add_gateway(gateway)
                 self.combo_box.add_gateway(gateway)
                 self.gateways.append(gateway)
+                if gateway not in self.gui.core.gateways:
+                    self.gui.core.gateways.append(gateway)  # XXX
                 gateway.newscap_checker.message_received.connect(
                     self.on_message_received
                 )

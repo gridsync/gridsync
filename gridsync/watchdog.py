@@ -48,6 +48,9 @@ class Watchdog(QObject):
         logging.debug("Watch unscheduled for %s", path)
 
     def stop(self) -> None:
+        if not self._observer.is_alive():
+            logging.warning("Tried to stop Watchdog that wasn't started.")
+            return
         logging.debug("Stopping Watchdog...")
         self._observer.stop()
         try:
@@ -57,6 +60,9 @@ class Watchdog(QObject):
         logging.debug("Watchdog stopped.")
 
     def start(self) -> None:
+        if self._observer.is_alive():
+            logging.warning("Tried to start Watchdog that was already started")
+            return
         logging.debug("Starting Watchdog...")
         try:
             self._observer.start()

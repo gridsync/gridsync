@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import time
 from collections import defaultdict, deque
 from datetime import datetime
 from enum import Enum, auto
@@ -16,7 +15,6 @@ from typing import (
     List,
     Optional,
     Tuple,
-    Union,
 )
 
 import treq
@@ -30,8 +28,11 @@ if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
     from gridsync.types import TwistedDeferred
 
+from gridsync import APP_NAME
 from gridsync.crypto import randstr
-from gridsync.system import SubprocessProtocol, kill, which
+from gridsync.msg import critical
+from gridsync.supervisor import Supervisor
+from gridsync.system import SubprocessProtocol, which
 from gridsync.watchdog import Watchdog
 from gridsync.websocket import WebSocketReaderService
 
@@ -223,7 +224,8 @@ class MagicFolderMonitor(QObject):
             else:
                 last_poll = data.get("poller", {}).get("last-poll") or 0
                 last_scan = data.get("scanner", {}).get("last-scan") or 0
-                if min(last_poll, last_scan) > self.magic_folder.time_started:
+                time_started = self.magic_folder.supervisor.time_started
+                if time_started and min(last_poll, last_scan) >= time_started:
                     folder_statuses[folder] = MagicFolderStatus.UP_TO_DATE
                 else:
                     folder_statuses[folder] = MagicFolderStatus.WAITING
@@ -454,6 +456,9 @@ class MagicFolderMonitor(QObject):
         self._known_folders = current_folders
 
     def start(self) -> None:
+        if self._ws_reader is not None:
+            self._ws_reader.stop()
+            self._ws_reader = None
         self._ws_reader = WebSocketReaderService(
             f"ws://127.0.0.1:{self.magic_folder.api_port}/v1/status",
             headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
@@ -484,15 +489,15 @@ class MagicFolder:
         self._log_buffer: Deque[bytes] = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
-        self.pidfile = Path(self.configdir, "magic-folder.pid")
-        self.pid: int = 0
         self.api_port: int = 0
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
         self.magic_folders: Dict[str, dict] = {}
         self.remote_magic_folders: Dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
-        self.time_started: float = 0.0
+        self.supervisor: Supervisor = Supervisor(
+            pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
+        )
 
     @staticmethod
     def on_stdout_line_received(line: str) -> None:
@@ -521,31 +526,25 @@ class MagicFolder:
     def get_log_messages(self) -> list:
         return list(msg.decode("utf-8") for msg in list(self._log_buffer))
 
-    @inlineCallbacks
-    def _command(
-        self, args: List[str], callback_trigger: str = ""
-    ) -> TwistedDeferred[Union[Tuple[int, str], str]]:
+    def _base_command_args(self) -> list[str]:
         if not self.executable:
             self.executable = which("magic-folder")
-        args = [
-            self.executable,
-            "--eliot-fd=2",  # redirect log output to stderr
-            f"--config={self.configdir}",
-        ] + args
-        env = os.environ
-        env["PYTHONUNBUFFERED"] = "1"
+        # Redirect/write eliot logs to stderr
+        return [self.executable, "--eliot-fd=2", f"--config={self.configdir}"]
+
+    @inlineCallbacks
+    def _command(self, args: List[str]) -> TwistedDeferred[str]:
+        args = self._base_command_args() + args
         logging.debug("Executing %s...", " ".join(args))
+        os.environ["PYTHONUNBUFFERED"] = "1"
         protocol = SubprocessProtocol(
-            callback_triggers=[callback_trigger],
             stdout_line_collector=self.on_stdout_line_received,
             stderr_line_collector=self.on_stderr_line_received,
         )
-        transport = yield reactor.spawnProcess(  # type: ignore
-            protocol, self.executable, args=args, env=env
+        yield reactor.spawnProcess(  # type: ignore
+            protocol, self.executable, args=args
         )
         output = yield protocol.done
-        if callback_trigger:
-            return transport.pid, output
         return output
 
     @inlineCallbacks
@@ -553,9 +552,10 @@ class MagicFolder:
         output = yield self._command(["--version"])
         return output
 
-    def stop(self) -> None:
+    @inlineCallbacks
+    def stop(self) -> TwistedDeferred[None]:
         self.monitor.stop()
-        kill(pidfile=self.pidfile)
+        yield self.supervisor.stop()
 
     def _read_api_token(self) -> str:
         p = Path(self.configdir, "api_token")
@@ -587,19 +587,14 @@ class MagicFolder:
             ) from e
         return port
 
-    @inlineCallbacks
-    def _run(self) -> TwistedDeferred[int]:
-        result = yield self._command(
-            ["run"], "Completed initial Magic Folder setup"
-        )
-        pid, _ = result
-        return pid
+    def _on_started(self) -> None:
+        self.api_token = self._read_api_token()
+        self.api_port = self._read_api_port()
+        self.monitor.start()
 
     @inlineCallbacks
     def start(self) -> TwistedDeferred[None]:
         logging.debug("Starting magic-folder...")
-        if self.pidfile.exists():
-            self.stop()
         if not self.configdir.exists():
             yield self._command(
                 [
@@ -610,12 +605,23 @@ class MagicFolder:
                     self.gateway.nodedir,
                 ]
             )
-        self.pid = yield self._run()
-        self.pidfile.write_text(str(self.pid), encoding="utf-8")
-        self.api_token = self._read_api_token()
-        self.api_port = self._read_api_port()
-        self.monitor.start()
-        self.time_started = time.time()
+        try:
+            yield self.supervisor.start(
+                self._base_command_args() + ["run"],
+                started_trigger="Completed initial Magic Folder setup",
+                stdout_line_collector=self.on_stdout_line_received,
+                stderr_line_collector=self.on_stderr_line_received,
+                process_started_callback=self._on_started,
+            )
+        except Exception as exc:  # pylint: disable=broad-except
+            critical(
+                "Error starting Magic-Folder",
+                "A critical error occurred when attempting to start a "
+                f"Magic-Folder subprocess for {self.gateway.name}. {APP_NAME} "
+                'will now exit.\n\nClick "Show Details..." for more '
+                "information.",
+                str(exc),
+            )
         logging.debug("Started magic-folder")
 
     @inlineCallbacks
@@ -631,6 +637,7 @@ class MagicFolder:
         body: bytes = b"",
         error_404_ok: bool = False,
     ) -> TwistedDeferred[dict]:
+        yield self.await_running()  # XXX
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
         if not self.api_port:

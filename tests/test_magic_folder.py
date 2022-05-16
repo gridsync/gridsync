@@ -139,7 +139,7 @@ def test__read_api_port_raises_magic_folder_config_error_if_not_int(tmp_path):
 )
 def test_magic_folder_monitor__parse_folder_statuses(tmp_path, state, status):
     magic_folder = MagicFolder(Tahoe(tmp_path / "nodedir"))
-    magic_folder.time_started = 1
+    magic_folder.supervisor.time_started = 1  # XXX
     monitor = magic_folder.monitor
     statuses = monitor._parse_folder_statuses(state)
     assert statuses.get("TestFolder") == status
