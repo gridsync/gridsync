@@ -552,9 +552,10 @@ class MagicFolder:
         output = yield self._command(["--version"])
         return output
 
+    @inlineCallbacks
     def stop(self) -> None:
         self.monitor.stop()
-        self.supervisor.stop()
+        yield self.supervisor.stop()
 
     def _read_api_token(self) -> str:
         p = Path(self.configdir, "api_token")
