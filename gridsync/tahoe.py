@@ -386,11 +386,6 @@ class Tahoe:
         kwargs["listen"] = "none"
         yield self.create_node(**kwargs)
 
-    def kill(self):
-        self.magic_folder.stop()  # XXX
-        # kill(pidfile=self.pidfile)
-        self.supervisor.stop()
-
     def is_storage_node(self) -> bool:
         if self.storage_furl:
             return True
