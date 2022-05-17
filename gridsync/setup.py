@@ -316,7 +316,7 @@ class SetupRunner(QObject):
             self.update_progress.emit("Restoring from Recovery Key...")
             self.gateway.save_settings(settings)  # XXX Unnecessary?
             if zkapauthz:
-                yield self.gateway.zkapauthorizer.restore_zkaps()
+                yield self.gateway.zkapauthorizer.restore_zkaps()  # XXX
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
