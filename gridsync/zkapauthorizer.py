@@ -217,10 +217,17 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def backup_zkaps(self) -> TwistedDeferred[None]:
+        cap = yield self.replicate()
+        yield self.gateway.rootcap_manager.add_backup(
+            ".zkapauthorizer", "recovery-capability", cap
+        )
         # XXX
-        pass
 
     @inlineCallbacks
     def restore_zkaps(self) -> TwistedDeferred[None]:
+        cap = yield self.gateway.rootcap_manager.get_backup_cap(
+            "recovery-capability", ".zkapauthorizer"
+        )
+        yield self.recover(cap)
         # XXX
-        pass
+        # await completed
