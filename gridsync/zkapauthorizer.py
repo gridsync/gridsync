@@ -3,14 +3,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging as log
 import os
-import shutil
-from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
-from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync.errors import TahoeWebError
