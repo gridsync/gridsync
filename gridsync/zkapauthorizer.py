@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 PLUGIN_NAME = "privatestorageio-zkapauthz-v2"
+# XXX https://github.com/PrivateStorageio/ZKAPAuthorizer/blob/c47a351dc44689f06081dc5f3f51f1e3e293b8ae/docs/source/designs/backup-recovery.rst
 
 
 class ZKAPAuthorizer:
@@ -58,6 +59,8 @@ class ZKAPAuthorizer:
         if resp.code == 201:
             content = yield treq.json_content(resp)
             return content.get("recovery-capability")
+        content = yield treq.content(resp)
+        print(content)
         raise TahoeWebError(f"Error configuring replication: {resp.code}")
 
     @inlineCallbacks

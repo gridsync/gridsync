@@ -7,6 +7,7 @@ from gridsync.zkapauthorizer import PLUGIN_NAME
 @async_yield_fixture(scope="module")
 async def zkapauthorizer(tmp_path_factory, tahoe_server):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
+    print(f"\n############\ncreating nodedir:\n{client.nodedir}\n############")
     settings = {
         "nickname": "ZKAPAuthorizer-enabled Test Grid",
         "shares-needed": "1",
@@ -69,4 +70,5 @@ def test_replicate_is_idempotent(zkapauthorizer):
 @inlineCallbacks
 def test_get_recovery_status(zkapauthorizer):
     status = yield zkapauthorizer.get_recovery_status()
+    print(status)
     assert status is not None  # XXX
