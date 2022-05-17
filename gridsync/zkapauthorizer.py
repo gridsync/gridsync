@@ -154,72 +154,9 @@ class ZKAPAuthorizer:
         return self.zkap_dircap
 
     @inlineCallbacks
-    def update_zkap_checkpoint(self) -> TwistedDeferred[None]:
-        if not self.gateway.zkap_auth_required:
-            return
-        os.makedirs(self.zkapsdir, exist_ok=True)
-
-        # The act of updating the checkpoint itself costs at least 1
-        # ZKAP, so use the *second* token as the "checkpoint" (on the
-        # assumption that the first/next token will be spent imminently)
-        zkaps = yield self.get_zkaps(2)
-        checkpoint = zkaps.get("unblinded-tokens")[1]
-        checkpoint_path = os.path.join(self.zkapsdir, "checkpoint")
-        with atomic_write(checkpoint_path, overwrite=True) as f:
-            f.write(checkpoint.strip())
-
-        zkap_dircap = yield self.get_zkap_dircap()
-        checkpoint_filecap = yield self.gateway.upload(checkpoint_path)
-        yield self.gateway.link(zkap_dircap, "checkpoint", checkpoint_filecap)
-
-    @inlineCallbacks
-    def backup_zkaps(self, timestamp: str) -> TwistedDeferred[None]:
-        os.makedirs(self.zkapsdir, exist_ok=True)
-
-        local_backup_filename = timestamp.replace(":", "_") + ".json"
-        local_backup_path = os.path.join(self.zkapsdir, local_backup_filename)
-        if os.path.exists(local_backup_path):
-            log.debug("ZKAP backup %s already uploaded", local_backup_filename)
-            return
-        try:
-            with open(
-                os.path.join(self.zkapsdir, "last-redeemed"), encoding="utf-8"
-            ) as f:
-                if timestamp == f.read():
-                    log.debug(
-                        "No ZKAP backup needed for %s; cancelling", timestamp
-                    )
-                    return
-        except OSError:
-            pass
-
-        temp_path = os.path.join(self.zkapsdir, "backup.json.tmp")
-
-        zkaps = yield self.get_zkaps()
-        zkaps["last-redeemed"] = timestamp
-
-        with atomic_write(temp_path, overwrite=True) as f:
-            f.write(json.dumps(zkaps))
-
-        zkap_dircap = yield self.get_zkap_dircap()
-        backup_filecap = yield self.gateway.upload(temp_path)
-        yield self.gateway.link(zkap_dircap, "backup.json", backup_filecap)
-
-        yield self.update_zkap_checkpoint()
-
-        shutil.move(temp_path, local_backup_path)
-
-    @inlineCallbacks
-    def insert_zkaps(self, zkaps: list) -> TwistedDeferred[Dict]:
-        resp = yield self._request(
-            "POST",
-            "/unblinded-token",
-            json.dumps({"unblinded-tokens": zkaps}).encode(),
-        )
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error inserting ZKAPs: {resp.code}")
+    def backup_zkaps(self) -> TwistedDeferred[None]:
+        # XXX
+        pass
 
     @inlineCallbacks
     def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
@@ -231,29 +168,8 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def restore_zkaps(self) -> TwistedDeferred[None]:
-        zkap_dircap = yield self.get_zkap_dircap()
-        yield self.gateway.await_ready()
-
-        backup = yield self._get_content(zkap_dircap + "/backup.json")
-        backup_decoded = json.loads(backup.decode())
-        tokens = backup_decoded.get("unblinded-tokens")
-
-        checkpoint = yield self._get_content(zkap_dircap + "/checkpoint")
-        checkpoint = checkpoint.decode()
-
-        yield self.insert_zkaps(tokens[tokens.index(checkpoint) :])
-
-        os.makedirs(self.zkapsdir, exist_ok=True)
-
-        with atomic_write(
-            str(Path(self.zkapsdir, "last-redeemed")), overwrite=True
-        ) as f:
-            f.write(str(backup_decoded.get("last-redeemed")))
-
-        with atomic_write(
-            str(Path(self.zkapsdir, "last-total")), overwrite=True
-        ) as f:
-            f.write(str(backup_decoded.get("total")))
+        # XXX
+        pass
 
     @inlineCallbacks
     def get_version(self) -> TwistedDeferred[str]:
