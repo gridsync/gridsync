@@ -105,10 +105,6 @@ class Tahoe:
         self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
-        self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)  # XXX
-        self.magic_folder.monitor.files_updated.connect(
-            lambda *args: self.zkapauthorizer.update_zkap_checkpoint()  # XXX
-        )
         self.supervisor = Supervisor(pidfile=Path(self.pidfile))
 
         # TODO: Replace with "readiness" API?

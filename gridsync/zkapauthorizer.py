@@ -35,6 +35,10 @@ class ZKAPAuthorizer:
         self.zkap_dircap: str = ""
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2**15
+        
+        # XXX/TODO: This connection should probably happen elsewhere,
+        # i.e., in a class that inherits from QObject
+        self.gateway.monitor.zkaps_redeemed.connect(self.backup_zkaps)
 
     @inlineCallbacks
     def _request(
