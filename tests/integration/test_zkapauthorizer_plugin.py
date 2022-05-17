@@ -72,3 +72,20 @@ def test_get_recovery_status(zkapauthorizer):
     status = yield zkapauthorizer.get_recovery_status()
     print(status)
     assert status is not None  # XXX
+
+
+@inlineCallbacks
+def test_backup_zkaps_adds_recoverycap_to_rootcap(zkapauthorizer):
+    cap_created = yield zkapauthorizer.replicate()
+    cap_stored = yield zkapauthorizer.gateway.rootcap_manager.get_backup_cap(
+        "recovery-capability", ".zkapauthorizer"
+    )
+    assert cap_created == cap_stored
+    # XXX
+
+
+@inlineCallbacks
+def test_restore_zkaps(zkapauthorizer):
+    yield zkapauthorizer.restore_zkaps()
+    # XXX
+    assert False
