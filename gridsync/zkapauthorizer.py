@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
