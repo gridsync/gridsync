@@ -22,7 +22,6 @@ PLUGIN_NAME = "privatestorageio-zkapauthz-v2"
 class ZKAPAuthorizer:
     def __init__(self, gateway: Tahoe) -> None:
         self.gateway = gateway
-        self.zkapsdir = os.path.join(self.gateway.nodedir, "private", "zkaps")
 
         self.zkap_unit_name: str = "MB-month"
         self.zkap_unit_multiplier: int = 1
