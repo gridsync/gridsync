@@ -4,7 +4,7 @@ Recovery Keys
 What is a "Recovery Key"?
 -------------------------
 
-A _Recovery Key_ is a small text file containing enough information (specifically, a grid's connection settings and a personal "rootcap") to a) re-establish a connection to a storage grid and b) restore access to any previously uploaded or joined folders. Gridsync uses Recovery Keys as primarily as backup mechanism; in the event that something goes wrong with your computer (e.g., hardware failure or accidental data-loss), you can use your Recovery Key to restore access to your folders.
+A _Recovery Key_ is a small text file containing enough information (specifically, a grid's connection settings and a personal "rootcap") to a) re-establish a connection to a storage grid and b) restore access to any previously uploaded or joined folders. Gridsync uses Recovery Keys primarily as a backup mechanism; in the event that something goes wrong with your computer (e.g., hardware failure or accidental data-loss), you can use your Recovery Key to restore access to your folders.
 
 
 How do I create a Recovery Key?
