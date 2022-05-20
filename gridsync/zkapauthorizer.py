@@ -6,7 +6,8 @@ import json
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
-from twisted.internet.defer import inlineCallbacks
+from atomicwrites import atomic_write
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 from gridsync.errors import TahoeWebError
 from gridsync.types import TreqResponse, TwistedDeferred
@@ -123,8 +124,9 @@ class ZKAPAuthorizer:
             "PUT", "/voucher", json.dumps({"voucher": voucher}).encode()
         )
         if resp.code == 200:
-            return voucher
-        raise TahoeWebError(f"Error adding voucher: {resp.code}")
+            returnValue(voucher)
+        content = yield resp.content()
+        raise TahoeWebError(f"Error adding voucher: {resp.code}: {content}")
 
     @inlineCallbacks
     def get_voucher(self, voucher: str) -> TwistedDeferred[Dict]:
@@ -142,25 +144,6 @@ class ZKAPAuthorizer:
             return content.get("vouchers")
         raise TahoeWebError(f"Error getting vouchers: {resp.code}")
 
-    @inlineCallbacks
-    def get_zkaps(
-        self, limit: Optional[int] = 0, position: Optional[str] = None
-    ) -> TwistedDeferred[bytes]:
-        query_params = []
-        if limit:
-            query_params.append(f"limit={limit}")
-        if position:
-            query_params.append(f"position={position}")
-        if query_params:
-            query_string = "?" + "&".join(query_params)
-        else:
-            query_string = ""
-        resp = yield self._request("GET", f"/unblinded-token{query_string}")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
-
     def zkap_payment_url(self, voucher: str) -> str:
         if not self.zkap_payment_url_root:
             return ""
@@ -169,6 +152,35 @@ class ZKAPAuthorizer:
             voucher,
             hashlib.sha256(voucher.encode()).hexdigest(),
         )
+
+    @inlineCallbacks
+    def get_total_zkaps(self) -> TwistedDeferred[int]:
+        """
+        Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer how
+        many tokens it knows about.
+
+        :returns: the total number of ZKAPs we have (spend and unspent
+            together)
+        """
+        resp = yield self._request("GET", "/lease-maintenance")
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content.get("total", 0)
+        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
+
+    @inlineCallbacks
+    def get_lease_maintenance_spending(self) -> TwistedDeferred[Union[None, int]]:
+        """
+        Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer how
+        much we've spent on lease-maintenance
+
+        :returns: ???
+        """
+        resp = yield self._request("GET", "/lease-maintenance")
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content.get("spending", None)
+        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
 
     @inlineCallbacks
     def get_zkap_dircap(self) -> TwistedDeferred[str]:
@@ -208,6 +220,18 @@ class ZKAPAuthorizer:
     @inlineCallbacks
     def get_recovery_status(self) -> TwistedDeferred[str]:
         resp = yield self._request("GET", "/recover")
+
+    def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
+        resp = yield treq.get(f"{self.gateway.nodeurl}uri/{cap}")
+        if resp.code == 200:
+            content = yield treq.content(resp)
+            return content
+        raise TahoeWebError(f"Error getting cap content: {resp.code}")
+
+    @inlineCallbacks
+    def get_version(self) -> TwistedDeferred[str]:
+        version = ""
+        resp = yield self._request("GET", "/version")
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content.get("stage")

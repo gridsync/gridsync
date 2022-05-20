@@ -302,48 +302,27 @@ class ZKAPChecker(QObject):
             vouchers,
             self._time_started,
         )
-        total = parse.total_tokens
+        total_tokens = parse.total_tokens
         self._update_unpaid_vouchers(parse.unpaid_vouchers)
         self._update_redeeming_vouchers(parse.redeeming_vouchers)
         self._update_zkaps_last_redeemed(parse.zkaps_last_redeemed)
 
-        try:
-            zkaps = yield self.gateway.zkapauthorizer.get_zkaps(limit=1)
-        except (ConnectError, TahoeWebError):
-            return  # XXX
-        remaining = zkaps.get("total")
-        if remaining and not total:
-            total = self._maybe_load_last_total()
-        if not total or remaining > total:
-            # When redeeming tokens in batches, ZKAPs become available
-            # during the "redeeming" state but the *total* number is
-            # not shown until the "redeemed" state. To prevent the
-            # appearance of negative ZKAP balances during this time,
-            # temporarily consider the current number of remaining
-            # ZKAPs to be the total. For more context, see:
-            # https://github.com/PrivateStorageio/ZKAPAuthorizer/issues/124
-            total = remaining
-        if remaining != self.zkaps_remaining or total != self.zkaps_total:
-            self.emit_zkaps_updated(remaining, total)
-            if not self.zkaps_remaining and remaining:
-                # Some (non-zero) amount of ZKAPs are now available --
-                # in other words, the grid is now "writeable"
-                self.zkaps_available.emit()
-            self.zkaps_remaining = remaining
-            self.zkaps_total = total
-        elif not remaining or not total:
-            self.emit_zkaps_updated(remaining, total)
-        spending = zkaps.get("lease-maintenance-spending")
-        if spending:
-            count = spending.get("count")
-        else:
-            # If a lease maintenance crawl hasn't yet happened, we can assume
-            # that the cost to renew (in the first crawl) will be equivalent
-            # to the number of ZKAPs already used/consumed/spent.
-            count = self.zkaps_total - self.zkaps_remaining
+        count = yield self.gateway.zkapauthorizer.get_lease_maintenance_spending()
+        unspent_tokens = yield self.gateway.zkapauthorizer.get_total_zkaps()
         if count and count != self.zkaps_renewal_cost:
             self.zkaps_renewal_cost_updated.emit(count)
             self.zkaps_renewal_cost = count
+
+        if unspent_tokens != self.zkaps_remaining or total_tokens != self.zkaps_total:
+            self.emit_zkaps_updated(unspent_tokens, total_tokens)
+            if not self.zkaps_remaining and unspent_tokens:
+                # Some (non-zero) amount of ZKAPs are now available --
+                # in other words, the grid is now "writeable"
+                self.zkaps_available.emit()
+            self.zkaps_remaining = unspent_tokens
+            self.zkaps_total = total_tokens
+        elif not unspent_tokens or not total_tokens:
+            self.emit_zkaps_updated(unspent_tokens, total_tokens)
 
         # XXX/FIXME: This assumes that leases will be renewed every 27 days.
         # daily_cost = self.zkaps_renewal_cost / 27
