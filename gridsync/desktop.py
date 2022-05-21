@@ -50,9 +50,14 @@ def notify(systray, title, message, duration=5000):
             yield _txdbus_notify(title, message, duration)
         except Exception as exc:  # pylint: disable=broad-except
             logging.warning("%s; falling back to showMessage()...", str(exc))
-            systray.showMessage(title, message, msecs=duration)
-    else:
+            if systray and systray.supportsMessages():
+                systray.showMessage(title, message, msecs=duration)
+            else:
+                logging.info("%s: %s", title, message)
+    elif systray and systray.supportsMessages():
         systray.showMessage(title, message, msecs=duration)
+    else:
+        logging.info("%s: %s", title, message)
 
 
 def _desktop_open(path):
