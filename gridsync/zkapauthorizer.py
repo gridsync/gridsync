@@ -238,7 +238,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error getting recovery status: {resp.code}")
 
     @inlineCallbacks
-    def backup_zkaps(self) -> TwistedDeferred[None]:
+    def backup_zkaps(self, *args) -> TwistedDeferred[None]:
         cap = yield self.replicate()
         yield self.gateway.rootcap_manager.add_backup(
             ".zkapauthorizer", "recovery-capability", cap
