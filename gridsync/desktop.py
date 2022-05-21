@@ -42,11 +42,12 @@ def _txdbus_notify(title, message, duration=5000):
     yield conn.disconnect()
 
 
+@inlineCallbacks
 def notify(systray, title, message, duration=5000):
     logging.debug("Sending desktop notification...")
     if sys.platform not in ("darwin", "win32"):
         try:
-            _txdbus_notify(title, message, duration)
+            yield _txdbus_notify(title, message, duration)
         except Exception as exc:  # pylint: disable=broad-except
             logging.warning("%s; falling back to showMessage()...", str(exc))
             systray.showMessage(title, message, msecs=duration)
