@@ -60,3 +60,5 @@ env | sort
 ps waux
 cat "$SHELLRC"
 service --status-all
+systemctl status docker.service
+journalctl -xeu docker.service
