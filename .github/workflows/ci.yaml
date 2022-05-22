@@ -37,7 +37,9 @@ jobs:
         key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
-      run: SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
+      run: |
+        which podman
+        SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
       run: |
         source ~/.bash_profile
