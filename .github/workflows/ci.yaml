@@ -59,7 +59,6 @@ jobs:
     - name: Build (in container)
       run: |
         source ~/.bash_profile
-        sudo service docker restart
         make clean in-container
         sudo chown -R runner ~
     - name: Verify (on host)
