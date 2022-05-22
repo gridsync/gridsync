@@ -53,3 +53,11 @@ pyenv global 3.9.11 3.10.3
 pyenv versions
 
 python3 -m pip install --upgrade setuptools pip tox diffoscope
+
+echo "########################################################"
+which docker
+which podman
+env | sort
+ps waux
+cat "$SHELLRC"
+service --status-all
