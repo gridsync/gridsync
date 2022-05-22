@@ -38,7 +38,7 @@ jobs:
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: |
-        which podman
+        sudo apt-get install -y podman
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
       run: |
