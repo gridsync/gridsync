@@ -211,7 +211,8 @@ in-container:
 		export QT_API=pyqt5 ; \
 		export _QT_VERSION=5 ; \
 	fi && \
-	docker run --rm --mount type=bind,src=$$(pwd),target=/gridsync \
+	export CONTAINER_RUNTIME="$$(which podman | which docker)" && \
+	$${CONTAINER_RUNTIME} run --rm --mount type=bind,src=$$(pwd),target=/gridsync \
 		-w /gridsync --env QT_API="$${QT_API}" \
 		docker.io/gridsync/gridsync-builder-qt$${_QT_VERSION}@$$(cat misc/gridsync-builder-qt$${_QT_VERSION}.digest)
 
