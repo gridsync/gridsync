@@ -56,7 +56,6 @@ python3 -m pip install --upgrade setuptools pip tox diffoscope
 
 echo "########################################################"
 which docker
-which podman
 env | sort
 ps waux
 cat "$SHELLRC"
