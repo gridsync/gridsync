@@ -199,6 +199,14 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def replicate(self) -> TwistedDeferred[str]:
+        """
+        Configure replication of ZKAPAuthorizer state via the /replicate
+        endpoint. This returns a Tahoe-LAFS read-only directory
+        capability that needs to be returned to the ZKAPAuthorizer to
+        complete a later recovery.
+
+        :returns: a capability of type `URI:DIR2-RO:`
+        """
         resp = yield self._request("POST", "/replicate")
         if resp.code == 201:
             content = yield treq.json_content(resp)
@@ -209,6 +217,14 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def recover(self, dircap: str) -> TwistedDeferred[None]:
+        """
+        Call the ZKAPAuthorizer /recover endpoint and await its
+        results. The endpoint only returns after the recovery is
+        complete.
+
+        :raises TahoeWebError" if anything other than 202 ACCEPTED is
+            the result of the operation.
+        """
         resp = yield self._request(
             "POST",
             "/recover",
@@ -239,17 +255,25 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def backup_zkaps(self, *args) -> TwistedDeferred[None]:
+        """
+        Set up ZKAPAuthorizer state replication and link its read-only
+        directory cap under the ``.zkapauthorizer`` backup under name
+        ``recovery-capability``.
+        """
         cap = yield self.replicate()
         yield self.gateway.rootcap_manager.add_backup(
             ".zkapauthorizer", "recovery-capability", cap
         )
-        # XXX
 
     @inlineCallbacks
     def restore_zkaps(self) -> TwistedDeferred[None]:
-        cap = yield self.gateway.rootcap_manager.get_backup_cap(
-            "recovery-capability", ".zkapauthorizer"
+        """
+        Attempt to restore ZKAP state from a previously saved
+        replica. Uses the ``recovery-capability`` from the
+        ``.zkapauthorizer`` backed, which should be there from a
+        previous call to ``backup_zkaps``.
+        """
+        cap = yield self.gateway.rootcap_manager.get_backup(
+            ".zkapauthorizer", "recovery-capability",
         )
         yield self.recover(cap)
-        # XXX
-        # await completed
