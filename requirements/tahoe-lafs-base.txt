@@ -84,7 +84,9 @@ cbor2==5.4.3 \
     --hash=sha256:d21ccd1ec802e88dba1c373724a09538a0237116ab589c5301ca4c59478f7c10 \
     --hash=sha256:d549abea7115c8a0d7c61a31a895c031f902a7b4c875f9efd8ce41e466baf83a \
     --hash=sha256:e10f2f4fcf5ab6a8b24d22f7109f48cad8143f669795899370170d7b36ed309f
-    # via tahoe-lafs
+    # via
+    #   tahoe-lafs
+    #   zero-knowledge-access-pass-authorizer
 certifi==2022.5.18.1 \
     --hash=sha256:9c5705e395cd70084351dd8ad5c41e65655e08ce46f2ec9cf6c2c08390f71eb7 \
     --hash=sha256:f1d53542ee8cbedbe2118b5686372fb33c297fcd6379b050cca0ef13a597382a
@@ -480,8 +482,8 @@ werkzeug==2.1.2 \
     --hash=sha256:1ce08e8093ed67d638d63879fd1ba3735817f7a80de3674d293f5984f25fb6e6 \
     --hash=sha256:72a4b735692dd3135217911cbeaa1be5fa3f62bffb8745c5215420a03dc55255
     # via klein
-zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/25715a96c7000febae91f01a2694ffdb9de3c3ad \
-    --hash=sha256:6698d27fcab0f5d5d66c3311ab6849f8153c7ae572cb404931952995e4857104
+zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/ae27f82b0c9f09337dd7f9c94d5657fb7bfd7628 \
+    --hash=sha256:6851c16e9963724d896f12c06ad37bce8a24fa7b1dea7cf78a5caabbdb99f02c
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.7.2 \
     --hash=sha256:01b47b1144940a620393d38d12d381a6f3e6522e96d834d658e095422876fdc8 \
