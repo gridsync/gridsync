@@ -166,7 +166,9 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
 
     @inlineCallbacks
-    def get_lease_maintenance_spending(self) -> TwistedDeferred[Union[None, int]]:
+    def get_lease_maintenance_spending(
+        self,
+    ) -> TwistedDeferred[Union[None, int]]:
         """
         Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer how
         much we've spent on lease-maintenance
@@ -238,6 +240,7 @@ class ZKAPAuthorizer:
         previous call to ``backup_zkaps``.
         """
         cap = yield self.gateway.rootcap_manager.get_backup(
-            ".zkapauthorizer", "recovery-capability",
+            ".zkapauthorizer",
+            "recovery-capability",
         )
         yield self._recover(cap)

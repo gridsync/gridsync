@@ -139,9 +139,7 @@ class RootcapManager:
         return cap
 
     @inlineCallbacks
-    def get_backup(
-        self, dirname: str, name: str
-    ) -> TwistedDeferred[str]:
+    def get_backup(self, dirname: str, name: str) -> TwistedDeferred[str]:
         """
         Retrieve a backup previously added with `add_backup`.
 

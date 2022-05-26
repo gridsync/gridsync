@@ -307,13 +307,18 @@ class ZKAPChecker(QObject):
         self._update_redeeming_vouchers(parse.redeeming_vouchers)
         self._update_zkaps_last_redeemed(parse.zkaps_last_redeemed)
 
-        count = yield self.gateway.zkapauthorizer.get_lease_maintenance_spending()
+        count = (
+            yield self.gateway.zkapauthorizer.get_lease_maintenance_spending()
+        )
         unspent_tokens = yield self.gateway.zkapauthorizer.get_total_zkaps()
         if count and count != self.zkaps_renewal_cost:
             self.zkaps_renewal_cost_updated.emit(count)
             self.zkaps_renewal_cost = count
 
-        if unspent_tokens != self.zkaps_remaining or total_tokens != self.zkaps_total:
+        if (
+            unspent_tokens != self.zkaps_remaining
+            or total_tokens != self.zkaps_total
+        ):
             self.emit_zkaps_updated(unspent_tokens, total_tokens)
             if not self.zkaps_remaining and unspent_tokens:
                 # Some (non-zero) amount of ZKAPs are now available --
