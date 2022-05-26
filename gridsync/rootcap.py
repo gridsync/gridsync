@@ -148,8 +148,8 @@ class RootcapManager:
         """
         backup_cap = yield self.get_backup_cap(dirname)
         ls_output = yield self.gateway.ls(backup_cap)
-        for dirname, data in ls_output.items():
-            if dirname == name:
+        for directory, data in ls_output.items():
+            if directory == name:
                 return data.get("ro_cap", data.get("cap", {}))
         raise ValueError(f"Backup not found for {dirname} -> {name}")
 
