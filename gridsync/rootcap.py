@@ -139,6 +139,23 @@ class RootcapManager:
         return cap
 
     @inlineCallbacks
+    def get_backup(
+        self, dirname: str, name: str
+    ) -> TwistedDeferred[str]:
+        """
+        Retrieve a backup previously added with `add_backup`.
+
+        :param dirname: same meaning as add_backup
+        :param name: same meaning as add_backup
+        """
+        backup_cap = yield self.get_backup_cap(dirname)
+        ls_output = yield self.gateway.ls(backup_cap)
+        for dirname, data in ls_output.items():
+            if dirname == name:
+                return data.get("ro_cap", data.get("cap", {}))
+        raise ValueError(f"Backup not found for {dirname} -> {name}")
+
+    @inlineCallbacks
     def get_backups(self, dirname: str) -> TwistedDeferred[Optional[dict]]:
         backup_cap = yield self.get_backup_cap(dirname)
         ls_output = yield self.gateway.ls(backup_cap)
