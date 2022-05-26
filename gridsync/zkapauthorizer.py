@@ -218,6 +218,10 @@ class ZKAPAuthorizer:
     @inlineCallbacks
     def get_recovery_status(self) -> TwistedDeferred[str]:
         resp = yield self._request("GET", "/recover")
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content.get("stage")
+        raise TahoeWebError(f"Error getting recovery status: {resp.code}")
 
     @inlineCallbacks
     def backup_zkaps(self) -> TwistedDeferred[None]:
