@@ -332,6 +332,9 @@ class SetupRunner(QObject):
             yield self.gateway.link(
                 self.gateway.get_rootcap(), "settings.json", settings_cap
             )
+            if zkapauthz:
+                self.update_progress.emit("Replicate ZKAPs")
+                yield self.gateway.zkapauthorizer.backup_zkaps()
 
     @inlineCallbacks
     def join_folders(self, folders_data):

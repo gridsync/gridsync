@@ -29,9 +29,6 @@ class ZKAPAuthorizer:
         self.zkap_dircap: str = ""
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2**15
-        # XXX/TODO: This connection should probably happen elsewhere,
-        # i.e., in a class that inherits from QObject
-        self.gateway.monitor.zkaps_redeemed.connect(self.backup_zkaps)
 
     @inlineCallbacks
     def _request(
@@ -183,22 +180,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
 
     @inlineCallbacks
-    def get_zkap_dircap(self) -> TwistedDeferred[str]:
-        if self.zkap_dircap:
-            return self.zkap_dircap
-        if not self.gateway.get_rootcap():
-            yield self.gateway.create_rootcap()
-        root_json = yield self.gateway.get_json(self.gateway.get_rootcap())
-        try:
-            self.zkap_dircap = root_json[1]["children"][".zkaps"][1]["rw_uri"]
-        except (KeyError, TypeError):
-            self.zkap_dircap = yield self.gateway.mkdir(
-                self.gateway.get_rootcap(), ".zkaps"
-            )
-        return self.zkap_dircap
-
-    @inlineCallbacks
-    def replicate(self) -> TwistedDeferred[str]:
+    def _setup_replication(self) -> TwistedDeferred[str]:
         """
         Configure replication of ZKAPAuthorizer state via the /replicate
         endpoint. This returns a Tahoe-LAFS read-only directory
@@ -211,12 +193,10 @@ class ZKAPAuthorizer:
         if resp.code == 201:
             content = yield treq.json_content(resp)
             return content.get("recovery-capability")
-        content = yield treq.content(resp)
-        print(content)
         raise TahoeWebError(f"Error configuring replication: {resp.code}")
 
     @inlineCallbacks
-    def recover(self, dircap: str) -> TwistedDeferred[None]:
+    def _recover(self, dircap: str) -> TwistedDeferred[None]:
         """
         Call the ZKAPAuthorizer /recover endpoint and await its
         results. The endpoint only returns after the recovery is
@@ -254,13 +234,13 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error getting recovery status: {resp.code}")
 
     @inlineCallbacks
-    def backup_zkaps(self, *args) -> TwistedDeferred[None]:
+    def backup_zkaps(self) -> TwistedDeferred[None]:
         """
         Set up ZKAPAuthorizer state replication and link its read-only
         directory cap under the ``.zkapauthorizer`` backup under name
         ``recovery-capability``.
         """
-        cap = yield self.replicate()
+        cap = yield self._setup_replication()
         yield self.gateway.rootcap_manager.add_backup(
             ".zkapauthorizer", "recovery-capability", cap
         )
@@ -276,4 +256,4 @@ class ZKAPAuthorizer:
         cap = yield self.gateway.rootcap_manager.get_backup(
             ".zkapauthorizer", "recovery-capability",
         )
-        yield self.recover(cap)
+        yield self._recover(cap)
