@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
 from atomicwrites import atomic_write
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from gridsync.errors import TahoeWebError
 from gridsync.types import TreqResponse, TwistedDeferred
@@ -121,7 +121,7 @@ class ZKAPAuthorizer:
             "PUT", "/voucher", json.dumps({"voucher": voucher}).encode()
         )
         if resp.code == 200:
-            returnValue(voucher)
+            return voucher
         content = yield resp.content()
         raise TahoeWebError(f"Error adding voucher: {resp.code}: {content}")
 
