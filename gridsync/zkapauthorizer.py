@@ -6,7 +6,6 @@ import json
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 import treq
-from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync.errors import TahoeWebError
