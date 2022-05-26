@@ -239,7 +239,7 @@ class ZKAPAuthorizer:
         """
         Attempt to restore ZKAP state from a previously saved
         replica. Uses the ``recovery-capability`` from the
-        ``.zkapauthorizer`` backed, which should be there from a
+        ``.zkapauthorizer`` backup, which should be there from a
         previous call to ``backup_zkaps``.
         """
         cap = yield self.gateway.rootcap_manager.get_backup(
