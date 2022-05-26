@@ -217,22 +217,6 @@ class ZKAPAuthorizer:
     def get_recovery_status(self) -> TwistedDeferred[str]:
         resp = yield self._request("GET", "/recover")
 
-    def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
-        resp = yield treq.get(f"{self.gateway.nodeurl}uri/{cap}")
-        if resp.code == 200:
-            content = yield treq.content(resp)
-            return content
-        raise TahoeWebError(f"Error getting cap content: {resp.code}")
-
-    @inlineCallbacks
-    def get_version(self) -> TwistedDeferred[str]:
-        version = ""
-        resp = yield self._request("GET", "/version")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content.get("stage")
-        raise TahoeWebError(f"Error getting recovery status: {resp.code}")
-
     @inlineCallbacks
     def backup_zkaps(self) -> TwistedDeferred[None]:
         """
