@@ -243,7 +243,6 @@ class ZKAPAuthorizer:
         previous call to ``backup_zkaps``.
         """
         cap = yield self.gateway.rootcap_manager.get_backup(
-            ".zkapauthorizer",
-            "recovery-capability",
+            ".zkapauthorizer", "recovery-capability"
         )
         yield self._recover(cap)
