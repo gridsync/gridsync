@@ -29,6 +29,9 @@ class ZKAPAuthorizer:
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2**15
 
+        # XXX/TODO: Move this later?
+        gateway.monitor.zkaps_redeemed.connect(lambda _: self.backup_zkaps())
+
     @inlineCallbacks
     def _request(
         self, method: str, path: str, data: Optional[bytes] = None
