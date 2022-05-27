@@ -223,6 +223,25 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error getting recovery status: {resp.code}")
 
     @inlineCallbacks
+    def await_recovery_succeeded(self) -> TwistedDeferred[None]:
+        from twisted.internet import reactor
+        from twisted.internet.task import deferLater
+
+        while True:
+            status = yield self.get_recovery_status()
+            stage = status.get("stage", "")
+            failure_reason = status.get("failure-reason", "")
+            print("###", stage, failure_reason)  # XXX
+            if failure_reason:
+                raise Exception(failure_reason)  # XXX
+            # https://github.com/PrivateStorageio/ZKAPAuthorizer/blob/
+            # cb0443d8011e1485b73f00637e972e06cc3d2757/src/_zkapauthorizer/
+            # recover.py#L52-L57=
+            if stage == "succeeded":
+                return
+            yield deferLater(reactor, 1, lambda: None)
+
+    @inlineCallbacks
     def backup_zkaps(self) -> TwistedDeferred[None]:
         """
         Set up ZKAPAuthorizer state replication and link its read-only
@@ -246,3 +265,4 @@ class ZKAPAuthorizer:
             ".zkapauthorizer", "recovery-capability"
         )
         yield self._recover(cap)
+        yield self.await_recovery_succeeded()
