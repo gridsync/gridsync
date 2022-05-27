@@ -272,7 +272,10 @@ class ZKAPChecker(QObject):
         # MagicFolder.get_all_object_sizes() will fail with an "API
         # token not found" error if called before MagicFolder starts
         yield self.gateway.magic_folder.await_running()
-        p = yield self.gateway.zkapauthorizer.get_price()
+        try:
+            p = yield self.gateway.zkapauthorizer.get_price()
+        except TahoeWebError:  # XXX
+            return
         price = p.get("price", 0)
         period = p.get("period", 0)
         self.zkaps_price_updated.emit(price, period)
