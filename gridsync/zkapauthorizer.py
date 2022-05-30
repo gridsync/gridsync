@@ -184,7 +184,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
 
     @inlineCallbacks
-    def _setup_replication(self) -> TwistedDeferred[str]:
+    def replicate(self) -> TwistedDeferred[str]:
         """
         Configure replication of ZKAPAuthorizer state via the /replicate
         endpoint. This returns a Tahoe-LAFS read-only directory
@@ -200,7 +200,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error configuring replication: {resp.code}")
 
     @inlineCallbacks
-    def _recover(self, dircap: str) -> TwistedDeferred[None]:
+    def recover(self, dircap: str) -> TwistedDeferred[None]:
         """
         Call the ZKAPAuthorizer /recover endpoint and await its
         results. The endpoint only returns after the recovery is
@@ -251,7 +251,7 @@ class ZKAPAuthorizer:
         directory cap under the ``.zkapauthorizer`` backup under name
         ``recovery-capability``.
         """
-        cap = yield self._setup_replication()
+        cap = yield self.replicate()
         yield self.gateway.rootcap_manager.add_backup(
             ".zkapauthorizer", "recovery-capability", cap
         )
@@ -267,5 +267,5 @@ class ZKAPAuthorizer:
         cap = yield self.gateway.rootcap_manager.get_backup(
             ".zkapauthorizer", "recovery-capability"
         )
-        yield self._recover(cap)
+        yield self.recover(cap)
         yield self.await_recovery_succeeded()
