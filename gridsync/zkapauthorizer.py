@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
 from twisted.internet.defer import inlineCallbacks
@@ -170,9 +170,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error {resp.code} getting ZKAPs: {content}")
 
     @inlineCallbacks
-    def get_lease_maintenance_spending(
-        self,
-    ) -> TwistedDeferred[Union[None, int]]:
+    def get_lease_maintenance_spending(self) -> TwistedDeferred[Optional[int]]:
         """
         Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer how
         much we've spent on lease-maintenance
