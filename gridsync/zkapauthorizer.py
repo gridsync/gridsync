@@ -242,7 +242,7 @@ class ZKAPAuthorizer:
             # recover.py#L52-L57=
             if stage == "succeeded":
                 return
-            yield deferLater(reactor, 1, lambda: None)
+            yield deferLater(reactor, 1, lambda: None)  # type: ignore
 
     @inlineCallbacks
     def backup_zkaps(self) -> TwistedDeferred[None]:
