@@ -563,11 +563,12 @@ class Tahoe:
             url += "/" + parentcap
             params["name"] = childname
         resp = yield treq.post(url, params=params)
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
         if resp.code == 200:
-            content = yield treq.content(resp)
-            return content.decode("utf-8").strip()
+            return content
         raise TahoeWebError(
-            "Error creating Tahoe-LAFS directory: {}".format(resp.code)
+            f"Error {resp.code} creating Tahoe-LAFS directory: {content}"
         )
 
     @inlineCallbacks
