@@ -165,7 +165,9 @@ class ZKAPAuthorizer:
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content.get("total", 0)
-        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
+        raise TahoeWebError(f"Error {resp.code} getting ZKAPs: {content}")
 
     @inlineCallbacks
     def get_lease_maintenance_spending(
@@ -181,7 +183,12 @@ class ZKAPAuthorizer:
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content.get("spending", None)
-        raise TahoeWebError(f"Error getting ZKAPs: {resp.code}")
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
+        raise TahoeWebError(
+            f"Error {resp.code} getting lease-maintenance spending: "
+            f"{content}"
+        )
 
     @inlineCallbacks
     def replicate(self) -> TwistedDeferred[str]:
@@ -197,7 +204,11 @@ class ZKAPAuthorizer:
         if resp.code == 201:
             content = yield treq.json_content(resp)
             return content.get("recovery-capability")
-        raise TahoeWebError(f"Error configuring replication: {resp.code}")
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
+        raise TahoeWebError(
+            f"Error {resp.code} configuring replication: {content}"
+        )
 
     @inlineCallbacks
     def recover(self, dircap: str) -> TwistedDeferred[None]:
@@ -214,8 +225,11 @@ class ZKAPAuthorizer:
             "/recover",
             json.dumps({"recovery-capability": dircap}).encode(),
         )
-        if resp.code != 202:
-            raise TahoeWebError(f"Error starting recovery: {resp.code}")
+        if resp.code == 202:
+            return
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
+        raise TahoeWebError(f"Error {resp.code} starting recovery: {content}")
 
     @inlineCallbacks
     def get_recovery_status(self) -> TwistedDeferred[dict]:
@@ -223,7 +237,11 @@ class ZKAPAuthorizer:
         if resp.code == 200:
             content = yield treq.json_content(resp)
             return content
-        raise TahoeWebError(f"Error getting recovery status: {resp.code}")
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
+        raise TahoeWebError(
+            f"Error {resp.code} getting recovery status: {content}"
+        )
 
     @inlineCallbacks
     def await_recovery_succeeded(self) -> TwistedDeferred[None]:
