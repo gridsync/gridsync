@@ -13,6 +13,30 @@ if TYPE_CHECKING:
 
 
 class RootcapManager:
+    """
+    The RootcapManager provides an interface for adding and retrieving
+    objects to and from a Tahoe-LAFS root capability -- or "rootcap".
+
+    In Gridsync, the rootcap is intended to provide a central in-grid
+    directory into which all other important capabilities are added; by
+    preserving their Gridsync rootcap, users preserve any/all other
+    important capabilities that have been linked beneath it, making it
+    easier to backup and restore access to important on-grid resources.
+
+    The RootcapManager, accordingly, provides higher-level methods for
+    adding and retrieving Tahoe-LAFS capabilities to/from the rootcap
+    as well as some extra convenience- and safety-related functionality
+    not found in lower-level components (such as automatically creating
+    paths that don't exist and guarding against simultaneous writes).
+
+    Currently, Gridsync uses RootcapManager to add capabilities from
+    magic-folder and zkapauthorizer into the rootcap -- and embeds that
+    rootcap into the "Recovery Key" -- thereby allowing users to back
+    up and restore access to previously-joined magic-folders (and
+    previously-obtained ZKAPs) as part of the user-facing "Restore from
+    Recovery Key" flow.
+    """
+
     def __init__(self, gateway: Tahoe, basedir: str = "v0") -> None:
         self.gateway = gateway
         self.basedir = basedir
