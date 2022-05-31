@@ -4,7 +4,6 @@ import json
 import logging as log
 import os
 import re
-import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -14,16 +13,19 @@ from atomicwrites import atomic_write
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectError
 
+from gridsync import APP_NAME
 from gridsync import settings as global_settings
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeWebError
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
+from gridsync.msg import critical
 from gridsync.news import NewscapChecker
 from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
-from gridsync.system import SubprocessProtocol, kill, which
+from gridsync.supervisor import Supervisor
+from gridsync.system import SubprocessProtocol, which
 from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
@@ -76,7 +78,7 @@ class Tahoe:
             self.nodedir, "private", "servers.yaml"
         )
         self.config = Config(os.path.join(self.nodedir, "tahoe.cfg"))
-        self.pidfile = os.path.join(self.nodedir, "twistd.pid")
+        self.pidfile = os.path.join(self.nodedir, f"{APP_NAME}-tahoe.pid")
         self.nodeurl = None
         self.shares_happy = 0
         self.name = os.path.basename(self.nodedir)
@@ -107,6 +109,7 @@ class Tahoe:
         self.magic_folder.monitor.files_updated.connect(
             lambda *args: self.zkapauthorizer.update_zkap_checkpoint()
         )
+        self.supervisor = Supervisor(pidfile=Path(self.pidfile))
 
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
@@ -383,9 +386,10 @@ class Tahoe:
         kwargs["listen"] = "none"
         yield self.create_node(**kwargs)
 
-    def kill(self):
-        self.magic_folder.stop()  # XXX
-        kill(pidfile=self.pidfile)
+    def is_storage_node(self) -> bool:
+        if self.storage_furl:
+            return True
+        return False
 
     @inlineCallbacks
     def stop(self):
@@ -403,7 +407,9 @@ class Tahoe:
             yield self.rootcap_manager.lock.acquire()
             yield self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
-        self.kill()
+        if not self.is_storage_node():
+            yield self.magic_folder.stop()
+        yield self.supervisor.stop()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
@@ -416,6 +422,35 @@ class Tahoe:
             appearing first.
         """
         return self.streamedlogs.get_streamed_log_messages()
+
+    def _on_started(self) -> None:
+        self.load_settings()
+
+        with open(
+            os.path.join(self.nodedir, "node.url"), encoding="utf-8"
+        ) as f:
+            self.set_nodeurl(f.read().strip())
+        token_file = os.path.join(self.nodedir, "private", "api_auth_token")
+        with open(token_file, encoding="utf-8") as f:
+            self.api_token = f.read().strip()
+        self.shares_happy = int(self.config_get("client", "shares.happy"))
+        self.load_newscap()
+        self.newscap_checker.start()
+        storage_furl_path = Path(self.nodedir, "private", "storage.furl")
+        if storage_furl_path.exists():
+            self.storage_furl = storage_furl_path.read_text(
+                encoding="utf-8"
+            ).strip()
+
+        self.streamedlogs.stop()
+        self.streamedlogs.start(self.nodeurl, self.api_token)
+
+        self.state = Tahoe.STARTED
+
+        self.scan_storage_plugins()
+
+        if not self.is_storage_node():
+            self.magic_folder.start()
 
     @inlineCallbacks
     def start(self):
@@ -438,42 +473,27 @@ class Tahoe:
             if default_token_count:
                 self.zkapauthorizer.zkap_batch_size = int(default_token_count)
 
-        if os.path.isfile(self.pidfile):
-            yield self.stop()
-        pid = yield self.command(["run"], "client running")
-        pid = str(pid)
-        if sys.platform == "win32" and pid.isdigit():
-            with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
-                f.write(pid)
-
-        self.load_settings()
-
-        with open(
-            os.path.join(self.nodedir, "node.url"), encoding="utf-8"
-        ) as f:
-            self.set_nodeurl(f.read().strip())
-        token_file = os.path.join(self.nodedir, "private", "api_auth_token")
-        with open(token_file, encoding="utf-8") as f:
-            self.api_token = f.read().strip()
-        self.shares_happy = int(self.config_get("client", "shares.happy"))
-        self.streamedlogs.start(self.nodeurl, self.api_token)
-        self.load_newscap()
-        self.newscap_checker.start()
-        storage_furl_path = Path(self.nodedir, "private", "storage.furl")
-        if storage_furl_path.exists():
-            self.storage_furl = storage_furl_path.read_text(
-                encoding="utf-8"
-            ).strip()
-
-        self.state = Tahoe.STARTED
-
-        yield self.scan_storage_plugins()
-
-        if not self.storage_furl:  # XXX Is a client (TODO: a better way.)
-            yield self.magic_folder.start()
-
+        if not self.executable:
+            self.executable = which("tahoe")
+        try:
+            results = yield self.supervisor.start(
+                [self.executable, "-d", self.nodedir, "run"],
+                started_trigger="client running",
+                stdout_line_collector=self.line_received,
+                process_started_callback=self._on_started,
+            )
+        except Exception as exc:  # pylint: disable=broad-except
+            critical(
+                f"Error starting Tahoe-LAFS gateway for {self.name}",
+                "A critical error occurred when attempting to start the "
+                f'Tahoe-LAFS gateway for "{self.name}". {APP_NAME} will '
+                'now exit.\n\nClick "Show Details..." for more information.',
+                str(exc),
+            )
+            return
+        pid, _ = results
         log.debug(
-            'Finished starting "%s" tahoe client (pid: %s)', self.name, pid
+            'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
         )
 
     def set_nodeurl(self, nodeurl):

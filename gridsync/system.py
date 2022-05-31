@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-import errno
-import logging
-import os
 import shutil
-import signal
+import time
 from io import BytesIO
-from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type, Union
 
-from twisted.internet.defer import Deferred
+from psutil import NoSuchProcess, Process, TimeoutExpired
+from twisted.internet import reactor
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
+from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
+from gridsync.types import TwistedDeferred
 
 if TYPE_CHECKING:
     from twisted.python.failure import Failure
@@ -39,46 +39,62 @@ def which(cmd: str) -> str:
     return path
 
 
-def kill(pid: int = 0, pidfile: Optional[Union[Path, str]] = "") -> None:
-    if pidfile:
-        pidfile_path = Path(pidfile)
-        try:
-            pid = int(pidfile_path.read_text(encoding="utf-8"))
-        except (EnvironmentError, ValueError) as err:
-            logging.error("Error loading pid from %s: %s", pidfile, str(err))
-            return
-    logging.debug("Trying to kill PID %i...", pid)
+def process_name(pid: int) -> str:
     try:
-        os.kill(pid, signal.SIGTERM)
-    except OSError as err:
-        if err.errno not in (errno.ESRCH, errno.EINVAL):
-            logging.error("Error killing PID %i: %s", pid, str(err))
-            raise
-        logging.warning("Could not kill PID %i: %s", pid, str(err))
-    if pidfile:
-        logging.debug("Removing pidfile: %s", str(pidfile))
+        return Process(pid).name()
+    except NoSuchProcess:
+        return ""
+
+
+@inlineCallbacks
+def terminate(  # noqa: max-complexity
+    pid: int, kill_after: Optional[Union[int, float]] = None
+) -> TwistedDeferred[None]:
+    try:
+        proc = Process(pid)
+    except NoSuchProcess:
+        return None
+    if kill_after:
+        limit = time.time() + kill_after
+    else:
+        limit = 0
+    try:
+        proc.terminate()
+    except NoSuchProcess:
+        return None
+    while proc.is_running():
         try:
-            pidfile_path.unlink()
-        except OSError as err:
-            logging.warning(
-                "Error removing pidfile %s: %s", str(pidfile), str(err)
-            )
-            return
-        logging.debug("Successfully removed pidfile: %s", str(pidfile))
+            return proc.wait(timeout=0)
+        except NoSuchProcess:
+            return None
+        except TimeoutExpired:
+            pass
+        if limit and time.time() >= limit:
+            try:
+                proc.kill()
+            except NoSuchProcess:
+                return None
+        yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
+
+
+class SubprocessError(Exception):
+    pass
 
 
 class SubprocessProtocol(ProcessProtocol):
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         callback_triggers: Optional[List[str]] = None,
         errback_triggers: Optional[List[Tuple[str, Type[Exception]]]] = None,
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
+        on_process_ended: Optional[Callable] = None,
     ) -> None:
         self.callback_triggers = callback_triggers
         self.errback_triggers = errback_triggers
         self.stdout_line_collector = stdout_line_collector
         self.stderr_line_collector = stderr_line_collector
+        self._on_process_ended = on_process_ended
         self._output = BytesIO()
         self.done: Deferred = Deferred()
 
@@ -113,12 +129,11 @@ class SubprocessProtocol(ProcessProtocol):
                 self._check_triggers(line)
 
     def processEnded(self, reason: Failure) -> None:
-        if self.done.called:
-            return
-        if isinstance(reason.value, ProcessDone):
-            self.done.callback(self._output.getvalue().decode("utf-8").strip())
-        else:
-            self.done.errback(reason)
-
-    def processExited(self, reason: Failure) -> None:
-        self.processEnded(reason)
+        if not self.done.called:
+            output = self._output.getvalue().decode("utf-8").strip()
+            if isinstance(reason.value, ProcessDone):
+                self.done.callback(output)
+            else:
+                self.done.errback(SubprocessError(output))
+        if self._on_process_ended:
+            self._on_process_ended(reason)
