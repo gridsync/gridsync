@@ -6,10 +6,10 @@ import json
 import logging
 import os
 import sys
+from contextlib import contextmanager
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union
-from contextlib import contextmanager
 
 from qtpy.QtCore import (
     QItemSelectionModel,
@@ -146,6 +146,7 @@ def get_save_filename(
     if dest:
         return Path(dest)
     return None
+
 
 def _get_encrypt_password(parent: QWidget) -> Optional[str]:
     """

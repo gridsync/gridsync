@@ -10,9 +10,9 @@ from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
 from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 from twisted.internet.defer import Deferred, succeed
+from twisted.internet.interfaces import IReactorThreads
 from twisted.internet.threads import deferToThreadPool
 from twisted.python.failure import Failure
-from twisted.internet.interfaces import IReactorThreads
 
 from gridsync import APP_NAME
 from gridsync.crypto import Crypter, encrypt
@@ -20,7 +20,10 @@ from gridsync.gui.password import PasswordDialog
 from gridsync.msg import error, question
 from gridsync.tahoe import Tahoe
 
-def get_recovery_key(password: Optional[str], gateway: Tahoe) -> Awaitable[bytes]:
+
+def get_recovery_key(
+    password: Optional[str], gateway: Tahoe
+) -> Awaitable[bytes]:
     """
     Get the recovery material and, if a password is given, encrypt it.
     """
@@ -34,13 +37,12 @@ def get_recovery_key(password: Optional[str], gateway: Tahoe) -> Awaitable[bytes
         return deferToThreadPool(
             reactor,
             # Module has no attribute "getThreadPool"
-            reactor.getThreadPool(), # type: ignore
+            reactor.getThreadPool(),  # type: ignore
             encrypt,
             plaintext,
             password,
         )
     return succeed(plaintext)
-
 
 
 def export_recovery_key(

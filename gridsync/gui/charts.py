@@ -139,19 +139,13 @@ class ZKAPBarChart(QChart):
     ) -> None:
         convert = self.gateway.zkapauthorizer.converted_batch_size
         self.set_used.replace(0, used)
-        self.set_used.setLabel(
-            f"{self.unit_name}s used ({convert(used)})"
-        )
+        self.set_used.setLabel(f"{self.unit_name}s used ({convert(used)})")
         self.set_cost.replace(0, cost)
         if period == 2678400:  # 31 days
-            self.set_cost.setLabel(
-                f"Expected 31 day cost ({convert(cost)})"
-            )
+            self.set_cost.setLabel(f"Expected 31 day cost ({convert(cost)})")
         elif period:
             h = naturaldelta(dt.timedelta(seconds=period))
-            self.set_cost.setLabel(
-                f"Expected cost for {h} ({convert(cost)})"
-            )
+            self.set_cost.setLabel(f"Expected cost for {h} ({convert(cost)})")
         else:
             self.set_cost.setLabel(f"Expected cost ({convert(used)})")
         self.set_available.replace(0, available)

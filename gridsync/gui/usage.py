@@ -122,7 +122,9 @@ class UsageView(QWidget):
     )
     zkaps_required_label: QLabel = field(init=False)
     chart_view: ZKAPBarChartView = field(init=False)
-    info_label: QLabel = field(default=attr.Factory(make_info_label), init=False)
+    info_label: QLabel = field(
+        default=attr.Factory(make_info_label), init=False
+    )
     button: QPushButton = field(init=False)
     voucher_link: QLabel = field(init=False)
     status_label: QLabel = field(

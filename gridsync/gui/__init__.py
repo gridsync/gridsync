@@ -25,7 +25,9 @@ class AbstractGui(Protocol):
     def show_debug_exporter(self) -> None:
         pass
 
-    def show_message(self, title: str, message: str, duration: int = 5000) -> None:
+    def show_message(
+        self, title: str, message: str, duration: int = 5000
+    ) -> None:
         pass
 
 
