@@ -36,9 +36,7 @@ def get_recovery_key(
             reactor,
             # Module has no attribute "getThreadPool"
             reactor.getThreadPool(),  # type: ignore
-            encrypt,
-            plaintext,
-            password,
+            lambda: encrypt(plaintext, password.encode("utf-8")),
         )
     return succeed(plaintext)
 
