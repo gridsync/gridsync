@@ -158,6 +158,11 @@ class View(QTreeView):
         self.gateway.monitor.connected.connect(self.maybe_prompt_for_recovery)
 
     def get_model(self) -> Model:
+        # This custom getter exists primarily to inform mypy that we
+        # always/only expect this View to use a Model -- and not some
+        # other non-Model type. In other words, this is a stricter
+        # version of the model() method inherited from
+        # QAbstractItemView.
         return self._model
 
     @inlineCallbacks
