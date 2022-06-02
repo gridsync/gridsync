@@ -517,7 +517,7 @@ class MainWindow(QMainWindow):
             self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
     def _is_folder_syncing(self) -> bool:
-        for model in [view.model() for view in self.central_widget.views]:
+        for model in [view.get_model() for view in self.central_widget.views]:
             if model.is_folder_syncing():
                 return True
         return False
