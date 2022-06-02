@@ -31,12 +31,8 @@ from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
-from gridsync.gui.password import PasswordDialog
-
-if TYPE_CHECKING:
-    from gridsync.gui import AbstractGui
-
 from gridsync.gui.history import HistoryView
+from gridsync.gui.password import PasswordDialog
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.toolbar import ComboBox, ToolBar
@@ -47,6 +43,9 @@ from gridsync.msg import error, info
 from gridsync.recovery import export_recovery_key, get_recovery_key
 from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
+
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
 
 
 @inlineCallbacks
