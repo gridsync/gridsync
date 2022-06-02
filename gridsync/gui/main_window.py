@@ -59,8 +59,7 @@ def run_coroutine(
     try:
         yield Deferred.fromCoroutine(coro)
     except Exception as e:  # pylint: disable=broad-except
-        error(parent, "ohnoes", str(e))  # XXX
-        print(Failure().getTraceback())
+        error(parent, type(e).__name__, str(e), Failure().getTraceback())
 
 
 class CentralWidget(QStackedWidget):
