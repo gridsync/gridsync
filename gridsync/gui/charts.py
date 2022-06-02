@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from humanize import naturaldelta
 from qtpy.QtCharts import (
@@ -139,19 +139,13 @@ class ZKAPBarChart(QChart):
     ) -> None:
         convert = self.gateway.zkapauthorizer.converted_batch_size
         self.set_used.replace(0, used)
-        self.set_used.setLabel(
-            f"{self.unit_name}s used ({convert(used)})"
-        )
+        self.set_used.setLabel(f"{self.unit_name}s used ({convert(used)})")
         self.set_cost.replace(0, cost)
         if period == 2678400:  # 31 days
-            self.set_cost.setLabel(
-                f"Expected 31 day cost ({convert(cost)})"
-            )
+            self.set_cost.setLabel(f"Expected 31 day cost ({convert(cost)})")
         elif period:
             h = naturaldelta(dt.timedelta(seconds=period))
-            self.set_cost.setLabel(
-                f"Expected cost for {h} ({convert(cost)})"
-            )
+            self.set_cost.setLabel(f"Expected cost for {h} ({convert(cost)})")
         else:
             self.set_cost.setLabel(f"Expected cost ({convert(used)})")
         self.set_available.replace(0, available)
@@ -178,5 +172,14 @@ class ZKAPCompactPieChartView(QChartView):
 class ZKAPBarChartView(QChartView):
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
-        self.setChart(ZKAPBarChart(gateway))
+        self._chart = ZKAPBarChart(gateway)
+        self.setChart(self._chart)
         self.setRenderHint(QPainter.Antialiasing)
+
+    def get_chart(self) -> ZKAPBarChart:
+        # This custom getter exists primarily to inform mypy that we
+        # always/only expect this ZKAPBarChartView to use ZKAPBarChart
+        # for its chart -- and not some other non-ZKAPBarChart type.
+        # In other words, this is a stricter version of the chart()
+        # method inherited from QChartView.
+        return self._chart

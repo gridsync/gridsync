@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
-import json
 import logging
 import os
 import sys
-from functools import partial
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union
-from contextlib import contextmanager
 
 from qtpy.QtCore import (
     QItemSelectionModel,
@@ -30,16 +27,12 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks, succeed
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
-from gridsync.gui.password import PasswordDialog
-
-if TYPE_CHECKING:
-    from gridsync.gui import AbstractGui
-
 from gridsync.gui.history import HistoryView
+from gridsync.gui.password import PasswordDialog
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.toolbar import ComboBox, ToolBar
@@ -50,6 +43,9 @@ from gridsync.msg import error, info
 from gridsync.recovery import export_recovery_key, get_recovery_key
 from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
+
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
 
 
 @inlineCallbacks
@@ -62,9 +58,8 @@ def run_coroutine(
     """
     try:
         yield Deferred.fromCoroutine(coro)
-    except Exception as e:
-        error(parent, "ohnoes", str(e))  # XXX
-        print(Failure().getTraceback())
+    except Exception as e:  # pylint: disable=broad-except
+        error(parent, type(e).__name__, str(e), Failure().getTraceback())
 
 
 class CentralWidget(QStackedWidget):
@@ -146,6 +141,7 @@ def get_save_filename(
     if dest:
         return Path(dest)
     return None
+
 
 def _get_encrypt_password(parent: QWidget) -> Optional[str]:
     """
@@ -446,7 +442,7 @@ class MainWindow(QMainWindow):
                     return
                 ciphertext = await ciphertext_d
                 export_recovery_key(ciphertext, path)
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             logging.debug("export recovery key failed")
             # TODO Check if self is the right parent to pass here
             error(self, "Error encrypting data", str(e))
@@ -517,7 +513,7 @@ class MainWindow(QMainWindow):
             self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
     def _is_folder_syncing(self) -> bool:
-        for model in [view.model() for view in self.central_widget.views]:
+        for model in [view.get_model() for view in self.central_widget.views]:
             if model.is_folder_syncing():
                 return True
         return False

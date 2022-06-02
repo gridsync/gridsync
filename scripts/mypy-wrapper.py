@@ -13,5 +13,6 @@ from qtpy import API
 if API == "pyqt6":
     sys.argv.append("--disable-error-code=attr-defined")
     sys.argv.append("--disable-error-code=arg-type")
+    sys.argv.append("--disable-error-code=call-overload")
 
 console_entry()
