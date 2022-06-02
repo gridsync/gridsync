@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
-import json
 import logging
 import os
 import sys
 from contextlib import contextmanager
-from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union
 
@@ -30,7 +27,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks, succeed
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource

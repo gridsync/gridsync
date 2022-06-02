@@ -4,15 +4,13 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Awaitable, Callable, Optional, cast
+from typing import Awaitable, Optional
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
 from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
-from twisted.internet.defer import Deferred, succeed
-from twisted.internet.interfaces import IReactorThreads
+from twisted.internet.defer import succeed
 from twisted.internet.threads import deferToThreadPool
-from twisted.python.failure import Failure
 
 from gridsync import APP_NAME
 from gridsync.crypto import Crypter, encrypt

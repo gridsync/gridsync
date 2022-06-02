@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from humanize import naturaldelta
 from qtpy.QtCharts import (
