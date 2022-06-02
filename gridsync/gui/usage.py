@@ -187,12 +187,7 @@ class UsageView(QWidget):
         layout.addWidget(self.zkaps_required_label, 40, 0)
         layout.addWidget(self.loading_storage_time, 50, 0)
         layout.addItem(VSpacer(), 50, 0)
-        # Type-check disabled here because (Py)Qt6/mypy doesn't
-        # recognize that ZKAPBarChartView inherits from QWidget
-        # (via QGraphicsView -> QAbstractScrollArea -> QFrame) --
-        # possibly due to incomplete typing of the QtCharts module(?).
-        # See/follow https://github.com/python-qt-tools/PyQt6-stubs
-        layout.addWidget(self.chart_view, 60, 0)  # type: ignore
+        layout.addWidget(self.chart_view, 60, 0)
         layout.addWidget(self.info_label, 70, 0, Qt.AlignCenter)
         layout.addItem(VSpacer(), 80, 0)
         layout.addWidget(self.button, 90, 0, 1, 1, Qt.AlignCenter)
