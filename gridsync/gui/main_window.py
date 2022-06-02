@@ -59,7 +59,7 @@ def run_coroutine(
     """
     try:
         yield Deferred.fromCoroutine(coro)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         error(parent, "ohnoes", str(e))  # XXX
         print(Failure().getTraceback())
 
@@ -444,7 +444,7 @@ class MainWindow(QMainWindow):
                     return
                 ciphertext = await ciphertext_d
                 export_recovery_key(ciphertext, path)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             # TODO Check if self is the right parent to pass here
             error(self, "Error encrypting data", str(e))
         else:
