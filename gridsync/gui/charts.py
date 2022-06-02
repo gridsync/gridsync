@@ -172,5 +172,9 @@ class ZKAPCompactPieChartView(QChartView):
 class ZKAPBarChartView(QChartView):
     def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
-        self.setChart(ZKAPBarChart(gateway))
+        self._chart = ZKAPBarChart(gateway)
+        self.setChart(self._chart)
         self.setRenderHint(QPainter.Antialiasing)
+
+    def get_chart(self) -> ZKAPBarChart:
+        return self._chart
