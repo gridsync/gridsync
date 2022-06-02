@@ -177,4 +177,9 @@ class ZKAPBarChartView(QChartView):
         self.setRenderHint(QPainter.Antialiasing)
 
     def get_chart(self) -> ZKAPBarChart:
+        # This custom getter exists primarily to inform mypy that we
+        # always/only expect this ZKAPBarChartView to use ZKAPBarChart
+        # for its chart -- and not some other non-ZKAPBarChart type.
+        # In other words, this is a stricter version of the chart()
+        # method inherited from QChartView.
         return self._chart
