@@ -442,7 +442,7 @@ class MainWindow(QMainWindow):
                     return
                 ciphertext = await ciphertext_d
                 export_recovery_key(ciphertext, path)
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             logging.debug("export recovery key failed")
             # TODO Check if self is the right parent to pass here
             error(self, "Error encrypting data", str(e))
