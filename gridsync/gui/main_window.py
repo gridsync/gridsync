@@ -447,6 +447,7 @@ class MainWindow(QMainWindow):
                 ciphertext = await ciphertext_d
                 export_recovery_key(ciphertext, path)
         except Exception as e:
+            logging.debug("export recovery key failed")
             # TODO Check if self is the right parent to pass here
             error(self, "Error encrypting data", str(e))
         else:
