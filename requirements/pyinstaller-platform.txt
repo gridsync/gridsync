@@ -3,8 +3,8 @@ future==0.18.2; sys_platform == "win32" \
 macholib==1.16; sys_platform == "darwin" \
     --hash=sha256:001bf281279b986a66d7821790d734e61150d52f40c080899df8fefae056e9f7 \
     --hash=sha256:5a0742b587e6e57bfade1ab90651d4877185bf66fd4a176a488116de36878229
-pefile==2021.9.3; sys_platform == "win32" \
-    --hash=sha256:344a49e40a94e10849f0fe34dddc80f773a12b40675bf2f7be4b8be578bdd94a
+pefile==2022.5.30; sys_platform == "win32" \
+    --hash=sha256:a5488a3dd1fd021ce33f969780b88fe0f7eebb76eb20996d7318f307612a045b
 pywin32-ctypes==0.2.0; sys_platform == "win32" \
     --hash=sha256:24ffc3b341d457d48e8922352130cf2644024a4ff09762a2261fd34c36ee5942 \
     --hash=sha256:9dc2d991b3479cc2df15930958b674a48a227d5361d413827a4cfd0b5876fc98
