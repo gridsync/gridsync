@@ -7,6 +7,9 @@ from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
 from twisted.internet.defer import inlineCallbacks
+from autobahn.twisted.websocket import (
+    create_client_agent,
+)
 
 from gridsync.errors import TahoeWebError
 from gridsync.types import TreqResponse, TwistedDeferred
@@ -209,56 +212,34 @@ class ZKAPAuthorizer:
         )
 
     @inlineCallbacks
-    def recover(self, dircap: str) -> TwistedDeferred[None]:
+    def recover(self, dircap: str, on_status_update) -> TwistedDeferred[None]:
         """
-        Call the ZKAPAuthorizer /recover endpoint and await its
+        Call the ZKAPAuthorizer /recover WebSocket endpoint and await its
         results. The endpoint only returns after the recovery is
         complete.
-
-        :raises TahoeWebError" if anything other than 202 ACCEPTED is
-            the result of the operation.
         """
-        resp = yield self._request(
-            "POST",
-            "/recover",
-            json.dumps({"recovery-capability": dircap}).encode(),
-        )
-        if resp.code == 202:
-            return
-        content = yield treq.content(resp)
-        content = content.decode("utf-8").strip()
-        raise TahoeWebError(f"Error {resp.code} starting recovery: {content}")
-
-    @inlineCallbacks
-    def get_recovery_status(self) -> TwistedDeferred[dict]:
-        resp = yield self._request("GET", "/recover")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        content = yield treq.content(resp)
-        content = content.decode("utf-8").strip()
-        raise TahoeWebError(
-            f"Error {resp.code} getting recovery status: {content}"
-        )
-
-    @inlineCallbacks
-    def await_recovery_succeeded(self) -> TwistedDeferred[None]:
+        uri = f"{self.gateway.nodeurl}storage-plugins/{PLUGIN_NAME}/recover".replace("http", "ws")
         from twisted.internet import reactor
-        from twisted.internet.task import deferLater
+        agent = create_client_agent(reactor)
+        proto = yield agent.open(
+            uri,
+            {"headers": {"Authorization": f"tahoe-lafs {self.gateway.api_token}"}},
+        )
 
-        while True:
-            status = yield self.get_recovery_status()
-            stage = status.get("stage", "")
-            failure_reason = status.get("failure-reason", "")
-            print("###", stage, failure_reason)  # XXX
-            if failure_reason:
-                raise Exception(failure_reason)  # XXX
-            # https://github.com/PrivateStorageio/ZKAPAuthorizer/blob/
-            # cb0443d8011e1485b73f00637e972e06cc3d2757/src/_zkapauthorizer/
-            # recover.py#L52-L57=
-            if stage == "succeeded":
-                return
-            yield deferLater(reactor, 1, lambda: None)  # type: ignore
+        def status_update(raw_data, is_binary=False):
+            data = json.loads(raw_data)
+            on_status_update(data["stage"], data["failure-reason"])
+        proto.on("message", status_update)
+
+        print("wait for open")
+        yield proto.is_open
+        print("send recovery request")
+        yield proto.sendMessage(json.dumps({"recovery-capability": dircap}).encode("utf8"))
+        try:
+            print("wait for close")
+            yield proto.is_closed
+        except Exception as e:
+            raise TahoeWebError(f"Error during recovery: {e}")
 
     @inlineCallbacks
     def backup_zkaps(self) -> TwistedDeferred[None]:
@@ -273,7 +254,7 @@ class ZKAPAuthorizer:
         )
 
     @inlineCallbacks
-    def restore_zkaps(self) -> TwistedDeferred[None]:
+    def restore_zkaps(self, on_status_update) -> TwistedDeferred[None]:
         """
         Attempt to restore ZKAP state from a previously saved
         replica. Uses the ``recovery-capability`` from the
@@ -283,5 +264,4 @@ class ZKAPAuthorizer:
         cap = yield self.gateway.rootcap_manager.get_backup(
             ".zkapauthorizer", "recovery-capability"
         )
-        yield self.recover(cap)
-        yield self.await_recovery_succeeded()
+        yield self.recover(cap, on_status_update)
