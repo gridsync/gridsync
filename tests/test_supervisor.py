@@ -6,6 +6,7 @@ from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
 from gridsync.supervisor import Supervisor
+from gridsync.util import until
 
 PROCESS_ARGS = [sys.executable, "-c", "while True: print('OK')"]
 
@@ -75,11 +76,11 @@ def test_supervisor_removes_pidfile_on_stop(tmp_path):
 def test_supervisor_restarts_process_when_killed(tmp_path):
     pidfile = tmp_path / "python.pid"
     supervisor = Supervisor(pidfile=pidfile, restart_delay=0)
-    pid_1, _ = yield supervisor.start(PROCESS_ARGS, started_trigger="OK")
-    Process(pid_1).kill()
-    yield deferLater(reactor, 3, lambda: None)
-    pid_2 = int(pidfile.read_text().split()[0])
-    assert pid_1 != pid_2
+    pid, _ = yield supervisor.start(PROCESS_ARGS, started_trigger="OK")
+    reactor.callLater(0.1, Process(pid).kill)
+    yield until(supervisor.is_running, False)
+    yield until(supervisor.is_running, True)
+    assert True
 
 
 @inlineCallbacks

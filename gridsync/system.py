@@ -46,6 +46,13 @@ def process_name(pid: int) -> str:
         return ""
 
 
+def is_running(pid: int) -> bool:
+    try:
+        return Process(pid).is_running()
+    except NoSuchProcess:
+        return False
+
+
 @inlineCallbacks
 def terminate(  # noqa: max-complexity
     pid: int, kill_after: Optional[Union[int, float]] = None
