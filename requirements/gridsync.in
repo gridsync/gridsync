@@ -5,7 +5,9 @@
 # unfortunately, doesn't preserve environment markers...).
 atomicwrites
 attrs
-autobahn
+# Autobahn version 22.5.1 breaks Windows integration tests
+# https://github.com/gridsync/gridsync/issues/479
+autobahn <= 22.4.2
 humanize
 hyperlink
 magic-wormhole

@@ -48,7 +48,7 @@ class InviteCodeCompleter(QCompleter):
             path = "{}-{}".format("-".join(words[:-1]), path)
         return path
 
-    def splitPath(self, path):  # pylint: disable=no-self-use
+    def splitPath(self, path):
         return [str(path.split("-")[-1])]
 
 

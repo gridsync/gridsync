@@ -13,7 +13,7 @@ import versioneer
 requirements = [
     "atomicwrites",
     "attrs",
-    "autobahn",
+    "autobahn <= 22.4.2",  # https://github.com/gridsync/gridsync/issues/479
     'certifi ; sys_platform == "win32"',
     'distro ; sys_platform != "darwin" and sys_platform != "win32"',
     "humanize",
