@@ -153,6 +153,25 @@ class ZKAPAuthorizer:
         )
 
     @inlineCallbacks
+    def get_lease_maintenance(self) -> TwistedDeferred[dict]:
+        """
+        Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer for
+        lease-maintenance-related information
+
+        :returns: a dict containing information about lease-maintenance
+        """
+        resp = yield self._request("GET", "/lease-maintenance")
+        if resp.code == 200:
+            content = yield treq.json_content(resp)
+            return content
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
+        raise TahoeWebError(
+            f"Error {resp.code} getting lease-maintenance information: "
+            f"{content}"
+        )
+
+    @inlineCallbacks
     def get_total_zkaps(self) -> TwistedDeferred[int]:
         """
         Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer how
@@ -161,13 +180,8 @@ class ZKAPAuthorizer:
         :returns: the total number of ZKAPs we have (spend and unspent
             together)
         """
-        resp = yield self._request("GET", "/lease-maintenance")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content.get("total", 0)
-        content = yield treq.content(resp)
-        content = content.decode("utf-8").strip()
-        raise TahoeWebError(f"Error {resp.code} getting ZKAPs: {content}")
+        lm = yield self.get_lease_maintenance()
+        return lm.get("total", 0)
 
     @inlineCallbacks
     def get_lease_maintenance_spending(self) -> TwistedDeferred[Optional[int]]:
@@ -177,16 +191,8 @@ class ZKAPAuthorizer:
 
         :returns: ???
         """
-        resp = yield self._request("GET", "/lease-maintenance")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content.get("spending", None)
-        content = yield treq.content(resp)
-        content = content.decode("utf-8").strip()
-        raise TahoeWebError(
-            f"Error {resp.code} getting lease-maintenance spending: "
-            f"{content}"
-        )
+        lm = yield self.get_lease_maintenance()
+        return lm.get("spending", None)
 
     @inlineCallbacks
     def replicate(self) -> TwistedDeferred[str]:
