@@ -94,13 +94,12 @@ def strip_html_tags(s):
 
 
 @inlineCallbacks
-def until(predicate, timeout=10, period=0.2, reactor=None):
+def until(predicate, result=True, timeout=10, period=0.2, reactor=None):
     if reactor is None:
         from twisted.internet import reactor
     limit = time() + timeout
     while time() < limit:
-        result = predicate()
-        if result:
+        if predicate() == result:
             return result
         yield deferLater(reactor, period, lambda: None)
     raise TimeoutError(f"Timeout {timeout} seconds hit for {predicate}")
