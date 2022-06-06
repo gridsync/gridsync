@@ -5,3 +5,24 @@ line-length = 79
 profile = "black"
 line_length = 79
 multi_line_output = 3
+
+[tool.pylint.messages_control]
+disable = [
+    "consider-using-f-string",
+    "duplicate-code",
+    "fixme",
+    "import-outside-toplevel",
+    "invalid-name",
+    "missing-docstring",
+    "no-name-in-module",
+    "no-member",
+    "protected-access",
+    "too-few-public-methods",
+    "too-many-branches",
+    "too-many-instance-attributes",
+    "too-many-locals",
+    "too-many-public-methods",
+    "too-many-statements",
+    "unbalanced-tuple-unpacking",
+    "wrong-import-position",
+]

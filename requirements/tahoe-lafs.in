@@ -1,1 +1,4 @@
 https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/87c6c9dff7fe6ef396581f97dafc6693ddfd4e8b
+# Autobahn version 22.5.1 breaks Windows integration tests
+# https://github.com/gridsync/gridsync/issues/479
+autobahn <= 22.4.2

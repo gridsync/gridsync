@@ -26,6 +26,7 @@ attrs==21.4.0 \
 autobahn[twisted]==22.4.2 \
     --hash=sha256:57b7acf228d50d83cf327372b889e2a168a869275b26e17917ed0b4cf4d823a6
     # via
+    #   -r requirements/magic-folder.in
     #   magic-folder
     #   magic-wormhole
     #   tahoe-lafs
@@ -142,10 +143,6 @@ cffi==1.15.0 \
     #   bcrypt
     #   cryptography
     #   pynacl
-characteristic==14.3.0 \
-    --hash=sha256:5324ca333fc9705bf0f1a38d36021baa37888590ccfe8c3738c68adfa609bbbb \
-    --hash=sha256:ded68d4e424115ed44e5c83c2a901a0b6157a959079d7591d92106ffd3ada380
-    # via tubes
 charset-normalizer==2.0.12 \
     --hash=sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597 \
     --hash=sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df
@@ -460,9 +457,9 @@ treq==22.2.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-tubes==0.2.0 \
-    --hash=sha256:8d55ffda4c332deda399bf89a335ac7cea307fc8f6bfd89fee010a00c47be169 \
-    --hash=sha256:de7bc347cb0a04ed6056e28a6b567228abc0f25861cbfad825466bea672d500d
+tubes==0.2.1 \
+    --hash=sha256:28f60dc0be0555a953595f8f1a96a81e96ea6833df7677d77fbe70782605e5b5 \
+    --hash=sha256:59b9197f2fa6f7fc6bc3281de55797adc729bb75c9c613b4f6d6c41599f0d78b
     # via klein
 twisted[conch,tls]==22.4.0 \
     --hash=sha256:a047990f57dfae1e0bd2b7df2526d4f16dcdc843774dc108b78c52f2a5f13680 \
