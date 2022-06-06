@@ -102,7 +102,10 @@ def until(predicate, result=True, timeout=10, period=0.2, reactor=None):
         if predicate() == result:
             return result
         yield deferLater(reactor, period, lambda: None)
-    raise TimeoutError(f"Timeout {timeout} seconds hit for {predicate}")
+    raise TimeoutError(
+        f'{predicate} did not return a value of "{result}" after waiting '
+        f"{timeout} seconds"
+    )
 
 
 @attr.s
