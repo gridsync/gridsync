@@ -23,10 +23,9 @@ attrs==21.4.0 \
     #   tahoe-lafs
     #   treq
     #   twisted
-autobahn[twisted]==22.4.2 \
-    --hash=sha256:57b7acf228d50d83cf327372b889e2a168a869275b26e17917ed0b4cf4d823a6
+autobahn[twisted]==22.5.1 \
+    --hash=sha256:34aa5569b0b4419f8c277792c600dc2518c4930928c74e2279ef8b88d8b8a3ea
     # via
-    #   -r requirements/magic-folder.in
     #   magic-folder
     #   magic-wormhole
     #   tahoe-lafs
