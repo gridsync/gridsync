@@ -4,6 +4,7 @@
 @echo off
 
 set PY_PYTHON=3.9
+set PYTHONDONTWRITEBYTECODE=1
 
 
 if "%1"=="clean" call :clean
