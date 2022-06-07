@@ -175,6 +175,8 @@ jobs:
     - name: Test integration
       run: |
         .\make.bat test-integration
+    - name: Test
+      run: .\make.bat test
     - name: Test determinism
       run: |
         .\make.bat test-determinism
