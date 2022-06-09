@@ -23,7 +23,7 @@ jobs:
         fetch-depth: 0
         # Checkout head of the branch of the PR, or the exact revision
         # specified for non-PR builds.
-        ref: "${{ github.event.pull_request.head.sha || github.ref }}"
+        ref: "${{ github.event.pull_request.head.sha || github.sha }}"
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -95,7 +95,7 @@ jobs:
         fetch-depth: 0
         # Checkout head of the branch of the PR, or the exact revision
         # specified for non-PR builds.
-        ref: "${{ github.event.pull_request.head.sha || github.ref }}"
+        ref: "${{ github.event.pull_request.head.sha || github.sha }}"
     - name: Restore pyenv cache
       uses: actions/cache@v2
       with:
@@ -163,7 +163,7 @@ jobs:
         fetch-depth: 0
         # Checkout head of the branch of the PR, or the exact revision
         # specified for non-PR builds.
-        ref: "${{ github.event.pull_request.head.sha || github.ref }}"
+        ref: "${{ github.event.pull_request.head.sha || github.sha }}"
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
