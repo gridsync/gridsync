@@ -179,6 +179,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "windows-10" do |b|
     b.vm.box = "gusztavvargadr/windows-10"
+    b.winrm.transport = :plaintext
+    b.winrm.basic_auth_only = true 
     b.vm.provider "virtualbox" do |vb|
       vb.customize ['modifyvm', :id, '--usb', 'on']
       vb.customize ['usbfilter', 'add', '0',
@@ -198,6 +200,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "windows-11" do |b|
     b.vm.box = "gusztavvargadr/windows-11"
+    b.winrm.transport = :plaintext
+    b.winrm.basic_auth_only = true 
     b.vm.provider "virtualbox" do |vb|
       vb.customize ['modifyvm', :id, '--usb', 'on']
       vb.customize ['usbfilter', 'add', '0',
