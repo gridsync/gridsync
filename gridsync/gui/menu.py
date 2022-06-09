@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
+
 import webbrowser
+from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
@@ -8,9 +11,12 @@ from qtpy.QtWidgets import QAction, QMenu, QMessageBox
 
 from gridsync import APP_NAME, __version__, resource, settings
 
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
+
 
 class Menu(QMenu):
-    def __init__(self, gui, show_open_action=True):
+    def __init__(self, gui: AbstractGui, show_open_action: bool = True):
         super().__init__()
         self.gui = gui
 

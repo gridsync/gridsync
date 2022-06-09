@@ -89,7 +89,8 @@ class View(QTreeView):
         self.gateway = gateway
         self.recovery_prompt_shown: bool = False
         self.invite_sender_dialogs = []
-        self.setModel(Model(self))
+        self._model = Model(self)
+        self.setModel(self._model)
         self.setItemDelegate(Delegate(self))
 
         self.setAcceptDrops(True)
@@ -155,6 +156,14 @@ class View(QTreeView):
 
         self.gateway.monitor.zkaps_available.connect(self._create_rootcap)
         self.gateway.monitor.connected.connect(self.maybe_prompt_for_recovery)
+
+    def get_model(self) -> Model:
+        # This custom getter exists primarily to inform mypy that we
+        # always/only expect this View to use a Model -- and not some
+        # other non-Model type. In other words, this is a stricter
+        # version of the model() method inherited from
+        # QAbstractItemView.
+        return self._model
 
     @inlineCallbacks
     def _create_rootcap(self):

@@ -12,7 +12,7 @@ from qtpy.QtWidgets import QAction, QGridLayout, QLabel, QToolButton, QWidget
 from gridsync import resource
 
 if TYPE_CHECKING:
-    from gridsync.gui import Gui
+    from gridsync.gui import AbstractGui
     from gridsync.tahoe import Tahoe
 
 # from gridsync.gui.charts import ZKAPCompactPieChartView
@@ -25,7 +25,7 @@ from gridsync.magic_folder import MagicFolderStatus
 
 
 class StatusPanel(QWidget):
-    def __init__(self, gateway: Tahoe, gui: Gui) -> None:
+    def __init__(self, gateway: Tahoe, gui: AbstractGui) -> None:
         super().__init__()
         self.gateway = gateway
         self.gui = gui

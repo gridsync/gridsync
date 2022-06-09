@@ -4,117 +4,54 @@ import json
 import logging
 import os
 from pathlib import Path
+from typing import Awaitable, Optional
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
 from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
+from twisted.internet.defer import succeed
+from twisted.internet.threads import deferToThreadPool
 
 from gridsync import APP_NAME
-from gridsync.crypto import Crypter
+from gridsync.crypto import Crypter, encrypt
 from gridsync.gui.password import PasswordDialog
 from gridsync.msg import error, question
+from gridsync.tahoe import Tahoe
 
 
-class RecoveryKeyExporter(QObject):
+def get_recovery_key(
+    password: Optional[str], gateway: Tahoe
+) -> Awaitable[bytes]:
+    """
+    Get the recovery material and, if a password is given, encrypt it.
+    """
+    from twisted.internet import reactor
 
-    done = Signal(str)
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.parent = parent
-        self.filepath = None
-        self.progress = None
-        self.animation = None
-        self.crypter = None
-        self.crypter_thread = None
-        self.ciphertext = None
-
-    def _on_encryption_failed(self, message):
-        self.crypter_thread.quit()
-        self.crypter_thread.wait()
-        error(self.parent, "Error encrypting data", message)
-
-    def _on_encryption_succeeded(self, ciphertext):
-        self.crypter_thread.quit()
-        self.crypter_thread.wait()
-        if self.filepath:
-            with atomic_write(self.filepath, mode="wb", overwrite=True) as f:
-                f.write(ciphertext)
-            self.done.emit(self.filepath)
-            self.filepath = None
-        else:
-            self.ciphertext = ciphertext
-
-    def _export_encrypted_recovery(self, gateway, password):
-        settings = gateway.get_settings(include_secrets=True)
-        if gateway.use_tor:
-            settings["hide-ip"] = True
-        data = json.dumps(settings)
-        self.progress = QProgressDialog("Encrypting...", None, 0, 100)
-        self.progress.show()
-        self.animation = QPropertyAnimation(self.progress, b"value")
-        self.animation.setDuration(6000)  # XXX
-        self.animation.setStartValue(0)
-        self.animation.setEndValue(99)
-        self.animation.start()
-        self.crypter = Crypter(data.encode(), password.encode())
-        self.crypter_thread = QThread()
-        self.crypter.moveToThread(self.crypter_thread)
-        self.crypter.succeeded.connect(self.animation.stop)
-        self.crypter.succeeded.connect(self.progress.close)
-        self.crypter.succeeded.connect(self._on_encryption_succeeded)
-        self.crypter.failed.connect(self.animation.stop)
-        self.crypter.failed.connect(self.progress.close)
-        self.crypter.failed.connect(self._on_encryption_failed)
-        self.crypter_thread.started.connect(self.crypter.encrypt)
-        self.crypter_thread.start()
-        dest, _ = QFileDialog.getSaveFileName(
-            self.parent,
-            "Select a destination",
-            os.path.join(
-                os.path.expanduser("~"),
-                gateway.name + " Recovery Key.json.encrypted",
-            ),
+    settings = gateway.get_settings(include_secrets=True)
+    if gateway.use_tor:
+        settings["hide-ip"] = True
+    plaintext = json.dumps(settings).encode("utf-8")
+    if password:
+        return deferToThreadPool(
+            reactor,
+            # Module has no attribute "getThreadPool"
+            reactor.getThreadPool(),  # type: ignore
+            lambda: encrypt(plaintext, password.encode("utf-8")),
         )
-        if not dest:
-            return
-        if self.ciphertext:
-            with atomic_write(dest, mode="wb", overwrite=True) as f:
-                f.write(self.ciphertext)
-            self.done.emit(dest)
-            self.ciphertext = None
-        else:
-            self.filepath = dest
+    return succeed(plaintext)
 
-    def _export_plaintext_recovery(self, gateway):
-        dest, _ = QFileDialog.getSaveFileName(
-            self.parent,
-            "Select a destination",
-            os.path.join(
-                os.path.expanduser("~"), gateway.name + " Recovery Key.json"
-            ),
-        )
-        if not dest:
-            return
-        try:
-            gateway.export(dest, include_secrets=True)
-        except Exception as e:  # pylint: disable=broad-except
-            error(self.parent, "Error creating Recovery Key", str(e))
-            return
-        self.done.emit(dest)
 
-    def do_export(self, gateway):
-        password, ok = PasswordDialog.get_password(
-            label="Encryption passphrase (optional):",
-            ok_button_text="Save Recovery Key...",
-            help_text="A long passphrase will help keep your files safe in "
-            "the event that your Recovery Key is ever compromised.",
-            parent=self.parent,
-        )
-        if ok and password:
-            self._export_encrypted_recovery(gateway, password)
-        elif ok:
-            self._export_plaintext_recovery(gateway)
+def export_recovery_key(
+    ciphertext: bytes,
+    path: Path,
+) -> None:
+    """
+    Export a recovery key to the filesystem.
+
+    :param plaintext: The plaintext of the recovery key.
+    """
+    with atomic_write(path, mode="wb", overwrite=True) as f:
+        f.write(ciphertext)
 
 
 class RecoveryKeyImporter(QObject):
