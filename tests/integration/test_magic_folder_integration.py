@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 from pathlib import Path
 
 import pytest
@@ -12,6 +11,7 @@ from gridsync import APP_NAME
 from gridsync.crypto import randstr
 from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
 from gridsync.tahoe import Tahoe
+from gridsync.util import until
 
 if sys.platform == "darwin":
     application_bundle_path = str(
@@ -79,17 +79,6 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
     await client.start()
     yield client.magic_folder
     await client.stop()
-
-
-@inlineCallbacks
-def until(predicate, timeout=10, period=0.2):
-    limit = time.time() + timeout
-    while time.time() < limit:
-        result = predicate()
-        if result:
-            return result
-        yield deferLater(reactor, period, lambda: None)
-    raise TimeoutError(f"Timeout {timeout} seconds hit for {predicate}")
 
 
 @inlineCallbacks

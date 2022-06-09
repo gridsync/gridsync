@@ -8,7 +8,12 @@ from atomicwrites import atomic_write
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync.system import SubprocessProtocol, process_name, terminate
+from gridsync.system import (
+    SubprocessProtocol,
+    is_running,
+    process_name,
+    terminate,
+)
 from gridsync.types import TwistedDeferred
 
 
@@ -30,6 +35,11 @@ class Supervisor:
         self._stderr_line_collector: Optional[Callable] = None
         self._process_started_callback: Optional[Callable] = None
         self._on_process_ended: Optional[Callable] = None
+
+    def is_running(self) -> bool:
+        if not self.pid:
+            return False
+        return is_running(self.pid)
 
     @inlineCallbacks
     def stop(self) -> TwistedDeferred[None]:

@@ -554,16 +554,16 @@ class View(QTreeView):
         if dialog.exec_():
             self.add_folders(dialog.selectedFiles())
 
-    def dragEnterEvent(self, event):  # pylint: disable=no-self-use
+    def dragEnterEvent(self, event):
         logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
 
-    def dragLeaveEvent(self, event):  # pylint: disable=no-self-use
+    def dragLeaveEvent(self, event):
         logging.debug(event)
         event.accept()
 
-    def dragMoveEvent(self, event):  # pylint: disable=no-self-use
+    def dragMoveEvent(self, event):
         if event.mimeData().hasUrls:
             event.accept()
 

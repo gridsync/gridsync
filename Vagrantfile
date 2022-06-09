@@ -126,9 +126,9 @@ Vagrant.configure("2") do |config|
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
   end
 
-  config.vm.define "ubuntu-21.10" do |b|
-    b.vm.box = "ubuntu/impish64"
-    b.vm.hostname = "ubuntu-21.10"
+  config.vm.define "ubuntu-22.04" do |b|
+    b.vm.box = "ubuntu/jammy64"
+    b.vm.hostname = "ubuntu-22.04"
     b.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
     end
@@ -179,6 +179,9 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "windows-10" do |b|
     b.vm.box = "gusztavvargadr/windows-10"
+    b.vm.hostname = "windows-10"
+    b.winrm.transport = :plaintext
+    b.winrm.basic_auth_only = true 
     b.vm.provider "virtualbox" do |vb|
       vb.customize ['modifyvm', :id, '--usb', 'on']
       vb.customize ['usbfilter', 'add', '0',
@@ -194,10 +197,14 @@ Vagrant.configure("2") do |config|
     b.vm.provision "test", type: "shell", run: "never", inline: test_windows
     b.vm.provision "build", type: "shell", run: "never", inline: make_windows
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.ps1"
+    b.vm.provision "sac", type: "shell", run: "never", path: "scripts/provision_sac.ps1"
   end
 
   config.vm.define "windows-11" do |b|
     b.vm.box = "gusztavvargadr/windows-11"
+    b.vm.hostname = "windows-11"
+    b.winrm.transport = :plaintext
+    b.winrm.basic_auth_only = true 
     b.vm.provider "virtualbox" do |vb|
       vb.customize ['modifyvm', :id, '--usb', 'on']
       vb.customize ['usbfilter', 'add', '0',
@@ -213,6 +220,7 @@ Vagrant.configure("2") do |config|
     b.vm.provision "test", type: "shell", run: "never", inline: test_windows
     b.vm.provision "build", type: "shell", run: "never", inline: make_windows
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.ps1"
+    b.vm.provision "sac", type: "shell", run: "never", path: "scripts/provision_sac.ps1"
   end
 
 end

@@ -2,6 +2,7 @@
 
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
+from time import time
 from typing import Callable, List
 
 import attr
@@ -90,6 +91,21 @@ def strip_html_tags(s):
     ts = _TagStripper()
     ts.feed(s)
     return ts.get_data()
+
+
+@inlineCallbacks
+def until(predicate, result=True, timeout=10, period=0.2, reactor=None):
+    if reactor is None:
+        from twisted.internet import reactor
+    limit = time() + timeout
+    while time() < limit:
+        if predicate() == result:
+            return result
+        yield deferLater(reactor, period, lambda: None)
+    raise TimeoutError(
+        f'{predicate} did not return a value of "{result}" after waiting '
+        f"{timeout} seconds"
+    )
 
 
 @attr.s
