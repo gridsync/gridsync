@@ -126,9 +126,9 @@ Vagrant.configure("2") do |config|
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
   end
 
-  config.vm.define "ubuntu-21.10" do |b|
-    b.vm.box = "ubuntu/impish64"
-    b.vm.hostname = "ubuntu-21.10"
+  config.vm.define "ubuntu-22.04" do |b|
+    b.vm.box = "ubuntu/jammy64"
+    b.vm.hostname = "ubuntu-22.04"
     b.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
     end
