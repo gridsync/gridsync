@@ -179,6 +179,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "windows-10" do |b|
     b.vm.box = "gusztavvargadr/windows-10"
+    b.vm.hostname = "windows-10"
     b.winrm.transport = :plaintext
     b.winrm.basic_auth_only = true 
     b.vm.provider "virtualbox" do |vb|
@@ -200,6 +201,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "windows-11" do |b|
     b.vm.box = "gusztavvargadr/windows-11"
+    b.vm.hostname = "windows-11"
     b.winrm.transport = :plaintext
     b.winrm.basic_auth_only = true 
     b.vm.provider "virtualbox" do |vb|
