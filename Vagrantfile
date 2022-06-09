@@ -197,6 +197,7 @@ Vagrant.configure("2") do |config|
     b.vm.provision "test", type: "shell", run: "never", inline: test_windows
     b.vm.provision "build", type: "shell", run: "never", inline: make_windows
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.ps1"
+    b.vm.provision "sac", type: "shell", run: "never", path: "scripts/provision_sac.ps1"
   end
 
   config.vm.define "windows-11" do |b|
@@ -219,6 +220,7 @@ Vagrant.configure("2") do |config|
     b.vm.provision "test", type: "shell", run: "never", inline: test_windows
     b.vm.provision "build", type: "shell", run: "never", inline: make_windows
     b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.ps1"
+    b.vm.provision "sac", type: "shell", run: "never", path: "scripts/provision_sac.ps1"
   end
 
 end
