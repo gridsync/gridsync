@@ -6,10 +6,8 @@ import json
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import treq
+from autobahn.twisted.websocket import create_client_agent
 from twisted.internet.defer import inlineCallbacks
-from autobahn.twisted.websocket import (
-    create_client_agent,
-)
 
 from gridsync.errors import TahoeWebError
 from gridsync.types import TreqResponse, TwistedDeferred
@@ -224,23 +222,33 @@ class ZKAPAuthorizer:
         results. The endpoint only returns after the recovery is
         complete.
         """
-        uri = f"{self.gateway.nodeurl}storage-plugins/{PLUGIN_NAME}/recover".replace("http", "ws")
+        uri = f"{self.gateway.nodeurl}storage-plugins/{PLUGIN_NAME}/recover".replace(
+            "http", "ws"
+        )
         from twisted.internet import reactor
+
         agent = create_client_agent(reactor)
         proto = yield agent.open(
             uri,
-            {"headers": {"Authorization": f"tahoe-lafs {self.gateway.api_token}"}},
+            {
+                "headers": {
+                    "Authorization": f"tahoe-lafs {self.gateway.api_token}"
+                }
+            },
         )
 
         def status_update(raw_data, is_binary=False):
             data = json.loads(raw_data)
             on_status_update(data["stage"], data["failure-reason"])
+
         proto.on("message", status_update)
 
         print("wait for open")
         yield proto.is_open
         print("send recovery request")
-        yield proto.sendMessage(json.dumps({"recovery-capability": dircap}).encode("utf8"))
+        yield proto.sendMessage(
+            json.dumps({"recovery-capability": dircap}).encode("utf8")
+        )
         try:
             print("wait for close")
             yield proto.is_closed
