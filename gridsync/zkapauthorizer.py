@@ -240,6 +240,8 @@ class ZKAPAuthorizer:
         )
 
         def status_update(raw_data: bytes, is_binary: bool = False) -> None:
+            if is_binary:
+                return  # XXX Warn?
             data = json.loads(raw_data)
             on_status_update(data["stage"], data["failure-reason"])
 
@@ -255,7 +257,7 @@ class ZKAPAuthorizer:
             print("wait for close")
             yield proto.is_closed
         except Exception as e:
-            raise TahoeWebError(f"Error during recovery: {e}")
+            raise TahoeWebError(f"Error during recovery: {e}") from e
 
     @inlineCallbacks
     def backup_zkaps(self) -> TwistedDeferred[None]:
