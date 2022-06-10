@@ -26,12 +26,12 @@ attrs==21.4.0 \
     #   treq
     #   twisted
     #   zero-knowledge-access-pass-authorizer
-autobahn[twisted]==22.4.2 \
-    --hash=sha256:57b7acf228d50d83cf327372b889e2a168a869275b26e17917ed0b4cf4d823a6
+autobahn[twisted]==22.3.2 \
+    --hash=sha256:58a887c7a196bb08d8b6624cb3695f493a9e5c9f00fd350d8d6f829b47ff9036
     # via
-    #   -r requirements/tahoe-lafs.in
     #   magic-wormhole
     #   tahoe-lafs
+    #   zero-knowledge-access-pass-authorizer
 automat==20.2.0 \
     --hash=sha256:7979803c74610e11ef0c0d68a2942b152df52da55336e0c9d58daf1831cbdf33 \
     --hash=sha256:b6feb6455337df834f6c9962d6ccf771515b7d939bca142b29c20c2376bc6111
@@ -164,11 +164,11 @@ colorama==0.4.4 \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
     # via zero-knowledge-access-pass-authorizer
-compose==1.2.8 \
-    --hash=sha256:3ae6b888e45238b31633313e78f4d64c79a13f3859efd04acfd1241c2afe7b74 \
-    --hash=sha256:cf17e985b82f06247143dccd1a32e5deb16f5b8ef80d732386acb2394092c5c5 \
-    --hash=sha256:f36e4fb7d1bfc359b4a8a50c4a032b48dbbd3e682f5878fe1a7f0591b1569a22 \
-    --hash=sha256:fb0d8c876528d2beb63a25c58b581d525dabb772f5d3b3da3cef4c87cb0c65be
+compose==1.4.1 \
+    --hash=sha256:4bd63d7cab05a9daf9683fedfd3c091fc73632453fa1e5605e0ef99fec4cdfdf \
+    --hash=sha256:56833936487aba9d9b0de4a67a66f2af874b002eb6f70141c6e1ab46b1fb8149 \
+    --hash=sha256:c8983a94c119186551b622567a83eceaad35c72411d73ea780642d42d4baaa5c \
+    --hash=sha256:f63c4be0f19a4490de09da107b74df322200a7fc8a9f3d268ff62c2bbd0daa73
     # via zero-knowledge-access-pass-authorizer
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
@@ -401,9 +401,9 @@ pyyaml==6.0 \
     --hash=sha256:e61ceaab6f49fb8bdfaa0f92c4b57bcfbea54c09277b1b4f7ac376bfb7a7c174 \
     --hash=sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5
     # via tahoe-lafs
-requests==2.27.1 \
-    --hash=sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61 \
-    --hash=sha256:f22fa1e554c9ddfd16e6e41ac79759e17be9e492b3587efa038054674760e72d
+requests==2.28.0 \
+    --hash=sha256:bc7861137fbce630f17b03d3ad02ad0bf978c844f3536d0edda6499dafce2b6f \
+    --hash=sha256:d568723a7ebd25875d8d1eaf5dfa068cd2fc8194b2e483d7b1f7c81918dbec6b
     # via treq
 service-identity==21.1.0 \
     --hash=sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34 \
@@ -479,8 +479,8 @@ werkzeug==2.1.2 \
     --hash=sha256:1ce08e8093ed67d638d63879fd1ba3735817f7a80de3674d293f5984f25fb6e6 \
     --hash=sha256:72a4b735692dd3135217911cbeaa1be5fa3f62bffb8745c5215420a03dc55255
     # via klein
-zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/87c6c9dff7fe6ef396581f97dafc6693ddfd4e8b \
-    --hash=sha256:7d16487d1ecf53ab2c6c8d932b59fb2060e88121efb901816bdd45a25f924a6c
+zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/148f92f687aaa620ac11981f286a50cd1923d7e4 \
+    --hash=sha256:ba0e263cd1dfda98f24f3bce4755ffacee9beaddfc7403e969f1a547a6b55706
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.7.2 \
     --hash=sha256:01b47b1144940a620393d38d12d381a6f3e6522e96d834d658e095422876fdc8 \
@@ -583,9 +583,9 @@ zope-interface==5.4.0 \
     #   zero-knowledge-access-pass-authorizer
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==62.3.2 \
-    --hash=sha256:68e45d17c9281ba25dc0104eadd2647172b3472d9e01f911efa57965e8d51a36 \
-    --hash=sha256:a43bdedf853c670e5fed28e5623403bad2f73cf02f9a2774e91def6bda8265a7
+setuptools==62.3.3 \
+    --hash=sha256:d1746e7fd520e83bbe210d02fff1aa1a425ad671c7a9da7d246ec2401a087198 \
+    --hash=sha256:e7d11f3db616cda0751372244c2ba798e8e56a28e096ec4529010b803485f3fe
     # via
     #   autobahn
     #   tahoe-lafs
