@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional
 
 import treq
 from autobahn.twisted.websocket import create_client_agent
@@ -216,7 +216,9 @@ class ZKAPAuthorizer:
         )
 
     @inlineCallbacks
-    def recover(self, dircap: str, on_status_update) -> TwistedDeferred[None]:
+    def recover(
+        self, dircap: str, on_status_update: Callable
+    ) -> TwistedDeferred[None]:
         """
         Call the ZKAPAuthorizer /recover WebSocket endpoint and await its
         results. The endpoint only returns after the recovery is
@@ -237,7 +239,7 @@ class ZKAPAuthorizer:
             },
         )
 
-        def status_update(raw_data, is_binary=False):
+        def status_update(raw_data: bytes, is_binary: bool = False) -> None:
             data = json.loads(raw_data)
             on_status_update(data["stage"], data["failure-reason"])
 
@@ -268,7 +270,9 @@ class ZKAPAuthorizer:
         )
 
     @inlineCallbacks
-    def restore_zkaps(self, on_status_update) -> TwistedDeferred[None]:
+    def restore_zkaps(
+        self, on_status_update: Callable
+    ) -> TwistedDeferred[None]:
         """
         Attempt to restore ZKAP state from a previously saved
         replica. Uses the ``recovery-capability`` from the
