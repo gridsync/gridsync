@@ -1,47 +1,79 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
 import sys
+from contextlib import contextmanager
 from pathlib import Path
+from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union
 
-from qtpy.QtCore import QItemSelectionModel, QSize, Qt, QTimer
+from qtpy.QtCore import (
+    QItemSelectionModel,
+    QPropertyAnimation,
+    QSize,
+    Qt,
+    QTimer,
+)
 from qtpy.QtGui import QIcon, QKeySequence
 from qtpy.QtWidgets import (
+    QFileDialog,
     QGridLayout,
     QMainWindow,
     QMessageBox,
+    QProgressDialog,
     QShortcut,
     QStackedWidget,
     QWidget,
 )
 from twisted.internet import reactor
+from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
 from gridsync.gui.history import HistoryView
+from gridsync.gui.password import PasswordDialog
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
-from gridsync.gui.toolbar import ToolBar
+from gridsync.gui.toolbar import ComboBox, ToolBar
 from gridsync.gui.usage import UsageView
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.msg import error, info
-from gridsync.recovery import RecoveryKeyExporter
+from gridsync.recovery import export_recovery_key, get_recovery_key
+from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
+
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
+
+
+@inlineCallbacks
+def run_coroutine(
+    parent: QWidget, coro: Coroutine
+) -> Generator[Deferred[object], object, None]:
+    """
+    Run a coroutine, discarding its success result and reporting its failure
+    report in a child window of ``parent``.
+    """
+    try:
+        yield Deferred.fromCoroutine(coro)
+    except Exception as e:  # pylint: disable=broad-except
+        error(parent, type(e).__name__, str(e), Failure().getTraceback())
 
 
 class CentralWidget(QStackedWidget):
-    def __init__(self, gui):
+    def __init__(self, gui: AbstractGui):
         super().__init__()
         self.gui = gui
-        self.views = []
-        self.folders_views = {}
-        self.history_views = {}
-        self.usage_views = {}
+        self.views: list[View] = []
+        self.folders_views: dict[Tahoe, QWidget] = {}
+        self.history_views: dict[Tahoe, HistoryView] = {}
+        self.usage_views: dict[Tahoe, QWidget] = {}
 
         # XXX/TODO: There is no need for multiple StatusPanels. Clean this up.
 
-    def _add_folders_view(self, gateway):
+    def _add_folders_view(self, gateway: Tahoe) -> None:
         view = View(self.gui, gateway)
         widget = QWidget()
         layout = QGridLayout(widget)
@@ -57,12 +89,12 @@ class CentralWidget(QStackedWidget):
         self.views.append(view)
         self.folders_views[gateway] = widget
 
-    def _add_history_view(self, gateway):
+    def _add_history_view(self, gateway) -> None:
         view = HistoryView(gateway, self.gui)
         self.addWidget(view)
         self.history_views[gateway] = view
 
-    def _add_usage_view(self, gateway):
+    def _add_usage_view(self, gateway) -> None:
         gateway.load_settings()  # Ensure that zkap_unit_name is read/updated
         view = UsageView(gateway, self.gui)
         widget = QWidget()
@@ -78,23 +110,89 @@ class CentralWidget(QStackedWidget):
         self.addWidget(widget)
         self.usage_views[gateway] = widget
 
-    def add_gateway(self, gateway):
+    def add_gateway(self, gateway) -> None:
         self._add_folders_view(gateway)
         self._add_history_view(gateway)
         self._add_usage_view(gateway)
 
 
+def get_save_filename(
+    parent: QWidget, prompt: str, more: str
+) -> Optional[Path]:
+    """
+    Ask the user for a path to which some data may be saved.
+
+    Block until the user enters the path.
+
+    :param parent: A parent widget to contain the modal dialog created.
+    :param prompt: Some of the prompt to include in the dialog. (XXX)
+    :param more: More of the prompt to include in the dialog. (XXX)
+
+    :return: If a path is chosen, the path.
+    """
+    dest, _ = QFileDialog.getSaveFileName(
+        parent,
+        prompt,
+        os.path.join(
+            os.path.expanduser("~"),
+            more,
+        ),
+    )
+    if dest:
+        return Path(dest)
+    return None
+
+
+def _get_encrypt_password(parent: QWidget) -> Optional[str]:
+    """
+    Prompt the user for an encryption password.
+    """
+    password, ok = PasswordDialog.get_password(
+        label="Encryption passphrase (optional):",
+        ok_button_text="Save Recovery Key...",
+        help_text="A long passphrase will help keep your files safe in "
+        "the event that your Recovery Key is ever compromised.",
+        parent=parent,
+    )
+    if ok:
+        # This includes the empty string which signals no encryption
+        # ... Should probably represent this tri-state differently.
+        return password
+    return None
+
+
+@contextmanager
+def _encryption_animation():
+    """
+    Create and start an animated progress dialog for the encryption process.
+    """
+    progress = QProgressDialog("Encrypting...", None, 0, 100)
+    progress.show()
+    animation = QPropertyAnimation(progress, b"value")
+    animation.setDuration(6000)  # XXX
+    animation.setStartValue(0)
+    animation.setEndValue(99)
+    animation.start()
+
+    yield
+
+    animation.stop()
+    progress.close()
+
+
 class MainWindow(QMainWindow):
-    def __init__(self, gui):
+    def __init__(self, gui: AbstractGui):
         super().__init__()
         self.gui = gui
 
-        self.gateways = []
-        self.welcome_dialog = None
-        self.recovery_key_exporter = None
-        self.active_invite_sender_dialogs = []
-        self.active_invite_receiver_dialogs = []
-        self.pending_news_message = ()
+        self.gateways: list[Tahoe] = []
+        self.welcome_dialog: Optional[WelcomeDialog] = None
+        self.active_invite_sender_dialogs: list[InviteSenderDialog] = []
+        self.active_invite_receiver_dialogs: list[InviteReceiverDialog] = []
+        # XXX Probably should be Optional[tuple[Tahoe, str, str]]
+        self.pending_news_message: Union[
+            tuple[()], tuple[Tahoe, str, str]
+        ] = ()
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(755, 470))
@@ -107,29 +205,31 @@ class MainWindow(QMainWindow):
             self.setWindowFlags(Qt.Dialog)
 
         if features.multiple_grids:
-            self.shortcut_new = QShortcut(QKeySequence.New, self)
+            self.shortcut_new: QShortcut = QShortcut(QKeySequence.New, self)
             self.shortcut_new.activated.connect(self.show_welcome_dialog)
 
-        self.shortcut_open = QShortcut(QKeySequence.Open, self)
+        self.shortcut_open: QShortcut = QShortcut(QKeySequence.Open, self)
         self.shortcut_open.activated.connect(self.select_folder)
 
-        self.shortcut_preferences = QShortcut(QKeySequence.Preferences, self)
+        self.shortcut_preferences: QShortcut = QShortcut(
+            QKeySequence.Preferences, self
+        )
         self.shortcut_preferences.activated.connect(
             self.gui.show_preferences_window
         )
 
-        self.shortcut_close = QShortcut(QKeySequence.Close, self)
+        self.shortcut_close: QShortcut = QShortcut(QKeySequence.Close, self)
         self.shortcut_close.activated.connect(self.close)
 
-        self.shortcut_quit = QShortcut(QKeySequence.Quit, self)
+        self.shortcut_quit: QShortcut = QShortcut(QKeySequence.Quit, self)
         self.shortcut_quit.activated.connect(self.confirm_quit)
 
-        self.central_widget = CentralWidget(self.gui)
+        self.central_widget: CentralWidget = CentralWidget(self.gui)
         self.setCentralWidget(self.central_widget)
 
-        self.toolbar = ToolBar(self)
+        self.toolbar: ToolBar = ToolBar(self)
         self.addToolBar(self.toolbar)
-        self.combo_box = self.toolbar.combo_box  # XXX
+        self.combo_box: ComboBox = self.toolbar.combo_box  # XXX
         self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
 
         self.toolbar.folder_action_triggered.connect(self.select_folder)
@@ -283,8 +383,8 @@ class MainWindow(QMainWindow):
             )
         self.toolbar.update_actions()  # XXX
 
-    def confirm_exported(self, path, gateway):
-        if os.path.isfile(path):
+    def confirm_exported(self, path: Path, gateway: Tahoe) -> None:
+        if path.is_file():
             Path(gateway.nodedir, "private", "recovery_key_exported").touch(
                 exist_ok=True
             )
@@ -303,14 +403,51 @@ class MainWindow(QMainWindow):
                 f"Destination file not found after saving: {path}",
             )
 
-    def export_recovery_key(self, gateway=None):
-        if not gateway:
+    def export_recovery_key(self, gateway: Optional[Tahoe] = None):
+        """
+        Export the recovery key to a user-specific path on the filesystem,
+        possibly encrypting it with a user-specified password.
+        """
+        if gateway is None:
             gateway = self.combo_box.currentData()
-        self.recovery_key_exporter = RecoveryKeyExporter(self)
-        self.recovery_key_exporter.done.connect(
-            lambda path: self.confirm_exported(path, gateway)
-        )
-        self.recovery_key_exporter.do_export(gateway)
+        # The real work is done by _export_recovery_key but we can't give a
+        # coroutine back to Qt and have anything useful happen.
+        run_coroutine(self, self._export_recovery_key(gateway))
+
+    async def _export_recovery_key(self, gateway: Tahoe) -> None:
+        """
+        The asynchronous implementation of ``export_recovery_key``.
+        """
+        # Blocking call!
+        password = _get_encrypt_password(self)
+        if password is None:
+            return
+
+        # Begin the encryption progress animation.
+        try:
+            with _encryption_animation():
+                # Begin to gather and encrypt the information for the recovery key.
+                ciphertext_d = get_recovery_key(password, gateway)
+
+                # Blocking call!  If this were async the factoring could be
+                # much cleaner.  Just `gatherResults([ciphertext_d, path_d])`
+                # and feed the result to an export_recovery_key that does all
+                # the rest of the work.
+                path = get_save_filename(
+                    self,
+                    "Select a destination",
+                    gateway.name + " Recovery Key.json.encrypted",
+                )
+                if path is None:
+                    return
+                ciphertext = await ciphertext_d
+                export_recovery_key(ciphertext, path)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.debug("export recovery key failed")
+            # TODO Check if self is the right parent to pass here
+            error(self, "Error encrypting data", str(e))
+        else:
+            self.confirm_exported(path, gateway)
 
     def import_recovery_key(self):
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
@@ -376,7 +513,7 @@ class MainWindow(QMainWindow):
             self.active_invite_sender_dialogs.append(invite_sender_dialog)
 
     def _is_folder_syncing(self) -> bool:
-        for model in [view.model() for view in self.central_widget.views]:
+        for model in [view.get_model() for view in self.central_widget.views]:
             if model.is_folder_syncing():
                 return True
         return False

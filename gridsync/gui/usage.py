@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, List
 
 import attr
+from attrs import define, field
 from humanize import naturalsize
 from qtpy.QtCore import Qt, Slot
 from qtpy.QtGui import QIcon, QPainter
@@ -26,7 +27,7 @@ from gridsync.msg import error
 from gridsync.types import TwistedDeferred
 
 if TYPE_CHECKING:
-    from gridsync.gui import Gui  # pylint: disable=cyclic-import
+    from gridsync.gui import AbstractGui  # pylint: disable=cyclic-import
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
 
 
@@ -85,47 +86,51 @@ def make_loading_storage_time() -> QLabel:
     return label
 
 
-@attr.s
+@define
 class UsageView(QWidget):
-    gateway: Tahoe = attr.ib()
-    gui: Gui = attr.ib()
+    gateway: Tahoe
+    gui: AbstractGui
 
-    _zkaps_used: int = attr.ib(default=0, init=False)
-    _zkaps_cost: int = attr.ib(default=0, init=False)
-    _zkaps_remaining: int = attr.ib(default=0, init=False)
-    _zkaps_total: int = attr.ib(default=0, init=False)
-    _zkaps_period: int = attr.ib(default=0, init=False)
-    _redeeming_vouchers: List[str] = attr.ib(
+    _zkaps_used: int = field(default=0, init=False)
+    _zkaps_cost: int = field(default=0, init=False)
+    _zkaps_remaining: int = field(default=0, init=False)
+    _zkaps_total: int = field(default=0, init=False)
+    _zkaps_period: int = field(default=0, init=False)
+    _redeeming_vouchers: List[str] = field(
         default=attr.Factory(list), init=False
     )
-    _last_purchase_date: str = attr.ib(default="Not available", init=False)
-    _expiry_date: str = attr.ib(default="Not available", init=False)
-    _amount_stored: str = attr.ib(default="Not available", init=False)
+    _last_purchase_date: str = field(default="Not available", init=False)
+    _expiry_date: str = field(default="Not available", init=False)
+    _amount_stored: str = field(default="Not available", init=False)
 
     # Some of these widgets depend on the values of other attributes.  This is
     # okay as long as the dependency is of attributes defined lower on
     # attributes defined higher.  attrs will initialize the attributes in the
     # order they are defined on the class.
-    title = attr.ib(default=attr.Factory(make_title), init=False)
-    explainer_label = attr.ib(
+    title: QLabel = field(default=attr.Factory(make_title), init=False)
+    explainer_label: QLabel = field(
         default=attr.Factory(make_explainer_label), init=False
     )
-    redeeming_label = attr.ib(
+    redeeming_label: QLabel = field(
         default=attr.Factory(make_redeeming_label), init=False
     )
     # The rest of these don't use attr.Factory because they depend on
     # something from self or they're so trivial there didn't seem to be a
     # point exposing the logic to outsiders.
-    loading_storage_time = attr.ib(
+    loading_storage_time: QLabel = field(
         default=attr.Factory(make_loading_storage_time), init=False
     )
-    zkaps_required_label = attr.ib(init=False)
-    chart_view = attr.ib(init=False)
-    info_label = attr.ib(default=attr.Factory(make_info_label), init=False)
-    button = attr.ib(init=False)
-    voucher_link = attr.ib(init=False)
-    status_label = attr.ib(default=attr.Factory(make_status_label), init=False)
-    groupbox = attr.ib(init=False)
+    zkaps_required_label: QLabel = field(init=False)
+    chart_view: ZKAPBarChartView = field(init=False)
+    info_label: QLabel = field(
+        default=attr.Factory(make_info_label), init=False
+    )
+    button: QPushButton = field(init=False)
+    voucher_link: QLabel = field(init=False)
+    status_label: QLabel = field(
+        default=attr.Factory(make_status_label), init=False
+    )
+    groupbox: QGroupBox = field(init=False)
 
     @zkaps_required_label.default
     def _zkaps_required_label_default(self) -> QLabel:
@@ -322,7 +327,7 @@ class UsageView(QWidget):
 
     def _update_info_label(self) -> None:
         zkapauthorizer = self.gateway.zkapauthorizer
-        bs = self.chart_view.chart()._convert(zkapauthorizer.zkap_batch_size)
+        bs = zkapauthorizer.converted_batch_size()
         self.info_label.setText(
             f"Last purchase: {self._last_purchase_date} "
             f"({bs} {zkapauthorizer.zkap_unit_name}s)     "
@@ -358,7 +363,7 @@ class UsageView(QWidget):
             self.redeeming_label.hide()
             self.chart_view.hide()
             self.zkaps_required_label.show()
-        self.chart_view.chart().update_chart(
+        self.chart_view.get_chart().update_chart(
             self._zkaps_used,
             self._zkaps_cost,
             self._zkaps_remaining,
