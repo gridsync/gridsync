@@ -67,11 +67,11 @@ def test_zkapauthorizer_calculate_price(zkapauthorizer):
 #    assert cap_1 == cap_2
 
 
-@inlineCallbacks
-def test_get_recovery_status(zkapauthorizer):
-    status = yield zkapauthorizer.get_recovery_status()
-    print(status)
-    assert status is not None  # XXX
+# @inlineCallbacks
+# def test_get_recovery_status(zkapauthorizer):
+#    status = yield zkapauthorizer.get_recovery_status()
+#    print(status)
+#    assert status is not None  # XXX
 
 
 # @inlineCallbacks
