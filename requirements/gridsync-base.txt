@@ -19,8 +19,8 @@ attrs==21.4.0 \
     #   service-identity
     #   treq
     #   twisted
-autobahn[twisted]==22.5.1 \
-    --hash=sha256:34aa5569b0b4419f8c277792c600dc2518c4930928c74e2279ef8b88d8b8a3ea
+autobahn[twisted]==22.3.2 \
+    --hash=sha256:58a887c7a196bb08d8b6624cb3695f493a9e5c9f00fd350d8d6f829b47ff9036
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
