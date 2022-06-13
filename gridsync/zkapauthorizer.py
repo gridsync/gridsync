@@ -33,7 +33,7 @@ class ZKAPAuthorizer:
         # XXX/TODO: Move this later?
         gateway.monitor.zkaps_redeemed.connect(lambda _: self.backup_zkaps())
 
-    def converted_batch_size(self, value: Optional[int]) -> float:
+    def converted_batch_size(self, value: Optional[int] = None) -> float:
         """
         Compute an effective batch size for the given raw batch size which
         reflects things like Tahoe-LAFS erasure encoding overhead.
