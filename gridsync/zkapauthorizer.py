@@ -263,14 +263,11 @@ class ZKAPAuthorizer:
 
         proto.on("message", status_update)
 
-        print("wait for open")
         yield proto.is_open
-        print("send recovery request")
         yield proto.sendMessage(
             json.dumps({"recovery-capability": dircap}).encode("utf8")
         )
         try:
-            print("wait for close")
             yield proto.is_closed
         except Exception as e:
             raise TahoeWebError(f"Error during recovery: {e}") from e
