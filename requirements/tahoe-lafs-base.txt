@@ -88,9 +88,9 @@ cbor2==5.4.3 \
     # via
     #   tahoe-lafs
     #   zero-knowledge-access-pass-authorizer
-certifi==2022.5.18.1 \
-    --hash=sha256:9c5705e395cd70084351dd8ad5c41e65655e08ce46f2ec9cf6c2c08390f71eb7 \
-    --hash=sha256:f1d53542ee8cbedbe2118b5686372fb33c297fcd6379b050cca0ef13a597382a
+certifi==2022.6.15 \
+    --hash=sha256:84c85a9078b11105f04f3036a9482ae10e4621616db313fe045dd24743a0820d \
+    --hash=sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412
     # via requests
 cffi==1.15.0 \
     --hash=sha256:00c878c90cb53ccfaae6b8bc18ad05d2036553e6d9d1d9dbcf323bbe83854ca3 \
@@ -164,11 +164,11 @@ colorama==0.4.4 \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
     # via zero-knowledge-access-pass-authorizer
-compose==1.4.1 \
-    --hash=sha256:4bd63d7cab05a9daf9683fedfd3c091fc73632453fa1e5605e0ef99fec4cdfdf \
-    --hash=sha256:56833936487aba9d9b0de4a67a66f2af874b002eb6f70141c6e1ab46b1fb8149 \
-    --hash=sha256:c8983a94c119186551b622567a83eceaad35c72411d73ea780642d42d4baaa5c \
-    --hash=sha256:f63c4be0f19a4490de09da107b74df322200a7fc8a9f3d268ff62c2bbd0daa73
+compose==1.4.3 \
+    --hash=sha256:17e266c0778ea6674086f3939cc1574a46e4656149ac996c1ef1dff55b7d58a3 \
+    --hash=sha256:7ea7d8423573584a72cf59965dffca49e94e20ebb9eea52d54d03f4dc45fa9e8 \
+    --hash=sha256:ae0f19e714e14119cfbf2089d48043a887302b5ae77400d49d302dd9a70c02ff \
+    --hash=sha256:ddece0dacffd142de43483d10960deb2ce0b5212ebe3b5bd911ec0891439520e
     # via zero-knowledge-access-pass-authorizer
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
@@ -583,9 +583,9 @@ zope-interface==5.4.0 \
     #   zero-knowledge-access-pass-authorizer
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==62.3.3 \
-    --hash=sha256:d1746e7fd520e83bbe210d02fff1aa1a425ad671c7a9da7d246ec2401a087198 \
-    --hash=sha256:e7d11f3db616cda0751372244c2ba798e8e56a28e096ec4529010b803485f3fe
+setuptools==62.4.0 \
+    --hash=sha256:5a844ad6e190dccc67d6d7411d119c5152ce01f7c76be4d8a1eaa314501bba77 \
+    --hash=sha256:bf8a748ac98b09d32c9a64a995a6b25921c96cc5743c1efa82763ba80ff54e91
     # via
     #   autobahn
     #   tahoe-lafs
