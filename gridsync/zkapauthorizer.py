@@ -35,7 +35,7 @@ class ZKAPAuthorizer:
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2**15
 
-    def converted_batch_size(self, value: Optional[int]) -> float:
+    def converted_batch_size(self, value: Optional[int] = None) -> float:
         """
         Compute an effective batch size for the given raw batch size which
         reflects things like Tahoe-LAFS erasure encoding overhead.
