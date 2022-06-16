@@ -335,6 +335,9 @@ def finalize_gridsync_bundle():
             "libX11.so.6",  # https://github.com/gridsync/gridsync/issues/43
             "libdrm.so.2",  # https://github.com/gridsync/gridsync/issues/47
             "libstdc++.so.6",  # https://github.com/gridsync/gridsync/issues/189
+            "libpango-1.0.so.0",  # https://github.com/gridsync/gridsync/issues/487
+            "libpangocairo-1.0.so.0",
+            "libpangoft2-1.0.so.0",
         ]
         for lib in bad_libs:
             paths_to_remove.append(Path(dist, lib))
