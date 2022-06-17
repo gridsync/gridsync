@@ -160,15 +160,15 @@ collections-extended==2.0.2 \
     --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
     --hash=sha256:d68ebd1e2208444e392aa0016e5c085bd897f89296f5c1860787de5935994114
     # via tahoe-lafs
-colorama==0.4.4 \
-    --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
-    --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
+colorama==0.4.5 \
+    --hash=sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da \
+    --hash=sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4
     # via zero-knowledge-access-pass-authorizer
-compose==1.4.3 \
-    --hash=sha256:17e266c0778ea6674086f3939cc1574a46e4656149ac996c1ef1dff55b7d58a3 \
-    --hash=sha256:7ea7d8423573584a72cf59965dffca49e94e20ebb9eea52d54d03f4dc45fa9e8 \
-    --hash=sha256:ae0f19e714e14119cfbf2089d48043a887302b5ae77400d49d302dd9a70c02ff \
-    --hash=sha256:ddece0dacffd142de43483d10960deb2ce0b5212ebe3b5bd911ec0891439520e
+compose==1.4.4 \
+    --hash=sha256:41deac41b48c22671a66bc8feadb7c99da5e89cbcc346491d041e97cf887c6cb \
+    --hash=sha256:4563db048bff4dfa937fab29cd22db6abe9d6e0de5c05dc858d948f3512e7a74 \
+    --hash=sha256:a695c72d52b2d9a66593fda3e7563e18de8f54969774dfc18176c517ef7e2fea \
+    --hash=sha256:b22164e0047c0821fba312891cdf9d9a92dff26aa2604c2a163f90f2a3b88210
     # via zero-knowledge-access-pass-authorizer
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
