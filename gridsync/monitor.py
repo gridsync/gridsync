@@ -284,9 +284,41 @@ class ZKAPChecker(QObject):
             self.days_remaining = int(seconds_remaining / 86400)
             self.days_remaining_updated.emit(self.days_remaining)
 
-    @inlineCallbacks  # noqa: max-complexity
-    def do_check(self):  # noqa: max-complexity
-        # XXX/TODO This is all truly awful; clean this up.
+    def _update_zkaps(self, remaining, total):
+        if remaining and not total:
+            total = self._maybe_load_last_total()
+        if not total or remaining > total:
+            # When redeeming tokens in batches, ZKAPs become available
+            # during the "redeeming" state but the *total* number is
+            # not shown until the "redeemed" state. To prevent the
+            # appearance of negative ZKAP balances during this time,
+            # temporarily consider the current number of remaining
+            # ZKAPs to be the total. For more context, see:
+            # https://github.com/PrivateStorageio/ZKAPAuthorizer/issues/124
+            total = remaining
+        if remaining != self.zkaps_remaining or total != self.zkaps_total:
+            self.emit_zkaps_updated(remaining, total)
+            if not self.zkaps_remaining and remaining:
+                # Some (non-zero) amount of ZKAPs are now available --
+                # in other words, the grid is now "writeable"
+                self.zkaps_available.emit()
+            self.zkaps_remaining = remaining
+            self.zkaps_total = total
+        elif not remaining or not total:
+            self.emit_zkaps_updated(remaining, total)
+
+    def _update_renewal_cost(self, count):
+        if not count:
+            # If a lease maintenance crawl hasn't yet happened, we can assume
+            # that the cost to renew (in the first crawl) will be equivalent
+            # to the number of ZKAPs already used/consumed/spent.
+            count = self.zkaps_total - self.zkaps_remaining
+        if count and count != self.zkaps_renewal_cost:
+            self.zkaps_renewal_cost_updated.emit(count)
+            self.zkaps_renewal_cost = count
+
+    @inlineCallbacks
+    def do_check(self):
         if self._time_started is None:
             self._time_started = datetime.now()
         if not self.gateway.zkap_auth_required or self.gateway.nodeurl is None:
@@ -314,37 +346,12 @@ class ZKAPChecker(QObject):
             lm = yield self.gateway.zkapauthorizer.get_lease_maintenance()
         except (ConnectError, TahoeWebError):
             return  # XXX
+
         remaining = lm.get("total", 0)
-        if remaining and not total:
-            total = self._maybe_load_last_total()
-        if not total or remaining > total:
-            # When redeeming tokens in batches, ZKAPs become available
-            # during the "redeeming" state but the *total* number is
-            # not shown until the "redeemed" state. To prevent the
-            # appearance of negative ZKAP balances during this time,
-            # temporarily consider the current number of remaining
-            # ZKAPs to be the total. For more context, see:
-            # https://github.com/PrivateStorageio/ZKAPAuthorizer/issues/124
-            total = remaining
-        if remaining != self.zkaps_remaining or total != self.zkaps_total:
-            self.emit_zkaps_updated(remaining, total)
-            if not self.zkaps_remaining and remaining:
-                # Some (non-zero) amount of ZKAPs are now available --
-                # in other words, the grid is now "writeable"
-                self.zkaps_available.emit()
-            self.zkaps_remaining = remaining
-            self.zkaps_total = total
-        elif not remaining or not total:
-            self.emit_zkaps_updated(remaining, total)
+        self._update_zkaps(remaining, total)
+
         count = lm.get("spending", None)
-        if not count:
-            # If a lease maintenance crawl hasn't yet happened, we can assume
-            # that the cost to renew (in the first crawl) will be equivalent
-            # to the number of ZKAPs already used/consumed/spent.
-            count = self.zkaps_total - self.zkaps_remaining
-        if count and count != self.zkaps_renewal_cost:
-            self.zkaps_renewal_cost_updated.emit(count)
-            self.zkaps_renewal_cost = count
+        self._update_renewal_cost(count)
 
         # XXX/FIXME: This assumes that leases will be renewed every 27 days.
         # daily_cost = self.zkaps_renewal_cost / 27
