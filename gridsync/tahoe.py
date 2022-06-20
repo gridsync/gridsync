@@ -498,8 +498,8 @@ class Tahoe:
                 [self.executable, "-d", self.nodedir, "run"],
                 started_trigger="client running",
                 stdout_line_collector=self.line_received,
-                pre_start_callback=self._remove_twistd_pid,
-                process_started_callback=self._on_started,
+                call_before_start=self._remove_twistd_pid,
+                call_after_start=self._on_started,
             )
         except Exception as exc:  # pylint: disable=broad-except
             critical(
