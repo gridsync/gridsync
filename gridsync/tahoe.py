@@ -452,6 +452,9 @@ class Tahoe:
         if not self.is_storage_node():
             self.magic_folder.start()
 
+    def _remove_twistd_pid(self) -> None:
+        Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
+
     @inlineCallbacks
     def start(self):
         log.debug('Starting "%s" tahoe client...', self.name)
@@ -480,6 +483,7 @@ class Tahoe:
                 [self.executable, "-d", self.nodedir, "run"],
                 started_trigger="client running",
                 stdout_line_collector=self.line_received,
+                pre_start_callback=self._remove_twistd_pid,
                 process_started_callback=self._on_started,
             )
         except Exception as exc:  # pylint: disable=broad-except
