@@ -91,3 +91,33 @@ def test_supervisor_does_not_restart_process_when_stopped(tmp_path):
     yield supervisor.stop()
     yield deferLater(reactor, 0.5, lambda: None)
     assert supervisor.pid is None
+
+
+@inlineCallbacks
+def test_supervisor_calls_pre_start_callback_before_start(tmp_path):
+    supervisor = Supervisor()
+    f_was_called = [False]
+
+    def f():
+        f_was_called[0] = True
+
+    yield supervisor.start(
+        PROCESS_ARGS, started_trigger="OK", pre_start_callback=f
+    )
+    yield supervisor.stop()
+    assert f_was_called[0] is True
+
+
+@inlineCallbacks
+def test_supervisor_calls_process_started_callback_after_start(tmp_path):
+    supervisor = Supervisor()
+    f_was_called = [False]
+
+    def f():
+        f_was_called[0] = True
+
+    yield supervisor.start(
+        PROCESS_ARGS, started_trigger="OK", process_started_callback=f
+    )
+    yield supervisor.stop()
+    assert f_was_called[0] is True
