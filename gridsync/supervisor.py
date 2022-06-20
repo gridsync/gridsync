@@ -33,6 +33,7 @@ class Supervisor:
         self._started_trigger = ""
         self._stdout_line_collector: Optional[Callable] = None
         self._stderr_line_collector: Optional[Callable] = None
+        self._pre_start_callback: Optional[Callable] = None
         self._process_started_callback: Optional[Callable] = None
         self._on_process_ended: Optional[Callable] = None
 
