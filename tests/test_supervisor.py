@@ -94,7 +94,7 @@ def test_supervisor_does_not_restart_process_when_stopped(tmp_path):
 
 
 @inlineCallbacks
-def test_supervisor_calls_pre_start_callback_before_start(tmp_path):
+def test_supervisor_calls_call_before_start(tmp_path):
     supervisor = Supervisor()
     f_was_called = [False]
 
@@ -102,14 +102,14 @@ def test_supervisor_calls_pre_start_callback_before_start(tmp_path):
         f_was_called[0] = True
 
     yield supervisor.start(
-        PROCESS_ARGS, started_trigger="OK", pre_start_callback=f
+        PROCESS_ARGS, started_trigger="OK", call_before_start=f
     )
     yield supervisor.stop()
     assert f_was_called[0] is True
 
 
 @inlineCallbacks
-def test_supervisor_calls_process_started_callback_after_start(tmp_path):
+def test_supervisor_calls_call_after_start(tmp_path):
     supervisor = Supervisor()
     f_was_called = [False]
 
@@ -117,7 +117,7 @@ def test_supervisor_calls_process_started_callback_after_start(tmp_path):
         f_was_called[0] = True
 
     yield supervisor.start(
-        PROCESS_ARGS, started_trigger="OK", process_started_callback=f
+        PROCESS_ARGS, started_trigger="OK", call_after_start=f
     )
     yield supervisor.stop()
     assert f_was_called[0] is True
