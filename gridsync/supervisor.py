@@ -74,6 +74,8 @@ class Supervisor:
             stderr_line_collector=self._stderr_line_collector,
             on_process_ended=self._schedule_restart,
         )
+        if self._pre_start_callback:
+            self._pre_start_callback()
         transport = yield reactor.spawnProcess(  # type: ignore
             protocol, self._args[0], args=self._args, env=os.environ
         )
@@ -118,12 +120,14 @@ class Supervisor:
         started_trigger: str = "",
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
+        pre_start_callback: Optional[Callable] = None,
         process_started_callback: Optional[Callable] = None,
     ) -> TwistedDeferred[tuple[int, str]]:
         self._args = args
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
         self._stderr_line_collector = stderr_line_collector
+        self._pre_start_callback = pre_start_callback
         self._process_started_callback = process_started_callback
 
         if self.pidfile and self.pidfile.exists():
