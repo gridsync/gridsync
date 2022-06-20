@@ -453,6 +453,21 @@ class Tahoe:
             self.magic_folder.start()
 
     def _remove_twistd_pid(self) -> None:
+        # On non-Windows systems, Twisted/twistd will create its own
+        # pidfile for tahoe processes and refuse to (re)start tahoe
+        # if the pid number in the file matches *any* running process,
+        # irrespective of the name of that process. Gridsync's
+        # Supervisor, however, also creates/manages pidfiles for its
+        # processes (including on Windows!) but, unlike twistd, will
+        # include and check/verify the name of the process attached to
+        # the pid in the pidfile and determine staleness accordingly
+        # (i.e., by killing/restarting the process if the name actually
+        # corresponds to that of the process it is supposed to be
+        # managing, or by removing the pidfile if it does not).
+        # Removing the "twistd.pid" file thus avoids the situation in
+        # which tahoe will refuse to (re)start because it terminated
+        # uncleanly previously and some other process has since begun
+        # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
     @inlineCallbacks
