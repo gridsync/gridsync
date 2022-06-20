@@ -394,9 +394,6 @@ class Tahoe:
     @inlineCallbacks
     def stop(self):
         log.debug('Stopping "%s" tahoe client...', self.name)
-        if not os.path.isfile(self.pidfile):
-            log.error('No "twistd.pid" file found in %s', self.nodedir)
-            return
         self.state = Tahoe.STOPPING
         self.streamedlogs.stop()
         if self.rootcap_manager.lock.locked:
