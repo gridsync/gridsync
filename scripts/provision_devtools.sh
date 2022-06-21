@@ -42,14 +42,14 @@ echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
 
 . "$SHELLRC"
 
-pyenv install --skip-existing 3.9.11
+pyenv install --skip-existing 3.9.13
 if [ "$(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)" = '"CentOS Linux 7 (Core)"' ]; then
     export CPPFLAGS="-I/usr/include/openssl11"
     export LDFLAGS="-L/usr/lib64/openssl11"
 fi
-pyenv install --skip-existing 3.10.3
+pyenv install --skip-existing 3.10.4
 pyenv rehash
-pyenv global 3.9.11 3.10.3
+pyenv global 3.9.13 3.10.4
 pyenv versions
 
 python3 -m pip install --upgrade setuptools pip tox diffoscope
