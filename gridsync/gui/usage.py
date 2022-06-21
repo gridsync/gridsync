@@ -286,7 +286,7 @@ class UsageView(QWidget):
         self.status_label.setText(
             "Voucher successfully added; token redemption should begin shortly"
         )
-        reactor.callLater(10, self._reset_status)
+        reactor.callLater(10, self._reset_status)  # type: ignore
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
