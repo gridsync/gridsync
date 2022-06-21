@@ -265,7 +265,7 @@ class UsageView(QWidget):
     def _traceback(exc: Exception) -> str:
         return "".join(
             traceback.format_exception(
-                etype=type(exc), value=exc, tb=exc.__traceback__
+                type(exc), value=exc, tb=exc.__traceback__
             )
         )
 
@@ -286,7 +286,7 @@ class UsageView(QWidget):
         self.status_label.setText(
             "Voucher successfully added; token redemption should begin shortly"
         )
-        reactor.callLater(10, self._reset_status)  # type: ignore
+        reactor.callLater(10, self._reset_status)
 
     @inlineCallbacks
     def _open_zkap_payment_url(self) -> TwistedDeferred[None]:
