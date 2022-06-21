@@ -329,7 +329,7 @@ class Model(QStandardItemModel):
         if items:
             item = self.item(items[0].row(), 2)
             item.setData(mtime, Qt.UserRole)
-            item.setText(naturaltime(time.time() - mtime))
+            item.setText(naturaltime(int(time.time() - mtime)))
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
     @Slot(str, object)
@@ -346,7 +346,7 @@ class Model(QStandardItemModel):
             item = self.item(i, 2)
             mtime = item.data(Qt.UserRole)
             if mtime:
-                item.setText(naturaltime(time.time() - mtime))
+                item.setText(naturaltime(int(time.time() - mtime)))
 
     @Slot(str)
     @Slot(str, str)

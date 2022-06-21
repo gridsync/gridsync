@@ -89,7 +89,7 @@ class HistoryItemWidget(QWidget):
         self.details_label.setText(
             "{} {}".format(
                 self.action.capitalize(),
-                naturaltime(time.time() - self.mtime),
+                naturaltime(int(time.time() - self.mtime)),
             )
         )
 
