@@ -2,7 +2,6 @@
 
 import os
 import time
-from datetime import datetime
 
 from humanize import naturalsize, naturaltime
 from qtpy.QtCore import QFileInfo, Qt, QTimer
@@ -90,7 +89,7 @@ class HistoryItemWidget(QWidget):
         self.details_label.setText(
             "{} {}".format(
                 self.action.capitalize(),
-                naturaltime(datetime.fromtimestamp(self.mtime)),
+                naturaltime(int(time.time() - self.mtime)),
             )
         )
 

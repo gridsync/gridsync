@@ -329,9 +329,7 @@ class Model(QStandardItemModel):
         if items:
             item = self.item(items[0].row(), 2)
             item.setData(mtime, Qt.UserRole)
-            item.setText(
-                naturaltime(datetime.now() - datetime.fromtimestamp(mtime))
-            )
+            item.setText(naturaltime(int(time.time() - mtime)))
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
 
     @Slot(str, object)
@@ -346,11 +344,9 @@ class Model(QStandardItemModel):
     def update_natural_times(self) -> None:
         for i in range(self.rowCount()):
             item = self.item(i, 2)
-            data = item.data(Qt.UserRole)
-            if data:
-                item.setText(
-                    naturaltime(datetime.now() - datetime.fromtimestamp(data))
-                )
+            mtime = item.data(Qt.UserRole)
+            if mtime:
+                item.setText(naturaltime(int(time.time() - mtime)))
 
     @Slot(str)
     @Slot(str, str)
