@@ -35,7 +35,7 @@ else
     fi
 fi
 
-git clone --branch v2.2.5 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.2.5
+git clone --branch v2.3.1 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.3.1
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "$SHELLRC"
 echo 'export PATH="$PYENV_ROOT/bin:$HOME/bin:$PATH"' >> "$SHELLRC"
 echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
