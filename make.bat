@@ -3,7 +3,7 @@
 
 @echo off
 
-set PY_PYTHON=3.9
+set PY_PYTHON=3.10
 
 :: To prevent some on-disk state from the (non-integration) tests from
 :: carrying over to the integration tests, possibly (but not certainly)
