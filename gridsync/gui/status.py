@@ -33,7 +33,7 @@ class StatusPanel(QWidget):
         self.status = MagicFolderStatus.LOADING
         self.num_connected = 0
         self.num_known = 0
-        self.available_space = 0
+        self.available_space: str = ""
 
         self.checkmark_icon = QLabel()
         self.checkmark_icon.setPixmap(Pixmap("checkmark.png", 20))
