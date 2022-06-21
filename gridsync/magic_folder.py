@@ -611,7 +611,7 @@ class MagicFolder:
                 started_trigger="Completed initial Magic Folder setup",
                 stdout_line_collector=self.on_stdout_line_received,
                 stderr_line_collector=self.on_stderr_line_received,
-                process_started_callback=self._on_started,
+                call_after_start=self._on_started,
             )
         except Exception as exc:  # pylint: disable=broad-except
             critical(

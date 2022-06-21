@@ -33,7 +33,8 @@ class Supervisor:
         self._started_trigger = ""
         self._stdout_line_collector: Optional[Callable] = None
         self._stderr_line_collector: Optional[Callable] = None
-        self._process_started_callback: Optional[Callable] = None
+        self._call_before_start: Optional[Callable] = None
+        self._call_after_start: Optional[Callable] = None
         self._on_process_ended: Optional[Callable] = None
 
     def is_running(self) -> bool:
@@ -74,6 +75,8 @@ class Supervisor:
             stderr_line_collector=self._stderr_line_collector,
             on_process_ended=self._schedule_restart,
         )
+        if self._call_before_start:
+            self._call_before_start()
         transport = yield reactor.spawnProcess(  # type: ignore
             protocol, self._args[0], args=self._args, env=os.environ
         )
@@ -98,8 +101,8 @@ class Supervisor:
         )
         self.pid = pid
         self.name = name
-        if self._process_started_callback:
-            self._process_started_callback()
+        if self._call_after_start:
+            self._call_after_start()
         return (pid, name)
 
     def _schedule_restart(self, _) -> None:  # type: ignore
@@ -118,13 +121,15 @@ class Supervisor:
         started_trigger: str = "",
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
-        process_started_callback: Optional[Callable] = None,
+        call_before_start: Optional[Callable] = None,
+        call_after_start: Optional[Callable] = None,
     ) -> TwistedDeferred[tuple[int, str]]:
         self._args = args
         self._started_trigger = started_trigger
         self._stdout_line_collector = stdout_line_collector
         self._stderr_line_collector = stderr_line_collector
-        self._process_started_callback = process_started_callback
+        self._call_before_start = call_before_start
+        self._call_after_start = call_after_start
 
         if self.pidfile and self.pidfile.exists():
             yield self.stop()
