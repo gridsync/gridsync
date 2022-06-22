@@ -265,7 +265,7 @@ class UsageView(QWidget):
     def _traceback(exc: Exception) -> str:
         return "".join(
             traceback.format_exception(
-                etype=type(exc), value=exc, tb=exc.__traceback__
+                type(exc), value=exc, tb=exc.__traceback__
             )
         )
 
