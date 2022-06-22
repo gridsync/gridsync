@@ -177,7 +177,7 @@ class View(QTreeView):
                 f"Could not create rootcap: {str(exc)}",
                 "".join(
                     traceback.format_exception(
-                        etype=type(exc), value=exc, tb=exc.__traceback__
+                        type(exc), value=exc, tb=exc.__traceback__
                     )
                 ),
             )

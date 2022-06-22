@@ -30,8 +30,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv-cache${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -102,8 +102,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-cache-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv-cache${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv-cache${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -156,6 +156,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
+      PY_PYTHON: 3.10
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -171,7 +172,7 @@ jobs:
         key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
-      run: py -3.9 -m pip install tox diffoscope
+      run: py -m pip install --upgrade setuptools pip tox diffoscope
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller
