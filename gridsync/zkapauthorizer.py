@@ -19,6 +19,10 @@ if TYPE_CHECKING:
 PLUGIN_NAME = "privatestorageio-zkapauthz-v2"
 
 
+class ReplicationAlreadyConfigured(Exception):
+    pass
+
+
 class ZKAPAuthorizer:
     def __init__(self, gateway: Tahoe) -> None:
         self.gateway = gateway
@@ -202,6 +206,10 @@ class ZKAPAuthorizer:
         if resp.code == 201:
             content = yield treq.json_content(resp)
             return content.get("recovery-capability")
+        if resp.code == 419:
+            raise ReplicationAlreadyConfigured(
+                "ZKAPAuthorizer replication is already configured."
+            )
         content = yield treq.content(resp)
         content = content.decode("utf-8").strip()
         raise TahoeWebError(
