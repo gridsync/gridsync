@@ -189,29 +189,6 @@ class ZKAPAuthorizer:
         )
 
     @inlineCallbacks
-    def get_total_zkaps(self) -> TwistedDeferred[int]:
-        """
-        Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer how
-        many tokens it knows about.
-
-        :returns: the total number of ZKAPs we have (spend and unspent
-            together)
-        """
-        lm = yield self.get_lease_maintenance()
-        return lm.get("total", 0)
-
-    @inlineCallbacks
-    def get_lease_maintenance_spending(self) -> TwistedDeferred[Optional[int]]:
-        """
-        Uses the /lease-maintenance endpoint to ask ZKAPAuthorizer how
-        much we've spent on lease-maintenance
-
-        :returns: ???
-        """
-        lm = yield self.get_lease_maintenance()
-        return lm.get("spending", None)
-
-    @inlineCallbacks
     def replicate(self) -> TwistedDeferred[str]:
         """
         Configure replication of ZKAPAuthorizer state via the /replicate
