@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional
 
 import treq
@@ -208,7 +209,7 @@ class ZKAPAuthorizer:
             return content.get("recovery-capability")
         if resp.code == 419:
             raise ReplicationAlreadyConfigured(
-                "ZKAPAuthorizer replication is already configured."
+                "ZKAPAuthorizer replication is already configured"
             )
         content = yield treq.content(resp)
         content = content.decode("utf-8").strip()
@@ -264,7 +265,14 @@ class ZKAPAuthorizer:
         directory cap under the ``.zkapauthorizer`` backup under name
         ``recovery-capability``.
         """
-        cap = yield self.replicate()
+        try:
+            cap = yield self.replicate()
+        except ReplicationAlreadyConfigured as e:
+            logging.warning(
+                "%s; refraining from re-adding recovery-capability to rootcap",
+                str(e),
+            )
+            return
         yield self.gateway.rootcap_manager.add_backup(
             ".zkapauthorizer", "recovery-capability", cap
         )
