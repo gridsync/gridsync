@@ -73,7 +73,7 @@ class BadgedPixmap(QPixmap):
 
         if text:
             font = painter.font()
-            font.setPixelSize(badge_max - pen_width)
+            font.setPixelSize(int(badge_max - pen_width))
             painter.setFont(font)
             painter.setPen(Qt.white)
             painter.drawText(rect, Qt.AlignCenter, str(text))
