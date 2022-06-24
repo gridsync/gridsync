@@ -59,10 +59,10 @@ class BadgedPixmap(QPixmap):
         badge_max = base_max * size
         pen_width = badge_max * 0.05
         rect = QRect(
-            base_max * max(corner[0] - size, 0) + pen_width,
-            base_max * max(corner[1] - size, 0) + pen_width,
-            badge_max - pen_width,
-            badge_max - pen_width,
+            int(base_max * max(corner[0] - size, 0) + pen_width),
+            int(base_max * max(corner[1] - size, 0) + pen_width),
+            int(badge_max - pen_width),
+            int(badge_max - pen_width),
         )
 
         painter = QPainter(base_pixmap)
