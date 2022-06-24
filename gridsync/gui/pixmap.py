@@ -43,7 +43,7 @@ class BadgedPixmap(QPixmap):
     BottomLeft = (0, 1)
     BottomRight = (1, 1)
 
-    def __init__(self, pixmap, text, size=0.5, corner=BottomRight):
+    def __init__(self, pixmap, text="", size=0.5, corner=BottomRight):
         super().__init__()
 
         base_pixmap = QPixmap(pixmap)

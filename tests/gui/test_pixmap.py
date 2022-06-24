@@ -6,6 +6,6 @@ from gridsync import resource
 from gridsync.gui.pixmap import BadgedPixmap
 
 
-def test_badged_pixmap():
-    bp = BadgedPixmap(resource("gridsync.png"), "test")
+def test_badged_pixmap(gui):
+    bp = BadgedPixmap(resource("gridsync.png"))
     assert bp is not None
