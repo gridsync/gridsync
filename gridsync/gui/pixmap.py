@@ -7,7 +7,7 @@ from gridsync import resource
 
 
 class Pixmap(QPixmap):
-    def __init__(self, resource_filename: str, size: int = None) -> None:
+    def __init__(self, resource_filename: str, size: int = 0) -> None:
         super().__init__(resource(resource_filename))
         if size:
             self.swap(
