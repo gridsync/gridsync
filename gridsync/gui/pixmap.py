@@ -7,7 +7,7 @@ from gridsync import resource
 
 
 class Pixmap(QPixmap):
-    def __init__(self, resource_filename, size=None):
+    def __init__(self, resource_filename: str, size: int = None) -> None:
         super().__init__(resource(resource_filename))
         if size:
             self.swap(
@@ -18,7 +18,9 @@ class Pixmap(QPixmap):
 
 
 class CompositePixmap(QPixmap):
-    def __init__(self, pixmap, overlay=None, grayout=False):
+    def __init__(
+        self, pixmap: QPixmap, overlay: str = None, grayout: bool = False
+    ) -> None:
         super().__init__()
         base_pixmap = QPixmap(pixmap)
         if grayout:
@@ -43,7 +45,13 @@ class BadgedPixmap(QPixmap):
     BottomLeft = (0, 1)
     BottomRight = (1, 1)
 
-    def __init__(self, pixmap, text="", size=0.5, corner=BottomRight):
+    def __init__(
+        self,
+        pixmap: QPixmap,
+        text: str = "",
+        size: float = 0.5,
+        corner: tuple[int, int] = BottomRight,
+    ) -> None:
         super().__init__()
 
         base_pixmap = QPixmap(pixmap)
