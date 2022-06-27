@@ -147,9 +147,8 @@ def test__get_content_raise_tahoe_web_error(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_get_version(tahoe, monkeypatch):
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_200())
-    monkeypatch.setattr(
-        "treq.json_content", Mock(return_value={"version": "9999"})
-    )
+    monkeypatch.setattr("treq.content", Mock(return_value=b'{"version": "9"}'))
     result = yield ZKAPAuthorizer(tahoe).get_version()
-    assert result == "9999"
+    assert result == "9"
