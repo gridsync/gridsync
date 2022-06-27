@@ -57,28 +57,25 @@ class ZKAPAuthorizer:
     @inlineCallbacks
     def _request(
         self, method: str, path: str, data: Optional[bytes] = None
-    ) -> TwistedDeferred[TreqResponse]:
-        nodeurl = self.gateway.nodeurl
-        api_token = self.gateway.api_token
+    ) -> TwistedDeferred[tuple[int, str]]:
         resp = yield treq.request(
             method,
-            f"{nodeurl}storage-plugins/{PLUGIN_NAME}{path}",
+            f"{self.gateway.nodeurl}storage-plugins/{PLUGIN_NAME}{path}",
             headers={
-                "Authorization": f"tahoe-lafs {api_token}",
+                "Authorization": f"tahoe-lafs {self.gateway.api_token}",
                 "Content-Type": "application/json",
             },
             data=data,
         )
-        return resp
+        content = yield treq.content(resp)
+        return (resp.code, content.decode("utf-8").strip())
 
     @inlineCallbacks
     def get_version(self) -> TwistedDeferred[str]:
-        version = ""
-        resp = yield self._request("GET", "/version")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            version = content.get("version", "")
-        return version
+        code, body = yield self._request("GET", "/version")
+        if code == 200:
+            return json.loads(body).get("version", "")
+        raise TahoeWebError(f"Error getting ZKAPAuthorizer version: {body}")
 
     @inlineCallbacks
     def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
@@ -119,15 +116,14 @@ class ZKAPAuthorizer:
     def calculate_price(self, sizes: List[int]) -> TwistedDeferred[Dict]:
         if not self.gateway.nodeurl:
             return {}
-        resp = yield self._request(
+        code, body = yield self._request(
             "POST",
             "/calculate-price",
             json.dumps({"version": 1, "sizes": sizes}).encode(),
         )
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error calculating price: {resp.code}")
+        if code == 200:
+            return json.loads(body)
+        raise TahoeWebError(f"Error calculating price: {code}: {body}")
 
     @inlineCallbacks
     def get_price(self) -> TwistedDeferred[Dict]:
@@ -141,29 +137,26 @@ class ZKAPAuthorizer:
     ) -> TwistedDeferred[str]:
         if not voucher:
             voucher = generate_voucher()
-        resp = yield self._request(
+        code, body = yield self._request(
             "PUT", "/voucher", json.dumps({"voucher": voucher}).encode()
         )
-        if resp.code == 200:
+        if code == 200:
             return voucher
-        content = yield resp.content()
-        raise TahoeWebError(f"Error adding voucher: {resp.code}: {content}")
+        raise TahoeWebError(f"Error adding voucher: {code}: {body}")
 
     @inlineCallbacks
     def get_voucher(self, voucher: str) -> TwistedDeferred[Dict]:
-        resp = yield self._request("GET", f"/voucher/{voucher}")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        raise TahoeWebError(f"Error getting voucher: {resp.code}")
+        code, body = yield self._request("GET", f"/voucher/{voucher}")
+        if code == 200:
+            return json.loads(body)
+        raise TahoeWebError(f"Error getting voucher: {code}: {body}")
 
     @inlineCallbacks
     def get_vouchers(self) -> TwistedDeferred[List]:
-        resp = yield self._request("GET", "/voucher")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content.get("vouchers")
-        raise TahoeWebError(f"Error getting vouchers: {resp.code}")
+        code, body = yield self._request("GET", "/voucher")
+        if code == 200:
+            return json.loads(body).get("vouchers")
+        raise TahoeWebError(f"Error getting vouchers: {code}: {body}")
 
     def zkap_payment_url(self, voucher: str) -> str:
         if not self.zkap_payment_url_root:
@@ -182,15 +175,11 @@ class ZKAPAuthorizer:
 
         :returns: a dict containing information about lease-maintenance
         """
-        resp = yield self._request("GET", "/lease-maintenance")
-        if resp.code == 200:
-            content = yield treq.json_content(resp)
-            return content
-        content = yield treq.content(resp)
-        content = content.decode("utf-8").strip()
+        code, body = yield self._request("GET", "/lease-maintenance")
+        if code == 200:
+            return json.loads(body)
         raise TahoeWebError(
-            f"Error {resp.code} getting lease-maintenance information: "
-            f"{content}"
+            f"Error {code} getting lease-maintenance information: {body}"
         )
 
     @inlineCallbacks
@@ -203,27 +192,21 @@ class ZKAPAuthorizer:
 
         :returns: a capability of type `URI:DIR2-RO:`
         """
-        resp = yield self._request("POST", "/replicate")
-        if resp.code == 201:
-            content = yield treq.json_content(resp)
-            return content.get("recovery-capability")
-        if resp.code == 409:
+        code, body = yield self._request("POST", "/replicate")
+        if code == 201:
+            return json.loads(body).get("recovery-capability")
+        if code == 409:
             raise ReplicationAlreadyConfigured(
                 "ZKAPAuthorizer replication is already configured"
             )
-        content = yield treq.content(resp)
-        content = content.decode("utf-8").strip()
-        raise TahoeWebError(
-            f"Error {resp.code} configuring replication: {content}"
-        )
+        raise TahoeWebError(f"Error {code} configuring replication: {body}")
 
     @inlineCallbacks
     def get_recovery_capability(self) -> TwistedDeferred[str]:
-        resp = yield self._request("GET", "/replicate")
-        content = yield treq.content(resp)
+        code, body = yield self._request("GET", "/replicate")
         print("###################################################")
-        print(resp.code)
-        print(content)
+        print(code)
+        print(body)
         print("###################################################")
 
     @inlineCallbacks
