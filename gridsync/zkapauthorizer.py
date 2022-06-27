@@ -75,7 +75,9 @@ class ZKAPAuthorizer:
         code, body = yield self._request("GET", "/version")
         if code == 200:
             return json.loads(body).get("version", "")
-        raise TahoeWebError(f"Error getting ZKAPAuthorizer version: {body}")
+        raise TahoeWebError(
+            f"Error ({code}) getting ZKAPAuthorizer version: {body}"
+        )
 
     @inlineCallbacks
     def _get_content(self, cap: str) -> TwistedDeferred[bytes]:
@@ -123,7 +125,7 @@ class ZKAPAuthorizer:
         )
         if code == 200:
             return json.loads(body)
-        raise TahoeWebError(f"Error calculating price: {code}: {body}")
+        raise TahoeWebError(f"Error ({code}) calculating price: {body}")
 
     @inlineCallbacks
     def get_price(self) -> TwistedDeferred[Dict]:
@@ -142,21 +144,21 @@ class ZKAPAuthorizer:
         )
         if code == 200:
             return voucher
-        raise TahoeWebError(f"Error adding voucher: {code}: {body}")
+        raise TahoeWebError(f"Error ({code}) adding voucher: {body}")
 
     @inlineCallbacks
     def get_voucher(self, voucher: str) -> TwistedDeferred[Dict]:
         code, body = yield self._request("GET", f"/voucher/{voucher}")
         if code == 200:
             return json.loads(body)
-        raise TahoeWebError(f"Error getting voucher: {code}: {body}")
+        raise TahoeWebError(f"Error ({code}) getting voucher: {body}")
 
     @inlineCallbacks
     def get_vouchers(self) -> TwistedDeferred[List]:
         code, body = yield self._request("GET", "/voucher")
         if code == 200:
             return json.loads(body).get("vouchers")
-        raise TahoeWebError(f"Error getting vouchers: {code}: {body}")
+        raise TahoeWebError(f"Error ({code}) getting vouchers: {body}")
 
     def zkap_payment_url(self, voucher: str) -> str:
         if not self.zkap_payment_url_root:
@@ -179,7 +181,7 @@ class ZKAPAuthorizer:
         if code == 200:
             return json.loads(body)
         raise TahoeWebError(
-            f"Error {code} getting lease-maintenance information: {body}"
+            f"Error ({code}) getting lease-maintenance information: {body}"
         )
 
     @inlineCallbacks
@@ -199,7 +201,7 @@ class ZKAPAuthorizer:
             raise ReplicationAlreadyConfigured(
                 "ZKAPAuthorizer replication is already configured"
             )
-        raise TahoeWebError(f"Error {code} configuring replication: {body}")
+        raise TahoeWebError(f"Error ({code}) configuring replication: {body}")
 
     @inlineCallbacks
     def get_recovery_capability(self) -> TwistedDeferred[str]:
