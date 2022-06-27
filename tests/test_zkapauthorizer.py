@@ -11,6 +11,7 @@ from gridsync.zkapauthorizer import PLUGIN_NAME, ZKAPAuthorizer
 def fake_treq_request_resp_code_200(*args, **kwargs):
     fake_resp = Mock()
     fake_resp.code = 200
+    fake_resp.content = Mock(return_value=b"")
     fake_request = Mock(return_value=fake_resp)
     return fake_request
 
@@ -26,6 +27,7 @@ def fake_treq_request_resp_code_500(*args, **kwargs):
 def test__request_url(tahoe, monkeypatch):
     fake_request = fake_treq_request_resp_code_200()
     monkeypatch.setattr("treq.request", fake_request)
+    monkeypatch.setattr("treq.content", lambda _: b"")
     yield ZKAPAuthorizer(tahoe)._request("GET", "/test")
     assert fake_request.call_args[0][1] == (
         tahoe.nodeurl + f"storage-plugins/{PLUGIN_NAME}/test"
@@ -36,6 +38,7 @@ def test__request_url(tahoe, monkeypatch):
 def test__request_headers(tahoe, monkeypatch):
     fake_request = fake_treq_request_resp_code_200()
     monkeypatch.setattr("treq.request", fake_request)
+    monkeypatch.setattr("treq.content", lambda _: b"")
     yield ZKAPAuthorizer(tahoe)._request("GET", "/test")
     assert fake_request.call_args[1]["headers"] == {
         "Authorization": f"tahoe-lafs {tahoe.api_token}",
@@ -46,6 +49,7 @@ def test__request_headers(tahoe, monkeypatch):
 @inlineCallbacks
 def test_add_voucher_with_voucher(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_200())
+    monkeypatch.setattr("treq.content", lambda _: b"")
     result = yield ZKAPAuthorizer(tahoe).add_voucher("Test1234")
     assert result == "Test1234"
 
@@ -53,6 +57,7 @@ def test_add_voucher_with_voucher(tahoe, monkeypatch):
 @inlineCallbacks
 def test_add_voucher_without_voucher(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_200())
+    monkeypatch.setattr("treq.content", lambda _: b"")
     result = yield ZKAPAuthorizer(tahoe).add_voucher()
     assert len(result) == 44
 
@@ -60,6 +65,7 @@ def test_add_voucher_without_voucher(tahoe, monkeypatch):
 @inlineCallbacks
 def test_add_voucher_raise_tahoe_web_error(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_500())
+    monkeypatch.setattr("treq.content", lambda _: b"")
     with pytest.raises(TahoeWebError):
         yield ZKAPAuthorizer(tahoe).add_voucher()
 
@@ -67,7 +73,7 @@ def test_add_voucher_raise_tahoe_web_error(tahoe, monkeypatch):
 @inlineCallbacks
 def test_get_voucher(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_200())
-    monkeypatch.setattr("treq.json_content", Mock(return_value={"A": "A"}))
+    monkeypatch.setattr("treq.content", lambda _: b'{"A": "A"}')
     result = yield ZKAPAuthorizer(tahoe).get_voucher("Test1234")
     assert result == {"A": "A"}
 
@@ -75,7 +81,7 @@ def test_get_voucher(tahoe, monkeypatch):
 @inlineCallbacks
 def test_get_voucher_raise_tahoe_web_error(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_500())
-    monkeypatch.setattr("treq.json_content", Mock(return_value={"A": "A"}))
+    monkeypatch.setattr("treq.content", lambda _: b"")
     with pytest.raises(TahoeWebError):
         yield ZKAPAuthorizer(tahoe).get_voucher("Test1234")
 
@@ -83,8 +89,9 @@ def test_get_voucher_raise_tahoe_web_error(tahoe, monkeypatch):
 @inlineCallbacks
 def test_get_vouchers(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_200())
-    fake_content = {"vouchers": [{"A": "A"}, {"B": "B"}]}
-    monkeypatch.setattr("treq.json_content", Mock(return_value=fake_content))
+    monkeypatch.setattr(
+        "treq.content", lambda _: b'{"vouchers": [{"A": "A"}, {"B": "B"}]}'
+    )
     result = yield ZKAPAuthorizer(tahoe).get_vouchers()
     assert result == [{"A": "A"}, {"B": "B"}]
 
@@ -92,6 +99,7 @@ def test_get_vouchers(tahoe, monkeypatch):
 @inlineCallbacks
 def test_get_vouchers_raise_tahoe_web_error(tahoe, monkeypatch):
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_500())
+    monkeypatch.setattr("treq.content", lambda _: b"")
     with pytest.raises(TahoeWebError):
         yield ZKAPAuthorizer(tahoe).get_vouchers()
 
@@ -147,7 +155,6 @@ def test__get_content_raise_tahoe_web_error(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_get_version(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     monkeypatch.setattr("treq.request", fake_treq_request_resp_code_200())
     monkeypatch.setattr("treq.content", Mock(return_value=b'{"version": "9"}'))
     result = yield ZKAPAuthorizer(tahoe).get_version()
