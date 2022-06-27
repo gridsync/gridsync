@@ -286,7 +286,6 @@ class ZKAPAuthorizer:
             backup_cap = yield self.gateway.rootcap_manager.get_backup(
                 ".zkapauthorizer", "recovery-capability"
             )
-
         except ValueError:
             backup_cap = ""
         if recovery_cap and recovery_cap != backup_cap:
