@@ -205,11 +205,14 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def get_recovery_capability(self) -> TwistedDeferred[str]:
+        # XXX This method is currently broken due to a missing API. See
+        # https://github.com/PrivateStorageio/ZKAPAuthorizer/issues/413
         code, body = yield self._request("GET", "/replicate")
-        print("###################################################")
-        print(code)
-        print(body)
-        print("###################################################")
+        if code == 200:
+            return json.loads(body).get("recovery-capability")
+        raise TahoeWebError(
+            f"Error ({code}) getting recovery capability: {body}"
+        )
 
     @inlineCallbacks
     def recover(
