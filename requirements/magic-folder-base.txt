@@ -212,9 +212,9 @@ hkdf==0.0.3 \
     # via
     #   magic-wormhole
     #   spake2
-humanize==4.2.1 \
-    --hash=sha256:895af56cfc63e1d453df6899d3f13861ecdef23e02407d2a84741561210416da \
-    --hash=sha256:c8caa86a3e35fa60a6f31674bed2dcaf3a8495958880a00ad836226e0e6755b3
+humanize==4.2.2 \
+    --hash=sha256:a45cb64bb7387b3f0f5d69c2d74376ecc1549eb89bc619dfb22c7e98b6e8c164 \
+    --hash=sha256:fd36c627eee0d2cea22a1dee6d4ff8d4ad5a0b03d3184a4c42967945fa350215
     # via
     #   magic-folder
     #   magic-wormhole

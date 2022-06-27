@@ -164,11 +164,11 @@ colorama==0.4.5 \
     --hash=sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da \
     --hash=sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4
     # via zero-knowledge-access-pass-authorizer
-compose==1.4.6 \
-    --hash=sha256:1982c36b37376e635038ec4c5e1a3cbcdc8d234918f2bdf89c321d19975550c7 \
-    --hash=sha256:326eccbeb2471f0c0dd8c87b8ee3d27d47d6963dba152fe6b7b899e10b1d2f65 \
-    --hash=sha256:34a1a157786d8d1cbe03f4502219cb87de083b2c51e4a40b6823d3110f0de8d6 \
-    --hash=sha256:50923f0ebd8db13a3488e37d5bb80effa8df6aee5f2566f79290352e8e634fc8
+compose==1.4.7 \
+    --hash=sha256:173bc3dc266ae901308ac3e6874ae3241d566b6dc0849b6bcc16922ef51a9d67 \
+    --hash=sha256:6f5ad5508855b7c04d79d67652fa5b2ca116121825727074c9e3f181904b95ba \
+    --hash=sha256:92b10dbbce78ef3c25e8fa5eb60114698d9981492b8ab560186a6b9113ebaf2f \
+    --hash=sha256:e492b2ff6cff199f8571ddaa9e4e3ae9a7ee5554ae66434e8beaf8260f818f82
     # via zero-knowledge-access-pass-authorizer
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
@@ -226,9 +226,9 @@ hkdf==0.0.3 \
     # via
     #   magic-wormhole
     #   spake2
-humanize==4.2.1 \
-    --hash=sha256:895af56cfc63e1d453df6899d3f13861ecdef23e02407d2a84741561210416da \
-    --hash=sha256:c8caa86a3e35fa60a6f31674bed2dcaf3a8495958880a00ad836226e0e6755b3
+humanize==4.2.2 \
+    --hash=sha256:a45cb64bb7387b3f0f5d69c2d74376ecc1549eb89bc619dfb22c7e98b6e8c164 \
+    --hash=sha256:fd36c627eee0d2cea22a1dee6d4ff8d4ad5a0b03d3184a4c42967945fa350215
     # via magic-wormhole
 hyperlink==21.0.0 \
     --hash=sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b \
