@@ -207,7 +207,7 @@ class ZKAPAuthorizer:
         if resp.code == 201:
             content = yield treq.json_content(resp)
             return content.get("recovery-capability")
-        if resp.code == 419:
+        if resp.code == 409:
             raise ReplicationAlreadyConfigured(
                 "ZKAPAuthorizer replication is already configured"
             )
@@ -216,6 +216,15 @@ class ZKAPAuthorizer:
         raise TahoeWebError(
             f"Error {resp.code} configuring replication: {content}"
         )
+
+    @inlineCallbacks
+    def get_recovery_capability(self) -> TwistedDeferred[str]:
+        resp = yield self._request("GET", "/replicate")
+        content = yield treq.content(resp)
+        print("###################################################")
+        print(resp.code)
+        print(content)
+        print("###################################################")
 
     @inlineCallbacks
     def recover(
@@ -266,16 +275,28 @@ class ZKAPAuthorizer:
         ``recovery-capability``.
         """
         try:
-            cap = yield self.replicate()
+            recovery_cap = yield self.replicate()
         except ReplicationAlreadyConfigured as e:
             logging.warning(
                 "%s; refraining from re-adding recovery-capability to rootcap",
                 str(e),
             )
-            return
-        yield self.gateway.rootcap_manager.add_backup(
-            ".zkapauthorizer", "recovery-capability", cap
-        )
+            return  # XXX
+        try:
+            backup_cap = yield self.gateway.rootcap_manager.get_backup(
+                ".zkapauthorizer", "recovery-capability"
+            )
+
+        except ValueError:
+            backup_cap = ""
+        if recovery_cap and recovery_cap != backup_cap:
+            yield self.gateway.rootcap_manager.add_backup(
+                ".zkapauthorizer", "recovery-capability", recovery_cap
+            )
+        else:
+            logging.warning(
+                "ZKAPAuthorizer replication is already configured."
+            )
 
     @inlineCallbacks
     def restore_zkaps(
