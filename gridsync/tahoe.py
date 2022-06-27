@@ -720,6 +720,12 @@ class Tahoe:
     @inlineCallbacks
     def scan_storage_plugins(self):
         plugins = []
+        # In the case of ZKAPAuthorizer, the plugin may not be fully
+        # loaded by the time tahoe finishes starting up (such that
+        # requests to /storage-plugins/privatestorageio-zkapauthz-v2/
+        # will return an HTTP 404 error) so wait until some connections
+        # have been successfully established before the version-check.
+        yield self.await_ready()
         log.debug("Scanning for known storage plugins...")
         version = yield self.zkapauthorizer.get_version()
         if version:
