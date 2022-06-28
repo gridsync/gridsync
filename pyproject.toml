@@ -29,6 +29,11 @@ disable = [
 
 
 [tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+addopts = "-rs -s -m \"not slow\" --ignore=tests/integration --cov-config=tox.ini --cov-append --cov-report=html --cov=gridsync"
+
 # Configure pytest to ignore ResourceWarning as a work-around for
 # https://github.com/gridsync/gridsync/issues/479 /
 # https://github.com/python/cpython/issues/91351
