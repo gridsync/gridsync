@@ -164,11 +164,11 @@ colorama==0.4.5 \
     --hash=sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da \
     --hash=sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4
     # via zero-knowledge-access-pass-authorizer
-compose==1.4.7 \
-    --hash=sha256:173bc3dc266ae901308ac3e6874ae3241d566b6dc0849b6bcc16922ef51a9d67 \
-    --hash=sha256:6f5ad5508855b7c04d79d67652fa5b2ca116121825727074c9e3f181904b95ba \
-    --hash=sha256:92b10dbbce78ef3c25e8fa5eb60114698d9981492b8ab560186a6b9113ebaf2f \
-    --hash=sha256:e492b2ff6cff199f8571ddaa9e4e3ae9a7ee5554ae66434e8beaf8260f818f82
+compose==1.4.8 \
+    --hash=sha256:0ce2277ee564125a005857e48f5b36f6532d3d7183383c3663d4ae7bfdff204e \
+    --hash=sha256:9a945a6df0b82c4eb16251e641b1dbd725f12c3b47e6277037819b52708f193a \
+    --hash=sha256:c0c6fe70bad11c5f0085f757df921bc649f15678b806de4ba3af90c854053724 \
+    --hash=sha256:e536952d63f94772e2a5b5faab02cd4f90a512091d7c14654776ca93f724afa5
     # via zero-knowledge-access-pass-authorizer
 constantly==15.1.0 \
     --hash=sha256:586372eb92059873e29eba4f9dec8381541b4d3834660707faf8ba59146dfc35 \
@@ -479,8 +479,8 @@ werkzeug==2.1.2 \
     --hash=sha256:1ce08e8093ed67d638d63879fd1ba3735817f7a80de3674d293f5984f25fb6e6 \
     --hash=sha256:72a4b735692dd3135217911cbeaa1be5fa3f62bffb8745c5215420a03dc55255
     # via klein
-zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/148f92f687aaa620ac11981f286a50cd1923d7e4 \
-    --hash=sha256:ba0e263cd1dfda98f24f3bce4755ffacee9beaddfc7403e969f1a547a6b55706
+zero-knowledge-access-pass-authorizer @ https://api.github.com/repos/PrivateStorageio/ZKAPAuthorizer/tarball/5900d5e2e595af1cece2770fa7b9438fe122b71f \
+    --hash=sha256:704e1ca751b1fbc50347a71f5244991c41526f1c8689d8db9b18fa2e844302c5
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.7.2 \
     --hash=sha256:01b47b1144940a620393d38d12d381a6f3e6522e96d834d658e095422876fdc8 \
