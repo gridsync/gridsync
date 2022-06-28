@@ -372,7 +372,7 @@ class WelcomeDialog(QStackedWidget):
             settings, self.known_gateways, self, from_wormhole
         )
         self.setup_runner = SetupRunner(self.known_gateways, self.use_tor)
-        steps = self.setup_runner.calculate_total_steps(settings) + 6
+        steps = self.setup_runner.calculate_total_steps(settings) + 2
         self.progressbar.setMaximum(steps)
         self.setup_runner.grid_already_joined.connect(self.on_already_joined)
         self.setup_runner.update_progress.connect(self.update_progress)

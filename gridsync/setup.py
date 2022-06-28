@@ -220,6 +220,12 @@ class SetupRunner(QObject):
             settings.get("introducer"), settings.get("storage")
         ):
             steps += 4  # create, start, await_ready, rootcap
+        if (
+            "zkap_unit_name" in settings
+            or "zkap_unit_multiplier" in settings
+            or "zkap_payment_url_root" in settings
+        ):
+            steps += 4
         folders = settings.get("magic-folders")
         if folders:
             steps += len(folders)  # join
