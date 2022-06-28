@@ -26,3 +26,14 @@ disable = [
     "unbalanced-tuple-unpacking",
     "wrong-import-position",
 ]
+
+
+[tool.pytest.ini_options]
+# Configure pytest to ignore ResourceWarning as a work-around for
+# https://github.com/gridsync/gridsync/issues/479 /
+# https://github.com/python/cpython/issues/91351
+#
+# https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+filterwarnings = [
+    "ignore::ResourceWarning",
+]
