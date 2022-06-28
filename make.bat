@@ -5,13 +5,6 @@
 
 set PY_PYTHON=3.10
 
-:: To prevent some on-disk state from the (non-integration) tests from
-:: carrying over to the integration tests, possibly (but not certainly)
-:: avoiding the pytest/importlib._bootstrap "INTERNALERROR" described
-:: in https://github.com/gridsync/gridsync/issues/479
-set PYTHONDONTWRITEBYTECODE=1
-
-
 if "%1"=="clean" call :clean
 if "%1"=="test" call :test
 if "%1"=="test-integration" call :test-integration
