@@ -340,7 +340,7 @@ class SetupRunner(QObject):
                         self.update_progress.emit(humanized_stage)
                     else:
                         self.update_progress.emit(
-                            "Recovery failed: {}".format(failure_reason)
+                            f"Recovery failed: {failure_reason}"
                         )
                         error(
                             None, "Error restoring ZKAPs", str(failure_reason)
