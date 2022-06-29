@@ -336,6 +336,7 @@ class SetupRunner(QObject):
                         error(
                             None, "Error restoring ZKAPs", str(failure_reason)
                         )
+
                 zkapauthorizer = self.gateway.zkapauthorizer
                 snapshot_exists = yield zkapauthorizer.snapshot_exists()
                 if snapshot_exists:
