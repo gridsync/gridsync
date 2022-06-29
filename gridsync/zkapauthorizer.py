@@ -206,7 +206,7 @@ class ZKAPAuthorizer:
     @inlineCallbacks
     def get_recovery_capability(self) -> TwistedDeferred[str]:
         code, body = yield self._request("POST", "/replicate")
-        if code in (200, 409):
+        if code in (201, 409):
             return json.loads(body).get("recovery-capability")
         raise TahoeWebError(
             f"Error ({code}) getting recovery capability: {body}"
