@@ -20,10 +20,6 @@ if TYPE_CHECKING:
 PLUGIN_NAME = "privatestorageio-zkapauthz-v2"
 
 
-class ReplicationAlreadyConfigured(Exception):
-    pass
-
-
 class ZKAPAuthorizer:
     def __init__(self, gateway: Tahoe) -> None:
         self.gateway = gateway
