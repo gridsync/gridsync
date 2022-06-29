@@ -205,10 +205,8 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def get_recovery_capability(self) -> TwistedDeferred[str]:
-        # XXX This method is currently broken due to a missing API. See
-        # https://github.com/PrivateStorageio/ZKAPAuthorizer/issues/413
         code, body = yield self._request("GET", "/replicate")
-        if code == 200:
+        if code in (200, 409):
             return json.loads(body).get("recovery-capability")
         raise TahoeWebError(
             f"Error ({code}) getting recovery capability: {body}"
@@ -262,14 +260,7 @@ class ZKAPAuthorizer:
         directory cap under the ``.zkapauthorizer`` backup under name
         ``recovery-capability``.
         """
-        try:
-            recovery_cap = yield self.replicate()
-        except ReplicationAlreadyConfigured as e:
-            logging.warning(
-                "%s; refraining from re-adding recovery-capability to rootcap",
-                str(e),
-            )
-            return  # XXX
+        recovery_cap = yield self.get_recovery_capability()
         try:
             backup_cap = yield self.gateway.rootcap_manager.get_backup(
                 ".zkapauthorizer", "recovery-capability"
