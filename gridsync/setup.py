@@ -336,8 +336,14 @@ class SetupRunner(QObject):
                         error(
                             None, "Error restoring ZKAPs", str(failure_reason)
                         )
-
-                yield self.gateway.zkapauthorizer.restore_zkaps(status_updated)
+                zkapauthorizer = self.gateway.zkapauthorizer
+                snapshot_exists = yield zkapauthorizer.snapshot_exists()
+                if snapshot_exists:
+                    # `restore_zkaps` will hang forever if no backup exists
+                    logging.debug("Restoring ZKAPs from backup...")
+                    yield zkapauthorizer.restore_zkaps(status_updated)
+                else:
+                    logging.warning("No ZKAPs backup found")
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
