@@ -262,6 +262,26 @@ class ZKAPAuthorizer:
             )
 
     @inlineCallbacks
+    def snapshot_exists(self) -> TwistedDeferred[bool]:
+        # TODO: Perhaps the ZKAPAuthorizer plugin should provide this?
+        """
+        Check whether a snapshot has been stored beneath the
+        ZKAPAuthorizer recovery-capability.
+
+        :returns: `True` if a snapshot exists, `False` otherwise.
+        """
+        try:
+            recovery_cap = yield self.gateway.rootcap_manager.get_backup(
+                ".zkapauthorizer", "recovery-capability"
+            )
+        except ValueError:
+            return False
+        ls_output = yield self.gateway.ls(recovery_cap)
+        if ls_output and "snapshot" in ls_output:
+            return True
+        return False
+
+    @inlineCallbacks
     def restore_zkaps(
         self, on_status_update: Callable
     ) -> TwistedDeferred[None]:
