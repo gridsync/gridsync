@@ -325,10 +325,19 @@ class SetupRunner(QObject):
             if zkapauthz:
 
                 def status_updated(stage, failure_reason):
+                    # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
+                    # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
+                    # _zkapauthorizer/recover.py#L35
+                    stages = {
+                        "started": "ZKAPs recovery started",
+                        "inspect_replica": "Inspecting ZKAPs replica",
+                        "downloading": "Downloading ZKAPs",
+                        "importing": "Importing ZKAPs",
+                        "succeeded": "Successfully restored ZKAPs",
+                    }
                     if failure_reason is None:
-                        self.update_progress.emit(
-                            "Recovering: {}".format(stage)
-                        )
+                        humanized_stage = stages.get(stage, stage.title())
+                        self.update_progress.emit(humanized_stage)
                     else:
                         self.update_progress.emit(
                             "Recovery failed: {}".format(failure_reason)
