@@ -195,17 +195,6 @@ class ZKAPAuthorizer:
         :returns: a capability of type `URI:DIR2-RO:`
         """
         code, body = yield self._request("POST", "/replicate")
-        if code == 201:
-            return json.loads(body).get("recovery-capability")
-        if code == 409:
-            raise ReplicationAlreadyConfigured(
-                "ZKAPAuthorizer replication is already configured"
-            )
-        raise TahoeWebError(f"Error ({code}) configuring replication: {body}")
-
-    @inlineCallbacks
-    def get_recovery_capability(self) -> TwistedDeferred[str]:
-        code, body = yield self._request("POST", "/replicate")
         if code in (201, 409):
             return json.loads(body).get("recovery-capability")
         raise TahoeWebError(
@@ -260,7 +249,7 @@ class ZKAPAuthorizer:
         directory cap under the ``.zkapauthorizer`` backup under name
         ``recovery-capability``.
         """
-        recovery_cap = yield self.get_recovery_capability()
+        recovery_cap = yield self.replicate()
         try:
             backup_cap = yield self.gateway.rootcap_manager.get_backup(
                 ".zkapauthorizer", "recovery-capability"
