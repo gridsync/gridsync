@@ -19,6 +19,7 @@ from twisted.internet.defer import inlineCallbacks
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
 from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
+from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
@@ -331,6 +332,9 @@ class SetupRunner(QObject):
                     else:
                         self.update_progress.emit(
                             "Recovery failed: {}".format(failure_reason)
+                        )
+                        error(
+                            None, "Error restoring ZKAPs", str(failure_reason)
                         )
 
                 yield self.gateway.zkapauthorizer.restore_zkaps(status_updated)
