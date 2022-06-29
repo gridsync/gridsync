@@ -339,7 +339,7 @@ class SetupRunner(QObject):
                 zkapauthorizer = self.gateway.zkapauthorizer
                 snapshot_exists = yield zkapauthorizer.snapshot_exists()
                 if snapshot_exists:
-                    # `restore_zkaps` will hang forever if no backup exists
+                    # `restore_zkaps` will hang forever if no snapshot exists
                     logging.debug("Restoring ZKAPs from backup...")
                     yield zkapauthorizer.restore_zkaps(status_updated)
                 else:
