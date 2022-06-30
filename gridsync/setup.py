@@ -226,6 +226,7 @@ class SetupRunner(QObject):
             or "zkap_unit_multiplier" in settings
             or "zkap_payment_url_root" in settings
         ):
+            # "starting", "downloading", "verifying", "success"
             steps += 4
         folders = settings.get("magic-folders")
         if folders:
