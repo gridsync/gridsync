@@ -19,6 +19,7 @@ from twisted.internet.defer import inlineCallbacks
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
 from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
+from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
@@ -220,6 +221,13 @@ class SetupRunner(QObject):
             settings.get("introducer"), settings.get("storage")
         ):
             steps += 4  # create, start, await_ready, rootcap
+        if (
+            "zkap_unit_name" in settings
+            or "zkap_unit_multiplier" in settings
+            or "zkap_payment_url_root" in settings
+        ):
+            # "starting", "downloading", "verifying", "success"
+            steps += 4
         folders = settings.get("magic-folders")
         if folders:
             steps += len(folders)  # join
@@ -316,7 +324,37 @@ class SetupRunner(QObject):
             self.update_progress.emit("Restoring from Recovery Key...")
             self.gateway.save_settings(settings)  # XXX Unnecessary?
             if zkapauthz:
-                yield self.gateway.zkapauthorizer.restore_zkaps()
+
+                def status_updated(stage, failure_reason):
+                    # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
+                    # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
+                    # _zkapauthorizer/recover.py#L35
+                    stages = {
+                        "started": "ZKAPs recovery started",
+                        "inspect_replica": "Inspecting ZKAPs replica",
+                        "downloading": "Downloading ZKAPs",
+                        "importing": "Importing ZKAPs",
+                        "succeeded": "Successfully restored ZKAPs",
+                    }
+                    if failure_reason is None:
+                        humanized_stage = stages.get(stage, stage.title())
+                        self.update_progress.emit(humanized_stage)
+                    else:
+                        self.update_progress.emit(
+                            f"Recovery failed: {failure_reason}"
+                        )
+                        error(
+                            None, "Error restoring ZKAPs", str(failure_reason)
+                        )
+
+                zkapauthorizer = self.gateway.zkapauthorizer
+                snapshot_exists = yield zkapauthorizer.snapshot_exists()
+                if snapshot_exists:
+                    # `restore_zkaps` will hang forever if no snapshot exists
+                    log.debug("Restoring ZKAPs from backup...")
+                    yield zkapauthorizer.restore_zkaps(status_updated)
+                else:
+                    log.warning("No ZKAPs backup found")
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:

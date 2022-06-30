@@ -105,10 +105,6 @@ class Tahoe:
         self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
-        self.monitor.zkaps_redeemed.connect(self.zkapauthorizer.backup_zkaps)
-        self.magic_folder.monitor.files_updated.connect(
-            lambda *args: self.zkapauthorizer.update_zkap_checkpoint()
-        )
         self.supervisor = Supervisor(pidfile=Path(self.pidfile))
 
         # TODO: Replace with "readiness" API?
@@ -583,11 +579,12 @@ class Tahoe:
             url += "/" + parentcap
             params["name"] = childname
         resp = yield treq.post(url, params=params)
+        content = yield treq.content(resp)
+        content = content.decode("utf-8").strip()
         if resp.code == 200:
-            content = yield treq.content(resp)
-            return content.decode("utf-8").strip()
+            return content
         raise TahoeWebError(
-            "Error creating Tahoe-LAFS directory: {}".format(resp.code)
+            f"Error {resp.code} creating Tahoe-LAFS directory: {content}"
         )
 
     @inlineCallbacks
@@ -724,7 +721,10 @@ class Tahoe:
     def scan_storage_plugins(self):
         plugins = []
         log.debug("Scanning for known storage plugins...")
-        version = yield self.zkapauthorizer.get_version()
+        try:
+            version = yield self.zkapauthorizer.get_version()
+        except TahoeWebError:
+            version = ""
         if version:
             plugins.append(("ZKAPAuthorizer", version))
         if plugins:

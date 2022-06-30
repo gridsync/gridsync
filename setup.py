@@ -13,7 +13,10 @@ import versioneer
 requirements = [
     "atomicwrites",
     "attrs",
-    "autobahn",
+    # These autobahn constraints are inherited from ZKAPAuthorizer e1debb6
+    # and can probably go away once autobahn provides a release containing
+    # https://github.com/crossbario/autobahn-python/pull/1578
+    "autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1",
     'certifi ; sys_platform == "win32"',
     'distro ; sys_platform != "darwin" and sys_platform != "win32"',
     "humanize",

@@ -337,7 +337,7 @@ class UsageView(QWidget):
     @Slot(str)
     def on_zkaps_redeemed(self, timestamp: str) -> None:
         self._last_purchase_date = datetime.strftime(
-            datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f"), "%d %b %Y"
+            datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f%z"), "%d %b %Y"
         )
         self._reset_status()
         self._update_chart()
