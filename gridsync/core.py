@@ -100,7 +100,7 @@ class LogFormatter(logging.Formatter):
 class Core:
     def __init__(self, args: argparse.Namespace) -> None:
         self.args = args
-        self.gui = Gui(self)
+        self.gui: Gui
         self.gateways: list = []
         self.tahoe_version: str = ""
         self.magic_folder_version: str = ""
@@ -268,6 +268,9 @@ class Core:
 
         self.show_message()
 
+        # The `Gui` object must be initialized after initialize_logger,
+        # otherwise log messages will be duplicated.
+        self.gui = Gui(self)
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)  # type: ignore
