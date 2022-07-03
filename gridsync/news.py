@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
 import sys
 import time
 from random import randint
+from typing import TYPE_CHECKING
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Signal
@@ -14,13 +15,17 @@ from twisted.internet.task import deferLater
 
 from gridsync import settings
 
+if TYPE_CHECKING:
+    from gridsync.tahoe import Tahoe
+    from gridsync.types import TwistedDeferred
+
 
 class NewscapChecker(QObject):
 
     message_received = Signal(object, str)
     upgrade_required = Signal(object)
 
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
         self._started = False
@@ -41,7 +46,7 @@ class NewscapChecker(QObject):
         )
 
     @inlineCallbacks
-    def _download_messages(self, downloads):
+    def _download_messages(self, downloads: list) -> TwistedDeferred[None]:
         downloads = sorted(downloads)
         for dest, filecap in downloads:
             try:
@@ -54,7 +59,7 @@ class NewscapChecker(QObject):
                 self.message_received.emit(self.gateway, f.read().strip())
 
     @inlineCallbacks
-    def _check_v1(self):
+    def _check_v1(self) -> TwistedDeferred[None]:
         content = yield self.gateway.get_json(self.gateway.newscap + "/v1")
         if not content:
             return
@@ -86,7 +91,7 @@ class NewscapChecker(QObject):
             yield self._download_messages(downloads)
 
     @inlineCallbacks
-    def _do_check(self):
+    def _do_check(self) -> TwistedDeferred[None]:
         self._schedule_delayed_check()
         if not self.gateway.newscap:
             return
@@ -114,13 +119,13 @@ class NewscapChecker(QObject):
         ) as f:
             f.write(str(int(time.time())))
 
-    def _schedule_delayed_check(self, delay=None):
+    def _schedule_delayed_check(self, delay: int = 0) -> None:
         if not delay:
             delay = randint(self.check_delay_min, self.check_delay_max)
-        deferLater(reactor, delay, self._do_check)
+        deferLater(reactor, delay, self._do_check)  # type: ignore
         logging.debug("Scheduled newscap check in %i seconds...", delay)
 
-    def start(self):
+    def start(self) -> None:
         if not self._started:
             self._started = True
             try:
