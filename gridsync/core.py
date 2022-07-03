@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import argparse
 import collections
 import logging
 import os
 import sys
 from datetime import datetime, timezone
+from typing import Optional, Union
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
@@ -80,25 +82,27 @@ app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
 
 class DequeHandler(logging.Handler):
-    def __init__(self, deque):
+    def __init__(self, deque: collections.deque) -> None:
         super().__init__()
         self.deque = deque
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         self.deque.append(self.format(record))
 
 
 class LogFormatter(logging.Formatter):
-    def formatTime(self, record, datefmt=None):
+    def formatTime(
+        self, record: logging.LogRecord, datefmt: Optional[str] = None
+    ) -> str:
         return datetime.now(timezone.utc).isoformat()
 
 
 class Core:
-    def __init__(self, args):
+    def __init__(self, args: argparse.Namespace) -> None:
         self.args = args
-        self.gui = None
-        self.gateways = []
-        self.tahoe_version = None
+        self.gui = Gui(self)
+        self.gateways: list = []
+        self.tahoe_version: str = ""
         self.magic_folder_version: str = ""
         log_deque_maxlen = 100000  # XXX
         debug_settings = settings.get("debug")
@@ -106,10 +110,12 @@ class Core:
             log_maxlen = debug_settings.get("log_maxlen")
             if log_maxlen is not None:
                 log_deque_maxlen = int(log_maxlen)
-        self.log_deque = collections.deque(maxlen=log_deque_maxlen)
+        self.log_deque: collections.deque = collections.deque(
+            maxlen=log_deque_maxlen
+        )
 
     @inlineCallbacks
-    def get_tahoe_version(self):
+    def get_tahoe_version(self) -> TwistedDeferred[None]:
         tahoe = Tahoe(None)
         version = yield tahoe.command(["--version"])
         if version:
@@ -118,7 +124,7 @@ class Core:
                 self.tahoe_version = self.tahoe_version.lstrip("tahoe-lafs: ")
 
     @inlineCallbacks
-    def get_magic_folder_version(self):
+    def get_magic_folder_version(self) -> TwistedDeferred[None]:
         magic_folder = MagicFolder(Tahoe(None))
         version = yield magic_folder.version()
         if version:
@@ -156,7 +162,7 @@ class Core:
             )
 
     @inlineCallbacks
-    def start_gateways(self):
+    def start_gateways(self) -> TwistedDeferred[None]:
         nodedirs = get_nodedirs(config_dir)
         if nodedirs:
             minimize_preference = get_preference("startup", "minimize")
@@ -191,7 +197,7 @@ class Core:
         yield self._get_executable_versions()
 
     @staticmethod
-    def show_message():
+    def show_message() -> None:
         message_settings = settings.get("message")
         if not message_settings:
             return
@@ -224,7 +230,8 @@ class Core:
         msgbox.exec_()
         logging.debug("Custom message closed; proceeding with start...")
 
-    def initialize_logger(self, to_stdout=False):
+    def initialize_logger(self, to_stdout: bool = False) -> None:
+        handler: Union[logging.StreamHandler, DequeHandler]
         if to_stdout:
             handler = logging.StreamHandler(stream=sys.stdout)
             startLogging(sys.stdout)
@@ -240,10 +247,10 @@ class Core:
         logging.debug("Hello World!")
 
     @inlineCallbacks
-    def stop_gateways(self):
+    def stop_gateways(self) -> TwistedDeferred[None]:
         yield DeferredList([gateway.stop() for gateway in self.gateways])
 
-    def start(self):
+    def start(self) -> None:
         self.initialize_logger(self.args.debug)
         try:
             os.makedirs(config_dir)
@@ -261,10 +268,11 @@ class Core:
 
         self.show_message()
 
-        self.gui = Gui(self)
         self.gui.show_systray()
 
-        reactor.callLater(0, self.start_gateways)
-        reactor.addSystemEventTrigger("before", "shutdown", self.stop_gateways)
-        reactor.run()
+        reactor.callLater(0, self.start_gateways)  # type: ignore
+        reactor.addSystemEventTrigger(  # type: ignore
+            "before", "shutdown", self.stop_gateways
+        )
+        reactor.run()  # type: ignore
         lock.release()
