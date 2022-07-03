@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 from atomicwrites import atomic_write
 from qtpy.QtCore import QUrl
 from qtpy.QtGui import QClipboard, QDesktopServices
-from qtpy.QtWidgets import QApplication
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -108,12 +107,21 @@ def open_path(path: str) -> None:
         _desktop_open(path)
 
 
+def _get_clipboard() -> Optional[QClipboard]:
+    from qtpy.QtGui import QGuiApplication
+    from qtpy.QtWidgets import QApplication
+
+    qapp = QApplication.instance()
+    if isinstance(qapp, (QApplication, QGuiApplication)):
+        return qapp.clipboard()
+    return None
+
+
 def get_clipboard_modes() -> list:
     modes = [QClipboard.Clipboard]
-    qapp = QApplication.instance()
-    if not qapp:
+    clipboard = _get_clipboard()
+    if not clipboard:
         return modes
-    clipboard = qapp.clipboard()  # type: ignore
     if clipboard.supportsSelection():
         modes.append(QClipboard.Selection)
     if clipboard.supportsFindBuffer():
@@ -124,20 +132,19 @@ def get_clipboard_modes() -> list:
 def get_clipboard_text(
     mode: QClipboard.Mode = QClipboard.Clipboard,
 ) -> Optional[str]:
-    qapp = QApplication.instance()
-    if not qapp:
+    clipboard = _get_clipboard()
+    if not clipboard:
         return None
-    clipboard = qapp.clipboard()  # type: ignore
     return clipboard.text(mode)
 
 
 def set_clipboard_text(
     text: str, mode: QClipboard.Mode = QClipboard.Clipboard
 ) -> None:
-    qapp = QApplication.instance()
-    if not qapp:
-        return None
-    clipboard = qapp.clipboard()  # type: ignore
+    clipboard = _get_clipboard()
+    if not clipboard:
+        logging.warning("Clipboard not available")
+        return
     clipboard.setText(text, mode)
     logging.debug(
         "Copied %i bytes to clipboard %i", len(text) if text else 0, mode
