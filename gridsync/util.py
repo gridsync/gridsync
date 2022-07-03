@@ -3,7 +3,7 @@
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
 from time import time
-from typing import Callable, List
+from typing import TYPE_CHECKING, Callable, List, Optional
 
 import attr
 from twisted.internet.defer import Deferred, inlineCallbacks
@@ -14,7 +14,11 @@ from twisted.python.failure import Failure
 B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 
-def b58encode(b):  # Adapted from python-bitcoinlib
+if TYPE_CHECKING:
+    from gridsync.types import TwistedDeferred
+
+
+def b58encode(b: bytes) -> str:  # Adapted from python-bitcoinlib
     n = int("0x0" + hexlify(b).decode("utf8"), 16)
     res = []
     while n:
@@ -30,7 +34,7 @@ def b58encode(b):  # Adapted from python-bitcoinlib
     return B58_ALPHABET[0] * pad + res
 
 
-def b58decode(s):  # Adapted from python-bitcoinlib
+def b58decode(s: str) -> bytes:  # Adapted from python-bitcoinlib
     if not s:
         return b""
     n = 0
@@ -61,7 +65,7 @@ def to_bool(s: str) -> bool:
     return True
 
 
-def humanized_list(list_, kind="files"):
+def humanized_list(list_: list, kind="files") -> Optional[list]:
     if not list_:
         return None
     if len(list_) == 1:
@@ -76,25 +80,31 @@ def humanized_list(list_, kind="files"):
 
 
 class _TagStripper(HTMLParser):  # pylint: disable=abstract-method
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.data = []
 
-    def handle_data(self, data):
+    def handle_data(self, data) -> None:
         self.data.append(data)
 
-    def get_data(self):
+    def get_data(self) -> None:
         return "".join(self.data)
 
 
-def strip_html_tags(s):
+def strip_html_tags(s: str) -> str:
     ts = _TagStripper()
     ts.feed(s)
     return ts.get_data()
 
 
 @inlineCallbacks
-def until(predicate, result=True, timeout=10, period=0.2, reactor=None):
+def until(
+    predicate: Callable,
+    result: bool = True,
+    timeout: int = 10,
+    period: float = 0.2,
+    reactor=None,
+) -> TwistedDeferred[object]:
     if reactor is None:
         from twisted.internet import reactor
     limit = time() + timeout
