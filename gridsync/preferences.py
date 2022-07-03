@@ -34,7 +34,7 @@ class Preferences:
             cast(str, self.config_file.asTextMode().path),
         )
 
-    def get(self, section: str, option: str) -> str:
+    def get(self, section: str, option: str) -> Optional[str]:
         """
         Read the value for the requested [section]option.
         """
@@ -55,7 +55,7 @@ def set_preference(
 
 def get_preference(
     section: str, option: str, config_file: Optional[str] = None
-) -> str:
+) -> Optional[str]:
     if not config_file:
         config_file = os.path.join(config_dir, "preferences.ini")
     config = Config(config_file)
