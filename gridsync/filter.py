@@ -123,15 +123,17 @@ def get_mask(string: str, tag: str, identifier: Optional[str] = None) -> str:
     return "<Filtered:{}>".format(tag + ":" + trunchash(string))
 
 
-def apply_filter(dictionary: dict, key: str, tag: str, identifier: Optional[str] = None) -> None:
+def apply_filter(
+    dictionary: dict, key: str, tag: str, identifier: Optional[str] = None
+) -> None:
     value = dictionary.get(key)
     if value:
         dictionary[key] = get_mask(value, tag, identifier=identifier)
 
 
 def _apply_filter_by_action_type(  # noqa: max-complexity=30
-    msg, action_type, identifier=None
-):
+    msg: dict, action_type: str, identifier: Optional[str] = None
+) -> dict:
     if action_type == "dirnode:add-file":
         apply_filter(msg, "name", "Path")
 
@@ -224,7 +226,9 @@ def _apply_filter_by_action_type(  # noqa: max-complexity=30
     return msg
 
 
-def _apply_filter_by_message_type(msg, message_type):  # noqa: max-complexity
+def _apply_filter_by_message_type(  # noqa: max-complexity
+    msg: dict, message_type: str
+) -> dict:
     if message_type == "fni":
         apply_filter(msg, "info", "Event")
 
@@ -288,7 +292,7 @@ def _apply_filter_by_message_type(msg, message_type):  # noqa: max-complexity
     return msg
 
 
-def filter_tahoe_log_message(message, identifier):
+def filter_tahoe_log_message(message: str, identifier: Optional[str]) -> str:
     msg = json.loads(message)
 
     action_type = msg.get("action_type")
