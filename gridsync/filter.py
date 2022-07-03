@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import json
 import os
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.crypto import trunchash
 
+if TYPE_CHECKING:
+    from gridsync.core import Core
 
-def get_filters(core):
+
+def get_filters(core: Core) -> list:
     filters = [
         (pkgdir, "PkgDir"),
         (config_dir, "ConfigDir"),
@@ -105,7 +109,7 @@ def get_filters(core):
     return filters
 
 
-def apply_filters(in_str, filters):
+def apply_filters(in_str: str, filters: list) -> str:
     filtered = in_str
     for s, mask in filters:
         if s and mask:
@@ -113,13 +117,13 @@ def apply_filters(in_str, filters):
     return filtered
 
 
-def get_mask(string, tag, identifier=None):
+def get_mask(string: str, tag: str, identifier: Optional[str] = None) -> str:
     if identifier:
         return "<Filtered:{}>".format(tag + ":" + identifier)
     return "<Filtered:{}>".format(tag + ":" + trunchash(string))
 
 
-def apply_filter(dictionary, key, tag, identifier=None):
+def apply_filter(dictionary: dict, key: str, tag: str, identifier: Optional[str] = None) -> None:
     value = dictionary.get(key)
     if value:
         dictionary[key] = get_mask(value, tag, identifier=identifier)
