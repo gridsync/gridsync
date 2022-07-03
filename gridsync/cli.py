@@ -4,6 +4,7 @@
 import argparse
 import subprocess
 import sys
+from typing import Optional, Sequence, Union
 
 from gridsync import APP_NAME
 from gridsync import __doc__ as description
@@ -13,12 +14,18 @@ from gridsync.errors import FilesystemLockError
 
 
 class TahoeVersion(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Union[str, Sequence, None],
+        option_string: Optional[str] = None,
+    ) -> None:
         subprocess.call(["tahoe", "--version-and-path"])
         sys.exit()
 
 
-def main():
+def main() -> Union[int, str]:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--debug", action="store_true", help="Print debug messages to STDOUT."
