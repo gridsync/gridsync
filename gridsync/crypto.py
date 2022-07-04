@@ -27,7 +27,7 @@ class VersionError(CryptoError):
     pass
 
 
-def encrypt(message: bytes, password: bytes) -> str:
+def encrypt(message: bytes, password: bytes) -> bytes:
     version = b"1"
     salt = random(argon2id.SALTBYTES)  # 16
     key = argon2id.kdf(
