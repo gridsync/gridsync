@@ -2,22 +2,15 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import Optional
 
 import txtorcon
-from qtpy.QtWidgets import QMessageBox
+from qtpy.QtWidgets import QMessageBox, QWidget
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.interfaces import IReactorCore
 
 from gridsync import features
-
-if TYPE_CHECKING:
-    from typing import Optional
-
-    from qtpy.QtWidgets import QWidget
-
-    from gridsync.types import TwistedDeferred
-
+from gridsync.types import TwistedDeferred
 
 # From https://styleguide.torproject.org/visuals/
 # "The main Tor Project color is Purple. Use Dark Purple as a secondary option"
