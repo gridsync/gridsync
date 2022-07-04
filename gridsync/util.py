@@ -25,14 +25,14 @@ def b58encode(b: bytes) -> str:  # Adapted from python-bitcoinlib
     while n:
         n, r = divmod(n, 58)
         res.append(B58_ALPHABET[r])
-    res = "".join(res[::-1])
+    rev = "".join(res[::-1])
     pad = 0
     for c in b:
         if c == 0:
             pad += 1
         else:
             break
-    return B58_ALPHABET[0] * pad + res  # type: ignore
+    return B58_ALPHABET[0] * pad + rev
 
 
 def b58decode(s: str) -> bytes:  # Adapted from python-bitcoinlib
@@ -66,7 +66,7 @@ def to_bool(s: str) -> bool:
     return True
 
 
-def humanized_list(list_: list, kind="files") -> Optional[str]:
+def humanized_list(list_: list, kind: str = "files") -> Optional[str]:
     if not list_:
         return None
     if len(list_) == 1:
@@ -83,9 +83,9 @@ def humanized_list(list_: list, kind="files") -> Optional[str]:
 class _TagStripper(HTMLParser):  # pylint: disable=abstract-method
     def __init__(self) -> None:
         super().__init__()
-        self.data = []
+        self.data: list = []
 
-    def handle_data(self, data) -> None:
+    def handle_data(self, data: str) -> None:
         self.data.append(data)
 
     def get_data(self) -> str:
@@ -112,7 +112,7 @@ def until(
     while time() < limit:
         if predicate() == result:
             return result
-        yield deferLater(reactor, period, lambda: None)
+        yield deferLater(reactor, period, lambda: None)  # type: ignore
     raise TimeoutError(
         f'{predicate} did not return a value of "{result}" after waiting '
         f"{timeout} seconds"
@@ -153,7 +153,7 @@ class Poller:
 
         :return: A ``Deferred`` on completion.
         """
-        waiting = Deferred()
+        waiting: Deferred = Deferred()
         self._waiting.append(waiting)
 
         if self._idle:
@@ -193,7 +193,7 @@ class Poller:
         waiting = self._waiting
         self._waiting = []
         for w in waiting:
-            w.callback(result)
+            w.callback(result)  # type: ignore
 
     def _schedule(self) -> None:
         """
