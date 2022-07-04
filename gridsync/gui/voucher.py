@@ -33,10 +33,6 @@ class VoucherCodeDialog(QDialog):
         margins = self.lineedit.textMargins()
         margins.setLeft(margins.left() + 4)  # XXX
         self.lineedit.setTextMargins(margins)
-        self.lineedit.returnPressed.connect(self.on_return_pressed)
-        self.lineedit.textEdited.connect(
-            lambda _: self.error_message_label.setText("")
-        )
 
         self.error_message_label = QLabel()
         self.error_message_label.setAlignment(Qt.AlignCenter)
@@ -47,6 +43,11 @@ class VoucherCodeDialog(QDialog):
         layout.addWidget(self.label, 1, 1)
         layout.addWidget(self.lineedit, 2, 1)
         layout.addWidget(self.error_message_label, 3, 1)
+
+        self.lineedit.returnPressed.connect(self.on_return_pressed)
+        self.lineedit.textEdited.connect(
+            lambda _: self.error_message_label.setText("")
+        )
 
     def on_return_pressed(self) -> None:
         text = self.lineedit.text().replace("-", "")
