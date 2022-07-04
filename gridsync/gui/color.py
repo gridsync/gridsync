@@ -4,7 +4,9 @@ from qtpy.QtGui import QColor
 
 
 class BlendedColor(QColor):
-    def __init__(self, color_a, color_b, pct_a=0.5):
+    def __init__(
+        self, color_a: QColor, color_b: QColor, pct_a: float = 0.5
+    ) -> None:
         super().__init__()
         pct_b = 1.0 - pct_a
         self.setRgb(
