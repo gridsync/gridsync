@@ -5,6 +5,7 @@
 
 import json
 import logging
+from typing import Optional
 
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
@@ -15,6 +16,7 @@ from wormhole.tor_manager import get_tor
 
 from gridsync import settings
 from gridsync.errors import TorError, UpgradeRequiredError
+from gridsync.types import TwistedDeferred
 
 APPID = settings["wormhole"]["appid"]
 RELAY = settings["wormhole"]["relay"]
@@ -29,13 +31,13 @@ class Wormhole(QObject):
     closed = Signal()
     send_completed = Signal()
 
-    def __init__(self, use_tor=False):
+    def __init__(self, use_tor: bool = False) -> None:
         super().__init__()
         self.use_tor = use_tor
-        self._wormhole = None
+        self._wormhole: wormhole
 
     @inlineCallbacks
-    def connect(self):
+    def connect(self) -> TwistedDeferred[None]:
         tor = None
         if self.use_tor:
             tor = yield get_tor(reactor)
@@ -50,7 +52,7 @@ class Wormhole(QObject):
         self.got_welcome.emit(welcome)
 
     @inlineCallbacks
-    def close(self):
+    def close(self) -> TwistedDeferred[None]:
         logging.debug("Closing wormhole...")
         if not self._wormhole:
             logging.warning("No wormhole was created; returning")
@@ -63,12 +65,12 @@ class Wormhole(QObject):
         self.closed.emit()
 
     @inlineCallbacks
-    def receive(self, code):
+    def receive(self, code: str) -> TwistedDeferred[str]:
         yield self.connect()
         self._wormhole.set_code(code)
         logging.debug("Using code: %s (APPID is '%s')", code, APPID)
 
-        client_intro = {"abilities": {"client-v1": {}}}
+        client_intro: dict = {"abilities": {"client-v1": {}}}
         self._wormhole.send_message(json.dumps(client_intro).encode("utf-8"))
 
         data = yield self._wormhole.get_message()
@@ -103,7 +105,9 @@ class Wormhole(QObject):
         return msg
 
     @inlineCallbacks
-    def send(self, msg, code=None):
+    def send(
+        self, msg: str, code: Optional[str] = None
+    ) -> TwistedDeferred[None]:
         yield self.connect()
         if code is None:
             self._wormhole.allocate_code()
@@ -114,7 +118,7 @@ class Wormhole(QObject):
             self._wormhole.set_code(code)
         logging.debug("Using code: %s (APPID is '%s')", code, APPID)
 
-        server_intro = {"abilities": {"server-v1": {}}}
+        server_intro: dict = {"abilities": {"server-v1": {}}}
         self._wormhole.send_message(json.dumps(server_intro).encode("utf-8"))
 
         data = yield self._wormhole.get_message()
@@ -133,13 +137,15 @@ class Wormhole(QObject):
 
 
 @inlineCallbacks
-def wormhole_receive(code, use_tor=False):
+def wormhole_receive(code: str, use_tor: bool = False) -> TwistedDeferred[str]:
     w = Wormhole(use_tor)
     msg = yield w.receive(code)
     return msg
 
 
 @inlineCallbacks
-def wormhole_send(msg, code=None, use_tor=False):
+def wormhole_send(
+    msg: str, code: Optional[str] = None, use_tor: bool = False
+) -> TwistedDeferred[None]:
     w = Wormhole(use_tor)
     yield w.send(msg, code)
