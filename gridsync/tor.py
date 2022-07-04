@@ -1,12 +1,23 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
 import txtorcon
 from qtpy.QtWidgets import QMessageBox
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.interfaces import IReactorCore
 
 from gridsync import features
+
+if TYPE_CHECKING:
+    from typing import Optional
+
+    from qtpy.QtWidgets import QWidget
+
+    from gridsync.types import TwistedDeferred
+
 
 # From https://styleguide.torproject.org/visuals/
 # "The main Tor Project color is Purple. Use Dark Purple as a secondary option"
@@ -18,7 +29,7 @@ TOR_DARK_GREY = "#484848"
 TOR_WHITE = "#FFFFFF"
 
 
-def tor_required(furl):
+def tor_required(furl: str) -> bool:
     try:
         hints = furl.split("/")[2].split(",")
     except (AttributeError, IndexError):
@@ -31,7 +42,8 @@ def tor_required(furl):
 
 
 @inlineCallbacks
-def get_tor(reactor):  # TODO: Add launch option?
+def get_tor(reactor: IReactorCore) -> TwistedDeferred[txtorcon.Tor]:
+    # TODO: Add launch option?
     tor = None
     if not features.tor:
         return tor
@@ -48,7 +60,9 @@ def get_tor(reactor):  # TODO: Add launch option?
 
 
 @inlineCallbacks
-def get_tor_with_prompt(reactor, parent=None):
+def get_tor_with_prompt(
+    reactor: IReactorCore, parent: Optional[QWidget] = None
+) -> TwistedDeferred[txtorcon.Tor]:
     tor = yield get_tor(reactor)
     while not tor:
         msgbox = QMessageBox(parent)
