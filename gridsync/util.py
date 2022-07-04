@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
@@ -31,7 +32,7 @@ def b58encode(b: bytes) -> str:  # Adapted from python-bitcoinlib
             pad += 1
         else:
             break
-    return B58_ALPHABET[0] * pad + res
+    return B58_ALPHABET[0] * pad + res  # type: ignore
 
 
 def b58decode(s: str) -> bytes:  # Adapted from python-bitcoinlib
@@ -65,7 +66,7 @@ def to_bool(s: str) -> bool:
     return True
 
 
-def humanized_list(list_: list, kind="files") -> Optional[list]:
+def humanized_list(list_: list, kind="files") -> Optional[str]:
     if not list_:
         return None
     if len(list_) == 1:
@@ -87,7 +88,7 @@ class _TagStripper(HTMLParser):  # pylint: disable=abstract-method
     def handle_data(self, data) -> None:
         self.data.append(data)
 
-    def get_data(self) -> None:
+    def get_data(self) -> str:
         return "".join(self.data)
 
 
@@ -103,10 +104,10 @@ def until(
     result: bool = True,
     timeout: int = 10,
     period: float = 0.2,
-    reactor=None,
+    reactor: Optional[IReactorTime] = None,
 ) -> TwistedDeferred[object]:
     if reactor is None:
-        from twisted.internet import reactor
+        from twisted.internet import reactor  # type: ignore
     limit = time() + timeout
     while time() < limit:
         if predicate() == result:
@@ -143,7 +144,7 @@ class Poller:
     _idle: bool = attr.ib(default=True)
     _waiting: List[Deferred[None]] = attr.ib(default=attr.Factory(list))
 
-    def wait_for_completion(self):
+    def wait_for_completion(self) -> Deferred:
         """
         Wait for the target function to signal completion.  For a single
         ``Poller`` instance, any number of calls to this function will all
@@ -162,7 +163,7 @@ class Poller:
         return waiting
 
     @inlineCallbacks
-    def _iterate_poll(self):
+    def _iterate_poll(self) -> TwistedDeferred[None]:
         """
         Poll the target function once.
 
@@ -178,14 +179,14 @@ class Poller:
         except Exception:  # pylint: disable=broad-except
             self._deliver_result(Failure())
 
-    def _completed(self):
+    def _completed(self) -> None:
         """
         Return to the idle state and deliver completion notification.
         """
         self._idle = True
         self._deliver_result(None)
 
-    def _deliver_result(self, result):
+    def _deliver_result(self, result: object) -> None:
         """
         Fire all waiting ``Deferred`` instances with the given result.
         """
@@ -194,7 +195,7 @@ class Poller:
         for w in waiting:
             w.callback(result)
 
-    def _schedule(self):
+    def _schedule(self) -> None:
         """
         Schedule the next polling iteration.
         """
