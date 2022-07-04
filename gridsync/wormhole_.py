@@ -2,6 +2,7 @@
 # This is "wormhole_" and not "wormhole" because "wormhole" will throw/raise
 # import errors when using py2app-generated executables (presumably due to
 # namespace-related conflicts with the "magic-wormhole" package/dependency)
+from __future__ import annotations
 
 import json
 import logging
@@ -34,7 +35,7 @@ class Wormhole(QObject):
     def __init__(self, use_tor: bool = False) -> None:
         super().__init__()
         self.use_tor = use_tor
-        self._wormhole: wormhole
+        self._wormhole: Optional[wormhole] = None
 
     @inlineCallbacks
     def connect(self) -> TwistedDeferred[None]:
@@ -67,13 +68,13 @@ class Wormhole(QObject):
     @inlineCallbacks
     def receive(self, code: str) -> TwistedDeferred[str]:
         yield self.connect()
-        self._wormhole.set_code(code)
+        self._wormhole.set_code(code)  # type: ignore
         logging.debug("Using code: %s (APPID is '%s')", code, APPID)
 
         client_intro: dict = {"abilities": {"client-v1": {}}}
-        self._wormhole.send_message(json.dumps(client_intro).encode("utf-8"))
+        self._wormhole.send_message(json.dumps(client_intro).encode("utf-8"))  # type: ignore
 
-        data = yield self._wormhole.get_message()
+        data = yield self._wormhole.get_message()  # type: ignore
         data = json.loads(data.decode("utf-8"))
         offer = data.get("offer", None)
         if offer:
@@ -85,7 +86,7 @@ class Wormhole(QObject):
             if "message" in offer:
                 msg = json.loads(offer["message"])
                 ack = {"answer": {"message_ack": "ok"}}
-                self._wormhole.send_message(json.dumps(ack).encode("utf-8"))
+                self._wormhole.send_message(json.dumps(ack).encode("utf-8"))  # type: ignore
             else:
                 raise Exception("Unknown offer type: {}".format(offer.keys()))
         else:
@@ -96,7 +97,7 @@ class Wormhole(QObject):
                 raise UpgradeRequiredError
             self.got_introduction.emit()
 
-            msg = yield self._wormhole.get_message()
+            msg = yield self._wormhole.get_message()  # type: ignore
             msg = json.loads(msg.decode("utf-8"))
 
         logging.debug("Received wormhole message.")
@@ -110,18 +111,18 @@ class Wormhole(QObject):
     ) -> TwistedDeferred[None]:
         yield self.connect()
         if code is None:
-            self._wormhole.allocate_code()
+            self._wormhole.allocate_code()  # type: ignore
             logging.debug("Generating code...")
-            code = yield self._wormhole.get_code()
+            code = yield self._wormhole.get_code()  # type: ignore
             self.got_code.emit(code)
         else:
-            self._wormhole.set_code(code)
+            self._wormhole.set_code(code)  # type: ignore
         logging.debug("Using code: %s (APPID is '%s')", code, APPID)
 
         server_intro: dict = {"abilities": {"server-v1": {}}}
-        self._wormhole.send_message(json.dumps(server_intro).encode("utf-8"))
+        self._wormhole.send_message(json.dumps(server_intro).encode("utf-8"))  # type: ignore
 
-        data = yield self._wormhole.get_message()
+        data = yield self._wormhole.get_message()  # type: ignore
         data = json.loads(data.decode("utf-8"))
         logging.debug("Received client introduction: %s", data)
         if "abilities" not in data:
@@ -131,7 +132,7 @@ class Wormhole(QObject):
         self.got_introduction.emit()
 
         logging.debug("Sending wormhole message...")
-        self._wormhole.send_message(json.dumps(msg).encode("utf-8"))
+        self._wormhole.send_message(json.dumps(msg).encode("utf-8"))  # type: ignore
         yield self.close()
         self.send_completed.emit()
 
