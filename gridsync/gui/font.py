@@ -6,7 +6,7 @@ from qtpy.QtGui import QFont
 
 
 class Font(QFont):
-    def __init__(self, point_size=12):
+    def __init__(self, point_size: int = 12) -> None:
         super().__init__()
         if sys.platform == "darwin":
             if point_size >= 11:
