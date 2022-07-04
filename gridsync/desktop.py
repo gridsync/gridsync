@@ -198,11 +198,12 @@ def _autostart_enable_mac(executable: str) -> None:
 
 
 def _autostart_enable_windows(executable: str) -> None:
-    shell = Dispatch("WScript.Shell")  # type: ignore
-    shortcut = shell.CreateShortCut(autostart_file_path)
-    shortcut.Targetpath = executable
-    shortcut.WorkingDirectory = os.path.dirname(executable)
-    shortcut.save()
+    if sys.platform == "win32":
+        shell = Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(autostart_file_path)
+        shortcut.Targetpath = executable
+        shortcut.WorkingDirectory = os.path.dirname(executable)
+        shortcut.save()
 
 
 def autostart_enable() -> None:
