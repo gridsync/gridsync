@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
@@ -6,6 +7,7 @@ import platform
 import sys
 import time
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Optional
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QSize, Qt, QThread, Signal
@@ -18,6 +20,7 @@ from qtpy.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QWidget,
 )
 
 from gridsync import (
@@ -37,6 +40,10 @@ from gridsync.filter import (
 )
 from gridsync.gui.widgets import HSpacer
 from gridsync.msg import error
+
+if TYPE_CHECKING:
+    from gridsync.core import Core
+
 
 if sys.platform == "darwin":
     system = "macOS {}".format(platform.mac_ver()[0])
@@ -92,13 +99,13 @@ class LogLoader(QObject):
 
     done = Signal()
 
-    def __init__(self, core):
+    def __init__(self, core: Core) -> None:
         super().__init__()
         self.core = core
         self.content = ""
         self.filtered_content = ""
 
-    def load(self):
+    def load(self) -> None:
         start_time = time.time()
         self.content = (
             header
@@ -139,10 +146,9 @@ class LogLoader(QObject):
 
 
 class DebugExporter(QDialog):
-    def __init__(self, core, parent=None):
+    def __init__(self, core: Core, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=None)
         self.core = core
-        self.parent = parent
 
         self.log_loader = LogLoader(self.core)
         self.log_loader_thread = QThread()
@@ -219,7 +225,7 @@ class DebugExporter(QDialog):
         layout.addWidget(self.plaintextedit, 1, 1)
         layout.addLayout(bottom_layout, 2, 1)
 
-    def on_checkbox_state_changed(self, state):
+    def on_checkbox_state_changed(self, state: int) -> None:
         scrollbar_position = self.scrollbar.value()
         if state == Qt.Checked:
             self.plaintextedit.setPlainText(self.log_loader.filtered_content)
@@ -229,7 +235,7 @@ class DebugExporter(QDialog):
         self.scrollbar.setValue(self.scrollbar.maximum())
         self.scrollbar.setValue(scrollbar_position)
 
-    def on_filter_info_button_clicked(self):
+    def on_filter_info_button_clicked(self) -> None:
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Information)
         if sys.platform == "darwin":
@@ -240,23 +246,23 @@ class DebugExporter(QDialog):
             msgbox.setText(self.filter_info_text)
         msgbox.show()
 
-    def on_loaded(self):
+    def on_loaded(self) -> None:
         self.on_checkbox_state_changed(self.checkbox.checkState())
         self.log_loader_thread.quit()
         self.log_loader_thread.wait()
 
-    def load(self):
+    def load(self) -> None:
         if self.log_loader_thread.isRunning():
             logging.warning("LogLoader thread is already running; returning")
             return
         self.log_loader_thread.start()
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         for mode in get_clipboard_modes():
             set_clipboard_text(self.plaintextedit.toPlainText(), mode)
         self.close()
 
-    def export_to_file(self):
+    def export_to_file(self) -> None:
         dest, _ = QFileDialog.getSaveFileName(
             self,
             "Select a destination",
