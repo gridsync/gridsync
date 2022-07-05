@@ -8,7 +8,7 @@ from typing import Awaitable, Optional
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
-from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
+from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog, QWidget
 from twisted.internet.defer import succeed
 from twisted.internet.threads import deferToThreadPool
 
@@ -58,8 +58,8 @@ class RecoveryKeyImporter(QObject):
 
     done = Signal(dict)
 
-    def __init__(self, parent=None):
-        super().__init__()
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
         self.parent = parent
         self.filepath = None
         self.progress = None
@@ -67,7 +67,7 @@ class RecoveryKeyImporter(QObject):
         self.crypter = None
         self.crypter_thread = None
 
-    def _on_decryption_failed(self, msg):
+    def _on_decryption_failed(self, msg: str) -> None:
         logging.error("%s", msg)
         self.crypter_thread.quit()
         self.crypter_thread.wait()
@@ -82,7 +82,7 @@ class RecoveryKeyImporter(QObject):
         if reply == QMessageBox.Retry:
             self._load_from_file(self.filepath)
 
-    def _on_decryption_succeeded(self, plaintext):
+    def _on_decryption_succeeded(self, plaintext: bytes) -> None:
         logging.debug("Decryption of %s succeeded", self.filepath)
         self.crypter_thread.quit()
         self.crypter_thread.wait()
@@ -95,7 +95,7 @@ class RecoveryKeyImporter(QObject):
             raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
 
-    def _decrypt_content(self, data, password):
+    def _decrypt_content(self, data: bytes, password: str) -> None:
         logging.debug("Trying to decrypt %s...", self.filepath)
         self.progress = QProgressDialog(
             "Trying to decrypt {}...".format(os.path.basename(self.filepath)),
@@ -121,7 +121,7 @@ class RecoveryKeyImporter(QObject):
         self.crypter_thread.started.connect(self.crypter.decrypt)
         self.crypter_thread.start()
 
-    def _parse_content(self, content):
+    def _parse_content(self, content: bytes) -> None:
         try:
             settings = json.loads(content.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError):
@@ -143,7 +143,7 @@ class RecoveryKeyImporter(QObject):
             raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
 
-    def _load_from_file(self, path):
+    def _load_from_file(self, path: str) -> None:
         logging.debug("Loading %s...", self.filepath)
         try:
             with open(path, "rb") as f:
@@ -179,7 +179,7 @@ class RecoveryKeyImporter(QObject):
                 str(err),
             )
 
-    def _select_file(self):
+    def _select_file(self) -> Optional[str]:
         dialog = QFileDialog(self.parent, "Select a Recovery Key")
         dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.ExistingFile)
@@ -201,7 +201,7 @@ class RecoveryKeyImporter(QObject):
                 return selected
         return None
 
-    def do_import(self, filepath=None):
+    def do_import(self, filepath: str = None) -> None:
         if not filepath:
             filepath = self._select_file()
         self.filepath = filepath
