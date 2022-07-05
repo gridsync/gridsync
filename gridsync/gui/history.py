@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import os
 import time
+from typing import TYPE_CHECKING
 
 from humanize import naturalsize, naturaltime
-from qtpy.QtCore import QFileInfo, Qt, QTimer
-from qtpy.QtGui import QCursor, QIcon, QPixmap
+from qtpy.QtCore import QFileInfo, QPoint, Qt, QTimer
+from qtpy.QtGui import QCursor, QIcon, QPixmap, QShowEvent
 from qtpy.QtWidgets import (
     QAbstractItemView,
     QAction,
@@ -26,9 +28,13 @@ from gridsync.gui.font import Font
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.widgets import HSpacer
 
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
+    from gridsync.tahoe import Tahoe
+
 
 class HistoryItemWidget(QWidget):
-    def __init__(self, gateway, data, parent):
+    def __init__(self, gateway: Tahoe, data: dict, parent: QWidget) -> None:
         super().__init__()
         self.gateway = gateway
         self.data = data
@@ -85,7 +91,7 @@ class HistoryItemWidget(QWidget):
         self.update_text()
         QTimer.singleShot(50, self.load_thumbnail)
 
-    def update_text(self):
+    def update_text(self) -> None:
         self.details_label.setText(
             "{} {}".format(
                 self.action.capitalize(),
@@ -93,7 +99,7 @@ class HistoryItemWidget(QWidget):
             )
         )
 
-    def _do_load_thumbnail(self):
+    def _do_load_thumbnail(self) -> None:
         pixmap = QPixmap(self.path)
         if not pixmap.isNull():
             self.icon.setPixmap(
@@ -102,18 +108,18 @@ class HistoryItemWidget(QWidget):
                 )
             )
 
-    def load_thumbnail(self):
+    def load_thumbnail(self) -> None:
         if self.isVisible() and not self._thumbnail_loaded:
             self._thumbnail_loaded = True
             QTimer.singleShot(50, self._do_load_thumbnail)
 
-    def unhighlight(self):
+    def unhighlight(self) -> None:
         self.button.hide()
         palette = self.palette()
         palette.setColor(self.backgroundRole(), self.parent.base_color)
         self.setPalette(palette)
 
-    def enterEvent(self, _):
+    def enterEvent(self, _) -> None:
         self.button.show()
         palette = self.palette()
         palette.setColor(self.backgroundRole(), self.parent.highlighted_color)
@@ -127,7 +133,9 @@ class HistoryItemWidget(QWidget):
 
 
 class HistoryListWidget(QListWidget):
-    def __init__(self, gateway, deduplicate=True, max_items=30):
+    def __init__(
+        self, gateway: Tahoe, deduplicate: bool = True, max_items: int = 30
+    ) -> None:
         super().__init__()
         self.gateway = gateway
         self.deduplicate = deduplicate
@@ -165,10 +173,10 @@ class HistoryListWidget(QListWidget):
         mf_monitor.file_modified.connect(self._on_file_modified)
         mf_monitor.file_removed.connect(self._on_file_removed)
 
-    def on_double_click(self, item):
+    def on_double_click(self, item) -> None:
         open_enclosing_folder(self.itemWidget(item).path)
 
-    def on_right_click(self, position):
+    def on_right_click(self, position: QPoint) -> None:
         if not position:
             position = self.viewport().mapFromGlobal(QCursor().pos())
         item = self.itemAt(position)
@@ -186,7 +194,7 @@ class HistoryListWidget(QListWidget):
         menu.addAction(open_folder_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
-    def add_item(self, data):
+    def add_item(self, data: dict) -> None:
         duplicate = None
         if self.deduplicate:
             for i in range(self.count()):
@@ -211,19 +219,19 @@ class HistoryListWidget(QListWidget):
         item.setText(str(mtime))
         self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
-    def _on_file_added(self, _, data):
+    def _on_file_added(self, _, data) -> None:
         # data["action"] = "added"  # XXX
         self.add_item(data)
 
-    def _on_file_modified(self, _, data):
+    def _on_file_modified(self, _, data) -> None:
         # data["action"] = "modified"  # XXX
         self.add_item(data)
 
-    def _on_file_removed(self, _, data):
+    def _on_file_removed(self, _, data) -> None:
         # data["action"] = "removed"  # XXX
         self.add_item(data)
 
-    def update_visible_widgets(self):
+    def update_visible_widgets(self) -> None:
         if not self.isVisible():
             return
         rect = self.viewport().contentsRect()
@@ -238,12 +246,18 @@ class HistoryListWidget(QListWidget):
                     widget.update_text()
                     widget.load_thumbnail()
 
-    def showEvent(self, _):
+    def showEvent(self, _: QShowEvent) -> None:
         self.update_visible_widgets()
 
 
 class HistoryView(QWidget):
-    def __init__(self, gateway, gui, deduplicate=True, max_items=30):
+    def __init__(
+        self,
+        gateway: Tahoe,
+        gui: AbstractGui,
+        deduplicate: bool = True,
+        max_items: int = 30,
+    ) -> None:
         super().__init__()
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
