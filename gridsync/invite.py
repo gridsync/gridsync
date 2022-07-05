@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING, Optional
 
 from qtpy.QtCore import QObject, Signal
 from twisted.internet.defer import DeferredList, inlineCallbacks
@@ -11,8 +14,13 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API?
 
 from gridsync import cheatcodes, load_settings_from_cheatcode
 from gridsync.setup import SetupRunner, validate_settings
+from gridsync.types import TwistedDeferred
 from gridsync.util import b58encode
 from gridsync.wormhole_ import Wormhole
+
+if TYPE_CHECKING:
+    from gridsync.tahoe import Tahoe
+
 
 wordlist = []  # type: list
 for word in raw_words.items():
@@ -22,7 +30,7 @@ for c in cheatcodes:
 wordlist = sorted([word.lower() for word in wordlist])
 
 
-def is_valid_code(code):
+def is_valid_code(code: str) -> bool:
     words = code.split("-")
     if len(words) != 3:
         return False
@@ -54,7 +62,9 @@ class InviteReceiver(QObject):
     joined_folders = Signal(list)
     done = Signal(object)
 
-    def __init__(self, known_gateways=None, use_tor=False):
+    def __init__(
+        self, known_gateways: Optional[list] = None, use_tor: bool = False
+    ) -> None:
         super().__init__()
         self.known_gateways = known_gateways
         self.use_tor = use_tor
@@ -75,18 +85,22 @@ class InviteReceiver(QObject):
         self.wormhole.got_message.connect(self.got_message.emit)
         self.wormhole.closed.connect(self.closed.emit)
 
-    def cancel(self):
+    def cancel(self) -> None:
         self.wormhole.close()
 
     @inlineCallbacks
-    def _run_setup(self, settings, from_wormhole):
+    def _run_setup(
+        self, settings: dict, from_wormhole: bool
+    ) -> TwistedDeferred[None]:
         settings = validate_settings(
             settings, self.known_gateways, None, from_wormhole
         )
         yield self.setup_runner.run(settings)
 
     @inlineCallbacks
-    def receive(self, code, settings=None):
+    def receive(
+        self, code: str, settings: Optional[dict] = None
+    ) -> TwistedDeferred[None]:
         # TODO: Calculate/emit total steps
         if settings:
             yield self._run_setup(settings, from_wormhole=False)
@@ -110,7 +124,7 @@ class InviteSender(QObject):
     send_completed = Signal()
     closed = Signal()
 
-    def __init__(self, use_tor=False):
+    def __init__(self, use_tor: bool = False) -> None:
         super().__init__()
         self.use_tor = use_tor
 
@@ -121,10 +135,10 @@ class InviteSender(QObject):
         self.wormhole.send_completed.connect(self.send_completed.emit)
         self.wormhole.closed.connect(self.closed.emit)
 
-        self._pending_invites = []
-        self._gateway = None
+        self._pending_invites: list = []
+        self._gateway: Optional[Tahoe] = None
 
-    def cancel(self):
+    def cancel(self) -> None:
         self.wormhole.close()
         if self._pending_invites:
             for folder, member_id in self._pending_invites:
@@ -132,13 +146,17 @@ class InviteSender(QObject):
 
     @staticmethod
     @inlineCallbacks
-    def _get_folder_invite(gateway, folder):
+    def _get_folder_invite(
+        gateway: Tahoe, folder: str
+    ) -> TwistedDeferred[tuple[str, str, str]]:
         member_id = b58encode(os.urandom(8))
         code = yield gateway.magic_folder_invite(folder, member_id)
         return folder, member_id, code
 
     @inlineCallbacks
-    def _get_folder_invites(self, gateway, folders):
+    def _get_folder_invites(
+        self, gateway: Tahoe, folders: list
+    ) -> TwistedDeferred[dict]:
         folders_data = {}
         tasks = []
         for folder in folders:
@@ -154,7 +172,9 @@ class InviteSender(QObject):
         return folders_data
 
     @inlineCallbacks
-    def send(self, gateway, folders=None):
+    def send(
+        self, gateway: Tahoe, folders: Optional[list] = None
+    ) -> TwistedDeferred[None]:
         settings = gateway.get_settings()
         if folders:
             self._gateway = gateway
