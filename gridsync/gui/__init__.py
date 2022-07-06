@@ -12,9 +12,6 @@ from gridsync.gui.systray import SystemTrayIcon
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.preferences import Preferences
 
-if TYPE_CHECKING:
-    from gridsync.core import Core
-
 
 class AbstractGui(Protocol):
     main_window: MainWindow
@@ -35,8 +32,8 @@ class AbstractGui(Protocol):
 
 
 @attr.s(eq=False)  # To avoid "TypeError: unhashable type: 'Gui'" on PySide2
-class Gui:
-    core: Core = attr.ib()
+class Gui:  # type: ignore  # Avoid circular import from core
+    core = attr.ib()  # type: ignore  # Avoid circular import from core
 
     preferences: Preferences = attr.ib(default=attr.Factory(Preferences))
     unread_messages: List[Tuple] = attr.ib(default=attr.Factory(list))
