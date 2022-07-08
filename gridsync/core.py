@@ -100,7 +100,6 @@ class LogFormatter(logging.Formatter):
 class Core:
     def __init__(self, args: argparse.Namespace) -> None:
         self.args = args
-        self.gui: Gui
         self.gateways: list = []
         self.tahoe_version: str = ""
         self.magic_folder_version: str = ""
@@ -113,6 +112,27 @@ class Core:
         self.log_deque: collections.deque = collections.deque(
             maxlen=log_deque_maxlen
         )
+
+        self.initialize_logger(self.args.debug)
+        # The `Gui` object must be initialized after initialize_logger,
+        # otherwise log messages will be duplicated.
+        self.gui = Gui(self)
+
+    def initialize_logger(self, to_stdout: bool = False) -> None:
+        handler: Union[logging.StreamHandler, DequeHandler]
+        if to_stdout:
+            handler = logging.StreamHandler(stream=sys.stdout)
+            startLogging(sys.stdout)
+        else:
+            handler = DequeHandler(self.log_deque)
+            observer = PythonLoggingObserver()
+            observer.start()
+        fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
+        handler.setFormatter(LogFormatter(fmt=fmt))
+        logger = logging.getLogger()
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+        logging.debug("Hello World!")
 
     @inlineCallbacks
     def get_tahoe_version(self) -> TwistedDeferred[None]:
@@ -230,28 +250,11 @@ class Core:
         msgbox.exec_()
         logging.debug("Custom message closed; proceeding with start...")
 
-    def initialize_logger(self, to_stdout: bool = False) -> None:
-        handler: Union[logging.StreamHandler, DequeHandler]
-        if to_stdout:
-            handler = logging.StreamHandler(stream=sys.stdout)
-            startLogging(sys.stdout)
-        else:
-            handler = DequeHandler(self.log_deque)
-            observer = PythonLoggingObserver()
-            observer.start()
-        fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
-        handler.setFormatter(LogFormatter(fmt=fmt))
-        logger = logging.getLogger()
-        logger.addHandler(handler)
-        logger.setLevel(logging.DEBUG)
-        logging.debug("Hello World!")
-
     @inlineCallbacks
     def stop_gateways(self) -> TwistedDeferred[None]:
         yield DeferredList([gateway.stop() for gateway in self.gateways])
 
     def start(self) -> None:
-        self.initialize_logger(self.args.debug)
         try:
             os.makedirs(config_dir)
         except OSError:
@@ -268,9 +271,6 @@ class Core:
 
         self.show_message()
 
-        # The `Gui` object must be initialized after initialize_logger,
-        # otherwise log messages will be duplicated.
-        self.gui = Gui(self)
         self.gui.show_systray()
 
         reactor.callLater(0, self.start_gateways)  # type: ignore
