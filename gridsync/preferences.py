@@ -22,10 +22,10 @@ class Preferences:
 
     config_file: FilePath = attr.ib(default=_default_config_path)
 
-    def set(self, section: str, option: str, value) -> None:
+    def set(self, section: str, option: str, value: str) -> None:
         """
-        Rewrite the configuration file with the given [section]option value added
-        or changed.
+        Rewrite the configuration file with the given [section]option
+        value added or changed.
         """
         set_preference(
             section,
@@ -44,7 +44,7 @@ class Preferences:
 
 
 def set_preference(
-    section: str, option: str, value, config_file: Optional[str] = None
+    section: str, option: str, value: str, config_file: Optional[str] = None
 ) -> None:
     if not config_file:
         config_file = os.path.join(config_dir, "preferences.ini")
