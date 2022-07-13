@@ -406,7 +406,7 @@ class Tahoe:
                 "another operation is trying to modify the rootcap..."
             )
             yield self.rootcap_manager.lock.acquire()
-            yield self.rootcap_manager.lock.release()
+            self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
         if not self.is_storage_node():
             yield self.magic_folder.stop()
