@@ -60,8 +60,7 @@ class Tahoe:
         ZKAPAuthorizer and spend ZKAPs for storage operations, ``False``
         otherwise.
 
-    :ivar nodeurl: ``None`` until the Tahoe-LAFS child process is running,
-        then a string giving the root of the node's HTTP API.
+    :ivar nodeurl: a string giving the root of the node's HTTP API.
     """
 
     STOPPED = 0
@@ -87,7 +86,7 @@ class Tahoe:
         )
         self.config = Config(os.path.join(self.nodedir, "tahoe.cfg"))
         self.pidfile = os.path.join(self.nodedir, f"{APP_NAME}-tahoe.pid")
-        self.nodeurl = None
+        self.nodeurl: str = ""
         self.shares_happy = 0
         self.name = os.path.basename(self.nodedir)
         self.api_token = None

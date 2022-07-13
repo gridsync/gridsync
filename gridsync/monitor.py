@@ -321,7 +321,7 @@ class ZKAPChecker(QObject):
     def do_check(self):
         if self._time_started is None:
             self._time_started = datetime.now()
-        if not self.gateway.zkap_auth_required or self.gateway.nodeurl is None:
+        if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
             # Either the node doesn't use ZKAPs or isn't running.
             return
         try:
