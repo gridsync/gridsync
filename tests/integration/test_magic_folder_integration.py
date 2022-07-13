@@ -54,7 +54,7 @@ async def alice_magic_folder(tmp_path_factory, tahoe_server):
             }
         },
     }
-    await client.create_client(**settings)
+    await client.create_client(settings)
     await client.start()
     yield client.magic_folder
     await client.stop()
@@ -75,7 +75,7 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
             }
         },
     }
-    await client.create_client(**settings)
+    await client.create_client(settings)
     await client.start()
     yield client.magic_folder
     await client.stop()

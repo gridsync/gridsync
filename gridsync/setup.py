@@ -293,7 +293,7 @@ class SetupRunner(QObject):
 
         nodedir = os.path.join(config_dir, nickname)
         self.gateway = Tahoe(nodedir)
-        yield self.gateway.create_client(**settings)
+        yield self.gateway.create_client(settings)
 
         self.gateway.save_settings(settings)
 

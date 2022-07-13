@@ -357,13 +357,13 @@ class Tahoe:
         return output
 
     @inlineCallbacks
-    def create_node(self, **kwargs: Union[str, bool]) -> TwistedDeferred[None]:
+    def create_node(self, settings: dict) -> TwistedDeferred[None]:
         if os.path.exists(self.nodedir):
             raise FileExistsError(
                 "Nodedir already exists: {}".format(self.nodedir)
             )
         args = ["create-node", "--webport=tcp:0:interface=127.0.0.1"]
-        for key, value in kwargs.items():
+        for key, value in settings.items():
             if key in (
                 "nickname",
                 "introducer",
@@ -380,17 +380,15 @@ class Tahoe:
             elif key in ("hide-ip", "no-storage"):
                 args.append(f"--{key}")
         yield self.command(args)
-        storage_servers = kwargs.get("storage")
+        storage_servers = settings.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
 
     @inlineCallbacks
-    def create_client(
-        self, **kwargs: Union[str, bool]
-    ) -> TwistedDeferred[None]:
-        kwargs["no-storage"] = True
-        kwargs["listen"] = "none"
-        yield self.create_node(**kwargs)
+    def create_client(self, settings: dict) -> TwistedDeferred[None]:
+        settings["no-storage"] = True
+        settings["listen"] = "none"
+        yield self.create_node(settings)
 
     def is_storage_node(self) -> bool:
         if self.storage_furl:
