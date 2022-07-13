@@ -530,7 +530,9 @@ class Tahoe:
         self.nodeurl = nodeurl
 
     @inlineCallbacks
-    def get_grid_status(self) -> TwistedDeferred[None]:
+    def get_grid_status(
+        self,
+    ) -> TwistedDeferred[Optional[tuple[int, int, int]]]:
         if not self.nodeurl:
             return None
         try:
@@ -555,7 +557,7 @@ class Tahoe:
         return None
 
     @inlineCallbacks
-    def get_connected_servers(self) -> TwistedDeferred[None]:
+    def get_connected_servers(self) -> TwistedDeferred[Optional[int]]:
         if not self.nodeurl:
             return None
         try:
