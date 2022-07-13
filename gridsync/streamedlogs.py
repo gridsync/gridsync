@@ -17,7 +17,7 @@ from hyperlink import parse
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
 from twisted.internet.endpoints import TCP4ClientEndpoint
-from twisted.internet.interfaces import IReactorCore
+from twisted.internet.interfaces import IReactorTime
 
 
 class TahoeLogReader(
@@ -44,7 +44,7 @@ class StreamedLogs(MultiService):
     _started = False
 
     def __init__(
-        self, reactor: IReactorCore, maxlen: Optional[int] = None
+        self, reactor: IReactorTime, maxlen: Optional[int] = None
     ) -> None:
         super().__init__()
         self._reactor = reactor

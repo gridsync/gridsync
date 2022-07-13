@@ -5,14 +5,14 @@ import logging as log
 import os
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, cast
 
 import treq
 import yaml
 from atomicwrites import atomic_write
 from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ConnectError
-from twisted.internet.interfaces import IReactorCore
+from twisted.internet.interfaces import IReactorTime
 
 from gridsync import APP_NAME
 from gridsync import settings as global_settings
@@ -72,10 +72,12 @@ class Tahoe:
         self,
         nodedir: str = None,
         executable: str = None,
-        reactor: Optional[IReactorCore] = None,
+        reactor: Optional[IReactorTime] = None,
     ) -> None:
         if reactor is None:
-            from twisted.internet import reactor
+            from twisted.internet import reactor as reactor_
+            # To avoid mypy "assignment" error ("expression has type Module")
+            reactor = cast(IReactorTime, reactor_)
         self.executable = executable
         if nodedir:
             self.nodedir = os.path.expanduser(nodedir)
@@ -144,7 +146,7 @@ class Tahoe:
     def config_set(self, section: str, option: str, value: str) -> None:
         self.config.set(section, option, value)
 
-    def config_get(self, section: str, option: str) -> str:
+    def config_get(self, section: str, option: str) -> Optional[str]:
         return self.config.get(section, option)
 
     def save_settings(self, settings: dict) -> None:
@@ -439,7 +441,9 @@ class Tahoe:
         token_file = os.path.join(self.nodedir, "private", "api_auth_token")
         with open(token_file, encoding="utf-8") as f:
             self.api_token = f.read().strip()
-        self.shares_happy = int(self.config_get("client", "shares.happy"))
+        shares_happy = self.config_get("client", "shares.happy")
+        if shares_happy:
+            self.shares_happy = int(shares_happy)
         self.load_newscap()
         self.newscap_checker.start()
         storage_furl_path = Path(self.nodedir, "private", "storage.furl")
