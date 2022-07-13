@@ -348,7 +348,7 @@ class Tahoe:
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(args))
         protocol = SubprocessProtocol(stdout_line_collector=self.line_received)
-        transport = yield reactor.spawnProcess(  # type: ignore
+        yield reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
         try:
