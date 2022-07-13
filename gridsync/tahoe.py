@@ -357,7 +357,7 @@ class Tahoe:
         return output
 
     @inlineCallbacks
-    def create_node(self, **kwargs) -> TwistedDeferred[None]:
+    def create_node(self, **kwargs: Union[str, bool]) -> TwistedDeferred[None]:
         if os.path.exists(self.nodedir):
             raise FileExistsError(
                 "Nodedir already exists: {}".format(self.nodedir)
@@ -385,7 +385,9 @@ class Tahoe:
             self.add_storage_servers(storage_servers)
 
     @inlineCallbacks
-    def create_client(self, **kwargs) -> TwistedDeferred[None]:
+    def create_client(
+        self, **kwargs: Union[str, bool]
+    ) -> TwistedDeferred[None]:
         kwargs["no-storage"] = True
         kwargs["listen"] = "none"
         yield self.create_node(**kwargs)
