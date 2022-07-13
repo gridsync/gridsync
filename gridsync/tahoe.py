@@ -76,6 +76,7 @@ class Tahoe:
     ) -> None:
         if reactor is None:
             from twisted.internet import reactor as reactor_
+
             # To avoid mypy "assignment" error ("expression has type Module")
             reactor = cast(IReactorTime, reactor_)
         self.executable = executable
@@ -337,9 +338,7 @@ class Tahoe:
         log.debug("[%s] >>> %s", self.name, line)
 
     @inlineCallbacks
-    def command(
-        self, args: list[str], callback_trigger: Optional[str] = None
-    ) -> TwistedDeferred[str]:
+    def command(self, args: list[str]) -> TwistedDeferred[str]:
         from twisted.internet import reactor
 
         if not self.executable:
@@ -348,10 +347,7 @@ class Tahoe:
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(args))
-        protocol = SubprocessProtocol(
-            callback_triggers=[callback_trigger],
-            stdout_line_collector=self.line_received,
-        )
+        protocol = SubprocessProtocol(stdout_line_collector=self.line_received)
         transport = yield reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
@@ -359,8 +355,6 @@ class Tahoe:
             output = yield protocol.done
         except Exception as e:  # pylint: disable=broad-except
             raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
-        if callback_trigger:
-            return transport.pid
         return output
 
     @inlineCallbacks
