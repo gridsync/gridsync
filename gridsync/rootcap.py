@@ -75,11 +75,11 @@ class RootcapManager:
         try:
             rootcap = yield self.gateway.mkdir()
         finally:
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
         yield self.lock.acquire()
         if self._rootcap:
             logging.warning("Rootcap already exists")
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
             return self._rootcap
         try:
             self.set_rootcap(rootcap)
@@ -89,7 +89,7 @@ class RootcapManager:
             )
             return self.get_rootcap()
         finally:
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
         logging.debug("Rootcap successfully created")
         return self._rootcap
 
@@ -106,13 +106,13 @@ class RootcapManager:
             return self._basedircap
         yield self.lock.acquire()
         if self._basedircap:
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
             return self._basedircap
         logging.debug('Creating base ("%s") dircap...', self.basedir)
         try:
             self._basedircap = yield self.gateway.mkdir(rootcap, self.basedir)
         finally:
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
         logging.debug('Base ("%s") dircap successfully created', self.basedir)
         return self._basedircap
 
@@ -126,7 +126,7 @@ class RootcapManager:
         try:
             backup_cap = yield self.gateway.mkdir(basedircap, name)
         finally:
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
         self._backup_caps[name] = backup_cap
         return backup_cap
 
@@ -159,7 +159,7 @@ class RootcapManager:
         try:
             cap = yield self.gateway.link(backup_cap, name, cap)
         finally:
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
         return cap
 
     @inlineCallbacks
@@ -190,4 +190,4 @@ class RootcapManager:
         try:
             yield self.gateway.unlink(backup_cap, name, missing_ok=True)
         finally:
-            yield self.lock.release()  # type: ignore
+            self.lock.release()
