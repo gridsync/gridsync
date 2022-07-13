@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from humanize import naturalsize, naturaltime
 from qtpy.QtCore import QFileInfo, QPoint, Qt, QTimer
@@ -34,17 +34,19 @@ if TYPE_CHECKING:
 
 
 class HistoryItemWidget(QWidget):
-    def __init__(self, gateway: Tahoe, data: dict, parent: QWidget) -> None:
-        super().__init__()
+    def __init__(
+        self, gateway: Tahoe, data: dict, parent: HistoryListWidget
+    ) -> None:
+        super().__init__(parent)
         self.gateway = gateway
         self.data = data
-        self.parent = parent
+        self._parent = parent
 
         self.path = data["path"]
-        self.size = data["size"]
-        if self.size is None:
+        self.filesize = data["size"]
+        if self.filesize is None:
             self.action = "Deleted"
-            self.size = 0
+            self.filesize = 0
         else:
             self.action = data.get("action", "Updated")
         self.mtime = data.get("last-updated", data.get("mtime"))
@@ -55,7 +57,7 @@ class HistoryItemWidget(QWidget):
         self.basename = os.path.basename(os.path.normpath(self.path))
 
         self.setToolTip(
-            f"{self.path}\n\nSize: {naturalsize(self.size)}\n"
+            f"{self.path}\n\nSize: {naturalsize(self.filesize)}\n"
             f"{self.action}: {time.ctime(self.mtime)}"
         )
 
@@ -78,15 +80,15 @@ class HistoryItemWidget(QWidget):
         self.button = QPushButton()
         self.button.setIcon(QIcon(resource("dots-horizontal-triple.png")))
         self.button.setStyleSheet("border: none;")
-        self.button.clicked.connect(self.parent.on_right_click)
+        self.button.clicked.connect(self._parent.on_right_click)
         self.button.hide()
 
-        self.layout = QGridLayout(self)
-        self.layout.addWidget(self.icon, 1, 1, 2, 2)
-        self.layout.addWidget(self.basename_label, 1, 3)
-        self.layout.addWidget(self.details_label, 2, 3)
-        self.layout.addItem(HSpacer(), 4, 4)
-        self.layout.addWidget(self.button, 1, 5, 2, 2)
+        layout = QGridLayout(self)
+        layout.addWidget(self.icon, 1, 1, 2, 2)
+        layout.addWidget(self.basename_label, 1, 3)
+        layout.addWidget(self.details_label, 2, 3)
+        layout.addItem(HSpacer(), 4, 4)
+        layout.addWidget(self.button, 1, 5, 2, 2)
 
         self.update_text()
         QTimer.singleShot(50, self.load_thumbnail)
@@ -116,20 +118,20 @@ class HistoryItemWidget(QWidget):
     def unhighlight(self) -> None:
         self.button.hide()
         palette = self.palette()
-        palette.setColor(self.backgroundRole(), self.parent.base_color)
+        palette.setColor(self.backgroundRole(), self._parent.base_color)
         self.setPalette(palette)
 
     def enterEvent(self, _) -> None:
         self.button.show()
         palette = self.palette()
-        palette.setColor(self.backgroundRole(), self.parent.highlighted_color)
+        palette.setColor(self.backgroundRole(), self._parent.highlighted_color)
         self.setPalette(palette)
-        if self.parent.highlighted and self.parent.highlighted is not self:
+        if self._parent.highlighted and self._parent.highlighted is not self:
             try:
-                self.parent.highlighted.unhighlight()
+                self._parent.highlighted.unhighlight()
             except RuntimeError:  # Object has been deleted
                 pass
-        self.parent.highlighted = self
+        self._parent.highlighted = self
 
 
 class HistoryListWidget(QListWidget):
@@ -146,7 +148,7 @@ class HistoryListWidget(QListWidget):
         self.highlighted_color = BlendedColor(
             self.base_color, palette.highlight().color(), 0.88
         )  # Was #E6F1F7
-        self.highlighted = None
+        self.highlighted: Optional[HistoryItemWidget] = None
 
         self.action_icon = QIcon(resource("dots-horizontal-triple.png"))
 
@@ -174,15 +176,19 @@ class HistoryListWidget(QListWidget):
         mf_monitor.file_removed.connect(self._on_file_removed)
 
     def on_double_click(self, item) -> None:
-        open_enclosing_folder(self.itemWidget(item).path)
+        w = self.itemWidget(item)
+        if isinstance(w, HistoryItemWidget):
+            open_enclosing_folder(w.path)
 
     def on_right_click(self, position: QPoint) -> None:
         if not position:
-            position = self.viewport().mapFromGlobal(QCursor().pos())
+            position = self.viewport().mapFromGlobal(QCursor.pos())
         item = self.itemAt(position)
         if not item:
             return
         widget = self.itemWidget(item)
+        if not isinstance(widget, HistoryItemWidget):
+            return
         menu = QMenu(self)
         open_file_action = QAction("Open file")
         open_file_action.triggered.connect(lambda: open_path(widget.path))
@@ -201,6 +207,7 @@ class HistoryListWidget(QListWidget):
                 widget = self.itemWidget(self.item(i))
                 if (
                     widget
+                    and isinstance(widget, HistoryItemWidget)
                     and widget.data["path"] == data["path"]
                     and widget.data.get("member") == data.get("member")  # XXX
                 ):
@@ -208,6 +215,8 @@ class HistoryListWidget(QListWidget):
                     break
         if duplicate is not None:
             item = self.takeItem(duplicate)
+            if not item:
+                return  # Otherwise, mypy interprets item as an Optional below
         else:
             self.takeItem(self.max_items)
             item = QListWidgetItem()
@@ -239,10 +248,10 @@ class HistoryListWidget(QListWidget):
         if top.isValid():
             bottom = self.indexAt(rect.bottomLeft())
             if not bottom.isValid():
-                bottom = self.model().index(self.count() - 1)
+                bottom = self.model().index(self.count() - 1, 0)
             for index in range(top.row(), bottom.row() + 1):
                 widget = self.itemWidget(self.item(index))
-                if widget:
+                if widget and isinstance(widget, HistoryItemWidget):
                     widget.update_text()
                     widget.load_thumbnail()
 
