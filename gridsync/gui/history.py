@@ -6,7 +6,7 @@ import time
 from typing import TYPE_CHECKING, Optional
 
 from humanize import naturalsize, naturaltime
-from qtpy.QtCore import QFileInfo, QPoint, Qt, QTimer
+from qtpy.QtCore import QFileInfo, QPoint, Qt, QTimer, QEvent
 from qtpy.QtGui import QCursor, QIcon, QPixmap, QShowEvent
 from qtpy.QtWidgets import (
     QAbstractItemView,
@@ -121,7 +121,7 @@ class HistoryItemWidget(QWidget):
         palette.setColor(self.backgroundRole(), self._parent.base_color)
         self.setPalette(palette)
 
-    def enterEvent(self, _) -> None:
+    def enterEvent(self, _: QEvent) -> None:
         self.button.show()
         palette = self.palette()
         palette.setColor(self.backgroundRole(), self._parent.highlighted_color)
@@ -175,7 +175,7 @@ class HistoryListWidget(QListWidget):
         mf_monitor.file_modified.connect(self._on_file_modified)
         mf_monitor.file_removed.connect(self._on_file_removed)
 
-    def on_double_click(self, item) -> None:
+    def on_double_click(self, item: QListWidgetItem) -> None:
         w = self.itemWidget(item)
         if isinstance(w, HistoryItemWidget):
             open_enclosing_folder(w.path)
@@ -228,15 +228,15 @@ class HistoryListWidget(QListWidget):
         item.setText(str(mtime))
         self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
-    def _on_file_added(self, _, data) -> None:
+    def _on_file_added(self, _: str, data: dict) -> None:
         # data["action"] = "added"  # XXX
         self.add_item(data)
 
-    def _on_file_modified(self, _, data) -> None:
+    def _on_file_modified(self, _: str, data: dict) -> None:
         # data["action"] = "modified"  # XXX
         self.add_item(data)
 
-    def _on_file_removed(self, _, data) -> None:
+    def _on_file_removed(self, _: str, data: dict) -> None:
         # data["action"] = "removed"  # XXX
         self.add_item(data)
 
