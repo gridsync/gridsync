@@ -87,9 +87,9 @@ class Tahoe:
         self.config = Config(os.path.join(self.nodedir, "tahoe.cfg"))
         self.pidfile = os.path.join(self.nodedir, f"{APP_NAME}-tahoe.pid")
         self.nodeurl: str = ""
+        self.api_token: str = ""
         self.shares_happy = 0
         self.name = os.path.basename(self.nodedir)
-        self.api_token = None
         self.use_tor = False
         self.monitor = Monitor(self)
         logs_maxlen = None
@@ -438,9 +438,7 @@ class Tahoe:
             self.set_nodeurl(f.read().strip())
         token_file = os.path.join(self.nodedir, "private", "api_auth_token")
         with open(token_file, encoding="utf-8") as f:
-            # mypy: 'Incompatible types in assignment (expression has type
-            # "str", variable has type "None")'
-            self.api_token = f.read().strip()  # type: ignore
+            self.api_token = f.read().strip()
         self.shares_happy = int(self.config_get("client", "shares.happy"))
         self.load_newscap()
         self.newscap_checker.start()
