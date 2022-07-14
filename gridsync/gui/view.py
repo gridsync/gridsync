@@ -568,16 +568,16 @@ class View(QTreeView):
     def eventFilter(  # pylint: disable=unused-argument
         self, obj: QObject, event: QEvent
     ) -> bool:
-        if event.type() == QEvent.DragEnter:
+        if isinstance(event, QDragEnterEvent):
             self.dragEnterEvent(event)
             return True
-        if event.type() == QEvent.DragLeave:
+        if isinstance(event, QDragLeaveEvent):
             self.dragLeaveEvent(event)
             return True
-        if event.type() == QEvent.DragMove:
+        if isinstance(event, QDragMoveEvent):
             self.dragMoveEvent(event)
             return True
-        if event.type() == QEvent.Drop:
+        if isinstance(event, QDropEvent):
             self.dropEvent(event)
             return True
         return False
