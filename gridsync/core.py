@@ -136,7 +136,7 @@ class Core:
 
     @inlineCallbacks
     def get_tahoe_version(self) -> TwistedDeferred[None]:
-        tahoe = Tahoe(None)
+        tahoe = Tahoe()
         version = yield tahoe.command(["--version"])
         if version:
             self.tahoe_version = version.split("\n")[0]
@@ -145,7 +145,7 @@ class Core:
 
     @inlineCallbacks
     def get_magic_folder_version(self) -> TwistedDeferred[None]:
-        magic_folder = MagicFolder(Tahoe(None))
+        magic_folder = MagicFolder(Tahoe())
         version = yield magic_folder.version()
         if version:
             self.magic_folder_version = version.lstrip("Magic Folder version ")

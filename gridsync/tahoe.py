@@ -70,8 +70,8 @@ class Tahoe:
 
     def __init__(
         self,
-        nodedir: str = None,
-        executable: str = None,
+        nodedir: str = "",
+        executable: str = "",
         reactor: Optional[IReactorTime] = None,
     ) -> None:
         if reactor is None:
