@@ -64,7 +64,7 @@ class RecoveryKeyImporter(QObject):
         self.filepath = ""
         self.progress = QProgressDialog(
             "Trying to decrypt {}...".format(os.path.basename(self.filepath)),
-            None,
+            "",
             0,
             100,
         )
@@ -94,7 +94,7 @@ class RecoveryKeyImporter(QObject):
         try:
             settings = json.loads(plaintext.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError) as e:
-            error(self, type(e).__name__, str(e))
+            error(self._parent, type(e).__name__, str(e))
             return
         if not isinstance(settings, dict):
             raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
@@ -104,7 +104,7 @@ class RecoveryKeyImporter(QObject):
         logging.debug("Trying to decrypt %s...", self.filepath)
         self.progress = QProgressDialog(
             "Trying to decrypt {}...".format(os.path.basename(self.filepath)),
-            None,
+            "",
             0,
             100,
         )
@@ -206,9 +206,9 @@ class RecoveryKeyImporter(QObject):
                 return selected
         return None
 
-    def do_import(self, filepath: str = None) -> None:
-        if not filepath:
-            filepath = self._select_file()
-        self.filepath = filepath
-        if self.filepath:
+    def do_import(self, filepath: Optional[str] = None) -> None:
+        if filepath is None:
+            selected = self._select_file()
+        if selected is not None:
+            self.filepath = selected
             self._load_from_file(self.filepath)
