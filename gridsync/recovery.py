@@ -60,12 +60,17 @@ class RecoveryKeyImporter(QObject):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self.parent = parent
-        self.filepath = None
-        self.progress = None
-        self.animation = None
-        self.crypter = None
-        self.crypter_thread = None
+        self._parent = parent
+        self.filepath = ""
+        self.progress = QProgressDialog(
+            "Trying to decrypt {}...".format(os.path.basename(self.filepath)),
+            None,
+            0,
+            100,
+        )
+        self.animation = QPropertyAnimation(self.progress, b"value")
+        self.crypter = Crypter(b"", b"")  # XXX
+        self.crypter_thread = QThread()
 
     def _on_decryption_failed(self, msg: str) -> None:
         logging.error("%s", msg)
@@ -74,7 +79,7 @@ class RecoveryKeyImporter(QObject):
         if msg == "Decryption failed. Ciphertext failed verification":
             msg = "The provided passphrase was incorrect. Please try again."
         reply = QMessageBox.critical(
-            self.parent,
+            self._parent,
             "Decryption Error",
             msg,
             QMessageBox.Abort | QMessageBox.Retry,
@@ -134,7 +139,7 @@ class RecoveryKeyImporter(QObject):
                 help_text="This Recovery Key is protected by a passphrase. "
                 "Enter the correct passphrase to decrypt it.",
                 show_stats=False,
-                parent=self.parent,
+                parent=self._parent,
             )
             if ok:
                 self._decrypt_content(content, password)
@@ -150,7 +155,7 @@ class RecoveryKeyImporter(QObject):
                 content = f.read()
         except IsADirectoryError as err:
             error(
-                self.parent,
+                self._parent,
                 "Error loading Recovery Key",
                 f"{path} is a directory, and not a valid Recovery Key."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
@@ -158,11 +163,11 @@ class RecoveryKeyImporter(QObject):
             )
             return
         except Exception as e:  # pylint: disable=broad-except
-            error(self.parent, "Error loading Recovery Key", str(e))
+            error(self._parent, "Error loading Recovery Key", str(e))
             return
         if not content:
             error(
-                self.parent,
+                self._parent,
                 "Invalid Recovery Key",
                 f"The file {path} is empty."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
@@ -172,7 +177,7 @@ class RecoveryKeyImporter(QObject):
             self._parse_content(content)
         except TypeError as err:
             error(
-                self.parent,
+                self._parent,
                 "Error parsing Recovery Key content",
                 f"The file {path} does not appear to be a valid Recovery Key."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
@@ -180,13 +185,13 @@ class RecoveryKeyImporter(QObject):
             )
 
     def _select_file(self) -> Optional[str]:
-        dialog = QFileDialog(self.parent, "Select a Recovery Key")
+        dialog = QFileDialog(self._parent, "Select a Recovery Key")
         dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_():
             selected = dialog.selectedFiles()[0]
             if question(
-                self.parent,
+                self._parent,
                 f'Restore from "{Path(selected).name}"?',
                 "By restoring from a Recovery Key, the configuration from "
                 "the original device will be applied to this device -- "
