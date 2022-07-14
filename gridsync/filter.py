@@ -25,11 +25,14 @@ def get_filters(core: Core) -> list:
         filters.append((gateway.executable, "TahoeExecutablePath"))
         tahoe_settings = gateway.get_settings(include_secrets=True)
         filters.append(
-            (tahoe_settings.get("rootcap"), "Rootcap:{}".format(gateway_id))
+            (
+                tahoe_settings.get("rootcap", ""),
+                "Rootcap:{}".format(gateway_id),
+            )
         )
         filters.append(
             (
-                tahoe_settings.get("introducer"),
+                tahoe_settings.get("introducer", ""),
                 "IntroducerFurl:{}".format(gateway_id),
             )
         )
