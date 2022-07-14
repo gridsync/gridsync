@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
 import sys
 import traceback
+from typing import TYPE_CHECKING
 
 from qtpy.QtCore import (
     QEvent,
@@ -18,6 +20,10 @@ from qtpy.QtCore import (
 from qtpy.QtGui import (
     QColor,
     QCursor,
+    QDragEnterEvent,
+    QDragLeaveEvent,
+    QDragMoveEvent,
+    QDropEvent,
     QIcon,
     QMovie,
     QPainter,
@@ -55,10 +61,13 @@ from gridsync.tahoe import Tahoe
 from gridsync.types import TwistedDeferred
 from gridsync.util import humanized_list
 
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
+
 
 class View(QTreeView):
     def __init__(
-        self, gui, gateway
+        self, gui: AbstractGui, gateway: Tahoe
     ) -> None:  # pylint: disable=too-many-statements
         super().__init__()
         self.gui = gui
@@ -173,8 +182,8 @@ class View(QTreeView):
                 self.recovery_prompt_shown = True
                 self.gui.main_window.prompt_for_export(self.gateway)
 
-    def show_drop_label(self, _=None) -> None:
-        if not self.model().rowCount():
+    def show_drop_label(self, _: object = None) -> None:
+        if not self.get_model().rowCount():
             self.setHeaderHidden(True)
             self.add_folder_icon.show()
             self.add_folder_label.show()
@@ -185,8 +194,8 @@ class View(QTreeView):
         self.add_folder_label.hide()
 
     def on_double_click(self, index: int) -> None:
-        item = self.model().itemFromIndex(index)
-        name = self.model().item(item.row(), 0).text()
+        item = self.get_model().itemFromIndex(index)
+        name = self.get_model().item(item.row(), 0).text()
         if self.gateway.magic_folder.folder_is_local(name):
             directory = self.gateway.magic_folder.get_directory(name)
             if directory:
@@ -248,7 +257,7 @@ class View(QTreeView):
                 ),
             )
             return
-        self.model().remove_folder(folder_name)
+        self.get_model().remove_folder(folder_name)
         logging.debug('Successfully removed "%s" folder backup', folder_name)
 
     def confirm_remove_folder_backup(self, folders: list) -> None:
@@ -282,7 +291,9 @@ class View(QTreeView):
             DeferredList(tasks)
 
     @inlineCallbacks
-    def remove_folder(self, folder_name, remove_backup=False):
+    def remove_folder(
+        self, folder_name: str, remove_backup: bool = False
+    ) -> TwistedDeferred[None]:
         try:
             yield self.gateway.magic_folder.leave_folder(
                 folder_name, missing_ok=True
@@ -298,7 +309,7 @@ class View(QTreeView):
                 ),
             )
             return
-        self.model().on_folder_removed(folder_name)
+        self.get_model().on_folder_removed(folder_name)
         logging.debug('Successfully removed folder "%s"', folder_name)
         if remove_backup:
             yield self.remove_folder_backup(folder_name)
@@ -370,8 +381,8 @@ class View(QTreeView):
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
-                item = self.model().itemFromIndex(index)
-                folder = self.model().item(item.row(), 0).text()
+                item = self.get_model().itemFromIndex(index)
+                folder = self.get_model().item(item.row(), 0).text()
                 if self.gateway.magic_folder.folder_is_local(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
@@ -381,8 +392,8 @@ class View(QTreeView):
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
-                item = self.model().itemFromIndex(index)
-                folder = self.model().item(item.row(), 0).text()
+                item = self.get_model().itemFromIndex(index)
+                folder = self.get_model().item(item.row(), 0).text()
                 if not self.gateway.magic_folder.folder_is_local(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
@@ -393,20 +404,20 @@ class View(QTreeView):
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
-                item = self.model().itemFromIndex(index)
+                item = self.get_model().itemFromIndex(index)
                 if item.column() == 0:
                     folders.append(item.text())
         return folders
 
     def on_right_click(self, position: QPoint) -> None:  # noqa: max-complexity
         if not position:  # From left-click on "Action" button
-            position = self.viewport().mapFromGlobal(QCursor().pos())
+            position = self.viewport().mapFromGlobal(QCursor.pos())
             self.deselect_remote_folders()
             self.deselect_local_folders()
-        cur_item = self.model().itemFromIndex(self.indexAt(position))
+        cur_item = self.get_model().itemFromIndex(self.indexAt(position))
         if not cur_item:
             return
-        cur_folder = self.model().item(cur_item.row(), 0).text()
+        cur_folder = self.get_model().item(cur_item.row(), 0).text()
 
         if self.gateway.magic_folder.folder_is_local(cur_folder):
             selection_is_remote = False
@@ -429,7 +440,7 @@ class View(QTreeView):
             )
             menu.addAction(download_action)
             menu.addSeparator()
-        open_action = QAction(self.model().icon_folder_gray, "Open")
+        open_action = QAction(self.get_model().icon_folder_gray, "Open")
         open_action.triggered.connect(lambda: self.open_folders(selected))
 
         share_menu = QMenu()
@@ -476,7 +487,7 @@ class View(QTreeView):
     @inlineCallbacks
     def add_folder(self, path: str) -> TwistedDeferred[None]:
         path = os.path.realpath(path)
-        self.model().add_folder(path)
+        self.get_model().add_folder(path)
         folder_name = os.path.basename(path)
         try:
             yield self.gateway.magic_folder.add_folder(path, "admin")
@@ -490,7 +501,7 @@ class View(QTreeView):
                     folder_name, type(e).__name__, str(e)
                 ),
             )
-            self.model().remove_folder(folder_name)
+            self.get_model().remove_folder(folder_name)
             return
         logging.debug('Successfully added folder "%s"', folder_name)
 
@@ -532,20 +543,20 @@ class View(QTreeView):
         if dialog.exec_():
             self.add_folders(dialog.selectedFiles())
 
-    def dragEnterEvent(self, event) -> None:
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
 
-    def dragLeaveEvent(self, event) -> None:
+    def dragLeaveEvent(self, event: QDragLeaveEvent) -> None:
         logging.debug(event)
         event.accept()
 
-    def dragMoveEvent(self, event) -> None:
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
         if event.mimeData().hasUrls:
             event.accept()
 
-    def dropEvent(self, event) -> None:
+    def dropEvent(self, event: QDropEvent) -> None:
         logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
@@ -572,7 +583,7 @@ class View(QTreeView):
         return False
 
     def paintEvent(self, event: QPaintEvent) -> None:
-        if not self.model().rowCount():
+        if not self.get_model().rowCount():
             self.show_drop_label()
             painter = QPainter(self.viewport())
             painter.setRenderHint(QPainter.Antialiasing)
@@ -611,7 +622,7 @@ class Delegate(QStyledItemDelegate):
         self.sync_movie.frameChanged.connect(self.on_frame_changed)
 
     def on_frame_changed(self) -> None:
-        values = self._parent.model().status_dict.values()
+        values = self._parent.get_model().status_dict.values()
         if (
             MagicFolderStatus.LOADING in values
             or MagicFolderStatus.WAITING in values
