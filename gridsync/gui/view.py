@@ -565,9 +565,7 @@ class View(QTreeView):
                 paths.append(url.toLocalFile())
             self.add_folders(paths)
 
-    def eventFilter(  # pylint: disable=unused-argument
-        self, obj: QObject, event: QEvent
-    ) -> bool:
+    def eventFilter(self, _: QObject, event: QEvent) -> bool:
         if isinstance(event, QDragEnterEvent):
             self.dragEnterEvent(event)
             return True
