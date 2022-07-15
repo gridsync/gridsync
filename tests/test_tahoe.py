@@ -404,7 +404,7 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
 @inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(FileExistsError):
-        yield tahoe.create_client()
+        yield tahoe.create_client({})
 
 
 @inlineCallbacks
