@@ -501,4 +501,6 @@ class WelcomeDialog(QStackedWidget):
             if msgbox.exec_() == QMessageBox.Yes:
                 if sys.platform == "win32":
                     self.gui.systray.hide()
-                QCoreApplication.instance().quit()
+                app = QCoreApplication.instance()
+                if app:
+                    app.quit()
