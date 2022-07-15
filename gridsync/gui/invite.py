@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import sys
 from typing import Optional
 
@@ -301,6 +302,10 @@ class InviteCodeWidget(QWidget):
             # In tests, this widget gets garbage-collected before the
             # get_tor Deferred returns, raising "builtins.RuntimeError:
             # wrapped C/C++ object of type QCheckBox has been deleted"
+            logging.warning(
+                "Wrapped object %s deleted before its methods could be called",
+                self.tor_checkbox,
+            )
             return
         if tor and not tor_checkbox_enabled:
             self.tor_checkbox.setEnabled(True)
