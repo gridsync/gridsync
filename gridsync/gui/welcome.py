@@ -46,9 +46,8 @@ if TYPE_CHECKING:
 
 
 class WelcomeWidget(QWidget):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
-        self.parent = parent
+    def __init__(self, welcome_dialog: WelcomeDialog) -> None:
+        super().__init__(welcome_dialog)
 
         application_settings = global_settings["application"]
         logo_icon = application_settings.get("logo_icon")
@@ -95,7 +94,7 @@ class WelcomeWidget(QWidget):
                 self.connect_button.setFixedHeight(32)
                 self.connect_button.setText(f"Connect to {nickname}")
                 self.connect_button.clicked.connect(
-                    lambda: self.parent.go(default_code, grid_settings)
+                    lambda: self.welcome_dialog.go(default_code, grid_settings)
                 )
             primary_color = grid_settings.get("color-1")
             if primary_color:
