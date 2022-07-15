@@ -30,6 +30,12 @@ class AbstractGui(Protocol):
     ) -> None:
         pass
 
+    def show_main_window(self) -> None:
+        pass
+
+    def populate(self, gateways: list) -> None:
+        pass
+
 
 @attr.s(eq=False)  # To avoid "TypeError: unhashable type: 'Gui'" on PySide2
 class Gui:  # type: ignore  # Avoid circular import from core
