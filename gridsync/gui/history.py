@@ -42,14 +42,14 @@ class HistoryItemWidget(QWidget):
         self.data = data
         self._parent = parent
 
-        self.path = data["path"]
-        self.filesize = data["size"]
+        self.path = data.get("path", "Unknown")
+        self.filesize = data.get("size")
         if self.filesize is None:
             self.action = "Deleted"
             self.filesize = 0
         else:
             self.action = data.get("action", "Updated")
-        self.mtime = data.get("last-updated", data.get("mtime"))
+        self.mtime = data.get("last-updated", data.get("mtime", 0))
         self._thumbnail_loaded = False
 
         self.setAutoFillBackground(True)
