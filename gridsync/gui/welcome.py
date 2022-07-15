@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging as log
 import sys
+from typing import TYPE_CHECKING, Optional
 
 from qtpy.QtCore import QCoreApplication, Qt
-from qtpy.QtGui import QIcon, QKeySequence
+from qtpy.QtGui import QCloseEvent, QEnterEvent, QIcon, QKeySequence
 from qtpy.QtWidgets import (
     QGridLayout,
     QLabel,
@@ -18,6 +20,7 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError
+from twisted.python.failure import Failure
 from wormhole.errors import (
     ServerConnectionError,
     WelcomeError,
@@ -35,13 +38,16 @@ from gridsync.gui.widgets import HSpacer, TahoeConfigForm, VSpacer
 from gridsync.invite import InviteReceiver
 from gridsync.recovery import RecoveryKeyImporter
 from gridsync.setup import SetupRunner, validate_settings
-from gridsync.tahoe import is_valid_furl
+from gridsync.tahoe import Tahoe, is_valid_furl
 from gridsync.tor import TOR_PURPLE
+
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
 
 
 class WelcomeWidget(QWidget):
-    def __init__(self, parent=None):
-        super().__init__()
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
         self.parent = parent
 
         application_settings = global_settings["application"]
@@ -153,17 +159,18 @@ class WelcomeWidget(QWidget):
         layout.addItem(VSpacer(), 9, 1)
         layout.addLayout(prefs_layout, 10, 1, 1, 5)
 
-    def show_error(self, message):
+    def show_error(self, message: str) -> None:
         self.message.setText(message)
         self.message.show()
-        reactor.callLater(3, self.message.hide)
+        # mypy: 'Module has no attribute "callLater" [attr-defined]'
+        reactor.callLater(3, self.message.hide)  # type: ignore
 
-    def reset(self):
+    def reset(self) -> None:
         self.lineedit.setText("")
 
 
 class ProgressBarWidget(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.icon_server = QLabel()
@@ -230,7 +237,7 @@ class ProgressBarWidget(QWidget):
         layout.addWidget(self.finish_button, 6, 3)
         layout.addItem(VSpacer(), 7, 1)
 
-    def update_progress(self, message):
+    def update_progress(self, message: str) -> None:
         step = self.progressbar.value() + 1
         self.progressbar.setValue(step)
         self.message.setText(message)
@@ -242,10 +249,10 @@ class ProgressBarWidget(QWidget):
         elif step == self.progressbar.maximum():  # "Done!"
             self.checkmark.setPixmap(Pixmap("green_checkmark.png", 32))
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.progressbar.value() == self.progressbar.maximum()
 
-    def reset(self):
+    def reset(self) -> None:
         self.progressbar.setValue(0)
         self.message.setText("")
         self.finish_button.hide()
@@ -255,7 +262,9 @@ class ProgressBarWidget(QWidget):
 
 
 class WelcomeDialog(QStackedWidget):
-    def __init__(self, gui, known_gateways=None):
+    def __init__(
+        self, gui: AbstractGui, known_gateways: Optional[list] = None
+    ) -> None:
         super().__init__()
         self.gui = gui
         self.known_gateways = known_gateways
@@ -307,25 +316,25 @@ class WelcomeDialog(QStackedWidget):
         self.buttonbox.accepted.connect(self.on_accepted)
         self.buttonbox.rejected.connect(self.reset)
 
-    def on_configure_link_activated(self):
+    def on_configure_link_activated(self) -> None:
         self.setCurrentIndex(2)
 
-    def update_progress(self, message):
+    def update_progress(self, message: str) -> None:
         self.page_2.update_progress(message)
 
-    def show_error(self, message):
+    def show_error(self, message: str) -> None:
         self.page_1.show_error(message)
 
-    def reset(self):
+    def reset(self) -> None:
         self.page_1.reset()
         self.page_2.reset()
         self.page_3.reset()
         self.setCurrentIndex(0)
 
-    def load_service_icon(self, filepath):
+    def load_service_icon(self, filepath: str) -> None:
         self.page_2.icon_overlay.setPixmap(Pixmap(filepath, 100))
 
-    def handle_failure(self, failure):
+    def handle_failure(self, failure: Failure) -> None:
         log.error(str(failure))
         if failure.type == CancelledError:
             if self.progressbar.value() <= 2:
@@ -350,14 +359,14 @@ class WelcomeDialog(QStackedWidget):
             self.show_error(str(failure.type.__name__))
         self.reset()
 
-    def on_done(self, gateway):
+    def on_done(self, gateway: Tahoe) -> None:
         self.gateway = gateway
         self.progressbar.setValue(self.progressbar.maximum())
         self.page_2.checkmark.setPixmap(Pixmap("green_checkmark.png", 32))
         self.finish_button.show()
         self.finish_button_clicked()  # TODO: Cleanup
 
-    def on_already_joined(self, grid_name):
+    def on_already_joined(self, grid_name: str) -> None:
         QMessageBox.information(
             self,
             "Already connected",
@@ -365,7 +374,9 @@ class WelcomeDialog(QStackedWidget):
         )
         self.close()
 
-    def verify_settings(self, settings, from_wormhole=True):
+    def verify_settings(
+        self, settings: dict, from_wormhole: bool = True
+    ) -> None:
         self.show()
         self.raise_()
         settings = validate_settings(
@@ -384,7 +395,7 @@ class WelcomeDialog(QStackedWidget):
         d = self.setup_runner.run(settings)
         d.addErrback(self.handle_failure)
 
-    def on_import_done(self, settings):
+    def on_import_done(self, settings: dict) -> None:
         if settings.get("hide-ip") or self.tor_checkbox.isChecked():
             self.use_tor = True
             self.page_2.tor_label.show()
@@ -398,12 +409,12 @@ class WelcomeDialog(QStackedWidget):
         self.update_progress("Verifying invitation code...")
         self.verify_settings(settings, from_wormhole=False)
 
-    def on_restore_link_activated(self):
+    def on_restore_link_activated(self) -> None:
         self.recovery_key_importer = RecoveryKeyImporter(self.page_1)
         self.recovery_key_importer.done.connect(self.on_import_done)
         self.recovery_key_importer.do_import()
 
-    def go(self, code, settings=None):
+    def go(self, code: str, settings: Optional[dict] = None) -> None:
         if self.tor_checkbox.isChecked():
             self.use_tor = True
             self.page_2.tor_label.show()
@@ -427,7 +438,7 @@ class WelcomeDialog(QStackedWidget):
         d.addErrback(self.handle_failure)
         # reactor.callLater(30, d.cancel)  # XXX
 
-    def cancel_button_clicked(self):
+    def cancel_button_clicked(self) -> None:
         if self.page_2.is_complete():
             self.finish_button_clicked()
             return
@@ -443,7 +454,7 @@ class WelcomeDialog(QStackedWidget):
         if msgbox.exec_() == QMessageBox.Yes:
             self.reset()
 
-    def on_accepted(self):
+    def on_accepted(self) -> None:
         settings = self.page_3.get_settings()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
@@ -462,19 +473,19 @@ class WelcomeDialog(QStackedWidget):
             self.setCurrentIndex(1)
             self.verify_settings(settings, from_wormhole=False)
 
-    def finish_button_clicked(self):
+    def finish_button_clicked(self) -> None:
         self.gui.show_main_window()
         self.close()
         if self.gateway.zkapauthorizer.zkap_payment_url_root:  # XXX
             self.gui.main_window.show_usage_view()
         self.reset()
 
-    def enterEvent(self, event):
+    def enterEvent(self, event: QEnterEvent) -> None:
         event.accept()
         self.page_1.invite_code_widget.maybe_enable_tor_checkbox()
         self.lineedit.update_action_button()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         if self.gui.main_window.gateways:
             event.accept()
         else:
