@@ -299,7 +299,7 @@ class InviteCodeWidget(QWidget):
         try:
             tor_checkbox_enabled = self.tor_checkbox.isEnabled()
         except RuntimeError:
-            # In tests, this widget gets garbage-collected before the
+            # In tests, this checkbox can get destroyed before the
             # get_tor Deferred returns, raising "builtins.RuntimeError:
             # wrapped C/C++ object of type QCheckBox has been deleted"
             logging.warning(
