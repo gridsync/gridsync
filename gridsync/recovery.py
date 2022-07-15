@@ -149,7 +149,8 @@ class RecoveryKeyImporter(QObject):
         self.done.emit(settings)
 
     def _load_from_file(self, path: str) -> None:
-        logging.debug("Loading %s...", self.filepath)
+        self.filepath = path
+        logging.debug("Loading %s...", path)
         try:
             with open(path, "rb") as f:
                 content = f.read()
@@ -210,5 +211,4 @@ class RecoveryKeyImporter(QObject):
         if filepath is None:
             filepath = self._select_file()
         if filepath:
-            self.filepath = filepath
-            self._load_from_file(self.filepath)
+            self._load_from_file(filepath)
