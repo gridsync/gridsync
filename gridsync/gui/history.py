@@ -6,7 +6,7 @@ import time
 from typing import TYPE_CHECKING, Optional
 
 from humanize import naturalsize, naturaltime
-from qtpy.QtCore import QFileInfo, QPoint, Qt, QTimer, QEvent
+from qtpy.QtCore import QEvent, QFileInfo, QPoint, Qt, QTimer
 from qtpy.QtGui import QCursor, QIcon, QPixmap, QShowEvent
 from qtpy.QtWidgets import (
     QAbstractItemView,
