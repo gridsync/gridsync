@@ -295,11 +295,18 @@ class InviteCodeWidget(QWidget):
     @inlineCallbacks
     def maybe_enable_tor_checkbox(self) -> TwistedDeferred[None]:
         tor = yield get_tor(reactor)
-        if tor and not self.tor_checkbox.isEnabled():
+        try:
+            tor_checkbox_enabled = self.tor_checkbox.isEnabled()
+        except RuntimeError:
+            # In tests, this widget gets garbage-collected before the
+            # get_tor Deferred returns, raising "builtins.RuntimeError:
+            # wrapped C/C++ object of type QCheckBox has been deleted"
+            return
+        if tor and not tor_checkbox_enabled:
             self.tor_checkbox.setEnabled(True)
             self.tor_checkbox_animation_in.start()
             self.tor_info_button_animation_in.start()
-        elif not tor and self.tor_checkbox.isEnabled():
+        elif not tor and tor_checkbox_enabled:
             self.tor_checkbox.setEnabled(False)
             self.tor_checkbox_animation_out.start()
             self.tor_info_button_animation_out.start()
