@@ -208,7 +208,7 @@ class RecoveryKeyImporter(QObject):
 
     def do_import(self, filepath: Optional[str] = None) -> None:
         if filepath is None:
-            selected = self._select_file()
-        if selected is not None:
-            self.filepath = selected
+            filepath = self._select_file()
+        if filepath:
+            self.filepath = filepath
             self._load_from_file(self.filepath)
