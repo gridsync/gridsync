@@ -6,8 +6,8 @@ import sys
 from datetime import datetime
 
 import wormhole.errors
-from qtpy.QtCore import QFileInfo, Qt, QTimer, Signal
-from qtpy.QtGui import QFont, QIcon
+from qtpy.QtCore import QEvent, QFileInfo, Qt, QTimer, Signal
+from qtpy.QtGui import QCloseEvent, QFont, QIcon, QKeyEvent
 from qtpy.QtWidgets import (
     QDialog,
     QFileIconProvider,
@@ -22,6 +22,7 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError
+from twisted.python.failure import Failure
 
 from gridsync import config_dir, resource
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
@@ -39,7 +40,7 @@ class InviteSenderDialog(QDialog):
     completed = Signal(QWidget)
     closed = Signal(QWidget)
 
-    def __init__(self, gateway, gui, folder_names=None):
+    def __init__(self, gateway, gui, folder_names=None) -> None:
         super().__init__()
         self.gateway = gateway
         self.gui = gui
@@ -182,14 +183,14 @@ class InviteSenderDialog(QDialog):
 
         self.go()  # XXX
 
-    def set_box_title(self, text):
+    def set_box_title(self, text: str) -> None:
         if sys.platform == "darwin":
             self.box_title.setText(text)
             self.box_title.show()
         else:
             self.box.setTitle(text)
 
-    def on_copy_button_clicked(self):
+    def on_copy_button_clicked(self) -> None:
         code = self.code_label.text()
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
@@ -197,7 +198,7 @@ class InviteSenderDialog(QDialog):
             "Copied '{}' to clipboard!\n\n".format(code)
         )
 
-    def on_got_code(self, code):
+    def on_got_code(self, code: str) -> None:
         self.noise_timer.stop()
         self.noise_label.hide()
         self.set_box_title("Your invite code is:")
@@ -222,7 +223,7 @@ class InviteSenderDialog(QDialog):
             "This code can only be used once.".format(abilities)
         )
 
-    def on_got_introduction(self):
+    def on_got_introduction(self) -> None:
         if sys.platform == "darwin":
             self.box_title.hide()
         self.box.hide()
@@ -230,7 +231,7 @@ class InviteSenderDialog(QDialog):
         self.progress_bar.setValue(1)
         self.subtext_label.setText("Connection established; sending invite...")
 
-    def on_send_completed(self):
+    def on_send_completed(self) -> None:
         self.box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(2)
@@ -257,7 +258,7 @@ class InviteSenderDialog(QDialog):
                         # members for this folder, i.e., that it is now shared
                         view.model().on_members_updated(folder, [None, None])
 
-    def handle_failure(self, failure):
+    def handle_failure(self, failure: Failure) -> None:
         if failure.type == wormhole.errors.LonelyError:
             return
         logging.error(str(failure))
@@ -265,10 +266,10 @@ class InviteSenderDialog(QDialog):
         self.invite_sender.cancel()
         self.close()
 
-    def on_created_invite(self):
+    def on_created_invite(self) -> None:
         self.subtext_label.setText("Opening wormhole...\n\n")
 
-    def go(self):
+    def go(self) -> None:
         self.invite_sender = InviteSender(self.use_tor)
         self.invite_sender.created_invite.connect(self.on_created_invite)
         self.invite_sender.got_code.connect(self.on_got_code)
@@ -278,7 +279,7 @@ class InviteSenderDialog(QDialog):
             self.handle_failure
         )
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         if self.code_label.text() and self.progress_bar.value() < 2:
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Question)
@@ -307,7 +308,7 @@ class InviteSenderDialog(QDialog):
                 self.noise_timer.stop()
             self.closed.emit(self)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
 
@@ -316,7 +317,7 @@ class InviteReceiverDialog(QDialog):
     completed = Signal(object)  # Tahoe gateway
     closed = Signal(QWidget)
 
-    def __init__(self, gateways):
+    def __init__(self, gateways) -> None:
         super().__init__()
         self.gateways = gateways
         self.invite_receiver = None
@@ -391,7 +392,7 @@ class InviteReceiverDialog(QDialog):
 
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         self.mail_open_icon.hide()
         self.folder_icon.hide()
         self.mail_closed_icon.show()
@@ -403,14 +404,14 @@ class InviteReceiverDialog(QDialog):
         self.checkmark.hide()
         self.progressbar.setStyleSheet("")
 
-    def show_error(self, text):
+    def show_error(self, text: str) -> None:
         self.error_label.setText(text)
         self.message_label.hide()
         self.error_label.show()
         reactor.callLater(3, self.error_label.hide)
         reactor.callLater(3, self.message_label.show)
 
-    def update_progress(self, message):
+    def update_progress(self, message: str) -> None:
         step = self.progressbar.value() + 1
         self.progressbar.setValue(step)
         self.message_label.setText(message)
@@ -418,18 +419,18 @@ class InviteReceiverDialog(QDialog):
             self.mail_closed_icon.hide()
             self.mail_open_icon.show()
 
-    def set_joined_folders(self, folders):
+    def set_joined_folders(self, folders) -> None:
         self.joined_folders = folders
         if folders:
             self.mail_open_icon.hide()
             self.folder_icon.show()
 
-    def on_got_icon(self, path):
+    def on_got_icon(self, path: str) -> None:
         self.mail_open_icon.setPixmap(Pixmap(path, 128))
         self.mail_closed_icon.hide()
         self.mail_open_icon.show()
 
-    def on_done(self, gateway):
+    def on_done(self, gateway) -> None:
         self.progressbar.setValue(self.progressbar.maximum())
         self.close_button.show()
         self.checkmark.show()
@@ -448,7 +449,7 @@ class InviteReceiverDialog(QDialog):
             )
         self.close()  # TODO: Cleanup
 
-    def on_grid_already_joined(self, grid_name):
+    def on_grid_already_joined(self, grid_name: str) -> None:
         QMessageBox.information(
             self,
             "Already connected",
@@ -456,20 +457,20 @@ class InviteReceiverDialog(QDialog):
         )
         self.close()
 
-    def got_message(self, _):
+    def got_message(self, _) -> None:
         self.update_progress("Reading invitation...")  # 3
 
-    def got_welcome(self):
+    def got_welcome(self) -> None:
         self.update_progress("Connected; waiting for message...")  # 2
 
-    def handle_failure(self, failure):
+    def handle_failure(self, failure: Failure) -> None:
         logging.error(str(failure))
         if failure.type == CancelledError and self.progressbar.value() > 2:
             return
         show_failure(failure, self)
         self.close()
 
-    def go(self, code):
+    def go(self, code: str) -> None:
         self.reset()
         self.invite_code_widget.hide()
         self.progressbar.show()
@@ -498,11 +499,11 @@ class InviteReceiverDialog(QDialog):
         d.addErrback(self.handle_failure)
         reactor.callLater(30, d.cancel)
 
-    def enterEvent(self, event):
+    def enterEvent(self, event: QEvent) -> None:
         event.accept()
         self.invite_code_widget.lineedit.update_action_button()  # XXX
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         event.accept()
         try:
             self.invite_receiver.cancel()
@@ -510,6 +511,6 @@ class InviteReceiverDialog(QDialog):
             pass
         self.closed.emit(self)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
