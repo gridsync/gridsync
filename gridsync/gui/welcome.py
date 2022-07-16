@@ -5,8 +5,8 @@ import logging as log
 import sys
 from typing import TYPE_CHECKING, Optional
 
-from qtpy.QtCore import QCoreApplication, Qt
-from qtpy.QtGui import QCloseEvent, QEnterEvent, QIcon, QKeySequence
+from qtpy.QtCore import QCoreApplication, QEvent, Qt
+from qtpy.QtGui import QCloseEvent, QIcon, QKeySequence
 from qtpy.QtWidgets import (
     QGridLayout,
     QLabel,
@@ -480,7 +480,7 @@ class WelcomeDialog(QStackedWidget):
             self.gui.main_window.show_usage_view()
         self.reset()
 
-    def enterEvent(self, event: QEnterEvent) -> None:
+    def enterEvent(self, event: QEvent) -> None:
         event.accept()
         self.page_1.invite_code_widget.maybe_enable_tor_checkbox()
         self.lineedit.update_action_button()
