@@ -268,9 +268,9 @@ class WelcomeDialog(QStackedWidget):
         super().__init__()
         self.gui = gui
         self.known_gateways = known_gateways
-        self.gateway = None
-        self.setup_runner = None
-        self.recovery_key_importer = None
+        self.gateway = Tahoe()  # XXX
+        self.setup_runner = SetupRunner([])  # XXX
+        self.recovery_key_importer = RecoveryKeyImporter()  # XXX
         self.use_tor = False
         self.resize(400, 500)
         self.setWindowTitle(APP_NAME)
