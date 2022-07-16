@@ -48,6 +48,7 @@ if TYPE_CHECKING:
 class WelcomeWidget(QWidget):
     def __init__(self, welcome_dialog: WelcomeDialog) -> None:
         super().__init__(welcome_dialog)
+        self.welcome_dialog = welcome_dialog
 
         application_settings = global_settings["application"]
         logo_icon = application_settings.get("logo_icon")
