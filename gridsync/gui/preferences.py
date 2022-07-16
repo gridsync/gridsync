@@ -112,6 +112,8 @@ class NotificationsPane(QWidget):
         layout.addWidget(notifications_groupbox)
         layout.addItem(VSpacer())
 
+        self.load_preferences()
+
         self.checkbox_connection.stateChanged.connect(
             self.on_checkbox_connection_changed
         )
@@ -121,8 +123,6 @@ class NotificationsPane(QWidget):
         self.checkbox_invite.stateChanged.connect(
             self.on_checkbox_invite_changed
         )
-
-        self.load_preferences()
 
     def load_preferences(self) -> None:
         if self.preferences.get("notifications", "connection") == "true":
