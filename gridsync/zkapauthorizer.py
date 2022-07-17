@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import treq
 from autobahn.twisted.websocket import create_client_agent
@@ -84,7 +84,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error getting cap content: {resp.code}")
 
     @inlineCallbacks
-    def get_sizes(self) -> TwistedDeferred[List[Optional[int]]]:
+    def get_sizes(self) -> TwistedDeferred[list[Optional[int]]]:
         sizes: list = []
         rootcap = self.gateway.get_rootcap()
         rootcap_bytes = yield self._get_content(f"{rootcap}/?t=json")
@@ -111,7 +111,7 @@ class ZKAPAuthorizer:
         return sizes
 
     @inlineCallbacks
-    def calculate_price(self, sizes: List[int]) -> TwistedDeferred[dict]:
+    def calculate_price(self, sizes: list[int]) -> TwistedDeferred[dict]:
         if not self.gateway.nodeurl:
             return {}
         code, body = yield self._request(
@@ -150,7 +150,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error ({code}) getting voucher: {body}")
 
     @inlineCallbacks
-    def get_vouchers(self) -> TwistedDeferred[List]:
+    def get_vouchers(self) -> TwistedDeferred[list]:
         code, body = yield self._request("GET", "/voucher")
         if code == 200:
             return json.loads(body).get("vouchers")

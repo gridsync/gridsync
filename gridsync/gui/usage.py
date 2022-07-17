@@ -5,7 +5,7 @@ import logging
 import traceback
 import webbrowser
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import attr
 from attrs import define, field
@@ -96,7 +96,7 @@ class UsageView(QWidget):
     _zkaps_remaining: int = field(default=0, init=False)
     _zkaps_total: int = field(default=0, init=False)
     _zkaps_period: int = field(default=0, init=False)
-    _redeeming_vouchers: List[str] = field(
+    _redeeming_vouchers: list[str] = field(
         default=attr.Factory(list), init=False
     )
     _last_purchase_date: str = field(default="Not available", init=False)
@@ -372,7 +372,7 @@ class UsageView(QWidget):
         self.gui.main_window.toolbar.update_actions()  # XXX
 
     @Slot(list)
-    def on_redeeming_vouchers_updated(self, vouchers: List) -> None:
+    def on_redeeming_vouchers_updated(self, vouchers: list) -> None:
         self._redeeming_vouchers = vouchers
         self._update_chart()
 

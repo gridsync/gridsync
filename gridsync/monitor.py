@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import attr
 from qtpy.QtCore import QObject, Signal
@@ -84,7 +84,7 @@ class _VoucherParse:
 
 
 def _parse_vouchers(
-    vouchers: List[dict],
+    vouchers: list[dict],
     time_started: datetime,
 ) -> _VoucherParse:
     """

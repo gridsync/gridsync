@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.crypto import trunchash
@@ -310,15 +310,15 @@ def filter_tahoe_log_message(message: str, identifier: Optional[str]) -> str:
 
 
 def filter_eliot_logs(
-    messages: List[str], identifier: Optional[str] = None
-) -> List[str]:
+    messages: list[str], identifier: Optional[str] = None
+) -> list[str]:
     filtered = []
     for message in messages:
         filtered.append(filter_tahoe_log_message(message, identifier))
     return filtered
 
 
-def join_eliot_logs(messages: List[str]) -> str:
+def join_eliot_logs(messages: list[str]) -> str:
     reordered = []
     for message in messages:
         reordered.append(json.dumps(json.loads(message), sort_keys=True))

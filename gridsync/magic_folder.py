@@ -7,14 +7,7 @@ from collections import defaultdict, deque
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    DefaultDict,
-    Deque,
-    List,
-    Optional,
-    Tuple,
-)
+from typing import TYPE_CHECKING, DefaultDict, Deque, Optional, Tuple
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -99,11 +92,11 @@ class MagicFolderMonitor(QObject):
 
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
-        self.errors: List = []
+        self.errors: list = []
 
         self._prev_state: dict = {}
         self._known_folders: dict[str, dict] = {}
-        self._known_backups: List[str] = []
+        self._known_backups: list[str] = []
 
         self._folder_sizes: dict[str, int] = {}
         self._folder_statuses: dict[str, MagicFolderStatus] = {}
@@ -319,7 +312,7 @@ class MagicFolderMonitor(QObject):
                     )
 
     def compare_backups(
-        self, current_backups: List[str], previous_backups: List[str]
+        self, current_backups: list[str], previous_backups: list[str]
     ) -> None:
         for backup in current_backups:
             if (
@@ -333,8 +326,8 @@ class MagicFolderMonitor(QObject):
 
     @staticmethod
     def _parse_file_status(
-        file_status: List[dict], magic_path: str
-    ) -> Tuple[dict[str, dict], List[int], int, int]:
+        file_status: list[dict], magic_path: str
+    ) -> Tuple[dict[str, dict], list[int], int, int]:
         files = {}
         sizes = []
         latest_mtime = 0
@@ -354,8 +347,8 @@ class MagicFolderMonitor(QObject):
         self,
         folder_name: str,
         magic_path: str,
-        file_status: List[dict],
-        previous_file_status: List[dict],
+        file_status: list[dict],
+        previous_file_status: list[dict],
     ) -> None:
         current = self._parse_file_status(file_status, magic_path)
         current_files, _, current_total_size, current_latest_mtime = current
@@ -532,7 +525,7 @@ class MagicFolder:
         return [self.executable, "--eliot-fd=2", f"--config={self.configdir}"]
 
     @inlineCallbacks
-    def _command(self, args: List[str]) -> TwistedDeferred[str]:
+    def _command(self, args: list[str]) -> TwistedDeferred[str]:
         args = self._base_command_args() + args
         logging.debug("Executing %s...", " ".join(args))
         os.environ["PYTHONUNBUFFERED"] = "1"
@@ -758,21 +751,21 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_file_status(self, folder_name: str) -> TwistedDeferred[List[dict]]:
+    def get_file_status(self, folder_name: str) -> TwistedDeferred[list[dict]]:
         output = yield self._request(
             "GET", f"/magic-folder/{folder_name}/file-status"
         )
         return output
 
     @inlineCallbacks
-    def get_object_sizes(self, folder_name: str) -> TwistedDeferred[List[int]]:
+    def get_object_sizes(self, folder_name: str) -> TwistedDeferred[list[int]]:
         sizes = yield self._request(
             "GET", f"/magic-folder/{folder_name}/tahoe-objects"
         )
         return sizes
 
     @inlineCallbacks
-    def get_all_object_sizes(self) -> TwistedDeferred[List[int]]:
+    def get_all_object_sizes(self) -> TwistedDeferred[list[int]]:
         all_sizes = []
         folders = yield self.get_folders()
         for folder in folders:

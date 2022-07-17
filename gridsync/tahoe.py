@@ -5,7 +5,7 @@ import logging as log
 import os
 import re
 from pathlib import Path
-from typing import List, Optional, Union, cast
+from typing import Optional, Union, cast
 
 import treq
 import yaml
@@ -280,7 +280,7 @@ class Tahoe:
                 results[server]["storage-options"] = storage_options
         return results
 
-    def _configure_storage_plugins(self, storage_options: List[dict]) -> None:
+    def _configure_storage_plugins(self, storage_options: list[dict]) -> None:
         for options in storage_options:
             if not isinstance(options, dict):
                 log.warning(

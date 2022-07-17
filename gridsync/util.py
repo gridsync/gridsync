@@ -4,7 +4,7 @@ from __future__ import annotations
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
 from time import time
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import attr
 from twisted.internet.defer import Deferred, inlineCallbacks
@@ -142,7 +142,7 @@ class Poller:
     target: Callable[[], Deferred[bool]] = attr.ib()
     interval: float = attr.ib()
     _idle: bool = attr.ib(default=True)
-    _waiting: List[Deferred[None]] = attr.ib(default=attr.Factory(list))
+    _waiting: list[Deferred[None]] = attr.ib(default=attr.Factory(list))
 
     def wait_for_completion(self) -> Deferred:
         """
