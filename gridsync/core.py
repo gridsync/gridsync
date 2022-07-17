@@ -53,7 +53,8 @@ app = QApplication(sys.argv)
 # See https://github.com/twisted/qt5reactor/blob/master/README.rst
 from gridsync import qtreactor  # pylint: disable=ungrouped-imports
 
-qtreactor.install()
+# Ignore mypy error 'Module has no attribute "install"'
+qtreactor.install()  # type: ignore
 
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
