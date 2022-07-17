@@ -7,7 +7,7 @@ from collections import defaultdict, deque
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Deque, Optional
+from typing import TYPE_CHECKING, Optional
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -478,7 +478,7 @@ class MagicFolder:
     ) -> None:
         self.gateway = gateway
         self.executable = executable
-        self._log_buffer: Deque[bytes] = deque(maxlen=logs_maxlen)
+        self._log_buffer: deque[bytes] = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.api_port: int = 0
