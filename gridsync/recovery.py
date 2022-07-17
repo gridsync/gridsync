@@ -62,12 +62,10 @@ class RecoveryKeyImporter(QObject):
         super().__init__(parent)
         self._parent = parent
         self.filepath = ""
-        self.progress = QProgressDialog(
-            "Trying to decrypt {}...".format(os.path.basename(self.filepath)),
-            "",
-            0,
-            100,
-        )
+        # This QProgressDialog is initialized to appease mypy. Cancel
+        # it immediately to prevent it from being shown to the user.
+        self.progress = QProgressDialog("", "", 0, 100)
+        self.progress.cancel()
         self.animation = QPropertyAnimation(self.progress, b"value")
         self.crypter = Crypter(b"", b"")  # XXX
         self.crypter_thread = QThread()
