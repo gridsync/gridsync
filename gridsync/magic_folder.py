@@ -7,7 +7,7 @@ from collections import defaultdict, deque
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, DefaultDict, Deque, Optional
+from typing import TYPE_CHECKING, Deque, Optional
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -102,13 +102,13 @@ class MagicFolderMonitor(QObject):
         self._folder_statuses: dict[str, MagicFolderStatus] = {}
         self._total_folders_size: int = 0
 
-        self._operations_queued: DefaultDict[str, set] = defaultdict(set)
-        self._operations_completed: DefaultDict[str, dict] = defaultdict(dict)
+        self._operations_queued: defaultdict[str, set] = defaultdict(set)
+        self._operations_completed: defaultdict[str, dict] = defaultdict(dict)
 
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
-        self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
-        self._scheduled_polls: DefaultDict[str, set] = defaultdict(set)
+        self._scheduled_scans: defaultdict[str, set] = defaultdict(set)
+        self._scheduled_polls: defaultdict[str, set] = defaultdict(set)
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
@@ -171,9 +171,9 @@ class MagicFolderMonitor(QObject):
     @staticmethod
     def _parse_operations(
         state: dict,
-    ) -> tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
-        uploads: DefaultDict[str, dict] = defaultdict(dict)
-        downloads: DefaultDict[str, dict] = defaultdict(dict)
+    ) -> tuple[defaultdict[str, dict], defaultdict[str, dict]]:
+        uploads: defaultdict[str, dict] = defaultdict(dict)
+        downloads: defaultdict[str, dict] = defaultdict(dict)
         for folder, data in state.get("folders", {}).items():
             for upload in data.get("uploads", []):
                 uploads[folder][upload["relpath"]] = upload
@@ -183,8 +183,8 @@ class MagicFolderMonitor(QObject):
 
     def _check_operations_started(
         self,
-        current_operations: DefaultDict[str, dict],
-        previous_operations: DefaultDict[str, dict],
+        current_operations: defaultdict[str, dict],
+        previous_operations: defaultdict[str, dict],
         started_signal: SignalInstance,
     ) -> None:
         for folder, operation in current_operations.items():
@@ -195,8 +195,8 @@ class MagicFolderMonitor(QObject):
 
     def _check_operations_finished(
         self,
-        current_operations: DefaultDict[str, dict],
-        previous_operations: DefaultDict[str, dict],
+        current_operations: defaultdict[str, dict],
+        previous_operations: defaultdict[str, dict],
         finished_signal: SignalInstance,
     ) -> None:
         for folder, operation in previous_operations.items():
@@ -806,7 +806,7 @@ class MagicFolder:
 
     @inlineCallbacks
     def get_folder_backups(self) -> TwistedDeferred[Optional[dict[str, dict]]]:
-        folders: DefaultDict[str, dict] = defaultdict(dict)
+        folders: defaultdict[str, dict] = defaultdict(dict)
         backups = yield self.rootcap_manager.get_backups(".magic-folders")
         if backups is None:
             return None
