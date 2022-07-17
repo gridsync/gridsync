@@ -6,7 +6,7 @@ import os
 import shutil
 import sys
 from binascii import Error
-from typing import Optional, Set
+from typing import Optional
 from urllib.parse import urlparse
 
 import treq
@@ -41,7 +41,7 @@ def is_onion_grid(settings):
     return False
 
 
-def is_zkap_grid(settings: dict) -> tuple[bool, Set]:
+def is_zkap_grid(settings: dict) -> tuple[bool, set]:
     hosts = set()
     url = settings.get("zkap_payment_url_root")
     if url:
@@ -65,7 +65,7 @@ def is_zkap_grid(settings: dict) -> tuple[bool, Set]:
 
 
 def prompt_for_leaky_tor(
-    grid_name: str, hosts: Set, parent: Optional[QWidget] = None
+    grid_name: str, hosts: set, parent: Optional[QWidget] = None
 ) -> bool:
     msgbox = QMessageBox(parent)
     msgbox.setWindowModality(Qt.ApplicationModal)
