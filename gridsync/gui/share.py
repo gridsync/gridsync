@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
 import sys
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 
 import wormhole.errors
 from qtpy.QtCore import QEvent, QFileInfo, Qt, QTimer, Signal
@@ -32,22 +34,33 @@ from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.preferences import get_preference
+from gridsync.tahoe import Tahoe
 from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
+
+if TYPE_CHECKING:
+    from gridsync.gui import Gui
 
 
 class InviteSenderDialog(QDialog):
     completed = Signal(QWidget)
     closed = Signal(QWidget)
 
-    def __init__(self, gateway, gui, folder_names=None) -> None:
+    def __init__(
+        self, gateway: Tahoe, gui: Gui, folder_names: Optional[list] = None
+    ) -> None:
         super().__init__()
         self.gateway = gateway
         self.gui = gui
         self.folder_names = folder_names
-        self.folder_names_humanized = humanized_list(folder_names, "folders")
-        self.settings = {}
-        self.pending_invites = []
+        if folder_names:
+            self.folder_names_humanized = humanized_list(
+                folder_names, "folders"
+            )
+        else:
+            self.folder_names_humanized = ""
+        self.settings: dict = {}
+        self.pending_invites: list = []
         self.use_tor = self.gateway.use_tor
 
         self.setMinimumSize(500, 300)
@@ -317,11 +330,11 @@ class InviteReceiverDialog(QDialog):
     completed = Signal(object)  # Tahoe gateway
     closed = Signal(QWidget)
 
-    def __init__(self, gateways) -> None:
+    def __init__(self, gateways: list) -> None:
         super().__init__()
         self.gateways = gateways
-        self.invite_receiver = None
-        self.joined_folders = []
+        self.invite_receiver = InviteReceiver([])
+        self.joined_folders: list = []
 
         self.setMinimumSize(500, 300)
 
@@ -408,8 +421,9 @@ class InviteReceiverDialog(QDialog):
         self.error_label.setText(text)
         self.message_label.hide()
         self.error_label.show()
-        reactor.callLater(3, self.error_label.hide)
-        reactor.callLater(3, self.message_label.show)
+        # mypy: 'Module has no attribute "callLater"'
+        reactor.callLater(3, self.error_label.hide)  # type: ignore
+        reactor.callLater(3, self.message_label.show)  # type: ignore
 
     def update_progress(self, message: str) -> None:
         step = self.progressbar.value() + 1
@@ -419,7 +433,7 @@ class InviteReceiverDialog(QDialog):
             self.mail_closed_icon.hide()
             self.mail_open_icon.show()
 
-    def set_joined_folders(self, folders) -> None:
+    def set_joined_folders(self, folders: list) -> None:
         self.joined_folders = folders
         if folders:
             self.mail_open_icon.hide()
@@ -430,7 +444,7 @@ class InviteReceiverDialog(QDialog):
         self.mail_closed_icon.hide()
         self.mail_open_icon.show()
 
-    def on_done(self, gateway) -> None:
+    def on_done(self, gateway: Tahoe) -> None:
         self.progressbar.setValue(self.progressbar.maximum())
         self.close_button.show()
         self.checkmark.show()
@@ -497,7 +511,8 @@ class InviteReceiverDialog(QDialog):
         self.invite_receiver.completed.connect(self.on_done)
         d = self.invite_receiver.receive(code)
         d.addErrback(self.handle_failure)
-        reactor.callLater(30, d.cancel)
+        # mypy: 'Module has no attribute "callLater"'
+        reactor.callLater(30, d.cancel)  # type: ignore
 
     def enterEvent(self, event: QEvent) -> None:
         event.accept()
