@@ -3,7 +3,7 @@ from __future__ import annotations
 import shutil
 import time
 from io import BytesIO
-from typing import TYPE_CHECKING, Callable, Optional, Type, Union
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
@@ -92,7 +92,7 @@ class SubprocessProtocol(ProcessProtocol):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         callback_triggers: Optional[list[str]] = None,
-        errback_triggers: Optional[list[tuple[str, Type[Exception]]]] = None,
+        errback_triggers: Optional[list[tuple[str, type[Exception]]]] = None,
         stdout_line_collector: Optional[Callable] = None,
         stderr_line_collector: Optional[Callable] = None,
         on_process_ended: Optional[Callable] = None,
