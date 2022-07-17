@@ -6,7 +6,7 @@ import os
 import shutil
 import sys
 from binascii import Error
-from typing import Optional, Set, Tuple
+from typing import Optional, Set
 from urllib.parse import urlparse
 
 import treq
@@ -41,7 +41,7 @@ def is_onion_grid(settings):
     return False
 
 
-def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
+def is_zkap_grid(settings: dict) -> tuple[bool, Set]:
     hosts = set()
     url = settings.get("zkap_payment_url_root")
     if url:

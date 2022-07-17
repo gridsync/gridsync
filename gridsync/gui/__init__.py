@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING, Protocol, Tuple
+from typing import TYPE_CHECKING, Protocol
 
 import attr
 
@@ -42,7 +42,7 @@ class Gui:  # type: ignore  # Avoid circular import from core
     core = attr.ib()  # type: ignore  # Avoid circular import from core
 
     preferences: Preferences = attr.ib(default=attr.Factory(Preferences))
-    unread_messages: list[Tuple] = attr.ib(default=attr.Factory(list))
+    unread_messages: list[tuple] = attr.ib(default=attr.Factory(list))
 
     welcome_dialog: WelcomeDialog = attr.ib()
     main_window: MainWindow = attr.ib()

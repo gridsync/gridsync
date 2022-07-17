@@ -7,7 +7,7 @@ from collections import defaultdict, deque
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, DefaultDict, Deque, Optional, Tuple
+from typing import TYPE_CHECKING, DefaultDict, Deque, Optional
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -171,7 +171,7 @@ class MagicFolderMonitor(QObject):
     @staticmethod
     def _parse_operations(
         state: dict,
-    ) -> Tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
+    ) -> tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
         uploads: DefaultDict[str, dict] = defaultdict(dict)
         downloads: DefaultDict[str, dict] = defaultdict(dict)
         for folder, data in state.get("folders", {}).items():
@@ -327,7 +327,7 @@ class MagicFolderMonitor(QObject):
     @staticmethod
     def _parse_file_status(
         file_status: list[dict], magic_path: str
-    ) -> Tuple[dict[str, dict], list[int], int, int]:
+    ) -> tuple[dict[str, dict], list[int], int, int]:
         files = {}
         sizes = []
         latest_mtime = 0
@@ -415,7 +415,7 @@ class MagicFolderMonitor(QObject):
         self._prev_state = state
 
     @inlineCallbacks
-    def _get_file_status(self, folder_name: str) -> TwistedDeferred[Tuple]:
+    def _get_file_status(self, folder_name: str) -> TwistedDeferred[tuple]:
         result = yield self.magic_folder.get_file_status(folder_name)
         return (folder_name, result)
 
