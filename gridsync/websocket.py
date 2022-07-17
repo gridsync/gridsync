@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Dict, Optional
+from typing import Callable, Optional
 from urllib.parse import urlparse
 
 from autobahn.twisted.websocket import (
@@ -38,7 +38,7 @@ class WebSocketReaderService(MultiService):
     def __init__(
         self,
         url: str,
-        headers: Optional[Dict],
+        headers: Optional[dict],
         collector: Optional[Callable] = logging.debug,
     ) -> None:
         super().__init__()

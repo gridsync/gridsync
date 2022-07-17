@@ -5,7 +5,7 @@ import logging as log
 import os
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Union, cast
+from typing import List, Optional, Union, cast
 
 import treq
 import yaml
@@ -715,7 +715,7 @@ class Tahoe:
         cap: str,
         exclude_dirnodes: bool = False,
         exclude_filenodes: bool = False,
-    ) -> TwistedDeferred[Optional[Dict[str, dict]]]:
+    ) -> TwistedDeferred[Optional[dict[str, dict]]]:
         yield self.await_ready()
         json_output = yield self.get_json(cap)
         if json_output is None:
@@ -766,7 +766,7 @@ _ZKAPAUTHZ_OPTIONAL_ITEMS = {
 }
 
 
-def storage_options_to_config(options: Dict) -> Optional[Dict]:
+def storage_options_to_config(options: dict) -> Optional[dict]:
     """
     Reshape a storage-options configuration dictionary into a tahoe.cfg
     configuration dictionary.

@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional
 
 import treq
 from autobahn.twisted.websocket import create_client_agent
@@ -111,7 +111,7 @@ class ZKAPAuthorizer:
         return sizes
 
     @inlineCallbacks
-    def calculate_price(self, sizes: List[int]) -> TwistedDeferred[Dict]:
+    def calculate_price(self, sizes: List[int]) -> TwistedDeferred[dict]:
         if not self.gateway.nodeurl:
             return {}
         code, body = yield self._request(
@@ -124,7 +124,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error ({code}) calculating price: {body}")
 
     @inlineCallbacks
-    def get_price(self) -> TwistedDeferred[Dict]:
+    def get_price(self) -> TwistedDeferred[dict]:
         sizes = yield self.get_sizes()
         price = yield self.calculate_price(sizes)
         return price
@@ -143,7 +143,7 @@ class ZKAPAuthorizer:
         raise TahoeWebError(f"Error ({code}) adding voucher: {body}")
 
     @inlineCallbacks
-    def get_voucher(self, voucher: str) -> TwistedDeferred[Dict]:
+    def get_voucher(self, voucher: str) -> TwistedDeferred[dict]:
         code, body = yield self._request("GET", f"/voucher/{voucher}")
         if code == 200:
             return json.loads(body)
