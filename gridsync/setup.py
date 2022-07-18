@@ -423,11 +423,13 @@ class SetupRunner(QObject):
                 if not permission_granted:
                     raise AbortedByUserError("The user aborted the operation")
 
-        self.gateway = self.get_gateway(
+        gateway = self.get_gateway(
             settings.get("introducer", ""), settings.get("storage", {})
         )
+        if gateway:
+            self.gateway = gateway
         folders_data = settings.get("magic-folders")
-        if not self.gateway:
+        if not gateway:
             yield self.join_grid(settings)
             yield self.ensure_recovery(settings)
         elif not folders_data:
