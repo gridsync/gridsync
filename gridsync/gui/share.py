@@ -39,7 +39,7 @@ from gridsync.tor import TOR_PURPLE
 from gridsync.util import b58encode, humanized_list
 
 if TYPE_CHECKING:
-    from gridsync.gui import Gui
+    from gridsync.gui import AbstractGui
 
 
 class InviteSenderDialog(QDialog):
@@ -47,7 +47,10 @@ class InviteSenderDialog(QDialog):
     closed = Signal(QWidget)
 
     def __init__(
-        self, gateway: Tahoe, gui: Gui, folder_names: Optional[list] = None
+        self,
+        gateway: Tahoe,
+        gui: AbstractGui,
+        folder_names: Optional[list] = None,
     ) -> None:
         super().__init__()
         self.gateway = gateway
