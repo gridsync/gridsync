@@ -62,9 +62,7 @@ class InviteReceiver(QObject):
     joined_folders = Signal(list)
     done = Signal(object)
 
-    def __init__(
-        self, known_gateways: Optional[list] = None, use_tor: bool = False
-    ) -> None:
+    def __init__(self, known_gateways: list, use_tor: bool = False) -> None:
         super().__init__()
         self.known_gateways = known_gateways
         self.use_tor = use_tor
