@@ -6,7 +6,7 @@ import os
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union
+from typing import TYPE_CHECKING, Coroutine, Generator, Optional, Union, cast
 
 from qtpy.QtCore import (
     QItemSelectionModel,
@@ -162,11 +162,11 @@ def _get_encrypt_password(parent: QWidget) -> Optional[str]:
 
 
 @contextmanager
-def _encryption_animation() -> None:
+def _encryption_animation() -> Generator:
     """
     Create and start an animated progress dialog for the encryption process.
     """
-    progress = QProgressDialog("Encrypting...", None, 0, 100)
+    progress = QProgressDialog("Encrypting...", "", 0, 100)
     progress.show()
     animation = QPropertyAnimation(progress, b"value")
     animation.setDuration(6000)  # XXX
@@ -318,12 +318,12 @@ class MainWindow(QMainWindow):
         )
         self._maybe_show_news_message(gateway, title, message)
 
-    def current_view(self) -> Optional[QWidget]:
+    def current_view(self) -> Optional[View]:
         try:
             w = self.central_widget.folders_views[self.combo_box.currentData()]
         except KeyError:
             return None
-        return w.layout().itemAt(0).widget()
+        return cast(View, w.layout().itemAt(0).widget())
 
     def select_folder(self) -> None:
         view = self.current_view()
@@ -407,7 +407,7 @@ class MainWindow(QMainWindow):
                 f"Destination file not found after saving: {path}",
             )
 
-    def export_recovery_key(self, gateway: Optional[Tahoe] = None):
+    def export_recovery_key(self, gateway: Optional[Tahoe] = None) -> None:
         """
         Export the recovery key to a user-specific path on the filesystem,
         possibly encrypting it with a user-specified password.
@@ -573,12 +573,12 @@ class MainWindow(QMainWindow):
         if key in (Qt.Key_Backspace, Qt.Key_Delete):
             view = self.current_view()
             selected = view.selectedIndexes() if view else []
-            if selected:
+            if selected and view:
                 view.confirm_stop_syncing(view.get_selected_folders())
         if key == Qt.Key_Escape:
             view = self.current_view()
             selected = view.selectedIndexes() if view else []
-            if selected:
+            if selected and view:
                 for index in selected:
                     view.selectionModel().select(
                         index, QItemSelectionModel.Deselect
