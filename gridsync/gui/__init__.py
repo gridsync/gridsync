@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
@@ -12,9 +13,15 @@ from gridsync.gui.systray import SystemTrayIcon
 from gridsync.gui.welcome import WelcomeDialog
 from gridsync.preferences import Preferences
 
+if TYPE_CHECKING:
+    from gridsync.core import Core
+
 
 class AbstractGui(Protocol):
+    core: Core
     main_window: MainWindow
+    unread_messages: list[tuple]
+    systray: SystemTrayIcon
 
     def show(self) -> None:
         pass
@@ -38,8 +45,8 @@ class AbstractGui(Protocol):
 
 
 @attr.s(eq=False)  # To avoid "TypeError: unhashable type: 'Gui'" on PySide2
-class Gui:  # type: ignore  # Avoid circular import from core
-    core = attr.ib()  # type: ignore  # Avoid circular import from core
+class Gui:
+    core: Core = attr.ib()
 
     preferences: Preferences = attr.ib(default=attr.Factory(Preferences))
     unread_messages: list[tuple] = attr.ib(default=attr.Factory(list))
