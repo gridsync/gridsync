@@ -84,7 +84,7 @@ class InviteSenderDialog(QDialog):
         header_icon.setPixmap(icon.pixmap(50, 50))
 
         header_text = QLabel(self)
-        if self.folder_names:
+        if self.folder_names_humanized:
             header_text.setText(self.folder_names_humanized)
         else:
             header_text.setText(self.gateway.name)
