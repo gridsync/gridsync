@@ -474,7 +474,7 @@ class InviteReceiverDialog(QDialog):
         )
         self.close()
 
-    def got_message(self, _) -> None:
+    def got_message(self, _: dict) -> None:
         self.update_progress("Reading invitation...")  # 3
 
     def got_welcome(self) -> None:
