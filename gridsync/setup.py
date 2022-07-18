@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 import treq
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
-from qtpy.QtWidgets import QInputDialog, QMessageBox, QWidget
+from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -100,9 +100,7 @@ def prompt_for_leaky_tor(
     return False
 
 
-def prompt_for_grid_name(
-    grid_name: str, parent: Optional[QWidget] = None
-) -> tuple[str, bool]:
+def prompt_for_grid_name(grid_name: str, parent: QWidget) -> tuple[str, int]:
     title = "{} - Choose a name".format(APP_NAME)
     label = "Please choose a name for this connection:"
     if grid_name:
@@ -112,10 +110,12 @@ def prompt_for_grid_name(
                 APP_NAME, grid_name
             )
         )
-    return QInputDialog.getText(parent, title, label, 0, grid_name)
+    return QInputDialog.getText(
+        parent, title, label, QLineEdit.Normal, grid_name
+    )
 
 
-def validate_grid(settings: dict, parent: Optional[QWidget] = None) -> dict:
+def validate_grid(settings: dict, parent: QWidget) -> dict:
     nickname = settings.get("nickname", "")
     while not nickname:
         nickname, _ = prompt_for_grid_name(nickname, parent)
@@ -144,20 +144,20 @@ def validate_grid(settings: dict, parent: Optional[QWidget] = None) -> dict:
 
 
 def prompt_for_folder_name(
-    folder_name: str, grid_name: str, parent: Optional[QWidget] = None
-) -> tuple[str, bool]:
+    folder_name: str, grid_name: str, parent: QWidget
+) -> tuple[str, int]:
     return QInputDialog.getText(
         parent,
         "Folder already exists",
         'You already belong to a folder named "{}" on\n'
         "{}; Please choose a different name.".format(folder_name, grid_name),
-        0,
+        QLineEdit.Normal,
         folder_name,
     )
 
 
 def validate_folders(
-    settings: dict, known_gateways: list, parent: Optional[QWidget] = None
+    settings: dict, known_gateways: list, parent: QWidget
 ) -> dict:
     gateway = None
     if known_gateways:
@@ -215,7 +215,7 @@ class SetupRunner(QObject):
         self.use_tor = use_tor
         self.gateway = Tahoe()
 
-    def get_gateway(self, introducer: str, servers: dict):
+    def get_gateway(self, introducer: str, servers: dict) -> Optional[Tahoe]:
         if not self.known_gateways:
             return None
         for gateway in self.known_gateways:
@@ -339,7 +339,7 @@ class SetupRunner(QObject):
             self.gateway.save_settings(settings)  # XXX Unnecessary?
             if zkapauthz:
 
-                def status_updated(stage, failure_reason):
+                def status_updated(stage: str, failure_reason: str) -> None:
                     # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
                     # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
                     # _zkapauthorizer/recover.py#L35
@@ -408,7 +408,7 @@ class SetupRunner(QObject):
         if "version" in settings and int(settings["version"]) > 2:
             raise UpgradeRequiredError
 
-        nickname = settings.get("nickname")
+        nickname = settings.get("nickname", "")
 
         if self.use_tor or "hide-ip" in settings or is_onion_grid(settings):
             settings["hide-ip"] = True
@@ -424,7 +424,7 @@ class SetupRunner(QObject):
                     raise AbortedByUserError("The user aborted the operation")
 
         self.gateway = self.get_gateway(
-            settings.get("introducer"), settings.get("storage")
+            settings.get("introducer", ""), settings.get("storage", {})
         )
         folders_data = settings.get("magic-folders")
         if not self.gateway:
