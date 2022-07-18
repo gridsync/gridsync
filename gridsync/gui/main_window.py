@@ -15,7 +15,7 @@ from qtpy.QtCore import (
     Qt,
     QTimer,
 )
-from qtpy.QtGui import QIcon, QKeySequence
+from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent, QKeySequence, QShowEvent
 from qtpy.QtWidgets import (
     QFileDialog,
     QGridLayout,
@@ -89,12 +89,12 @@ class CentralWidget(QStackedWidget):
         self.views.append(view)
         self.folders_views[gateway] = widget
 
-    def _add_history_view(self, gateway) -> None:
+    def _add_history_view(self, gateway: Tahoe) -> None:
         view = HistoryView(gateway, self.gui)
         self.addWidget(view)
         self.history_views[gateway] = view
 
-    def _add_usage_view(self, gateway) -> None:
+    def _add_usage_view(self, gateway: Tahoe) -> None:
         gateway.load_settings()  # Ensure that zkap_unit_name is read/updated
         view = UsageView(gateway, self.gui)
         widget = QWidget()
@@ -110,7 +110,7 @@ class CentralWidget(QStackedWidget):
         self.addWidget(widget)
         self.usage_views[gateway] = widget
 
-    def add_gateway(self, gateway) -> None:
+    def add_gateway(self, gateway: Tahoe) -> None:
         self._add_folders_view(gateway)
         self._add_history_view(gateway)
         self._add_usage_view(gateway)
@@ -162,7 +162,7 @@ def _get_encrypt_password(parent: QWidget) -> Optional[str]:
 
 
 @contextmanager
-def _encryption_animation():
+def _encryption_animation() -> None:
     """
     Create and start an animated progress dialog for the encryption process.
     """
@@ -181,7 +181,7 @@ def _encryption_animation():
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, gui: AbstractGui):
+    def __init__(self, gui: AbstractGui) -> None:
         super().__init__()
         self.gui = gui
 
@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         self.toolbar.history_action_triggered.connect(self.show_history_view)
         self.toolbar.usage_action_triggered.connect(self.show_usage_view)
 
-    def populate(self, gateways):
+    def populate(self, gateways: list) -> None:
         for gateway in gateways:
             if gateway not in self.gateways:
                 self.central_widget.add_gateway(gateway)
@@ -264,7 +264,9 @@ class MainWindow(QMainWindow):
                 self.toolbar.combo_box.activate(CONNECTION_DEFAULT_NICKNAME)
             self.toolbar.update_actions()  # XXX
 
-    def show_news_message(self, gateway, title, message):
+    def show_news_message(
+        self, gateway: Tahoe, title: str, message: str
+    ) -> None:
         msgbox = QMessageBox(self)
         msgbox.setWindowModality(Qt.WindowModal)
         icon_filepath = os.path.join(gateway.nodedir, "icon")
@@ -289,7 +291,9 @@ class MainWindow(QMainWindow):
             return
         self.gui.systray.update()
 
-    def _maybe_show_news_message(self, gateway, title, message):
+    def _maybe_show_news_message(
+        self, gateway: Tahoe, title: str, message: str
+    ) -> None:
         self.gui.unread_messages.append((gateway, title, message))
         self.gui.systray.update()
         if self.isVisible():
@@ -297,14 +301,14 @@ class MainWindow(QMainWindow):
         else:
             self.pending_news_message = (gateway, title, message)
 
-    def on_message_received(self, gateway, message):
+    def on_message_received(self, gateway: Tahoe, message: str) -> None:
         title = "New message from {}".format(gateway.name)
         self.gui.show_message(
             title, strip_html_tags(message.replace("<p>", "\n\n"))
         )
         self._maybe_show_news_message(gateway, title, message)
 
-    def on_upgrade_required(self, gateway):
+    def on_upgrade_required(self, gateway: Tahoe) -> None:
         title = "Upgrade required"
         message = (
             "A message was received from {} in an unsupported format. This "
@@ -314,26 +318,26 @@ class MainWindow(QMainWindow):
         )
         self._maybe_show_news_message(gateway, title, message)
 
-    def current_view(self):
+    def current_view(self) -> Optional[QWidget]:
         try:
             w = self.central_widget.folders_views[self.combo_box.currentData()]
         except KeyError:
             return None
         return w.layout().itemAt(0).widget()
 
-    def select_folder(self):
+    def select_folder(self) -> None:
         view = self.current_view()
         if view:
             view.select_folder()
 
-    def set_current_grid_status(self):
+    def set_current_grid_status(self) -> None:
         current_view = self.current_view()
         if not current_view:
             return
         self.gui.systray.update()
         self.toolbar.update_actions()  # XXX
 
-    def show_folders_view(self):
+    def show_folders_view(self) -> None:
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.folders_views[self.combo_box.currentData()]
@@ -342,7 +346,7 @@ class MainWindow(QMainWindow):
             return
         self.set_current_grid_status()
 
-    def show_history_view(self):
+    def show_history_view(self) -> None:
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.history_views[self.combo_box.currentData()]
@@ -351,7 +355,7 @@ class MainWindow(QMainWindow):
             return
         self.set_current_grid_status()
 
-    def show_usage_view(self):
+    def show_usage_view(self) -> None:
         try:
             self.central_widget.setCurrentWidget(
                 self.central_widget.usage_views[self.combo_box.currentData()]
@@ -360,14 +364,14 @@ class MainWindow(QMainWindow):
             return
         self.set_current_grid_status()
 
-    def show_welcome_dialog(self):
+    def show_welcome_dialog(self) -> None:
         if self.welcome_dialog:
             self.welcome_dialog.close()
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
         self.welcome_dialog.show()
         self.welcome_dialog.raise_()
 
-    def on_grid_selected(self, index):
+    def on_grid_selected(self, index: int) -> None:
         if index == self.combo_box.count() - 1:  # XXX
             self.show_welcome_dialog()
         if not self.combo_box.currentData():
@@ -449,11 +453,11 @@ class MainWindow(QMainWindow):
         else:
             self.confirm_exported(path, gateway)
 
-    def import_recovery_key(self):
+    def import_recovery_key(self) -> None:
         self.welcome_dialog = WelcomeDialog(self.gui, self.gateways)
         self.welcome_dialog.on_restore_link_activated()
 
-    def prompt_for_export(self, gateway):
+    def prompt_for_export(self, gateway: Tahoe) -> None:
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -480,23 +484,23 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             self.export_recovery_key(gateway)
 
-    def on_invite_received(self, gateway):
+    def on_invite_received(self, gateway: Tahoe) -> None:
         self.populate([gateway])
 
-    def on_invite_closed(self, obj):
+    def on_invite_closed(self, dialog: InviteReceiverDialog) -> None:
         try:
-            self.active_invite_receiver_dialogs.remove(obj)
+            self.active_invite_receiver_dialogs.remove(dialog)
         except ValueError:
             pass
 
-    def open_invite_receiver(self):
+    def open_invite_receiver(self) -> None:
         invite_receiver_dialog = InviteReceiverDialog(self.gateways)
         invite_receiver_dialog.completed.connect(self.on_invite_received)
         invite_receiver_dialog.closed.connect(self.on_invite_closed)
         invite_receiver_dialog.show()
         self.active_invite_receiver_dialogs.append(invite_receiver_dialog)
 
-    def open_invite_sender_dialog(self):
+    def open_invite_sender_dialog(self) -> None:
         gateway = self.combo_box.currentData()
         if gateway:
             view = self.current_view()
@@ -524,7 +528,7 @@ class MainWindow(QMainWindow):
                 return True
         return False
 
-    def confirm_quit(self):
+    def confirm_quit(self) -> None:
         msg = QMessageBox(self)
         if self._is_folder_syncing():
             msg.setIcon(QMessageBox.Warning)
@@ -561,9 +565,10 @@ class MainWindow(QMainWindow):
         if msg.exec_() == QMessageBox.Yes:
             if sys.platform == "win32":
                 self.gui.systray.hide()
-            reactor.stop()
+            # Ignore mypy error 'Module has no attribute "stop"'
+            reactor.stop()  # type: ignore
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
         if key in (Qt.Key_Backspace, Qt.Key_Delete):
             view = self.current_view()
@@ -581,14 +586,14 @@ class MainWindow(QMainWindow):
             elif self.gui.systray.isSystemTrayAvailable():
                 self.hide()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         if self.gui.systray.isSystemTrayAvailable():
             event.accept()
         else:
             event.ignore()
             self.confirm_quit()
 
-    def showEvent(self, _):
+    def showEvent(self, _: QShowEvent) -> None:
         if self.pending_news_message:
             gateway, title, message = self.pending_news_message
             self.pending_news_message = ()
