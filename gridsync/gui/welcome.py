@@ -262,9 +262,7 @@ class ProgressBarWidget(QWidget):
 
 
 class WelcomeDialog(QStackedWidget):
-    def __init__(
-        self, gui: AbstractGui, known_gateways: Optional[list] = None
-    ) -> None:
+    def __init__(self, gui: AbstractGui, known_gateways: list) -> None:
         super().__init__()
         self.gui = gui
         self.known_gateways = known_gateways
