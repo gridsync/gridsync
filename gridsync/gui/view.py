@@ -203,8 +203,8 @@ class View(QTreeView):
         elif self.gateway.magic_folder.folder_is_remote(name):
             self.select_download_location([name])
 
-    def open_invite_sender_dialog(self, folder_name: str) -> None:
-        isd = InviteSenderDialog(self.gateway, self.gui, folder_name)
+    def open_invite_sender_dialog(self, folder_names: list) -> None:
+        isd = InviteSenderDialog(self.gateway, self.gui, folder_names)
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
