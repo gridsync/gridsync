@@ -193,7 +193,7 @@ class View(QTreeView):
         self.add_folder_icon.hide()
         self.add_folder_label.hide()
 
-    def on_double_click(self, index: int) -> None:
+    def on_double_click(self, index: QModelIndex) -> None:
         item = self.get_model().itemFromIndex(index)
         name = self.get_model().item(item.row(), 0).text()
         if self.gateway.magic_folder.folder_is_local(name):
