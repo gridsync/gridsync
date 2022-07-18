@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 
 class AbstractGui(Protocol):
     core: Core
+
+    welcome_dialog: WelcomeDialog
     main_window: MainWindow
     unread_messages: list[tuple]
     systray: SystemTrayIcon
@@ -59,7 +61,7 @@ class Gui:
 
     @welcome_dialog.default
     def _default_welcome_dialog(self) -> WelcomeDialog:
-        return WelcomeDialog(self)
+        return WelcomeDialog(self, [])
 
     @main_window.default
     def _main_window_default(self) -> MainWindow:
