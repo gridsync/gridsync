@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import attr
 from qtpy.QtCore import QObject, Signal
@@ -12,6 +13,10 @@ from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
 from gridsync.errors import TahoeWebError
+from gridsync.types import TwistedDeferred
+
+if TYPE_CHECKING:
+    from gridsync.tahoe import Tahoe
 
 
 class GridChecker(QObject):
@@ -21,7 +26,7 @@ class GridChecker(QObject):
     nodes_updated = Signal(int, int)
     space_updated = Signal(object)
 
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
         self.num_connected = 0
@@ -31,7 +36,7 @@ class GridChecker(QObject):
         self.available_space = 0
 
     @inlineCallbacks
-    def do_check(self):
+    def do_check(self) -> TwistedDeferred[None]:
         results = yield self.gateway.get_grid_status()
         if results:
             num_connected, num_known, available_space = results
@@ -77,10 +82,10 @@ class _VoucherParse:
         redemption was seen then the value is an empty string instead.
     """
 
-    total_tokens = attr.ib()
-    unpaid_vouchers = attr.ib()
-    redeeming_vouchers = attr.ib()
-    zkaps_last_redeemed = attr.ib()
+    total_tokens: int = attr.ib()
+    unpaid_vouchers: list = attr.ib()
+    redeeming_vouchers: list = attr.ib()
+    zkaps_last_redeemed: str = attr.ib()
 
 
 def _parse_vouchers(
@@ -150,7 +155,7 @@ class ZKAPChecker(QObject):
     redeeming_vouchers_updated = Signal(list)
     low_zkaps_warning = Signal()
 
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
 
@@ -165,7 +170,7 @@ class ZKAPChecker(QObject):
         self.unpaid_vouchers: list = []
         self.redeeming_vouchers: list = []
 
-    def consumption_rate(self):
+    def consumption_rate(self) -> float:
         zkaps_spent = self.zkaps_total - self.zkaps_remaining
         # XXX zkaps_last_redeemed starts as "0" which cannot be parsed as an
         # ISO8601 datetime.
@@ -175,7 +180,7 @@ class ZKAPChecker(QObject):
         consumption_rate = zkaps_spent / seconds
         return consumption_rate
 
-    def _maybe_emit_low_zkaps_warning(self):
+    def _maybe_emit_low_zkaps_warning(self) -> None:
         if (
             self.zkaps_total
             and self.days_remaining
@@ -199,7 +204,7 @@ class ZKAPChecker(QObject):
             return
         self._update_zkaps_last_redeemed(last_redeemed)
 
-    def _update_unpaid_vouchers(self, unpaid_vouchers):
+    def _update_unpaid_vouchers(self, unpaid_vouchers: list) -> None:
         """
         Record and propagate notification about the set of unpaid vouchers
         changing, if it has.
@@ -208,7 +213,7 @@ class ZKAPChecker(QObject):
             self.unpaid_vouchers = unpaid_vouchers
             self.unpaid_vouchers_updated.emit(self.unpaid_vouchers)
 
-    def _update_redeeming_vouchers(self, redeeming_vouchers):
+    def _update_redeeming_vouchers(self, redeeming_vouchers: list) -> None:
         """
         Record and propagate notification about the set of redeeming vouchers
         changing, if it has.
@@ -217,7 +222,7 @@ class ZKAPChecker(QObject):
             self.redeeming_vouchers = redeeming_vouchers
             self.redeeming_vouchers_updated.emit(self.redeeming_vouchers)
 
-    def _update_zkaps_last_redeemed(self, zkaps_last_redeemed):
+    def _update_zkaps_last_redeemed(self, zkaps_last_redeemed: str) -> None:
         """
         Record and propagate notification about last redemption time moving
         forward, if it has.
@@ -236,7 +241,7 @@ class ZKAPChecker(QObject):
         except FileNotFoundError:
             return 0
 
-    def emit_zkaps_updated(self, remaining, total):
+    def emit_zkaps_updated(self, remaining: int, total: int) -> None:
         used = total - remaining
         batch_size = self.gateway.zkapauthorizer.zkap_batch_size
         if batch_size:
@@ -265,7 +270,7 @@ class ZKAPChecker(QObject):
         self.update_price()  # XXX Maybe too expensive to call here?
 
     @inlineCallbacks
-    def update_price(self):
+    def update_price(self) -> TwistedDeferred[None]:
         # ZKAPAuthorizer.get_price() can fail with an HTTP 410 error if
         # called too soon during tahoe startup so wait until connected
         yield self.gateway.await_ready()
@@ -284,7 +289,7 @@ class ZKAPChecker(QObject):
             self.days_remaining = int(seconds_remaining / 86400)
             self.days_remaining_updated.emit(self.days_remaining)
 
-    def _update_zkaps(self, remaining, total):
+    def _update_zkaps(self, remaining: int, total: int) -> None:
         if remaining and not total:
             total = self._maybe_load_last_total()
         if not total or remaining > total:
@@ -307,7 +312,7 @@ class ZKAPChecker(QObject):
         elif not remaining or not total:
             self.emit_zkaps_updated(remaining, total)
 
-    def _update_renewal_cost(self, count):
+    def _update_renewal_cost(self, count: int) -> None:
         if not count:
             # If a lease maintenance crawl hasn't yet happened, we can assume
             # that the cost to renew (in the first crawl) will be equivalent
@@ -318,7 +323,7 @@ class ZKAPChecker(QObject):
             self.zkaps_renewal_cost = count
 
     @inlineCallbacks
-    def do_check(self):
+    def do_check(self) -> TwistedDeferred[None]:
         if self._time_started is None:
             self._time_started = datetime.now()
         if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
@@ -401,7 +406,7 @@ class Monitor(QObject):
     redeeming_vouchers_updated = Signal(list)
     low_zkaps_warning = Signal()
 
-    def __init__(self, gateway):
+    def __init__(self, gateway: Tahoe) -> None:
         super().__init__()
         self.gateway = gateway
         self.timer = LoopingCall(self.do_checks)
@@ -434,12 +439,12 @@ class Monitor(QObject):
         )
 
     @inlineCallbacks
-    def do_checks(self):
+    def do_checks(self) -> TwistedDeferred[None]:
         yield self.zkap_checker.do_check()
         yield self.grid_checker.do_check()
         self.check_finished.emit()
 
-    def start(self, interval=2):
+    def start(self, interval: int = 2) -> None:
         if not self._started:
             self._started = True
             self.timer.start(interval, now=True)
