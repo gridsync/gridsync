@@ -72,7 +72,7 @@ class InviteSenderDialog(QDialog):
         if self.folder_names:
             icon = QFileIconProvider().icon(
                 QFileInfo(
-                    self.gateway.get_magic_folder_directory(
+                    self.gateway.magic_folder.get_directory(
                         self.folder_names[0]
                     )
                 )
