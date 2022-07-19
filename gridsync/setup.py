@@ -100,7 +100,9 @@ def prompt_for_leaky_tor(
     return False
 
 
-def prompt_for_grid_name(grid_name: str, parent: QWidget) -> tuple[str, int]:
+def prompt_for_grid_name(
+    grid_name: str, parent: Optional[QWidget] = None
+) -> tuple[str, int]:
     title = "{} - Choose a name".format(APP_NAME)
     label = "Please choose a name for this connection:"
     if grid_name:
@@ -111,11 +113,17 @@ def prompt_for_grid_name(grid_name: str, parent: QWidget) -> tuple[str, int]:
             )
         )
     return QInputDialog.getText(
-        parent, title, label, QLineEdit.Normal, grid_name
+        # According to the Qt5 docs, QInputDialog accepts a null parent:
+        # https://doc.qt.io/qt-5/qinputdialog.html#QInputDialog
+        parent,  # type: ignore
+        title,
+        label,
+        QLineEdit.Normal,
+        grid_name,
     )
 
 
-def validate_grid(settings: dict, parent: QWidget) -> dict:
+def validate_grid(settings: dict, parent: Optional[QWidget] = None) -> dict:
     nickname = settings.get("nickname", "")
     while not nickname:
         nickname, _ = prompt_for_grid_name(nickname, parent)
@@ -144,10 +152,12 @@ def validate_grid(settings: dict, parent: QWidget) -> dict:
 
 
 def prompt_for_folder_name(
-    folder_name: str, grid_name: str, parent: QWidget
+    folder_name: str, grid_name: str, parent: Optional[QWidget] = None
 ) -> tuple[str, int]:
     return QInputDialog.getText(
-        parent,
+        # According to the Qt5 docs, QInputDialog accepts a null parent:
+        # https://doc.qt.io/qt-5/qinputdialog.html#QInputDialog
+        parent,  # type: ignore
         "Folder already exists",
         'You already belong to a folder named "{}" on\n'
         "{}; Please choose a different name.".format(folder_name, grid_name),
@@ -157,7 +167,7 @@ def prompt_for_folder_name(
 
 
 def validate_folders(
-    settings: dict, known_gateways: list, parent: QWidget
+    settings: dict, known_gateways: list, parent: Optional[QWidget] = None
 ) -> dict:
     gateway = None
     if known_gateways:
@@ -187,7 +197,7 @@ def validate_folders(
 def validate_settings(
     settings: dict,
     known_gateways: list,
-    parent: QWidget,
+    parent: Optional[QWidget] = None,
     from_wormhole: bool = True,
 ) -> dict:
     if from_wormhole and "rootcap" in settings:
