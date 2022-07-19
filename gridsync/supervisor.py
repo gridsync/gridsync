@@ -2,7 +2,7 @@ import logging
 import os
 import time
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
 from atomicwrites import atomic_write
 from twisted.internet import reactor
@@ -29,7 +29,7 @@ class Supervisor:
         self.name: str = ""
         self.time_started: Optional[float] = None
         self._keep_alive: bool = True
-        self._args: List[str] = []
+        self._args: list[str] = []
         self._started_trigger = ""
         self._stdout_line_collector: Optional[Callable] = None
         self._stderr_line_collector: Optional[Callable] = None

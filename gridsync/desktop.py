@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
 import subprocess
 import sys
 import webbrowser
+from typing import TYPE_CHECKING
 
 from atomicwrites import atomic_write
-from qtpy.QtCore import QCoreApplication, QUrl
+from qtpy.QtCore import QUrl
 from qtpy.QtGui import QClipboard, QDesktopServices
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
@@ -17,9 +19,18 @@ if sys.platform == "win32":
 
 from gridsync import APP_NAME, autostart_file_path, resource, settings
 
+if TYPE_CHECKING:
+    from typing import Optional
+
+    from qtpy.QtWidgets import QSystemTrayIcon
+
+    from gridsync.types import TwistedDeferred
+
 
 @inlineCallbacks
-def _txdbus_notify(title, message, duration=5000):
+def _txdbus_notify(
+    title: str, message: str, duration: int = 5000
+) -> TwistedDeferred[None]:
     from txdbus import client  # pylint: disable=import-error
 
     conn = yield client.connect(reactor)
@@ -43,7 +54,9 @@ def _txdbus_notify(title, message, duration=5000):
 
 
 @inlineCallbacks
-def notify(systray, title, message, duration=5000):
+def notify(
+    systray: QSystemTrayIcon, title: str, message: str, duration: int = 5000
+) -> TwistedDeferred[None]:
     logging.debug("Sending desktop notification...")
     if sys.platform not in ("darwin", "win32"):
         try:
@@ -60,11 +73,11 @@ def notify(systray, title, message, duration=5000):
         logging.info("%s: %s", title, message)
 
 
-def _desktop_open(path):
+def _desktop_open(path: str) -> None:
     QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
-def open_enclosing_folder(path):
+def open_enclosing_folder(path: str) -> None:
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         logging.warning("Tried to open path that doesn't exist: %s", path)
@@ -82,7 +95,7 @@ def open_enclosing_folder(path):
         _desktop_open(os.path.dirname(path))
 
 
-def open_path(path):
+def open_path(path: str) -> None:
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         logging.warning("Tried to open path that doesn't exist: %s", path)
@@ -94,9 +107,21 @@ def open_path(path):
         _desktop_open(path)
 
 
-def get_clipboard_modes():
-    clipboard = QCoreApplication.instance().clipboard()
+def _get_clipboard() -> Optional[QClipboard]:
+    from qtpy.QtGui import QGuiApplication
+    from qtpy.QtWidgets import QApplication
+
+    qapp = QApplication.instance()
+    if isinstance(qapp, (QApplication, QGuiApplication)):
+        return qapp.clipboard()
+    return None
+
+
+def get_clipboard_modes() -> list:
     modes = [QClipboard.Clipboard]
+    clipboard = _get_clipboard()
+    if not clipboard:
+        return modes
     if clipboard.supportsSelection():
         modes.append(QClipboard.Selection)
     if clipboard.supportsFindBuffer():
@@ -104,18 +129,29 @@ def get_clipboard_modes():
     return modes
 
 
-def get_clipboard_text(mode=QClipboard.Clipboard):
-    return QCoreApplication.instance().clipboard().text(mode)
+def get_clipboard_text(
+    mode: QClipboard.Mode = QClipboard.Clipboard,
+) -> Optional[str]:
+    clipboard = _get_clipboard()
+    if not clipboard:
+        return None
+    return clipboard.text(mode)
 
 
-def set_clipboard_text(text, mode=QClipboard.Clipboard):
-    QCoreApplication.instance().clipboard().setText(text, mode)
+def set_clipboard_text(
+    text: str, mode: QClipboard.Mode = QClipboard.Clipboard
+) -> None:
+    clipboard = _get_clipboard()
+    if not clipboard:
+        logging.warning("Clipboard not available")
+        return
+    clipboard.setText(text, mode)
     logging.debug(
         "Copied %i bytes to clipboard %i", len(text) if text else 0, mode
     )
 
 
-def _autostart_enable_linux(executable):
+def _autostart_enable_linux(executable: str) -> None:
     with atomic_write(autostart_file_path, mode="w", overwrite=True) as f:
         f.write(
             """\
@@ -132,7 +168,7 @@ Terminal=false
 
 
 # pylint: disable=line-too-long
-def _autostart_enable_mac(executable):
+def _autostart_enable_mac(executable: str) -> None:
     with atomic_write(autostart_file_path, mode="w", overwrite=True) as f:
         f.write(
             """\
@@ -161,15 +197,16 @@ def _autostart_enable_mac(executable):
         )
 
 
-def _autostart_enable_windows(executable):
-    shell = Dispatch("WScript.Shell")
-    shortcut = shell.CreateShortCut(autostart_file_path)
-    shortcut.Targetpath = executable
-    shortcut.WorkingDirectory = os.path.dirname(executable)
-    shortcut.save()
+def _autostart_enable_windows(executable: str) -> None:
+    if sys.platform == "win32":
+        shell = Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(autostart_file_path)
+        shortcut.Targetpath = executable
+        shortcut.WorkingDirectory = os.path.dirname(executable)
+        shortcut.save()
 
 
-def autostart_enable():
+def autostart_enable() -> None:
     logging.debug("Writing autostart file to '%s'...", autostart_file_path)
     try:
         os.makedirs(os.path.dirname(autostart_file_path))
@@ -196,11 +233,11 @@ def autostart_enable():
     logging.debug("Wrote autostart file to '%s'", autostart_file_path)
 
 
-def autostart_is_enabled():
+def autostart_is_enabled() -> bool:
     return os.path.exists(autostart_file_path)
 
 
-def autostart_disable():
+def autostart_disable() -> None:
     logging.debug("Deleting autostart file '%s'...", autostart_file_path)
     os.remove(autostart_file_path)
     logging.debug("Deleted autostart file '%s'", autostart_file_path)

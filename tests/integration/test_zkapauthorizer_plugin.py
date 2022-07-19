@@ -27,7 +27,7 @@ async def zkapauthorizer(tmp_path_factory, tahoe_server):
             }
         },
     }
-    await client.create_client(**settings)
+    await client.create_client(settings)
     client.save_settings(settings)
     await client.start()
     yield client.zkapauthorizer

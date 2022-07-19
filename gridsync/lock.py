@@ -13,11 +13,11 @@ from gridsync.errors import FilesystemLockError
 
 
 class FilesystemLock:
-    def __init__(self, filepath):
+    def __init__(self, filepath: str) -> None:
         self.filepath = filepath
         self.fd = None
 
-    def acquire(self):
+    def acquire(self) -> None:
         logging.debug("Acquiring lock: %s ...", self.filepath)
         if sys.platform == "win32":
             try:
@@ -47,10 +47,10 @@ class FilesystemLock:
                         self.filepath, str(error)
                     )
                 ) from error
-        self.fd = fd
+        self.fd = fd  # type: ignore
         logging.debug("Acquired lock: %s", self.fd)
 
-    def release(self):
+    def release(self) -> None:
         logging.debug("Releasing lock: %s ...", self.filepath)
         if not self.fd:
             logging.warning("No file descriptor found")

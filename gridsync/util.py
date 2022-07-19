@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
 from time import time
-from typing import Callable, List
+from typing import TYPE_CHECKING, Callable, Optional
 
 import attr
 from twisted.internet.defer import Deferred, inlineCallbacks
@@ -14,23 +15,27 @@ from twisted.python.failure import Failure
 B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 
-def b58encode(b):  # Adapted from python-bitcoinlib
+if TYPE_CHECKING:
+    from gridsync.types import TwistedDeferred
+
+
+def b58encode(b: bytes) -> str:  # Adapted from python-bitcoinlib
     n = int("0x0" + hexlify(b).decode("utf8"), 16)
     res = []
     while n:
         n, r = divmod(n, 58)
         res.append(B58_ALPHABET[r])
-    res = "".join(res[::-1])
+    rev = "".join(res[::-1])
     pad = 0
     for c in b:
         if c == 0:
             pad += 1
         else:
             break
-    return B58_ALPHABET[0] * pad + res
+    return B58_ALPHABET[0] * pad + rev
 
 
-def b58decode(s):  # Adapted from python-bitcoinlib
+def b58decode(s: str) -> bytes:  # Adapted from python-bitcoinlib
     if not s:
         return b""
     n = 0
@@ -61,7 +66,7 @@ def to_bool(s: str) -> bool:
     return True
 
 
-def humanized_list(list_, kind="files"):
+def humanized_list(list_: list, kind: str = "files") -> Optional[str]:
     if not list_:
         return None
     if len(list_) == 1:
@@ -76,32 +81,38 @@ def humanized_list(list_, kind="files"):
 
 
 class _TagStripper(HTMLParser):  # pylint: disable=abstract-method
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.data = []
+        self.data: list = []
 
-    def handle_data(self, data):
+    def handle_data(self, data: str) -> None:
         self.data.append(data)
 
-    def get_data(self):
+    def get_data(self) -> str:
         return "".join(self.data)
 
 
-def strip_html_tags(s):
+def strip_html_tags(s: str) -> str:
     ts = _TagStripper()
     ts.feed(s)
     return ts.get_data()
 
 
 @inlineCallbacks
-def until(predicate, result=True, timeout=10, period=0.2, reactor=None):
+def until(
+    predicate: Callable,
+    result: bool = True,
+    timeout: int = 10,
+    period: float = 0.2,
+    reactor: Optional[IReactorTime] = None,
+) -> TwistedDeferred[object]:
     if reactor is None:
-        from twisted.internet import reactor
+        from twisted.internet import reactor  # type: ignore
     limit = time() + timeout
     while time() < limit:
         if predicate() == result:
             return result
-        yield deferLater(reactor, period, lambda: None)
+        yield deferLater(reactor, period, lambda: None)  # type: ignore
     raise TimeoutError(
         f'{predicate} did not return a value of "{result}" after waiting '
         f"{timeout} seconds"
@@ -131,9 +142,9 @@ class Poller:
     target: Callable[[], Deferred[bool]] = attr.ib()
     interval: float = attr.ib()
     _idle: bool = attr.ib(default=True)
-    _waiting: List[Deferred[None]] = attr.ib(default=attr.Factory(list))
+    _waiting: list[Deferred[None]] = attr.ib(default=attr.Factory(list))
 
-    def wait_for_completion(self):
+    def wait_for_completion(self) -> Deferred:
         """
         Wait for the target function to signal completion.  For a single
         ``Poller`` instance, any number of calls to this function will all
@@ -142,7 +153,7 @@ class Poller:
 
         :return: A ``Deferred`` on completion.
         """
-        waiting = Deferred()
+        waiting: Deferred = Deferred()
         self._waiting.append(waiting)
 
         if self._idle:
@@ -152,7 +163,7 @@ class Poller:
         return waiting
 
     @inlineCallbacks
-    def _iterate_poll(self):
+    def _iterate_poll(self) -> TwistedDeferred[None]:
         """
         Poll the target function once.
 
@@ -168,23 +179,23 @@ class Poller:
         except Exception:  # pylint: disable=broad-except
             self._deliver_result(Failure())
 
-    def _completed(self):
+    def _completed(self) -> None:
         """
         Return to the idle state and deliver completion notification.
         """
         self._idle = True
         self._deliver_result(None)
 
-    def _deliver_result(self, result):
+    def _deliver_result(self, result: object) -> None:
         """
         Fire all waiting ``Deferred`` instances with the given result.
         """
         waiting = self._waiting
         self._waiting = []
         for w in waiting:
-            w.callback(result)
+            w.callback(result)  # type: ignore
 
-    def _schedule(self):
+    def _schedule(self) -> None:
         """
         Schedule the next polling iteration.
         """

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
@@ -174,7 +174,7 @@ class PasswordDialog(QDialog):
         help_text: str = "",
         show_stats: bool = True,
         parent: Optional[QWidget] = None,
-    ) -> Tuple[str, int]:
+    ) -> tuple[str, int]:
         dialog = PasswordDialog(
             label=label,
             ok_button_text=ok_button_text,

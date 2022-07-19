@@ -7,7 +7,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from humanize import naturalsize, naturaltime
 from qtpy.QtCore import QFileInfo, QSize, Qt, Slot
@@ -212,7 +212,7 @@ class Model(QStandardItemModel):
         self.update_overlay(folder)
 
     @staticmethod
-    def _errors_to_str(errors: Dict[str, int]) -> str:
+    def _errors_to_str(errors: dict[str, int]) -> str:
         lines = []
         for s, t in sorted(errors.items(), key=lambda x: x[1], reverse=True):
             lines.append(f"{s} ({datetime.fromtimestamp(t)})")

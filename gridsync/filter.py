@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import json
 import os
-from typing import List, Optional
+from typing import TYPE_CHECKING, Optional
 
 from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.crypto import trunchash
 
+if TYPE_CHECKING:
+    from gridsync.core import Core
 
-def get_filters(core):
+
+def get_filters(core: Core) -> list:
     filters = [
         (pkgdir, "PkgDir"),
         (config_dir, "ConfigDir"),
@@ -21,11 +25,14 @@ def get_filters(core):
         filters.append((gateway.executable, "TahoeExecutablePath"))
         tahoe_settings = gateway.get_settings(include_secrets=True)
         filters.append(
-            (tahoe_settings.get("rootcap"), "Rootcap:{}".format(gateway_id))
+            (
+                tahoe_settings.get("rootcap", ""),
+                "Rootcap:{}".format(gateway_id),
+            )
         )
         filters.append(
             (
-                tahoe_settings.get("introducer"),
+                tahoe_settings.get("introducer", ""),
                 "IntroducerFurl:{}".format(gateway_id),
             )
         )
@@ -105,7 +112,7 @@ def get_filters(core):
     return filters
 
 
-def apply_filters(in_str, filters):
+def apply_filters(in_str: str, filters: list) -> str:
     filtered = in_str
     for s, mask in filters:
         if s and mask:
@@ -113,21 +120,23 @@ def apply_filters(in_str, filters):
     return filtered
 
 
-def get_mask(string, tag, identifier=None):
+def get_mask(string: str, tag: str, identifier: Optional[str] = None) -> str:
     if identifier:
         return "<Filtered:{}>".format(tag + ":" + identifier)
     return "<Filtered:{}>".format(tag + ":" + trunchash(string))
 
 
-def apply_filter(dictionary, key, tag, identifier=None):
+def apply_filter(
+    dictionary: dict, key: str, tag: str, identifier: Optional[str] = None
+) -> None:
     value = dictionary.get(key)
     if value:
         dictionary[key] = get_mask(value, tag, identifier=identifier)
 
 
 def _apply_filter_by_action_type(  # noqa: max-complexity=30
-    msg, action_type, identifier=None
-):
+    msg: dict, action_type: str, identifier: Optional[str] = None
+) -> dict:
     if action_type == "dirnode:add-file":
         apply_filter(msg, "name", "Path")
 
@@ -220,7 +229,9 @@ def _apply_filter_by_action_type(  # noqa: max-complexity=30
     return msg
 
 
-def _apply_filter_by_message_type(msg, message_type):  # noqa: max-complexity
+def _apply_filter_by_message_type(  # noqa: max-complexity
+    msg: dict, message_type: str
+) -> dict:
     if message_type == "fni":
         apply_filter(msg, "info", "Event")
 
@@ -284,7 +295,7 @@ def _apply_filter_by_message_type(msg, message_type):  # noqa: max-complexity
     return msg
 
 
-def filter_tahoe_log_message(message, identifier):
+def filter_tahoe_log_message(message: str, identifier: Optional[str]) -> str:
     msg = json.loads(message)
 
     action_type = msg.get("action_type")
@@ -299,15 +310,15 @@ def filter_tahoe_log_message(message, identifier):
 
 
 def filter_eliot_logs(
-    messages: List[str], identifier: Optional[str] = None
-) -> List[str]:
+    messages: list[str], identifier: Optional[str] = None
+) -> list[str]:
     filtered = []
     for message in messages:
         filtered.append(filter_tahoe_log_message(message, identifier))
     return filtered
 
 
-def join_eliot_logs(messages: List[str]) -> str:
+def join_eliot_logs(messages: list[str]) -> str:
     reordered = []
     for message in messages:
         reordered.append(json.dumps(json.loads(message), sort_keys=True))

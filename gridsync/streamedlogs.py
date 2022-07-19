@@ -7,6 +7,7 @@ node.
 
 import logging
 from collections import deque
+from typing import Optional
 
 from autobahn.twisted.websocket import (
     WebSocketClientFactory,
@@ -16,12 +17,13 @@ from hyperlink import parse
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
 from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.interfaces import IReactorTime
 
 
 class TahoeLogReader(
     WebSocketClientProtocol
 ):  # pylint: disable=too-many-ancestors
-    def onMessage(self, payload, isBinary):
+    def onMessage(self, payload: bytes, isBinary: bool) -> None:
         if isBinary:
             logging.warning(
                 "Received a binary-mode WebSocket message from Tahoe-LAFS "
@@ -41,21 +43,23 @@ class StreamedLogs(MultiService):
 
     _started = False
 
-    def __init__(self, reactor, maxlen=None):
+    def __init__(
+        self, reactor: IReactorTime, maxlen: Optional[int] = None
+    ) -> None:
         super().__init__()
         self._reactor = reactor
-        self._client_service = None
+        self._client_service: Optional[ClientService] = None
         if maxlen is None:
             # This deque limit is based on average message size of 260 bytes
             # and a desire to limit maximum memory consumption here to around
             # 500 MiB.
             maxlen = 2000000
-        self._buffer = deque(maxlen=maxlen)
+        self._buffer: deque = deque(maxlen=maxlen)
 
-    def add_message(self, message):
+    def add_message(self, message: bytes) -> None:
         self._buffer.append(message)
 
-    def start(self, nodeurl, api_token):
+    def start(self, nodeurl: str, api_token: str) -> None:
         """
         Start reading logs from the streaming log endpoint.
 
@@ -70,20 +74,22 @@ class StreamedLogs(MultiService):
             return super().startService()
         return None
 
-    def stop(self):
+    def stop(self) -> None:
         if self.running:
-            self._client_service.disownServiceParent()
+            self._client_service.disownServiceParent()  # type: ignore
             self._client_service = None
             return super().stopService()
         return None
 
-    def get_streamed_log_messages(self):
+    def get_streamed_log_messages(self) -> list:
         """
         :return list[str]: The messages currently in the message buffer.
         """
         return list(msg.decode("utf-8") for msg in list(self._buffer))
 
-    def _create_client_service(self, nodeurl, api_token):
+    def _create_client_service(
+        self, nodeurl: str, api_token: str
+    ) -> ClientService:
         url = parse(nodeurl)
         wsurl = url.replace(scheme="ws").child("private", "logs", "v1")
 

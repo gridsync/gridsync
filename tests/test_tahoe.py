@@ -404,7 +404,7 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
 @inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(FileExistsError):
-        yield tahoe.create_client()
+        yield tahoe.create_client({})
 
 
 @inlineCallbacks
@@ -412,7 +412,7 @@ def test_tahoe_create_client_args(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
     mocked_command = MagicMock()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
-    yield tahoe.create_client(nickname="test_nickname")
+    yield tahoe.create_client({"nickname": "test_nickname"})
     args = mocked_command.call_args[0][0]
     assert set(["--nickname", "test_nickname"]).issubset(set(args))
 
@@ -422,7 +422,7 @@ def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
     mocked_command = MagicMock()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
-    yield tahoe.create_client(happy=7)
+    yield tahoe.create_client({"happy": "7"})
     args = mocked_command.call_args[0][0]
     assert set(["--shares-happy", "7"]).issubset(set(args))
 
@@ -433,7 +433,7 @@ def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
     mocked_command = MagicMock()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
     settings = {"hide-ip": True}
-    yield tahoe.create_client(**settings)
+    yield tahoe.create_client(settings)
     args = mocked_command.call_args[0][0]
     assert "--hide-ip" in args
 
@@ -451,7 +451,7 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
         "node-1": {"anonymous-storage-FURL": "pb://test", "nickname": "One"}
     }
     settings = {"nickname": "TestGrid", "storage": storage_servers}
-    yield client.create_client(**settings)
+    yield client.create_client(settings)
     assert client.get_storage_servers() == storage_servers
 
 

@@ -3,7 +3,7 @@
 from typing import Optional
 
 from qtpy.QtCore import QSize, Qt
-from qtpy.QtGui import QIcon
+from qtpy.QtGui import QIcon, QKeyEvent
 from qtpy.QtWidgets import (
     QAction,
     QCheckBox,
@@ -28,7 +28,7 @@ from gridsync.preferences import Preferences
 
 
 class GeneralPane(QWidget):
-    def __init__(self, preferences: Preferences):
+    def __init__(self, preferences: Preferences) -> None:
         super().__init__()
         self.preferences = preferences
 
@@ -54,7 +54,7 @@ class GeneralPane(QWidget):
 
         self.load_preferences()
 
-    def load_preferences(self):
+    def load_preferences(self) -> None:
         if self.preferences.get("startup", "minimize") == "true":
             self.checkbox_minimize.setCheckState(Qt.Checked)
         else:
@@ -64,13 +64,13 @@ class GeneralPane(QWidget):
         else:
             self.checkbox_autostart.setCheckState(Qt.Unchecked)
 
-    def on_checkbox_minimize_changed(self, state):
+    def on_checkbox_minimize_changed(self, state: int) -> None:
         if state:
             self.preferences.set("startup", "minimize", "true")
         else:
             self.preferences.set("startup", "minimize", "false")
 
-    def on_checkbox_autostart_changed(self, state):
+    def on_checkbox_autostart_changed(self, state: int) -> None:
         if DEFAULT_AUTOSTART and not state:
             if question(
                 self,
@@ -89,7 +89,7 @@ class GeneralPane(QWidget):
 
 
 class NotificationsPane(QWidget):
-    def __init__(self, preferences: Preferences):
+    def __init__(self, preferences: Preferences) -> None:
         super().__init__()
         self.preferences = preferences
 
@@ -112,6 +112,8 @@ class NotificationsPane(QWidget):
         layout.addWidget(notifications_groupbox)
         layout.addItem(VSpacer())
 
+        self.load_preferences()
+
         self.checkbox_connection.stateChanged.connect(
             self.on_checkbox_connection_changed
         )
@@ -122,9 +124,7 @@ class NotificationsPane(QWidget):
             self.on_checkbox_invite_changed
         )
 
-        self.load_preferences()
-
-    def load_preferences(self):
+    def load_preferences(self) -> None:
         if self.preferences.get("notifications", "connection") == "true":
             self.checkbox_connection.setCheckState(Qt.Checked)
         else:
@@ -138,19 +138,19 @@ class NotificationsPane(QWidget):
         else:
             self.checkbox_invite.setCheckState(Qt.Checked)
 
-    def on_checkbox_connection_changed(self, state):
+    def on_checkbox_connection_changed(self, state: int) -> None:
         if state:
             self.preferences.set("notifications", "connection", "true")
         else:
             self.preferences.set("notifications", "connection", "false")
 
-    def on_checkbox_folder_changed(self, state):
+    def on_checkbox_folder_changed(self, state: int) -> None:
         if state:
             self.preferences.set("notifications", "folder", "true")
         else:
             self.preferences.set("notifications", "folder", "false")
 
-    def on_checkbox_invite_changed(self, state):
+    def on_checkbox_invite_changed(self, state: int) -> None:
         if state:
             self.preferences.set("notifications", "invite", "true")
         else:
@@ -158,7 +158,7 @@ class NotificationsPane(QWidget):
 
 
 class PreferencesWindow(QMainWindow):
-    def __init__(self, preferences: Optional[Preferences] = None):
+    def __init__(self, preferences: Optional[Preferences] = None) -> None:
         super().__init__()
 
         if preferences is None:
@@ -206,13 +206,13 @@ class PreferencesWindow(QMainWindow):
 
         self.on_general_button_clicked()
 
-    def on_general_button_clicked(self):
+    def on_general_button_clicked(self) -> None:
         self.setWindowTitle("{} - Preferences - General".format(APP_NAME))
         self.general_button.setChecked(True)
         self.notifications_button.setChecked(False)
         self.stacked_widget.setCurrentWidget(self.general_pane)
 
-    def on_notifications_button_clicked(self):
+    def on_notifications_button_clicked(self) -> None:
         self.setWindowTitle(
             "{} - Preferences - Notifications".format(APP_NAME)
         )
@@ -220,6 +220,6 @@ class PreferencesWindow(QMainWindow):
         self.general_button.setChecked(False)
         self.stacked_widget.setCurrentWidget(self.notifications_pane)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()

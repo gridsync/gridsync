@@ -8,7 +8,7 @@ from typing import Awaitable, Optional
 
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, QPropertyAnimation, QThread, Signal
-from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
+from qtpy.QtWidgets import QFileDialog, QMessageBox, QProgressDialog, QWidget
 from twisted.internet.defer import succeed
 from twisted.internet.threads import deferToThreadPool
 
@@ -58,23 +58,26 @@ class RecoveryKeyImporter(QObject):
 
     done = Signal(dict)
 
-    def __init__(self, parent=None):
-        super().__init__()
-        self.parent = parent
-        self.filepath = None
-        self.progress = None
-        self.animation = None
-        self.crypter = None
-        self.crypter_thread = None
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self._parent = parent
+        self.filepath = ""
+        # This QProgressDialog is initialized to appease mypy. Cancel
+        # it immediately to prevent it from being shown to the user.
+        self.progress = QProgressDialog("", "", 0, 100)
+        self.progress.cancel()
+        self.animation = QPropertyAnimation(self.progress, b"value")
+        self.crypter = Crypter(b"", b"")  # XXX
+        self.crypter_thread = QThread()
 
-    def _on_decryption_failed(self, msg):
+    def _on_decryption_failed(self, msg: str) -> None:
         logging.error("%s", msg)
         self.crypter_thread.quit()
         self.crypter_thread.wait()
         if msg == "Decryption failed. Ciphertext failed verification":
             msg = "The provided passphrase was incorrect. Please try again."
         reply = QMessageBox.critical(
-            self.parent,
+            self._parent,
             "Decryption Error",
             msg,
             QMessageBox.Abort | QMessageBox.Retry,
@@ -82,24 +85,24 @@ class RecoveryKeyImporter(QObject):
         if reply == QMessageBox.Retry:
             self._load_from_file(self.filepath)
 
-    def _on_decryption_succeeded(self, plaintext):
+    def _on_decryption_succeeded(self, plaintext: bytes) -> None:
         logging.debug("Decryption of %s succeeded", self.filepath)
         self.crypter_thread.quit()
         self.crypter_thread.wait()
         try:
             settings = json.loads(plaintext.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError) as e:
-            error(self, type(e).__name__, str(e))
+            error(self._parent, type(e).__name__, str(e))
             return
         if not isinstance(settings, dict):
             raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
 
-    def _decrypt_content(self, data, password):
+    def _decrypt_content(self, data: bytes, password: str) -> None:
         logging.debug("Trying to decrypt %s...", self.filepath)
         self.progress = QProgressDialog(
             "Trying to decrypt {}...".format(os.path.basename(self.filepath)),
-            None,
+            "",
             0,
             100,
         )
@@ -121,7 +124,7 @@ class RecoveryKeyImporter(QObject):
         self.crypter_thread.started.connect(self.crypter.decrypt)
         self.crypter_thread.start()
 
-    def _parse_content(self, content):
+    def _parse_content(self, content: bytes) -> None:
         try:
             settings = json.loads(content.decode("utf-8"))
         except (UnicodeDecodeError, json.decoder.JSONDecodeError):
@@ -134,7 +137,7 @@ class RecoveryKeyImporter(QObject):
                 help_text="This Recovery Key is protected by a passphrase. "
                 "Enter the correct passphrase to decrypt it.",
                 show_stats=False,
-                parent=self.parent,
+                parent=self._parent,
             )
             if ok:
                 self._decrypt_content(content, password)
@@ -143,14 +146,15 @@ class RecoveryKeyImporter(QObject):
             raise TypeError(f"settings must be 'dict'; got '{type(settings)}'")
         self.done.emit(settings)
 
-    def _load_from_file(self, path):
-        logging.debug("Loading %s...", self.filepath)
+    def _load_from_file(self, path: str) -> None:
+        self.filepath = path
+        logging.debug("Loading %s...", path)
         try:
             with open(path, "rb") as f:
                 content = f.read()
         except IsADirectoryError as err:
             error(
-                self.parent,
+                self._parent,
                 "Error loading Recovery Key",
                 f"{path} is a directory, and not a valid Recovery Key."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
@@ -158,11 +162,11 @@ class RecoveryKeyImporter(QObject):
             )
             return
         except Exception as e:  # pylint: disable=broad-except
-            error(self.parent, "Error loading Recovery Key", str(e))
+            error(self._parent, "Error loading Recovery Key", str(e))
             return
         if not content:
             error(
-                self.parent,
+                self._parent,
                 "Invalid Recovery Key",
                 f"The file {path} is empty."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
@@ -172,21 +176,21 @@ class RecoveryKeyImporter(QObject):
             self._parse_content(content)
         except TypeError as err:
             error(
-                self.parent,
+                self._parent,
                 "Error parsing Recovery Key content",
                 f"The file {path} does not appear to be a valid Recovery Key."
                 "\n\nPlease try again, selecting a valid Recovery Key file.",
                 str(err),
             )
 
-    def _select_file(self):
-        dialog = QFileDialog(self.parent, "Select a Recovery Key")
+    def _select_file(self) -> Optional[str]:
+        dialog = QFileDialog(self._parent, "Select a Recovery Key")
         dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_():
             selected = dialog.selectedFiles()[0]
             if question(
-                self.parent,
+                self._parent,
                 f'Restore from "{Path(selected).name}"?',
                 "By restoring from a Recovery Key, the configuration from "
                 "the original device will be applied to this device -- "
@@ -201,9 +205,8 @@ class RecoveryKeyImporter(QObject):
                 return selected
         return None
 
-    def do_import(self, filepath=None):
-        if not filepath:
+    def do_import(self, filepath: Optional[str] = None) -> None:
+        if filepath is None:
             filepath = self._select_file()
-        self.filepath = filepath
-        if self.filepath:
-            self._load_from_file(self.filepath)
+        if filepath:
+            self._load_from_file(filepath)

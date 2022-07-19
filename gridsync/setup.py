@@ -6,13 +6,13 @@ import os
 import shutil
 import sys
 from binascii import Error
-from typing import Optional, Set, Tuple
+from typing import Optional
 from urllib.parse import urlparse
 
 import treq
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
-from qtpy.QtWidgets import QInputDialog, QMessageBox, QWidget
+from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -22,10 +22,11 @@ from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
+from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 
 
-def is_onion_grid(settings):
+def is_onion_grid(settings: dict) -> bool:
     furls = []
     introducer = settings.get("introducer")
     if introducer:
@@ -41,7 +42,7 @@ def is_onion_grid(settings):
     return False
 
 
-def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
+def is_zkap_grid(settings: dict) -> tuple[bool, set]:
     hosts = set()
     url = settings.get("zkap_payment_url_root")
     if url:
@@ -65,7 +66,7 @@ def is_zkap_grid(settings: dict) -> Tuple[bool, Set]:
 
 
 def prompt_for_leaky_tor(
-    grid_name: str, hosts: Set, parent: Optional[QWidget] = None
+    grid_name: str, hosts: set, parent: Optional[QWidget] = None
 ) -> bool:
     msgbox = QMessageBox(parent)
     msgbox.setWindowModality(Qt.ApplicationModal)
@@ -99,7 +100,9 @@ def prompt_for_leaky_tor(
     return False
 
 
-def prompt_for_grid_name(grid_name, parent=None):
+def prompt_for_grid_name(
+    grid_name: str, parent: Optional[QWidget] = None
+) -> tuple[str, int]:
     title = "{} - Choose a name".format(APP_NAME)
     label = "Please choose a name for this connection:"
     if grid_name:
@@ -109,11 +112,19 @@ def prompt_for_grid_name(grid_name, parent=None):
                 APP_NAME, grid_name
             )
         )
-    return QInputDialog.getText(parent, title, label, 0, grid_name)
+    return QInputDialog.getText(
+        # According to the Qt5 docs, QInputDialog accepts a null parent:
+        # https://doc.qt.io/qt-5/qinputdialog.html#QInputDialog
+        parent,  # type: ignore
+        title,
+        label,
+        QLineEdit.Normal,
+        grid_name,
+    )
 
 
-def validate_grid(settings, parent=None):
-    nickname = settings.get("nickname")
+def validate_grid(settings: dict, parent: Optional[QWidget] = None) -> dict:
+    nickname = settings.get("nickname", "")
     while not nickname:
         nickname, _ = prompt_for_grid_name(nickname, parent)
     nodedir = os.path.join(config_dir, nickname)
@@ -140,18 +151,24 @@ def validate_grid(settings, parent=None):
     return settings
 
 
-def prompt_for_folder_name(folder_name, grid_name, parent=None):
+def prompt_for_folder_name(
+    folder_name: str, grid_name: str, parent: Optional[QWidget] = None
+) -> tuple[str, int]:
     return QInputDialog.getText(
-        parent,
+        # According to the Qt5 docs, QInputDialog accepts a null parent:
+        # https://doc.qt.io/qt-5/qinputdialog.html#QInputDialog
+        parent,  # type: ignore
         "Folder already exists",
         'You already belong to a folder named "{}" on\n'
         "{}; Please choose a different name.".format(folder_name, grid_name),
-        0,
+        QLineEdit.Normal,
         folder_name,
     )
 
 
-def validate_folders(settings, known_gateways, parent=None):
+def validate_folders(
+    settings: dict, known_gateways: list, parent: Optional[QWidget] = None
+) -> dict:
     gateway = None
     if known_gateways:
         for gw in known_gateways:
@@ -177,7 +194,12 @@ def validate_folders(settings, known_gateways, parent=None):
     return settings
 
 
-def validate_settings(settings, known_gateways, parent, from_wormhole=True):
+def validate_settings(
+    settings: dict,
+    known_gateways: list,
+    parent: Optional[QWidget] = None,
+    from_wormhole: bool = True,
+) -> dict:
     if from_wormhole and "rootcap" in settings:
         del settings["rootcap"]
     if from_wormhole and "convergence" in settings:
@@ -197,13 +219,13 @@ class SetupRunner(QObject):
     got_icon = Signal(str)
     done = Signal(object)
 
-    def __init__(self, known_gateways, use_tor=False):
+    def __init__(self, known_gateways: list, use_tor: bool = False) -> None:
         super().__init__()
         self.known_gateways = known_gateways
         self.use_tor = use_tor
-        self.gateway = None
+        self.gateway = Tahoe()
 
-    def get_gateway(self, introducer, servers):
+    def get_gateway(self, introducer: str, servers: dict) -> Optional[Tahoe]:
         if not self.known_gateways:
             return None
         for gateway in self.known_gateways:
@@ -215,10 +237,10 @@ class SetupRunner(QObject):
                 return gateway
         return None
 
-    def calculate_total_steps(self, settings):
+    def calculate_total_steps(self, settings: dict) -> int:
         steps = 1  # done
         if not self.get_gateway(
-            settings.get("introducer"), settings.get("storage")
+            settings.get("introducer", ""), settings.get("storage", {})
         ):
             steps += 4  # create, start, await_ready, rootcap
         if (
@@ -233,7 +255,7 @@ class SetupRunner(QObject):
             steps += len(folders)  # join
         return steps
 
-    def decode_icon(self, s, dest):
+    def decode_icon(self, s: str, dest: str) -> None:
         with atomic_write(dest, mode="wb", overwrite=True) as f:
             try:
                 f.write(base64.b64decode(s))
@@ -242,7 +264,7 @@ class SetupRunner(QObject):
         self.got_icon.emit(dest)
 
     @inlineCallbacks
-    def fetch_icon(self, url, dest):
+    def fetch_icon(self, url: str, dest: str) -> TwistedDeferred[None]:
         agent = None
         if self.use_tor:
             tor = yield get_tor(reactor)
@@ -260,7 +282,9 @@ class SetupRunner(QObject):
             log.warning("Error fetching service icon: %i", resp.code)
 
     @inlineCallbacks  # noqa: max-complexity=14 XXX
-    def join_grid(self, settings):  # noqa: max-complexity=14 XXX
+    def join_grid(  # noqa: max-complexity=14 XXX
+        self, settings: dict
+    ) -> TwistedDeferred[None]:
         nickname = settings["nickname"]
         if self.use_tor:
             msg = "Connecting to {} via Tor...".format(nickname)
@@ -293,7 +317,7 @@ class SetupRunner(QObject):
 
         nodedir = os.path.join(config_dir, nickname)
         self.gateway = Tahoe(nodedir)
-        yield self.gateway.create_client(**settings)
+        yield self.gateway.create_client(settings)
 
         self.gateway.save_settings(settings)
 
@@ -318,14 +342,14 @@ class SetupRunner(QObject):
         yield self.gateway.await_ready()
 
     @inlineCallbacks
-    def ensure_recovery(self, settings):
+    def ensure_recovery(self, settings: dict) -> TwistedDeferred[None]:
         zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
             self.gateway.save_settings(settings)  # XXX Unnecessary?
             if zkapauthz:
 
-                def status_updated(stage, failure_reason):
+                def status_updated(stage: str, failure_reason: str) -> None:
                     # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
                     # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
                     # _zkapauthorizer/recover.py#L35
@@ -372,7 +396,7 @@ class SetupRunner(QObject):
             )
 
     @inlineCallbacks
-    def join_folders(self, folders_data):
+    def join_folders(self, folders_data: dict) -> TwistedDeferred[None]:
         folders = []
         for folder, data in folders_data.items():
             self.update_progress.emit('Joining folder "{}"...'.format(folder))
@@ -390,11 +414,11 @@ class SetupRunner(QObject):
             self.joined_folders.emit(folders)
 
     @inlineCallbacks
-    def run(self, settings):
+    def run(self, settings: dict) -> TwistedDeferred[None]:
         if "version" in settings and int(settings["version"]) > 2:
             raise UpgradeRequiredError
 
-        nickname = settings.get("nickname")
+        nickname = settings.get("nickname", "")
 
         if self.use_tor or "hide-ip" in settings or is_onion_grid(settings):
             settings["hide-ip"] = True
@@ -409,11 +433,13 @@ class SetupRunner(QObject):
                 if not permission_granted:
                     raise AbortedByUserError("The user aborted the operation")
 
-        self.gateway = self.get_gateway(
-            settings.get("introducer"), settings.get("storage")
+        gateway = self.get_gateway(
+            settings.get("introducer", ""), settings.get("storage", {})
         )
+        if gateway:
+            self.gateway = gateway
         folders_data = settings.get("magic-folders")
-        if not self.gateway:
+        if not gateway:
             yield self.join_grid(settings)
             yield self.ensure_recovery(settings)
         elif not folders_data:

@@ -7,15 +7,7 @@ from collections import defaultdict, deque
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    DefaultDict,
-    Deque,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Optional
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -100,23 +92,23 @@ class MagicFolderMonitor(QObject):
 
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
-        self.errors: List = []
+        self.errors: list = []
 
-        self._prev_state: Dict = {}
-        self._known_folders: Dict[str, dict] = {}
-        self._known_backups: List[str] = []
+        self._prev_state: dict = {}
+        self._known_folders: dict[str, dict] = {}
+        self._known_backups: list[str] = []
 
-        self._folder_sizes: Dict[str, int] = {}
-        self._folder_statuses: Dict[str, MagicFolderStatus] = {}
+        self._folder_sizes: dict[str, int] = {}
+        self._folder_statuses: dict[str, MagicFolderStatus] = {}
         self._total_folders_size: int = 0
 
-        self._operations_queued: DefaultDict[str, set] = defaultdict(set)
-        self._operations_completed: DefaultDict[str, dict] = defaultdict(dict)
+        self._operations_queued: defaultdict[str, set] = defaultdict(set)
+        self._operations_completed: defaultdict[str, dict] = defaultdict(dict)
 
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
-        self._scheduled_scans: DefaultDict[str, set] = defaultdict(set)
-        self._scheduled_polls: DefaultDict[str, set] = defaultdict(set)
+        self._scheduled_scans: defaultdict[str, set] = defaultdict(set)
+        self._scheduled_polls: defaultdict[str, set] = defaultdict(set)
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
@@ -157,7 +149,7 @@ class MagicFolderMonitor(QObject):
             1, lambda: self._maybe_do_poll(event_id, folder_name)
         )
 
-    def _check_errors(self, current_state: Dict, previous_state: Dict) -> None:
+    def _check_errors(self, current_state: dict, previous_state: dict) -> None:
         current_folders = current_state.get("folders", {})
         previous_folders = previous_state.get("folders", {})
         for folder, data in current_folders.items():
@@ -178,10 +170,10 @@ class MagicFolderMonitor(QObject):
 
     @staticmethod
     def _parse_operations(
-        state: Dict,
-    ) -> Tuple[DefaultDict[str, dict], DefaultDict[str, dict]]:
-        uploads: DefaultDict[str, dict] = defaultdict(dict)
-        downloads: DefaultDict[str, dict] = defaultdict(dict)
+        state: dict,
+    ) -> tuple[defaultdict[str, dict], defaultdict[str, dict]]:
+        uploads: defaultdict[str, dict] = defaultdict(dict)
+        downloads: defaultdict[str, dict] = defaultdict(dict)
         for folder, data in state.get("folders", {}).items():
             for upload in data.get("uploads", []):
                 uploads[folder][upload["relpath"]] = upload
@@ -191,8 +183,8 @@ class MagicFolderMonitor(QObject):
 
     def _check_operations_started(
         self,
-        current_operations: DefaultDict[str, dict],
-        previous_operations: DefaultDict[str, dict],
+        current_operations: defaultdict[str, dict],
+        previous_operations: defaultdict[str, dict],
         started_signal: SignalInstance,
     ) -> None:
         for folder, operation in current_operations.items():
@@ -203,8 +195,8 @@ class MagicFolderMonitor(QObject):
 
     def _check_operations_finished(
         self,
-        current_operations: DefaultDict[str, dict],
-        previous_operations: DefaultDict[str, dict],
+        current_operations: defaultdict[str, dict],
+        previous_operations: defaultdict[str, dict],
         finished_signal: SignalInstance,
     ) -> None:
         for folder, operation in previous_operations.items():
@@ -253,7 +245,7 @@ class MagicFolderMonitor(QObject):
             self.do_check()  # Update folder sizes, mtimes
 
     def compare_states(
-        self, current_state: Dict, previous_state: Dict
+        self, current_state: dict, previous_state: dict
     ) -> None:
         self._check_errors(current_state, previous_state)
         current_uploads, current_downloads = self._parse_operations(
@@ -295,8 +287,8 @@ class MagicFolderMonitor(QObject):
 
     def compare_folders(
         self,
-        current_folders: Dict[str, dict],
-        previous_folders: Dict[str, dict],
+        current_folders: dict[str, dict],
+        previous_folders: dict[str, dict],
     ) -> None:
         for folder, data in current_folders.items():
             if folder not in previous_folders:
@@ -320,7 +312,7 @@ class MagicFolderMonitor(QObject):
                     )
 
     def compare_backups(
-        self, current_backups: List[str], previous_backups: List[str]
+        self, current_backups: list[str], previous_backups: list[str]
     ) -> None:
         for backup in current_backups:
             if (
@@ -334,8 +326,8 @@ class MagicFolderMonitor(QObject):
 
     @staticmethod
     def _parse_file_status(
-        file_status: List[Dict], magic_path: str
-    ) -> Tuple[Dict[str, Dict], List[int], int, int]:
+        file_status: list[dict], magic_path: str
+    ) -> tuple[dict[str, dict], list[int], int, int]:
         files = {}
         sizes = []
         latest_mtime = 0
@@ -355,8 +347,8 @@ class MagicFolderMonitor(QObject):
         self,
         folder_name: str,
         magic_path: str,
-        file_status: List[Dict],
-        previous_file_status: List[Dict],
+        file_status: list[dict],
+        previous_file_status: list[dict],
     ) -> None:
         current = self._parse_file_status(file_status, magic_path)
         current_files, _, current_total_size, current_latest_mtime = current
@@ -398,7 +390,7 @@ class MagicFolderMonitor(QObject):
             self.total_folders_size_updated.emit(total)
 
     def compare_files(
-        self, current_folders: Dict, previous_folders: Dict
+        self, current_folders: dict, previous_folders: dict
     ) -> None:
         for folder_name, data in current_folders.items():
             self._compare_file_status(
@@ -423,7 +415,7 @@ class MagicFolderMonitor(QObject):
         self._prev_state = state
 
     @inlineCallbacks
-    def _get_file_status(self, folder_name: str) -> TwistedDeferred[Tuple]:
+    def _get_file_status(self, folder_name: str) -> TwistedDeferred[tuple]:
         result = yield self.magic_folder.get_file_status(folder_name)
         return (folder_name, result)
 
@@ -486,14 +478,14 @@ class MagicFolder:
     ) -> None:
         self.gateway = gateway
         self.executable = executable
-        self._log_buffer: Deque[bytes] = deque(maxlen=logs_maxlen)
+        self._log_buffer: deque[bytes] = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.api_port: int = 0
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
-        self.magic_folders: Dict[str, dict] = {}
-        self.remote_magic_folders: Dict[str, dict] = {}
+        self.magic_folders: dict[str, dict] = {}
+        self.remote_magic_folders: dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
         self.supervisor: Supervisor = Supervisor(
             pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
@@ -533,7 +525,7 @@ class MagicFolder:
         return [self.executable, "--eliot-fd=2", f"--config={self.configdir}"]
 
     @inlineCallbacks
-    def _command(self, args: List[str]) -> TwistedDeferred[str]:
+    def _command(self, args: list[str]) -> TwistedDeferred[str]:
         args = self._base_command_args() + args
         logging.debug("Executing %s...", " ".join(args))
         os.environ["PYTHONUNBUFFERED"] = "1"
@@ -656,7 +648,7 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_folders(self) -> TwistedDeferred[Dict[str, dict]]:
+    def get_folders(self) -> TwistedDeferred[dict[str, dict]]:
         folders = yield self._request(
             "GET", "/magic-folder?include_secret_information=1"
         )
@@ -719,7 +711,7 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_snapshots(self) -> TwistedDeferred[Dict[str, dict]]:
+    def get_snapshots(self) -> TwistedDeferred[dict[str, dict]]:
         snapshots = yield self._request("GET", "/snapshot")
         return snapshots
 
@@ -741,7 +733,7 @@ class MagicFolder:
     @inlineCallbacks
     def get_participants(
         self, folder_name: str
-    ) -> TwistedDeferred[Dict[str, dict]]:
+    ) -> TwistedDeferred[dict[str, dict]]:
         participants = yield self._request(
             "GET", f"/magic-folder/{folder_name}/participants"
         )
@@ -759,21 +751,21 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_file_status(self, folder_name: str) -> TwistedDeferred[List[Dict]]:
+    def get_file_status(self, folder_name: str) -> TwistedDeferred[list[dict]]:
         output = yield self._request(
             "GET", f"/magic-folder/{folder_name}/file-status"
         )
         return output
 
     @inlineCallbacks
-    def get_object_sizes(self, folder_name: str) -> TwistedDeferred[List[int]]:
+    def get_object_sizes(self, folder_name: str) -> TwistedDeferred[list[int]]:
         sizes = yield self._request(
             "GET", f"/magic-folder/{folder_name}/tahoe-objects"
         )
         return sizes
 
     @inlineCallbacks
-    def get_all_object_sizes(self) -> TwistedDeferred[List[int]]:
+    def get_all_object_sizes(self) -> TwistedDeferred[list[int]]:
         all_sizes = []
         folders = yield self.get_folders()
         for folder in folders:
@@ -782,7 +774,7 @@ class MagicFolder:
         return all_sizes
 
     @inlineCallbacks
-    def scan(self, folder_name: str) -> TwistedDeferred[Dict]:
+    def scan(self, folder_name: str) -> TwistedDeferred[dict]:
         output = yield self._request(
             "PUT",
             f"/magic-folder/{folder_name}/scan-local",
@@ -791,7 +783,7 @@ class MagicFolder:
         return output
 
     @inlineCallbacks
-    def poll(self, folder_name: str) -> TwistedDeferred[Dict]:
+    def poll(self, folder_name: str) -> TwistedDeferred[dict]:
         output = yield self._request(
             "PUT",
             f"/magic-folder/{folder_name}/poll-remote",
@@ -813,8 +805,8 @@ class MagicFolder:
         )
 
     @inlineCallbacks
-    def get_folder_backups(self) -> TwistedDeferred[Optional[Dict[str, dict]]]:
-        folders: DefaultDict[str, dict] = defaultdict(dict)
+    def get_folder_backups(self) -> TwistedDeferred[Optional[dict[str, dict]]]:
+        folders: defaultdict[str, dict] = defaultdict(dict)
         backups = yield self.rootcap_manager.get_backups(".magic-folders")
         if backups is None:
             return None

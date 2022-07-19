@@ -58,21 +58,21 @@ def test_history_item_widget_unhilight(hiw):
 
 def test_history_item_widget_enter_event(hiw):
     hiw.enterEvent(None)
-    assert hiw.parent.highlighted == hiw
+    assert hiw.parent().highlighted == hiw
 
 
 def test_history_item_widget_enter_event_call_unhighlight(hiw):
     m = MagicMock()
-    hiw.parent.highlighted = m
+    hiw.parent().highlighted = m
     hiw.enterEvent(None)
     assert m.method_calls == [call.unhighlight()]
 
 
 def test_history_item_widget_enter_event_pass_runtime_error(hiw):
-    hiw.parent.highlighted = MagicMock()
-    hiw.parent.highlighted.unhighlight = MagicMock(side_effect=RuntimeError)
+    hiw.parent().highlighted = MagicMock()
+    hiw.parent().highlighted.unhighlight = MagicMock(side_effect=RuntimeError)
     hiw.enterEvent(None)
-    assert hiw.parent.highlighted == hiw
+    assert hiw.parent().highlighted == hiw
 
 
 @pytest.fixture(scope="function")
@@ -87,7 +87,12 @@ def test_history_list_widget_on_double_click(hlw, monkeypatch):
     m = MagicMock()
     monkeypatch.setattr("gridsync.gui.history.open_enclosing_folder", m)
     monkeypatch.setattr(
-        "gridsync.gui.history.HistoryListWidget.itemWidget", MagicMock()
+        "gridsync.gui.history.HistoryListWidget.itemWidget",
+        MagicMock(
+            return_value=HistoryItemWidget(
+                hlw.gateway, {}, HistoryListWidget(hlw.gateway)
+            )
+        ),
     )
     hlw.on_double_click(None)
     assert m.mock_calls
@@ -98,10 +103,12 @@ def test_history_list_widget_on_right_click(hlw, monkeypatch):
         "gridsync.gui.history.HistoryListWidget.itemAt", MagicMock()
     )
     monkeypatch.setattr(
-        "gridsync.gui.history.HistoryListWidget.itemWidget", MagicMock()
-    )
-    monkeypatch.setattr(
-        "gridsync.gui.history.HistoryListWidget.itemWidget", MagicMock()
+        "gridsync.gui.history.HistoryListWidget.itemWidget",
+        MagicMock(
+            return_value=HistoryItemWidget(
+                hlw.gateway, {}, HistoryListWidget(hlw.gateway)
+            )
+        ),
     )
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryListWidget.viewport", MagicMock()

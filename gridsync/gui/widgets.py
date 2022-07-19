@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from qtpy.QtCore import Signal
+from qtpy.QtGui import QMouseEvent
 from qtpy.QtWidgets import (
     QComboBox,
     QDialogButtonBox,
@@ -19,15 +20,16 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync.tor import get_tor
+from gridsync.types import TwistedDeferred
 
 
 class VSpacer(QSpacerItem):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
 
 class HSpacer(QSpacerItem):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
 
@@ -35,13 +37,13 @@ class ClickableLabel(QLabel):
 
     clicked = Signal()
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event: QMouseEvent) -> None:
         self.clicked.emit()
         super().mousePressEvent(event)
 
 
 class ConnectionSettings(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.name_label = QLabel("Grid name:")
@@ -56,9 +58,11 @@ class ConnectionSettings(QWidget):
         self.mode_combobox = QComboBox()
         self.mode_combobox.addItem("Normal")
         self.mode_combobox.addItem("Tor")
-        self.mode_combobox.model().item(1).setEnabled(False)
+        # mypy: "QAbstractItemModel" has no attribute "item"
+        self.mode_combobox.model().item(1).setEnabled(False)  # type: ignore
         self.mode_combobox.addItem("I2P")
-        self.mode_combobox.model().item(2).setEnabled(False)
+        # mypy: "QAbstractItemModel" has no attribute "item"
+        self.mode_combobox.model().item(2).setEnabled(False)  # type: ignore
 
         form = QFormLayout(self)
         form.setWidget(0, QFormLayout.LabelRole, self.name_label)
@@ -71,14 +75,15 @@ class ConnectionSettings(QWidget):
         self.maybe_enable_tor()
 
     @inlineCallbacks
-    def maybe_enable_tor(self):
+    def maybe_enable_tor(self) -> TwistedDeferred[None]:
         tor = yield get_tor(reactor)
         if tor:
-            self.mode_combobox.model().item(1).setEnabled(True)
+            # mypy: "QAbstractItemModel" has no attribute "item"
+            self.mode_combobox.model().item(1).setEnabled(True)  # type: ignore
 
 
 class EncodingParameters(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.total_label = QLabel("shares.total (N)")
@@ -106,11 +111,11 @@ class EncodingParameters(QWidget):
         self.happy_spinbox.valueChanged.connect(self.on_value_changed)
         self.total_spinbox.valueChanged.connect(self.on_total_changed)
 
-    def on_value_changed(self, value):
+    def on_value_changed(self, value: int) -> None:
         if value >= self.total_spinbox.value():
             self.total_spinbox.setValue(value)
 
-    def on_total_changed(self, value):
+    def on_total_changed(self, value: int) -> None:
         if value <= self.needed_spinbox.value():
             self.needed_spinbox.setValue(value)
         if value <= self.happy_spinbox.value():
@@ -118,10 +123,10 @@ class EncodingParameters(QWidget):
 
 
 class TahoeConfigForm(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.rootcap = None
-        self.settings = {}
+        self.settings: dict = {}
         self.progress = None
         self.animation = None
         self.crypter = None
@@ -150,38 +155,38 @@ class TahoeConfigForm(QWidget):
         layout.addItem(VSpacer())
         layout.addWidget(self.buttonbox)
 
-    def set_name(self, name):
+    def set_name(self, name: str) -> None:
         self.connection_settings.name_line_edit.setText(name)
 
-    def set_introducer(self, introducer):
+    def set_introducer(self, introducer: str) -> None:
         self.connection_settings.introducer_text_edit.setPlainText(introducer)
 
-    def set_shares_total(self, shares):
+    def set_shares_total(self, shares: int) -> None:
         self.encoding_parameters.total_spinbox.setValue(int(shares))
 
-    def set_shares_needed(self, shares):
+    def set_shares_needed(self, shares: int) -> None:
         self.encoding_parameters.needed_spinbox.setValue(int(shares))
 
-    def set_shares_happy(self, shares):
+    def set_shares_happy(self, shares: int) -> None:
         self.encoding_parameters.happy_spinbox.setValue(int(shares))
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.connection_settings.name_line_edit.text().strip()
 
-    def get_introducer(self):
+    def get_introducer(self) -> str:
         furl = self.connection_settings.introducer_text_edit.toPlainText()
         return furl.lower().strip()
 
-    def get_shares_total(self):
+    def get_shares_total(self) -> int:
         return self.encoding_parameters.total_spinbox.value()
 
-    def get_shares_needed(self):
+    def get_shares_needed(self) -> int:
         return self.encoding_parameters.needed_spinbox.value()
 
-    def get_shares_happy(self):
+    def get_shares_happy(self) -> int:
         return self.encoding_parameters.happy_spinbox.value()
 
-    def reset(self):
+    def reset(self) -> None:
         self.set_name("")
         self.set_introducer("")
         self.set_shares_total(1)
@@ -189,7 +194,7 @@ class TahoeConfigForm(QWidget):
         self.set_shares_happy(1)
         self.rootcap = None
 
-    def get_settings(self):
+    def get_settings(self) -> dict:
         settings = {
             "nickname": self.get_name(),
             "introducer": self.get_introducer(),

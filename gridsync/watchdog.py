@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from qtpy.QtCore import QObject, Signal
 from watchdog.events import FileSystemEventHandler
@@ -29,7 +29,7 @@ class Watchdog(QObject):
     def __init__(self) -> None:
         super().__init__()
         self._observer = Observer()
-        self._watches: Dict[str, ObservedWatch] = {}
+        self._watches: dict[str, ObservedWatch] = {}
 
     def add_watch(self, path: str) -> None:
         logging.debug("Scheduling watch for %s...", path)

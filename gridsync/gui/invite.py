@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import sys
+from typing import Optional
 
-from qtpy.QtCore import QPropertyAnimation, QSize, QStringListModel, Qt, Signal
-from qtpy.QtGui import QIcon
+from qtpy.QtCore import (
+    QModelIndex,
+    QPropertyAnimation,
+    QSize,
+    QStringListModel,
+    Qt,
+    Signal,
+)
+from qtpy.QtGui import QIcon, QKeyEvent
 from qtpy.QtWidgets import (
     QAction,
     QCheckBox,
@@ -18,6 +27,7 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet import reactor
 from twisted.internet.defer import CancelledError, inlineCallbacks
+from twisted.python.failure import Failure
 from wormhole.errors import (
     LonelyError,
     ServerConnectionError,
@@ -33,22 +43,23 @@ from gridsync.gui.font import Font
 from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
+from gridsync.types import TwistedDeferred
 
 
 class InviteCodeCompleter(QCompleter):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setCaseSensitivity(Qt.CaseInsensitive)
         self.setCompletionMode(QCompleter.InlineCompletion)
 
-    def pathFromIndex(self, index):
+    def pathFromIndex(self, index: QModelIndex) -> str:
         path = QCompleter.pathFromIndex(self, index)
-        words = self.widget().text().split("-")
+        words = self.widget().text().split("-")  # type: ignore
         if len(words) > 1:
             path = "{}-{}".format("-".join(words[:-1]), path)
         return path
 
-    def splitPath(self, path):
+    def splitPath(self, path: str) -> list[str]:
         return [str(path.split("-")[-1])]
 
 
@@ -57,9 +68,8 @@ class InviteCodeLineEdit(QLineEdit):
     error = Signal(str)
     go = Signal(str)
 
-    def __init__(self, parent=None):
-        super().__init__()
-        self.parent = parent
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
         model = QStringListModel()
         model.setStringList(wordlist)
         completer = InviteCodeCompleter()
@@ -87,13 +97,14 @@ class InviteCodeLineEdit(QLineEdit):
 
         self.update_action_button()
 
-    def update_action_button(self, text=None):
+    def update_action_button(self, text: Optional[str] = None) -> None:
         text = text if text else self.text()
         if not text:
             self.action_button.setIcon(QIcon())
             self.action_button.setToolTip("")
             for mode in get_clipboard_modes():
-                if is_valid_code(get_clipboard_text(mode)):
+                clipboard_text = get_clipboard_text(mode)
+                if clipboard_text and is_valid_code(clipboard_text):
                     self.action_button.setIcon(self.paste_icon)
                     self.action_button.setToolTip("Paste")
         elif is_valid_code(text):
@@ -103,7 +114,9 @@ class InviteCodeLineEdit(QLineEdit):
             self.action_button.setIcon(self.clear_icon)
             self.action_button.setToolTip("Clear")
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent) -> Optional[QKeyEvent]:  # type: ignore
+        # mypy: 'incompatible with return type "None" in supertype "QLineEdit"'
+        # mypy: 'incompatible with return type "None" in supertype "QWidget"'
         key = event.key()
         text = self.text()
         if key in (Qt.Key_Space, Qt.Key_Minus, Qt.Key_Tab):
@@ -117,19 +130,19 @@ class InviteCodeLineEdit(QLineEdit):
             return QLineEdit.keyPressEvent(self, event)
         return None
 
-    def return_pressed(self):
+    def return_pressed(self) -> None:
         code = self.text().lower()
         if is_valid_code(code):
             self.go.emit(code)
         else:
             self.error.emit("Invalid code")
 
-    def button_clicked(self):
+    def button_clicked(self) -> None:
         code = self.text().lower()
         if not code:
             for mode in get_clipboard_modes():
                 text = get_clipboard_text(mode)
-                if is_valid_code(text):
+                if text and is_valid_code(text):
                     self.setText(text)
         elif is_valid_code(code):
             self.go.emit(code)
@@ -138,10 +151,10 @@ class InviteCodeLineEdit(QLineEdit):
 
 
 class InviteCodeWidget(QWidget):
-    def __init__(self, parent=None, tor_available=False):
-        super().__init__()
-        self.parent = parent
-
+    def __init__(
+        self, parent: Optional[QWidget] = None, tor_available: bool = False
+    ) -> None:
+        super().__init__(parent)
         self.label = QLabel("Enter invite code:")
         self.label.setFont(Font(14))
         p = self.palette()
@@ -281,18 +294,29 @@ class InviteCodeWidget(QWidget):
         self.maybe_enable_tor_checkbox()
 
     @inlineCallbacks
-    def maybe_enable_tor_checkbox(self):
+    def maybe_enable_tor_checkbox(self) -> TwistedDeferred[None]:
         tor = yield get_tor(reactor)
-        if tor and not self.tor_checkbox.isEnabled():
+        try:
+            tor_checkbox_enabled = self.tor_checkbox.isEnabled()
+        except RuntimeError:
+            # In tests, this checkbox can get destroyed before the
+            # get_tor Deferred returns, raising "builtins.RuntimeError:
+            # wrapped C/C++ object of type QCheckBox has been deleted"
+            logging.warning(
+                "Wrapped object %s deleted before its methods could be called",
+                self.tor_checkbox,
+            )
+            return
+        if tor and not tor_checkbox_enabled:
             self.tor_checkbox.setEnabled(True)
             self.tor_checkbox_animation_in.start()
             self.tor_info_button_animation_in.start()
-        elif not tor and self.tor_checkbox.isEnabled():
+        elif not tor and tor_checkbox_enabled:
             self.tor_checkbox.setEnabled(False)
             self.tor_checkbox_animation_out.start()
             self.tor_info_button_animation_out.start()
 
-    def toggle_tor_status(self, state):
+    def toggle_tor_status(self, state: int) -> None:
         if state:
             msgbox = QMessageBox(self)
             msgbox.setIcon(QMessageBox.Warning)
@@ -336,7 +360,7 @@ class InviteCodeWidget(QWidget):
             self.lineedit.status_action.setToolTip("")
             # self.lineedit.setStyleSheet("")
 
-    def on_tor_info_button_clicked(self):
+    def on_tor_info_button_clicked(self) -> None:
         msgbox = QMessageBox(self)
         msgbox.setIconPixmap(self.lineedit.tor_icon.pixmap(64, 64))
         if sys.platform == "darwin":
@@ -347,7 +371,7 @@ class InviteCodeWidget(QWidget):
             msgbox.setText(self.tor_info_text)
         msgbox.show()
 
-    def on_code_info_button_clicked(self):
+    def on_code_info_button_clicked(self) -> None:
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Information)
         text = (
@@ -363,7 +387,7 @@ class InviteCodeWidget(QWidget):
         msgbox.show()
 
 
-def show_failure(failure, parent=None):
+def show_failure(failure: Failure, parent: Optional[QWidget] = None) -> None:
     msg = QMessageBox(parent)
     msg.setIcon(QMessageBox.Warning)
     msg.setStandardButtons(QMessageBox.Retry)

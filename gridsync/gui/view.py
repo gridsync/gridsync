@@ -1,12 +1,36 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import os
 import sys
 import traceback
+from typing import TYPE_CHECKING
 
-from qtpy.QtCore import QEvent, QItemSelectionModel, QPoint, QSize, Qt, QTimer
-from qtpy.QtGui import QColor, QCursor, QIcon, QMovie, QPainter, QPen
+from qtpy.QtCore import (
+    QEvent,
+    QItemSelectionModel,
+    QModelIndex,
+    QObject,
+    QPoint,
+    QSize,
+    Qt,
+    QTimer,
+)
+from qtpy.QtGui import (
+    QColor,
+    QCursor,
+    QDragEnterEvent,
+    QDragLeaveEvent,
+    QDragMoveEvent,
+    QDropEvent,
+    QIcon,
+    QMovie,
+    QPainter,
+    QPaintEvent,
+    QPen,
+    QShowEvent,
+)
 from qtpy.QtWidgets import (
     QAbstractItemView,
     QAction,
@@ -17,9 +41,11 @@ from qtpy.QtWidgets import (
     QMenu,
     QMessageBox,
     QStyledItemDelegate,
+    QStyleOptionViewItem,
     QTreeView,
 )
 from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, features, resource
 from gridsync.desktop import open_path
@@ -31,64 +57,22 @@ from gridsync.gui.widgets import ClickableLabel, HSpacer, VSpacer
 from gridsync.magic_folder import MagicFolderStatus
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
+from gridsync.types import TwistedDeferred
 from gridsync.util import humanized_list
 
-
-class Delegate(QStyledItemDelegate):
-    def __init__(self, parent=None):
-        super().__init__(parent=None)
-        self.parent = parent
-        self.waiting_movie = QMovie(resource("waiting.gif"))
-        self.waiting_movie.setCacheMode(QMovie.CacheAll)
-        self.waiting_movie.frameChanged.connect(self.on_frame_changed)
-        self.sync_movie = QMovie(resource("sync.gif"))
-        self.sync_movie.setCacheMode(QMovie.CacheAll)
-        self.sync_movie.frameChanged.connect(self.on_frame_changed)
-
-    def on_frame_changed(self):
-        values = self.parent.model().status_dict.values()
-        if (
-            MagicFolderStatus.LOADING in values
-            or MagicFolderStatus.WAITING in values
-            or MagicFolderStatus.SYNCING in values
-        ):
-            self.parent.viewport().update()
-        else:
-            self.waiting_movie.setPaused(True)
-            self.sync_movie.setPaused(True)
-
-    def paint(self, painter, option, index):
-        column = index.column()
-        if column == 1:
-            pixmap = None
-            status = index.data(Qt.UserRole)
-            if status in (
-                MagicFolderStatus.LOADING,
-                MagicFolderStatus.WAITING,
-            ):
-                self.waiting_movie.setPaused(False)
-                pixmap = self.waiting_movie.currentPixmap().scaled(
-                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            elif status == MagicFolderStatus.SYNCING:
-                self.sync_movie.setPaused(False)
-                pixmap = self.sync_movie.currentPixmap().scaled(
-                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
-                )
-            if pixmap:
-                point = option.rect.topLeft()
-                painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
-                option.rect = option.rect.translated(pixmap.width(), 0)
-        super().paint(painter, option, index)
+if TYPE_CHECKING:
+    from gridsync.gui import AbstractGui
 
 
 class View(QTreeView):
-    def __init__(self, gui, gateway):  # pylint: disable=too-many-statements
+    def __init__(
+        self, gui: AbstractGui, gateway: Tahoe
+    ) -> None:  # pylint: disable=too-many-statements
         super().__init__()
         self.gui = gui
         self.gateway = gateway
         self.recovery_prompt_shown: bool = False
-        self.invite_sender_dialogs = []
+        self.invite_sender_dialogs: list = []
         self._model = Model(self)
         self.setModel(self._model)
         self.setItemDelegate(Delegate(self))
@@ -166,7 +150,7 @@ class View(QTreeView):
         return self._model
 
     @inlineCallbacks
-    def _create_rootcap(self):
+    def _create_rootcap(self) -> TwistedDeferred[None]:
         # There's probably a better place/module for this...
         try:
             yield self.gateway.create_rootcap()
@@ -197,20 +181,20 @@ class View(QTreeView):
                 self.recovery_prompt_shown = True
                 self.gui.main_window.prompt_for_export(self.gateway)
 
-    def show_drop_label(self, _=None):
-        if not self.model().rowCount():
+    def show_drop_label(self, _: object = None) -> None:
+        if not self.get_model().rowCount():
             self.setHeaderHidden(True)
             self.add_folder_icon.show()
             self.add_folder_label.show()
 
-    def hide_drop_label(self):
+    def hide_drop_label(self) -> None:
         self.setHeaderHidden(False)
         self.add_folder_icon.hide()
         self.add_folder_label.hide()
 
-    def on_double_click(self, index):
-        item = self.model().itemFromIndex(index)
-        name = self.model().item(item.row(), 0).text()
+    def on_double_click(self, index: QModelIndex) -> None:
+        item = self.get_model().itemFromIndex(index)
+        name = self.get_model().item(item.row(), 0).text()
         if self.gateway.magic_folder.folder_is_local(name):
             directory = self.gateway.magic_folder.get_directory(name)
             if directory:
@@ -218,13 +202,15 @@ class View(QTreeView):
         elif self.gateway.magic_folder.folder_is_remote(name):
             self.select_download_location([name])
 
-    def open_invite_sender_dialog(self, folder_name):
-        isd = InviteSenderDialog(self.gateway, self.gui, folder_name)
+    def open_invite_sender_dialog(self, folder_names: list) -> None:
+        isd = InviteSenderDialog(self.gateway, self.gui, folder_names)
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
     @inlineCallbacks
-    def download_folder(self, folder_name, dest):
+    def download_folder(
+        self, folder_name: str, dest: str
+    ) -> TwistedDeferred[None]:
         try:
             yield self.gateway.magic_folder.restore_folder_backup(
                 folder_name, os.path.join(dest, folder_name)
@@ -240,7 +226,7 @@ class View(QTreeView):
             return
         logging.debug('Successfully joined folder "%s"', folder_name)
 
-    def select_download_location(self, folders):
+    def select_download_location(self, folders: list) -> None:
         dest = QFileDialog.getExistingDirectory(
             self, "Select a download destination", os.path.expanduser("~")
         )
@@ -251,12 +237,12 @@ class View(QTreeView):
             tasks.append(self.download_folder(folder, dest))
         DeferredList(tasks)  # XXX
 
-    def show_failure(self, failure):
+    def show_failure(self, failure: Failure) -> None:
         logging.error("%s: %s", str(failure.type.__name__), str(failure.value))
         error(self, str(failure.type.__name__), str(failure.value))
 
     @inlineCallbacks
-    def remove_folder_backup(self, folder_name):
+    def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
         try:
             yield self.gateway.magic_folder.remove_folder_backup(folder_name)
         except Exception as e:  # pylint: disable=broad-except
@@ -270,10 +256,10 @@ class View(QTreeView):
                 ),
             )
             return
-        self.model().remove_folder(folder_name)
+        self.get_model().remove_folder(folder_name)
         logging.debug('Successfully removed "%s" folder backup', folder_name)
 
-    def confirm_remove_folder_backup(self, folders):
+    def confirm_remove_folder_backup(self, folders: list) -> None:
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
         humanized_folders = humanized_list(folders, "folders")
@@ -304,7 +290,9 @@ class View(QTreeView):
             DeferredList(tasks)
 
     @inlineCallbacks
-    def remove_folder(self, folder_name, remove_backup=False):
+    def remove_folder(
+        self, folder_name: str, remove_backup: bool = False
+    ) -> TwistedDeferred[None]:
         try:
             yield self.gateway.magic_folder.leave_folder(
                 folder_name, missing_ok=True
@@ -320,12 +308,12 @@ class View(QTreeView):
                 ),
             )
             return
-        self.model().on_folder_removed(folder_name)
+        self.get_model().on_folder_removed(folder_name)
         logging.debug('Successfully removed folder "%s"', folder_name)
         if remove_backup:
             yield self.remove_folder_backup(folder_name)
 
-    def confirm_stop_syncing(self, folders):
+    def confirm_stop_syncing(self, folders: list) -> None:
         msgbox = QMessageBox(self)
         msgbox.setIcon(QMessageBox.Question)
         humanized_folders = humanized_list(folders, "folders")
@@ -382,53 +370,53 @@ class View(QTreeView):
                     )
             DeferredList(tasks)
 
-    def open_folders(self, folders):
+    def open_folders(self, folders: list) -> None:
         for folder_name in folders:
             directory = self.gateway.magic_folder.get_directory(folder_name)
             if directory:
                 open_path(directory)
 
-    def deselect_local_folders(self):
+    def deselect_local_folders(self) -> None:
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
-                item = self.model().itemFromIndex(index)
-                folder = self.model().item(item.row(), 0).text()
+                item = self.get_model().itemFromIndex(index)
+                folder = self.get_model().item(item.row(), 0).text()
                 if self.gateway.magic_folder.folder_is_local(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
 
-    def deselect_remote_folders(self):
+    def deselect_remote_folders(self) -> None:
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
-                item = self.model().itemFromIndex(index)
-                folder = self.model().item(item.row(), 0).text()
+                item = self.get_model().itemFromIndex(index)
+                folder = self.get_model().item(item.row(), 0).text()
                 if not self.gateway.magic_folder.folder_is_local(folder):
                     self.selectionModel().select(
                         index, QItemSelectionModel.Deselect
                     )
 
-    def get_selected_folders(self):
+    def get_selected_folders(self) -> list:
         folders = []
         selected = self.selectedIndexes()
         if selected:
             for index in selected:
-                item = self.model().itemFromIndex(index)
+                item = self.get_model().itemFromIndex(index)
                 if item.column() == 0:
                     folders.append(item.text())
         return folders
 
-    def on_right_click(self, position):  # noqa: max-complexity
+    def on_right_click(self, position: QPoint) -> None:  # noqa: max-complexity
         if not position:  # From left-click on "Action" button
-            position = self.viewport().mapFromGlobal(QCursor().pos())
+            position = self.viewport().mapFromGlobal(QCursor.pos())
             self.deselect_remote_folders()
             self.deselect_local_folders()
-        cur_item = self.model().itemFromIndex(self.indexAt(position))
+        cur_item = self.get_model().itemFromIndex(self.indexAt(position))
         if not cur_item:
             return
-        cur_folder = self.model().item(cur_item.row(), 0).text()
+        cur_folder = self.get_model().item(cur_item.row(), 0).text()
 
         if self.gateway.magic_folder.folder_is_local(cur_folder):
             selection_is_remote = False
@@ -451,7 +439,7 @@ class View(QTreeView):
             )
             menu.addAction(download_action)
             menu.addSeparator()
-        open_action = QAction(self.model().icon_folder_gray, "Open")
+        open_action = QAction(self.get_model().icon_folder_gray, "Open")
         open_action.triggered.connect(lambda: self.open_folders(selected))
 
         share_menu = QMenu()
@@ -496,9 +484,9 @@ class View(QTreeView):
         menu.exec_(self.viewport().mapToGlobal(position))
 
     @inlineCallbacks
-    def add_folder(self, path):
+    def add_folder(self, path: str) -> TwistedDeferred[None]:
         path = os.path.realpath(path)
-        self.model().add_folder(path)
+        self.get_model().add_folder(path)
         folder_name = os.path.basename(path)
         try:
             yield self.gateway.magic_folder.add_folder(path, "admin")
@@ -512,11 +500,11 @@ class View(QTreeView):
                     folder_name, type(e).__name__, str(e)
                 ),
             )
-            self.model().remove_folder(folder_name)
+            self.get_model().remove_folder(folder_name)
             return
         logging.debug('Successfully added folder "%s"', folder_name)
 
-    def add_folders(self, paths):
+    def add_folders(self, paths: list[str]) -> None:
         paths_to_add = []
         for path in paths:
             basename = os.path.basename(os.path.normpath(path))
@@ -546,7 +534,7 @@ class View(QTreeView):
                 tasks.append(self.add_folder(path))
             DeferredList(tasks)  # XXX
 
-    def select_folder(self):
+    def select_folder(self) -> None:
         dialog = QFileDialog(self, "Please select a folder")
         dialog.setDirectory(os.path.expanduser("~"))
         dialog.setFileMode(QFileDialog.Directory)
@@ -554,20 +542,20 @@ class View(QTreeView):
         if dialog.exec_():
             self.add_folders(dialog.selectedFiles())
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
 
-    def dragLeaveEvent(self, event):
+    def dragLeaveEvent(self, event: QDragLeaveEvent) -> None:
         logging.debug(event)
         event.accept()
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
         if event.mimeData().hasUrls:
             event.accept()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QDropEvent) -> None:
         logging.debug(event)
         if event.mimeData().hasUrls:
             event.accept()
@@ -576,23 +564,23 @@ class View(QTreeView):
                 paths.append(url.toLocalFile())
             self.add_folders(paths)
 
-    def eventFilter(self, obj, event):  # pylint: disable=unused-argument
-        if event.type() == QEvent.DragEnter:
+    def eventFilter(self, _: QObject, event: QEvent) -> bool:
+        if isinstance(event, QDragEnterEvent):
             self.dragEnterEvent(event)
             return True
-        if event.type() == QEvent.DragLeave:
+        if isinstance(event, QDragLeaveEvent):
             self.dragLeaveEvent(event)
             return True
-        if event.type() == QEvent.DragMove:
+        if isinstance(event, QDragMoveEvent):
             self.dragMoveEvent(event)
             return True
-        if event.type() == QEvent.Drop:
+        if isinstance(event, QDropEvent):
             self.dropEvent(event)
             return True
         return False
 
-    def paintEvent(self, event):
-        if not self.model().rowCount():
+    def paintEvent(self, event: QPaintEvent) -> None:
+        if not self.get_model().rowCount():
             self.show_drop_label()
             painter = QPainter(self.viewport())
             painter.setRenderHint(QPainter.Antialiasing)
@@ -608,7 +596,7 @@ class View(QTreeView):
             )
         super().paintEvent(event)
 
-    def showEvent(self, _) -> None:
+    def showEvent(self, _: QShowEvent) -> None:
         # Wrapping this in a timer makes it fire *after* all events in
         # the queue have been processed -- in this case, those needed
         # to actually render or show this view to the user; without it,
@@ -616,3 +604,57 @@ class View(QTreeView):
         # other underlying UI elements are fully drawn (leading to the
         # appearance of a "blank" window beneath the dialog).
         QTimer.singleShot(0, self.maybe_prompt_for_recovery)
+
+
+class Delegate(QStyledItemDelegate):
+    def __init__(self, parent: View) -> None:
+        super().__init__(parent)
+        self._parent = parent
+
+        self.waiting_movie = QMovie(resource("waiting.gif"))
+        self.waiting_movie.setCacheMode(QMovie.CacheAll)
+        self.waiting_movie.frameChanged.connect(self.on_frame_changed)
+        self.sync_movie = QMovie(resource("sync.gif"))
+        self.sync_movie.setCacheMode(QMovie.CacheAll)
+        self.sync_movie.frameChanged.connect(self.on_frame_changed)
+
+    def on_frame_changed(self) -> None:
+        values = self._parent.get_model().status_dict.values()
+        if (
+            MagicFolderStatus.LOADING in values
+            or MagicFolderStatus.WAITING in values
+            or MagicFolderStatus.SYNCING in values
+        ):
+            self._parent.viewport().update()
+        else:
+            self.waiting_movie.setPaused(True)
+            self.sync_movie.setPaused(True)
+
+    def paint(
+        self,
+        painter: QPainter,
+        option: QStyleOptionViewItem,
+        index: QModelIndex,
+    ) -> None:
+        column = index.column()
+        if column == 1:
+            pixmap = None
+            status = index.data(Qt.UserRole)
+            if status in (
+                MagicFolderStatus.LOADING,
+                MagicFolderStatus.WAITING,
+            ):
+                self.waiting_movie.setPaused(False)
+                pixmap = self.waiting_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
+            elif status == MagicFolderStatus.SYNCING:
+                self.sync_movie.setPaused(False)
+                pixmap = self.sync_movie.currentPixmap().scaled(
+                    20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                )
+            if pixmap:
+                point = option.rect.topLeft()
+                painter.drawPixmap(QPoint(point.x(), point.y() + 5), pixmap)
+                option.rect = option.rect.translated(pixmap.width(), 0)
+        super().paint(painter, option, index)

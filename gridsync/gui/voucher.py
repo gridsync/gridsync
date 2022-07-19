@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFontDatabase
-from qtpy.QtWidgets import QDialog, QGridLayout, QLabel, QLineEdit
+from qtpy.QtWidgets import QDialog, QGridLayout, QLabel, QLineEdit, QWidget
 
 from gridsync.gui.font import Font
 from gridsync.voucher import generate_voucher, is_valid
 
 
 class VoucherCodeDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         # self.setMinimumWidth(400)
 
@@ -32,10 +33,6 @@ class VoucherCodeDialog(QDialog):
         margins = self.lineedit.textMargins()
         margins.setLeft(margins.left() + 4)  # XXX
         self.lineedit.setTextMargins(margins)
-        self.lineedit.returnPressed.connect(self.on_return_pressed)
-        self.lineedit.textEdited.connect(
-            lambda _: self.error_message_label.setText("")
-        )
 
         self.error_message_label = QLabel()
         self.error_message_label.setAlignment(Qt.AlignCenter)
@@ -47,7 +44,12 @@ class VoucherCodeDialog(QDialog):
         layout.addWidget(self.lineedit, 2, 1)
         layout.addWidget(self.error_message_label, 3, 1)
 
-    def on_return_pressed(self):
+        self.lineedit.returnPressed.connect(self.on_return_pressed)
+        self.lineedit.textEdited.connect(
+            lambda _: self.error_message_label.setText("")
+        )
+
+    def on_return_pressed(self) -> None:
         text = self.lineedit.text().replace("-", "")
         if is_valid(text):
             self.accept()
@@ -55,7 +57,7 @@ class VoucherCodeDialog(QDialog):
             self.error_message_label.setText("Invalid code; please try again")
 
     @staticmethod
-    def get_voucher(parent=None):
+    def get_voucher(parent: Optional[QWidget] = None) -> tuple[str, int]:
         dialog = VoucherCodeDialog(parent)
         result = dialog.exec_()
         return (

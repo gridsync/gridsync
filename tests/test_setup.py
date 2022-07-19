@@ -108,7 +108,7 @@ def test_prompt_for_grid_name(monkeypatch):
         "gridsync.setup.QInputDialog.getText",
         lambda a, b, c, d, e: ("NewGridName", 1),
     )
-    assert prompt_for_grid_name("GridName") == ("NewGridName", 1)
+    assert prompt_for_grid_name("GridName", None) == ("NewGridName", 1)
 
 
 def test_validate_grid_no_nickname(monkeypatch, tmpdir_factory):
@@ -118,7 +118,9 @@ def test_validate_grid_no_nickname(monkeypatch, tmpdir_factory):
     monkeypatch.setattr(
         "gridsync.setup.prompt_for_grid_name", lambda x, y: ("NewGridName", 1)
     )
-    assert validate_grid({"nickname": None}) == {"nickname": "NewGridName"}
+    assert validate_grid({"nickname": None}, None) == {
+        "nickname": "NewGridName"
+    }
 
 
 def test_validate_grid_conflicting_introducer(monkeypatch, tmpdir_factory):
@@ -132,7 +134,7 @@ def test_validate_grid_conflicting_introducer(monkeypatch, tmpdir_factory):
         "gridsync.setup.prompt_for_grid_name", lambda x, y: ("NewGridName", 1)
     )
     settings = {"nickname": "ExistingGrid", "introducer": "pb://22222"}
-    assert validate_grid(settings) == {
+    assert validate_grid(settings, None) == {
         "nickname": "NewGridName",
         "introducer": "pb://22222",
     }
@@ -165,7 +167,7 @@ def test_validate_grid_conflicting_servers(monkeypatch, tmpdir_factory):
             "nickname": "node-1",
         },
     }
-    assert validate_grid(settings) == {
+    assert validate_grid(settings, None) == {
         "nickname": "NewGridName",
         "storage": {
             "anonymous-storage-FURL": "pb://11111111",
@@ -179,11 +181,14 @@ def test_prompt_for_folder_name(monkeypatch):
         "gridsync.setup.QInputDialog.getText",
         lambda a, b, c, d, e: ("NewFolderName", 1),
     )
-    assert prompt_for_folder_name("FolderName", "Grid") == ("NewFolderName", 1)
+    assert prompt_for_folder_name("FolderName", "Grid", None) == (
+        "NewFolderName",
+        1,
+    )
 
 
 def test_validate_folders_no_known_gateways():
-    assert validate_folders({}, []) == {}
+    assert validate_folders({}, [], None) == {}
 
 
 def test_validate_folders_skip_folder(monkeypatch, tmpdir_factory):
@@ -198,7 +203,7 @@ def test_validate_folders_skip_folder(monkeypatch, tmpdir_factory):
         "nickname": "SomeGrid",
         "magic-folders": {"FolderName": {"code": "aaaaaaaa+bbbbbbbb"}},
     }
-    assert validate_folders(settings, [gateway]) == {
+    assert validate_folders(settings, [gateway], None) == {
         "nickname": "SomeGrid",
         "magic-folders": {},
     }
@@ -217,7 +222,7 @@ def test_validate_folders_rename_folder(monkeypatch, tmpdir_factory):
         "nickname": "SomeGrid",
         "magic-folders": {"FolderName": {"code": "aaaaaaaa+bbbbbbbb"}},
     }
-    assert validate_folders(settings, [gateway]) == {
+    assert validate_folders(settings, [gateway], None) == {
         "nickname": "SomeGrid",
         "magic-folders": {"NewFolderName": {"code": "aaaaaaaa+bbbbbbbb"}},
     }

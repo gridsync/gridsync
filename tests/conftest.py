@@ -35,10 +35,11 @@ os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
 async def tahoe_server(tmp_path_factory):
     server = Tahoe(tmp_path_factory.mktemp("tahoe_server") / "nodedir")
     port = get_free_port()
-    await server.create_node(
-        port=f"tcp:{port}:interface=127.0.0.1",
-        location=f"tcp:127.0.0.1:{port}",
-    )
+    settings = {
+        "port": f"tcp:{port}:interface=127.0.0.1",
+        "location": f"tcp:127.0.0.1:{port}",
+    }
+    await server.create_node(settings)
     server.config_set("storage", "reserved_space", "10M")
     await server.start()
     yield server
@@ -61,7 +62,7 @@ async def tahoe_client(tmp_path_factory, tahoe_server):
             }
         },
     }
-    await client.create_client(**settings)
+    await client.create_client(settings)
     client.save_settings(settings)
     await client.start()
     yield client

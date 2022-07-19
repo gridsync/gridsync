@@ -2,15 +2,16 @@
 
 from collections import defaultdict
 from configparser import NoOptionError, NoSectionError, RawConfigParser
+from typing import Optional
 
 from atomicwrites import atomic_write
 
 
 class Config:
-    def __init__(self, filename):
+    def __init__(self, filename: str) -> None:
         self.filename = filename
 
-    def set(self, section, option, value):
+    def set(self, section: str, option: str, value: str) -> None:
         config = RawConfigParser(allow_no_value=True)
         config.read(self.filename)
         if not config.has_section(section):
@@ -19,7 +20,7 @@ class Config:
         with atomic_write(self.filename, mode="w", overwrite=True) as f:
             config.write(f)
 
-    def get(self, section, option):
+    def get(self, section: str, option: str) -> Optional[str]:
         config = RawConfigParser(allow_no_value=True)
         config.read(self.filename)
         try:
@@ -27,7 +28,7 @@ class Config:
         except (NoOptionError, NoSectionError):
             return None
 
-    def save(self, settings_dict):
+    def save(self, settings_dict: dict) -> None:
         config = RawConfigParser(allow_no_value=True)
         config.read(self.filename)
         for section, d in settings_dict.items():
@@ -38,10 +39,10 @@ class Config:
         with atomic_write(self.filename, mode="w", overwrite=True) as f:
             config.write(f)
 
-    def load(self):
+    def load(self) -> dict:
         config = RawConfigParser(allow_no_value=True)
         config.read(self.filename)
-        settings_dict = defaultdict(dict)
+        settings_dict: defaultdict = defaultdict(dict)
         for section in config.sections():
             for option, value in config.items(section):
                 settings_dict[section][option] = value
