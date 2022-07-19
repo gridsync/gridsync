@@ -43,7 +43,6 @@ from qtpy.QtWidgets import (
     QStyledItemDelegate,
     QStyleOptionViewItem,
     QTreeView,
-    QWidget,
 )
 from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.python.failure import Failure

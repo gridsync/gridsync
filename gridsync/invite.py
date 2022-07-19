@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING, Optional
 
 from qtpy.QtCore import QObject, Signal
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import inlineCallbacks
 
 try:
     from wormhole.wordlist import raw_words
@@ -15,7 +14,6 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API?
 from gridsync import cheatcodes, load_settings_from_cheatcode
 from gridsync.setup import SetupRunner, validate_settings
 from gridsync.types import TwistedDeferred
-from gridsync.util import b58encode
 from gridsync.wormhole_ import Wormhole
 
 if TYPE_CHECKING:
