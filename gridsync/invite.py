@@ -139,35 +139,38 @@ class InviteSender(QObject):
     def cancel(self) -> None:
         self.wormhole.close()
         if self._pending_invites:
-            for folder, member_id in self._pending_invites:
-                self._gateway.magic_folder_uninvite(folder, member_id)
+            # for folder, member_id in self._pending_invites:
+            #    self._gateway.magic_folder_uninvite(folder, member_id)
+            raise NotImplementedError(
+                "Magic-Folder invites are not yet implemented"
+            )
 
-    @staticmethod
-    @inlineCallbacks
-    def _get_folder_invite(
-        gateway: Tahoe, folder: str
-    ) -> TwistedDeferred[tuple[str, str, str]]:
-        member_id = b58encode(os.urandom(8))
-        code = yield gateway.magic_folder_invite(folder, member_id)
-        return folder, member_id, code
+    # @staticmethod
+    # @inlineCallbacks
+    # def _get_folder_invite(
+    #    gateway: Tahoe, folder: str
+    # ) -> TwistedDeferred[tuple[str, str, str]]:
+    #    member_id = b58encode(os.urandom(8))
+    #    code = yield gateway.magic_folder_invite(folder, member_id)
+    #    return folder, member_id, code
 
-    @inlineCallbacks
-    def _get_folder_invites(
-        self, gateway: Tahoe, folders: list
-    ) -> TwistedDeferred[dict]:
-        folders_data = {}
-        tasks = []
-        for folder in folders:
-            tasks.append(self._get_folder_invite(gateway, folder))
-        results = yield DeferredList(tasks, consumeErrors=True)
-        for success, result in results:
-            if success:
-                folder, member_id, code = result
-                folders_data[folder] = {"code": code}
-                self._pending_invites.append((folder, member_id))
-            else:  # Failure
-                raise result.type(result.value)
-        return folders_data
+    # @inlineCallbacks
+    # def _get_folder_invites(
+    #    self, gateway: Tahoe, folders: list
+    # ) -> TwistedDeferred[dict]:
+    #    folders_data = {}
+    #    tasks = []
+    #    for folder in folders:
+    #        tasks.append(self._get_folder_invite(gateway, folder))
+    #    results = yield DeferredList(tasks, consumeErrors=True)
+    #    for success, result in results:
+    #        if success:
+    #            folder, member_id, code = result
+    #            folders_data[folder] = {"code": code}
+    #            self._pending_invites.append((folder, member_id))
+    #        else:  # Failure
+    #            raise result.type(result.value)
+    #    return folders_data
 
     @inlineCallbacks
     def send(
@@ -175,8 +178,11 @@ class InviteSender(QObject):
     ) -> TwistedDeferred[None]:
         settings = gateway.get_settings()
         if folders:
-            self._gateway = gateway
-            folders_data = yield self._get_folder_invites(gateway, folders)
-            settings["magic-folders"] = folders_data
+            # self._gateway = gateway
+            # folders_data = yield self._get_folder_invites(gateway, folders)
+            # settings["magic-folders"] = folders_data
+            raise NotImplementedError(
+                "Magic-Folder invites are not yet implemented"
+            )
         self.created_invite.emit()
         yield self.wormhole.send(settings)
