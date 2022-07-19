@@ -147,7 +147,7 @@ class LogLoader(QObject):
 
 class DebugExporter(QDialog):
     def __init__(self, core: Core, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=None)
+        super().__init__(parent)
         self.core = core
 
         self.log_loader = LogLoader(self.core)
