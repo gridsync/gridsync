@@ -603,7 +603,7 @@ class Tahoe:
         )
 
     @inlineCallbacks
-    def diminish(self, cap: str) -> TwistedDeferred[str]:
+    def get_readonly_cap(self, cap: str) -> TwistedDeferred[str]:
         output = yield self.get_json(cap)
         return output[1]["ro_uri"]
 
