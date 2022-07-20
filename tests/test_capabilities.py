@@ -30,3 +30,8 @@ from gridsync.capabilities import diminish
 )
 def test_diminish(rw_uri, ro_uri):
     assert diminish(rw_uri) == ro_uri
+
+
+def test_diminish_raises_value_error_if_uri_type_is_unknown():
+    with pytest.raises(ValueError):
+        assert diminish("URI:UNKNOWN:aaaaaaaa:bbbbbbbb")
