@@ -26,6 +26,7 @@ requirements = [
     "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
     "pyyaml",
     "qtpy",
+    "tahoe-lafs",
     "treq",
     "twisted[tls] >= 21.7.0",  # 21.7.0 adds Deferred type hinting/annotations
     "txdbus ; sys_platform != 'darwin' and sys_platform != 'win32'",
