@@ -28,10 +28,15 @@ from gridsync.capabilities import diminish
         ),
     ],
 )
-def test_diminish(rw_uri, ro_uri):
+def test_diminish_converts_rw_to_ro(rw_uri, ro_uri):
     assert diminish(rw_uri) == ro_uri
 
 
 def test_diminish_raises_value_error_if_uri_type_is_unknown():
     with pytest.raises(ValueError):
         assert diminish("URI:UNKNOWN:aaaaaaaa:bbbbbbbb")
+
+
+def test_diminish_returns_cap_if_cap_is_already_readonly():
+    cap = "URI:DIR2-RO:cq4zshembnmo4bcaroimldwv4e:ixphgtnlhm3eypfcbadnh3ywzrthua4vxgldywh6nbq2ligddl3q"
+    assert diminish(cap) == cap
