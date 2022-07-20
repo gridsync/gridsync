@@ -235,7 +235,7 @@ def test_add_participant(magic_folder, tmp_path):
 
     author_name = randstr()
     dircap = yield magic_folder.gateway.mkdir()
-    personal_dmd = yield magic_folder.gateway.diminish(dircap)
+    personal_dmd = yield magic_folder.gateway.get_readonly_cap(dircap)
     yield magic_folder.add_participant(folder_name, author_name, personal_dmd)
     participants = yield magic_folder.get_participants(folder_name)
     assert author_name in participants
@@ -514,7 +514,7 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
     yield bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
 
     alice_folders = yield alice_magic_folder.get_folders()
-    alice_personal_dmd = yield alice_magic_folder.gateway.diminish(
+    alice_personal_dmd = yield alice_magic_folder.gateway.get_readonly_cap(
         alice_folders["ToBob"]["upload_dircap"]
     )
     yield bob_magic_folder.add_participant(

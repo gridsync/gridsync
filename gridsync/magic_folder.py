@@ -849,7 +849,7 @@ class MagicFolder:
             )
         data = backups.get(folder_name, {})
         upload_dircap = data.get("upload_dircap")
-        personal_dmd = yield self.gateway.diminish(upload_dircap)
+        personal_dmd = yield self.gateway.get_readonly_cap(upload_dircap)
         yield self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
         yield self.add_participant(folder_name, author, personal_dmd)
