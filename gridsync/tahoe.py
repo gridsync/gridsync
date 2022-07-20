@@ -16,6 +16,7 @@ from twisted.internet.interfaces import IReactorTime
 
 from gridsync import APP_NAME
 from gridsync import settings as global_settings
+from gridsync.capabilities import diminish
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeWebError
@@ -224,7 +225,7 @@ class Tahoe:
             self.load_settings()
         settings = dict(self.settings)
         if include_secrets:
-            settings["rootcap"] = self.get_rootcap()
+            settings["rootcap"] = diminish(self.get_rootcap())
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
                 .read_text(encoding="utf-8")
