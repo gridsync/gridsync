@@ -13,6 +13,7 @@ from atomicwrites import atomic_write
 from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.interfaces import IReactorTime
+from tahoe_capabilities import DirectoryWriteCapability, writeable_directory_from_string
 
 from gridsync import APP_NAME
 from gridsync import settings as global_settings
@@ -160,7 +161,8 @@ class Tahoe:
 
         rootcap = settings.get("rootcap")
         if rootcap:
-            self.rootcap_manager.set_rootcap(rootcap, overwrite=True)
+            # XXX Consider doing this before the atomic_write above
+            self.rootcap_manager.set_rootcap(writeable_directory_from_string(rootcap), overwrite=True)
 
         newscap = settings.get("newscap")
         if newscap:
@@ -207,7 +209,11 @@ class Tahoe:
         if self.newscap:
             settings["newscap"] = self.newscap
         if not settings.get("rootcap"):
-            settings["rootcap"] = self.get_rootcap()
+            rootcap = self.get_rootcap()
+            if rootcap is None:
+                settings["rootcap"] = None
+            else:
+                settings["rootcap"] = rootcap.danger_real_capability_string()
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
             self.zkapauthorizer.zkap_unit_name = zkap_unit_name
@@ -225,7 +231,11 @@ class Tahoe:
             self.load_settings()
         settings = dict(self.settings)
         if include_secrets:
-            settings["rootcap"] = diminish(self.get_rootcap())
+            rootcap = self.get_rootcap()
+            if rootcap is None:
+                settings["rootcap"] = None
+            else:
+                settings["rootcap"] = rootcap.get_readonly()
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
                 .read_text(encoding="utf-8")
@@ -608,7 +618,7 @@ class Tahoe:
         return output[1]["ro_uri"]
 
     @inlineCallbacks
-    def create_rootcap(self) -> TwistedDeferred[str]:
+    def create_rootcap(self) -> TwistedDeferred[DirectoryWriteCapability]:
         rootcap = yield self.rootcap_manager.create_rootcap()
         return rootcap
 
@@ -735,7 +745,7 @@ class Tahoe:
             results[name]["type"] = node_type
         return results
 
-    def get_rootcap(self) -> str:
+    def get_rootcap(self) -> Optional[DirectoryWriteCapability]:
         return self.rootcap_manager.get_rootcap()
 
     @inlineCallbacks

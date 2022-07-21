@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
+from tahoe_capabilities import DirectoryWriteCapability, writeable_directory_from_string
 
 from atomicwrites import atomic_write
 from twisted.internet.defer import DeferredLock, inlineCallbacks
@@ -42,63 +43,51 @@ class RootcapManager:
         self.basedir = basedir
         self.lock = DeferredLock()
         self._rootcap_path = Path(gateway.nodedir, "private", "rootcap")
-        self._rootcap: str = ""
+        self._rootcap: Optional[DirectoryWriteCapability] = None
         self._basedircap = ""
         self._backup_caps: dict = {}
 
-    def get_rootcap(self) -> str:
+    def get_rootcap(self) -> Optional[DirectoryWriteCapability]:
         if self._rootcap:
             return self._rootcap
         try:
-            self._rootcap = self._rootcap_path.read_text(encoding="utf-8")
+            rootcap_str = self._rootcap_path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            return ""
+            return None
+        self._rootcap = writeable_directory_from_string(rootcap_str)
         return self._rootcap
 
-    def set_rootcap(self, cap: str, overwrite: bool = False) -> None:
+    def set_rootcap(self, cap: DirectoryWriteCapability, overwrite: bool = False) -> None:
         with atomic_write(
             str(self._rootcap_path), mode="w", overwrite=overwrite
         ) as f:
-            f.write(cap)
+            f.write(cap.danger_real_capability_string())
         logging.debug("Rootcap saved to file: %s", self._rootcap_path)
         self._rootcap = cap
 
     @inlineCallbacks
-    def create_rootcap(self) -> TwistedDeferred[str]:
-        logging.debug("Creating rootcap...")
-        if self._rootcap_path.exists():
+    def create_rootcap(self) -> TwistedDeferred[DirectoryWriteCapability]:
+        yield self.lock.acquire()
+        try:
+            logging.debug("Creating rootcap...")
+            rootcap = self.get_rootcap()
+            if rootcap is None:
+                rootcap = writeable_directory_from_string((yield self.gateway.mkdir()))
+                self.set_rootcap(rootcap)
+                return rootcap
             logging.warning(
                 "Rootcap file already exists: %s", self._rootcap_path
             )
-            return self.get_rootcap()
-        yield self.lock.acquire()
-        try:
-            rootcap = yield self.gateway.mkdir()
+            return rootcap
         finally:
             self.lock.release()
-        yield self.lock.acquire()
-        if self._rootcap:
-            logging.warning("Rootcap already exists")
-            self.lock.release()
-            return self._rootcap
-        try:
-            self.set_rootcap(rootcap)
-        except FileExistsError:
-            logging.warning(
-                "Rootcap file already exists: %s", self._rootcap_path
-            )
-            return self.get_rootcap()
-        finally:
-            self.lock.release()
-        logging.debug("Rootcap successfully created")
-        return self._rootcap
 
     @inlineCallbacks
     def _get_basedircap(self) -> TwistedDeferred[str]:
         if self._basedircap:
             return self._basedircap
         rootcap = self.get_rootcap()
-        if not rootcap:
+        if rootcap is None:
             rootcap = yield self.create_rootcap()
         subdirs = yield self.gateway.ls(rootcap, exclude_filenodes=True)
         self._basedircap = subdirs.get(self.basedir, {}).get("cap", "")
@@ -110,7 +99,7 @@ class RootcapManager:
             return self._basedircap
         logging.debug('Creating base ("%s") dircap...', self.basedir)
         try:
-            self._basedircap = yield self.gateway.mkdir(rootcap, self.basedir)
+            self._basedircap = yield self.gateway.mkdir(rootcap.danger_real_capability_string(), self.basedir)
         finally:
             self.lock.release()
         logging.debug('Base ("%s") dircap successfully created', self.basedir)
