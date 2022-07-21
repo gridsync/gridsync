@@ -6,7 +6,7 @@ def is_readonly(cap: str) -> bool:
     """
     Determine whether a given capability string is a readonly cap.
 
-    The "only" part in "readonly" is the important qualifier here; a 
+    The "only" part in "readonly" is the important qualifier here; a
     "readonly cap" here refers to a capability with which the
     corresponding data can be read but nothing else. This *excludes*
     both write-capabilities and verify-capabilities (even though
