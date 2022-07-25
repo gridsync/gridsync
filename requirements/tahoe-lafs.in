@@ -1,1 +1,3 @@
 zero-knowledge-access-pass-authorizer
+# See https://github.com/pallets/werkzeug/issues/2465
+werkzeug != 2.2.0
