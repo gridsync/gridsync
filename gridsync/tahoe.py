@@ -17,7 +17,6 @@ from tahoe_capabilities import DirectoryWriteCapability, writeable_directory_fro
 
 from gridsync import APP_NAME
 from gridsync import settings as global_settings
-from gridsync.capabilities import diminish
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeWebError
