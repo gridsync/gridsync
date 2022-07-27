@@ -7,6 +7,8 @@ from pytest_twisted import async_yield_fixture, inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
 
+from tahoe_capabilities import writeable_directory_from_string, danger_real_capability_string
+
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
 from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
@@ -234,9 +236,9 @@ def test_add_participant(magic_folder, tmp_path):
     yield magic_folder.add_folder(path, author)
 
     author_name = randstr()
-    dircap = yield magic_folder.gateway.mkdir()
-    personal_dmd = yield magic_folder.gateway.get_readonly_cap(dircap)
-    yield magic_folder.add_participant(folder_name, author_name, personal_dmd)
+    dircap = writeable_directory_from_string((yield magic_folder.gateway.mkdir()))
+    personal_dmd = dircap.reader
+    yield magic_folder.add_participant(folder_name, author_name, danger_real_capability_string(personal_dmd))
     participants = yield magic_folder.get_participants(folder_name)
     assert author_name in participants
 
@@ -514,11 +516,10 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
     yield bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
 
     alice_folders = yield alice_magic_folder.get_folders()
-    alice_personal_dmd = yield alice_magic_folder.gateway.get_readonly_cap(
-        alice_folders["ToBob"]["upload_dircap"]
+    alice_personal_dmd = writeable_directory_from_string(alice_folders["ToBob"]["upload_dircap"]).reader
     )
     yield bob_magic_folder.add_participant(
-        folder_name, "Alice", alice_personal_dmd
+        folder_name, "Alice", danger_real_capability_string(alice_personal_dmd)
     )
 
     p = bob_path / "SharedFile.txt"

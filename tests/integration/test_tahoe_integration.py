@@ -43,13 +43,6 @@ def test_tahoe_client_mkdir(tahoe_client):
 
 
 @inlineCallbacks
-def test_get_readonly_cap(tahoe_client):
-    dircap = yield tahoe_client.mkdir()
-    rocap = yield tahoe_client.get_readonly_cap(dircap)
-    assert rocap.startswith("URI:DIR2-RO:")
-
-
-@inlineCallbacks
 def test_upload_convergence_secret_determines_cap(tahoe_client, tmp_path):
     convergence_secret = tahoe_client.settings.get("convergence")
     p = tmp_path / "TestFile.txt"

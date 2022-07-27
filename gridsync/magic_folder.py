@@ -15,6 +15,8 @@ from twisted.internet import reactor
 from twisted.internet.defer import DeferredList, inlineCallbacks
 from twisted.internet.task import deferLater
 
+from tahoe_capabilities import writeable_directory_from_string, danger_real_capability_string
+
 if TYPE_CHECKING:
     from qtpy.QtCore import SignalInstance
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
@@ -848,10 +850,11 @@ class MagicFolder:
                 f"Error restoring folder {folder_name}; could not read backups"
             )
         data = backups.get(folder_name, {})
-        upload_dircap = data.get("upload_dircap")
-        personal_dmd = yield self.gateway.get_readonly_cap(upload_dircap)
+        upload_dircap = writeable_directory_from_string(data.get("upload_dircap"))
+
+        personal_dmd = upload_dircap.reader
         yield self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
-        yield self.add_participant(folder_name, author, personal_dmd)
+        yield self.add_participant(folder_name, author, danger_real_capability_string(personal_dmd))
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
         yield self.poll(folder_name)
