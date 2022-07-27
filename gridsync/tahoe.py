@@ -10,10 +10,13 @@ from typing import Optional, Union, cast
 import treq
 import yaml
 from atomicwrites import atomic_write
+from tahoe_capabilities import (
+    DirectoryWriteCapability,
+    writeable_directory_from_string,
+)
 from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.interfaces import IReactorTime
-from tahoe_capabilities import DirectoryWriteCapability, writeable_directory_from_string
 
 from gridsync import APP_NAME
 from gridsync import settings as global_settings
@@ -161,7 +164,9 @@ class Tahoe:
         rootcap = settings.get("rootcap")
         if rootcap:
             # XXX Consider doing this before the atomic_write above
-            self.rootcap_manager.set_rootcap(writeable_directory_from_string(rootcap), overwrite=True)
+            self.rootcap_manager.set_rootcap(
+                writeable_directory_from_string(rootcap), overwrite=True
+            )
 
         newscap = settings.get("newscap")
         if newscap:
