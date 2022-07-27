@@ -12,6 +12,7 @@ import yaml
 from atomicwrites import atomic_write
 from tahoe_capabilities import (
     DirectoryWriteCapability,
+    danger_real_capability_string,
     writeable_directory_from_string,
 )
 from twisted.internet.defer import Deferred, inlineCallbacks
@@ -217,7 +218,7 @@ class Tahoe:
             if rootcap is None:
                 settings["rootcap"] = None
             else:
-                settings["rootcap"] = rootcap.danger_real_capability_string()
+                settings["rootcap"] = danger_real_capability_string(rootcap)
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
             self.zkapauthorizer.zkap_unit_name = zkap_unit_name
@@ -239,7 +240,9 @@ class Tahoe:
             if rootcap is None:
                 settings["rootcap"] = None
             else:
-                settings["rootcap"] = rootcap.get_readonly()
+                settings["rootcap"] = danger_real_capability_string(
+                    rootcap.reader
+                )
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
                 .read_text(encoding="utf-8")

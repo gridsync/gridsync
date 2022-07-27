@@ -3,9 +3,13 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
-from tahoe_capabilities import DirectoryWriteCapability, writeable_directory_from_string
 
 from atomicwrites import atomic_write
+from tahoe_capabilities import (
+    DirectoryWriteCapability,
+    danger_real_capability_string,
+    writeable_directory_from_string,
+)
 from twisted.internet.defer import DeferredLock, inlineCallbacks
 
 if TYPE_CHECKING:
@@ -57,11 +61,13 @@ class RootcapManager:
         self._rootcap = writeable_directory_from_string(rootcap_str)
         return self._rootcap
 
-    def set_rootcap(self, cap: DirectoryWriteCapability, overwrite: bool = False) -> None:
+    def set_rootcap(
+        self, cap: DirectoryWriteCapability, overwrite: bool = False
+    ) -> None:
         with atomic_write(
             str(self._rootcap_path), mode="w", overwrite=overwrite
         ) as f:
-            f.write(cap.danger_real_capability_string())
+            f.write(danger_real_capability_string(cap))
         logging.debug("Rootcap saved to file: %s", self._rootcap_path)
         self._rootcap = cap
 
@@ -72,7 +78,9 @@ class RootcapManager:
             logging.debug("Creating rootcap...")
             rootcap = self.get_rootcap()
             if rootcap is None:
-                rootcap = writeable_directory_from_string((yield self.gateway.mkdir()))
+                rootcap = writeable_directory_from_string(
+                    (yield self.gateway.mkdir())
+                )
                 self.set_rootcap(rootcap)
                 return rootcap
             logging.warning(
@@ -99,7 +107,9 @@ class RootcapManager:
             return self._basedircap
         logging.debug('Creating base ("%s") dircap...', self.basedir)
         try:
-            self._basedircap = yield self.gateway.mkdir(rootcap.danger_real_capability_string(), self.basedir)
+            self._basedircap = yield self.gateway.mkdir(
+                danger_real_capability_string(rootcap), self.basedir
+            )
         finally:
             self.lock.release()
         logging.debug('Base ("%s") dircap successfully created', self.basedir)
