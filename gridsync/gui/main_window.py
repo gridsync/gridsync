@@ -432,15 +432,16 @@ class MainWindow(QMainWindow):
             with _encryption_animation():
                 # Begin to gather and encrypt the information for the recovery key.
                 ciphertext_d = get_recovery_key(password, gateway)
-
+                if password is "":
+                    filename = f"{gateway.name} Recovery Key.json"
+                else:
+                    filename = f"{gateway.name} Recovery Key.json.encrypted"
                 # Blocking call!  If this were async the factoring could be
                 # much cleaner.  Just `gatherResults([ciphertext_d, path_d])`
                 # and feed the result to an export_recovery_key that does all
                 # the rest of the work.
                 path = get_save_filename(
-                    self,
-                    "Select a destination",
-                    gateway.name + " Recovery Key.json.encrypted",
+                    self, "Select a destination", filename
                 )
                 if path is None:
                     return
