@@ -432,7 +432,7 @@ class MainWindow(QMainWindow):
             with _encryption_animation():
                 # Begin to gather and encrypt the information for the recovery key.
                 ciphertext_d = get_recovery_key(password, gateway)
-                if password is "":
+                if password == "":
                     filename = f"{gateway.name} Recovery Key.json"
                 else:
                     filename = f"{gateway.name} Recovery Key.json.encrypted"
