@@ -22,6 +22,7 @@ attrs==22.1.0 \
     #   magic-wormhole
     #   python-challenge-bypass-ristretto
     #   service-identity
+    #   tahoe-capabilities
     #   tahoe-lafs
     #   treq
     #   twisted
@@ -486,6 +487,9 @@ sqlparse==0.4.2 \
     --hash=sha256:0c00730c74263a94e5a9919ade150dfc3b19c574389985446148402998287dae \
     --hash=sha256:48719e356bb8b42991bdbb1e8b83223757b93789c00910a616a071910ca4a64d
     # via zero-knowledge-access-pass-authorizer
+tahoe-capabilities @ https://github.com/tahoe-lafs/tahoe-capabilities/archive/refs/heads/master.tar.gz \
+    --hash=sha256:53e18e9f8f95febb3040fe61acf1dbd35a7f7dc71fcd22627b04826f0d960195
+    # via -r requirements/tahoe-lafs.in
 tahoe-lafs==1.17.1 \
     --hash=sha256:2dc7fc103fe0e4f9fc69953934089f55e4428bd5d94670e844e64c210d7c1672 \
     --hash=sha256:329dca7bc9d23b670ac2e513bf7aab7eb948f40ffbc6bf8fc92376cb1cceaf8f
