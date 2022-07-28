@@ -517,7 +517,6 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
 
     alice_folders = yield alice_magic_folder.get_folders()
     alice_personal_dmd = writeable_directory_from_string(alice_folders["ToBob"]["upload_dircap"]).reader
-    )
     yield bob_magic_folder.add_participant(
         folder_name, "Alice", danger_real_capability_string(alice_personal_dmd)
     )
