@@ -18,6 +18,7 @@ pynacl >= 1.2.0
 pyyaml
 qtpy
 tahoe-lafs
+https://github.com/tahoe-lafs/tahoe-capabilities/archive/refs/heads/master.tar.gz
 treq
 # Twisted 21.7.0 adds Deferred type hinting/annotations
 twisted[tls] >= 21.7.0

@@ -4,4 +4,3 @@ werkzeug != 2.2.0
 # 2022.6.30 drops support for macOS 10.14 -- which Gridsync depends on.
 # See/follow https://github.com/gridsync/gridsync/issues/505
 python-challenge-bypass-ristretto==2021.7.12
-https://github.com/tahoe-lafs/tahoe-capabilities/archive/refs/heads/master.tar.gz
