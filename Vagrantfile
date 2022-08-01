@@ -14,7 +14,7 @@ end
 def install_macos_monterey
   return <<-EOF
     softwareupdate --verbose --fetch-full-installer --full-installer-version 12.5
-    echo vagrant | /Applications/Install\ macOS\ Monterey.app/Contents/Resources/startosinstall --agreetolicense --forcequitapps --user vagrant --stdinpass
+    echo vagrant | /Applications/Install\\ macOS\\ Monterey.app/Contents/Resources/startosinstall --agreetolicense --forcequitapps --user vagrant --stdinpass
   EOF
 end
 
