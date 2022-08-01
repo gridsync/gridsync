@@ -4,6 +4,13 @@
 # Needed for copying NVRAM file for macos-11 as per https://app.vagrantup.com/amarcireau/boxes/macos
 ENV["VAGRANT_EXPERIMENTAL"] = "typed_triggers"
 
+def update_macos
+  return <<-EOF
+    softwareupdate --verbose --install --all
+  EOF
+end
+
+
 def gnome_desktop
   return <<-EOF
     yum -y update
@@ -155,6 +162,7 @@ Vagrant.configure("2") do |config|
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
     end
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", type: "rsync", rsync__chown: false
+    b.vm.provision "update", type: "shell", privileged: false, run: "never", inline: update_macos
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
@@ -174,6 +182,7 @@ Vagrant.configure("2") do |config|
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
     end
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", type: "rsync"
+    b.vm.provision "update", type: "shell", privileged: false, run: "never", inline: update_macos
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
@@ -214,6 +223,7 @@ Vagrant.configure("2") do |config|
     # Shared directories are not supported by Big Sur guests
     # See https://app.vagrantup.com/amarcireau/boxes/macos
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", disabled: true
+    b.vm.provision "update", type: "shell", privileged: false, run: "never", inline: update_macos
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
