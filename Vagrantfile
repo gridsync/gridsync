@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Needed for copying NVRAM file for macos-11 as per https://app.vagrantup.com/amarcireau/boxes/macos
+ENV["VAGRANT_EXPERIMENTAL"] = "typed_triggers"
+
 def gnome_desktop
   return <<-EOF
     yum -y update
@@ -171,6 +174,46 @@ Vagrant.configure("2") do |config|
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
     end
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", type: "rsync"
+    b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
+    b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
+    b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
+    b.vm.provision "buildbot-worker", type: "shell", privileged: false, run: "never", env: {"BUILDBOT_HOST": "#{ENV['BUILDBOT_HOST']}", "BUILDBOT_NAME": "#{ENV['BUILDBOT_NAME']}", "BUILDBOT_PASS": "#{ENV['BUILDBOT_PASS']}"}, path: "scripts/provision_buildbot-worker.sh"
+  end
+
+  config.vm.define "macos-11" do |b|
+    b.vm.box = "amarcireau/macos"
+    b.vm.hostname = "macos-11"
+    b.vm.box_version = "11.3.1"
+    b.vm.provider "virtualbox" do |vb|
+      vb.memory = "4096"
+      # Guest additions are not supported by Big Sur guests
+      # See https://app.vagrantup.com/amarcireau/boxes/macos
+      vb.check_guest_additions = false
+      vb.customize ["modifyvm", :id, "--usbehci", "off"]
+      vb.customize ["modifyvm", :id, "--usbxhci", "off"]
+      vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct", "MacBookPro11,3"]
+      vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemVersion", "1.0"]
+      vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiBoardProduct", "Iloveapple"]
+      vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
+    end
+    # "The NVRAM file packaged with this Vagrant box must be copied manually after importing it into Virtualbox."
+    # See https://app.vagrantup.com/amarcireau/boxes/macos
+    config.trigger.after :"VagrantPlugins::ProviderVirtualBox::Action::Import", type: :action do |t|
+        t.ruby do |env, machine|
+            FileUtils.cp(
+                machine.box.directory.join("include").join("macOS.nvram").to_s,
+                machine.provider.driver.execute_command(["showvminfo", machine.id, "--machinereadable"]).
+                    split(/\n/).
+                    map {|line| line.partition(/=/)}.
+                    select {|partition| partition.first == "BIOS NVRAM File"}.
+                    last.
+                    last[1..-2]
+            )
+        end
+    end
+    # Shared directories are not supported by Big Sur guests
+    # See https://app.vagrantup.com/amarcireau/boxes/macos
+    b.vm.synced_folder ".", "/Users/vagrant/vagrant", disabled: true
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
