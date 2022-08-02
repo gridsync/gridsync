@@ -215,7 +215,7 @@ Vagrant.configure("2") do |config|
     end
     # "The NVRAM file packaged with this Vagrant box must be copied manually after importing it into Virtualbox."
     # See https://app.vagrantup.com/amarcireau/boxes/macos
-    config.trigger.after :"VagrantPlugins::ProviderVirtualBox::Action::Import", type: :action do |t|
+    b.trigger.after :"VagrantPlugins::ProviderVirtualBox::Action::Import", type: :action do |t|
         t.ruby do |env, machine|
             FileUtils.cp(
                 machine.box.directory.join("include").join("macOS.nvram").to_s,
@@ -257,7 +257,7 @@ Vagrant.configure("2") do |config|
     end
     # "The NVRAM file packaged with this Vagrant box must be copied manually after importing it into Virtualbox."
     # See https://app.vagrantup.com/amarcireau/boxes/macos
-    config.trigger.after :"VagrantPlugins::ProviderVirtualBox::Action::Import", type: :action do |t|
+    b.trigger.after :"VagrantPlugins::ProviderVirtualBox::Action::Import", type: :action do |t|
         t.ruby do |env, machine|
             FileUtils.cp(
                 machine.box.directory.join("include").join("macOS.nvram").to_s,
