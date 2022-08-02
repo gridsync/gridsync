@@ -97,8 +97,11 @@ class RootcapManager:
         rootcap = self.get_rootcap()
         if rootcap is None:
             rootcap = yield self.create_rootcap()
-        subdirs = yield self.gateway.ls(rootcap, exclude_filenodes=True)
+
+        subdirs = yield self.gateway.ls(danger_real_capability_string(rootcap), exclude_filenodes=True)
+        assert isinstance(subdirs, dict), subdirs
         self._basedircap = subdirs.get(self.basedir, {}).get("cap", "")
+
         if self._basedircap:
             return self._basedircap
         yield self.lock.acquire()
