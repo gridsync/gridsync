@@ -273,7 +273,7 @@ Vagrant.configure("2") do |config|
     # Shared directories are not supported by Big Sur guests
     # See https://app.vagrantup.com/amarcireau/boxes/macos
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", disabled: true
-    b.vm.provision "update", type: "shell", privileged: false, run: "never", inline: update_macos
+    b.vm.provision "update", type: "shell", privileged: false, inline: update_macos
     b.vm.provision "install-monterey", type: "shell", privileged: false, inline: install_macos_monterey
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
