@@ -224,27 +224,35 @@ def test_autostart_disable(tmpfile, monkeypatch):
     assert not autostart_is_enabled()
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only behavior")
-def test_windows_autostart_enable_creates_autostart_file():
+@pytest.mark.skipif(
+    "CI" not in os.environ, reason="May conflict with local user configuration"
+)
+def test_autostart_enable_creates_autostart_file():
     autostart_enable()
     assert autostart_is_enabled() is True
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only behavior")
-def test_windows_autostart_disable_removes_autostart_file():
+@pytest.mark.skipif(
+    "CI" not in os.environ, reason="May conflict with local user configuration"
+)
+def test_autostart_disable_removes_autostart_file():
     autostart_disable()
     assert autostart_is_enabled() is False
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only behavior")
-def test_windows_autostart_enable_is_idempotent():
+@pytest.mark.skipif(
+    "CI" not in os.environ, reason="May conflict with local user configuration"
+)
+def test_autostart_enable_is_idempotent():
     autostart_enable()
     autostart_enable()
     assert autostart_is_enabled() is True
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only behavior")
-def test_windows_autostart_disable_is_idempotent():
+@pytest.mark.skipif(
+    "CI" not in os.environ, reason="May conflict with local user configuration"
+)
+def test_autostart_disable_is_idempotent():
     autostart_disable()
     autostart_disable()
     assert autostart_is_enabled() is False
