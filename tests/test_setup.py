@@ -7,7 +7,11 @@ from unittest.mock import MagicMock, Mock
 import pytest
 import yaml
 from pytest_twisted import inlineCallbacks
-from tahoe_capabilities import SSKDirectoryWrite, danger_real_capability_string
+from tahoe_capabilities import (
+    DirectoryWriteCapability,
+    SSKDirectoryWrite,
+    danger_real_capability_string,
+)
 from tahoe_capabilities.strategies import chk_reads, ssk_writes
 
 from gridsync import resource
@@ -552,61 +556,87 @@ def test_ensure_recovery_write_settings(tmpdir):
 
 
 @inlineCallbacks
-def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
+def test_ensure_recovery_create_rootcap(tmpdir):
     rootcap = directory_writes.example()
     filecap = chk_reads().example()
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.create_rootcap",
-        lambda _: danger_real_capability_string(rootcap),
-    )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.upload",
-        lambda x, y: danger_real_capability_string(filecap),
-    )
 
-    def fake_link(_, dircap, name, childcap):
+    async def fake_create_rootcap() -> DirectoryWriteCapability:
+        return rootcap
+
+    async def fake_upload(self, local_path: str) -> str:
+        return danger_real_capability_string(filecap)
+
+    async def fake_link(_, dircap: str, name: str, childcap: str) -> None:
         assert (dircap, name, childcap) == (
             danger_real_capability_string(dircap),
             "settings.json",
             danger_real_capability_string(filecap),
         )
 
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    gateway = Tahoe(nodedir)
+    gateway.create_rootcap = fake_create_rootcap
+    gateway.upload = fake_upload
+    gateway.link = fake_link
+
     sr = SetupRunner([])
-    sr.gateway = Tahoe(nodedir)
-    sr.gateway.rootcap = "URI"
+    sr.gateway = gateway
+
+    # sr.gateway.rootcap = "URI"
     settings = {"nickname": "TestGrid"}
     yield sr.ensure_recovery(settings)
 
 
 @inlineCallbacks
-def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
+def test_ensure_recovery_create_rootcap_pass_on_error(tmpdir):
+    rootcap = directory_writes.example()
+    filecap = "URI:2"
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.create_rootcap", MagicMock(side_effect=OSError())
-    )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", lambda x, y: "URI:2")
 
-    def fake_link(_, dircap, name, childcap):
-        assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")
+    async def fake_create_rootcap() -> DirectoryWriteCapability:
+        raise OSError()
 
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
+    async def fake_upload(local_path: str) -> str:
+        return filecap
+
+    async def fake_link(dircap: str, name: str, childcap: str) -> None:
+        assert (dircap, name, childcap) == (
+            danger_real_capability_string(rootcap),
+            "settings.json",
+            filecap,
+        )
+
+    gateway = Tahoe(nodedir)
+    gateway.create_rootcap = fake_create_rootcap
+    gateway.upload = fake_upload
+    gateway.link = fake_link
+
     sr = SetupRunner([])
-    sr.gateway = Tahoe(nodedir)
-    sr.gateway.rootcap_manager.set_rootcap("URI")
+    sr.gateway = gateway
+    gateway.rootcap_manager.set_rootcap(rootcap)
+
     settings = {"nickname": "TestGrid"}
     yield sr.ensure_recovery(settings)
 
 
 @inlineCallbacks
-def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", lambda a, b, c, d: None)
+def test_join_folders_emit_joined_folders_signal(qtbot, tmpdir):
+    rootcap = directory_writes.example()
+    nodedir = str(tmpdir.mkdir("TestGrid"))
+    os.makedirs(os.path.join(nodedir, "private"))
+
+    async def fake_link(dircap: str, name: str, filecap: str) -> None:
+        pass
+
+    gateway = Tahoe(nodedir)
+    gateway.link = fake_link
+
     sr = SetupRunner([])
-    sr.gateway = Tahoe(str(tmpdir.mkdir("TestGrid")))
-    sr.gateway.rootcap = "URI:rootcap"
+    sr.gateway = gateway
+    gateway.rootcap_manager.set_rootcap(rootcap)
+
     folders_data = {"TestFolder": {"code": "URI:1+URI:2"}}
     with qtbot.wait_signal(sr.joined_folders) as blocker:
         yield sr.join_folders(folders_data)
