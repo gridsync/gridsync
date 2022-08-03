@@ -11,7 +11,9 @@ jobs:
       # unshare (I'm not sure why, maybe because we use buildFHSUserEnv).
       options: "--privileged"
       env:
-        NIX: "nix --option experimental-features 'nix-command flakes'"
+        # Let us use features marked "experimental".  For example, most/all of
+        # the `nix <subcommand>` forms.  And also flakes.
+        NIX_CONFIG: "experimental-features = nix-command flakes"
     steps:
     - name: "Checkout"
       uses: "actions/checkout@v1"
@@ -23,16 +25,16 @@ jobs:
 
     - name: "Check"
       run: |
-        $NIX flake check
+        nix flake check
     - name: "Lint"
       run: |
-        $NIX develop --command tox -e lint
+        nix develop --command tox -e lint
     - name: "Unit Tests"
       run: |
-        $NIX develop --command tox -e py39
+        nix develop --command tox -e py39
     - name: "Integration Tests"
       run: |
-        $NIX develop --command tox -e integration
+        nix develop --command tox -e integration
 
   # Linux:
   #   strategy:
