@@ -1,12 +1,7 @@
 {
   description = "GridSync, Tahoe-LAFS/magic-folder GUI";
   inputs.nixpkgs = {
-    # Pin a revision that is older than the pypi-deps-db at the time this is
-    # written.  mach-nix does not like it when pypi-deps-db is older than
-    # nixpkgs.  This is only necessary because, by accident, HEAD of nixpkgs
-    # happened to be newer than HEAD of pypi-deps-db during development of
-    # this flake.
-    url = "github:NixOS/nixpkgs?rev=6cce09ce7f12e039318168ccfb0344426e17eec8";
+    url = "github:NixOS/nixpkgs?ref=nixos-22.05";
   };
   inputs.flake-utils = {
     url = "github:numtide/flake-utils";

@@ -17,6 +17,7 @@ It is also possible to pass ``pull/<pr-number>/head`` to test against a specific
 
 magic-folder
 ............
+
 We depend on a pinned commit of magic-folder.
 To update to the latest commit, run
 
