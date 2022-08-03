@@ -48,7 +48,7 @@
         '';
       };
     in rec {
-      devShell = (pkgs.buildFHSUserEnv {
+      devShells.default = (pkgs.buildFHSUserEnv {
         name = "gridsync";
         profile = (
           # Usually bytecode is just a nuisance - getting stale, taking more
