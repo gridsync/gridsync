@@ -34,17 +34,35 @@ jobs:
           cd /project
           nix --option experimental-features "nix-command flakes" flake check
 
-    # - name: "Unit Test"
-    #   run: |
-    #     nix develop --command tox -e py39
+    - name: "Unit Test"
+      uses: "addnab/docker-run-action@v3"
+      with:
+        image: "nixos/nix:2.9.1"
+        options: "-v ${{ github.workspace }}:/project"
+        run: |
+          cd /project
+          nix --option experimental-features "nix-command flakes" develop \
+            --command tox -e py39
 
-    # - name: "Integration Test"
-    #   run: |
-    #     nix develop --command tox -e integration
+    - name: "Integration Test"
+      uses: "addnab/docker-run-action@v3"
+      with:
+        image: "nixos/nix:2.9.1"
+        options: "-v ${{ github.workspace }}:/project"
+        run: |
+          cd /project
+          nix --option experimental-features "nix-command flakes" develop \
+            --command tox -e integration
 
-    # - name: "Lint"
-    #   run: |
-    #     nix develop --command tox -e lint
+    - name: "Lint"
+      uses: "addnab/docker-run-action@v3"
+      with:
+        image: "nixos/nix:2.9.1"
+        options: "-v ${{ github.workspace }}:/project"
+        run: |
+          cd /project
+          nix --option experimental-features "nix-command flakes" develop \
+            --command tox -e lint
 
   # Linux:
   #   strategy:
