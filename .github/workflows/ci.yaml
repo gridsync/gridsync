@@ -5,9 +5,6 @@ on: [push, pull_request]
 jobs:
   NixOS:
     runs-on: "ubuntu-latest"
-    env:
-      NIX: "nix --option experimental-features 'nix-command flakes'"
-
     steps:
     - name: "Setup Execution Environment"
       run: |
@@ -44,7 +41,7 @@ jobs:
         options: "-v ${{ github.workspace }}:/project"
         run: |
           cd /project
-          $NIX flake check
+          nix --option experimental-features 'nix-command flakes' flake check
 
     - name: "Unit Test"
       uses: "addnab/docker-run-action@v3"
@@ -53,7 +50,8 @@ jobs:
         options: "-v ${{ github.workspace }}:/project --privileged"
         run: |
           cd /project
-          $NIX develop --command tox -e py39
+          nix --option experimental-features 'nix-command flakes' develop \
+            --command tox -e py39
 
     - name: "Integration Test"
       uses: "addnab/docker-run-action@v3"
@@ -62,7 +60,8 @@ jobs:
         options: "-v ${{ github.workspace }}:/project --privileged"
         run: |
           cd /project
-          $NIX develop --command tox -e integration
+          nix --option experimental-features 'nix-command flakes' develop \
+            --command tox -e integration
 
     - name: "Lint"
       uses: "addnab/docker-run-action@v3"
@@ -71,7 +70,8 @@ jobs:
         options: "-v ${{ github.workspace }}:/project --privileged"
         run: |
           cd /project
-          $NIX develop --command tox -e lint
+          nix --option experimental-features 'nix-command flakes' develop \
+            --command tox -e lint
 
   # Linux:
   #   strategy:
