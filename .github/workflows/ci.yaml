@@ -5,20 +5,11 @@ on: [push, pull_request]
 jobs:
   NixOS:
     runs-on: "ubuntu-latest"
-    container:
-      image: "nixos/nix:2.9.1"
-
     steps:
-    - name: "Install Basic Dependencies"
+    - name: "Setup Execution Environment"
       run: |
-        # The GitHub Actions "checkout" action wants to read this file.  Make
-        # sure it exists.
-        touch /etc/os-release
-
-        # We also want to use flakes but they're still experimental so
-        # turn them on.
-        mkdir -p ~/.config/nix
-        echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+        # Also to allow `nix develop` to unshare in the Nix container, we need userns_clone:
+        sysctl -w kernel.unprivileged_userns_clone=1
 
     - name: "Checkout"
       uses: "actions/checkout@v1"
@@ -28,21 +19,21 @@ jobs:
         # specified for non-PR builds.
         ref: "${{ github.event.pull_request.head.sha || github.sha }}"
 
-    - name: "Check"
-      run: |
-        nix flake check
+    # - name: "Check"
+    #   run: |
+    #     nix flake check
 
-    - name: "Unit Test"
-      run: |
-        nix develop --command tox -e py39
+    # - name: "Unit Test"
+    #   run: |
+    #     nix develop --command tox -e py39
 
-    - name: "Integration Test"
-      run: |
-        nix develop --command tox -e integration
+    # - name: "Integration Test"
+    #   run: |
+    #     nix develop --command tox -e integration
 
-    - name: "Lint"
-      run: |
-        nix develop --command tox -e lint
+    # - name: "Lint"
+    #   run: |
+    #     nix develop --command tox -e lint
 
   # Linux:
   #   strategy:
