@@ -27,7 +27,7 @@ jobs:
         image: "nixos/nix:2.9.1"
         run: ""
 
-    - name: "Check"
+    - name: "Check Flake and Run Tests"
       uses: "addnab/docker-run-action@v3"
       with:
         image: "nixos/nix:2.9.1"
