@@ -19,6 +19,12 @@ jobs:
         # specified for non-PR builds.
         ref: "${{ github.event.pull_request.head.sha || github.sha }}"
 
+    - name: "Cache Docker Images"
+      uses: "addnab/docker-run-action@v3"
+      with:
+        image: "nixos/nix:2.9.1"
+        run: ""
+
     - name: "Check"
       uses: "addnab/docker-run-action@v3"
       with:
