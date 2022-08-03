@@ -86,6 +86,9 @@
           # export QT_DEBUG_PLUGINS=1
           ''
         );
+
+        # Install some libraries in the environment (only versions for the
+        # target architecture).
         targetPkgs = pkgs: (with pkgs;
           [
             # GridSync depends on PyQt5.  The PyQt5 wheel bundles Qt5 itself
