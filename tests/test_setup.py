@@ -7,9 +7,8 @@ from unittest.mock import MagicMock, Mock
 import pytest
 import yaml
 from pytest_twisted import inlineCallbacks
-from hypothesis import given
-from tahoe_capabilities.strategies import ssk_writes
 from tahoe_capabilities import SSKDirectoryWrite, danger_real_capability_string
+from tahoe_capabilities.strategies import chk_reads, ssk_writes
 
 from gridsync import resource
 from gridsync.errors import TorError, UpgradeRequiredError
@@ -26,6 +25,7 @@ from gridsync.setup import (
 from gridsync.tahoe import Tahoe
 
 directory_writes = ssk_writes().map(SSKDirectoryWrite)
+
 
 @pytest.mark.parametrize(
     "settings,result",
@@ -236,8 +236,8 @@ def fake_validate(settings, *args):
     return settings
 
 
-@given(rootcap=directory_writes)
-def test_validate_settings_strip_rootcap(monkeypatch, rootcap):
+def test_validate_settings_strip_rootcap(monkeypatch):
+    rootcap = directory_writes.example()
     monkeypatch.setattr("gridsync.setup.validate_grid", fake_validate)
     settings = {
         "nickname": "SomeGrid",
@@ -536,28 +536,42 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
 
 
 @inlineCallbacks
-@given(rootcap=directory_writes)
-def test_ensure_recovery_write_settings(tmpdir, rootcap):
+def test_ensure_recovery_write_settings(tmpdir):
+    rootcap = directory_writes.example()
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
     sr = SetupRunner([])
     sr.gateway = Tahoe(nodedir)
-    settings = {"nickname": "TestGrid", "rootcap": danger_real_capability_string(rootcap)}
+    settings = {
+        "nickname": "TestGrid",
+        "rootcap": danger_real_capability_string(rootcap),
+    }
     yield sr.ensure_recovery(settings)
     with open(os.path.join(nodedir, "private", "settings.json")) as f:
         assert json.loads(f.read()) == settings
 
 
 @inlineCallbacks
-@given(rootcap=directory_writes, filecap=chk_reads())
-def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir, rootcap, filecap):
+def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
+    rootcap = directory_writes.example()
+    filecap = chk_reads().example()
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.create_rootcap", lambda _: danger_real_capability_string(rootcap))
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", lambda x, y: danger_real_capability_string(filecap))
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.create_rootcap",
+        lambda _: danger_real_capability_string(rootcap),
+    )
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.upload",
+        lambda x, y: danger_real_capability_string(filecap),
+    )
 
     def fake_link(_, dircap, name, childcap):
-        assert (dircap, name, childcap) == (danger_real_capability_string(dircap), "settings.json", danger_real_capability_string(filecap))
+        assert (dircap, name, childcap) == (
+            danger_real_capability_string(dircap),
+            "settings.json",
+            danger_real_capability_string(filecap),
+        )
 
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
     sr = SetupRunner([])

@@ -2,15 +2,17 @@
 from __future__ import annotations
 
 from binascii import hexlify, unhexlify
+from functools import wraps
 from html.parser import HTMLParser
 from time import time
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable, Coroutine, Optional, TypeVar
 
 import attr
 from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.interfaces import IReactorTime
 from twisted.internet.task import deferLater
 from twisted.python.failure import Failure
+from typing_extensions import ParamSpec
 
 B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
@@ -96,6 +98,26 @@ def strip_html_tags(s: str) -> str:
     ts = _TagStripper()
     ts.feed(s)
     return ts.get_data()
+
+
+P = ParamSpec("P")
+A = TypeVar("A")
+B = TypeVar("B")
+C = TypeVar("C")
+
+
+def to_deferred(
+    f: Callable[P, Coroutine[Deferred[A], B, A]]
+) -> Callable[P, Deferred[A]]:
+    """
+    Decorate a coroutine function so that it returns a Deferred, instead.
+    """
+
+    @wraps(f)
+    def g(*a: P.args, **kw: P.kwargs) -> Deferred[A]:
+        return Deferred.fromCoroutine(f(*a, **kw))
+
+    return g
 
 
 @inlineCallbacks

@@ -98,12 +98,16 @@ class RootcapManager:
         if rootcap is None:
             rootcap = yield self.create_rootcap()
 
-        subdirs = yield self.gateway.ls(danger_real_capability_string(rootcap), exclude_filenodes=True)
-        assert isinstance(subdirs, dict), subdirs
-        self._basedircap = subdirs.get(self.basedir, {}).get("cap", "")
+        subdirs = yield self.gateway.ls(
+            danger_real_capability_string(rootcap), exclude_filenodes=True
+        )
+        if subdirs is None:
+            raise ValueError("Unable to list contents of Tahoe-LAFS rootcap")
 
+        self._basedircap = subdirs.get(self.basedir, {}).get("cap", "")
         if self._basedircap:
             return self._basedircap
+
         yield self.lock.acquire()
         if self._basedircap:
             self.lock.release()

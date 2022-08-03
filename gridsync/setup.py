@@ -13,6 +13,7 @@ import treq
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
+from tahoe_capabilities import danger_real_capability_string
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
@@ -22,7 +23,8 @@ from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
-from gridsync.types import TwistedDeferred
+from gridsync.types import JSON, TwistedDeferred
+from gridsync.util import to_deferred
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 
 
@@ -341,8 +343,8 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
         yield self.gateway.await_ready()
 
-    @inlineCallbacks
-    def ensure_recovery(self, settings: dict) -> TwistedDeferred[None]:
+    @to_deferred
+    async def ensure_recovery(self, settings: dict[str, JSON]) -> None:
         zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
@@ -372,11 +374,11 @@ class SetupRunner(QObject):
                         )
 
                 zkapauthorizer = self.gateway.zkapauthorizer
-                snapshot_exists = yield zkapauthorizer.snapshot_exists()
+                snapshot_exists = await zkapauthorizer.snapshot_exists()
                 if snapshot_exists:
                     # `restore_zkaps` will hang forever if no snapshot exists
                     log.debug("Restoring ZKAPs from backup...")
-                    yield zkapauthorizer.restore_zkaps(status_updated)
+                    await zkapauthorizer.restore_zkaps(status_updated)
                 else:
                     log.warning("No ZKAPs backup found")
         elif zkapauthz:
@@ -384,16 +386,24 @@ class SetupRunner(QObject):
         else:
             self.update_progress.emit("Generating Recovery Key...")
             try:
-                settings["rootcap"] = yield self.gateway.create_rootcap()
+                settings["rootcap"] = danger_real_capability_string(
+                    (await self.gateway.create_rootcap())
+                )
             except OSError:  # XXX Rootcap file already exists
                 pass
-            self.gateway.save_settings(settings)
-            settings_cap = yield self.gateway.upload(
-                os.path.join(self.gateway.nodedir, "private", "settings.json")
-            )
-            yield self.gateway.link(
-                self.gateway.get_rootcap(), "settings.json", settings_cap
-            )
+            rootcap = self.gateway.get_rootcap()
+            if rootcap is not None:
+                self.gateway.save_settings(settings)
+                settings_cap = await self.gateway.upload(
+                    os.path.join(
+                        self.gateway.nodedir, "private", "settings.json"
+                    )
+                )
+                await self.gateway.link(
+                    danger_real_capability_string(rootcap),
+                    "settings.json",
+                    settings_cap,
+                )
 
     @inlineCallbacks
     def join_folders(self, folders_data: dict) -> TwistedDeferred[None]:
@@ -401,13 +411,17 @@ class SetupRunner(QObject):
         for folder, data in folders_data.items():
             self.update_progress.emit('Joining folder "{}"...'.format(folder))
             collective, personal = data["code"].split("+")
+            rootcap = self.gateway.get_rootcap()
+            assert rootcap is not None
             yield self.gateway.link(
-                self.gateway.get_rootcap(),
+                danger_real_capability_string(rootcap),
                 folder + " (collective)",
                 collective,
             )
             yield self.gateway.link(
-                self.gateway.get_rootcap(), folder + " (personal)", personal
+                danger_real_capability_string(rootcap),
+                folder + " (personal)",
+                personal,
             )
             folders.append(folder)
         if folders:
