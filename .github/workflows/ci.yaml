@@ -6,13 +6,6 @@ jobs:
   NixOS:
     runs-on: "ubuntu-latest"
     steps:
-    - name: "Setup Execution Environment"
-      run: |
-        # Also to allow `nix develop` to unshare in the Nix container, we need
-        # userns_clone.
-        sudo sysctl -w kernel.unprivileged_userns_clone=1
-        sudo sysctl -a | grep unprivileged
-
     - name: "Checkout"
       uses: "actions/checkout@v1"
       with:
