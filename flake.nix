@@ -22,7 +22,12 @@
   outputs = { self, nixpkgs, flake-utils, mach-nix, ... }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system: let
 
-      python = "python39";
+      # The version of Python we'll use to set up the environment.
+      pythonVersion = "python3.9";
+
+      # Many Nix-related tools don't want the `.` in the Python derivation
+      # identifier.  Generate a string in the right format for them.
+      python = builtins.replaceStrings ["."] [""] pythonVersion;
 
       pkgs = nixpkgs.legacyPackages.${system};
 
@@ -63,6 +68,14 @@
           # libraries aren't discovered.
           + ''
           unset QT_PLUGIN_PATH
+          ''
+
+          # tox has its own ideas about what the default Python should be,
+          # without regard to what version of Python is actually available on
+          # the system.  Convince it to agree with the environment we've set
+          # up.
+          + ''
+          export TOX_BASEPYTHON=${pythonVersion}
           ''
 
           # Sometimes the information Qt dumps when this variable is set is
