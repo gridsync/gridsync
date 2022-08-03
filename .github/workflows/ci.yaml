@@ -5,10 +5,14 @@ on: [push, pull_request]
 jobs:
   NixOS:
     runs-on: "ubuntu-latest"
+    env:
+      NIX: "nix --option experimental-features 'nix-command flakes'"
+
     steps:
     - name: "Setup Execution Environment"
       run: |
-        # Also to allow `nix develop` to unshare in the Nix container, we need userns_clone:
+        # Also to allow `nix develop` to unshare in the Nix container, we need
+        # userns_clone.
         sudo sysctl -w kernel.unprivileged_userns_clone=1
 
     - name: "Checkout"
@@ -19,6 +23,13 @@ jobs:
         # specified for non-PR builds.
         ref: "${{ github.event.pull_request.head.sha || github.sha }}"
 
+    # Since we have to fiddle with sysctl on the host, we can't make the whole
+    # job a container job.  So we use this action to run each of the following
+    # steps in the right container.  Start with a step that does no
+    # application-level work.  The point is just to build the
+    # `docker-run-action` image and have it ready for the following steps.
+    # This keeps all of the Docker build output isolated in this step instead
+    # of smashing it into the first "real" step below.
     - name: "Cache Docker Images"
       uses: "addnab/docker-run-action@v3"
       with:
@@ -32,7 +43,7 @@ jobs:
         options: "-v ${{ github.workspace }}:/project"
         run: |
           cd /project
-          nix --option experimental-features "nix-command flakes" flake check
+          $NIX flake check
 
     - name: "Unit Test"
       uses: "addnab/docker-run-action@v3"
@@ -41,8 +52,7 @@ jobs:
         options: "-v ${{ github.workspace }}:/project"
         run: |
           cd /project
-          nix --option experimental-features "nix-command flakes" develop \
-            --command tox -e py39
+          $NIX develop --command tox -e py39
 
     - name: "Integration Test"
       uses: "addnab/docker-run-action@v3"
@@ -51,8 +61,7 @@ jobs:
         options: "-v ${{ github.workspace }}:/project"
         run: |
           cd /project
-          nix --option experimental-features "nix-command flakes" develop \
-            --command tox -e integration
+          $NIX develop --command tox -e integration
 
     - name: "Lint"
       uses: "addnab/docker-run-action@v3"
@@ -61,8 +70,7 @@ jobs:
         options: "-v ${{ github.workspace }}:/project"
         run: |
           cd /project
-          nix --option experimental-features "nix-command flakes" develop \
-            --command tox -e lint
+          $NIX develop --command tox -e lint
 
   # Linux:
   #   strategy:
