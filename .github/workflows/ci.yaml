@@ -26,7 +26,7 @@ jobs:
         options: "-v ${{ github.workspace }}:/project"
         run: |
           cd /project
-          nix flake check
+          nix --option experimental-features "nix-command flakes" flake check
 
     # - name: "Unit Test"
     #   run: |
