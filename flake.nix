@@ -44,11 +44,35 @@
       };
     in rec {
       devShell = (pkgs.buildFHSUserEnv {
-        name = "gridsync-env";
-        profile = ''
+        name = "gridsync";
+        profile = (
+          # Usually bytecode is just a nuisance - getting stale, taking more
+          # time to read/write than it saves, or creating extra noise in the
+          # checkout with generated files.
+          ''
           export PYTHONDONTWRITEBYTECODE=1
+          ''
+
+          # If there are any Qt plugins installed on the host system then we
+          # must not let information about them leak into the dev environment.
+          # The PyQt/Qt libraries we use for GridSync are almost certainly not
+          # compatible with whatever is on the system and if the two get too
+          # close to each other, Qt tends to SIGABRT itself.
+          #
+          # Clear this plugin path environment variable so any host plugin
+          # libraries aren't discovered.
+          + ''
           unset QT_PLUGIN_PATH
-        '';
+          ''
+
+          # Sometimes the information Qt dumps when this variable is set is
+          # useful for debugging Qt-related problems (especially problems
+          # finding or loading certain Qt plugins).  It's pretty noisy so it's
+          # not on by default.
+          + ''
+          # export QT_DEBUG_PLUGINS=1
+          ''
+        );
         targetPkgs = pkgs: (with pkgs;
           [
             # GridSync depends on PyQt5.  The PyQt5 wheel bundles Qt5 itself
