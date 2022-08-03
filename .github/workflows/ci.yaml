@@ -50,7 +50,7 @@ jobs:
       uses: "addnab/docker-run-action@v3"
       with:
         image: "nixos/nix:2.9.1"
-        options: "-v ${{ github.workspace }}:/project"
+        options: "-v ${{ github.workspace }}:/project --privileged"
         run: |
           cd /project
           $NIX develop --command tox -e py39
@@ -59,7 +59,7 @@ jobs:
       uses: "addnab/docker-run-action@v3"
       with:
         image: "nixos/nix:2.9.1"
-        options: "-v ${{ github.workspace }}:/project"
+        options: "-v ${{ github.workspace }}:/project --privileged"
         run: |
           cd /project
           $NIX develop --command tox -e integration
@@ -68,7 +68,7 @@ jobs:
       uses: "addnab/docker-run-action@v3"
       with:
         image: "nixos/nix:2.9.1"
-        options: "-v ${{ github.workspace }}:/project"
+        options: "-v ${{ github.workspace }}:/project --privileged"
         run: |
           cd /project
           $NIX develop --command tox -e lint
