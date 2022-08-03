@@ -21,12 +21,15 @@
   };
   outputs = { self, nixpkgs, flake-utils, mach-nix, ... }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system: let
+
+      python = "python39";
+
       pkgs = nixpkgs.legacyPackages.${system};
 
-      tox-env = pkgs.python39.withPackages (ps: [ ps.tox ] );
+      tox-env = pkgs.${python}.withPackages (ps: [ ps.tox ] );
 
       tahoe-env = mach-nix.lib.${system}.mkPython {
-        python = "python39";
+        inherit python;
         requirements = ''
           tahoe-lafs
           zero-knowledge-access-pass-authorizer
@@ -34,7 +37,7 @@
       };
 
       magic-folder-env = mach-nix.lib.${system}.mkPython {
-        python = "python39";
+        inherit python;
         requirements = ''
           magic-folder
         '';
