@@ -239,7 +239,11 @@ def autostart_is_enabled() -> bool:
 
 def autostart_disable() -> None:
     logging.debug("Deleting autostart file '%s'...", autostart_file_path)
-    os.remove(autostart_file_path)
+    try:
+        os.remove(autostart_file_path)
+    except FileNotFoundError:
+        logging.warning("Tried to remove autostart file that did not exist.")
+        return
     logging.debug("Deleted autostart file '%s'", autostart_file_path)
 
 
