@@ -28,13 +28,13 @@ jobs:
         nix flake check
     - name: "Lint"
       run: |
-        nix develop '.#lint'
+        nix run .#tox -- -e lint
     - name: "Unit Tests"
       run: |
-        nix develop '.#py39'
+        nix run .#tox -- -e py39
     - name: "Integration Tests"
       run: |
-        nix develop '.#integration'
+        nix run .#tox -- -e integration
 
   # Linux:
   #   strategy:

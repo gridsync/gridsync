@@ -52,7 +52,7 @@
       # dependencies and some Python tools.  This is suitable for running tox
       # in.  `runScript` is the command to run in the FHS env's chroot.
       makeDevShell = runScript: pkgs.buildFHSUserEnv {
-        name = "gridsync";
+        name = "dev-env";
         profile = (
           # Usually bytecode is just a nuisance - getting stale, taking more
           # time to read/write than it saves, or creating extra noise in the
@@ -123,17 +123,18 @@
         inherit runScript;
       };
 
-    in rec {
+    in {
       devShells = {
         # The default is to run an interactive shell.
         default = (makeDevShell "bash").env;
+      };
 
-        # These environments mostly help CI by running certain CI-relevant
-        # jobs directly.  It would be nice if we did not have to have one
-        # entry per tox env here but I'm not sure how to accomplish that.
-        lint = (makeDevShell "tox -e lint").env;
-        py39 = (makeDevShell "tox -e py39").env;
-        integration = (makeDevShell "tox -e integration").env;
+      apps.tox = {
+        type = "app";
+        # Run the env-entering script from the FHS user environment.
+        # Arguments from the command line will be passed along.
+        # pkgs/build-support/build-fhs-userenv/default.nix for gory details.
+        program = "${makeDevShell "tox"}/bin/dev-env";
       };
     });
 }
