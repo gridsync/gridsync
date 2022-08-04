@@ -3,6 +3,39 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  NixOS:
+    runs-on: "ubuntu-latest"
+    container:
+      image: "nixos/nix:2.10.3"
+      # Run the container privileged because `nix develop` wants to use
+      # unshare (I'm not sure why, maybe because we use buildFHSUserEnv).
+      options: "--privileged"
+      env:
+        # Let us use features marked "experimental".  For example, most/all of
+        # the `nix <subcommand>` forms.  And also flakes.
+        NIX_CONFIG: "experimental-features = nix-command flakes"
+    steps:
+    - name: "Checkout"
+      uses: "actions/checkout@v1"
+      with:
+        fetch-depth: 0
+        # Checkout head of the branch of the PR, or the exact revision
+        # specified for non-PR builds.
+        ref: "${{ github.event.pull_request.head.sha || github.sha }}"
+
+    - name: "Check"
+      run: |
+        nix flake check
+    - name: "Lint"
+      run: |
+        nix run .#tox -- -e lint
+    - name: "Unit Tests"
+      run: |
+        nix run .#tox -- -e py39
+    - name: "Integration Tests"
+      run: |
+        nix run .#tox -- -e integration
+
   Linux:
     strategy:
       matrix:
