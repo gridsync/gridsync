@@ -47,8 +47,11 @@
           magic-folder
         '';
       };
-    in rec {
-      devShells.default = (pkgs.buildFHSUserEnv {
+
+      # Build an FHS user environment that contains Qt native library
+      # dependencies and some Python tools.  This is suitable for running tox
+      # in.  `runScript` is the command to run in the FHS env's chroot.
+      makeDevShell = runScript: pkgs.buildFHSUserEnv {
         name = "gridsync";
         profile = (
           # Usually bytecode is just a nuisance - getting stale, taking more
@@ -117,7 +120,20 @@
             tahoe-env
             magic-folder-env
           ]);
-        runScript = "bash";
-      }).env;
+        inherit runScript;
+      };
+
+    in rec {
+      devShells = {
+        # The default is to run an interactive shell.
+        default = (makeDevShell "bash").env;
+
+        # These environments mostly help CI by running certain CI-relevant
+        # jobs directly.  It would be nice if we did not have to have one
+        # entry per tox env here but I'm not sure how to accomplish that.
+        lint = (makeDevShell "tox -e lint").env;
+        py39 = (makeDevShell "tox -e py39").env;
+        integration = (makeDevShell "tox -e integration").env;
+      };
     });
 }
