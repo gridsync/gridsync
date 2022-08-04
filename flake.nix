@@ -35,17 +35,16 @@
 
       tahoe-env = mach-nix.lib.${system}.mkPython {
         inherit python;
-        requirements = ''
-          tahoe-lafs
-          zero-knowledge-access-pass-authorizer
-        '';
+        # mach-nix can't parse the .txt files so we can't easily match the
+        # exact dependency versions the pip-based toolchain will use.  We can
+        # get close, though.
+        requirements = builtins.readFile ./requirements/tahoe-lafs.in;
       };
 
       magic-folder-env = mach-nix.lib.${system}.mkPython {
         inherit python;
-        requirements = ''
-          magic-folder
-        '';
+        # See comment on tahoe-env definition.
+        requirements = builtins.readFile ./requirements/magic-folder.in;
       };
 
       # Build an FHS user environment that contains Qt native library
