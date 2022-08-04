@@ -23,8 +23,8 @@ attrs==22.1.0 \
     #   tahoe-lafs
     #   treq
     #   twisted
-autobahn[twisted]==22.6.1 \
-    --hash=sha256:fb63e946d5c2dd0df680851e84e65624a494ce87c999f2a4944e4f2d81bf4498
+autobahn[twisted]==22.7.1 \
+    --hash=sha256:8b462ea2e6aad6b4dc0ed45fb800b6cbfeb0325e7fe6983907f122f2be4a1fe9
     # via
     #   -r requirements/magic-folder.in
     #   magic-folder
@@ -262,9 +262,9 @@ klein==21.8.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-magic-folder==22.5.0 \
-    --hash=sha256:82e6df3c58cfd6247b3391b3e60894c32e8166f1df171a24409b7bd09b168f93 \
-    --hash=sha256:b3588a288864bc9ff6d24ec3c57ccf1f95f87fa0a169fdd323d00f12097cc524
+magic-folder==22.8.0 \
+    --hash=sha256:8605df7bd1d084fdf7dd5129e45874542e5699072dc62cee1f39199024f029f5 \
+    --hash=sha256:d5aa0f30d091762dc6388f7a13255eb2e87fdec993b650830cd609c47b961595
     # via -r requirements/magic-folder.in
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
@@ -652,9 +652,9 @@ zope-interface==5.4.0 \
     #   txtorcon
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==63.3.0 \
-    --hash=sha256:273b6847ae61f7829c1affcdd9a32f67aa65233be508f4fbaab866c5faa4e408 \
-    --hash=sha256:d5340d16943a0f67057329db59b564e938bb3736c6e50ae16ea84d5e5d9ba6d0
+setuptools==63.4.1 \
+    --hash=sha256:7c7854ee1429a240090297628dc9f75b35318d193537968e2dc14010ee2f5bca \
+    --hash=sha256:dc2662692f47d99cb8ae15a784529adeed535bcd7c277fee0beccf961522baf6
     # via
     #   autobahn
     #   tahoe-lafs
