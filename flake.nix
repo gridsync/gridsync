@@ -129,12 +129,17 @@
         default = (makeDevShell "bash").env;
       };
 
-      apps.tox = {
-        type = "app";
-        # Run the env-entering script from the FHS user environment.
-        # Arguments from the command line will be passed along.
-        # pkgs/build-support/build-fhs-userenv/default.nix for gory details.
-        program = "${makeDevShell "tox"}/bin/dev-env";
-      };
+      apps.tox =
+        let
+          xvfb-tox = pkgs.writeScript "xvfb-tox" ''
+            ${pkgs.xvfb-run}/bin/xvfb-run --auto-servernum tox "$@"
+          '';
+        in {
+          type = "app";
+          # Run the env-entering script from the FHS user environment.
+          # Arguments from the command line will be passed along.
+          # pkgs/build-support/build-fhs-userenv/default.nix for gory details.
+          program = "${makeDevShell xvfb-tox}/bin/dev-env";
+        };
     });
 }
