@@ -14,7 +14,7 @@ from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
@@ -263,17 +263,16 @@ class SetupRunner(QObject):
                 return
         self.got_icon.emit(dest)
 
-    @inlineCallbacks
-    def fetch_icon(self, url: str, dest: str) -> TwistedDeferred[None]:
+    async def fetch_icon(self, url: str, dest: str) -> None:
         agent = None
         if self.use_tor:
-            tor = yield get_tor(reactor)
+            tor = await get_tor(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
             agent = tor.web_agent()
-        resp = yield treq.get(url, agent=agent)
+        resp = await treq.get(url, agent=agent)
         if resp.code == 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             log.debug("Received %i bytes", len(content))
             with atomic_write(dest, mode="wb", overwrite=True) as f:
                 f.write(content)
@@ -311,7 +310,9 @@ class SetupRunner(QObject):
                 # process if fetching/writing the icon fails (particularly
                 # if doing so would require the user to get a new invite code)
                 # so just log a warning for now if something goes wrong...
-                yield self.fetch_icon(settings["icon_url"], icon_path)
+                yield Deferred.fromCoroutine(
+                    self.fetch_icon(settings["icon_url"], icon_path)
+                )
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
 

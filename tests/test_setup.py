@@ -353,13 +353,13 @@ def test_decode_icon_no_emit_got_icon_signal(qtbot, tmpdir):
 def fake_get(*args, **kwargs):
     response = MagicMock()
     response.code = 200
-    return response
+    return succeed(response)
 
 
 def fake_get_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
-    return response
+    return succeed(response)
 
 
 @inlineCallbacks
@@ -367,8 +367,10 @@ def test_fetch_icon(monkeypatch, tmpdir):
     sr = SetupRunner([])
     dest = str(tmpdir.join("icon.png"))
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: b"0")
-    yield sr.fetch_icon("http://example.org/icon.png", dest)
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"0"))
+    yield Deferred.fromCoroutine(
+        sr.fetch_icon("http://example.org/icon.png", dest)
+    )
     with open(dest) as f:
         assert f.read() == "0"
 
@@ -382,7 +384,7 @@ def test_fetch_icon_use_tor(monkeypatch, tmpdir):
     def fake_tor(*args):
         tor = MagicMock()
         tor.web_agent.return_value = fake_tor_web_agent
-        return tor
+        return succeed(tor)
 
     kwargs_received = []
 
@@ -390,12 +392,14 @@ def test_fetch_icon_use_tor(monkeypatch, tmpdir):
         response = MagicMock()
         response.code = 200
         kwargs_received.append(kwargs)
-        return response
+        return succeed(response)
 
     monkeypatch.setattr("treq.get", fake_treq_get)
-    monkeypatch.setattr("treq.content", lambda _: b"0")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"0"))
     monkeypatch.setattr("gridsync.setup.get_tor", fake_tor)
-    yield sr.fetch_icon("http://example.org/icon.png", dest)
+    yield Deferred.fromCoroutine(
+        sr.fetch_icon("http://example.org/icon.png", dest)
+    )
     assert kwargs_received == [{"agent": fake_tor_web_agent}]
 
 
@@ -403,9 +407,11 @@ def test_fetch_icon_use_tor(monkeypatch, tmpdir):
 def test_fetch_icon_use_tor_raise_tor_error(monkeypatch, tmpdir):
     sr = SetupRunner([], use_tor=True)
     dest = str(tmpdir.join("icon.png"))
-    monkeypatch.setattr("gridsync.setup.get_tor", lambda _: None)
+    monkeypatch.setattr("gridsync.setup.get_tor", lambda _: succeed(None))
     with pytest.raises(TorError):
-        yield sr.fetch_icon("http://example.org/icon.png", dest)
+        yield Deferred.fromCoroutine(
+            sr.fetch_icon("http://example.org/icon.png", dest)
+        )
 
 
 @inlineCallbacks
@@ -413,9 +419,11 @@ def test_fetch_icon_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     sr = SetupRunner([])
     dest = str(tmpdir.join("icon.png"))
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: b"0")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"0"))
     with qtbot.wait_signal(sr.got_icon) as blocker:
-        yield sr.fetch_icon("http://example.org/icon.png", dest)
+        yield Deferred.fromCoroutine(
+            sr.fetch_icon("http://example.org/icon.png", dest)
+        )
     assert blocker.args == [dest]
 
 
@@ -425,7 +433,9 @@ def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
     dest = str(tmpdir.join("icon.png"))
     monkeypatch.setattr("treq.get", fake_get_code_500)
     with qtbot.assert_not_emitted(sr.got_icon):
-        yield sr.fetch_icon("http://example.org/icon.png", dest)
+        yield Deferred.fromCoroutine(
+            sr.fetch_icon("http://example.org/icon.png", dest)
+        )
 
 
 @inlineCallbacks
@@ -492,12 +502,16 @@ def test_join_grid_emit_got_icon_signal_icon_url(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr("gridsync.setup.config_dir", tmp_config_dir)
     monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: b"0")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"0"))
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "icon_url": "https://gridsync.io/icon"}
     with qtbot.wait_signal(sr.got_icon) as blocker:
         yield sr.join_grid(settings)
     assert blocker.args == [os.path.join(tmp_config_dir, ".icon.tmp")]
+
+
+async def broken_fetch_icon() -> None:
+    raise Exception()
 
 
 @inlineCallbacks
@@ -507,10 +521,10 @@ def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
     )
     monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: b"0")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"0"))
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.fetch_icon",
-        MagicMock(side_effect=Exception()),
+        broken_fetch_icon,
     )
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "icon_url": "https://gridsync.io/icon"}
@@ -631,7 +645,9 @@ def test_run_join_grid(monkeypatch):
 
 @inlineCallbacks
 def test_run_join_grid_use_tor(monkeypatch):
-    monkeypatch.setattr("gridsync.tor.get_tor", lambda _: "FakeTorObject")
+    monkeypatch.setattr(
+        "gridsync.tor.get_tor", lambda _: succeed("FakeTorObject")
+    )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.get_gateway", lambda x, y, z: Mock()
     )
