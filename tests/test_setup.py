@@ -24,6 +24,10 @@ from gridsync.setup import (
 from gridsync.tahoe import Tahoe
 
 
+async def fake_any_awaitable(*a, **kw) -> None:
+    pass
+
+
 def fake_create_rootcap(self) -> Deferred[str]:
     return succeed("URI")
 
@@ -438,16 +442,35 @@ def test_fetch_icon_no_emit_got_icon_signal(monkeypatch, qtbot, tmpdir):
         )
 
 
+def monkeypatch_tahoe(monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.setup.Tahoe.create_client",
+        fake_any_awaitable,
+    )
+    monkeypatch.setattr(
+        "gridsync.setup.Tahoe.save_settings",
+        lambda self, settings: None,
+    )
+    monkeypatch.setattr(
+        "gridsync.setup.Tahoe.start",
+        fake_any_awaitable,
+    )
+    monkeypatch.setattr(
+        "gridsync.setup.Tahoe.await_ready",
+        fake_any_awaitable,
+    )
+
+
 @inlineCallbacks
 def test_join_grid_emit_update_progress_signal(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
-    monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
+    monkeypatch_tahoe(monkeypatch)
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid"}
     with qtbot.wait_signal(sr.update_progress) as blocker:
-        yield sr.join_grid(settings)
+        yield Deferred.fromCoroutine(sr.join_grid(settings))
     assert blocker.args == ["Connecting to TestGrid..."]
 
 
@@ -458,11 +481,11 @@ def test_join_grid_emit_update_progress_signal_via_tor(
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
-    monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
+    monkeypatch_tahoe(monkeypatch)
     sr = SetupRunner([], use_tor=True)
     settings = {"nickname": "TestGrid"}
     with qtbot.wait_signal(sr.update_progress) as blocker:
-        yield sr.join_grid(settings)
+        yield Deferred.fromCoroutine(sr.join_grid(settings))
     assert blocker.args == ["Connecting to TestGrid via Tor..."]
 
 
@@ -473,11 +496,11 @@ def test_join_grid_emit_got_icon_signal_nickname_least_authority_s4(
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
-    monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
+    monkeypatch_tahoe(monkeypatch)
     sr = SetupRunner([])
     settings = {"nickname": "Least Authority S4"}
     with qtbot.wait_signal(sr.got_icon) as blocker:
-        yield sr.join_grid(settings)
+        yield Deferred.fromCoroutine(sr.join_grid(settings))
     assert blocker.args == [resource("leastauthority.com.icon")]
 
 
@@ -487,11 +510,11 @@ def test_join_grid_emit_got_icon_signal_icon_base64(
 ):
     tmp_config_dir = str(tmpdir.mkdir("config_dir"))
     monkeypatch.setattr("gridsync.setup.config_dir", tmp_config_dir)
-    monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
+    monkeypatch_tahoe(monkeypatch)
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "icon_base64": "dGVzdDEyMzQ1"}
     with qtbot.wait_signal(sr.got_icon) as blocker:
-        yield sr.join_grid(settings)
+        yield Deferred.fromCoroutine(sr.join_grid(settings))
     assert blocker.args == [os.path.join(tmp_config_dir, ".icon.tmp")]
 
 
@@ -500,13 +523,13 @@ def test_join_grid_emit_got_icon_signal_icon_url(monkeypatch, qtbot, tmpdir):
     tmp_config_dir = str(tmpdir.mkdir("config_dir"))
     os.makedirs(os.path.join(tmp_config_dir, "TestGrid"))
     monkeypatch.setattr("gridsync.setup.config_dir", tmp_config_dir)
-    monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
+    monkeypatch_tahoe(monkeypatch)
     monkeypatch.setattr("treq.get", fake_get)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"0"))
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "icon_url": "https://gridsync.io/icon"}
     with qtbot.wait_signal(sr.got_icon) as blocker:
-        yield sr.join_grid(settings)
+        yield Deferred.fromCoroutine(sr.join_grid(settings))
     assert blocker.args == [os.path.join(tmp_config_dir, ".icon.tmp")]
 
 
@@ -519,7 +542,7 @@ def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
-    monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
+    monkeypatch_tahoe(monkeypatch)
     monkeypatch.setattr("treq.get", fake_get)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"0"))
     monkeypatch.setattr(
@@ -529,7 +552,7 @@ def test_join_grid_no_emit_icon_signal_exception(monkeypatch, qtbot, tmpdir):
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "icon_url": "https://gridsync.io/icon"}
     with qtbot.assert_not_emitted(sr.got_icon):
-        yield sr.join_grid(settings)
+        yield Deferred.fromCoroutine(sr.join_grid(settings))
 
 
 @inlineCallbacks
@@ -537,7 +560,7 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
     monkeypatch.setattr(
         "gridsync.setup.config_dir", str(tmpdir.mkdir("config_dir"))
     )
-    monkeypatch.setattr("gridsync.setup.Tahoe", MagicMock())
+    monkeypatch_tahoe(monkeypatch)
 
     def fake_add_storage_servers(*_):
         assert True
@@ -547,7 +570,7 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
     )
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "storage": {"test": "test"}}
-    yield sr.join_grid(settings)
+    yield Deferred.fromCoroutine(sr.join_grid(settings))
 
 
 @inlineCallbacks
@@ -628,10 +651,9 @@ def test_run_join_grid(monkeypatch):
         "gridsync.setup.SetupRunner.get_gateway", lambda x, y, z: Mock()
     )
 
-    def fake_join_grid(*_):
-        assert True
-
-    monkeypatch.setattr("gridsync.setup.SetupRunner.join_grid", fake_join_grid)
+    monkeypatch.setattr(
+        "gridsync.setup.SetupRunner.join_grid", fake_any_awaitable
+    )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None
     )
@@ -652,7 +674,8 @@ def test_run_join_grid_use_tor(monkeypatch):
         "gridsync.setup.SetupRunner.get_gateway", lambda x, y, z: Mock()
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.join_grid", lambda x, y: None
+        "gridsync.setup.SetupRunner.join_grid",
+        fake_any_awaitable,
     )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None
@@ -681,7 +704,8 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
         "gridsync.setup.SetupRunner.get_gateway", lambda x, y, z: Mock()
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.join_grid", lambda x, y: None
+        "gridsync.setup.SetupRunner.join_grid",
+        fake_any_awaitable,
     )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None
@@ -703,7 +727,8 @@ def test_run_emit_done_signal(monkeypatch, qtbot):
         "gridsync.setup.SetupRunner.get_gateway", lambda x, y, z: fake_gateway
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.join_grid", lambda x, y: None
+        "gridsync.setup.SetupRunner.join_grid",
+        fake_any_awaitable,
     )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None

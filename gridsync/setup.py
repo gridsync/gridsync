@@ -280,10 +280,9 @@ class SetupRunner(QObject):
         else:
             log.warning("Error fetching service icon: %i", resp.code)
 
-    @inlineCallbacks  # noqa: max-complexity=14 XXX
-    def join_grid(  # noqa: max-complexity=14 XXX
+    async def join_grid(  # noqa: max-complexity=14 XXX
         self, settings: dict
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         nickname = settings["nickname"]
         if self.use_tor:
             msg = "Connecting to {} via Tor...".format(nickname)
@@ -310,15 +309,13 @@ class SetupRunner(QObject):
                 # process if fetching/writing the icon fails (particularly
                 # if doing so would require the user to get a new invite code)
                 # so just log a warning for now if something goes wrong...
-                yield Deferred.fromCoroutine(
-                    self.fetch_icon(settings["icon_url"], icon_path)
-                )
+                await self.fetch_icon(settings["icon_url"], icon_path)
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
 
         nodedir = os.path.join(config_dir, nickname)
         self.gateway = Tahoe(nodedir)
-        yield self.gateway.create_client(settings)
+        await self.gateway.create_client(settings)
 
         self.gateway.save_settings(settings)
 
@@ -337,10 +334,10 @@ class SetupRunner(QObject):
                 log.warning("Error writing icon url to file: %s", str(err))
 
         self.update_progress.emit(msg)
-        yield self.gateway.start()
+        await self.gateway.start()
         self.client_started.emit(self.gateway)
         self.update_progress.emit(msg)
-        yield self.gateway.await_ready()
+        await self.gateway.await_ready()
 
     @inlineCallbacks
     def ensure_recovery(self, settings: dict) -> TwistedDeferred[None]:
@@ -441,7 +438,7 @@ class SetupRunner(QObject):
             self.gateway = gateway
         folders_data = settings.get("magic-folders")
         if not gateway:
-            yield self.join_grid(settings)
+            yield Deferred.fromCoroutine(self.join_grid(settings))
             yield self.ensure_recovery(settings)
         elif not folders_data:
             self.grid_already_joined.emit(nickname)
