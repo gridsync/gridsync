@@ -642,7 +642,7 @@ def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
     sr.gateway.rootcap = "URI:rootcap"
     folders_data = {"TestFolder": {"code": "URI:1+URI:2"}}
     with qtbot.wait_signal(sr.joined_folders) as blocker:
-        yield sr.join_folders(folders_data)
+        yield Deferred.fromCoroutine(sr.join_folders(folders_data))
     assert blocker.args == [["TestFolder"]]
 
 
@@ -667,7 +667,8 @@ def test_run_join_grid(monkeypatch):
         fake_any_awaitable,
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.join_folders", lambda x, y: None
+        "gridsync.setup.SetupRunner.join_folders",
+        fake_any_awaitable,
     )
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}}
@@ -691,7 +692,8 @@ def test_run_join_grid_use_tor(monkeypatch):
         fake_any_awaitable,
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.join_folders", lambda x, y: None
+        "gridsync.setup.SetupRunner.join_folders",
+        fake_any_awaitable,
     )
     sr = SetupRunner([], use_tor=True)
     settings = {"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}}
@@ -722,7 +724,8 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
         fake_any_awaitable,
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.join_folders", lambda x, y: None
+        "gridsync.setup.SetupRunner.join_folders",
+        fake_any_awaitable,
     )
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid"}
@@ -746,7 +749,8 @@ def test_run_emit_done_signal(monkeypatch, qtbot):
         fake_any_awaitable,
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.join_folders", lambda x, y: None
+        "gridsync.setup.SetupRunner.join_folders",
+        fake_any_awaitable,
     )
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}}

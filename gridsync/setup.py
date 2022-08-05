@@ -392,18 +392,17 @@ class SetupRunner(QObject):
                 self.gateway.get_rootcap(), "settings.json", settings_cap
             )
 
-    @inlineCallbacks
-    def join_folders(self, folders_data: dict) -> TwistedDeferred[None]:
+    async def join_folders(self, folders_data: dict) -> None:
         folders = []
         for folder, data in folders_data.items():
             self.update_progress.emit('Joining folder "{}"...'.format(folder))
             collective, personal = data["code"].split("+")
-            yield self.gateway.link(
+            await self.gateway.link(
                 self.gateway.get_rootcap(),
                 folder + " (collective)",
                 collective,
             )
-            yield self.gateway.link(
+            await self.gateway.link(
                 self.gateway.get_rootcap(), folder + " (personal)", personal
             )
             folders.append(folder)
@@ -442,7 +441,7 @@ class SetupRunner(QObject):
         elif not folders_data:
             self.grid_already_joined.emit(nickname)
         if folders_data:
-            yield self.join_folders(folders_data)
+            yield Deferred.fromCoroutine(self.join_folders(folders_data))
 
         self.update_progress.emit("Done!")
         self.done.emit(self.gateway)
