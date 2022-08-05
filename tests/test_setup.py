@@ -580,7 +580,7 @@ def test_ensure_recovery_write_settings(tmpdir):
     sr = SetupRunner([])
     sr.gateway = Tahoe(nodedir)
     settings = {"nickname": "TestGrid", "rootcap": "URI:test"}
-    yield sr.ensure_recovery(settings)
+    yield Deferred.fromCoroutine(sr.ensure_recovery(settings))
     with open(os.path.join(nodedir, "private", "settings.json")) as f:
         assert json.loads(f.read()) == settings
 
@@ -592,17 +592,20 @@ def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.create_rootcap", fake_create_rootcap
     )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", lambda x, y: "URI:2")
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.upload", lambda x, y: succeed("URI:2")
+    )
 
     def fake_link(_, dircap, name, childcap):
         assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")
+        return succeed(None)
 
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
     sr = SetupRunner([])
     sr.gateway = Tahoe(nodedir)
     sr.gateway.rootcap = "URI"
     settings = {"nickname": "TestGrid"}
-    yield sr.ensure_recovery(settings)
+    yield Deferred.fromCoroutine(sr.ensure_recovery(settings))
 
 
 @inlineCallbacks
@@ -613,22 +616,27 @@ def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
         "gridsync.tahoe.Tahoe.create_rootcap",
         broken_create_rootcap,
     )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", lambda x, y: "URI:2")
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.upload", lambda x, y: succeed("URI:2")
+    )
 
     def fake_link(_, dircap, name, childcap):
         assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")
+        return succeed(None)
 
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
     sr = SetupRunner([])
     sr.gateway = Tahoe(nodedir)
     sr.gateway.rootcap_manager.set_rootcap("URI")
     settings = {"nickname": "TestGrid"}
-    yield sr.ensure_recovery(settings)
+    yield Deferred.fromCoroutine(sr.ensure_recovery(settings))
 
 
 @inlineCallbacks
 def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", lambda a, b, c, d: None)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.link", lambda a, b, c, d: succeed(None)
+    )
     sr = SetupRunner([])
     sr.gateway = Tahoe(str(tmpdir.mkdir("TestGrid")))
     sr.gateway.rootcap = "URI:rootcap"
@@ -655,7 +663,8 @@ def test_run_join_grid(monkeypatch):
         "gridsync.setup.SetupRunner.join_grid", fake_any_awaitable
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None
+        "gridsync.setup.SetupRunner.ensure_recovery",
+        fake_any_awaitable,
     )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.join_folders", lambda x, y: None
@@ -678,7 +687,8 @@ def test_run_join_grid_use_tor(monkeypatch):
         fake_any_awaitable,
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None
+        "gridsync.setup.SetupRunner.ensure_recovery",
+        fake_any_awaitable,
     )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.join_folders", lambda x, y: None
@@ -708,7 +718,8 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
         fake_any_awaitable,
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None
+        "gridsync.setup.SetupRunner.ensure_recovery",
+        fake_any_awaitable,
     )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.join_folders", lambda x, y: None
@@ -731,7 +742,8 @@ def test_run_emit_done_signal(monkeypatch, qtbot):
         fake_any_awaitable,
     )
     monkeypatch.setattr(
-        "gridsync.setup.SetupRunner.ensure_recovery", lambda x, y: None
+        "gridsync.setup.SetupRunner.ensure_recovery",
+        fake_any_awaitable,
     )
     monkeypatch.setattr(
         "gridsync.setup.SetupRunner.join_folders", lambda x, y: None

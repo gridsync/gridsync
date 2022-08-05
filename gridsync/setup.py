@@ -339,8 +339,7 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
         await self.gateway.await_ready()
 
-    @inlineCallbacks
-    def ensure_recovery(self, settings: dict) -> TwistedDeferred[None]:
+    async def ensure_recovery(self, settings: dict) -> None:
         zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
@@ -370,11 +369,11 @@ class SetupRunner(QObject):
                         )
 
                 zkapauthorizer = self.gateway.zkapauthorizer
-                snapshot_exists = yield zkapauthorizer.snapshot_exists()
+                snapshot_exists = await zkapauthorizer.snapshot_exists()
                 if snapshot_exists:
                     # `restore_zkaps` will hang forever if no snapshot exists
                     log.debug("Restoring ZKAPs from backup...")
-                    yield zkapauthorizer.restore_zkaps(status_updated)
+                    await zkapauthorizer.restore_zkaps(status_updated)
                 else:
                     log.warning("No ZKAPs backup found")
         elif zkapauthz:
@@ -382,14 +381,14 @@ class SetupRunner(QObject):
         else:
             self.update_progress.emit("Generating Recovery Key...")
             try:
-                settings["rootcap"] = yield self.gateway.create_rootcap()
+                settings["rootcap"] = await self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
             self.gateway.save_settings(settings)
-            settings_cap = yield self.gateway.upload(
+            settings_cap = await self.gateway.upload(
                 os.path.join(self.gateway.nodedir, "private", "settings.json")
             )
-            yield self.gateway.link(
+            await self.gateway.link(
                 self.gateway.get_rootcap(), "settings.json", settings_cap
             )
 
@@ -439,7 +438,7 @@ class SetupRunner(QObject):
         folders_data = settings.get("magic-folders")
         if not gateway:
             yield Deferred.fromCoroutine(self.join_grid(settings))
-            yield self.ensure_recovery(settings)
+            yield Deferred.fromCoroutine(self.ensure_recovery(settings))
         elif not folders_data:
             self.grid_already_joined.emit(nickname)
         if folders_data:
