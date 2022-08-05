@@ -408,35 +408,55 @@ def test_tahoe_create_client_nodedir_exists_error(tahoe):
         yield tahoe.create_client({})
 
 
+def command_spy():
+    intel = []
+
+    async def spy(self, args) -> None:
+        intel.append(args)
+
+    return spy, intel
+
+
+def has_args(actual: list[str], expected: tuple[str]) -> bool:
+    """
+    :return: ``True`` if the expected argument tuple is present in the actual
+        argument list.
+    """
+    diff = len(actual) - len(expected)
+    if diff < 0:
+        return False
+    for pos in range(diff):
+        if tuple(actual[pos : pos + len(expected)]) == expected:
+            return True
+    return False
+
+
 @inlineCallbacks
 def test_tahoe_create_client_args(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
+    spy, intel = command_spy()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
     yield tahoe.create_client({"nickname": "test_nickname"})
-    args = mocked_command.call_args[0][0]
-    assert set(["--nickname", "test_nickname"]).issubset(set(args))
+    assert has_args(intel[0], ("--nickname", "test_nickname"))
 
 
 @inlineCallbacks
 def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
+    spy, intel = command_spy()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
     yield tahoe.create_client({"happy": "7"})
-    args = mocked_command.call_args[0][0]
-    assert set(["--shares-happy", "7"]).issubset(set(args))
+    assert has_args(intel[0], ("--shares-happy", "7"))
 
 
 @inlineCallbacks
 def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
+    spy, intel = command_spy()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
     settings = {"hide-ip": True}
     yield tahoe.create_client(settings)
-    args = mocked_command.call_args[0][0]
-    assert "--hide-ip" in args
+    assert has_args(intel[0], ("--hide-ip",))
 
 
 @inlineCallbacks
@@ -446,7 +466,7 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     monkeypatch.setattr(
         "os.path.exists", lambda _: False
     )  # suppress FileExistsError
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", lambda x, y: None)
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", command_spy()[0])
     client = Tahoe(nodedir)
     storage_servers = {
         "node-1": {"anonymous-storage-FURL": "pb://test", "nickname": "One"}

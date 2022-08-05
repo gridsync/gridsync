@@ -337,8 +337,7 @@ class Tahoe:
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
 
-    @inlineCallbacks
-    def command(self, args: list[str]) -> TwistedDeferred[str]:
+    async def command(self, args: list[str]) -> str:
         if not self.executable:
             self.executable = which("tahoe")
         args = [self.executable, "-d", self.nodedir] + args
@@ -346,11 +345,11 @@ class Tahoe:
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(args))
         protocol = SubprocessProtocol(stdout_line_collector=self.line_received)
-        yield self._reactor.spawnProcess(  # type: ignore
+        self._reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
         try:
-            output = yield protocol.done
+            output = await protocol.done
         except Exception as e:  # pylint: disable=broad-except
             raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
         return output
@@ -378,7 +377,7 @@ class Tahoe:
                 args.extend([f"--shares-{key}", str(value)])
             elif key in ("hide-ip", "no-storage"):
                 args.append(f"--{key}")
-        yield self.command(args)
+        yield Deferred.fromCoroutine(self.command(args))
         storage_servers = settings.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
