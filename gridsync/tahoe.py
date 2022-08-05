@@ -120,9 +120,8 @@ class Tahoe:
 
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
-        @inlineCallbacks
-        def poll() -> TwistedDeferred[bool]:
-            ready = yield self.is_ready()
+        async def poll() -> bool:
+            ready = await self.is_ready()
             if ready:
                 log.debug('Connected to "%s"', self.name)
             else:

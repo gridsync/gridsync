@@ -567,9 +567,13 @@ def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
     assert output is False
 
 
+async def fake_is_ready(self) -> bool:
+    return True
+
+
 @inlineCallbacks
 def test_await_ready(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", lambda _: True)
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", fake_is_ready)
     yield tahoe.await_ready()
     assert True
 
@@ -590,7 +594,7 @@ def test_concurrent_await_ready(tahoe, monkeypatch):
         is_ready = False
         poll_count = 0
 
-        def check_ready(self):
+        async def check_ready(self) -> bool:
             nonlocal poll_count
             poll_count += 1
             return is_ready
