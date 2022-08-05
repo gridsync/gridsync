@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, Mock
 import pytest
 import yaml
 from pytest_twisted import inlineCallbacks
+from twisted.internet.defer import Deferred, succeed
 
 from gridsync import resource
 from gridsync.errors import TorError, UpgradeRequiredError
@@ -21,6 +22,14 @@ from gridsync.setup import (
     validate_settings,
 )
 from gridsync.tahoe import Tahoe
+
+
+def fake_create_rootcap(self) -> Deferred[str]:
+    return succeed("URI")
+
+
+def broken_create_rootcap(self) -> Deferred[str]:
+    raise OSError()
 
 
 @pytest.mark.parametrize(
@@ -543,7 +552,9 @@ def test_ensure_recovery_write_settings(tmpdir):
 def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.create_rootcap", lambda _: "URI")
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.create_rootcap", fake_create_rootcap
+    )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", lambda x, y: "URI:2")
 
     def fake_link(_, dircap, name, childcap):
@@ -562,7 +573,8 @@ def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.create_rootcap", MagicMock(side_effect=OSError())
+        "gridsync.tahoe.Tahoe.create_rootcap",
+        broken_create_rootcap,
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", lambda x, y: "URI:2")
 

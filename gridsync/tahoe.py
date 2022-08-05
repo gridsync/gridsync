@@ -608,7 +608,9 @@ class Tahoe:
 
     @inlineCallbacks
     def create_rootcap(self) -> TwistedDeferred[str]:
-        rootcap = yield self.rootcap_manager.create_rootcap()
+        rootcap = yield Deferred.fromCoroutine(
+            self.rootcap_manager.create_rootcap()
+        )
         return rootcap
 
     @inlineCallbacks

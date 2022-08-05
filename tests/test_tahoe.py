@@ -11,6 +11,7 @@ except ImportError:
 import pytest
 import yaml
 from pytest_twisted import inlineCallbacks
+from twisted.internet.defer import succeed
 from twisted.internet.testing import MemoryReactorClock
 
 from gridsync.crypto import randstr
@@ -649,7 +650,9 @@ def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_upload(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.mkdir", lambda _: "URI:DIR2:abc")
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.mkdir", lambda _: succeed("URI:DIR2:abc")
+    )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
     monkeypatch.setattr("treq.put", fake_put)
     monkeypatch.setattr("treq.content", lambda _: b"test_cap")
@@ -660,7 +663,9 @@ def test_tahoe_upload(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.mkdir", lambda _: "URI:DIR2:abc")
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.mkdir", lambda _: succeed("URI:DIR2:abc")
+    )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
     monkeypatch.setattr("treq.put", fake_put_code_500)
     monkeypatch.setattr("treq.content", lambda _: b"test content")
