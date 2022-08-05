@@ -19,7 +19,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 from twisted.internet import reactor
-from twisted.internet.defer import CancelledError
+from twisted.internet.defer import CancelledError, Deferred
 from twisted.python.failure import Failure
 from wormhole.errors import (
     ServerConnectionError,
@@ -390,7 +390,7 @@ class WelcomeDialog(QStackedWidget):
             lambda gateway: self.gui.populate([gateway])
         )
         self.setup_runner.done.connect(self.on_done)
-        d = self.setup_runner.run(settings)
+        d = Deferred.fromCoroutine(self.setup_runner.run(settings))
         d.addErrback(self.handle_failure)
 
     def on_import_done(self, settings: dict) -> None:

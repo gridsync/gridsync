@@ -650,7 +650,7 @@ def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
 def test_run_raise_upgrade_required_error():
     sr = SetupRunner([])
     with pytest.raises(UpgradeRequiredError):
-        yield sr.run({"version": 3})
+        yield Deferred.fromCoroutine(sr.run({"version": 3}))
 
 
 @inlineCallbacks
@@ -672,7 +672,7 @@ def test_run_join_grid(monkeypatch):
     )
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}}
-    yield sr.run(settings)
+    yield Deferred.fromCoroutine(sr.run(settings))
 
 
 @inlineCallbacks
@@ -697,17 +697,19 @@ def test_run_join_grid_use_tor(monkeypatch):
     )
     sr = SetupRunner([], use_tor=True)
     settings = {"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}}
-    yield sr.run(settings)
+    yield Deferred.fromCoroutine(sr.run(settings))
     assert settings["hide-ip"]
 
 
 @inlineCallbacks
 def test_run_join_grid_use_tor_raise_tor_error(monkeypatch):
-    monkeypatch.setattr("gridsync.setup.get_tor_with_prompt", lambda _: None)
+    monkeypatch.setattr(
+        "gridsync.setup.get_tor_with_prompt", fake_any_awaitable
+    )
     sr = SetupRunner([], use_tor=True)
     settings = {"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}}
     with pytest.raises(TorError):
-        yield sr.run(settings)
+        yield Deferred.fromCoroutine(sr.run(settings))
 
 
 @inlineCallbacks
@@ -730,7 +732,7 @@ def test_run_emit_grid_already_joined_signal(monkeypatch, qtbot):
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid"}
     with qtbot.wait_signal(sr.grid_already_joined) as blocker:
-        yield sr.run(settings)
+        yield Deferred.fromCoroutine(sr.run(settings))
     assert blocker.args == ["TestGrid"]
 
 
@@ -755,5 +757,5 @@ def test_run_emit_done_signal(monkeypatch, qtbot):
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "magic-folders": {"TestFolder": {}}}
     with qtbot.wait_signal(sr.done) as blocker:
-        yield sr.run(settings)
+        yield Deferred.fromCoroutine(sr.run(settings))
     assert blocker.args == [fake_gateway]

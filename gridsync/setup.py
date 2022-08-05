@@ -14,7 +14,6 @@ from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
@@ -22,7 +21,6 @@ from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
-from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 
 
@@ -409,8 +407,7 @@ class SetupRunner(QObject):
         if folders:
             self.joined_folders.emit(folders)
 
-    @inlineCallbacks
-    def run(self, settings: dict) -> TwistedDeferred[None]:
+    async def run(self, settings: dict) -> None:
         if "version" in settings and int(settings["version"]) > 2:
             raise UpgradeRequiredError
 
@@ -419,7 +416,7 @@ class SetupRunner(QObject):
         if self.use_tor or "hide-ip" in settings or is_onion_grid(settings):
             settings["hide-ip"] = True
             self.use_tor = True
-            tor = yield get_tor_with_prompt(reactor)
+            tor = await get_tor_with_prompt(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
 
@@ -436,12 +433,12 @@ class SetupRunner(QObject):
             self.gateway = gateway
         folders_data = settings.get("magic-folders")
         if not gateway:
-            yield Deferred.fromCoroutine(self.join_grid(settings))
-            yield Deferred.fromCoroutine(self.ensure_recovery(settings))
+            await self.join_grid(settings)
+            await self.ensure_recovery(settings)
         elif not folders_data:
             self.grid_already_joined.emit(nickname)
         if folders_data:
-            yield Deferred.fromCoroutine(self.join_folders(folders_data))
+            await self.join_folders(folders_data)
 
         self.update_progress.emit("Done!")
         self.done.emit(self.gateway)
