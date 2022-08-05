@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_twisted import async_yield_fixture, inlineCallbacks
 from twisted.internet import reactor
+from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
@@ -408,8 +409,8 @@ def test_create_folder_backup(magic_folder):
     folder_name = next(iter(folders))
     yield magic_folder.create_folder_backup(folder_name)
 
-    backup_cap = yield magic_folder.rootcap_manager.get_backup_cap(
-        ".magic-folders"
+    backup_cap = yield Deferred.fromCoroutine(
+        magic_folder.rootcap_manager.get_backup_cap(".magic-folders")
     )
     content = yield magic_folder.gateway.get_json(backup_cap)
     children = content[1]["children"]
@@ -436,8 +437,8 @@ def test_remove_folder_backup(magic_folder):
     yield magic_folder.create_folder_backup(folder_name)
 
     yield magic_folder.remove_folder_backup(folder_name)
-    backup_cap = yield magic_folder.rootcap_manager.get_backup_cap(
-        ".magic-folders"
+    backup_cap = yield Deferred.fromCoroutine(
+        magic_folder.rootcap_manager.get_backup_cap(".magic-folders")
     )
     content = yield magic_folder.gateway.get_json(backup_cap)
     children = content[1]["children"]

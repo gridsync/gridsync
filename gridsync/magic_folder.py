@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Optional
 import treq
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
@@ -797,17 +797,25 @@ class MagicFolder:
         data = folders.get(folder_name)
         collective_dircap = data.get("collective_dircap")
         upload_dircap = data.get("upload_dircap")
-        yield self.rootcap_manager.add_backup(
-            ".magic-folders", f"{folder_name} (collective)", collective_dircap
+        yield Deferred.fromCoroutine(
+            self.rootcap_manager.add_backup(
+                ".magic-folders",
+                f"{folder_name} (collective)",
+                collective_dircap,
+            )
         )
-        yield self.rootcap_manager.add_backup(
-            ".magic-folders", f"{folder_name} (personal)", upload_dircap
+        yield Deferred.fromCoroutine(
+            self.rootcap_manager.add_backup(
+                ".magic-folders", f"{folder_name} (personal)", upload_dircap
+            )
         )
 
     @inlineCallbacks
     def get_folder_backups(self) -> TwistedDeferred[Optional[dict[str, dict]]]:
         folders: defaultdict[str, dict] = defaultdict(dict)
-        backups = yield self.rootcap_manager.get_backups(".magic-folders")
+        backups = yield Deferred.fromCoroutine(
+            self.rootcap_manager.get_backups(".magic-folders")
+        )
         if backups is None:
             return None
         for name, data in backups.items():
@@ -824,11 +832,15 @@ class MagicFolder:
     def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
         yield DeferredList(
             [
-                self.rootcap_manager.remove_backup(
-                    ".magic-folders", folder_name + " (collective)"
+                Deferred.fromCoroutine(
+                    self.rootcap_manager.remove_backup(
+                        ".magic-folders", folder_name + " (collective)"
+                    )
                 ),
-                self.rootcap_manager.remove_backup(
-                    ".magic-folders", folder_name + " (personal)"
+                Deferred.fromCoroutine(
+                    self.rootcap_manager.remove_backup(
+                        ".magic-folders", folder_name + " (personal)"
+                    )
                 ),
             ]
         )
