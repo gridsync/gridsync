@@ -6,7 +6,6 @@ from typing import Awaitable, Callable, TypeVar
 from unittest.mock import MagicMock, Mock, call
 
 from pytest_twisted import inlineCallbacks
-from twisted.internet.defer import succeed
 
 from gridsync.monitor import GridChecker, Monitor, ZKAPChecker, _parse_vouchers
 

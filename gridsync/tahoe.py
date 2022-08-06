@@ -547,16 +547,15 @@ class Tahoe:
             return servers_connected, servers_known, available_space
         return None
 
-    @inlineCallbacks
-    def get_connected_servers(self) -> TwistedDeferred[Optional[int]]:
+    async def get_connected_servers(self) -> Optional[int]:
         if not self.nodeurl:
             return None
         try:
-            resp = yield treq.get(self.nodeurl)
+            resp = await treq.get(self.nodeurl)
         except ConnectError:
             return None
         if resp.code == 200:
-            html = yield treq.content(resp)
+            html = await treq.content(resp)
             match = re.search(
                 "Connected to <span>(.+?)</span>", html.decode("utf-8")
             )
@@ -568,7 +567,9 @@ class Tahoe:
     def is_ready(self) -> TwistedDeferred[bool]:
         if not self.shares_happy:
             return False
-        connected_servers = yield self.get_connected_servers()
+        connected_servers = yield Deferred.fromCoroutine(
+            self.get_connected_servers()
+        )
         return bool(
             connected_servers and connected_servers >= self.shares_happy
         )

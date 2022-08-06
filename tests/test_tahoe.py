@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from typing import Awaitable, Callable, TypeVar
 
 try:
     from unittest.mock import MagicMock, Mock
@@ -550,8 +551,8 @@ def test_get_grid_status(tahoe, monkeypatch):
 def test_get_connected_servers(tahoe, monkeypatch):
     html = b"Connected to <span>3</span>of <span>10</span>"
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: html)
-    output = yield tahoe.get_connected_servers()
+    monkeypatch.setattr("treq.content", lambda _: succeed(html))
+    output = yield Deferred.fromCoroutine(tahoe.get_connected_servers())
     assert output == 3
 
 
@@ -561,11 +562,22 @@ def test_is_ready_false_not_shares_happy(tahoe, monkeypatch):
     assert output is False
 
 
+T = TypeVar("T")
+
+
+def fake_awaitable_method(value: T) -> Callable[[], Awaitable[T]]:
+    async def fake(self) -> T:
+        return value
+
+    return fake
+
+
 @inlineCallbacks
 def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers", lambda _: None
+        "gridsync.tahoe.Tahoe.get_connected_servers",
+        fake_awaitable_method(None),
     )
     output = yield tahoe.is_ready()
     assert output is False
@@ -575,7 +587,8 @@ def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
 def test_is_ready_true(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers", lambda _: 10
+        "gridsync.tahoe.Tahoe.get_connected_servers",
+        fake_awaitable_method(10),
     )
     output = yield tahoe.is_ready()
     assert output is True
@@ -585,7 +598,8 @@ def test_is_ready_true(tahoe, monkeypatch):
 def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers", lambda _: 3
+        "gridsync.tahoe.Tahoe.get_connected_servers",
+        fake_awaitable_method(3),
     )
     output = yield tahoe.is_ready()
     assert output is False
