@@ -14,6 +14,7 @@ from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
 from twisted.internet import reactor
+from twisted.internet.defer import Deferred
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
@@ -313,7 +314,7 @@ class SetupRunner(QObject):
 
         nodedir = os.path.join(config_dir, nickname)
         self.gateway = Tahoe(nodedir)
-        await self.gateway.create_client(settings)
+        await Deferred.fromCoroutine(self.gateway.create_client(settings))
 
         self.gateway.save_settings(settings)
 

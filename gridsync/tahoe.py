@@ -381,11 +381,10 @@ class Tahoe:
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
 
-    @inlineCallbacks
-    def create_client(self, settings: dict) -> TwistedDeferred[None]:
+    async def create_client(self, settings: dict) -> None:
         settings["no-storage"] = True
         settings["listen"] = "none"
-        yield Deferred.fromCoroutine(self.create_node(settings))
+        await self.create_node(settings)
 
     def is_storage_node(self) -> bool:
         if self.storage_furl:

@@ -11,7 +11,7 @@ except ImportError:
 import pytest
 import yaml
 from pytest_twisted import inlineCallbacks
-from twisted.internet.defer import succeed
+from twisted.internet.defer import Deferred, succeed
 from twisted.internet.testing import MemoryReactorClock
 
 from gridsync.crypto import randstr
@@ -405,7 +405,7 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
 @inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(FileExistsError):
-        yield tahoe.create_client({})
+        yield Deferred.fromCoroutine(tahoe.create_client({}))
 
 
 def command_spy():
@@ -436,7 +436,9 @@ def test_tahoe_create_client_args(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
     spy, intel = command_spy()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
-    yield tahoe.create_client({"nickname": "test_nickname"})
+    yield Deferred.fromCoroutine(
+        tahoe.create_client({"nickname": "test_nickname"})
+    )
     assert has_args(intel[0], ("--nickname", "test_nickname"))
 
 
@@ -445,7 +447,7 @@ def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
     spy, intel = command_spy()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
-    yield tahoe.create_client({"happy": "7"})
+    yield Deferred.fromCoroutine(tahoe.create_client({"happy": "7"}))
     assert has_args(intel[0], ("--shares-happy", "7"))
 
 
@@ -455,7 +457,7 @@ def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
     spy, intel = command_spy()
     monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
     settings = {"hide-ip": True}
-    yield tahoe.create_client(settings)
+    yield Deferred.fromCoroutine(tahoe.create_client(settings))
     assert has_args(intel[0], ("--hide-ip",))
 
 
@@ -472,7 +474,7 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
         "node-1": {"anonymous-storage-FURL": "pb://test", "nickname": "One"}
     }
     settings = {"nickname": "TestGrid", "storage": storage_servers}
-    yield client.create_client(settings)
+    yield Deferred.fromCoroutine(client.create_client(settings))
     assert client.get_storage_servers() == storage_servers
 
 
