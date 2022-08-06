@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+SHELLRC=~/.$(basename "$SHELL"rc)
+
 if [ "$(uname)" = "Darwin" ]; then
     export HOMEBREW_NO_ANALYTICS=1
     if [ ! -f "/usr/local/bin/brew" ]; then
@@ -10,12 +12,10 @@ if [ "$(uname)" = "Darwin" ]; then
     brew install openssl readline sqlite3 xz zlib diffoscope
     export MACOSX_DEPLOYMENT_TARGET="10.13"
     export PYTHON_CONFIGURE_OPTS="--enable-framework"
-    SHELLRC=~/.$(basename "$SHELL"rc)
 else
     if [ -f "/usr/bin/apt-get" ]; then
         sudo apt-get -y update
         sudo apt-get -y install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libgl1 libgl1-mesa-dev x11-utils libdbus-1-3 libxcb-xfixes0 uidmap libfuse2
-        SHELLRC=~/.bash_profile
     elif [ -f "/usr/bin/yum" ]; then
         PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file"
         yum -y install $PKGS || sudo yum -y install $PKGS
