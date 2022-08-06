@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional
 
 import attr
 from qtpy.QtCore import QObject, Signal
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
@@ -37,7 +37,7 @@ class GridChecker(QObject):
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
-        results = yield self.gateway.get_grid_status()
+        results = yield Deferred.fromCoroutine(self.gateway.get_grid_status())
         if results:
             num_connected, num_known, available_space = results
         else:

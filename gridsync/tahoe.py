@@ -521,18 +521,17 @@ class Tahoe:
         """
         self.nodeurl = nodeurl
 
-    @inlineCallbacks
-    def get_grid_status(
+    async def get_grid_status(
         self,
-    ) -> TwistedDeferred[Optional[tuple[int, int, int]]]:
+    ) -> Optional[tuple[int, int, int]]:
         if not self.nodeurl:
             return None
         try:
-            resp = yield treq.get(self.nodeurl + "?t=json")
+            resp = await treq.get(self.nodeurl + "?t=json")
         except ConnectError:
             return None
         if resp.code == 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             content = json.loads(content.decode("utf-8"))
             servers_connected = 0
             servers_known = 0

@@ -28,7 +28,7 @@ from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 def fake_get(*args, **kwargs):
     response = MagicMock()
     response.code = 200
-    return response
+    return succeed(response)
 
 
 def fake_get_code_500(*args, **kwargs):
@@ -539,8 +539,10 @@ def test_get_grid_status(tahoe, monkeypatch):
         ]
     }"""
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: json_content)
-    num_connected, num_known, available_space = yield tahoe.get_grid_status()
+    monkeypatch.setattr("treq.content", lambda _: succeed(json_content))
+    num_connected, num_known, available_space = yield Deferred.fromCoroutine(
+        tahoe.get_grid_status()
+    )
     assert (num_connected, num_known, available_space) == (2, 3, 3072)
 
 
