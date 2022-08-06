@@ -558,7 +558,7 @@ def test_get_connected_servers(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_is_ready_false_not_shares_happy(tahoe, monkeypatch):
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is False
 
 
@@ -579,7 +579,7 @@ def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
         "gridsync.tahoe.Tahoe.get_connected_servers",
         fake_awaitable_method(None),
     )
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is False
 
 
@@ -590,7 +590,7 @@ def test_is_ready_true(tahoe, monkeypatch):
         "gridsync.tahoe.Tahoe.get_connected_servers",
         fake_awaitable_method(10),
     )
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is True
 
 
@@ -601,17 +601,15 @@ def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
         "gridsync.tahoe.Tahoe.get_connected_servers",
         fake_awaitable_method(3),
     )
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is False
-
-
-async def fake_is_ready(self) -> bool:
-    return True
 
 
 @inlineCallbacks
 def test_await_ready(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", fake_is_ready)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.is_ready", fake_awaitable_method(True)
+    )
     yield tahoe.await_ready()
     assert True
 

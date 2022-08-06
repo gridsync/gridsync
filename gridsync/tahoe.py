@@ -563,13 +563,10 @@ class Tahoe:
                 return int(match.group(1))
         return None
 
-    @inlineCallbacks
-    def is_ready(self) -> TwistedDeferred[bool]:
+    async def is_ready(self) -> bool:
         if not self.shares_happy:
             return False
-        connected_servers = yield Deferred.fromCoroutine(
-            self.get_connected_servers()
-        )
+        connected_servers = await self.get_connected_servers()
         return bool(
             connected_servers and connected_servers >= self.shares_happy
         )
