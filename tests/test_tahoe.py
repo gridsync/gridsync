@@ -774,12 +774,12 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
     )
-    yield client.start()
+    yield Deferred.fromCoroutine(client.start())
     assert not client.use_tor
 
 
@@ -787,7 +787,7 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
@@ -798,7 +798,7 @@ def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.needed", "3")
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
-    yield tahoe.start()
+    yield Deferred.fromCoroutine(tahoe.start())
     tahoe._on_started()  # XXX
     assert tahoe.streamedlogs.running
     (host, port, _, _, _) = reactor.tcpClients.pop(0)
@@ -809,7 +809,7 @@ def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
 def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr("gridsync.supervisor.Supervisor.stop", Mock())
     monkeypatch.setattr(
@@ -820,7 +820,7 @@ def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.needed", "3")
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
-    yield tahoe.start()
+    yield Deferred.fromCoroutine(tahoe.start())
     Path(tahoe.pidfile).write_text(str("4194306"), encoding="utf-8")
     yield tahoe.stop()
     assert not tahoe.streamedlogs.running
@@ -843,10 +843,10 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
     )
-    yield client.start()
+    yield Deferred.fromCoroutine(client.start())
     assert client.use_tor

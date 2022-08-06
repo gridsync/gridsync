@@ -155,7 +155,7 @@ class Core:
     @inlineCallbacks
     def _start_gateway(gateway: Tahoe) -> TwistedDeferred[None]:
         try:
-            yield gateway.start()
+            yield Deferred.fromCoroutine(gateway.start())
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",

@@ -469,8 +469,7 @@ class Tahoe:
         # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
-    @inlineCallbacks
-    def start(self) -> TwistedDeferred[None]:
+    async def start(self) -> None:
         log.debug('Starting "%s" tahoe client...', self.name)
         self.state = Tahoe.STARTING
         self.monitor.start()
@@ -493,7 +492,7 @@ class Tahoe:
         if not self.executable:
             self.executable = which("tahoe")
         try:
-            results = yield self.supervisor.start(
+            results = await self.supervisor.start(
                 [self.executable, "-d", self.nodedir, "run"],
                 started_trigger="client running",
                 stdout_line_collector=self.line_received,
