@@ -1,4 +1,5 @@
 #!/bin/sh
+. ~/.$(basename "$SHELL"rc)
 buildbot-worker stop ~/buildbot
 rm -rf ~/buildbot
 python3 -m pip install buildbot-worker
