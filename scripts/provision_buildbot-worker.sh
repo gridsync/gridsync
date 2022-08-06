@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 . ~/.$(basename "$SHELL"rc)
 buildbot-worker stop ~/buildbot
 rm -rf ~/buildbot
