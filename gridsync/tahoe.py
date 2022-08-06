@@ -354,8 +354,7 @@ class Tahoe:
             raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
         return output
 
-    @inlineCallbacks
-    def create_node(self, settings: dict) -> TwistedDeferred[None]:
+    async def create_node(self, settings: dict) -> None:
         if os.path.exists(self.nodedir):
             raise FileExistsError(
                 "Nodedir already exists: {}".format(self.nodedir)
@@ -377,7 +376,7 @@ class Tahoe:
                 args.extend([f"--shares-{key}", str(value)])
             elif key in ("hide-ip", "no-storage"):
                 args.append(f"--{key}")
-        yield Deferred.fromCoroutine(self.command(args))
+        await self.command(args)
         storage_servers = settings.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
@@ -386,7 +385,7 @@ class Tahoe:
     def create_client(self, settings: dict) -> TwistedDeferred[None]:
         settings["no-storage"] = True
         settings["listen"] = "none"
-        yield self.create_node(settings)
+        yield Deferred.fromCoroutine(self.create_node(settings))
 
     def is_storage_node(self) -> bool:
         if self.storage_furl:
