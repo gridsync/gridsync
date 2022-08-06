@@ -19,7 +19,6 @@ else
     elif [ -f "/usr/bin/yum" ]; then
         PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file"
         yum -y install $PKGS || sudo yum -y install $PKGS
-        SHELLRC=~/.bashrc
     else
         echo "Error: Unknown environment"
         exit 1
