@@ -79,6 +79,7 @@ jobs:
     - name: Test
       run: |
         source ~/.bashrc
+        cat ~/.bashrc
         make test
     - name: Build
       run: |
