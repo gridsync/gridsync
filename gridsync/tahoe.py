@@ -590,10 +590,13 @@ class Tahoe:
             f"Error {resp.code} creating Tahoe-LAFS directory: {content}"
         )
 
-    @inlineCallbacks
-    def diminish(self, cap: str) -> TwistedDeferred[str]:
-        output = yield self.get_json(cap)
-        return output[1]["ro_uri"]
+    async def diminish(self, cap: str) -> str:
+        output = await self.get_json(cap)
+        if isinstance(output, list):
+            return output[1]["ro_uri"]
+        raise ValueError(
+            "Unexpected response attempting to diminish capability"
+        )
 
     @inlineCallbacks
     def create_rootcap(self) -> TwistedDeferred[str]:

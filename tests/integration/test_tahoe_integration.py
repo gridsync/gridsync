@@ -48,7 +48,7 @@ def test_tahoe_client_mkdir(tahoe_client):
 @inlineCallbacks
 def test_diminish(tahoe_client):
     dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
-    diminished = yield tahoe_client.diminish(dircap)
+    diminished = yield Deferred.fromCoroutine(tahoe_client.diminish(dircap))
     assert diminished.startswith("URI:DIR2-RO:")
 
 
