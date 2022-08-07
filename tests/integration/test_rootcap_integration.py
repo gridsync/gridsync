@@ -31,7 +31,8 @@ def test_create_rootcap_doesnt_override_existing_rootcap(rootcap_manager):
 
 @inlineCallbacks
 def test_add_backup(tahoe_client, rootcap_manager):
-    dircap = yield tahoe_client.mkdir()
+    1 / 0
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     yield Deferred.fromCoroutine(
         rootcap_manager.add_backup("TestBackups-1", "backup-1", dircap)
     )
@@ -43,7 +44,7 @@ def test_add_backup(tahoe_client, rootcap_manager):
 
 @inlineCallbacks
 def test_remove_backup(tahoe_client, rootcap_manager):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     yield Deferred.fromCoroutine(
         rootcap_manager.add_backup("TestBackups-2", "backup-2", dircap)
     )
@@ -58,7 +59,7 @@ def test_remove_backup(tahoe_client, rootcap_manager):
 
 @inlineCallbacks
 def test_remove_backup_is_idempotent(tahoe_client, rootcap_manager):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     yield Deferred.fromCoroutine(
         rootcap_manager.add_backup("TestBackups-3", "backup-3", dircap)
     )

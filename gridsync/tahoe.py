@@ -574,18 +574,15 @@ class Tahoe:
     def await_ready(self) -> Deferred[bool]:
         return self._ready_poller.wait_for_completion()
 
-    @inlineCallbacks
-    def mkdir(
-        self, parentcap: str = None, childname: str = None
-    ) -> TwistedDeferred[str]:
-        yield self.await_ready()
+    async def mkdir(self, parentcap: str = None, childname: str = None) -> str:
+        await self.await_ready()
         url = self.nodeurl + "uri"
         params = {"t": "mkdir"}
         if parentcap and childname:
             url += "/" + parentcap
             params["name"] = childname
-        resp = yield treq.post(url, params=params)
-        content = yield treq.content(resp)
+        resp = await treq.post(url, params=params)
+        content = await treq.content(resp)
         content = content.decode("utf-8").strip()
         if resp.code == 200:
             return content

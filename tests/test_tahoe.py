@@ -41,7 +41,7 @@ def fake_get_code_500(*args, **kwargs):
 def fake_put(*args, **kwargs):
     response = MagicMock()
     response.code = 200
-    return response
+    return succeed(response)
 
 
 def fake_put_code_500(*args, **kwargs):
@@ -53,13 +53,13 @@ def fake_put_code_500(*args, **kwargs):
 def fake_post(*args, **kwargs):
     response = MagicMock()
     response.code = 200
-    return response
+    return succeed(response)
 
 
 def fake_post_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
-    return response
+    return succeed(response)
 
 
 def test_is_valid_furl():
@@ -672,30 +672,38 @@ def test_concurrent_await_ready(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_mkdir(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post)
-    monkeypatch.setattr("treq.content", lambda _: b"URI:DIR2:abc234:def567")
-    output = yield tahoe.mkdir()
+    monkeypatch.setattr(
+        "treq.content", lambda _: succeed(b"URI:DIR2:abc234:def567")
+    )
+    output = yield Deferred.fromCoroutine(tahoe.mkdir())
     assert output == "URI:DIR2:abc234:def567"
 
 
 @inlineCallbacks
 def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
-        yield tahoe.mkdir()
+        yield Deferred.fromCoroutine(tahoe.mkdir())
 
 
 @inlineCallbacks
 def test_tahoe_upload(tahoe, monkeypatch):
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.mkdir", lambda _: succeed("URI:DIR2:abc")
+        "gridsync.tahoe.Tahoe.mkdir", fake_awaitable_method("URI:DIR2:abc")
     )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.put", fake_put)
-    monkeypatch.setattr("treq.content", lambda _: b"test_cap")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test_cap"))
     yield tahoe.create_rootcap()
     output = yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
     assert output == "test_cap"
@@ -704,11 +712,13 @@ def test_tahoe_upload(tahoe, monkeypatch):
 @inlineCallbacks
 def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.mkdir", lambda _: succeed("URI:DIR2:abc")
+        "gridsync.tahoe.Tahoe.mkdir", fake_awaitable_method("URI:DIR2:abc")
     )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.put", fake_put_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     yield tahoe.create_rootcap()
     with pytest.raises(TahoeWebError):
         yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
@@ -718,8 +728,11 @@ def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
 def test_tahoe_download(tahoe, monkeypatch):
     def fake_collect(response, collector):
         collector(b"test_content")  # f.write(b'test_content')
+        return succeed(None)
 
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.get", fake_get)
     monkeypatch.setattr("treq.collect", fake_collect)
     location = os.path.join(tahoe.nodedir, "test_downloaded_file")
@@ -731,16 +744,20 @@ def test_tahoe_download(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.get", fake_get_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
         yield tahoe.download("test_cap", os.path.join(tahoe.nodedir, "nofile"))
 
 
 @inlineCallbacks
 def test_tahoe_link(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post)
     yield tahoe.link("test_dircap", "test_childname", "test_childcap")
     assert True
@@ -748,16 +765,20 @@ def test_tahoe_link(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_link_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
         yield tahoe.link("test_dircap", "test_childname", "test_childcap")
 
 
 @inlineCallbacks
 def test_tahoe_unlink(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post)
     yield tahoe.unlink("test_dircap", "test_childname")
     assert True
@@ -765,9 +786,11 @@ def test_tahoe_unlink(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
         yield tahoe.unlink("test_dircap", "test_childname")
 

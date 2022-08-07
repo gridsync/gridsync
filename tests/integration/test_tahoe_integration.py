@@ -41,13 +41,13 @@ def test_tahoe_client_connected_servers(tahoe_client):
 
 @inlineCallbacks
 def test_tahoe_client_mkdir(tahoe_client):
-    cap = yield tahoe_client.mkdir()
+    cap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     assert cap.startswith("URI:DIR2:")
 
 
 @inlineCallbacks
 def test_diminish(tahoe_client):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     diminished = yield tahoe_client.diminish(dircap)
     assert diminished.startswith("URI:DIR2-RO:")
 
@@ -67,7 +67,7 @@ def test_upload_convergence_secret_determines_cap(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_upload_to_dircap(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     p = tmp_path / "TestFile.txt"
     p.write_bytes(b"1" * 64)
     local_path = p.resolve()
@@ -86,7 +86,7 @@ def test_upload_mutable(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_upload_to_dircap_mutable(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     p = tmp_path / "TestFile.txt"
     p.write_bytes(b"1" * 64)
     local_path = p.resolve()
@@ -96,7 +96,7 @@ def test_upload_to_dircap_mutable(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_upload_to_dircap_mutable_uses_same_cap(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     p = tmp_path / "TestFile.txt"
     p.write_bytes(b"1" * 64)
     local_path = p.resolve()
@@ -111,12 +111,12 @@ def test_upload_to_dircap_mutable_uses_same_cap(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_ls(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     p = tmp_path / "TestFile.txt"
     p.write_bytes(b"2" * 64)
     local_path = p.resolve()
     yield tahoe_client.upload(local_path, dircap)
-    subdircap = yield tahoe_client.mkdir()
+    subdircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     yield tahoe_client.link(dircap, "subdir", subdircap)
     output = yield tahoe_client.ls(dircap)
     assert ("TestFile.txt" in output) and ("subdir" in output)
@@ -124,12 +124,12 @@ def test_ls(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_ls_exclude_dirnodes(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     p = tmp_path / "TestFile.txt"
     p.write_bytes(b"2" * 64)
     local_path = p.resolve()
     yield tahoe_client.upload(local_path, dircap)
-    subdircap = yield tahoe_client.mkdir()
+    subdircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     yield tahoe_client.link(dircap, "subdir", subdircap)
     output = yield tahoe_client.ls(dircap, exclude_dirnodes=True)
     assert ("TestFile.txt" in output) and ("subdir" not in output)
@@ -137,12 +137,12 @@ def test_ls_exclude_dirnodes(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_ls_exclude_filenodes(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     p = tmp_path / "TestFile.txt"
     p.write_bytes(b"2" * 64)
     local_path = p.resolve()
     yield tahoe_client.upload(local_path, dircap)
-    subdircap = yield tahoe_client.mkdir()
+    subdircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     yield tahoe_client.link(dircap, "subdir", subdircap)
     output = yield tahoe_client.ls(dircap, exclude_filenodes=True)
     assert ("TestFile.txt" not in output) and ("subdir" in output)
@@ -150,7 +150,7 @@ def test_ls_exclude_filenodes(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_ls_includes_most_authoritative_cap(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     p = tmp_path / "TestFile.txt"
     p.write_bytes(b"2" * 64)
     local_path = p.resolve()
@@ -161,6 +161,6 @@ def test_ls_includes_most_authoritative_cap(tahoe_client, tmp_path):
 
 @inlineCallbacks
 def test_ls_nonexistent_path(tahoe_client, tmp_path):
-    dircap = yield tahoe_client.mkdir()
+    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     output = yield tahoe_client.ls(dircap + "/Path/Does/Not/Exist")
     assert output is None
