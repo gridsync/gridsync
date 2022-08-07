@@ -1,5 +1,5 @@
 import pytest
-from pytest_twisted import inlineCallbacks
+from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred, DeferredList
 
 
@@ -29,48 +29,31 @@ def test_create_rootcap_doesnt_override_existing_rootcap(rootcap_manager):
     assert len(created_caps) == 1  # Only one cap was created
 
 
-@inlineCallbacks
-def test_add_backup(tahoe_client, rootcap_manager):
-    1 / 0
-    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
-    yield Deferred.fromCoroutine(
-        rootcap_manager.add_backup("TestBackups-1", "backup-1", dircap)
-    )
-    backups = yield Deferred.fromCoroutine(
-        rootcap_manager.get_backups("TestBackups-1")
-    )
+@ensureDeferred
+async def test_add_backup(tahoe_client, rootcap_manager):
+    dircap = await tahoe_client.mkdir()
+    await rootcap_manager.add_backup("TestBackups-1", "backup-1", dircap)
+    backups = await rootcap_manager.get_backups("TestBackups-1")
     assert "backup-1" in backups
 
 
-@inlineCallbacks
-def test_remove_backup(tahoe_client, rootcap_manager):
-    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
-    yield Deferred.fromCoroutine(
-        rootcap_manager.add_backup("TestBackups-2", "backup-2", dircap)
-    )
-    yield Deferred.fromCoroutine(
-        rootcap_manager.remove_backup("TestBackups-2", "backup-2")
-    )
-    backups = yield Deferred.fromCoroutine(
-        rootcap_manager.get_backups("TestBackups-2")
-    )
+@ensureDeferred
+async def test_remove_backup(tahoe_client, rootcap_manager):
+    dircap = await tahoe_client.mkdir()
+    await rootcap_manager.add_backup("TestBackups-2", "backup-2", dircap)
+    await rootcap_manager.remove_backup("TestBackups-2", "backup-2")
+    backups = await rootcap_manager.get_backups("TestBackups-2")
     assert "backup-2" not in backups
 
 
-@inlineCallbacks
-def test_remove_backup_is_idempotent(tahoe_client, rootcap_manager):
-    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
-    yield Deferred.fromCoroutine(
-        rootcap_manager.add_backup("TestBackups-3", "backup-3", dircap)
-    )
-    yield Deferred.fromCoroutine(
-        rootcap_manager.remove_backup("TestBackups-3", "backup-3")
-    )
+@ensureDeferred
+async def test_remove_backup_is_idempotent(tahoe_client, rootcap_manager):
+    dircap = await tahoe_client.mkdir()
+    await rootcap_manager.add_backup("TestBackups-3", "backup-3", dircap)
+    await rootcap_manager.remove_backup("TestBackups-3", "backup-3")
     exception_raised = None
     try:
-        yield Deferred.fromCoroutine(
-            rootcap_manager.remove_backup("TestBackups-3", "backup-3")
-        )
+        await rootcap_manager.remove_backup("TestBackups-3", "backup-3")
     except Exception as exc:
         exception_raised = exc
     assert not exception_raised
