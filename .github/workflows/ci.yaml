@@ -79,6 +79,7 @@ jobs:
     - name: Test
       run: |
         ls -al ~
+        cat ~/.bash_profile
         source ~/.bashrc
         cat ~/.bashrc
         make test
