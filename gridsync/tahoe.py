@@ -598,12 +598,8 @@ class Tahoe:
             "Unexpected response attempting to diminish capability"
         )
 
-    @inlineCallbacks
-    def create_rootcap(self) -> TwistedDeferred[str]:
-        rootcap = yield Deferred.fromCoroutine(
-            self.rootcap_manager.create_rootcap()
-        )
-        return rootcap
+    async def create_rootcap(self) -> str:
+        return await self.rootcap_manager.create_rootcap()
 
     @inlineCallbacks
     def upload(
