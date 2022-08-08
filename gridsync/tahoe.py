@@ -634,10 +634,7 @@ class Tahoe:
             content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
 
-    @inlineCallbacks
-    def link(
-        self, dircap: str, childname: str, childcap: str
-    ) -> TwistedDeferred[None]:
+    async def link(self, dircap: str, childname: str, childcap: str) -> None:
         dircap_hash = trunchash(dircap)
         childcap_hash = trunchash(childcap)
         log.debug(
@@ -646,14 +643,14 @@ class Tahoe:
             childcap_hash,
             dircap_hash,
         )
-        yield self.await_ready()
-        resp = yield treq.post(
+        await self.await_ready()
+        resp = await treq.post(
             "{}uri/{}/?t=uri&name={}&uri={}".format(
                 self.nodeurl, dircap, childname, childcap
             )
         )
         if resp.code != 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
         log.debug(
             'Done linking "%s" (%s) into %s',
