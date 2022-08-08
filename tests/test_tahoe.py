@@ -62,6 +62,10 @@ def fake_post_code_500(*args, **kwargs):
     return succeed(response)
 
 
+async def noop_scan_storage_plugins(self):
+    pass
+
+
 def test_is_valid_furl():
     assert is_valid_furl("pb://abc234@example.org:12345/introducer")
 
@@ -795,8 +799,8 @@ async def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
         await tahoe.unlink("test_dircap", "test_childname")
 
 
-@inlineCallbacks
-def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
+@ensureDeferred
+async def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-start")))
     client.magic_folder = Mock()  # XXX
     privatedir = os.path.join(client.nodedir, "private")
@@ -813,21 +817,24 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
+
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
-    yield Deferred.fromCoroutine(client.start())
+    await client.start()
     assert not client.use_tor
 
 
-@inlineCallbacks
-def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
+@ensureDeferred
+async def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
     reactor = MemoryReactorClock()
     tahoe = tahoe_factory(reactor)
@@ -835,36 +842,37 @@ def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.needed", "3")
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
-    yield Deferred.fromCoroutine(tahoe.start())
+    await tahoe.start()
     tahoe._on_started()  # XXX
     assert tahoe.streamedlogs.running
     (host, port, _, _, _) = reactor.tcpClients.pop(0)
     assert (host, port) == ("example.invalid", 12345)
 
 
-@inlineCallbacks
-def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
+@ensureDeferred
+async def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr("gridsync.supervisor.Supervisor.stop", Mock())
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
     tahoe = tahoe_factory(MemoryReactorClock())
     tahoe.monitor = Mock()
     tahoe.config_set("client", "shares.needed", "3")
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
-    yield Deferred.fromCoroutine(tahoe.start())
+    await tahoe.start()
     Path(tahoe.pidfile).write_text(str("4194306"), encoding="utf-8")
-    yield tahoe.stop()
+    await tahoe.stop()
     assert not tahoe.streamedlogs.running
 
 
-@inlineCallbacks
-def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
+@ensureDeferred
+async def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-start")))
     client.magic_folder = Mock()  # XXX
     privatedir = os.path.join(client.nodedir, "private")
@@ -883,7 +891,8 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
         lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
-    yield Deferred.fromCoroutine(client.start())
+    await client.start()
     assert client.use_tor

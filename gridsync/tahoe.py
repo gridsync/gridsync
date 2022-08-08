@@ -446,7 +446,8 @@ class Tahoe:
 
         self.state = Tahoe.STARTED
 
-        self.scan_storage_plugins()
+        # XXX Should something wait on this?
+        Deferred.fromCoroutine(self.scan_storage_plugins())
 
         if not self.is_storage_node():
             self.magic_folder.start()
@@ -717,12 +718,11 @@ class Tahoe:
     def get_rootcap(self) -> str:
         return self.rootcap_manager.get_rootcap()
 
-    @inlineCallbacks
-    def scan_storage_plugins(self) -> TwistedDeferred[None]:
+    async def scan_storage_plugins(self) -> None:
         plugins = []
         log.debug("Scanning for known storage plugins...")
         try:
-            version = yield self.zkapauthorizer.get_version()
+            version = await self.zkapauthorizer.get_version()
         except TahoeWebError:
             version = ""
         if version:
