@@ -422,13 +422,13 @@ async def test_create_folder_backup(magic_folder):
     )
 
 
-@inlineCallbacks
-def test_get_folder_backups(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_get_folder_backups(magic_folder):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    remote_folders = yield magic_folder.get_folder_backups()
+    remote_folders = await magic_folder.get_folder_backups()
     assert folder_name in remote_folders
 
 
@@ -465,21 +465,23 @@ async def test_remote_magic_folders_dict_is_updated_by_folder_backups(
     assert folder_backed_up and folder_added and folder_removed
 
 
-@inlineCallbacks
-def test_create_folder_backup_preserves_collective_writecap(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_create_folder_backup_preserves_collective_writecap(
+    magic_folder,
+):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    remote_folders = yield magic_folder.get_folder_backups()
+    remote_folders = await magic_folder.get_folder_backups()
     remote_cap = remote_folders[folder_name]["collective_dircap"]
     assert remote_cap.startswith("URI:DIR2:")
 
 
-@inlineCallbacks
-def test_local_folders_have_backups(magic_folder):
-    remote_folders = yield magic_folder.get_folder_backups()
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_local_folders_have_backups(magic_folder):
+    remote_folders = await magic_folder.get_folder_backups()
+    folders = await magic_folder.get_folders()
     for folder in folders:
         assert folder in remote_folders
 

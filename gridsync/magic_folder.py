@@ -427,7 +427,9 @@ class MagicFolderMonitor(QObject):
         self.compare_folders(current_folders, previous_folders)
         self._known_folders = current_folders
 
-        backups = yield self.magic_folder.get_folder_backups()
+        backups = yield Deferred.fromCoroutine(
+            self.magic_folder.get_folder_backups()
+        )
         if backups is None:
             logging.warning("Could not read Magic-Folder backups during check")
         else:
@@ -810,12 +812,9 @@ class MagicFolder:
             )
         )
 
-    @inlineCallbacks
-    def get_folder_backups(self) -> TwistedDeferred[Optional[dict[str, dict]]]:
+    async def get_folder_backups(self) -> Optional[dict[str, dict]]:
         folders: defaultdict[str, dict] = defaultdict(dict)
-        backups = yield Deferred.fromCoroutine(
-            self.rootcap_manager.get_backups(".magic-folders")
-        )
+        backups = await self.rootcap_manager.get_backups(".magic-folders")
         if backups is None:
             return None
         for name, data in backups.items():
