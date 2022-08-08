@@ -103,14 +103,14 @@ def test_get_folders(magic_folder):
     assert folders == {}
 
 
-@inlineCallbacks
-def test_add_folder(magic_folder, tmp_path):
+@ensureDeferred
+async def test_add_folder(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
-    folders = yield magic_folder.get_folders()
+    folders = await magic_folder.get_folders()
     assert folder_name in folders
 
 
@@ -175,12 +175,12 @@ async def test_leave_folder_removes_from_magic_folders_dict(
     assert (folder_was_added, folder_was_removed) == (True, True)
 
 
-@inlineCallbacks
-def test_folder_is_local_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_folder_is_local_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     assert magic_folder.folder_is_local(folder_name) is True
 
 
@@ -189,13 +189,13 @@ def test_folder_is_local_false(magic_folder, tmp_path):
     assert magic_folder.folder_is_local(folder_name) is False
 
 
-@inlineCallbacks
-def test_folder_is_remote_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_folder_is_remote_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    yield magic_folder.monitor.do_check()  # XXX
+    await magic_folder.add_folder(path, author)
+    await magic_folder.monitor.do_check()  # XXX
     assert magic_folder.folder_is_remote(folder_name) is True
 
 
@@ -204,12 +204,12 @@ def test_folder_is_remote_false(magic_folder, tmp_path):
     assert magic_folder.folder_is_remote(folder_name) is False
 
 
-@inlineCallbacks
-def test_folder_exists_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_folder_exists_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     assert magic_folder.folder_exists(folder_name) is True
 
 
@@ -629,15 +629,17 @@ def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
     assert blocker.args == ["TestFolder", ":(", 1234567890]
 
 
-@inlineCallbacks
-def test_monitor_emits_folder_added_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_folder_added_signal(
+    magic_folder, tmp_path, qtbot
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.monitor.do_check()
+    await magic_folder.monitor.do_check()
     with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
-        yield magic_folder.add_folder(path, author)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.add_folder(path, author)
+        await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
 
 

@@ -496,7 +496,9 @@ class View(QTreeView):
         self.get_model().add_folder(path)
         folder_name = os.path.basename(path)
         try:
-            yield self.gateway.magic_folder.add_folder(path, "admin")
+            yield Deferred.fromCoroutine(
+                self.gateway.magic_folder.add_folder(path, "admin")
+            )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(

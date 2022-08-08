@@ -663,15 +663,14 @@ class MagicFolder:
         self.magic_folders = folders
         return folders
 
-    @inlineCallbacks
-    def add_folder(  # pylint: disable=too-many-arguments
+    async def add_folder(  # pylint: disable=too-many-arguments
         self,
         path: str,
         author: str,
         name: Optional[str] = "",
         poll_interval: int = 60,
         scan_interval: int = 60,
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         p = Path(path)
         p.mkdir(parents=True, exist_ok=True)
         if not name:
@@ -683,10 +682,10 @@ class MagicFolder:
             "poll_interval": poll_interval,
             "scan_interval": scan_interval,
         }
-        yield self._request(
+        await self._request(
             "POST", "/magic-folder", body=json.dumps(data).encode()
         )
-        yield Deferred.fromCoroutine(self.create_folder_backup(name))  # XXX
+        await self.create_folder_backup(name)  # XXX
 
     async def leave_folder(
         self, folder_name: str, missing_ok: bool = False
