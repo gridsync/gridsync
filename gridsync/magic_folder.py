@@ -747,12 +747,11 @@ class MagicFolder:
         )
         return participants
 
-    @inlineCallbacks
-    def add_participant(
+    async def add_participant(
         self, folder_name: str, author_name: str, personal_dmd: str
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         data = {"author": {"name": author_name}, "personal_dmd": personal_dmd}
-        yield self._request(
+        await self._request(
             "POST",
             f"/magic-folder/{folder_name}/participants",
             body=json.dumps(data).encode("utf-8"),

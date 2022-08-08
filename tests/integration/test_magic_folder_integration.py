@@ -227,20 +227,18 @@ def test_get_participants(magic_folder, tmp_path):
     assert author in participants
 
 
-@inlineCallbacks
-def test_add_participant(magic_folder, tmp_path):
+@ensureDeferred
+async def test_add_participant(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
     author_name = randstr()
-    dircap = yield Deferred.fromCoroutine(magic_folder.gateway.mkdir())
-    personal_dmd = yield Deferred.fromCoroutine(
-        magic_folder.gateway.diminish(dircap)
-    )
-    yield magic_folder.add_participant(folder_name, author_name, personal_dmd)
-    participants = yield magic_folder.get_participants(folder_name)
+    dircap = await magic_folder.gateway.mkdir()
+    personal_dmd = await magic_folder.gateway.diminish(dircap)
+    await magic_folder.add_participant(folder_name, author_name, personal_dmd)
+    participants = await magic_folder.get_participants(folder_name)
     assert author_name in participants
 
 
@@ -514,24 +512,26 @@ async def test_alice_add_folder(alice_magic_folder, tmp_path):
     assert filename in snapshots.get(folder_name)
 
 
-@inlineCallbacks
-def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
+@ensureDeferred
+async def test_bob_receive_folder(
+    alice_magic_folder, bob_magic_folder, tmp_path
+):
     folder_name = "FromAlice"
     bob_path = tmp_path / folder_name
-    yield bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
+    await bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
 
-    alice_folders = yield alice_magic_folder.get_folders()
-    alice_personal_dmd = yield Deferred.fromCoroutine(
+    alice_folders = await alice_magic_folder.get_folders()
+    alice_personal_dmd = await Deferred.fromCoroutine(
         alice_magic_folder.gateway.diminish(
             alice_folders["ToBob"]["upload_dircap"]
         )
     )
-    yield bob_magic_folder.add_participant(
+    await bob_magic_folder.add_participant(
         folder_name, "Alice", alice_personal_dmd
     )
 
     p = bob_path / "SharedFile.txt"
-    succeeded = yield until(p.exists)
+    succeeded = await until(p.exists)
     assert succeeded is True
 
 
