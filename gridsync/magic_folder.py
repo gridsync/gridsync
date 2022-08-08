@@ -18,7 +18,7 @@ from twisted.internet.task import deferLater
 if TYPE_CHECKING:
     from qtpy.QtCore import SignalInstance
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
-    from gridsync.types import TwistedDeferred
+    from gridsync.types import TwistedDeferred, JSON
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
@@ -634,7 +634,7 @@ class MagicFolder:
         path: str,
         body: bytes = b"",
         error_404_ok: bool = False,
-    ) -> TwistedDeferred[dict]:
+    ) -> TwistedDeferred[JSON]:
         yield self.await_running()  # XXX
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
@@ -763,12 +763,17 @@ class MagicFolder:
         )
         return output
 
-    @inlineCallbacks
-    def get_object_sizes(self, folder_name: str) -> TwistedDeferred[list[int]]:
-        sizes = yield self._request(
+    async def get_object_sizes(self, folder_name: str) -> list[int]:
+        sizes = await self._request(
             "GET", f"/magic-folder/{folder_name}/tahoe-objects"
         )
-        return sizes
+        if isinstance(sizes, list):
+            # XXX The magic-folder API should most likely return this list as
+            # a property of an object.
+            return sizes
+        raise TypeError(
+            f"Expected object sizes as list, instead got {type(sizes)!r}"
+        )
 
     async def get_all_object_sizes(self) -> list[int]:
         all_sizes = []
@@ -784,7 +789,11 @@ class MagicFolder:
             f"/magic-folder/{folder_name}/scan-local",
             error_404_ok=True,
         )
-        return output
+        if isinstance(output, dict):
+            return output
+        raise TypeError(
+            f"Expected scan result as dict, instead got {type(output)!r}"
+        )
 
     async def poll(self, folder_name: str) -> dict:
         output = await self._request(
@@ -792,7 +801,11 @@ class MagicFolder:
             f"/magic-folder/{folder_name}/poll-remote",
             error_404_ok=True,
         )
-        return output
+        if isinstance(output, dict):
+            return output
+        raise TypeError(
+            f"Expected poll remote result as dict, instead got {type(output)!r}"
+        )
 
     async def create_folder_backup(self, folder_name: str) -> None:
         folders = await self.get_folders()
