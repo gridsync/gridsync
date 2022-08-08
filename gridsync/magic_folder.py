@@ -828,9 +828,8 @@ class MagicFolder:
         self.remote_magic_folders = folders
         return dict(folders)
 
-    @inlineCallbacks
-    def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
-        yield DeferredList(
+    async def remove_folder_backup(self, folder_name: str) -> None:
+        await DeferredList(
             [
                 Deferred.fromCoroutine(
                     self.rootcap_manager.remove_backup(

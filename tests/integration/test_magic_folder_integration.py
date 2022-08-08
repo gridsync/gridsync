@@ -450,15 +450,17 @@ async def test_remove_folder_backup(magic_folder):
     )
 
 
-@inlineCallbacks
-def test_remote_magic_folders_dict_is_updated_by_folder_backups(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_remote_magic_folders_dict_is_updated_by_folder_backups(
+    magic_folder,
+):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
-    backups = yield magic_folder.get_folder_backups()
+    await magic_folder.create_folder_backup(folder_name)
+    backups = await magic_folder.get_folder_backups()
     folder_backed_up = folder_name in backups
     folder_added = folder_name in magic_folder.remote_magic_folders
-    yield magic_folder.remove_folder_backup(folder_name)
+    await magic_folder.remove_folder_backup(folder_name)
     folder_removed = folder_name not in magic_folder.remote_magic_folders
     assert folder_backed_up and folder_added and folder_removed
 
