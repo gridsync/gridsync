@@ -770,12 +770,11 @@ class MagicFolder:
         )
         return sizes
 
-    @inlineCallbacks
-    def get_all_object_sizes(self) -> TwistedDeferred[list[int]]:
+    async def get_all_object_sizes(self) -> list[int]:
         all_sizes = []
-        folders = yield self.get_folders()
+        folders = await self.get_folders()
         for folder in folders:
-            sizes = yield self.get_object_sizes(folder)
+            sizes = await self.get_object_sizes(folder)
             all_sizes.extend(sizes)
         return all_sizes
 
