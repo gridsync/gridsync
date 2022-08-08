@@ -688,11 +688,10 @@ class MagicFolder:
         )
         yield Deferred.fromCoroutine(self.create_folder_backup(name))  # XXX
 
-    @inlineCallbacks
-    def leave_folder(
+    async def leave_folder(
         self, folder_name: str, missing_ok: bool = False
-    ) -> TwistedDeferred[None]:
-        yield self._request(
+    ) -> None:
+        await self._request(
             "DELETE",
             f"/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),

@@ -88,7 +88,7 @@ def leave_all_folders(magic_folder):
     for folder in list(folders):
         # https://github.com/LeastAuthority/magic-folder/issues/587
         yield deferLater(reactor, 0.1, lambda: None)
-        yield magic_folder.leave_folder(folder)
+        yield Deferred.fromCoroutine(magic_folder.leave_folder(folder))
 
 
 @inlineCallbacks
@@ -114,60 +114,62 @@ def test_add_folder(magic_folder, tmp_path):
     assert folder_name in folders
 
 
-@inlineCallbacks
-def test_leave_folder(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
     folder_was_added = folder_name in folders
 
-    yield magic_folder.leave_folder(folder_name)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.leave_folder(folder_name)
+    folders = await magic_folder.get_folders()
     folder_was_removed = folder_name not in folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
 
 
-@inlineCallbacks
-def test_leave_folder_with_missing_ok_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder_with_missing_ok_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
     folder_was_added = folder_name in folders
 
-    yield magic_folder.leave_folder(folder_name)
-    yield magic_folder.leave_folder(folder_name, missing_ok=True)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.leave_folder(folder_name)
+    await magic_folder.leave_folder(folder_name, missing_ok=True)
+    folders = await magic_folder.get_folders()
     folder_was_removed = folder_name not in folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
 
 
-@inlineCallbacks
-def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    yield magic_folder.leave_folder(folder_name)
+    await magic_folder.add_folder(path, author)
+    await magic_folder.leave_folder(folder_name)
     with pytest.raises(MagicFolderWebError):
-        yield magic_folder.leave_folder(folder_name, missing_ok=False)
+        await magic_folder.leave_folder(folder_name, missing_ok=False)
 
 
-@inlineCallbacks
-def test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder_removes_from_magic_folders_dict(
+    magic_folder, tmp_path
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
     folder_was_added = folder_name in folders
 
-    yield magic_folder.leave_folder(folder_name)
+    await magic_folder.leave_folder(folder_name)
     folder_was_removed = folder_name not in magic_folder.magic_folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
@@ -706,19 +708,21 @@ async def test_monitor_emits_folder_size_updated_signal(
     assert (blocker.args[0], blocker.args[1]) == (folder_name, 64)
 
 
-@inlineCallbacks
-def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_folder_removed_signal(
+    magic_folder, tmp_path, qtbot
+):
     # Removing existing folders first
-    yield leave_all_folders(magic_folder)
+    await leave_all_folders(magic_folder)
 
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    yield magic_folder.monitor.do_check()
+    await magic_folder.add_folder(path, author)
+    await magic_folder.monitor.do_check()
     with qtbot.wait_signal(magic_folder.monitor.folder_removed) as blocker:
-        yield magic_folder.leave_folder(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.leave_folder(folder_name)
+        await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
 
 
