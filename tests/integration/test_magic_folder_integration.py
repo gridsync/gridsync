@@ -242,10 +242,10 @@ async def test_add_participant(magic_folder, tmp_path):
     assert author_name in participants
 
 
-@inlineCallbacks
-def test_get_snapshots(magic_folder):
-    folders = yield magic_folder.get_folders()
-    snapshots = yield magic_folder.get_snapshots()
+@ensureDeferred
+async def test_get_snapshots(magic_folder):
+    folders = await magic_folder.get_folders()
+    snapshots = await magic_folder.get_snapshots()
     assert sorted(snapshots.keys()) == sorted(folders.keys())
 
 

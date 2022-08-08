@@ -718,10 +718,13 @@ class MagicFolder:
             or self.folder_is_remote(folder_name)
         )
 
-    @inlineCallbacks
-    def get_snapshots(self) -> TwistedDeferred[dict[str, dict]]:
-        snapshots = yield self._request("GET", "/snapshot")
-        return snapshots
+    async def get_snapshots(self) -> dict[str, dict]:
+        snapshots = await self._request("GET", "/snapshot")
+        if isinstance(snapshots, dict):
+            return snapshots
+        raise TypeError(
+            f"Expected snapshots as a dict, instead got {type(snapshots)!r}"
+        )
 
     async def add_snapshot(self, folder_name: str, filepath: str) -> None:
         try:
