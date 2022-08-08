@@ -112,6 +112,8 @@ class MagicFolderMonitor(QObject):
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
+    # XXX The `_maybe_do_...` functions could probably be refactored to
+    # duplicate less
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
         try:
             self._scheduled_scans[path].remove(event_id)
@@ -124,7 +126,8 @@ class MagicFolderMonitor(QObject):
             if not magic_path:
                 continue
             if path == magic_path or path.startswith(magic_path + os.sep):
-                self.magic_folder.scan(folder_name)
+                # XXX Something should handle errors
+                Deferred.fromCoroutine(self.magic_folder.scan(folder_name))
 
     def _schedule_magic_folder_scan(self, path: str) -> None:
         event_id = randstr(8)
@@ -776,9 +779,8 @@ class MagicFolder:
             all_sizes.extend(sizes)
         return all_sizes
 
-    @inlineCallbacks
-    def scan(self, folder_name: str) -> TwistedDeferred[dict]:
-        output = yield self._request(
+    async def scan(self, folder_name: str) -> dict:
+        output = await self._request(
             "PUT",
             f"/magic-folder/{folder_name}/scan-local",
             error_404_ok=True,
