@@ -420,7 +420,9 @@ class MagicFolderMonitor(QObject):
 
     @inlineCallbacks
     def _get_file_status(self, folder_name: str) -> TwistedDeferred[tuple]:
-        result = yield self.magic_folder.get_file_status(folder_name)
+        result = yield Deferred.fromCoroutine(
+            self.magic_folder.get_file_status(folder_name)
+        )
         return (folder_name, result)
 
     @inlineCallbacks
@@ -756,12 +758,15 @@ class MagicFolder:
             body=json.dumps(data).encode("utf-8"),
         )
 
-    @inlineCallbacks
-    def get_file_status(self, folder_name: str) -> TwistedDeferred[list[dict]]:
-        output = yield self._request(
+    async def get_file_status(self, folder_name: str) -> list[dict]:
+        output = await self._request(
             "GET", f"/magic-folder/{folder_name}/file-status"
         )
-        return output
+        if isinstance(output, list):
+            return output
+        raise TypeError(
+            f"Expected file status as a list, instead got {type(output)!r}"
+        )
 
     async def get_object_sizes(self, folder_name: str) -> list[int]:
         sizes = await self._request(
