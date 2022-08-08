@@ -249,18 +249,18 @@ def test_get_snapshots(magic_folder):
     assert sorted(snapshots.keys()) == sorted(folders.keys())
 
 
-@inlineCallbacks
-def test_add_snapshot(magic_folder, tmp_path):
+@ensureDeferred
+async def test_add_snapshot(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
     filename = randstr()
     filepath = path / filename
     filepath.write_text(randstr() * 10)
-    yield magic_folder.add_snapshot(folder_name, filename)
-    snapshots = yield magic_folder.get_snapshots()
+    await magic_folder.add_snapshot(folder_name, filename)
+    snapshots = await magic_folder.get_snapshots()
     assert filename in snapshots.get(folder_name)
 
 

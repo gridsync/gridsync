@@ -723,18 +723,15 @@ class MagicFolder:
         snapshots = yield self._request("GET", "/snapshot")
         return snapshots
 
-    @inlineCallbacks
-    def add_snapshot(
-        self, folder_name: str, filepath: str
-    ) -> TwistedDeferred[None]:
+    async def add_snapshot(self, folder_name: str, filepath: str) -> None:
         try:
             magic_path = self.magic_folders[folder_name]["magic_path"]
         except KeyError:
-            yield self.get_folders()
+            await self.get_folders()
             magic_path = self.magic_folders[folder_name]["magic_path"]
         if filepath.startswith(magic_path):
             filepath = filepath[len(magic_path) + len(os.sep) :]
-        yield self._request(
+        await self._request(
             "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
         )
 
