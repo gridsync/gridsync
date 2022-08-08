@@ -78,14 +78,11 @@ jobs:
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
       run: |
-        ls -al ~
-        cat ~/.bash_profile
-        source ~/.bashrc
-        cat ~/.bashrc
+        source ~/.bash_profile
         make test
     - name: Build
       run: |
-        source ~/.bashrc
+        source ~/.bash_profile
         make all
     - name: Verify
       run: |
@@ -95,11 +92,11 @@ jobs:
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test determinism
       run: |
-        source ~/.bashrc
+        source ~/.bash_profile
         make test-determinism
     - name: Build (in container)
       run: |
-        source ~/.bashrc
+        source ~/.bash_profile
         make clean in-container
         sudo chown -R runner ~
     - name: Verify (on host)
@@ -107,7 +104,7 @@ jobs:
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test integration
       run: |
-        source ~/.bashrc
+        source ~/.bash_profile
         make test-integration
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
