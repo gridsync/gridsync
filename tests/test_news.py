@@ -5,6 +5,7 @@ import os
 from unittest.mock import Mock
 
 import pytest
+from pytest_twisted import ensureDeferred
 
 from gridsync.news import NewscapChecker
 from gridsync.tahoe import TahoeWebError
@@ -41,16 +42,30 @@ def test_newscap_checker_init_delay_max_not_less_than_min(tahoe, monkeypatch):
     assert (nc.check_delay_min, nc.check_delay_max) == (78, 78)
 
 
-def test_newscap_checker__download_messages(newscap_checker, monkeypatch):
-    fake_download = Mock()
+@ensureDeferred
+async def test_newscap_checker__download_messages(
+    newscap_checker, monkeypatch
+):
+    call_count = 0
+
+    async def fake_download(
+        self,
+        cap: str,
+        local_path: str,
+    ) -> None:
+        nonlocal call_count
+        call_count += 1
+
     monkeypatch.setattr("gridsync.tahoe.Tahoe.download", fake_download)
     downloads = [("dest01", "filecap01"), ("dest02", "filecap02")]
-    newscap_checker._download_messages(downloads)
-    assert fake_download.call_count == 2
+    await newscap_checker._download_messages(downloads)
+    assert call_count == 2
 
 
 def test_newscap_checker__download_messages_warn(newscap_checker, monkeypatch):
-    fake_download = Mock(side_effect=TahoeWebError)
+    async def fake_download(self, cap: str, local_path: str) -> None:
+        raise TahoeWebError()
+
     monkeypatch.setattr("gridsync.tahoe.Tahoe.download", fake_download)
     fake_logging_warning = Mock()
     monkeypatch.setattr("logging.warning", fake_logging_warning)
@@ -62,7 +77,9 @@ def test_newscap_checker__download_messages_warn(newscap_checker, monkeypatch):
 def test_newscap_checker__download_emit_message_received_signal_newest_file(
     newscap_checker, monkeypatch, qtbot
 ):
-    fake_download = Mock()
+    async def fake_download(self, cap: str, local_path: str) -> None:
+        pass
+
     monkeypatch.setattr("gridsync.tahoe.Tahoe.download", fake_download)
     newscap_messages_dir = os.path.join(
         newscap_checker.gateway.nodedir, "private", "newscap_messages"

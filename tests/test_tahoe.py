@@ -35,7 +35,7 @@ def fake_get(*args, **kwargs):
 def fake_get_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
-    return response
+    return succeed(response)
 
 
 def fake_put(*args, **kwargs):
@@ -736,21 +736,21 @@ def test_tahoe_download(tahoe, monkeypatch):
     monkeypatch.setattr("treq.get", fake_get)
     monkeypatch.setattr("treq.collect", fake_collect)
     location = os.path.join(tahoe.nodedir, "test_downloaded_file")
-    yield tahoe.download("test_cap", location)
+    yield Deferred.fromCoroutine(tahoe.download("test_cap", location))
     with open(location, "r") as f:
         content = f.read()
         assert content == "test_content"
 
 
-@inlineCallbacks
-def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
     monkeypatch.setattr("treq.get", fake_get_code_500)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
-        yield tahoe.download("test_cap", os.path.join(tahoe.nodedir, "nofile"))
+        await tahoe.download("test_cap", os.path.join(tahoe.nodedir, "nofile"))
 
 
 @inlineCallbacks

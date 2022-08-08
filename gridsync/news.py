@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.task import deferLater
 
 from gridsync import settings
@@ -50,7 +50,9 @@ class NewscapChecker(QObject):
         downloads = sorted(downloads)
         for dest, filecap in downloads:
             try:
-                yield self.gateway.download(filecap, dest)
+                yield Deferred.fromCoroutine(
+                    self.gateway.download(filecap, dest)
+                )
             except Exception as e:  # pylint: disable=broad-except
                 logging.warning("Error downloading '%s': %s", dest, str(e))
         newest_message_filepath = downloads[-1][0]

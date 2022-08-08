@@ -622,17 +622,16 @@ class Tahoe:
         content = await treq.content(resp)
         raise TahoeWebError(content.decode("utf-8"))
 
-    @inlineCallbacks
-    def download(self, cap: str, local_path: str) -> TwistedDeferred[None]:
+    async def download(self, cap: str, local_path: str) -> None:
         log.debug("Downloading %s...", local_path)
-        yield self.await_ready()
-        resp = yield treq.get("{}uri/{}".format(self.nodeurl, cap))
+        await self.await_ready()
+        resp = await treq.get("{}uri/{}".format(self.nodeurl, cap))
         if resp.code == 200:
             with atomic_write(local_path, mode="wb", overwrite=True) as f:
-                yield treq.collect(resp, f.write)
+                await treq.collect(resp, f.write)
             log.debug("Successfully downloaded %s", local_path)
         else:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
 
     @inlineCallbacks
