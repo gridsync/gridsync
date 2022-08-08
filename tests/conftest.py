@@ -97,8 +97,16 @@ def _tahoe(tmpdir_factory, reactor):
     client.api_token = api_token
     with open(os.path.join(private_dir, "api_auth_token"), "w") as f:
         f.write(api_token)
-    client.magic_folder = Mock()  # XXX
+    client.magic_folder = DummyMagicFolder() # XXX
     return client
+
+
+class DummyMagicFolder:
+    async def start(self) -> None:
+        pass
+
+    async def stop(self) -> None:
+        pass
 
 
 @pytest.fixture()

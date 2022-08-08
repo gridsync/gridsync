@@ -483,29 +483,43 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     assert client.get_storage_servers() == storage_servers
 
 
-@inlineCallbacks
-def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
     Path(tahoe.pidfile).write_text(str("4194305"), encoding="utf-8")
     fake_process = Mock()
     monkeypatch.setattr("gridsync.system.Process", fake_process)
-    yield tahoe.stop()
+    await tahoe.stop()
     assert fake_process.call_args[0][0] == 4194305
 
 
 @pytest.mark.parametrize("locked,call_count", [(True, 1), (False, 0)])
-@inlineCallbacks
-def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
-    lock = MagicMock()
-    lock.locked = locked
-    lock.acquire = MagicMock()
-    lock.release = MagicMock()
-    tahoe.rootcap_manager.lock = lock
+@ensureDeferred
+async def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
     monkeypatch.setattr("os.path.isfile", lambda x: True)
-    yield tahoe.stop()
-    assert (lock.acquire.call_count, lock.release.call_count) == (
-        call_count,
-        call_count,
-    )
+
+    events: list[str] = []
+
+    if locked:
+        await tahoe.rootcap_manager.lock.acquire()
+        from twisted.internet import reactor
+        from twisted.internet.task import deferLater
+
+        def unlock():
+            events.append("unlocking")
+            tahoe.rootcap_manager.lock.release()
+
+        d = deferLater(reactor, 0.0, unlock)
+    else:
+        d = succeed(None)
+
+    await tahoe.stop()
+    events.append("stopped")
+    await d
+
+    if locked:
+        assert events == ["unlocking", "stopped"]
+
+    assert not tahoe.rootcap_manager.lock.locked
 
 
 @inlineCallbacks
@@ -855,7 +869,9 @@ async def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
-    monkeypatch.setattr("gridsync.supervisor.Supervisor.stop", Mock())
+    monkeypatch.setattr(
+        "gridsync.supervisor.Supervisor.stop", lambda self: succeed(None)
+    )
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.scan_storage_plugins",
         noop_scan_storage_plugins,

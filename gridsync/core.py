@@ -253,7 +253,12 @@ class Core:
 
     @inlineCallbacks
     def stop_gateways(self) -> TwistedDeferred[None]:
-        yield DeferredList([gateway.stop() for gateway in self.gateways])
+        yield DeferredList(
+            [
+                Deferred.fromCoroutine(gateway.stop())
+                for gateway in self.gateways
+            ]
+        )
 
     def start(self) -> None:
         try:

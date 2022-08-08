@@ -10,7 +10,7 @@ from typing import Optional, Union, cast
 import treq
 import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.defer import Deferred
 from twisted.internet.error import ConnectError
 from twisted.internet.interfaces import IReactorTime
 
@@ -27,7 +27,6 @@ from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
-from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
@@ -391,8 +390,7 @@ class Tahoe:
             return True
         return False
 
-    @inlineCallbacks
-    def stop(self) -> TwistedDeferred[None]:
+    async def stop(self) -> None:
         log.debug('Stopping "%s" tahoe client...', self.name)
         self.state = Tahoe.STOPPING
         self.streamedlogs.stop()
@@ -401,12 +399,12 @@ class Tahoe:
                 "Delaying stop operation; "
                 "another operation is trying to modify the rootcap..."
             )
-            yield self.rootcap_manager.lock.acquire()
+            await self.rootcap_manager.lock.acquire()
             self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
         if not self.is_storage_node():
-            yield self.magic_folder.stop()
-        yield self.supervisor.stop()
+            await self.magic_folder.stop()
+        await self.supervisor.stop()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
