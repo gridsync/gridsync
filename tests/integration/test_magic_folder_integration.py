@@ -394,14 +394,14 @@ def test_scan(magic_folder, tmp_path):
     assert output == {}
 
 
-@inlineCallbacks
-def test_poll(magic_folder, tmp_path):
+@ensureDeferred
+async def test_poll(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
-    output = yield magic_folder.poll(folder_name)
+    output = await magic_folder.poll(folder_name)
     assert output == {}
 
 

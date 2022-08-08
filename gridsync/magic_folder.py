@@ -140,7 +140,8 @@ class MagicFolderMonitor(QObject):
             pass
         if self._scheduled_polls[folder_name]:
             return
-        self.magic_folder.poll(folder_name)
+        # XXX Something should handle errors
+        Deferred.fromCoroutine(self.magic_folder.poll(folder_name))
 
     def _schedule_magic_folder_poll(self, folder_name: str) -> None:
         event_id = randstr(8)
@@ -784,9 +785,8 @@ class MagicFolder:
         )
         return output
 
-    @inlineCallbacks
-    def poll(self, folder_name: str) -> TwistedDeferred[dict]:
-        output = yield self._request(
+    async def poll(self, folder_name: str) -> dict:
+        output = await self._request(
             "PUT",
             f"/magic-folder/{folder_name}/poll-remote",
             error_404_ok=True,
