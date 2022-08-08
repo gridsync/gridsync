@@ -680,7 +680,7 @@ class MagicFolder:
         yield self._request(
             "POST", "/magic-folder", body=json.dumps(data).encode()
         )
-        yield self.create_folder_backup(name)  # XXX
+        yield Deferred.fromCoroutine(self.create_folder_backup(name))  # XXX
 
     @inlineCallbacks
     def leave_folder(
@@ -793,23 +793,24 @@ class MagicFolder:
         )
         return output
 
-    @inlineCallbacks
-    def create_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
-        folders = yield self.get_folders()
+    async def create_folder_backup(self, folder_name: str) -> None:
+        folders = await self.get_folders()
         data = folders.get(folder_name)
+        if data is None:
+            raise ValueError("Folder is missing from folder data")
         collective_dircap = data.get("collective_dircap")
         upload_dircap = data.get("upload_dircap")
-        yield Deferred.fromCoroutine(
-            self.rootcap_manager.add_backup(
-                ".magic-folders",
-                f"{folder_name} (collective)",
-                collective_dircap,
-            )
+        if collective_dircap is None:
+            raise ValueError("Collective dircap in folder data is missing")
+        if upload_dircap is None:
+            raise ValueError("Upload dircap in folder data is missing")
+        await self.rootcap_manager.add_backup(
+            ".magic-folders",
+            f"{folder_name} (collective)",
+            collective_dircap,
         )
-        yield Deferred.fromCoroutine(
-            self.rootcap_manager.add_backup(
-                ".magic-folders", f"{folder_name} (personal)", upload_dircap
-            )
+        await self.rootcap_manager.add_backup(
+            ".magic-folders", f"{folder_name} (personal)", upload_dircap
         )
 
     async def get_folder_backups(self) -> Optional[dict[str, dict]]:
