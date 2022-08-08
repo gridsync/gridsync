@@ -774,25 +774,25 @@ async def test_tahoe_link_fail_code_500(tahoe, monkeypatch):
         await tahoe.link("test_dircap", "test_childname", "test_childcap")
 
 
-@inlineCallbacks
-def test_tahoe_unlink(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_unlink(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
     monkeypatch.setattr("treq.post", fake_post)
-    yield tahoe.unlink("test_dircap", "test_childname")
+    await tahoe.unlink("test_dircap", "test_childname")
     assert True
 
 
-@inlineCallbacks
-def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
     monkeypatch.setattr("treq.post", fake_post_code_500)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
-        yield tahoe.unlink("test_dircap", "test_childname")
+        await tahoe.unlink("test_dircap", "test_childname")
 
 
 @inlineCallbacks

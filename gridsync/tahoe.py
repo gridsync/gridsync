@@ -659,14 +659,13 @@ class Tahoe:
             dircap_hash,
         )
 
-    @inlineCallbacks
-    def unlink(
+    async def unlink(
         self, dircap: str, childname: str, missing_ok: bool = False
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         dircap_hash = trunchash(dircap)
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
-        yield self.await_ready()
-        resp = yield treq.post(
+        await self.await_ready()
+        resp = await treq.post(
             "{}uri/{}/?t=unlink&name={}".format(
                 self.nodeurl, dircap, childname
             )
@@ -674,7 +673,7 @@ class Tahoe:
         if resp.code == 404 and missing_ok:
             pass
         elif resp.code != 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
