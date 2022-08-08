@@ -2,6 +2,7 @@
 
 import json
 import os
+from typing import Awaitable, Callable
 from unittest.mock import MagicMock, Mock
 
 import pytest
@@ -30,6 +31,13 @@ async def fake_any_awaitable(*a, **kw) -> None:
 
 def fake_create_rootcap(self) -> Deferred[str]:
     return succeed("URI")
+
+
+def fake_upload(result: str) -> Callable[[object, str], Awaitable[str]]:
+    async def fake_upload(self, local_path: str) -> str:
+        return result
+
+    return fake_upload
 
 
 def broken_create_rootcap(self) -> Deferred[str]:
@@ -592,9 +600,7 @@ def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.create_rootcap", fake_create_rootcap
     )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.upload", lambda x, y: succeed("URI:2")
-    )
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload("URI:2"))
 
     def fake_link(_, dircap, name, childcap):
         assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")
@@ -616,9 +622,7 @@ def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
         "gridsync.tahoe.Tahoe.create_rootcap",
         broken_create_rootcap,
     )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.upload", lambda x, y: succeed("URI:2")
-    )
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload("URI:2"))
 
     def fake_link(_, dircap, name, childcap):
         assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")

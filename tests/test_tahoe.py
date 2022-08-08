@@ -11,7 +11,7 @@ except ImportError:
 
 import pytest
 import yaml
-from pytest_twisted import inlineCallbacks
+from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred, succeed
 from twisted.internet.testing import MemoryReactorClock
 
@@ -47,7 +47,7 @@ def fake_put(*args, **kwargs):
 def fake_put_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
-    return response
+    return succeed(response)
 
 
 def fake_post(*args, **kwargs):
@@ -694,8 +694,8 @@ def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
         yield Deferred.fromCoroutine(tahoe.mkdir())
 
 
-@inlineCallbacks
-def test_tahoe_upload(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_upload(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.mkdir", fake_awaitable_method("URI:DIR2:abc")
     )
@@ -704,13 +704,13 @@ def test_tahoe_upload(tahoe, monkeypatch):
     )
     monkeypatch.setattr("treq.put", fake_put)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test_cap"))
-    yield tahoe.create_rootcap()
-    output = yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
+    await tahoe.create_rootcap()
+    output = await tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
     assert output == "test_cap"
 
 
-@inlineCallbacks
-def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.mkdir", fake_awaitable_method("URI:DIR2:abc")
     )
@@ -719,9 +719,9 @@ def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
     )
     monkeypatch.setattr("treq.put", fake_put_code_500)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
-    yield tahoe.create_rootcap()
+    await tahoe.create_rootcap()
     with pytest.raises(TahoeWebError):
-        yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
+        await tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
 
 
 @inlineCallbacks

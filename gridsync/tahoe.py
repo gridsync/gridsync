@@ -601,10 +601,9 @@ class Tahoe:
     async def create_rootcap(self) -> str:
         return await self.rootcap_manager.create_rootcap()
 
-    @inlineCallbacks
-    def upload(
+    async def upload(
         self, local_path: str, dircap: str = "", mutable: bool = False
-    ) -> TwistedDeferred[str]:
+    ) -> str:
         if dircap:
             filename = Path(local_path).name
             url = f"{self.nodeurl}uri/{dircap}/{filename}"
@@ -613,14 +612,14 @@ class Tahoe:
         if mutable:
             url = f"{url}?format=MDMF"
         log.debug("Uploading %s...", local_path)
-        yield self.await_ready()
+        await self.await_ready()
         with open(local_path, "rb") as f:
-            resp = yield treq.put(url, f)
+            resp = await treq.put(url, f)
         if resp.code in (200, 201):
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             log.debug("Successfully uploaded %s", local_path)
             return content.decode("utf-8")
-        content = yield treq.content(resp)
+        content = await treq.content(resp)
         raise TahoeWebError(content.decode("utf-8"))
 
     @inlineCallbacks
