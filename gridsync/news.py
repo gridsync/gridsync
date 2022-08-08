@@ -62,7 +62,9 @@ class NewscapChecker(QObject):
 
     @inlineCallbacks
     def _check_v1(self) -> TwistedDeferred[None]:
-        content = yield self.gateway.get_json(self.gateway.newscap + "/v1")
+        content = yield Deferred.fromCoroutine(
+            self.gateway.get_json(self.gateway.newscap + "/v1")
+        )
         if not content:
             return
 
@@ -98,7 +100,9 @@ class NewscapChecker(QObject):
         if not self.gateway.newscap:
             return
         yield self.gateway.await_ready()
-        content = yield self.gateway.get_json(self.gateway.newscap)
+        content = yield Deferred.fromCoroutine(
+            self.gateway.get_json(self.gateway.newscap)
+        )
         if not content:
             return
         try:

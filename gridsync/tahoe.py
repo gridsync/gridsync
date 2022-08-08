@@ -677,19 +677,16 @@ class Tahoe:
             raise TahoeWebError(content.decode("utf-8"))
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
-    @inlineCallbacks
-    def get_json(
-        self, cap: str
-    ) -> TwistedDeferred[Optional[Union[dict, list]]]:
+    async def get_json(self, cap: str) -> Optional[Union[dict, list]]:
         if not cap or not self.nodeurl:
             return None
         uri = "{}uri/{}/?t=json".format(self.nodeurl, cap)
         try:
-            resp = yield treq.get(uri)
+            resp = await treq.get(uri)
         except ConnectError:
             return None
         if resp.code == 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             return json.loads(content.decode("utf-8"))
         return None
 
@@ -701,7 +698,7 @@ class Tahoe:
         exclude_filenodes: bool = False,
     ) -> TwistedDeferred[Optional[dict[str, dict]]]:
         yield self.await_ready()
-        json_output = yield self.get_json(cap)
+        json_output = yield Deferred.fromCoroutine(self.get_json(cap))
         if json_output is None:
             return None
         results = {}

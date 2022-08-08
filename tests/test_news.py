@@ -2,6 +2,7 @@
 
 import json
 import os
+from typing import Awaitable, Callable, TypeVar
 from unittest.mock import Mock
 
 import pytest
@@ -97,38 +98,55 @@ def test_newscap_checker__download_emit_message_received_signal_newest_file(
     assert blocker.args == [newscap_checker.gateway, "dest02 contents"]
 
 
-def test_newscap_checker__check_v1_return_early_no_content(
+T = TypeVar("T")
+
+
+def fake_get_json(value: T) -> Callable[[], Awaitable[T]]:
+    async def fake_get_json(self, cap: str) -> T:
+        return value
+
+    return fake_get_json
+
+
+@ensureDeferred
+async def test_newscap_checker__check_v1_return_early_no_content(
     newscap_checker, monkeypatch
 ):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: None)
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", fake_get_json(None))
     fake__download_messages = Mock()
     monkeypatch.setattr(
         "gridsync.news.NewscapChecker._download_messages",
         fake__download_messages,
     )
-    newscap_checker._check_v1()
+    await newscap_checker._check_v1()
     assert fake__download_messages.call_count == 0
 
 
-def test_newscap_checker__check_v1_return_early_warn_index_error(
+@ensureDeferred
+async def test_newscap_checker__check_v1_return_early_warn_index_error(
     newscap_checker, monkeypatch
 ):
     content = ["test"]
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake_logging_warning = Mock()
     monkeypatch.setattr("logging.warning", fake_logging_warning)
-    newscap_checker._check_v1()
+    await newscap_checker._check_v1()
     assert fake_logging_warning.call_args[0][1] == "IndexError"
 
 
-def test_newscap_checker__check_v1_return_early_warn_key_error(
+@ensureDeferred
+async def test_newscap_checker__check_v1_return_early_warn_key_error(
     newscap_checker, monkeypatch
 ):
     content = ["test", {"test": "testing"}]
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake_logging_warning = Mock()
     monkeypatch.setattr("logging.warning", fake_logging_warning)
-    newscap_checker._check_v1()
+    await newscap_checker._check_v1()
     assert fake_logging_warning.call_args[0][1] == "KeyError"
 
 
@@ -192,11 +210,14 @@ v1_json = """
 """
 
 
-def test_newscap_checker__check_v1_make_messages_dirpath(
+@ensureDeferred
+async def test_newscap_checker__check_v1_make_messages_dirpath(
     newscap_checker, monkeypatch
 ):
     content = json.loads(v1_json)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake_logging_warning = Mock()
     monkeypatch.setattr("logging.warning", fake_logging_warning)
     fake__download_messages = Mock()
@@ -204,18 +225,21 @@ def test_newscap_checker__check_v1_make_messages_dirpath(
         "gridsync.news.NewscapChecker._download_messages",
         fake__download_messages,
     )
-    newscap_checker._check_v1()
+    await newscap_checker._check_v1()
     messages_dirpath = os.path.join(
         newscap_checker.gateway.nodedir, "private", "newscap_messages"
     )
     assert os.path.exists(messages_dirpath)
 
 
-def test_newscap_checker__check_v1_append_downloads_win32_replace_colon(
+@ensureDeferred
+async def test_newscap_checker__check_v1_append_downloads_win32_replace_colon(
     newscap_checker, monkeypatch
 ):
     content = json.loads(v1_json)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake_logging_warning = Mock()
     monkeypatch.setattr("logging.warning", fake_logging_warning)
     fake__download_messages = Mock()
@@ -224,7 +248,7 @@ def test_newscap_checker__check_v1_append_downloads_win32_replace_colon(
         fake__download_messages,
     )
     monkeypatch.setattr("sys.platform", "win32")
-    newscap_checker._check_v1()
+    await newscap_checker._check_v1()
     messages_dirpath = os.path.join(
         newscap_checker.gateway.nodedir, "private", "newscap_messages"
     )
@@ -259,7 +283,7 @@ def test_newscap_checker__do_check_return_early_no_content(
         "gridsync.news.NewscapChecker._schedule_delayed_check", Mock()
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: None)
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", fake_get_json(None))
     newscap_checker.gateway.newscap = "URI:NEWSCAP"
     newscap_checker._do_check()
     assert not os.path.exists(newscap_checker._last_checked_path)
@@ -273,7 +297,9 @@ def test_newscap_checker__do_check_return_early_warn_index_error(
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     content = ["test"]
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake_logging_warning = Mock()
     monkeypatch.setattr("logging.warning", fake_logging_warning)
     newscap_checker.gateway.newscap = "URI:NEWSCAP"
@@ -281,7 +307,8 @@ def test_newscap_checker__do_check_return_early_warn_index_error(
     assert fake_logging_warning.call_args[0][1] == "IndexError"
 
 
-def test_newscap_checker__do_check_return_early_warn_key_error(
+@ensureDeferred
+async def test_newscap_checker__do_check_return_early_warn_key_error(
     newscap_checker, monkeypatch
 ):
     monkeypatch.setattr(
@@ -289,11 +316,13 @@ def test_newscap_checker__do_check_return_early_warn_key_error(
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     content = ["test", {"test": "testing"}]
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake_logging_warning = Mock()
     monkeypatch.setattr("logging.warning", fake_logging_warning)
     newscap_checker.gateway.newscap = "URI:NEWSCAP"
-    newscap_checker._do_check()
+    await newscap_checker._do_check()
     assert fake_logging_warning.call_args[0][1] == "KeyError"
 
 
@@ -377,7 +406,9 @@ def test_newscap_checker__do_check_emit_upgrade_required_signal(
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     content = json.loads(root_json_with_v2)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake__check_v1 = Mock()
     monkeypatch.setattr(
         "gridsync.news.NewscapChecker._check_v1", fake__check_v1
@@ -454,7 +485,9 @@ def test_newscap_checker__do_check_call__check_v1(
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     content = json.loads(root_json_without_v2)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake__check_v1 = Mock()
     monkeypatch.setattr(
         "gridsync.news.NewscapChecker._check_v1", fake__check_v1
@@ -472,7 +505,9 @@ def test_newscap_checker__do_check_write_last_checked_time_to_file(
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     content = json.loads(root_json_without_v2)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     monkeypatch.setattr("gridsync.news.NewscapChecker._check_v1", Mock())
     monkeypatch.setattr("time.time", lambda: 1234567890)
     newscap_checker.gateway.newscap = "URI:NEWSCAP"
@@ -519,7 +554,9 @@ def test_newscap_checker__do_check_log_warning_v1_not_dirnode(
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     content = json.loads(root_json_v1_not_dirnode)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake__check_v1 = Mock()
     monkeypatch.setattr(
         "gridsync.news.NewscapChecker._check_v1", fake__check_v1
@@ -569,7 +606,9 @@ def test_newscap_checker__do_check_log_warning_v1_not_found(
     )
     monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", Mock())
     content = json.loads(root_json_v1_not_found)
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.get_json", lambda x, y: content)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.get_json", fake_get_json(content)
+    )
     fake__check_v1 = Mock()
     monkeypatch.setattr(
         "gridsync.news.NewscapChecker._check_v1", fake__check_v1
