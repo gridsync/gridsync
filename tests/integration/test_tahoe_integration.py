@@ -161,8 +161,8 @@ async def test_ls_includes_most_authoritative_cap(tahoe_client, tmp_path):
     assert output.get("TestFile.txt").get("cap").startswith("URI:CHK:")
 
 
-@inlineCallbacks
-def test_ls_nonexistent_path(tahoe_client, tmp_path):
-    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
-    output = yield tahoe_client.ls(dircap + "/Path/Does/Not/Exist")
+@ensureDeferred
+async def test_ls_nonexistent_path(tahoe_client, tmp_path):
+    dircap = await tahoe_client.mkdir()
+    output = await tahoe_client.ls(dircap + "/Path/Does/Not/Exist")
     assert output is None

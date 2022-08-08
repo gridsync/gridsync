@@ -690,15 +690,14 @@ class Tahoe:
             return json.loads(content.decode("utf-8"))
         return None
 
-    @inlineCallbacks
-    def ls(
+    async def ls(
         self,
         cap: str,
         exclude_dirnodes: bool = False,
         exclude_filenodes: bool = False,
-    ) -> TwistedDeferred[Optional[dict[str, dict]]]:
-        yield self.await_ready()
-        json_output = yield Deferred.fromCoroutine(self.get_json(cap))
+    ) -> Optional[dict[str, dict]]:
+        await self.await_ready()
+        json_output = await self.get_json(cap)
         if json_output is None:
             return None
         results = {}

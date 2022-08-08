@@ -282,7 +282,7 @@ class ZKAPAuthorizer:
             )
         except ValueError:
             return False
-        ls_output = yield self.gateway.ls(recovery_cap)
+        ls_output = yield Deferred.fromCoroutine(self.gateway.ls(recovery_cap))
         if ls_output and "snapshot" in ls_output:
             return True
         return False
