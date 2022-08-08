@@ -849,23 +849,22 @@ class MagicFolder:
         except KeyError:
             pass
 
-    @inlineCallbacks
-    def restore_folder_backup(
+    async def restore_folder_backup(
         self, folder_name: str, local_path: str
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         logging.debug('Restoring "%s" Magic-Folder...', folder_name)
-        backups = yield self.get_folder_backups()
+        backups = await self.get_folder_backups()
         if backups is None:
             raise MagicFolderError(
                 f"Error restoring folder {folder_name}; could not read backups"
             )
         data = backups.get(folder_name, {})
         upload_dircap = data.get("upload_dircap")
-        personal_dmd = yield Deferred.fromCoroutine(
-            self.gateway.diminish(upload_dircap)
-        )
-        yield self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
+        if upload_dircap is None:
+            raise ValueError("Upload directory cap missing from folder backup")
+        personal_dmd = await self.gateway.diminish(upload_dircap)
+        await self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
-        yield self.add_participant(folder_name, author, personal_dmd)
+        await self.add_participant(folder_name, author, personal_dmd)
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
-        yield self.poll(folder_name)
+        await self.poll(folder_name)

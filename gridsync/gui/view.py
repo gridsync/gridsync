@@ -212,8 +212,10 @@ class View(QTreeView):
         self, folder_name: str, dest: str
     ) -> TwistedDeferred[None]:
         try:
-            yield self.gateway.magic_folder.restore_folder_backup(
-                folder_name, os.path.join(dest, folder_name)
+            yield Deferred.fromCoroutine(
+                self.gateway.magic_folder.restore_folder_backup(
+                    folder_name, os.path.join(dest, folder_name)
+                )
             )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))

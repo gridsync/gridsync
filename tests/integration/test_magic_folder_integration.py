@@ -482,16 +482,16 @@ def test_local_folders_have_backups(magic_folder):
         assert folder in remote_folders
 
 
-@inlineCallbacks
-def test_restore_folder_backup(magic_folder, tmp_path):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_restore_folder_backup(magic_folder, tmp_path):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
-    yield magic_folder.leave_folder(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
+    await magic_folder.leave_folder(folder_name)
 
     local_path = tmp_path / folder_name
-    yield magic_folder.restore_folder_backup(folder_name, local_path)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.restore_folder_backup(folder_name, local_path)
+    folders = await magic_folder.get_folders()
     assert folder_name in folders
 
 
