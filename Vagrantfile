@@ -6,7 +6,7 @@ ENV["VAGRANT_EXPERIMENTAL"] = "typed_triggers"
 
 def update_macos
   return <<-EOF
-    softwareupdate --verbose --install --all
+    softwareupdate --verbose --install --all --restart
   EOF
 end
 
