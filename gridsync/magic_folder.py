@@ -738,14 +738,15 @@ class MagicFolder:
             "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
         )
 
-    @inlineCallbacks
-    def get_participants(
-        self, folder_name: str
-    ) -> TwistedDeferred[dict[str, dict]]:
-        participants = yield self._request(
+    async def get_participants(self, folder_name: str) -> dict[str, dict]:
+        participants = await self._request(
             "GET", f"/magic-folder/{folder_name}/participants"
         )
-        return participants
+        if isinstance(participants, dict):
+            return participants
+        raise TypeError(
+            f"Expected participants as dict, instead got {type(participants)!r}"
+        )
 
     async def add_participant(
         self, folder_name: str, author_name: str, personal_dmd: str

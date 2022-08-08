@@ -216,14 +216,14 @@ def test_folder_exists_false(magic_folder, tmp_path):
     assert magic_folder.folder_is_local(folder_name) is False
 
 
-@inlineCallbacks
-def test_get_participants(magic_folder, tmp_path):
+@ensureDeferred
+async def test_get_participants(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
-    participants = yield magic_folder.get_participants(folder_name)
+    participants = await magic_folder.get_participants(folder_name)
     assert author in participants
 
 
