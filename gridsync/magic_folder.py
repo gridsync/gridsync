@@ -624,10 +624,9 @@ class MagicFolder:
             )
         logging.debug("Started magic-folder")
 
-    @inlineCallbacks
-    def await_running(self) -> TwistedDeferred[None]:
+    async def await_running(self) -> None:
         while not self.monitor.running:  # XXX
-            yield deferLater(reactor, 0.2, lambda: None)  # type: ignore
+            await deferLater(reactor, 0.2, lambda: None)  # type: ignore
 
     async def _request(
         self,
