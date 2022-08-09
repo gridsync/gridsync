@@ -246,7 +246,10 @@ class MagicFolderMonitor(QObject):
         if status != self._overall_status:
             self._overall_status = status
             self.overall_status_changed.emit(status)
-            self.do_check()  # Update folder sizes, mtimes
+            # XXX Something should wait on the result
+            Deferred.fromCoroutine(
+                self.do_check()
+            )  # Update folder sizes, mtimes
 
     def compare_states(
         self, current_state: dict, previous_state: dict
@@ -425,17 +428,14 @@ class MagicFolderMonitor(QObject):
         )
         return (folder_name, result)
 
-    @inlineCallbacks
-    def do_check(self) -> TwistedDeferred[None]:
-        folders = yield Deferred.fromCoroutine(self.magic_folder.get_folders())
+    async def do_check(self) -> None:
+        folders = await self.magic_folder.get_folders()
         current_folders = dict(folders)
         previous_folders = dict(self._known_folders)
         self.compare_folders(current_folders, previous_folders)
         self._known_folders = current_folders
 
-        backups = yield Deferred.fromCoroutine(
-            self.magic_folder.get_folder_backups()
-        )
+        backups = await self.magic_folder.get_folder_backups()
         if backups is None:
             logging.warning("Could not read Magic-Folder backups during check")
         else:
@@ -444,7 +444,7 @@ class MagicFolderMonitor(QObject):
             self.compare_backups(current_backups, previous_backups)
             self._known_backups = current_backups
 
-        results = yield DeferredList(
+        results = await DeferredList(
             [self._get_file_status(f) for f in current_folders],
             consumeErrors=True,
         )
@@ -467,7 +467,8 @@ class MagicFolderMonitor(QObject):
         self._ws_reader.start()
         self._watchdog.start()
         self.running = True
-        self.do_check()
+        # XXX Something should wait on the result
+        Deferred.fromCoroutine(self.do_check())
 
     def stop(self) -> None:
         self.running = False
