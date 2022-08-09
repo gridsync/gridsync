@@ -592,11 +592,10 @@ class MagicFolder:
         self.api_port = self._read_api_port()
         self.monitor.start()
 
-    @inlineCallbacks
-    def start(self) -> TwistedDeferred[None]:
+    async def start(self) -> None:
         logging.debug("Starting magic-folder...")
         if not self.configdir.exists():
-            yield self._command(
+            await self._command(
                 [
                     "init",
                     "-l",
@@ -606,7 +605,7 @@ class MagicFolder:
                 ]
             )
         try:
-            yield self.supervisor.start(
+            await self.supervisor.start(
                 self._base_command_args() + ["run"],
                 started_trigger="Completed initial Magic Folder setup",
                 stdout_line_collector=self.on_stdout_line_received,
