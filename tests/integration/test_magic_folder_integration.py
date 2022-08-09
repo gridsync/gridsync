@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from pytest_twisted import async_yield_fixture, ensureDeferred, inlineCallbacks
+from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
@@ -82,13 +82,13 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
     await client.stop()
 
 
-@inlineCallbacks
-def leave_all_folders(magic_folder):
-    folders = yield Deferred.fromCoroutine(magic_folder.get_folders())
+@ensureDeferred
+async def leave_all_folders(magic_folder):
+    folders = await magic_folder.get_folders()
     for folder in list(folders):
         # https://github.com/LeastAuthority/magic-folder/issues/587
-        yield deferLater(reactor, 0.1, lambda: None)
-        yield Deferred.fromCoroutine(magic_folder.leave_folder(folder))
+        await deferLater(reactor, 0.1, lambda: None)
+        await magic_folder.leave_folder(folder)
 
 
 @ensureDeferred
