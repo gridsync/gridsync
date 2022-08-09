@@ -629,26 +629,25 @@ class MagicFolder:
         while not self.monitor.running:  # XXX
             yield deferLater(reactor, 0.2, lambda: None)  # type: ignore
 
-    @inlineCallbacks
-    def _request(
+    async def _request(
         self,
         method: str,
         path: str,
         body: bytes = b"",
         error_404_ok: bool = False,
-    ) -> TwistedDeferred[JSON]:
-        yield self.await_running()  # XXX
+    ) -> JSON:
+        await self.await_running()  # XXX
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
         if not self.api_port:
             raise MagicFolderWebError("API port not found")
-        resp = yield treq.request(
+        resp = await treq.request(
             method,
             f"http://127.0.0.1:{self.api_port}/v1{path}",
             headers={"Authorization": f"Bearer {self.api_token}"},
             data=body,
         )
-        content = yield treq.content(resp)
+        content = await treq.content(resp)
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
             return json.loads(content)
         raise MagicFolderWebError(
