@@ -12,13 +12,13 @@ from typing import TYPE_CHECKING, Optional
 import treq
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
+from twisted.internet.defer import Deferred, DeferredList
 from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
     from qtpy.QtCore import SignalInstance
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
-    from gridsync.types import TwistedDeferred, JSON
+    from gridsync.types import JSON
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
@@ -421,11 +421,10 @@ class MagicFolderMonitor(QObject):
         self._check_last_polls(state)
         self._prev_state = state
 
-    @inlineCallbacks
-    def _get_file_status(self, folder_name: str) -> TwistedDeferred[tuple]:
-        result = yield Deferred.fromCoroutine(
-            self.magic_folder.get_file_status(folder_name)
-        )
+    async def _get_file_status(
+        self, folder_name: str
+    ) -> tuple[str, list[dict]]:
+        result = await self.magic_folder.get_file_status(folder_name)
         return (folder_name, result)
 
     async def do_check(self) -> None:
@@ -445,7 +444,10 @@ class MagicFolderMonitor(QObject):
             self._known_backups = current_backups
 
         results = await DeferredList(
-            [self._get_file_status(f) for f in current_folders],
+            [
+                Deferred.fromCoroutine(self._get_file_status(f))
+                for f in current_folders
+            ],
             consumeErrors=True,
         )
         for success, result in results:
