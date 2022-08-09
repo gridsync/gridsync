@@ -532,8 +532,7 @@ class MagicFolder:
         # Redirect/write eliot logs to stderr
         return [self.executable, "--eliot-fd=2", f"--config={self.configdir}"]
 
-    @inlineCallbacks
-    def _command(self, args: list[str]) -> TwistedDeferred[str]:
+    async def _command(self, args: list[str]) -> str:
         args = self._base_command_args() + args
         logging.debug("Executing %s...", " ".join(args))
         os.environ["PYTHONUNBUFFERED"] = "1"
@@ -541,10 +540,10 @@ class MagicFolder:
             stdout_line_collector=self.on_stdout_line_received,
             stderr_line_collector=self.on_stderr_line_received,
         )
-        yield reactor.spawnProcess(  # type: ignore
+        reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args
         )
-        output = yield protocol.done
+        output = await protocol.done
         return output
 
     async def version(self) -> str:
