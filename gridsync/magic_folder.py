@@ -427,7 +427,7 @@ class MagicFolderMonitor(QObject):
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
-        folders = yield self.magic_folder.get_folders()
+        folders = yield Deferred.fromCoroutine(self.magic_folder.get_folders())
         current_folders = dict(folders)
         previous_folders = dict(self._known_folders)
         self.compare_folders(current_folders, previous_folders)
@@ -655,13 +655,17 @@ class MagicFolder:
             f"Error {resp.code} requesting {method} /v1{path}: {content}"
         )
 
-    @inlineCallbacks
-    def get_folders(self) -> TwistedDeferred[dict[str, dict]]:
-        folders = yield self._request(
+    async def get_folders(self) -> dict[str, dict]:
+        folders = await self._request(
             "GET", "/magic-folder?include_secret_information=1"
         )
-        self.magic_folders = folders
-        return folders
+        if isinstance(folders, dict):
+            self.magic_folders = folders
+            return folders
+
+        raise TypeError(
+            f"Expected folders as dict, instead got {type(folders)!r}"
+        )
 
     async def add_folder(  # pylint: disable=too-many-arguments
         self,

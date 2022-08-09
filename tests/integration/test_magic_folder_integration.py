@@ -84,7 +84,7 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
 
 @inlineCallbacks
 def leave_all_folders(magic_folder):
-    folders = yield magic_folder.get_folders()
+    folders = yield Deferred.fromCoroutine(magic_folder.get_folders())
     for folder in list(folders):
         # https://github.com/LeastAuthority/magic-folder/issues/587
         yield deferLater(reactor, 0.1, lambda: None)
@@ -97,9 +97,9 @@ def test_version(magic_folder):
     assert output.startswith("Magic")
 
 
-@inlineCallbacks
-def test_get_folders(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_get_folders(magic_folder):
+    folders = await magic_folder.get_folders()
     assert folders == {}
 
 
