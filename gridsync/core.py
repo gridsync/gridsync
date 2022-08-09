@@ -58,7 +58,7 @@ qtreactor.install()  # type: ignore
 
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import (
@@ -138,7 +138,7 @@ class Core:
     @inlineCallbacks
     def get_tahoe_version(self) -> TwistedDeferred[None]:
         tahoe = Tahoe()
-        version = yield tahoe.command(["--version"])
+        version = yield Deferred.fromCoroutine(tahoe.command(["--version"]))
         if version:
             self.tahoe_version = version.split("\n")[0]
             if self.tahoe_version.startswith("tahoe-lafs: "):
@@ -155,7 +155,7 @@ class Core:
     @inlineCallbacks
     def _start_gateway(gateway: Tahoe) -> TwistedDeferred[None]:
         try:
-            yield gateway.start()
+            yield Deferred.fromCoroutine(gateway.start())
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",
@@ -253,7 +253,12 @@ class Core:
 
     @inlineCallbacks
     def stop_gateways(self) -> TwistedDeferred[None]:
-        yield DeferredList([gateway.stop() for gateway in self.gateways])
+        yield DeferredList(
+            [
+                Deferred.fromCoroutine(gateway.stop())
+                for gateway in self.gateways
+            ]
+        )
 
     def start(self) -> None:
         try:

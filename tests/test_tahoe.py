@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from typing import Awaitable, Callable, TypeVar
 
 try:
     from unittest.mock import MagicMock, Mock
@@ -10,8 +11,8 @@ except ImportError:
 
 import pytest
 import yaml
-from pytest_twisted import inlineCallbacks
-from twisted.internet.defer import succeed
+from pytest_twisted import ensureDeferred, inlineCallbacks
+from twisted.internet.defer import Deferred, succeed
 from twisted.internet.testing import MemoryReactorClock
 
 from gridsync.crypto import randstr
@@ -28,37 +29,41 @@ from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 def fake_get(*args, **kwargs):
     response = MagicMock()
     response.code = 200
-    return response
+    return succeed(response)
 
 
 def fake_get_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
-    return response
+    return succeed(response)
 
 
 def fake_put(*args, **kwargs):
     response = MagicMock()
     response.code = 200
-    return response
+    return succeed(response)
 
 
 def fake_put_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
-    return response
+    return succeed(response)
 
 
 def fake_post(*args, **kwargs):
     response = MagicMock()
     response.code = 200
-    return response
+    return succeed(response)
 
 
 def fake_post_code_500(*args, **kwargs):
     response = MagicMock()
     response.code = 500
-    return response
+    return succeed(response)
+
+
+async def noop_scan_storage_plugins(self):
+    pass
 
 
 def test_is_valid_furl():
@@ -405,38 +410,60 @@ def test_add_storage_servers_writes_zkapauthorizer_allowed_public_keys(tmpdir):
 @inlineCallbacks
 def test_tahoe_create_client_nodedir_exists_error(tahoe):
     with pytest.raises(FileExistsError):
-        yield tahoe.create_client({})
+        yield Deferred.fromCoroutine(tahoe.create_client({}))
+
+
+def command_spy():
+    intel = []
+
+    async def spy(self, args) -> None:
+        intel.append(args)
+
+    return spy, intel
+
+
+def has_args(actual: list[str], expected: tuple[str]) -> bool:
+    """
+    :return: ``True`` if the expected argument tuple is present in the actual
+        argument list.
+    """
+    diff = len(actual) - len(expected)
+    if diff < 0:
+        return False
+    for pos in range(diff):
+        if tuple(actual[pos : pos + len(expected)]) == expected:
+            return True
+    return False
 
 
 @inlineCallbacks
 def test_tahoe_create_client_args(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
-    yield tahoe.create_client({"nickname": "test_nickname"})
-    args = mocked_command.call_args[0][0]
-    assert set(["--nickname", "test_nickname"]).issubset(set(args))
+    spy, intel = command_spy()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
+    yield Deferred.fromCoroutine(
+        tahoe.create_client({"nickname": "test_nickname"})
+    )
+    assert has_args(intel[0], ("--nickname", "test_nickname"))
 
 
 @inlineCallbacks
 def test_tahoe_create_client_args_compat(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
-    yield tahoe.create_client({"happy": "7"})
-    args = mocked_command.call_args[0][0]
-    assert set(["--shares-happy", "7"]).issubset(set(args))
+    spy, intel = command_spy()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
+    yield Deferred.fromCoroutine(tahoe.create_client({"happy": "7"}))
+    assert has_args(intel[0], ("--shares-happy", "7"))
 
 
 @inlineCallbacks
 def test_tahoe_create_client_args_hide_ip(tahoe, monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda x: False)
-    mocked_command = MagicMock()
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", mocked_command)
+    spy, intel = command_spy()
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", spy)
     settings = {"hide-ip": True}
-    yield tahoe.create_client(settings)
-    args = mocked_command.call_args[0][0]
-    assert "--hide-ip" in args
+    yield Deferred.fromCoroutine(tahoe.create_client(settings))
+    assert has_args(intel[0], ("--hide-ip",))
 
 
 @inlineCallbacks
@@ -446,39 +473,53 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     monkeypatch.setattr(
         "os.path.exists", lambda _: False
     )  # suppress FileExistsError
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", lambda x, y: None)
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.command", command_spy()[0])
     client = Tahoe(nodedir)
     storage_servers = {
         "node-1": {"anonymous-storage-FURL": "pb://test", "nickname": "One"}
     }
     settings = {"nickname": "TestGrid", "storage": storage_servers}
-    yield client.create_client(settings)
+    yield Deferred.fromCoroutine(client.create_client(settings))
     assert client.get_storage_servers() == storage_servers
 
 
-@inlineCallbacks
-def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
     Path(tahoe.pidfile).write_text(str("4194305"), encoding="utf-8")
     fake_process = Mock()
     monkeypatch.setattr("gridsync.system.Process", fake_process)
-    yield tahoe.stop()
+    await tahoe.stop()
     assert fake_process.call_args[0][0] == 4194305
 
 
 @pytest.mark.parametrize("locked,call_count", [(True, 1), (False, 0)])
-@inlineCallbacks
-def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
-    lock = MagicMock()
-    lock.locked = locked
-    lock.acquire = MagicMock()
-    lock.release = MagicMock()
-    tahoe.rootcap_manager.lock = lock
+@ensureDeferred
+async def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):
     monkeypatch.setattr("os.path.isfile", lambda x: True)
-    yield tahoe.stop()
-    assert (lock.acquire.call_count, lock.release.call_count) == (
-        call_count,
-        call_count,
-    )
+
+    events: list[str] = []
+
+    if locked:
+        await tahoe.rootcap_manager.lock.acquire()
+        from twisted.internet import reactor
+        from twisted.internet.task import deferLater
+
+        def unlock():
+            events.append("unlocking")
+            tahoe.rootcap_manager.lock.release()
+
+        d = deferLater(reactor, 0.0, unlock)
+    else:
+        d = succeed(None)
+
+    await tahoe.stop()
+    events.append("stopped")
+    await d
+
+    if locked:
+        assert events == ["unlocking", "stopped"]
+
+    assert not tahoe.rootcap_manager.lock.locked
 
 
 @inlineCallbacks
@@ -517,8 +558,10 @@ def test_get_grid_status(tahoe, monkeypatch):
         ]
     }"""
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: json_content)
-    num_connected, num_known, available_space = yield tahoe.get_grid_status()
+    monkeypatch.setattr("treq.content", lambda _: succeed(json_content))
+    num_connected, num_known, available_space = yield Deferred.fromCoroutine(
+        tahoe.get_grid_status()
+    )
     assert (num_connected, num_known, available_space) == (2, 3, 3072)
 
 
@@ -526,24 +569,35 @@ def test_get_grid_status(tahoe, monkeypatch):
 def test_get_connected_servers(tahoe, monkeypatch):
     html = b"Connected to <span>3</span>of <span>10</span>"
     monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: html)
-    output = yield tahoe.get_connected_servers()
+    monkeypatch.setattr("treq.content", lambda _: succeed(html))
+    output = yield Deferred.fromCoroutine(tahoe.get_connected_servers())
     assert output == 3
 
 
 @inlineCallbacks
 def test_is_ready_false_not_shares_happy(tahoe, monkeypatch):
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is False
+
+
+T = TypeVar("T")
+
+
+def fake_awaitable_method(value: T) -> Callable[[], Awaitable[T]]:
+    async def fake(self) -> T:
+        return value
+
+    return fake
 
 
 @inlineCallbacks
 def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers", lambda _: None
+        "gridsync.tahoe.Tahoe.get_connected_servers",
+        fake_awaitable_method(None),
     )
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is False
 
 
@@ -551,9 +605,10 @@ def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
 def test_is_ready_true(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers", lambda _: 10
+        "gridsync.tahoe.Tahoe.get_connected_servers",
+        fake_awaitable_method(10),
     )
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is True
 
 
@@ -561,15 +616,18 @@ def test_is_ready_true(tahoe, monkeypatch):
 def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers", lambda _: 3
+        "gridsync.tahoe.Tahoe.get_connected_servers",
+        fake_awaitable_method(3),
     )
-    output = yield tahoe.is_ready()
+    output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is False
 
 
 @inlineCallbacks
 def test_await_ready(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.is_ready", lambda _: True)
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.is_ready", fake_awaitable_method(True)
+    )
     yield tahoe.await_ready()
     assert True
 
@@ -590,7 +648,7 @@ def test_concurrent_await_ready(tahoe, monkeypatch):
         is_ready = False
         poll_count = 0
 
-        def check_ready(self):
+        async def check_ready(self) -> bool:
             nonlocal poll_count
             poll_count += 1
             return is_ready
@@ -632,108 +690,131 @@ def test_concurrent_await_ready(tahoe, monkeypatch):
 
 @inlineCallbacks
 def test_tahoe_mkdir(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post)
-    monkeypatch.setattr("treq.content", lambda _: b"URI:DIR2:abc234:def567")
-    output = yield tahoe.mkdir()
+    monkeypatch.setattr(
+        "treq.content", lambda _: succeed(b"URI:DIR2:abc234:def567")
+    )
+    output = yield Deferred.fromCoroutine(tahoe.mkdir())
     assert output == "URI:DIR2:abc234:def567"
 
 
 @inlineCallbacks
 def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
-    monkeypatch.setattr("treq.post", fake_post_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
-    with pytest.raises(TahoeWebError):
-        yield tahoe.mkdir()
-
-
-@inlineCallbacks
-def test_tahoe_upload(tahoe, monkeypatch):
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.mkdir", lambda _: succeed("URI:DIR2:abc")
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr("treq.post", fake_post_code_500)
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
+    with pytest.raises(TahoeWebError):
+        yield Deferred.fromCoroutine(tahoe.mkdir())
+
+
+@ensureDeferred
+async def test_tahoe_upload(tahoe, monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.mkdir", fake_awaitable_method("URI:DIR2:abc")
+    )
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.put", fake_put)
-    monkeypatch.setattr("treq.content", lambda _: b"test_cap")
-    yield tahoe.create_rootcap()
-    output = yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test_cap"))
+    await tahoe.create_rootcap()
+    output = await tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
     assert output == "test_cap"
 
 
-@inlineCallbacks
-def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
+@ensureDeferred
+async def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.mkdir", lambda _: succeed("URI:DIR2:abc")
+        "gridsync.tahoe.Tahoe.mkdir", fake_awaitable_method("URI:DIR2:abc")
     )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.put", fake_put_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
-    yield tahoe.create_rootcap()
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
+    await tahoe.create_rootcap()
     with pytest.raises(TahoeWebError):
-        yield tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
+        await tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
 
 
 @inlineCallbacks
 def test_tahoe_download(tahoe, monkeypatch):
     def fake_collect(response, collector):
         collector(b"test_content")  # f.write(b'test_content')
+        return succeed(None)
 
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.get", fake_get)
     monkeypatch.setattr("treq.collect", fake_collect)
     location = os.path.join(tahoe.nodedir, "test_downloaded_file")
-    yield tahoe.download("test_cap", location)
+    yield Deferred.fromCoroutine(tahoe.download("test_cap", location))
     with open(location, "r") as f:
         content = f.read()
         assert content == "test_content"
 
 
-@inlineCallbacks
-def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+@ensureDeferred
+async def test_tahoe_download_fail_code_500(tahoe, monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.get", fake_get_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
-        yield tahoe.download("test_cap", os.path.join(tahoe.nodedir, "nofile"))
+        await tahoe.download("test_cap", os.path.join(tahoe.nodedir, "nofile"))
 
 
-@inlineCallbacks
-def test_tahoe_link(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+@ensureDeferred
+async def test_tahoe_link(tahoe, monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post)
-    yield tahoe.link("test_dircap", "test_childname", "test_childcap")
+    await tahoe.link("test_dircap", "test_childname", "test_childcap")
     assert True
 
 
-@inlineCallbacks
-def test_tahoe_link_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+@ensureDeferred
+async def test_tahoe_link_fail_code_500(tahoe, monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
-        yield tahoe.link("test_dircap", "test_childname", "test_childcap")
+        await tahoe.link("test_dircap", "test_childname", "test_childcap")
 
 
-@inlineCallbacks
-def test_tahoe_unlink(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+@ensureDeferred
+async def test_tahoe_unlink(tahoe, monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post)
-    yield tahoe.unlink("test_dircap", "test_childname")
+    await tahoe.unlink("test_dircap", "test_childname")
     assert True
 
 
-@inlineCallbacks
-def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.await_ready", MagicMock())
+@ensureDeferred
+async def test_tahoe_unlink_fail_code_500(tahoe, monkeypatch):
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
+    )
     monkeypatch.setattr("treq.post", fake_post_code_500)
-    monkeypatch.setattr("treq.content", lambda _: b"test content")
+    monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
-        yield tahoe.unlink("test_dircap", "test_childname")
+        await tahoe.unlink("test_dircap", "test_childname")
 
 
-@inlineCallbacks
-def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
+@ensureDeferred
+async def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-start")))
     client.magic_folder = Mock()  # XXX
     privatedir = os.path.join(client.nodedir, "private")
@@ -748,23 +829,26 @@ def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
     monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
+
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
-    yield client.start()
+    await client.start()
     assert not client.use_tor
 
 
-@inlineCallbacks
-def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
+@ensureDeferred
+async def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
     reactor = MemoryReactorClock()
     tahoe = tahoe_factory(reactor)
@@ -772,36 +856,39 @@ def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.needed", "3")
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
-    yield tahoe.start()
+    await tahoe.start()
     tahoe._on_started()  # XXX
     assert tahoe.streamedlogs.running
     (host, port, _, _, _) = reactor.tcpClients.pop(0)
     assert (host, port) == ("example.invalid", 12345)
 
 
-@inlineCallbacks
-def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
+@ensureDeferred
+async def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
-    monkeypatch.setattr("gridsync.supervisor.Supervisor.stop", Mock())
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.supervisor.Supervisor.stop", lambda self: succeed(None)
+    )
+    monkeypatch.setattr(
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
     tahoe = tahoe_factory(MemoryReactorClock())
     tahoe.monitor = Mock()
     tahoe.config_set("client", "shares.needed", "3")
     tahoe.config_set("client", "shares.happy", "7")
     tahoe.config_set("client", "shares.total", "10")
-    yield tahoe.start()
+    await tahoe.start()
     Path(tahoe.pidfile).write_text(str("4194306"), encoding="utf-8")
-    yield tahoe.stop()
+    await tahoe.stop()
     assert not tahoe.streamedlogs.running
 
 
-@inlineCallbacks
-def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
+@ensureDeferred
+async def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     client = Tahoe(str(tmpdir_factory.mktemp("tahoe-start")))
     client.magic_folder = Mock()  # XXX
     privatedir = os.path.join(client.nodedir, "private")
@@ -817,10 +904,11 @@ def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     monkeypatch.setattr("shutil.which", lambda _: "_tahoe")
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
-        lambda *args, **kwargs: (9999, "tahoe"),
+        lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins", lambda _: None
+        "gridsync.tahoe.Tahoe.scan_storage_plugins",
+        noop_scan_storage_plugins,
     )
-    yield client.start()
+    await client.start()
     assert client.use_tor

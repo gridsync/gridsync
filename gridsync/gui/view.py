@@ -44,7 +44,7 @@ from qtpy.QtWidgets import (
     QStyleOptionViewItem,
     QTreeView,
 )
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, features, resource
@@ -153,7 +153,7 @@ class View(QTreeView):
     def _create_rootcap(self) -> TwistedDeferred[None]:
         # There's probably a better place/module for this...
         try:
-            yield self.gateway.create_rootcap()
+            yield Deferred.fromCoroutine(self.gateway.create_rootcap())
         except Exception as exc:  # pylint: disable=broad-except
             error(
                 self,

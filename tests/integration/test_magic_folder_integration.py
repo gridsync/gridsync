@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from pytest_twisted import async_yield_fixture, inlineCallbacks
+from pytest_twisted import async_yield_fixture, ensureDeferred, inlineCallbacks
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
@@ -235,8 +235,10 @@ def test_add_participant(magic_folder, tmp_path):
     yield magic_folder.add_folder(path, author)
 
     author_name = randstr()
-    dircap = yield magic_folder.gateway.mkdir()
-    personal_dmd = yield magic_folder.gateway.diminish(dircap)
+    dircap = yield Deferred.fromCoroutine(magic_folder.gateway.mkdir())
+    personal_dmd = yield Deferred.fromCoroutine(
+        magic_folder.gateway.diminish(dircap)
+    )
     yield magic_folder.add_participant(folder_name, author_name, personal_dmd)
     participants = yield magic_folder.get_participants(folder_name)
     assert author_name in participants
@@ -264,45 +266,45 @@ def test_add_snapshot(magic_folder, tmp_path):
     assert filename in snapshots.get(folder_name)
 
 
-@inlineCallbacks
-def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
+@ensureDeferred
+async def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     filename = randstr()
     filepath = path / filename
     filepath.write_text(randstr() * 10)
-    yield magic_folder.add_snapshot(folder_name, filename)
+    await magic_folder.add_snapshot(folder_name, filename)
 
-    folders = yield magic_folder.get_folders()
+    folders = await magic_folder.get_folders()
     upload_dircap = folders[folder_name]["upload_dircap"]
 
-    yield deferLater(reactor, 1.5, lambda: None)
+    await deferLater(reactor, 1.5, lambda: None)
 
-    content = yield magic_folder.gateway.get_json(upload_dircap)
+    content = await magic_folder.gateway.get_json(upload_dircap)
     assert filename in content[1]["children"]
 
 
-@inlineCallbacks
-def test_scanner_uploads_to_personal_dmd(magic_folder, tmp_path):
+@ensureDeferred
+async def test_scanner_uploads_to_personal_dmd(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     filename = randstr()
     filepath = path / filename
     filepath.write_text(randstr() * 10)
-    yield magic_folder.scan(folder_name)
+    await magic_folder.scan(folder_name)
 
-    folders = yield magic_folder.get_folders()
+    folders = await magic_folder.get_folders()
     upload_dircap = folders[folder_name]["upload_dircap"]
 
-    yield deferLater(reactor, 2.5, lambda: None)
+    await deferLater(reactor, 2.5, lambda: None)
 
-    content = yield magic_folder.gateway.get_json(upload_dircap)
+    content = await magic_folder.gateway.get_json(upload_dircap)
     assert filename in content[1]["children"]
 
 
@@ -403,16 +405,16 @@ def test_poll(magic_folder, tmp_path):
     assert output == {}
 
 
-@inlineCallbacks
-def test_create_folder_backup(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_create_folder_backup(magic_folder):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    backup_cap = yield Deferred.fromCoroutine(
-        magic_folder.rootcap_manager.get_backup_cap(".magic-folders")
+    backup_cap = await magic_folder.rootcap_manager.get_backup_cap(
+        ".magic-folders"
     )
-    content = yield magic_folder.gateway.get_json(backup_cap)
+    content = await magic_folder.gateway.get_json(backup_cap)
     children = content[1]["children"]
     assert (
         f"{folder_name} (collective)" in children
@@ -430,17 +432,17 @@ def test_get_folder_backups(magic_folder):
     assert folder_name in remote_folders
 
 
-@inlineCallbacks
-def test_remove_folder_backup(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_remove_folder_backup(magic_folder):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    yield magic_folder.remove_folder_backup(folder_name)
-    backup_cap = yield Deferred.fromCoroutine(
-        magic_folder.rootcap_manager.get_backup_cap(".magic-folders")
+    await magic_folder.remove_folder_backup(folder_name)
+    backup_cap = await magic_folder.rootcap_manager.get_backup_cap(
+        ".magic-folders"
     )
-    content = yield magic_folder.gateway.get_json(backup_cap)
+    content = await magic_folder.gateway.get_json(backup_cap)
     children = content[1]["children"]
     assert (
         f"{folder_name} (collective)" not in children
@@ -515,8 +517,10 @@ def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
     yield bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
 
     alice_folders = yield alice_magic_folder.get_folders()
-    alice_personal_dmd = yield alice_magic_folder.gateway.diminish(
-        alice_folders["ToBob"]["upload_dircap"]
+    alice_personal_dmd = yield Deferred.fromCoroutine(
+        alice_magic_folder.gateway.diminish(
+            alice_folders["ToBob"]["upload_dircap"]
+        )
     )
     yield bob_magic_folder.add_participant(
         folder_name, "Alice", alice_personal_dmd

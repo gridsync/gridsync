@@ -4,13 +4,15 @@ from __future__ import annotations
 from binascii import hexlify, unhexlify
 from html.parser import HTMLParser
 from time import time
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable, Coroutine, Optional, TypeVar, Union
 
 import attr
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.defer import Deferred, ensureDeferred, inlineCallbacks
 from twisted.internet.interfaces import IReactorTime
 from twisted.internet.task import deferLater
 from twisted.python.failure import Failure
+
+_T = TypeVar("_T")
 
 B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
@@ -139,7 +141,15 @@ class Poller:
     """
 
     clock: IReactorTime = attr.ib()
-    target: Callable[[], Deferred[bool]] = attr.ib()
+
+    target: Callable[
+        [],
+        Union[
+            Coroutine[Deferred[bool], _T, bool],
+            Deferred[bool],
+        ],
+    ] = attr.ib()
+
     interval: float = attr.ib()
     _idle: bool = attr.ib(default=True)
     _waiting: list[Deferred[None]] = attr.ib(default=attr.Factory(list))
@@ -171,7 +181,7 @@ class Poller:
         another iteration.
         """
         try:
-            ready = yield self.target()
+            ready = yield ensureDeferred(self.target())
             if ready:
                 self._completed()
             else:

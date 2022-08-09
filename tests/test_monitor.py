@@ -2,17 +2,27 @@
 
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Awaitable, Callable, TypeVar
 from unittest.mock import MagicMock, Mock, call
 
 from pytest_twisted import inlineCallbacks
 
 from gridsync.monitor import GridChecker, Monitor, ZKAPChecker, _parse_vouchers
 
+T = TypeVar("T")
+
+
+def fake_grid_status(status: T) -> Callable[[], Awaitable[T]]:
+    async def get_grid_status() -> T:
+        return status
+
+    return get_grid_status
+
 
 @inlineCallbacks
 def test_grid_checker_emit_space_updated(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
-    gc.gateway.get_grid_status = MagicMock(return_value=(8, 10, 1234))
+    gc.gateway.get_grid_status = fake_grid_status((8, 10, 1234))
     with qtbot.wait_signal(gc.space_updated) as blocker:
         yield gc.do_check()
     assert blocker.args == [1234]
@@ -21,7 +31,7 @@ def test_grid_checker_emit_space_updated(qtbot):
 @inlineCallbacks
 def test_grid_checker_emit_nodes_updated_(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
-    gc.gateway.get_grid_status = MagicMock(return_value=(8, 10, 1234))
+    gc.gateway.get_grid_status = fake_grid_status((8, 10, 1234))
     with qtbot.wait_signal(gc.nodes_updated) as blocker:
         yield gc.do_check()
     assert blocker.args == [8, 10]
@@ -30,7 +40,7 @@ def test_grid_checker_emit_nodes_updated_(qtbot):
 @inlineCallbacks
 def test_grid_checker_emit_connected(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
-    gc.gateway.get_grid_status = MagicMock(return_value=(8, 10, 1234))
+    gc.gateway.get_grid_status = fake_grid_status((8, 10, 1234))
     with qtbot.wait_signal(gc.connected):
         yield gc.do_check()
 
@@ -38,7 +48,7 @@ def test_grid_checker_emit_connected(qtbot):
 @inlineCallbacks
 def test_grid_checker_emit_disconnected(qtbot):
     gc = GridChecker(MagicMock(shares_happy=7))
-    gc.gateway.get_grid_status = MagicMock(return_value=(5, 10, 1234))
+    gc.gateway.get_grid_status = fake_grid_status((5, 10, 1234))
     gc.is_connected = True
     with qtbot.wait_signal(gc.disconnected):
         yield gc.do_check()
@@ -47,7 +57,7 @@ def test_grid_checker_emit_disconnected(qtbot):
 @inlineCallbacks
 def test_grid_checker_not_connected(qtbot):
     gc = GridChecker(MagicMock(shares_happy=0))
-    gc.gateway.get_grid_status = MagicMock(return_value=None)
+    gc.gateway.get_grid_status = fake_grid_status(None)
     yield gc.do_check()
     assert gc.num_connected == 0
 

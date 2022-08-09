@@ -2,11 +2,12 @@
 
 import json
 import os
+from typing import Awaitable, Callable
 from unittest.mock import MagicMock, Mock
 
 import pytest
 import yaml
-from pytest_twisted import inlineCallbacks
+from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred, succeed
 
 from gridsync import resource
@@ -30,6 +31,13 @@ async def fake_any_awaitable(*a, **kw) -> None:
 
 def fake_create_rootcap(self) -> Deferred[str]:
     return succeed("URI")
+
+
+def fake_upload(result: str) -> Callable[[object, str], Awaitable[str]]:
+    async def fake_upload(self, local_path: str) -> str:
+        return result
+
+    return fake_upload
 
 
 def broken_create_rootcap(self) -> Deferred[str]:
@@ -585,64 +593,68 @@ def test_ensure_recovery_write_settings(tmpdir):
         assert json.loads(f.read()) == settings
 
 
-@inlineCallbacks
-def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
+@ensureDeferred
+async def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.create_rootcap", fake_create_rootcap
     )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.upload", lambda x, y: succeed("URI:2")
-    )
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload("URI:2"))
 
-    def fake_link(_, dircap, name, childcap):
+    async def fake_link(_, dircap, name, childcap):
         assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")
-        return succeed(None)
+        return None
 
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
     sr = SetupRunner([])
     sr.gateway = Tahoe(nodedir)
     sr.gateway.rootcap = "URI"
     settings = {"nickname": "TestGrid"}
-    yield Deferred.fromCoroutine(sr.ensure_recovery(settings))
+    await sr.ensure_recovery(settings)
 
 
-@inlineCallbacks
-def test_ensure_recovery_create_rootcap_pass_on_error(monkeypatch, tmpdir):
+@ensureDeferred
+async def test_ensure_recovery_create_rootcap_pass_on_error(
+    monkeypatch, tmpdir
+):
     nodedir = str(tmpdir.mkdir("TestGrid"))
     os.makedirs(os.path.join(nodedir, "private"))
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.create_rootcap",
         broken_create_rootcap,
     )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.upload", lambda x, y: succeed("URI:2")
-    )
+    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload("URI:2"))
 
-    def fake_link(_, dircap, name, childcap):
+    async def fake_link(_, dircap, name, childcap):
         assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")
-        return succeed(None)
+        return None
 
     monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
     sr = SetupRunner([])
     sr.gateway = Tahoe(nodedir)
     sr.gateway.rootcap_manager.set_rootcap("URI")
     settings = {"nickname": "TestGrid"}
-    yield Deferred.fromCoroutine(sr.ensure_recovery(settings))
+    await sr.ensure_recovery(settings)
 
 
-@inlineCallbacks
-def test_join_folders_emit_joined_folders_signal(monkeypatch, qtbot, tmpdir):
+@ensureDeferred
+async def test_join_folders_emit_joined_folders_signal(
+    monkeypatch, qtbot, tmpdir
+):
+    async def fake_link(self, dircap, name, childcap):
+        return None
+
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.link", lambda a, b, c, d: succeed(None)
+        "gridsync.tahoe.Tahoe.link",
+        fake_link,
     )
     sr = SetupRunner([])
     sr.gateway = Tahoe(str(tmpdir.mkdir("TestGrid")))
     sr.gateway.rootcap = "URI:rootcap"
     folders_data = {"TestFolder": {"code": "URI:1+URI:2"}}
     with qtbot.wait_signal(sr.joined_folders) as blocker:
-        yield Deferred.fromCoroutine(sr.join_folders(folders_data))
+        await Deferred.fromCoroutine(sr.join_folders(folders_data))
     assert blocker.args == [["TestFolder"]]
 
 
