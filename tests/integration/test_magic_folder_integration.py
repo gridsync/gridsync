@@ -91,9 +91,9 @@ def leave_all_folders(magic_folder):
         yield Deferred.fromCoroutine(magic_folder.leave_folder(folder))
 
 
-@inlineCallbacks
-def test_version(magic_folder):
-    output = yield magic_folder.version()
+@ensureDeferred
+async def test_version(magic_folder):
+    output = await magic_folder.version()
     assert output.startswith("Magic")
 
 

@@ -547,9 +547,8 @@ class MagicFolder:
         output = yield protocol.done
         return output
 
-    @inlineCallbacks
-    def version(self) -> TwistedDeferred[str]:
-        output = yield self._command(["--version"])
+    async def version(self) -> str:
+        output = await self._command(["--version"])
         return output
 
     async def stop(self) -> None:
