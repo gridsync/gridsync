@@ -448,7 +448,8 @@ class Tahoe:
         Deferred.fromCoroutine(self.scan_storage_plugins())
 
         if not self.is_storage_node():
-            self.magic_folder.start()
+            # XXX Should something wait on this?
+            Deferred.fromCoroutine(self.magic_folder.start())
 
     def _remove_twistd_pid(self) -> None:
         # On non-Windows systems, Twisted/twistd will create its own

@@ -276,7 +276,7 @@ class ZKAPChecker(QObject):
         yield self.gateway.await_ready()
         # MagicFolder.get_all_object_sizes() will fail with an "API
         # token not found" error if called before MagicFolder starts
-        yield self.gateway.magic_folder.await_running()
+        yield Deferred.fromCoroutine(self.gateway.magic_folder.await_running())
         try:
             p = yield self.gateway.zkapauthorizer.get_price()
         except TahoeWebError:  # XXX

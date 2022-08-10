@@ -106,7 +106,9 @@ class ZKAPAuthorizer:
                     size = data[1].get("size", 0)
                     if size:
                         sizes.append(size)
-        mf_sizes = yield self.gateway.magic_folder.get_all_object_sizes()
+        mf_sizes = yield Deferred.fromCoroutine(
+            self.gateway.magic_folder.get_all_object_sizes()
+        )
         sizes.extend(mf_sizes)
         return sizes
 
