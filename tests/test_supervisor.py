@@ -77,10 +77,10 @@ def test_supervisor_restarts_process_when_killed(tmp_path):
     pidfile = tmp_path / "python.pid"
     supervisor = Supervisor(pidfile=pidfile, restart_delay=0)
     pid, _ = yield supervisor.start(PROCESS_ARGS, started_trigger="OK")
-    reactor.callLater(0.1, Process(pid).kill)
-    yield until(supervisor.is_running, False)
-    yield until(supervisor.is_running, True)
-    assert True
+    assert supervisor.is_running()
+    Process(pid).kill()
+    yield until(lambda: supervisor.pid != pid)
+    assert supervisor.is_running()
 
 
 @inlineCallbacks
