@@ -18,10 +18,10 @@ def test_with_common_gui_addressing(qtbot):
     window = gui.main_window
     window.show()
     qtbot.waitExposed(window)
-    window.toolbar.folder_action.setEnabled(True)
+    # window.toolbar.folder_action.setEnabled(True)
     qtbot.mouseClick(window.toolbar.folder_button, Qt.MouseButton.LeftButton)
-    window.toolbar.export_action_triggered.emit() # XXX: meh, we want to click instead of emitting signals.
-    qtbot.wait(5000)
+    # window.toolbar.export_action_triggered.emit() # XXX: meh, we want to click instead of emitting signals.
+    qtbot.wait(500000)
 
 
 def test_basics(qtbot):
