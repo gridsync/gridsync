@@ -41,10 +41,13 @@ def test_with_common_gui_addressing(qtbot):
 
 
 def test_recover_from_key(qtbot):
-    gui = Gui(MagicMock()) ## TBD: Do not use mocks
-    window = gui.main_window
-    window.show()
-    # recovery = window.show_welcome_dialog()
-    qtbot.mouseClick(gui.welcome_dialog.restore_link, Qt.MouseButton.LeftButton)
+    gui = Gui(MagicMock()) # TBD: Do not use mocks
+    gui.main_window.show_welcome_dialog()
+    wd = gui.main_window.welcome_dialog
+    qtbot.addWidget(wd)
+    qtbot.mouseClick(wd.restore_link, Qt.MouseButton.LeftButton)
+
+    ### XXX How to type some text into the file chooser dialoge
+    ### without changing the gridsync source code?
     
-    qtbot.wait(19000)  # milliseconds, just so we can click around in the window a bit
+    qtbot.wait(9000)  # milliseconds, just so we can click around in the window a bit
