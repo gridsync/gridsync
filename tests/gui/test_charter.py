@@ -13,17 +13,6 @@ from qtpy.QtCore import Qt
 from gridsync.gui import Gui
 
 
-def test_with_common_gui_addressing(qtbot):
-    gui = Gui(MagicMock())
-    window = gui.main_window
-    window.show()
-    qtbot.waitExposed(window)
-    # window.toolbar.folder_action.setEnabled(True)
-    qtbot.mouseClick(window.toolbar.folder_button, Qt.MouseButton.LeftButton)
-    # window.toolbar.export_action_triggered.emit() # XXX: meh, we want to click instead of emitting signals.
-    qtbot.wait(500000)
-
-
 def test_basics(qtbot):
     """
     Basic test that works more like a sanity check to ensure we are setting up a QApplication
@@ -39,3 +28,23 @@ def test_basics(qtbot):
     assert widget.isVisible()
     assert widget.windowTitle() == "W1"
 
+
+def test_with_common_gui_addressing(qtbot):
+    gui = Gui(MagicMock()) ## TBD: Do not use mocks
+    window = gui.main_window
+    window.show()
+    qtbot.waitExposed(window)
+    #qtbot.mouseClick(window.toolbar.combo_box, Qt.MouseButton.LeftButton)
+    # window.toolbar.combo_box.setCurrentIndex(1)
+    # window.toolbar.export_action_triggered.emit() # XXX: meh, we want to click instead of emitting signals.
+    # qtbot.wait(9000)  # milliseconds, just so we can click around in the window a bit
+
+
+def test_recover_from_key(qtbot):
+    gui = Gui(MagicMock()) ## TBD: Do not use mocks
+    window = gui.main_window
+    window.show()
+    # recovery = window.show_welcome_dialog()
+    qtbot.mouseClick(gui.welcome_dialog.restore_link, Qt.MouseButton.LeftButton)
+    
+    qtbot.wait(19000)  # milliseconds, just so we can click around in the window a bit
