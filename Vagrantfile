@@ -11,14 +11,6 @@ def update_macos
 end
 
 
-def install_macos_monterey
-  return <<-EOF
-    softwareupdate --verbose --fetch-full-installer --full-installer-version 12.5
-    echo vagrant | /Applications/Install\\ macOS\\ Monterey.app/Contents/Resources/startosinstall --agreetolicense --forcequitapps --user vagrant --stdinpass
-  EOF
-end
-
-
 def gnome_desktop
   return <<-EOF
     yum -y update
@@ -103,7 +95,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = true
-    vb.memory = "2048"
+    vb.memory = "4096"
     vb.cpus = 2
     vb.customize ["modifyvm", :id, "--usb", "on"]
   end
@@ -133,9 +125,6 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu-20.04" do |b|
     b.vm.box = "ubuntu/focal64"
     b.vm.hostname = "ubuntu-20.04"
-    b.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
-    end
     b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
     b.vm.provision "desktop", type: "shell", inline: ubuntu_desktop
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
@@ -147,9 +136,6 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu-22.04" do |b|
     b.vm.box = "ubuntu/jammy64"
     b.vm.hostname = "ubuntu-22.04"
-    b.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
-    end
     b.vm.synced_folder ".", "/home/vagrant/vagrant", type: "rsync"
     b.vm.provision "desktop", type: "shell", inline: ubuntu_desktop
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
@@ -181,7 +167,6 @@ Vagrant.configure("2") do |config|
     b.vm.box = "cloudkats/macos"
     b.vm.hostname = "macos-10.15"
     b.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
       vb.customize ["modifyvm", :id, "--usbehci", "off"]
       vb.customize ["modifyvm", :id, "--usbxhci", "off"]
       vb.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct", "MacBookPro11,3"]
@@ -200,9 +185,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "macos-11" do |b|
     b.vm.box = "amarcireau/macos"
     b.vm.hostname = "macos-11"
-    b.vm.box_version = "11.3.1"
+    b.vm.box_version = "11.6.8"
     b.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
       # Guest additions are not supported by Big Sur guests
       # See https://app.vagrantup.com/amarcireau/boxes/macos
       vb.check_guest_additions = false
@@ -232,7 +216,6 @@ Vagrant.configure("2") do |config|
     # See https://app.vagrantup.com/amarcireau/boxes/macos
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", disabled: true
     b.vm.provision "update", type: "shell", privileged: false, run: "never", inline: update_macos
-    b.vm.provision "install-monterey", type: "shell", privileged: false, run: "never", inline: install_macos_monterey
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
@@ -242,9 +225,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "macos-12" do |b|
     b.vm.box = "amarcireau/macos"
     b.vm.hostname = "macos-12"
-    b.vm.box_version = "11.3.1"
+    b.vm.box_version = "12.5"
     b.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
       # Guest additions are not supported by Big Sur guests
       # See https://app.vagrantup.com/amarcireau/boxes/macos
       vb.check_guest_additions = false
@@ -273,8 +255,7 @@ Vagrant.configure("2") do |config|
     # Shared directories are not supported by Big Sur guests
     # See https://app.vagrantup.com/amarcireau/boxes/macos
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", disabled: true
-    b.vm.provision "update", type: "shell", privileged: false, inline: update_macos
-    b.vm.provision "install-monterey", type: "shell", privileged: false, inline: install_macos_monterey
+    b.vm.provision "update", type: "shell", privileged: false, run: "never", inline: update_macos
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
