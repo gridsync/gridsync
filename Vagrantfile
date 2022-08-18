@@ -242,7 +242,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "macos-12" do |b|
     b.vm.box = "amarcireau/macos"
     b.vm.hostname = "macos-12"
-    b.vm.box_version = "11.3.1"
+    b.vm.box_version = "12.5"
     b.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
       # Guest additions are not supported by Big Sur guests
