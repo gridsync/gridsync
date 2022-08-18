@@ -11,14 +11,6 @@ def update_macos
 end
 
 
-def install_macos_monterey
-  return <<-EOF
-    softwareupdate --verbose --fetch-full-installer --full-installer-version 12.5
-    echo vagrant | /Applications/Install\\ macOS\\ Monterey.app/Contents/Resources/startosinstall --agreetolicense --forcequitapps --user vagrant --stdinpass
-  EOF
-end
-
-
 def gnome_desktop
   return <<-EOF
     yum -y update
@@ -224,7 +216,6 @@ Vagrant.configure("2") do |config|
     # See https://app.vagrantup.com/amarcireau/boxes/macos
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", disabled: true
     b.vm.provision "update", type: "shell", privileged: false, run: "never", inline: update_macos
-    b.vm.provision "install-monterey", type: "shell", privileged: false, run: "never", inline: install_macos_monterey
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
@@ -265,7 +256,6 @@ Vagrant.configure("2") do |config|
     # See https://app.vagrantup.com/amarcireau/boxes/macos
     b.vm.synced_folder ".", "/Users/vagrant/vagrant", disabled: true
     b.vm.provision "update", type: "shell", privileged: false, inline: update_macos
-    b.vm.provision "install-monterey", type: "shell", privileged: false, inline: install_macos_monterey
     b.vm.provision "devtools", type: "shell", privileged: false, run: "never", path: "scripts/provision_devtools.sh"
     b.vm.provision "test", type: "shell", privileged: false, run: "never", inline: test
     b.vm.provision "build", type: "shell", privileged: false, run: "never", inline: make
