@@ -150,7 +150,7 @@ class ZKAPChecker(QObject):
     zkaps_redeemed = Signal(str)  # timestamp
     zkaps_renewal_cost_updated = Signal(int)
     zkaps_price_updated = Signal(int, int)
-    days_remaining_updated = Signal(int)
+    days_remaining_updated = Signal(object)
     unpaid_vouchers_updated = Signal(list)
     redeeming_vouchers_updated = Signal(list)
     low_zkaps_warning = Signal()
@@ -401,7 +401,7 @@ class Monitor(QObject):
     zkaps_redeemed = Signal(str)
     zkaps_renewal_cost_updated = Signal(int)
     zkaps_price_updated = Signal(int, int)
-    days_remaining_updated = Signal(int)
+    days_remaining_updated = Signal(object)
     unpaid_vouchers_updated = Signal(list)
     redeeming_vouchers_updated = Signal(list)
     low_zkaps_warning = Signal()

@@ -234,11 +234,15 @@ class StatusPanel(QWidget):
             self.stored_label.setText(f"Stored: {naturalsize(size)}")
         self.stored_label.show()
 
-    @Slot(int)
+    @Slot(object)
     def on_days_remaining_updated(self, days: int) -> None:
+        try:
+            delta = timedelta(days=days)
+        except OverflowError:  # Python int too large to convert to C int
+            delta = timedelta(days=365 * 1000)
         expiry_date = datetime.strftime(
             datetime.strptime(
-                datetime.isoformat(datetime.now() + timedelta(days=days)),
+                datetime.isoformat(datetime.now() + delta),
                 "%Y-%m-%dT%H:%M:%S.%f",
             ),
             "%d %b %Y",
