@@ -51,7 +51,7 @@ def test_on_zkaps_updated_none_remaining(fake_tahoe, gui):
     assert not view.chart_view.isVisible()
 
 
-def test_days_remaining_does_not_overflow(gui):
+def test_days_remaining_updated_signal_does_not_raise_overflow_error(gui):
     view = UsageView(Tahoe(), gui)
     view.gateway.monitor.days_remaining_updated.emit(2**256)
     assert True
