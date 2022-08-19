@@ -6,6 +6,7 @@ import pytest
 
 from gridsync.gui.status import StatusPanel
 from gridsync.magic_folder import MagicFolderStatus
+from gridsync.tahoe import Tahoe
 
 
 def test_status_panel_hide_tor_button(fake_tahoe):
@@ -115,3 +116,9 @@ def test_on_nodes_updated_node_count_in_status_label_when_connecting(
     sp = StatusPanel(fake_tahoe, MagicMock())
     sp.on_nodes_updated(4, 5)
     assert sp.status_label.text() == "Connecting to TestGrid (4/5)..."
+
+
+def test_days_remaining_does_not_overflow(gui):
+    sp = StatusPanel(Tahoe(), gui)
+    sp.gateway.monitor.days_remaining_updated.emit(2**256)
+    assert True
