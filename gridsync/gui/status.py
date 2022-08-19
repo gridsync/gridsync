@@ -234,7 +234,7 @@ class StatusPanel(QWidget):
             self.stored_label.setText(f"Stored: {naturalsize(size)}")
         self.stored_label.show()
 
-    @Slot(int)
+    @Slot(object)
     def on_days_remaining_updated(self, days: int) -> None:
         expiry_date = datetime.strftime(
             datetime.strptime(

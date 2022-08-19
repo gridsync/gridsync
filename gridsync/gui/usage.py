@@ -389,7 +389,7 @@ class UsageView(QWidget):
         self._zkaps_period = period
         self._update_chart()
 
-    @Slot(int)
+    @Slot(object)
     def on_days_remaining_updated(self, days: int) -> None:
         self._expiry_date = datetime.strftime(
             datetime.strptime(
