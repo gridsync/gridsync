@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from humanize import naturalsize, naturaltime
 from qtpy.QtCore import QEvent, QFileInfo, QPoint, Qt, QTimer
@@ -183,10 +183,10 @@ class HistoryListWidget(QListWidget):
     def on_right_click(self, position: QPoint) -> None:
         if not position:
             position = self.viewport().mapFromGlobal(QCursor.pos())
-        item = self.itemAt(position)
+        item = cast(QListWidgetItem, self.itemAt(position))
         if not item:
             return
-        widget = self.itemWidget(item)
+        widget = cast(HistoryItemWidget, self.itemWidget(item))
         if not isinstance(widget, HistoryItemWidget):
             return
         menu = QMenu(self)
