@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import traceback
 import webbrowser
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 import attr
