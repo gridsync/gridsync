@@ -89,7 +89,6 @@ def future_date(days_from_now: int) -> str:
 
     Returns "Centuries" if the date is especially far into the future.
     """
-    days_from_now = 2**32
     try:
         return datetime.strftime(
             datetime.strptime(
