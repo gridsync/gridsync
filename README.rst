@@ -77,7 +77,7 @@ Downloads for "stable" releases of Gridsync can be found on the project's `GitHu
 .. _GitHub Releases page: https://github.com/gridsync/gridsync/releases
 .. _verify their signatures: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Ubuntu 18.04 LTS and later):
+To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Ubuntu 20.04 LTS and later):
 
 1. Download `Gridsync-Linux.AppImage`_ (and `verify`_ its signature)
 2. Make the AppImage executable (``chmod +x Gridsync-Linux.AppImage``)
