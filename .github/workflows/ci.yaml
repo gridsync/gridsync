@@ -39,7 +39,7 @@ jobs:
   Linux:
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+        os: [ubuntu-20.04, ubuntu-22.04]
         qt: [pyqt5, pyqt6]
         exclude:
           # Qt 6 is unsupported on Ubuntu 18.04. See:
