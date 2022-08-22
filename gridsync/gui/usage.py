@@ -25,6 +25,7 @@ from gridsync.gui.voucher import VoucherCodeDialog
 from gridsync.gui.widgets import VSpacer
 from gridsync.msg import error
 from gridsync.types import TwistedDeferred
+from gridsync.util import future_date
 
 if TYPE_CHECKING:
     from gridsync.gui import AbstractGui  # pylint: disable=cyclic-import
@@ -391,17 +392,7 @@ class UsageView(QWidget):
 
     @Slot(object)
     def on_days_remaining_updated(self, days: int) -> None:
-        try:
-            delta = timedelta(days=days)
-        except OverflowError:  # Python int too large to convert to C int
-            delta = timedelta(days=365 * 1000)
-        self._expiry_date = datetime.strftime(
-            datetime.strptime(
-                datetime.isoformat(datetime.now() + delta),
-                "%Y-%m-%dT%H:%M:%S.%f",
-            ),
-            "%d %b %Y",
-        )
+        self._expiry_date = future_date(days)
         self._update_info_label()
 
     @Slot(object)

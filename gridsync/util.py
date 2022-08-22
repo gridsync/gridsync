@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from binascii import hexlify, unhexlify
+from datetime import datetime, timedelta
 from html.parser import HTMLParser
 from time import time
 from typing import TYPE_CHECKING, Callable, Coroutine, Optional, TypeVar, Union
@@ -80,6 +81,27 @@ def humanized_list(list_: list, kind: str = "files") -> Optional[str]:
     return "{}, {}, and {} other {}".format(
         list_[0], list_[1], len(list_) - 2, kind
     )
+
+
+def future_date(days_from_now: int) -> str:
+    """
+    Represent a future date as a short, human-friendlier string.
+
+    Returns "Centuries" if the date is especially far into the future.
+    """
+    days_from_now = 2**32
+    try:
+        return datetime.strftime(
+            datetime.strptime(
+                datetime.isoformat(
+                    datetime.now() + timedelta(days=days_from_now)
+                ),
+                "%Y-%m-%dT%H:%M:%S.%f",
+            ),
+            "%d %b %Y",
+        )
+    except OverflowError:  # Python int too large to convert to C int
+        return "Centuries"
 
 
 class _TagStripper(HTMLParser):  # pylint: disable=abstract-method
