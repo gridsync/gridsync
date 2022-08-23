@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from humanize import naturalsize
@@ -22,6 +21,7 @@ from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import HSpacer
 from gridsync.magic_folder import MagicFolderStatus
+from gridsync.util import future_date
 
 
 class StatusPanel(QWidget):
@@ -236,16 +236,5 @@ class StatusPanel(QWidget):
 
     @Slot(object)
     def on_days_remaining_updated(self, days: int) -> None:
-        try:
-            delta = timedelta(days=days)
-        except OverflowError:  # Python int too large to convert to C int
-            delta = timedelta(days=365 * 1000)
-        expiry_date = datetime.strftime(
-            datetime.strptime(
-                datetime.isoformat(datetime.now() + delta),
-                "%Y-%m-%dT%H:%M:%S.%f",
-            ),
-            "%d %b %Y",
-        )
-        self.expires_label.setText(f"Expected expiry: {expiry_date}")
+        self.expires_label.setText(f"Expected expiry: {future_date(days)}")
         self.expires_label.show()
