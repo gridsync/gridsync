@@ -11,6 +11,10 @@ from typing import TYPE_CHECKING, Optional
 
 import treq
 from qtpy.QtCore import QObject, Signal
+from tahoe_capabilities import (
+    danger_real_capability_string,
+    writeable_directory_from_string,
+)
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList
 from twisted.internet.task import deferLater
@@ -876,10 +880,12 @@ class MagicFolder:
                 f"Error restoring folder {folder_name}; could not read backups"
             )
         data = backups.get(folder_name, {})
-        upload_dircap = data.get("upload_dircap")
+        upload_dircap = writeable_directory_from_string(
+            data.get("upload_dircap")
+        )
         if upload_dircap is None:
             raise ValueError("Upload directory cap missing from folder backup")
-        personal_dmd = await self.gateway.diminish(upload_dircap)
+        personal_dmd = upload_dircap.reader
         await self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
         await self.add_participant(folder_name, author, personal_dmd)

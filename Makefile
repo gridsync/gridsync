@@ -20,8 +20,8 @@ clean:
 
 test:
 	@case `uname` in \
-		Darwin)	arch -x86_64 python3 -m tox ;; \
-		*) python3 -m tox ;; \
+		Darwin)	arch -x86_64 python3 -m tox -vv ;; \
+		*) python3 -m tox -vv ;; \
 	esac
 
 test-integration:

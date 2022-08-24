@@ -5,11 +5,16 @@ import logging as log
 import os
 import re
 from pathlib import Path
-from typing import Optional, Union, cast
+from typing import Callable, Optional, Union, cast
 
 import treq
 import yaml
 from atomicwrites import atomic_write
+from tahoe_capabilities import (
+    DirectoryWriteCapability,
+    danger_real_capability_string,
+    writeable_directory_from_string,
+)
 from twisted.internet.defer import Deferred
 from twisted.internet.error import ConnectError
 from twisted.internet.interfaces import IReactorTime
@@ -27,7 +32,8 @@ from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
-from gridsync.util import Poller
+from gridsync.types import JSON, TwistedDeferred
+from gridsync.util import Poller, to_deferred
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
@@ -50,6 +56,20 @@ def get_nodedirs(basedir: str) -> list:
     except OSError:
         pass
     return sorted(nodedirs)
+
+
+def _read_client_config(
+    config_get: Callable[[str, str], Optional[str]]
+) -> dict[str, Optional[str]]:
+    settings = {
+        "shares-needed": config_get("client", "shares.needed"),
+        "shares-happy": config_get("client", "shares.happy"),
+        "shares-total": config_get("client", "shares.total"),
+    }
+    introducer = config_get("client", "introducer.furl")
+    if introducer:
+        settings["introducer"] = introducer
+    return settings
 
 
 class Tahoe:
@@ -149,15 +169,22 @@ class Tahoe:
     def config_get(self, section: str, option: str) -> Optional[str]:
         return self.config.get(section, option)
 
-    def save_settings(self, settings: dict) -> None:
+    def save_settings(self, settings: dict[str, JSON]) -> None:
         with atomic_write(
             str(Path(self.nodedir, "private", "settings.json")), overwrite=True
         ) as f:
             f.write(json.dumps(settings))
 
         rootcap = settings.get("rootcap")
-        if rootcap:
-            self.rootcap_manager.set_rootcap(rootcap, overwrite=True)
+        if isinstance(rootcap, str):
+            # XXX Consider doing this before the atomic_write above
+            self.rootcap_manager.set_rootcap(
+                writeable_directory_from_string(rootcap), overwrite=True
+            )
+        elif rootcap is not None:
+            raise ValueError(
+                f"expected str rootcap in settings, instead got {type(rootcap)}"
+            )
 
         newscap = settings.get("newscap")
         if newscap:
@@ -184,12 +211,7 @@ class Tahoe:
         except FileNotFoundError:
             settings = {}
         settings["nickname"] = self.name
-        settings["shares-needed"] = self.config_get("client", "shares.needed")
-        settings["shares-happy"] = self.config_get("client", "shares.happy")
-        settings["shares-total"] = self.config_get("client", "shares.total")
-        introducer = self.config_get("client", "introducer.furl")
-        if introducer:
-            settings["introducer"] = introducer
+        settings.update(_read_client_config(self.config_get))
         storage_servers = self.get_storage_servers()
         if storage_servers:
             settings["storage"] = storage_servers
@@ -203,8 +225,12 @@ class Tahoe:
         self.load_newscap()
         if self.newscap:
             settings["newscap"] = self.newscap
-        if not settings.get("rootcap"):
-            settings["rootcap"] = self.get_rootcap()
+        # if not settings.get("rootcap"):
+        #     rootcap = self.get_rootcap()
+        #     if rootcap is None:
+        #         settings["rootcap"] = None
+        #     else:
+        #         settings["rootcap"] = danger_real_capability_string(rootcap)
         zkap_unit_name = settings.get("zkap_unit_name", "")
         if zkap_unit_name:
             self.zkapauthorizer.zkap_unit_name = zkap_unit_name
@@ -222,7 +248,13 @@ class Tahoe:
             self.load_settings()
         settings = dict(self.settings)
         if include_secrets:
-            settings["rootcap"] = self.get_rootcap()
+            rootcap = self.get_rootcap()
+            if rootcap is None:
+                settings["rootcap"] = None
+            else:
+                settings["rootcap"] = danger_real_capability_string(
+                    rootcap.reader
+                )
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
                 .read_text(encoding="utf-8")
@@ -598,8 +630,9 @@ class Tahoe:
             "Unexpected response attempting to diminish capability"
         )
 
-    async def create_rootcap(self) -> str:
-        return await self.rootcap_manager.create_rootcap()
+    async def create_rootcap(self) -> DirectoryWriteCapability:
+        rootcap = await self.rootcap_manager.create_rootcap()
+        return rootcap
 
     async def upload(
         self, local_path: str, dircap: str = "", mutable: bool = False
@@ -634,6 +667,7 @@ class Tahoe:
             content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
 
+    @to_deferred
     async def link(self, dircap: str, childname: str, childcap: str) -> None:
         dircap_hash = trunchash(dircap)
         childcap_hash = trunchash(childcap)
@@ -714,7 +748,7 @@ class Tahoe:
             results[name]["type"] = node_type
         return results
 
-    def get_rootcap(self) -> str:
+    def get_rootcap(self) -> Optional[DirectoryWriteCapability]:
         return self.rootcap_manager.get_rootcap()
 
     async def scan_storage_plugins(self) -> None:

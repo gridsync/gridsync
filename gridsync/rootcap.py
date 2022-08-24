@@ -5,6 +5,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from atomicwrites import atomic_write
+from tahoe_capabilities import (
+    DirectoryWriteCapability,
+    danger_real_capability_string,
+    writeable_directory_from_string,
+)
 from twisted.internet.defer import DeferredLock
 
 if TYPE_CHECKING:
@@ -41,65 +46,59 @@ class RootcapManager:
         self.basedir = basedir
         self.lock = DeferredLock()
         self._rootcap_path = Path(gateway.nodedir, "private", "rootcap")
-        self._rootcap: str = ""
+        self._rootcap: Optional[DirectoryWriteCapability] = None
         self._basedircap = ""
         self._backup_caps: dict = {}
 
-    def get_rootcap(self) -> str:
+    def get_rootcap(self) -> Optional[DirectoryWriteCapability]:
         if self._rootcap:
             return self._rootcap
         try:
-            self._rootcap = self._rootcap_path.read_text(encoding="utf-8")
+            rootcap_str = self._rootcap_path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            return ""
+            return None
+        self._rootcap = writeable_directory_from_string(rootcap_str)
         return self._rootcap
 
-    def set_rootcap(self, cap: str, overwrite: bool = False) -> None:
+    def set_rootcap(
+        self, cap: DirectoryWriteCapability, overwrite: bool = False
+    ) -> None:
         with atomic_write(
             str(self._rootcap_path), mode="w", overwrite=overwrite
         ) as f:
-            f.write(cap)
+            f.write(danger_real_capability_string(cap))
         logging.debug("Rootcap saved to file: %s", self._rootcap_path)
         self._rootcap = cap
 
-    async def create_rootcap(self) -> str:
-        logging.debug("Creating rootcap...")
-        if self._rootcap_path.exists():
+    async def create_rootcap(self) -> DirectoryWriteCapability:
+        await self.lock.acquire()
+        try:
+            logging.debug("Creating rootcap...")
+            rootcap = self.get_rootcap()
+            if rootcap is None:
+                rootcap = writeable_directory_from_string(
+                    (await self.gateway.mkdir())
+                )
+                self.set_rootcap(rootcap)
+                return rootcap
             logging.warning(
                 "Rootcap file already exists: %s", self._rootcap_path
             )
-            return self.get_rootcap()
-        await self.lock.acquire()
-        try:
-            rootcap = await self.gateway.mkdir()
+            return rootcap
         finally:
             self.lock.release()
-        await self.lock.acquire()
-        if self._rootcap:
-            logging.warning("Rootcap already exists")
-            self.lock.release()
-            return self._rootcap
-        try:
-            self.set_rootcap(rootcap)
-        except FileExistsError:
-            logging.warning(
-                "Rootcap file already exists: %s", self._rootcap_path
-            )
-            return self.get_rootcap()
-        finally:
-            self.lock.release()
-        logging.debug("Rootcap successfully created")
-        return self._rootcap
 
     async def _get_basedircap(self) -> str:
         if self._basedircap:
             return self._basedircap
         rootcap = self.get_rootcap()
-        if not rootcap:
+        if rootcap is None:
             rootcap = await self.create_rootcap()
-        subdirs = await self.gateway.ls(rootcap, exclude_filenodes=True)
+        subdirs = await self.gateway.ls(
+            danger_real_capability_string(rootcap), exclude_filenodes=True
+        )
         if subdirs is None:
-            raise ValueError("Failed to list rootcap contents")
+            raise ValueError("Unable to list contents of Tahoe-LAFS rootcap")
         self._basedircap = subdirs.get(self.basedir, {}).get("cap", "")
         if self._basedircap:
             return self._basedircap
@@ -109,7 +108,9 @@ class RootcapManager:
             return self._basedircap
         logging.debug('Creating base ("%s") dircap...', self.basedir)
         try:
-            self._basedircap = await self.gateway.mkdir(rootcap, self.basedir)
+            self._basedircap = await self.gateway.mkdir(
+                danger_real_capability_string(rootcap), self.basedir
+            )
         finally:
             self.lock.release()
         logging.debug('Base ("%s") dircap successfully created', self.basedir)
@@ -166,7 +167,7 @@ class RootcapManager:
             raise ValueError("Failed to list backup contents")
         for directory, data in ls_output.items():
             if directory == name:
-                return data.get("ro_cap", data.get("cap", {}))
+                return data["cap"]
         raise ValueError(f"Backup not found for {dirname} -> {name}")
 
     async def get_backups(self, dirname: str) -> Optional[dict]:

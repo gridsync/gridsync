@@ -66,6 +66,10 @@ async def noop_scan_storage_plugins(self):
     pass
 
 
+async def fake_await_ready(self) -> None:
+    pass
+
+
 def test_is_valid_furl():
     assert is_valid_furl("pb://abc234@example.org:12345/introducer")
 

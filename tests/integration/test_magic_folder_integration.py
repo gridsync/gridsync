@@ -4,6 +4,10 @@ from pathlib import Path
 
 import pytest
 from pytest_twisted import async_yield_fixture, ensureDeferred
+from tahoe_capabilities import (
+    danger_real_capability_string,
+    writeable_directory_from_string,
+)
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
@@ -237,9 +241,13 @@ async def test_add_participant(magic_folder, tmp_path):
     await magic_folder.add_folder(path, author)
 
     author_name = randstr()
-    dircap = await magic_folder.gateway.mkdir()
-    personal_dmd = await magic_folder.gateway.diminish(dircap)
-    await magic_folder.add_participant(folder_name, author_name, personal_dmd)
+    dircap = writeable_directory_from_string(
+        (await magic_folder.gateway.mkdir())
+    )
+    personal_dmd = dircap.reader
+    await magic_folder.add_participant(
+        folder_name, author_name, danger_real_capability_string(personal_dmd)
+    )
     participants = await magic_folder.get_participants(folder_name)
     assert author_name in participants
 
@@ -521,15 +529,12 @@ async def test_bob_receive_folder(
     folder_name = "FromAlice"
     bob_path = tmp_path / folder_name
     await bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
-
     alice_folders = await alice_magic_folder.get_folders()
-    alice_personal_dmd = await Deferred.fromCoroutine(
-        alice_magic_folder.gateway.diminish(
-            alice_folders["ToBob"]["upload_dircap"]
-        )
-    )
+    alice_personal_dmd = writeable_directory_from_string(
+        alice_folders["ToBob"]["upload_dircap"]
+    ).reader
     await bob_magic_folder.add_participant(
-        folder_name, "Alice", alice_personal_dmd
+        folder_name, "Alice", danger_real_capability_string(alice_personal_dmd)
     )
 
     p = bob_path / "SharedFile.txt"
