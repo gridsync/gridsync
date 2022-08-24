@@ -7,6 +7,7 @@ import pytest
 from gridsync.util import (
     b58decode,
     b58encode,
+    future_date,
     humanized_list,
     strip_html_tags,
     to_bool,
@@ -91,6 +92,14 @@ def test_to_bool(s, result):
 )
 def test_humanized_list(items, kind, humanized):
     assert humanized_list(items, kind) == humanized
+
+
+def test_future_date_returns_centuries_for_large_int_days():
+    assert future_date(2**32) == "Centuries"
+
+
+def test_future_date_does_not_return_centuries_for_small_int_days():
+    assert future_date(365 * 5) != "Centuries"
 
 
 @pytest.mark.parametrize(

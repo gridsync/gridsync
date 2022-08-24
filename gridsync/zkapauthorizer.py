@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Callable, Optional
 
 import treq
 from autobahn.twisted.websocket import create_client_agent
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks
 
 from gridsync.errors import TahoeWebError
 from gridsync.types import TwistedDeferred
@@ -106,7 +106,9 @@ class ZKAPAuthorizer:
                     size = data[1].get("size", 0)
                     if size:
                         sizes.append(size)
-        mf_sizes = yield self.gateway.magic_folder.get_all_object_sizes()
+        mf_sizes = yield Deferred.fromCoroutine(
+            self.gateway.magic_folder.get_all_object_sizes()
+        )
         sizes.extend(mf_sizes)
         return sizes
 
@@ -247,14 +249,18 @@ class ZKAPAuthorizer:
         """
         recovery_cap = yield self.replicate()
         try:
-            backup_cap = yield self.gateway.rootcap_manager.get_backup(
-                ".zkapauthorizer", "recovery-capability"
+            backup_cap = yield Deferred.fromCoroutine(
+                self.gateway.rootcap_manager.get_backup(
+                    ".zkapauthorizer", "recovery-capability"
+                )
             )
         except ValueError:
             backup_cap = ""
         if recovery_cap and recovery_cap != backup_cap:
-            yield self.gateway.rootcap_manager.add_backup(
-                ".zkapauthorizer", "recovery-capability", recovery_cap
+            yield Deferred.fromCoroutine(
+                self.gateway.rootcap_manager.add_backup(
+                    ".zkapauthorizer", "recovery-capability", recovery_cap
+                )
             )
         else:
             logging.warning(
@@ -271,12 +277,14 @@ class ZKAPAuthorizer:
         :returns: `True` if a snapshot exists, `False` otherwise.
         """
         try:
-            recovery_cap = yield self.gateway.rootcap_manager.get_backup(
-                ".zkapauthorizer", "recovery-capability"
+            recovery_cap = yield Deferred.fromCoroutine(
+                self.gateway.rootcap_manager.get_backup(
+                    ".zkapauthorizer", "recovery-capability"
+                )
             )
         except ValueError:
             return False
-        ls_output = yield self.gateway.ls(recovery_cap)
+        ls_output = yield Deferred.fromCoroutine(self.gateway.ls(recovery_cap))
         if ls_output and "snapshot" in ls_output:
             return True
         return False
@@ -291,7 +299,9 @@ class ZKAPAuthorizer:
         ``.zkapauthorizer`` backup, which should be there from a
         previous call to ``backup_zkaps``.
         """
-        cap = yield self.gateway.rootcap_manager.get_backup(
-            ".zkapauthorizer", "recovery-capability"
+        cap = yield Deferred.fromCoroutine(
+            self.gateway.rootcap_manager.get_backup(
+                ".zkapauthorizer", "recovery-capability"
+            )
         )
         yield self.recover(cap, on_status_update)

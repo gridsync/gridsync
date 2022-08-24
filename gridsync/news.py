@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.task import deferLater
 
 from gridsync import settings
@@ -50,7 +50,9 @@ class NewscapChecker(QObject):
         downloads = sorted(downloads)
         for dest, filecap in downloads:
             try:
-                yield self.gateway.download(filecap, dest)
+                yield Deferred.fromCoroutine(
+                    self.gateway.download(filecap, dest)
+                )
             except Exception as e:  # pylint: disable=broad-except
                 logging.warning("Error downloading '%s': %s", dest, str(e))
         newest_message_filepath = downloads[-1][0]
@@ -60,7 +62,9 @@ class NewscapChecker(QObject):
 
     @inlineCallbacks
     def _check_v1(self) -> TwistedDeferred[None]:
-        content = yield self.gateway.get_json(self.gateway.newscap + "/v1")
+        content = yield Deferred.fromCoroutine(
+            self.gateway.get_json(self.gateway.newscap + "/v1")
+        )
         if not content:
             return
 
@@ -96,7 +100,9 @@ class NewscapChecker(QObject):
         if not self.gateway.newscap:
             return
         yield self.gateway.await_ready()
-        content = yield self.gateway.get_json(self.gateway.newscap)
+        content = yield Deferred.fromCoroutine(
+            self.gateway.get_json(self.gateway.newscap)
+        )
         if not content:
             return
         try:

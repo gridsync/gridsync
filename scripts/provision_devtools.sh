@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+SHELLRC=~/.$(basename "$SHELL"rc)
+
 if [ "$(uname)" = "Darwin" ]; then
     export HOMEBREW_NO_ANALYTICS=1
     if [ ! -f "/usr/local/bin/brew" ]; then
@@ -10,7 +12,6 @@ if [ "$(uname)" = "Darwin" ]; then
     brew install openssl readline sqlite3 xz zlib diffoscope
     export MACOSX_DEPLOYMENT_TARGET="10.13"
     export PYTHON_CONFIGURE_OPTS="--enable-framework"
-    SHELLRC=~/.$(basename "$SHELL"rc)
 else
     if [ -f "/usr/bin/apt-get" ]; then
         sudo apt-get -y update
@@ -19,7 +20,6 @@ else
     elif [ -f "/usr/bin/yum" ]; then
         PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file"
         yum -y install $PKGS || sudo yum -y install $PKGS
-        SHELLRC=~/.bashrc
     else
         echo "Error: Unknown environment"
         exit 1
@@ -35,7 +35,7 @@ else
     fi
 fi
 
-git clone --branch v2.3.1 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.3.1
+git clone --branch v2.3.3 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.3.3
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "$SHELLRC"
 echo 'export PATH="$PYENV_ROOT/bin:$HOME/bin:$PATH"' >> "$SHELLRC"
 echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
@@ -47,9 +47,9 @@ if [ "$(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)" = '"CentOS L
     export CPPFLAGS="-I/usr/include/openssl11"
     export LDFLAGS="-L/usr/lib64/openssl11"
 fi
-pyenv install --skip-existing 3.10.4
+pyenv install --skip-existing 3.10.6
 pyenv rehash
-pyenv global 3.9.13 3.10.4
+pyenv global 3.9.13 3.10.6
 pyenv versions
 
 python3 -m pip install --upgrade setuptools pip tox diffoscope

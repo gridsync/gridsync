@@ -38,8 +38,8 @@ Step 2: Importing the developer's public key
 
 With GnuPG already installed, the Gridsync Release Signing Key can be imported directly with the following command:
 
-* For Windows: `"C:\Program Files\Gnu\GnuPg\gpg.exe" --keyserver pool.sks-keyservers.net --recv-keys 0xD38A20A62777E1A5`
-* For macOS or GNU/Linux: `gpg --keyserver pool.sks-keyservers.net --recv-keys 0xD38A20A62777E1A5`
+* For Windows: `"C:\Program Files\Gnu\GnuPg\gpg.exe" --keyserver keyserver.ubuntu.com --recv-keys 0xD38A20A62777E1A5`
+* For macOS or GNU/Linux: `gpg --keyserver keyserver.ubuntu.com --recv-keys 0xD38A20A62777E1A5`
 
 In order to ensure that the key has been imported successfully, you can run the following afterward:
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from humanize import naturalsize
@@ -22,6 +21,7 @@ from gridsync.gui.menu import Menu
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import HSpacer
 from gridsync.magic_folder import MagicFolderStatus
+from gridsync.util import future_date
 
 
 class StatusPanel(QWidget):
@@ -234,14 +234,7 @@ class StatusPanel(QWidget):
             self.stored_label.setText(f"Stored: {naturalsize(size)}")
         self.stored_label.show()
 
-    @Slot(int)
+    @Slot(object)
     def on_days_remaining_updated(self, days: int) -> None:
-        expiry_date = datetime.strftime(
-            datetime.strptime(
-                datetime.isoformat(datetime.now() + timedelta(days=days)),
-                "%Y-%m-%dT%H:%M:%S.%f",
-            ),
-            "%d %b %Y",
-        )
-        self.expires_label.setText(f"Expected expiry: {expiry_date}")
+        self.expires_label.setText(f"Expected expiry: {future_date(days)}")
         self.expires_label.show()

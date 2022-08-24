@@ -44,7 +44,7 @@ from qtpy.QtWidgets import (
     QStyleOptionViewItem,
     QTreeView,
 )
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, features, resource
@@ -153,7 +153,7 @@ class View(QTreeView):
     def _create_rootcap(self) -> TwistedDeferred[None]:
         # There's probably a better place/module for this...
         try:
-            yield self.gateway.create_rootcap()
+            yield Deferred.fromCoroutine(self.gateway.create_rootcap())
         except Exception as exc:  # pylint: disable=broad-except
             error(
                 self,
@@ -212,8 +212,10 @@ class View(QTreeView):
         self, folder_name: str, dest: str
     ) -> TwistedDeferred[None]:
         try:
-            yield self.gateway.magic_folder.restore_folder_backup(
-                folder_name, os.path.join(dest, folder_name)
+            yield Deferred.fromCoroutine(
+                self.gateway.magic_folder.restore_folder_backup(
+                    folder_name, os.path.join(dest, folder_name)
+                )
             )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
@@ -244,7 +246,9 @@ class View(QTreeView):
     @inlineCallbacks
     def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
         try:
-            yield self.gateway.magic_folder.remove_folder_backup(folder_name)
+            yield Deferred.fromCoroutine(
+                self.gateway.magic_folder.remove_folder_backup(folder_name)
+            )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
@@ -287,6 +291,7 @@ class View(QTreeView):
             tasks = []
             for folder in folders:
                 tasks.append(self.remove_folder_backup(folder))
+            # XXX Something should wait on this.
             DeferredList(tasks)
 
     @inlineCallbacks
@@ -294,8 +299,10 @@ class View(QTreeView):
         self, folder_name: str, remove_backup: bool = False
     ) -> TwistedDeferred[None]:
         try:
-            yield self.gateway.magic_folder.leave_folder(
-                folder_name, missing_ok=True
+            yield Deferred.fromCoroutine(
+                self.gateway.magic_folder.leave_folder(
+                    folder_name, missing_ok=True
+                )
             )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
@@ -489,7 +496,9 @@ class View(QTreeView):
         self.get_model().add_folder(path)
         folder_name = os.path.basename(path)
         try:
-            yield self.gateway.magic_folder.add_folder(path, "admin")
+            yield Deferred.fromCoroutine(
+                self.gateway.magic_folder.add_folder(path, "admin")
+            )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(

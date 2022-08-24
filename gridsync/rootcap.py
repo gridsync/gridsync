@@ -5,11 +5,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from atomicwrites import atomic_write
-from twisted.internet.defer import DeferredLock, inlineCallbacks
+from twisted.internet.defer import DeferredLock
 
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
-    from gridsync.types import TwistedDeferred
 
 
 class RootcapManager:
@@ -63,20 +62,19 @@ class RootcapManager:
         logging.debug("Rootcap saved to file: %s", self._rootcap_path)
         self._rootcap = cap
 
-    @inlineCallbacks
-    def create_rootcap(self) -> TwistedDeferred[str]:
+    async def create_rootcap(self) -> str:
         logging.debug("Creating rootcap...")
         if self._rootcap_path.exists():
             logging.warning(
                 "Rootcap file already exists: %s", self._rootcap_path
             )
             return self.get_rootcap()
-        yield self.lock.acquire()
+        await self.lock.acquire()
         try:
-            rootcap = yield self.gateway.mkdir()
+            rootcap = await self.gateway.mkdir()
         finally:
             self.lock.release()
-        yield self.lock.acquire()
+        await self.lock.acquire()
         if self._rootcap:
             logging.warning("Rootcap already exists")
             self.lock.release()
@@ -93,101 +91,93 @@ class RootcapManager:
         logging.debug("Rootcap successfully created")
         return self._rootcap
 
-    @inlineCallbacks
-    def _get_basedircap(self) -> TwistedDeferred[str]:
+    async def _get_basedircap(self) -> str:
         if self._basedircap:
             return self._basedircap
         rootcap = self.get_rootcap()
         if not rootcap:
-            rootcap = yield self.create_rootcap()
-        subdirs = yield self.gateway.ls(rootcap, exclude_filenodes=True)
+            rootcap = await self.create_rootcap()
+        subdirs = await self.gateway.ls(rootcap, exclude_filenodes=True)
+        if subdirs is None:
+            raise ValueError("Failed to list rootcap contents")
         self._basedircap = subdirs.get(self.basedir, {}).get("cap", "")
         if self._basedircap:
             return self._basedircap
-        yield self.lock.acquire()
+        await self.lock.acquire()
         if self._basedircap:
             self.lock.release()
             return self._basedircap
         logging.debug('Creating base ("%s") dircap...', self.basedir)
         try:
-            self._basedircap = yield self.gateway.mkdir(rootcap, self.basedir)
+            self._basedircap = await self.gateway.mkdir(rootcap, self.basedir)
         finally:
             self.lock.release()
         logging.debug('Base ("%s") dircap successfully created', self.basedir)
         return self._basedircap
 
-    @inlineCallbacks
-    def create_backup_cap(
-        self, name: str, basedircap: str = ""
-    ) -> TwistedDeferred[str]:
+    async def create_backup_cap(self, name: str, basedircap: str = "") -> str:
         if not basedircap:
-            basedircap = yield self._get_basedircap()
-        yield self.lock.acquire()
+            basedircap = await self._get_basedircap()
+        await self.lock.acquire()
         try:
-            backup_cap = yield self.gateway.mkdir(basedircap, name)
+            backup_cap = await self.gateway.mkdir(basedircap, name)
         finally:
             self.lock.release()
         self._backup_caps[name] = backup_cap
         return backup_cap
 
-    @inlineCallbacks
-    def get_backup_cap(
-        self, name: str, basedircap: str = ""
-    ) -> TwistedDeferred[str]:
+    async def get_backup_cap(self, name: str, basedircap: str = "") -> str:
         backup_cap = self._backup_caps.get(name)
         if backup_cap:
             return backup_cap
         if not basedircap:
-            basedircap = yield self._get_basedircap()
-        ls_output = yield self.gateway.ls(basedircap, exclude_filenodes=True)
+            basedircap = await self._get_basedircap()
+        ls_output = await self.gateway.ls(basedircap, exclude_filenodes=True)
+        if ls_output is None:
+            raise ValueError("Failed to list backup contents")
         backup_caps = {}
         for dirname, data in ls_output.items():
             backup_caps[dirname] = data.get("cap", "")
         backup_cap = backup_caps.get(name, "")
         if not backup_cap:
-            backup_cap = yield self.create_backup_cap(name, basedircap)
+            backup_cap = await self.create_backup_cap(name, basedircap)
             backup_caps[name] = backup_cap
         self._backup_caps = backup_caps
         return backup_cap
 
-    @inlineCallbacks
-    def add_backup(
-        self, dirname: str, name: str, cap: str
-    ) -> TwistedDeferred[str]:
-        backup_cap = yield self.get_backup_cap(dirname)
-        yield self.lock.acquire()
+    async def add_backup(self, dirname: str, name: str, cap: str) -> None:
+        backup_cap = await self.get_backup_cap(dirname)
+        await self.lock.acquire()
         try:
-            cap = yield self.gateway.link(backup_cap, name, cap)
+            await self.gateway.link(backup_cap, name, cap)
         finally:
             self.lock.release()
-        return cap
 
-    @inlineCallbacks
-    def get_backup(self, dirname: str, name: str) -> TwistedDeferred[str]:
+    async def get_backup(self, dirname: str, name: str) -> str:
         """
         Retrieve a backup previously added with `add_backup`.
 
         :param dirname: same meaning as add_backup
         :param name: same meaning as add_backup
         """
-        backup_cap = yield self.get_backup_cap(dirname)
-        ls_output = yield self.gateway.ls(backup_cap)
+        backup_cap = await self.get_backup_cap(dirname)
+        ls_output = await self.gateway.ls(backup_cap)
+        if ls_output is None:
+            raise ValueError("Failed to list backup contents")
         for directory, data in ls_output.items():
             if directory == name:
                 return data["cap"]
         raise ValueError(f"Backup not found for {dirname} -> {name}")
 
-    @inlineCallbacks
-    def get_backups(self, dirname: str) -> TwistedDeferred[Optional[dict]]:
-        backup_cap = yield self.get_backup_cap(dirname)
-        ls_output = yield self.gateway.ls(backup_cap)
+    async def get_backups(self, dirname: str) -> Optional[dict]:
+        backup_cap = await self.get_backup_cap(dirname)
+        ls_output = await self.gateway.ls(backup_cap)
         return ls_output
 
-    @inlineCallbacks
-    def remove_backup(self, dirname: str, name: str) -> TwistedDeferred[None]:
-        backup_cap = yield self.get_backup_cap(dirname)
-        yield self.lock.acquire()
+    async def remove_backup(self, dirname: str, name: str) -> None:
+        backup_cap = await self.get_backup_cap(dirname)
+        await self.lock.acquire()
         try:
-            yield self.gateway.unlink(backup_cap, name, missing_ok=True)
+            await self.gateway.unlink(backup_cap, name, missing_ok=True)
         finally:
             self.lock.release()

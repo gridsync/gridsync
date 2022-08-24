@@ -101,8 +101,16 @@ def _tahoe(tmpdir_factory, reactor):
         "URI:DIR2:x6ciqn3dbnkslpvazwz6z7ic2q:"
         "slkf7invl5apcabpyztxazkcufmptsclx7m3rn6hhiyuiz2hvu6a"
     )
-    client.magic_folder = Mock()  # XXX
+    client.magic_folder = DummyMagicFolder()  # XXX
     return client
+
+
+class DummyMagicFolder:
+    async def start(self) -> None:
+        pass
+
+    async def stop(self) -> None:
+        pass
 
 
 @pytest.fixture()

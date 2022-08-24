@@ -290,7 +290,8 @@ class ToolBar(QToolBar):
                 self.invites_wa.setVisible(False)
             else:
                 try:
-                    self.invite_wa.setVisible(False)
+                    # Suppress mypy error: "None" has no attribute "setVisible"
+                    self.invite_wa.setVisible(False)  # type: ignore
                 except AttributeError:
                     pass
         else:
@@ -299,7 +300,8 @@ class ToolBar(QToolBar):
                 self.invites_wa.setVisible(True)
             else:
                 try:
-                    self.invite_wa.setVisible(True)
+                    # Suppress mypy error: "None" has no attribute "setVisible"
+                    self.invite_wa.setVisible(True)  # type: ignore
                 except AttributeError:
                     pass
 

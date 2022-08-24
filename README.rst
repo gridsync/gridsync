@@ -77,7 +77,7 @@ Downloads for "stable" releases of Gridsync can be found on the project's `GitHu
 .. _GitHub Releases page: https://github.com/gridsync/gridsync/releases
 .. _verify their signatures: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Debian 9+, Ubuntu 16.04 LTS+, CentOS 7+, and Fedora 28+):
+To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and above -- including Ubuntu 20.04 LTS and later):
 
 1. Download `Gridsync-Linux.AppImage`_ (and `verify`_ its signature)
 2. Make the AppImage executable (``chmod +x Gridsync-Linux.AppImage``)
@@ -86,7 +86,7 @@ To install and run Gridsync on GNU/Linux (64-bit only; supporting glibc 2.17 and
 .. _Gridsync-Linux.AppImage: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on macOS (64-bit only; supporting macOS 10.14 "Mojave" and above):
+To install and run Gridsync on macOS (64-bit only; supporting macOS 11 "Big Sur" and later):
 
 1. Download `Gridsync-macOS.dmg`_ (and `verify`_ its signature)
 2. Drag the enclosed "Gridsync.app" bundle anywhere (e.g., ``~/Applications``)
@@ -95,7 +95,7 @@ To install and run Gridsync on macOS (64-bit only; supporting macOS 10.14 "Mojav
 .. _Gridsync-macOS.dmg: https://github.com/gridsync/gridsync/releases
 .. _verify: https://github.com/gridsync/gridsync/blob/master/docs/verifying-signatures.md
 
-To install and run Gridsync on Windows (64-bit only; supporting Windows Server 2012R2, Windows 7 SP1, Windows 8.1, and Windows 10):
+To install and run Gridsync on Windows (64-bit only; supporting Windows 10 and Windows 11):
 
 1. Download `Gridsync-Windows-setup.exe`_ (and `verify`_ its signature)
 2. Run the executable installer and follow/complete the setup wizard
@@ -123,7 +123,7 @@ This will create a standalone executable distribution of Gridsync with all of it
 .. _provision_devtools.sh: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.sh
 .. _provision_devtools.bat: https://github.com/gridsync/gridsync/blob/master/scripts/provision_devtools.bat
 
-Note, however, that PyInstaller-generated binaries are typically `not backward-compatible`_; a PyInstaller executable that was built on a newer GNU/Linux distribution, for example (i.e., with a more recent version of `glibc`) will not run on older distributions. Accordingly, if you intend to distribute Gridsync binaries for use on a wide range operating system versions, it is recommended that you build the application on as old of a system as is reasonable for a given platform (i.e., one which can build and run Gridsync but which still receives security updates). Presently, CentOS 7, macOS "Mojave" (10.14), and Windows Server 2012 R2 arguably constitute the most suitable candidates for GNU/Linux, macOS, and Windows build systems respectively (insofar as binaries generated on these systems will be forward-compatible with all others in that platform-category that are still supported upstream).
+Note, however, that PyInstaller-generated binaries are typically `not backward-compatible`_; a PyInstaller executable that was built on a newer GNU/Linux distribution, for example (i.e., with a more recent version of `glibc`) will not run on older distributions. Accordingly, if you intend to distribute Gridsync binaries for use on a wide range operating system versions, it is recommended that you build the application on as old of a system as is reasonable for a given platform (i.e., one which can build and run Gridsync but which still receives security updates). Presently, CentOS 7, macOS "Mojave" (10.14), and Windows 10 arguably constitute the most suitable candidates for GNU/Linux, macOS, and Windows build systems respectively (insofar as binaries generated on these systems will be forward-compatible with all others in that platform-category that are still supported upstream).
 
 .. _not backward-compatible: https://pyinstaller.readthedocs.io/en/latest/usage.html#platform-specific-notes
 

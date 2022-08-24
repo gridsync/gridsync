@@ -3,8 +3,9 @@ import sys
 from pathlib import Path
 
 import pytest
-from pytest_twisted import async_yield_fixture, inlineCallbacks
+from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
+from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
@@ -81,103 +82,105 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
     await client.stop()
 
 
-@inlineCallbacks
-def leave_all_folders(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def leave_all_folders(magic_folder):
+    folders = await magic_folder.get_folders()
     for folder in list(folders):
         # https://github.com/LeastAuthority/magic-folder/issues/587
-        yield deferLater(reactor, 0.1, lambda: None)
-        yield magic_folder.leave_folder(folder)
+        await deferLater(reactor, 0.1, lambda: None)
+        await magic_folder.leave_folder(folder)
 
 
-@inlineCallbacks
-def test_version(magic_folder):
-    output = yield magic_folder.version()
+@ensureDeferred
+async def test_version(magic_folder):
+    output = await magic_folder.version()
     assert output.startswith("Magic")
 
 
-@inlineCallbacks
-def test_get_folders(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_get_folders(magic_folder):
+    folders = await magic_folder.get_folders()
     assert folders == {}
 
 
-@inlineCallbacks
-def test_add_folder(magic_folder, tmp_path):
+@ensureDeferred
+async def test_add_folder(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
-    folders = yield magic_folder.get_folders()
+    folders = await magic_folder.get_folders()
     assert folder_name in folders
 
 
-@inlineCallbacks
-def test_leave_folder(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
     folder_was_added = folder_name in folders
 
-    yield magic_folder.leave_folder(folder_name)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.leave_folder(folder_name)
+    folders = await magic_folder.get_folders()
     folder_was_removed = folder_name not in folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
 
 
-@inlineCallbacks
-def test_leave_folder_with_missing_ok_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder_with_missing_ok_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
     folder_was_added = folder_name in folders
 
-    yield magic_folder.leave_folder(folder_name)
-    yield magic_folder.leave_folder(folder_name, missing_ok=True)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.leave_folder(folder_name)
+    await magic_folder.leave_folder(folder_name, missing_ok=True)
+    folders = await magic_folder.get_folders()
     folder_was_removed = folder_name not in folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
 
 
-@inlineCallbacks
-def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder_with_missing_ok_false(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    yield magic_folder.leave_folder(folder_name)
+    await magic_folder.add_folder(path, author)
+    await magic_folder.leave_folder(folder_name)
     with pytest.raises(MagicFolderWebError):
-        yield magic_folder.leave_folder(folder_name, missing_ok=False)
+        await magic_folder.leave_folder(folder_name, missing_ok=False)
 
 
-@inlineCallbacks
-def test_leave_folder_removes_from_magic_folders_dict(magic_folder, tmp_path):
+@ensureDeferred
+async def test_leave_folder_removes_from_magic_folders_dict(
+    magic_folder, tmp_path
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
     folder_was_added = folder_name in folders
 
-    yield magic_folder.leave_folder(folder_name)
+    await magic_folder.leave_folder(folder_name)
     folder_was_removed = folder_name not in magic_folder.magic_folders
 
     assert (folder_was_added, folder_was_removed) == (True, True)
 
 
-@inlineCallbacks
-def test_folder_is_local_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_folder_is_local_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     assert magic_folder.folder_is_local(folder_name) is True
 
 
@@ -186,13 +189,13 @@ def test_folder_is_local_false(magic_folder, tmp_path):
     assert magic_folder.folder_is_local(folder_name) is False
 
 
-@inlineCallbacks
-def test_folder_is_remote_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_folder_is_remote_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    yield magic_folder.monitor.do_check()  # XXX
+    await magic_folder.add_folder(path, author)
+    await magic_folder.monitor.do_check()  # XXX
     assert magic_folder.folder_is_remote(folder_name) is True
 
 
@@ -201,12 +204,12 @@ def test_folder_is_remote_false(magic_folder, tmp_path):
     assert magic_folder.folder_is_remote(folder_name) is False
 
 
-@inlineCallbacks
-def test_folder_exists_true(magic_folder, tmp_path):
+@ensureDeferred
+async def test_folder_exists_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     assert magic_folder.folder_exists(folder_name) is True
 
 
@@ -215,109 +218,109 @@ def test_folder_exists_false(magic_folder, tmp_path):
     assert magic_folder.folder_is_local(folder_name) is False
 
 
-@inlineCallbacks
-def test_get_participants(magic_folder, tmp_path):
+@ensureDeferred
+async def test_get_participants(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
-    participants = yield magic_folder.get_participants(folder_name)
+    participants = await magic_folder.get_participants(folder_name)
     assert author in participants
 
 
-@inlineCallbacks
-def test_add_participant(magic_folder, tmp_path):
+@ensureDeferred
+async def test_add_participant(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
     author_name = randstr()
-    dircap = yield magic_folder.gateway.mkdir()
-    personal_dmd = yield magic_folder.gateway.get_readonly_cap(dircap)
-    yield magic_folder.add_participant(folder_name, author_name, personal_dmd)
-    participants = yield magic_folder.get_participants(folder_name)
+    dircap = await magic_folder.gateway.mkdir()
+    personal_dmd = await magic_folder.gateway.diminish(dircap)
+    await magic_folder.add_participant(folder_name, author_name, personal_dmd)
+    participants = await magic_folder.get_participants(folder_name)
     assert author_name in participants
 
 
-@inlineCallbacks
-def test_get_snapshots(magic_folder):
-    folders = yield magic_folder.get_folders()
-    snapshots = yield magic_folder.get_snapshots()
+@ensureDeferred
+async def test_get_snapshots(magic_folder):
+    folders = await magic_folder.get_folders()
+    snapshots = await magic_folder.get_snapshots()
     assert sorted(snapshots.keys()) == sorted(folders.keys())
 
 
-@inlineCallbacks
-def test_add_snapshot(magic_folder, tmp_path):
+@ensureDeferred
+async def test_add_snapshot(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
     filename = randstr()
     filepath = path / filename
     filepath.write_text(randstr() * 10)
-    yield magic_folder.add_snapshot(folder_name, filename)
-    snapshots = yield magic_folder.get_snapshots()
+    await magic_folder.add_snapshot(folder_name, filename)
+    snapshots = await magic_folder.get_snapshots()
     assert filename in snapshots.get(folder_name)
 
 
-@inlineCallbacks
-def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
+@ensureDeferred
+async def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     filename = randstr()
     filepath = path / filename
     filepath.write_text(randstr() * 10)
-    yield magic_folder.add_snapshot(folder_name, filename)
+    await magic_folder.add_snapshot(folder_name, filename)
 
-    folders = yield magic_folder.get_folders()
+    folders = await magic_folder.get_folders()
     upload_dircap = folders[folder_name]["upload_dircap"]
 
-    yield deferLater(reactor, 1.5, lambda: None)
+    await deferLater(reactor, 1.5, lambda: None)
 
-    content = yield magic_folder.gateway.get_json(upload_dircap)
+    content = await magic_folder.gateway.get_json(upload_dircap)
     assert filename in content[1]["children"]
 
 
-@inlineCallbacks
-def test_scanner_uploads_to_personal_dmd(magic_folder, tmp_path):
+@ensureDeferred
+async def test_scanner_uploads_to_personal_dmd(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     filename = randstr()
     filepath = path / filename
     filepath.write_text(randstr() * 10)
-    yield magic_folder.scan(folder_name)
+    await magic_folder.scan(folder_name)
 
-    folders = yield magic_folder.get_folders()
+    folders = await magic_folder.get_folders()
     upload_dircap = folders[folder_name]["upload_dircap"]
 
-    yield deferLater(reactor, 2.5, lambda: None)
+    await deferLater(reactor, 2.5, lambda: None)
 
-    content = yield magic_folder.gateway.get_json(upload_dircap)
+    content = await magic_folder.gateway.get_json(upload_dircap)
     assert filename in content[1]["children"]
 
 
-@inlineCallbacks
-def test_get_file_status(magic_folder, tmp_path):
+@ensureDeferred
+async def test_get_file_status(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
     filename = randstr()
     filepath = path / filename
     filepath.write_text(randstr() * 10)
-    yield magic_folder.scan(folder_name)
+    await magic_folder.scan(folder_name)
 
-    output = yield magic_folder.get_file_status(folder_name)
+    output = await magic_folder.get_file_status(folder_name)
     keys = output[0].keys()
     assert (
         "mtime" in keys,
@@ -332,86 +335,86 @@ def test_get_file_status(magic_folder, tmp_path):
     )
 
 
-@inlineCallbacks
-def test_get_object_sizes(magic_folder, tmp_path):
+@ensureDeferred
+async def test_get_object_sizes(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     filepath_1 = path / "TestFile1.txt"
     filepath_1.write_text(randstr(32) * 10)
     filepath_2 = path / "TestFile2.txt"
     filepath_2.write_text(randstr(32) * 10)
-    yield magic_folder.scan(folder_name)
-    yield deferLater(reactor, 1.5, lambda: None)
+    await magic_folder.scan(folder_name)
+    await deferLater(reactor, 1.5, lambda: None)
     # From https://github.com/LeastAuthority/magic-folder/blob/
     # 10421379e2e7154708ab9c7380b3da527c284027/docs/interface.rst#
     # get-v1magic-folderfolder-nametahoe-objects:
     # "The list is flat; if there are 2 Snapshots on the grid this will
     # return 6 integers."
-    output = yield magic_folder.get_object_sizes(folder_name)
+    output = await magic_folder.get_object_sizes(folder_name)
     assert output == [416, 320, 217, 416, 320, 217]
 
 
-@inlineCallbacks
-def test_get_all_object_sizes(magic_folder, tmp_path):
-    yield leave_all_folders(magic_folder)
+@ensureDeferred
+async def test_get_all_object_sizes(magic_folder, tmp_path):
+    await leave_all_folders(magic_folder)
 
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     filepath_1 = path / "TestFile1.txt"
     filepath_1.write_text(randstr(32) * 10)
     filepath_2 = path / "TestFile2.txt"
     filepath_2.write_text(randstr(32) * 10)
-    yield magic_folder.scan(folder_name)
+    await magic_folder.scan(folder_name)
 
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     filepath_3 = path / "TestFile3.txt"
     filepath_3.write_text(randstr(32) * 10)
-    yield magic_folder.scan(folder_name)
+    await magic_folder.scan(folder_name)
 
-    yield deferLater(reactor, 1.5, lambda: None)
-    output = yield magic_folder.get_all_object_sizes()
+    await deferLater(reactor, 1.5, lambda: None)
+    output = await magic_folder.get_all_object_sizes()
     assert output == [416, 320, 217, 416, 320, 217, 416, 320, 217]
 
 
-@inlineCallbacks
-def test_scan(magic_folder, tmp_path):
+@ensureDeferred
+async def test_scan(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
-    output = yield magic_folder.scan(folder_name)
+    output = await magic_folder.scan(folder_name)
     assert output == {}
 
 
-@inlineCallbacks
-def test_poll(magic_folder, tmp_path):
+@ensureDeferred
+async def test_poll(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
 
-    output = yield magic_folder.poll(folder_name)
+    output = await magic_folder.poll(folder_name)
     assert output == {}
 
 
-@inlineCallbacks
-def test_create_folder_backup(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_create_folder_backup(magic_folder):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    backup_cap = yield magic_folder.rootcap_manager.get_backup_cap(
+    backup_cap = await magic_folder.rootcap_manager.get_backup_cap(
         ".magic-folders"
     )
-    content = yield magic_folder.gateway.get_json(backup_cap)
+    content = await magic_folder.gateway.get_json(backup_cap)
     children = content[1]["children"]
     assert (
         f"{folder_name} (collective)" in children
@@ -419,27 +422,27 @@ def test_create_folder_backup(magic_folder):
     )
 
 
-@inlineCallbacks
-def test_get_folder_backups(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_get_folder_backups(magic_folder):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    remote_folders = yield magic_folder.get_folder_backups()
+    remote_folders = await magic_folder.get_folder_backups()
     assert folder_name in remote_folders
 
 
-@inlineCallbacks
-def test_remove_folder_backup(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_remove_folder_backup(magic_folder):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    yield magic_folder.remove_folder_backup(folder_name)
-    backup_cap = yield magic_folder.rootcap_manager.get_backup_cap(
+    await magic_folder.remove_folder_backup(folder_name)
+    backup_cap = await magic_folder.rootcap_manager.get_backup_cap(
         ".magic-folders"
     )
-    content = yield magic_folder.gateway.get_json(backup_cap)
+    content = await magic_folder.gateway.get_json(backup_cap)
     children = content[1]["children"]
     assert (
         f"{folder_name} (collective)" not in children
@@ -447,93 +450,101 @@ def test_remove_folder_backup(magic_folder):
     )
 
 
-@inlineCallbacks
-def test_remote_magic_folders_dict_is_updated_by_folder_backups(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_remote_magic_folders_dict_is_updated_by_folder_backups(
+    magic_folder,
+):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
-    backups = yield magic_folder.get_folder_backups()
+    await magic_folder.create_folder_backup(folder_name)
+    backups = await magic_folder.get_folder_backups()
     folder_backed_up = folder_name in backups
     folder_added = folder_name in magic_folder.remote_magic_folders
-    yield magic_folder.remove_folder_backup(folder_name)
+    await magic_folder.remove_folder_backup(folder_name)
     folder_removed = folder_name not in magic_folder.remote_magic_folders
     assert folder_backed_up and folder_added and folder_removed
 
 
-@inlineCallbacks
-def test_create_folder_backup_preserves_collective_writecap(magic_folder):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_create_folder_backup_preserves_collective_writecap(
+    magic_folder,
+):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
 
-    remote_folders = yield magic_folder.get_folder_backups()
+    remote_folders = await magic_folder.get_folder_backups()
     remote_cap = remote_folders[folder_name]["collective_dircap"]
     assert remote_cap.startswith("URI:DIR2:")
 
 
-@inlineCallbacks
-def test_local_folders_have_backups(magic_folder):
-    remote_folders = yield magic_folder.get_folder_backups()
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_local_folders_have_backups(magic_folder):
+    remote_folders = await magic_folder.get_folder_backups()
+    folders = await magic_folder.get_folders()
     for folder in folders:
         assert folder in remote_folders
 
 
-@inlineCallbacks
-def test_restore_folder_backup(magic_folder, tmp_path):
-    folders = yield magic_folder.get_folders()
+@ensureDeferred
+async def test_restore_folder_backup(magic_folder, tmp_path):
+    folders = await magic_folder.get_folders()
     folder_name = next(iter(folders))
-    yield magic_folder.create_folder_backup(folder_name)
-    yield magic_folder.leave_folder(folder_name)
+    await magic_folder.create_folder_backup(folder_name)
+    await magic_folder.leave_folder(folder_name)
 
     local_path = tmp_path / folder_name
-    yield magic_folder.restore_folder_backup(folder_name, local_path)
-    folders = yield magic_folder.get_folders()
+    await magic_folder.restore_folder_backup(folder_name, local_path)
+    folders = await magic_folder.get_folders()
     assert folder_name in folders
 
 
-@inlineCallbacks
-def test_alice_add_folder(alice_magic_folder, tmp_path):
+@ensureDeferred
+async def test_alice_add_folder(alice_magic_folder, tmp_path):
     folder_name = "ToBob"
     alice_path = tmp_path / folder_name
-    yield alice_magic_folder.add_folder(alice_path, "Alice", poll_interval=1)
+    await alice_magic_folder.add_folder(alice_path, "Alice", poll_interval=1)
 
     filename = "SharedFile.txt"
     filepath = alice_path / filename
     filepath.write_text(randstr() * 10)
-    yield alice_magic_folder.scan(folder_name)
+    await alice_magic_folder.scan(folder_name)
 
-    snapshots = yield alice_magic_folder.get_snapshots()
+    snapshots = await alice_magic_folder.get_snapshots()
     assert filename in snapshots.get(folder_name)
 
 
-@inlineCallbacks
-def test_bob_receive_folder(alice_magic_folder, bob_magic_folder, tmp_path):
+@ensureDeferred
+async def test_bob_receive_folder(
+    alice_magic_folder, bob_magic_folder, tmp_path
+):
     folder_name = "FromAlice"
     bob_path = tmp_path / folder_name
-    yield bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
+    await bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
 
-    alice_folders = yield alice_magic_folder.get_folders()
-    alice_personal_dmd = yield alice_magic_folder.gateway.get_readonly_cap(
-        alice_folders["ToBob"]["upload_dircap"]
+    alice_folders = await alice_magic_folder.get_folders()
+    alice_personal_dmd = await Deferred.fromCoroutine(
+        alice_magic_folder.gateway.diminish(
+            alice_folders["ToBob"]["upload_dircap"]
+        )
     )
-    yield bob_magic_folder.add_participant(
+    await bob_magic_folder.add_participant(
         folder_name, "Alice", alice_personal_dmd
     )
 
     p = bob_path / "SharedFile.txt"
-    succeeded = yield until(p.exists)
+    succeeded = await until(p.exists)
     assert succeeded is True
 
 
-@inlineCallbacks
-def test_monitor_emits_sync_progress_updated_signal(
+@ensureDeferred
+async def test_monitor_emits_sync_progress_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(
         magic_folder.monitor.sync_progress_updated
@@ -541,56 +552,62 @@ def test_monitor_emits_sync_progress_updated_signal(
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield deferLater(reactor, 1, lambda: None)
+        await magic_folder.scan(folder_name)
+        await deferLater(reactor, 1, lambda: None)
     assert blocker.args == [folder_name, 0, 1]
 
 
-@inlineCallbacks
-def test_monitor_emits_upload_started_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_upload_started_signal(
+    magic_folder, tmp_path, qtbot
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.upload_started) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield deferLater(reactor, 1, lambda: None)
+        await magic_folder.scan(folder_name)
+        await deferLater(reactor, 1, lambda: None)
     assert (blocker.args[0], blocker.args[1]) == (folder_name, filename)
 
 
-@inlineCallbacks
-def test_monitor_emits_upload_finished_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_upload_finished_signal(
+    magic_folder, tmp_path, qtbot
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.upload_finished) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield deferLater(reactor, 1, lambda: None)
+        await magic_folder.scan(folder_name)
+        await deferLater(reactor, 1, lambda: None)
     assert (blocker.args[0], blocker.args[1]) == (folder_name, filename)
 
 
-@inlineCallbacks
-def test_monitor_emits_files_updated_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_files_updated_signal(
+    magic_folder, tmp_path, qtbot
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author, poll_interval=1)
+    await magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(magic_folder.monitor.files_updated) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield deferLater(reactor, 1, lambda: None)
+        await magic_folder.scan(folder_name)
+        await deferLater(reactor, 1, lambda: None)
     assert blocker.args == [folder_name, [filename]]
 
 
@@ -612,57 +629,59 @@ def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
     assert blocker.args == ["TestFolder", ":(", 1234567890]
 
 
-@inlineCallbacks
-def test_monitor_emits_folder_added_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_folder_added_signal(
+    magic_folder, tmp_path, qtbot
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.monitor.do_check()
+    await magic_folder.monitor.do_check()
     with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
-        yield magic_folder.add_folder(path, author)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.add_folder(path, author)
+        await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
 
 
-@inlineCallbacks
-def test_monitor_emits_folder_added_signal_via_status_message(
+@ensureDeferred
+async def test_monitor_emits_folder_added_signal_via_status_message(
     magic_folder, tmp_path, qtbot
 ):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
     with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
-        yield magic_folder.add_folder(path, author)
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield deferLater(reactor, 2, lambda: None)
+        await magic_folder.scan(folder_name)
+        await deferLater(reactor, 2, lambda: None)
     assert blocker.args == [folder_name]
 
 
-@inlineCallbacks
-def test_monitor_emits_folder_mtime_updated_signal(
+@ensureDeferred
+async def test_monitor_emits_folder_mtime_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
-    yield leave_all_folders(magic_folder)
-    yield magic_folder.monitor.do_check()
+    await leave_all_folders(magic_folder)
+    await magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
     with qtbot.wait_signal(
         magic_folder.monitor.folder_mtime_updated
     ) as blocker:
-        yield magic_folder.add_folder(path, author)
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
-        yield deferLater(reactor, 1, lambda: None)  # to increment mtime
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
+        await deferLater(reactor, 1, lambda: None)  # to increment mtime
         filepath.write_text(randstr() * 16)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert blocker.args[0] == folder_name
 
 
@@ -670,55 +689,57 @@ def test_monitor_emits_folder_mtime_updated_signal(
     "CI" in os.environ,
     reason="Fails intermittently on GitHub Actions' Windows runners",
 )
-@inlineCallbacks
-def test_monitor_emits_folder_size_updated_signal(
+@ensureDeferred
+async def test_monitor_emits_folder_size_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
-    yield leave_all_folders(magic_folder)
-    yield magic_folder.monitor.do_check()
+    await leave_all_folders(magic_folder)
+    await magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
     with qtbot.wait_signal(
         magic_folder.monitor.folder_size_updated
     ) as blocker:
-        yield magic_folder.add_folder(path, author)
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr(64))
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1]) == (folder_name, 64)
 
 
-@inlineCallbacks
-def test_monitor_emits_folder_removed_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_folder_removed_signal(
+    magic_folder, tmp_path, qtbot
+):
     # Removing existing folders first
-    yield leave_all_folders(magic_folder)
+    await leave_all_folders(magic_folder)
 
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
-    yield magic_folder.monitor.do_check()
+    await magic_folder.add_folder(path, author)
+    await magic_folder.monitor.do_check()
     with qtbot.wait_signal(magic_folder.monitor.folder_removed) as blocker:
-        yield magic_folder.leave_folder(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.leave_folder(folder_name)
+        await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
 
 
-@inlineCallbacks
-def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
     with qtbot.wait_signal(magic_folder.monitor.file_added) as blocker:
-        yield magic_folder.add_folder(path, author)
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
         folder_name,
         filename,
@@ -729,51 +750,53 @@ def test_monitor_emits_file_added_signal(magic_folder, tmp_path, qtbot):
     "CI" in os.environ,
     reason="Fails intermittently on GitHub Actions' Windows runners",
 )
-@inlineCallbacks
-def test_monitor_emits_file_size_updated_signal(magic_folder, tmp_path, qtbot):
+@ensureDeferred
+async def test_monitor_emits_file_size_updated_signal(
+    magic_folder, tmp_path, qtbot
+):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
     with qtbot.wait_signal(magic_folder.monitor.file_size_updated) as blocker:
-        yield magic_folder.add_folder(path, author)
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
         filepath.write_text(randstr() * 16)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
         folder_name,
         filename,
     )
 
 
-@inlineCallbacks
-def test_monitor_emits_file_mtime_updated_signal(
+@ensureDeferred
+async def test_monitor_emits_file_mtime_updated_signal(
     magic_folder, tmp_path, qtbot
 ):
-    yield leave_all_folders(magic_folder)
-    yield magic_folder.monitor.do_check()
+    await leave_all_folders(magic_folder)
+    await magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
     with qtbot.wait_signal(magic_folder.monitor.file_mtime_updated) as blocker:
-        yield magic_folder.add_folder(path, author)
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
-        yield deferLater(reactor, 1, lambda: None)  # to increment mtime
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
+        await deferLater(reactor, 1, lambda: None)  # to increment mtime
         filepath.write_text(randstr() * 16)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
-        yield deferLater(reactor, 1, lambda: None)  # to increment mtime
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
+        await deferLater(reactor, 1, lambda: None)  # to increment mtime
         filepath.write_text(randstr() * 16)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
         folder_name,
         filename,
@@ -784,64 +807,66 @@ def test_monitor_emits_file_mtime_updated_signal(
     "CI" in os.environ,
     reason="Fails intermittently on GitHub Actions' Windows runners",
 )
-@inlineCallbacks
-def test_monitor_emits_file_modified_signal(magic_folder, tmp_path, qtbot):
-    yield leave_all_folders(magic_folder)
-    yield magic_folder.monitor.do_check()
+@ensureDeferred
+async def test_monitor_emits_file_modified_signal(
+    magic_folder, tmp_path, qtbot
+):
+    await leave_all_folders(magic_folder)
+    await magic_folder.monitor.do_check()
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
     with qtbot.wait_signal(magic_folder.monitor.file_modified) as blocker:
-        yield magic_folder.add_folder(path, author)
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
         filepath.write_text(randstr() * 16)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert (blocker.args[0], blocker.args[1].get("relpath")) == (
         folder_name,
         filename,
     )
 
 
-@inlineCallbacks
-def test_monitor_emits_folder_status_changed_signal(
+@ensureDeferred
+async def test_monitor_emits_folder_status_changed_signal(
     magic_folder, tmp_path, qtbot
 ):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
         magic_folder.monitor.folder_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert blocker.args[1] == MagicFolderStatus.SYNCING
 
 
-@inlineCallbacks
-def test_monitor_emits_overall_status_changed_signal(
+@ensureDeferred
+async def test_monitor_emits_overall_status_changed_signal(
     magic_folder, tmp_path, qtbot
 ):
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    yield magic_folder.add_folder(path, author)
+    await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
         magic_folder.monitor.overall_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
-        yield magic_folder.scan(folder_name)
-        yield magic_folder.monitor.do_check()
+        await magic_folder.scan(folder_name)
+        await magic_folder.monitor.do_check()
     assert blocker.args[0] == MagicFolderStatus.SYNCING
 
 
