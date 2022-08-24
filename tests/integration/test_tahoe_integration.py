@@ -47,8 +47,8 @@ def test_tahoe_client_mkdir(tahoe_client):
 
 @ensureDeferred
 async def test_diminish(tahoe_client):
-    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
-    diminished = yield Deferred.fromCoroutine(tahoe_client.diminish(dircap))
+    dircap = await tahoe_client.mkdir()
+    diminished = await tahoe_client.diminish(dircap)
     assert diminished.startswith("URI:DIR2-RO:")
 
 
