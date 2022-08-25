@@ -117,7 +117,7 @@ class CentralWidget(QStackedWidget):
 
 
 def get_save_filename(
-    parent: QWidget, prompt: str, more: str
+    parent: QWidget, prompt: str, filename: str
 ) -> Optional[Path]:
     """
     Ask the user for a path to which some data may be saved.
@@ -125,8 +125,8 @@ def get_save_filename(
     Block until the user enters the path.
 
     :param parent: A parent widget to contain the modal dialog created.
-    :param prompt: Some of the prompt to include in the dialog. (XXX)
-    :param more: More of the prompt to include in the dialog. (XXX)
+    :param prompt: The user-facing the prompt to include in the dialog.
+    :param filename: The default filename to be selected in the dialog.
 
     :return: If a path is chosen, the path.
     """
@@ -135,7 +135,7 @@ def get_save_filename(
         prompt,
         os.path.join(
             os.path.expanduser("~"),
-            more,
+            filename,
         ),
     )
     if dest:
@@ -432,15 +432,16 @@ class MainWindow(QMainWindow):
             with _encryption_animation():
                 # Begin to gather and encrypt the information for the recovery key.
                 ciphertext_d = get_recovery_key(password, gateway)
-
+                if password == "":
+                    filename = f"{gateway.name} Recovery Key.json"
+                else:
+                    filename = f"{gateway.name} Recovery Key.json.encrypted"
                 # Blocking call!  If this were async the factoring could be
                 # much cleaner.  Just `gatherResults([ciphertext_d, path_d])`
                 # and feed the result to an export_recovery_key that does all
                 # the rest of the work.
                 path = get_save_filename(
-                    self,
-                    "Select a destination",
-                    gateway.name + " Recovery Key.json.encrypted",
+                    self, "Select a destination", filename
                 )
                 if path is None:
                     return

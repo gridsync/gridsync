@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import traceback
 import webbrowser
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 import attr
@@ -25,6 +25,7 @@ from gridsync.gui.voucher import VoucherCodeDialog
 from gridsync.gui.widgets import VSpacer
 from gridsync.msg import error
 from gridsync.types import TwistedDeferred
+from gridsync.util import future_date
 
 if TYPE_CHECKING:
     from gridsync.gui import AbstractGui  # pylint: disable=cyclic-import
@@ -389,15 +390,9 @@ class UsageView(QWidget):
         self._zkaps_period = period
         self._update_chart()
 
-    @Slot(int)
+    @Slot(object)
     def on_days_remaining_updated(self, days: int) -> None:
-        self._expiry_date = datetime.strftime(
-            datetime.strptime(
-                datetime.isoformat(datetime.now() + timedelta(days=days)),
-                "%Y-%m-%dT%H:%M:%S.%f",
-            ),
-            "%d %b %Y",
-        )
+        self._expiry_date = future_date(days)
         self._update_info_label()
 
     @Slot(object)

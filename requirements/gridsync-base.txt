@@ -7,9 +7,9 @@
 atomicwrites==1.4.1 \
     --hash=sha256:81b2c9071a49367a7f770170e5eec8cb66567cfbbc8c73d20ce5ca4a8d71cf11
     # via -r requirements/gridsync.in
-attrs==21.4.0 \
-    --hash=sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4 \
-    --hash=sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd
+attrs==22.1.0 \
+    --hash=sha256:29adc2665447e5191d0e7c568fde78b21f9672d344281d0c6e1ab085429b22b6 \
+    --hash=sha256:86efa402f67bf2df34f51a335487cf46b1ec130d02b8d39fd248abfd30da551c
     # via
     #   -r requirements/gridsync.in
     #   autobahn
@@ -18,8 +18,8 @@ attrs==21.4.0 \
     #   service-identity
     #   treq
     #   twisted
-autobahn[twisted]==22.6.1 \
-    --hash=sha256:fb63e946d5c2dd0df680851e84e65624a494ce87c999f2a4944e4f2d81bf4498
+autobahn[twisted]==22.7.1 \
+    --hash=sha256:8b462ea2e6aad6b4dc0ed45fb800b6cbfeb0325e7fe6983907f122f2be4a1fe9
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
@@ -102,9 +102,9 @@ cffi==1.15.1 \
     # via
     #   cryptography
     #   pynacl
-charset-normalizer==2.1.0 \
-    --hash=sha256:5189b6f22b01957427f35b6a08d9a0bc45b46d3788ef5a92e978433c7a35f8a5 \
-    --hash=sha256:575e708016ff3a5e3681541cb9d79312c416835686d054a23accb873b254f413
+charset-normalizer==2.1.1 \
+    --hash=sha256:5a3d016c7c547f69d6f81fb0db9449ce888b418b5b9952cc5e6e66843e9dd845 \
+    --hash=sha256:83e9a75d1911279afd89352c68b45348559d1fc0506b054b346651b5e7fee29f
     # via requests
 click==8.1.3 \
     --hash=sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e \
@@ -147,9 +147,9 @@ hkdf==0.0.3 \
     # via
     #   magic-wormhole
     #   spake2
-humanize==4.2.3 \
-    --hash=sha256:2bc1fdd831cd00557d3010abdd84d3e41b4a96703a3eaf6c24ee290b26b75a44 \
-    --hash=sha256:bed628920d45cd5018abb095710f0c03a8336d6ac0790e7647c6a328f3880b81
+humanize==4.3.0 \
+    --hash=sha256:0dfac79fe8c1c0c734c14177b07b857bad9ae30dd50daa0a14e2c3d8054ee0c4 \
+    --hash=sha256:5dd159c9910cd57b94072e4d7decae097f0eb84c4645153706929a7f127cb2ef
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
@@ -288,9 +288,9 @@ pyyaml==6.0 \
     --hash=sha256:e61ceaab6f49fb8bdfaa0f92c4b57bcfbea54c09277b1b4f7ac376bfb7a7c174 \
     --hash=sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5
     # via -r requirements/gridsync.in
-qtpy==2.1.0 \
-    --hash=sha256:aee0586081f943029312becece9f63977b0a9e3788f77a6ac8cc74802bb173d6 \
-    --hash=sha256:ca8cd4217175186344299ee4c0f7e7adcf362c70852ba35b255a534077025c06
+qtpy==2.2.0 \
+    --hash=sha256:d283cfba378b0dbe36a55b68aea8ee2f86cd6ccf06c023af25bbe705ffbb29e5 \
+    --hash=sha256:d85f1b121f24a41ad26c55c446e66abdb7c528839f8c4f11f156ec4541903914
     # via -r requirements/gridsync.in
 requests==2.28.1 \
     --hash=sha256:7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983 \
@@ -342,9 +342,9 @@ typing-extensions==4.3.0 \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
     --hash=sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6
     # via twisted
-urllib3==1.26.11 \
-    --hash=sha256:c33ccba33c819596124764c23a97d25f32b28433ba0dedeb77d873a38722c9bc \
-    --hash=sha256:ea6e8fb210b19d950fab93b60c9009226c63a28808bc8386e05301e25883ac0a
+urllib3==1.26.12 \
+    --hash=sha256:3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e \
+    --hash=sha256:b930dd878d5a8afb066a637fbb35144fe7901e3b209d1cd4f524bd0e9deee997
     # via requests
 watchdog==2.1.9 \
     --hash=sha256:083171652584e1b8829581f965b9b7723ca5f9a2cd7e20271edf264cfd7c1412 \
@@ -434,9 +434,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/gridsync.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==63.2.0 \
-    --hash=sha256:0d33c374d41c7863419fc8f6c10bfe25b7b498aa34164d135c622e52580c6b16 \
-    --hash=sha256:c04b44a57a6265fe34a4a444e965884716d34bae963119a76353434d6f18e450
+setuptools==65.2.0 \
+    --hash=sha256:7f4bc85450898a09f76ebf28b72fa25bc7111f6c7d665d514a60bba9c75ef2a9 \
+    --hash=sha256:a3ca5857c89f82f5c9410e8508cb32f4872a3bafd4aa7ae122a24ca33bccc750
     # via
     #   autobahn
     #   zope-interface

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional
 
 import attr
 from qtpy.QtCore import QObject, Signal
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
@@ -37,7 +37,7 @@ class GridChecker(QObject):
 
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
-        results = yield self.gateway.get_grid_status()
+        results = yield Deferred.fromCoroutine(self.gateway.get_grid_status())
         if results:
             num_connected, num_known, available_space = results
         else:
@@ -150,7 +150,7 @@ class ZKAPChecker(QObject):
     zkaps_redeemed = Signal(str)  # timestamp
     zkaps_renewal_cost_updated = Signal(int)
     zkaps_price_updated = Signal(int, int)
-    days_remaining_updated = Signal(int)
+    days_remaining_updated = Signal(object)
     unpaid_vouchers_updated = Signal(list)
     redeeming_vouchers_updated = Signal(list)
     low_zkaps_warning = Signal()
@@ -276,7 +276,7 @@ class ZKAPChecker(QObject):
         yield self.gateway.await_ready()
         # MagicFolder.get_all_object_sizes() will fail with an "API
         # token not found" error if called before MagicFolder starts
-        yield self.gateway.magic_folder.await_running()
+        yield Deferred.fromCoroutine(self.gateway.magic_folder.await_running())
         try:
             p = yield self.gateway.zkapauthorizer.get_price()
         except TahoeWebError:  # XXX
@@ -401,7 +401,7 @@ class Monitor(QObject):
     zkaps_redeemed = Signal(str)
     zkaps_renewal_cost_updated = Signal(int)
     zkaps_price_updated = Signal(int, int)
-    days_remaining_updated = Signal(int)
+    days_remaining_updated = Signal(object)
     unpaid_vouchers_updated = Signal(list)
     redeeming_vouchers_updated = Signal(list)
     low_zkaps_warning = Signal()

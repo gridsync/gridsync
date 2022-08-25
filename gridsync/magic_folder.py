@@ -12,13 +12,13 @@ from typing import TYPE_CHECKING, Optional
 import treq
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
-from twisted.internet.defer import DeferredList, inlineCallbacks
+from twisted.internet.defer import Deferred, DeferredList
 from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
     from qtpy.QtCore import SignalInstance
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
-    from gridsync.types import TwistedDeferred
+    from gridsync.types import JSON
 
 from gridsync import APP_NAME
 from gridsync.crypto import randstr
@@ -112,6 +112,8 @@ class MagicFolderMonitor(QObject):
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
+    # XXX The `_maybe_do_...` functions could probably be refactored to
+    # duplicate less
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
         try:
             self._scheduled_scans[path].remove(event_id)
@@ -124,7 +126,8 @@ class MagicFolderMonitor(QObject):
             if not magic_path:
                 continue
             if path == magic_path or path.startswith(magic_path + os.sep):
-                self.magic_folder.scan(folder_name)
+                # XXX Something should handle errors
+                Deferred.fromCoroutine(self.magic_folder.scan(folder_name))
 
     def _schedule_magic_folder_scan(self, path: str) -> None:
         event_id = randstr(8)
@@ -140,7 +143,8 @@ class MagicFolderMonitor(QObject):
             pass
         if self._scheduled_polls[folder_name]:
             return
-        self.magic_folder.poll(folder_name)
+        # XXX Something should handle errors
+        Deferred.fromCoroutine(self.magic_folder.poll(folder_name))
 
     def _schedule_magic_folder_poll(self, folder_name: str) -> None:
         event_id = randstr(8)
@@ -242,7 +246,10 @@ class MagicFolderMonitor(QObject):
         if status != self._overall_status:
             self._overall_status = status
             self.overall_status_changed.emit(status)
-            self.do_check()  # Update folder sizes, mtimes
+            # XXX Something should wait on the result
+            Deferred.fromCoroutine(
+                self.do_check()
+            )  # Update folder sizes, mtimes
 
     def compare_states(
         self, current_state: dict, previous_state: dict
@@ -414,20 +421,20 @@ class MagicFolderMonitor(QObject):
         self._check_last_polls(state)
         self._prev_state = state
 
-    @inlineCallbacks
-    def _get_file_status(self, folder_name: str) -> TwistedDeferred[tuple]:
-        result = yield self.magic_folder.get_file_status(folder_name)
+    async def _get_file_status(
+        self, folder_name: str
+    ) -> tuple[str, list[dict]]:
+        result = await self.magic_folder.get_file_status(folder_name)
         return (folder_name, result)
 
-    @inlineCallbacks
-    def do_check(self) -> TwistedDeferred[None]:
-        folders = yield self.magic_folder.get_folders()
+    async def do_check(self) -> None:
+        folders = await self.magic_folder.get_folders()
         current_folders = dict(folders)
         previous_folders = dict(self._known_folders)
         self.compare_folders(current_folders, previous_folders)
         self._known_folders = current_folders
 
-        backups = yield self.magic_folder.get_folder_backups()
+        backups = await self.magic_folder.get_folder_backups()
         if backups is None:
             logging.warning("Could not read Magic-Folder backups during check")
         else:
@@ -436,8 +443,11 @@ class MagicFolderMonitor(QObject):
             self.compare_backups(current_backups, previous_backups)
             self._known_backups = current_backups
 
-        results = yield DeferredList(
-            [self._get_file_status(f) for f in current_folders],
+        results = await DeferredList(
+            [
+                Deferred.fromCoroutine(self._get_file_status(f))
+                for f in current_folders
+            ],
             consumeErrors=True,
         )
         for success, result in results:
@@ -459,7 +469,8 @@ class MagicFolderMonitor(QObject):
         self._ws_reader.start()
         self._watchdog.start()
         self.running = True
-        self.do_check()
+        # XXX Something should wait on the result
+        Deferred.fromCoroutine(self.do_check())
 
     def stop(self) -> None:
         self.running = False
@@ -524,8 +535,7 @@ class MagicFolder:
         # Redirect/write eliot logs to stderr
         return [self.executable, "--eliot-fd=2", f"--config={self.configdir}"]
 
-    @inlineCallbacks
-    def _command(self, args: list[str]) -> TwistedDeferred[str]:
+    async def _command(self, args: list[str]) -> str:
         args = self._base_command_args() + args
         logging.debug("Executing %s...", " ".join(args))
         os.environ["PYTHONUNBUFFERED"] = "1"
@@ -533,21 +543,19 @@ class MagicFolder:
             stdout_line_collector=self.on_stdout_line_received,
             stderr_line_collector=self.on_stderr_line_received,
         )
-        yield reactor.spawnProcess(  # type: ignore
+        reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args
         )
-        output = yield protocol.done
+        output = await protocol.done
         return output
 
-    @inlineCallbacks
-    def version(self) -> TwistedDeferred[str]:
-        output = yield self._command(["--version"])
+    async def version(self) -> str:
+        output = await self._command(["--version"])
         return output
 
-    @inlineCallbacks
-    def stop(self) -> TwistedDeferred[None]:
+    async def stop(self) -> None:
         self.monitor.stop()
-        yield self.supervisor.stop()
+        await self.supervisor.stop()
 
     def _read_api_token(self) -> str:
         p = Path(self.configdir, "api_token")
@@ -584,11 +592,10 @@ class MagicFolder:
         self.api_port = self._read_api_port()
         self.monitor.start()
 
-    @inlineCallbacks
-    def start(self) -> TwistedDeferred[None]:
+    async def start(self) -> None:
         logging.debug("Starting magic-folder...")
         if not self.configdir.exists():
-            yield self._command(
+            await self._command(
                 [
                     "init",
                     "-l",
@@ -598,7 +605,7 @@ class MagicFolder:
                 ]
             )
         try:
-            yield self.supervisor.start(
+            await self.supervisor.start(
                 self._base_command_args() + ["run"],
                 started_trigger="Completed initial Magic Folder setup",
                 stdout_line_collector=self.on_stdout_line_received,
@@ -616,54 +623,55 @@ class MagicFolder:
             )
         logging.debug("Started magic-folder")
 
-    @inlineCallbacks
-    def await_running(self) -> TwistedDeferred[None]:
+    async def await_running(self) -> None:
         while not self.monitor.running:  # XXX
-            yield deferLater(reactor, 0.2, lambda: None)  # type: ignore
+            await deferLater(reactor, 0.2, lambda: None)  # type: ignore
 
-    @inlineCallbacks
-    def _request(
+    async def _request(
         self,
         method: str,
         path: str,
         body: bytes = b"",
         error_404_ok: bool = False,
-    ) -> TwistedDeferred[dict]:
-        yield self.await_running()  # XXX
+    ) -> JSON:
+        await self.await_running()  # XXX
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
         if not self.api_port:
             raise MagicFolderWebError("API port not found")
-        resp = yield treq.request(
+        resp = await treq.request(
             method,
             f"http://127.0.0.1:{self.api_port}/v1{path}",
             headers={"Authorization": f"Bearer {self.api_token}"},
             data=body,
         )
-        content = yield treq.content(resp)
+        content = await treq.content(resp)
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
             return json.loads(content)
         raise MagicFolderWebError(
             f"Error {resp.code} requesting {method} /v1{path}: {content}"
         )
 
-    @inlineCallbacks
-    def get_folders(self) -> TwistedDeferred[dict[str, dict]]:
-        folders = yield self._request(
+    async def get_folders(self) -> dict[str, dict]:
+        folders = await self._request(
             "GET", "/magic-folder?include_secret_information=1"
         )
-        self.magic_folders = folders
-        return folders
+        if isinstance(folders, dict):
+            self.magic_folders = folders
+            return folders
 
-    @inlineCallbacks
-    def add_folder(  # pylint: disable=too-many-arguments
+        raise TypeError(
+            f"Expected folders as dict, instead got {type(folders)!r}"
+        )
+
+    async def add_folder(  # pylint: disable=too-many-arguments
         self,
         path: str,
         author: str,
         name: Optional[str] = "",
         poll_interval: int = 60,
         scan_interval: int = 60,
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         p = Path(path)
         p.mkdir(parents=True, exist_ok=True)
         if not name:
@@ -675,16 +683,15 @@ class MagicFolder:
             "poll_interval": poll_interval,
             "scan_interval": scan_interval,
         }
-        yield self._request(
+        await self._request(
             "POST", "/magic-folder", body=json.dumps(data).encode()
         )
-        yield self.create_folder_backup(name)  # XXX
+        await self.create_folder_backup(name)  # XXX
 
-    @inlineCallbacks
-    def leave_folder(
+    async def leave_folder(
         self, folder_name: str, missing_ok: bool = False
-    ) -> TwistedDeferred[None]:
-        yield self._request(
+    ) -> None:
+        await self._request(
             "DELETE",
             f"/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
@@ -710,104 +717,123 @@ class MagicFolder:
             or self.folder_is_remote(folder_name)
         )
 
-    @inlineCallbacks
-    def get_snapshots(self) -> TwistedDeferred[dict[str, dict]]:
-        snapshots = yield self._request("GET", "/snapshot")
-        return snapshots
+    async def get_snapshots(self) -> dict[str, dict]:
+        snapshots = await self._request("GET", "/snapshot")
+        if isinstance(snapshots, dict):
+            return snapshots
+        raise TypeError(
+            f"Expected snapshots as a dict, instead got {type(snapshots)!r}"
+        )
 
-    @inlineCallbacks
-    def add_snapshot(
-        self, folder_name: str, filepath: str
-    ) -> TwistedDeferred[None]:
+    async def add_snapshot(self, folder_name: str, filepath: str) -> None:
         try:
             magic_path = self.magic_folders[folder_name]["magic_path"]
         except KeyError:
-            yield self.get_folders()
+            await self.get_folders()
             magic_path = self.magic_folders[folder_name]["magic_path"]
         if filepath.startswith(magic_path):
             filepath = filepath[len(magic_path) + len(os.sep) :]
-        yield self._request(
+        await self._request(
             "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
         )
 
-    @inlineCallbacks
-    def get_participants(
-        self, folder_name: str
-    ) -> TwistedDeferred[dict[str, dict]]:
-        participants = yield self._request(
+    async def get_participants(self, folder_name: str) -> dict[str, dict]:
+        participants = await self._request(
             "GET", f"/magic-folder/{folder_name}/participants"
         )
-        return participants
+        if isinstance(participants, dict):
+            return participants
+        raise TypeError(
+            f"Expected participants as dict, instead got {type(participants)!r}"
+        )
 
-    @inlineCallbacks
-    def add_participant(
+    async def add_participant(
         self, folder_name: str, author_name: str, personal_dmd: str
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         data = {"author": {"name": author_name}, "personal_dmd": personal_dmd}
-        yield self._request(
+        await self._request(
             "POST",
             f"/magic-folder/{folder_name}/participants",
             body=json.dumps(data).encode("utf-8"),
         )
 
-    @inlineCallbacks
-    def get_file_status(self, folder_name: str) -> TwistedDeferred[list[dict]]:
-        output = yield self._request(
+    async def get_file_status(self, folder_name: str) -> list[dict]:
+        output = await self._request(
             "GET", f"/magic-folder/{folder_name}/file-status"
         )
-        return output
+        if isinstance(output, list):
+            return output
+        raise TypeError(
+            f"Expected file status as a list, instead got {type(output)!r}"
+        )
 
-    @inlineCallbacks
-    def get_object_sizes(self, folder_name: str) -> TwistedDeferred[list[int]]:
-        sizes = yield self._request(
+    async def get_object_sizes(self, folder_name: str) -> list[int]:
+        sizes = await self._request(
             "GET", f"/magic-folder/{folder_name}/tahoe-objects"
         )
-        return sizes
+        if isinstance(sizes, list):
+            # XXX The magic-folder API should most likely return this list as
+            # a property of an object.
+            return sizes
+        raise TypeError(
+            f"Expected object sizes as list, instead got {type(sizes)!r}"
+        )
 
-    @inlineCallbacks
-    def get_all_object_sizes(self) -> TwistedDeferred[list[int]]:
+    async def get_all_object_sizes(self) -> list[int]:
         all_sizes = []
-        folders = yield self.get_folders()
+        folders = await self.get_folders()
         for folder in folders:
-            sizes = yield self.get_object_sizes(folder)
+            sizes = await self.get_object_sizes(folder)
             all_sizes.extend(sizes)
         return all_sizes
 
-    @inlineCallbacks
-    def scan(self, folder_name: str) -> TwistedDeferred[dict]:
-        output = yield self._request(
+    async def scan(self, folder_name: str) -> dict:
+        output = await self._request(
             "PUT",
             f"/magic-folder/{folder_name}/scan-local",
             error_404_ok=True,
         )
-        return output
+        if isinstance(output, dict):
+            return output
+        raise TypeError(
+            f"Expected scan result as dict, instead got {type(output)!r}"
+        )
 
-    @inlineCallbacks
-    def poll(self, folder_name: str) -> TwistedDeferred[dict]:
-        output = yield self._request(
+    async def poll(self, folder_name: str) -> dict:
+        output = await self._request(
             "PUT",
             f"/magic-folder/{folder_name}/poll-remote",
             error_404_ok=True,
         )
-        return output
+        if isinstance(output, dict):
+            return output
+        raise TypeError(
+            f"Expected poll remote result as dict, instead got {type(output)!r}"
+        )
 
-    @inlineCallbacks
-    def create_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
-        folders = yield self.get_folders()
+    async def create_folder_backup(self, folder_name: str) -> None:
+        folders = await self.get_folders()
         data = folders.get(folder_name)
+        if data is None:
+            raise ValueError("Folder is missing from folder data")
         collective_dircap = data.get("collective_dircap")
         upload_dircap = data.get("upload_dircap")
-        yield self.rootcap_manager.add_backup(
-            ".magic-folders", f"{folder_name} (collective)", collective_dircap
+        if collective_dircap is None:
+            raise ValueError("Collective dircap in folder data is missing")
+        if upload_dircap is None:
+            raise ValueError("Upload dircap in folder data is missing")
+        await self.rootcap_manager.add_backup(
+            ".magic-folders",
+            f"{folder_name} (collective)",
+            collective_dircap,
         )
-        yield self.rootcap_manager.add_backup(
+        await self.rootcap_manager.add_backup(
             ".magic-folders", f"{folder_name} (personal)", upload_dircap
         )
 
-    @inlineCallbacks
-    def get_folder_backups(self) -> TwistedDeferred[Optional[dict[str, dict]]]:
+    async def get_folder_backups(self) -> Optional[dict[str, dict]]:
         folders: defaultdict[str, dict] = defaultdict(dict)
-        backups = yield self.rootcap_manager.get_backups(".magic-folders")
+        backups = await self.rootcap_manager.get_backups(".magic-folders")
         if backups is None:
             return None
         for name, data in backups.items():
@@ -820,15 +846,18 @@ class MagicFolder:
         self.remote_magic_folders = folders
         return dict(folders)
 
-    @inlineCallbacks
-    def remove_folder_backup(self, folder_name: str) -> TwistedDeferred[None]:
-        yield DeferredList(
+    async def remove_folder_backup(self, folder_name: str) -> None:
+        await DeferredList(
             [
-                self.rootcap_manager.remove_backup(
-                    ".magic-folders", folder_name + " (collective)"
+                Deferred.fromCoroutine(
+                    self.rootcap_manager.remove_backup(
+                        ".magic-folders", folder_name + " (collective)"
+                    )
                 ),
-                self.rootcap_manager.remove_backup(
-                    ".magic-folders", folder_name + " (personal)"
+                Deferred.fromCoroutine(
+                    self.rootcap_manager.remove_backup(
+                        ".magic-folders", folder_name + " (personal)"
+                    )
                 ),
             ]
         )
@@ -837,21 +866,22 @@ class MagicFolder:
         except KeyError:
             pass
 
-    @inlineCallbacks
-    def restore_folder_backup(
+    async def restore_folder_backup(
         self, folder_name: str, local_path: str
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         logging.debug('Restoring "%s" Magic-Folder...', folder_name)
-        backups = yield self.get_folder_backups()
+        backups = await self.get_folder_backups()
         if backups is None:
             raise MagicFolderError(
                 f"Error restoring folder {folder_name}; could not read backups"
             )
         data = backups.get(folder_name, {})
         upload_dircap = data.get("upload_dircap")
-        personal_dmd = yield self.gateway.diminish(upload_dircap)
-        yield self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
+        if upload_dircap is None:
+            raise ValueError("Upload directory cap missing from folder backup")
+        personal_dmd = await self.gateway.diminish(upload_dircap)
+        await self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
-        yield self.add_participant(folder_name, author, personal_dmd)
+        await self.add_participant(folder_name, author, personal_dmd)
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
-        yield self.poll(folder_name)
+        await self.poll(folder_name)

@@ -14,7 +14,7 @@ from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
@@ -22,7 +22,6 @@ from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
-from gridsync.types import TwistedDeferred
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 
 
@@ -263,17 +262,16 @@ class SetupRunner(QObject):
                 return
         self.got_icon.emit(dest)
 
-    @inlineCallbacks
-    def fetch_icon(self, url: str, dest: str) -> TwistedDeferred[None]:
+    async def fetch_icon(self, url: str, dest: str) -> None:
         agent = None
         if self.use_tor:
-            tor = yield get_tor(reactor)
+            tor = await get_tor(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
             agent = tor.web_agent()
-        resp = yield treq.get(url, agent=agent)
+        resp = await treq.get(url, agent=agent)
         if resp.code == 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             log.debug("Received %i bytes", len(content))
             with atomic_write(dest, mode="wb", overwrite=True) as f:
                 f.write(content)
@@ -281,10 +279,9 @@ class SetupRunner(QObject):
         else:
             log.warning("Error fetching service icon: %i", resp.code)
 
-    @inlineCallbacks  # noqa: max-complexity=14 XXX
-    def join_grid(  # noqa: max-complexity=14 XXX
+    async def join_grid(  # noqa: max-complexity=14 XXX
         self, settings: dict
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         nickname = settings["nickname"]
         if self.use_tor:
             msg = "Connecting to {} via Tor...".format(nickname)
@@ -311,13 +308,13 @@ class SetupRunner(QObject):
                 # process if fetching/writing the icon fails (particularly
                 # if doing so would require the user to get a new invite code)
                 # so just log a warning for now if something goes wrong...
-                yield self.fetch_icon(settings["icon_url"], icon_path)
+                await self.fetch_icon(settings["icon_url"], icon_path)
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error fetching service icon: %s", str(e))
 
         nodedir = os.path.join(config_dir, nickname)
         self.gateway = Tahoe(nodedir)
-        yield self.gateway.create_client(settings)
+        await Deferred.fromCoroutine(self.gateway.create_client(settings))
 
         self.gateway.save_settings(settings)
 
@@ -336,13 +333,12 @@ class SetupRunner(QObject):
                 log.warning("Error writing icon url to file: %s", str(err))
 
         self.update_progress.emit(msg)
-        yield self.gateway.start()
+        await self.gateway.start()
         self.client_started.emit(self.gateway)
         self.update_progress.emit(msg)
-        yield self.gateway.await_ready()
+        await self.gateway.await_ready()
 
-    @inlineCallbacks
-    def ensure_recovery(self, settings: dict) -> TwistedDeferred[None]:
+    async def ensure_recovery(self, settings: dict) -> None:
         zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
@@ -372,11 +368,11 @@ class SetupRunner(QObject):
                         )
 
                 zkapauthorizer = self.gateway.zkapauthorizer
-                snapshot_exists = yield zkapauthorizer.snapshot_exists()
+                snapshot_exists = await zkapauthorizer.snapshot_exists()
                 if snapshot_exists:
                     # `restore_zkaps` will hang forever if no snapshot exists
                     log.debug("Restoring ZKAPs from backup...")
-                    yield zkapauthorizer.restore_zkaps(status_updated)
+                    await zkapauthorizer.restore_zkaps(status_updated)
                 else:
                     log.warning("No ZKAPs backup found")
         elif zkapauthz:
@@ -384,37 +380,35 @@ class SetupRunner(QObject):
         else:
             self.update_progress.emit("Generating Recovery Key...")
             try:
-                settings["rootcap"] = yield self.gateway.create_rootcap()
+                settings["rootcap"] = await self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
             self.gateway.save_settings(settings)
-            settings_cap = yield self.gateway.upload(
+            settings_cap = await self.gateway.upload(
                 os.path.join(self.gateway.nodedir, "private", "settings.json")
             )
-            yield self.gateway.link(
+            await self.gateway.link(
                 self.gateway.get_rootcap(), "settings.json", settings_cap
             )
 
-    @inlineCallbacks
-    def join_folders(self, folders_data: dict) -> TwistedDeferred[None]:
+    async def join_folders(self, folders_data: dict) -> None:
         folders = []
         for folder, data in folders_data.items():
             self.update_progress.emit('Joining folder "{}"...'.format(folder))
             collective, personal = data["code"].split("+")
-            yield self.gateway.link(
+            await self.gateway.link(
                 self.gateway.get_rootcap(),
                 folder + " (collective)",
                 collective,
             )
-            yield self.gateway.link(
+            await self.gateway.link(
                 self.gateway.get_rootcap(), folder + " (personal)", personal
             )
             folders.append(folder)
         if folders:
             self.joined_folders.emit(folders)
 
-    @inlineCallbacks
-    def run(self, settings: dict) -> TwistedDeferred[None]:
+    async def run(self, settings: dict) -> None:
         if "version" in settings and int(settings["version"]) > 2:
             raise UpgradeRequiredError
 
@@ -423,7 +417,7 @@ class SetupRunner(QObject):
         if self.use_tor or "hide-ip" in settings or is_onion_grid(settings):
             settings["hide-ip"] = True
             self.use_tor = True
-            tor = yield get_tor_with_prompt(reactor)
+            tor = await get_tor_with_prompt(reactor)
             if not tor:
                 raise TorError("Could not connect to a running Tor daemon")
 
@@ -440,12 +434,12 @@ class SetupRunner(QObject):
             self.gateway = gateway
         folders_data = settings.get("magic-folders")
         if not gateway:
-            yield self.join_grid(settings)
-            yield self.ensure_recovery(settings)
+            await self.join_grid(settings)
+            await self.ensure_recovery(settings)
         elif not folders_data:
             self.grid_already_joined.emit(nickname)
         if folders_data:
-            yield self.join_folders(folders_data)
+            await self.join_folders(folders_data)
 
         self.update_progress.emit("Done!")
         self.done.emit(self.gateway)

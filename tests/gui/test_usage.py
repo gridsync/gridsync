@@ -5,6 +5,7 @@ Tests for ``gridsync.gui.usage``.
 import pytest
 
 from gridsync.gui.usage import UsageView
+from gridsync.tahoe import Tahoe
 
 
 def test_initial_state(fake_tahoe, gui):
@@ -48,6 +49,12 @@ def test_on_zkaps_updated_none_remaining(fake_tahoe, gui):
     assert not view.title.isVisible()
     assert view.zkaps_required_label.isVisible()
     assert not view.chart_view.isVisible()
+
+
+def test_days_remaining_updated_signal_does_not_raise_overflow_error(gui):
+    view = UsageView(Tahoe(), gui)
+    view.gateway.monitor.days_remaining_updated.emit(2**256)
+    assert True
 
 
 @pytest.mark.parametrize(

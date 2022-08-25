@@ -10,7 +10,7 @@ from typing import Optional, Union, cast
 import treq
 import yaml
 from atomicwrites import atomic_write
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.defer import Deferred
 from twisted.internet.error import ConnectError
 from twisted.internet.interfaces import IReactorTime
 
@@ -27,7 +27,6 @@ from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
-from gridsync.types import TwistedDeferred
 from gridsync.util import Poller
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
@@ -120,9 +119,8 @@ class Tahoe:
 
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
-        @inlineCallbacks
-        def poll() -> TwistedDeferred[bool]:
-            ready = yield self.is_ready()
+        async def poll() -> bool:
+            ready = await self.is_ready()
             if ready:
                 log.debug('Connected to "%s"', self.name)
             else:
@@ -338,8 +336,7 @@ class Tahoe:
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
 
-    @inlineCallbacks
-    def command(self, args: list[str]) -> TwistedDeferred[str]:
+    async def command(self, args: list[str]) -> str:
         if not self.executable:
             self.executable = which("tahoe")
         args = [self.executable, "-d", self.nodedir] + args
@@ -347,17 +344,16 @@ class Tahoe:
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(args))
         protocol = SubprocessProtocol(stdout_line_collector=self.line_received)
-        yield self._reactor.spawnProcess(  # type: ignore
+        self._reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
         try:
-            output = yield protocol.done
+            output = await protocol.done
         except Exception as e:  # pylint: disable=broad-except
             raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
         return output
 
-    @inlineCallbacks
-    def create_node(self, settings: dict) -> TwistedDeferred[None]:
+    async def create_node(self, settings: dict) -> None:
         if os.path.exists(self.nodedir):
             raise FileExistsError(
                 "Nodedir already exists: {}".format(self.nodedir)
@@ -379,24 +375,22 @@ class Tahoe:
                 args.extend([f"--shares-{key}", str(value)])
             elif key in ("hide-ip", "no-storage"):
                 args.append(f"--{key}")
-        yield self.command(args)
+        await self.command(args)
         storage_servers = settings.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
             self.add_storage_servers(storage_servers)
 
-    @inlineCallbacks
-    def create_client(self, settings: dict) -> TwistedDeferred[None]:
+    async def create_client(self, settings: dict) -> None:
         settings["no-storage"] = True
         settings["listen"] = "none"
-        yield self.create_node(settings)
+        await self.create_node(settings)
 
     def is_storage_node(self) -> bool:
         if self.storage_furl:
             return True
         return False
 
-    @inlineCallbacks
-    def stop(self) -> TwistedDeferred[None]:
+    async def stop(self) -> None:
         log.debug('Stopping "%s" tahoe client...', self.name)
         self.state = Tahoe.STOPPING
         self.streamedlogs.stop()
@@ -405,12 +399,12 @@ class Tahoe:
                 "Delaying stop operation; "
                 "another operation is trying to modify the rootcap..."
             )
-            yield self.rootcap_manager.lock.acquire()
+            await self.rootcap_manager.lock.acquire()
             self.rootcap_manager.lock.release()
             log.debug("Lock released; resuming stop operation...")
         if not self.is_storage_node():
-            yield self.magic_folder.stop()
-        yield self.supervisor.stop()
+            await self.magic_folder.stop()
+        await self.supervisor.stop()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
@@ -450,10 +444,12 @@ class Tahoe:
 
         self.state = Tahoe.STARTED
 
-        self.scan_storage_plugins()
+        # XXX Should something wait on this?
+        Deferred.fromCoroutine(self.scan_storage_plugins())
 
         if not self.is_storage_node():
-            self.magic_folder.start()
+            # XXX Should something wait on this?
+            Deferred.fromCoroutine(self.magic_folder.start())
 
     def _remove_twistd_pid(self) -> None:
         # On non-Windows systems, Twisted/twistd will create its own
@@ -473,8 +469,7 @@ class Tahoe:
         # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
-    @inlineCallbacks
-    def start(self) -> TwistedDeferred[None]:
+    async def start(self) -> None:
         log.debug('Starting "%s" tahoe client...', self.name)
         self.state = Tahoe.STARTING
         self.monitor.start()
@@ -497,7 +492,7 @@ class Tahoe:
         if not self.executable:
             self.executable = which("tahoe")
         try:
-            results = yield self.supervisor.start(
+            results = await self.supervisor.start(
                 [self.executable, "-d", self.nodedir, "run"],
                 started_trigger="client running",
                 stdout_line_collector=self.line_received,
@@ -526,18 +521,17 @@ class Tahoe:
         """
         self.nodeurl = nodeurl
 
-    @inlineCallbacks
-    def get_grid_status(
+    async def get_grid_status(
         self,
-    ) -> TwistedDeferred[Optional[tuple[int, int, int]]]:
+    ) -> Optional[tuple[int, int, int]]:
         if not self.nodeurl:
             return None
         try:
-            resp = yield treq.get(self.nodeurl + "?t=json")
+            resp = await treq.get(self.nodeurl + "?t=json")
         except ConnectError:
             return None
         if resp.code == 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             content = json.loads(content.decode("utf-8"))
             servers_connected = 0
             servers_known = 0
@@ -553,16 +547,15 @@ class Tahoe:
             return servers_connected, servers_known, available_space
         return None
 
-    @inlineCallbacks
-    def get_connected_servers(self) -> TwistedDeferred[Optional[int]]:
+    async def get_connected_servers(self) -> Optional[int]:
         if not self.nodeurl:
             return None
         try:
-            resp = yield treq.get(self.nodeurl)
+            resp = await treq.get(self.nodeurl)
         except ConnectError:
             return None
         if resp.code == 200:
-            html = yield treq.content(resp)
+            html = await treq.content(resp)
             match = re.search(
                 "Connected to <span>(.+?)</span>", html.decode("utf-8")
             )
@@ -570,11 +563,10 @@ class Tahoe:
                 return int(match.group(1))
         return None
 
-    @inlineCallbacks
-    def is_ready(self) -> TwistedDeferred[bool]:
+    async def is_ready(self) -> bool:
         if not self.shares_happy:
             return False
-        connected_servers = yield self.get_connected_servers()
+        connected_servers = await self.get_connected_servers()
         return bool(
             connected_servers and connected_servers >= self.shares_happy
         )
@@ -582,18 +574,15 @@ class Tahoe:
     def await_ready(self) -> Deferred[bool]:
         return self._ready_poller.wait_for_completion()
 
-    @inlineCallbacks
-    def mkdir(
-        self, parentcap: str = None, childname: str = None
-    ) -> TwistedDeferred[str]:
-        yield self.await_ready()
+    async def mkdir(self, parentcap: str = None, childname: str = None) -> str:
+        await self.await_ready()
         url = self.nodeurl + "uri"
         params = {"t": "mkdir"}
         if parentcap and childname:
             url += "/" + parentcap
             params["name"] = childname
-        resp = yield treq.post(url, params=params)
-        content = yield treq.content(resp)
+        resp = await treq.post(url, params=params)
+        content = await treq.content(resp)
         content = content.decode("utf-8").strip()
         if resp.code == 200:
             return content
@@ -601,20 +590,20 @@ class Tahoe:
             f"Error {resp.code} creating Tahoe-LAFS directory: {content}"
         )
 
-    @inlineCallbacks
-    def diminish(self, cap: str) -> TwistedDeferred[str]:
-        output = yield self.get_json(cap)
-        return output[1]["ro_uri"]
+    async def diminish(self, cap: str) -> str:
+        output = await self.get_json(cap)
+        if isinstance(output, list):
+            return output[1]["ro_uri"]
+        raise ValueError(
+            "Unexpected response attempting to diminish capability"
+        )
 
-    @inlineCallbacks
-    def create_rootcap(self) -> TwistedDeferred[str]:
-        rootcap = yield self.rootcap_manager.create_rootcap()
-        return rootcap
+    async def create_rootcap(self) -> str:
+        return await self.rootcap_manager.create_rootcap()
 
-    @inlineCallbacks
-    def upload(
+    async def upload(
         self, local_path: str, dircap: str = "", mutable: bool = False
-    ) -> TwistedDeferred[str]:
+    ) -> str:
         if dircap:
             filename = Path(local_path).name
             url = f"{self.nodeurl}uri/{dircap}/{filename}"
@@ -623,33 +612,29 @@ class Tahoe:
         if mutable:
             url = f"{url}?format=MDMF"
         log.debug("Uploading %s...", local_path)
-        yield self.await_ready()
+        await self.await_ready()
         with open(local_path, "rb") as f:
-            resp = yield treq.put(url, f)
+            resp = await treq.put(url, f)
         if resp.code in (200, 201):
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             log.debug("Successfully uploaded %s", local_path)
             return content.decode("utf-8")
-        content = yield treq.content(resp)
+        content = await treq.content(resp)
         raise TahoeWebError(content.decode("utf-8"))
 
-    @inlineCallbacks
-    def download(self, cap: str, local_path: str) -> TwistedDeferred[None]:
+    async def download(self, cap: str, local_path: str) -> None:
         log.debug("Downloading %s...", local_path)
-        yield self.await_ready()
-        resp = yield treq.get("{}uri/{}".format(self.nodeurl, cap))
+        await self.await_ready()
+        resp = await treq.get("{}uri/{}".format(self.nodeurl, cap))
         if resp.code == 200:
             with atomic_write(local_path, mode="wb", overwrite=True) as f:
-                yield treq.collect(resp, f.write)
+                await treq.collect(resp, f.write)
             log.debug("Successfully downloaded %s", local_path)
         else:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
 
-    @inlineCallbacks
-    def link(
-        self, dircap: str, childname: str, childcap: str
-    ) -> TwistedDeferred[None]:
+    async def link(self, dircap: str, childname: str, childcap: str) -> None:
         dircap_hash = trunchash(dircap)
         childcap_hash = trunchash(childcap)
         log.debug(
@@ -658,14 +643,14 @@ class Tahoe:
             childcap_hash,
             dircap_hash,
         )
-        yield self.await_ready()
-        resp = yield treq.post(
+        await self.await_ready()
+        resp = await treq.post(
             "{}uri/{}/?t=uri&name={}&uri={}".format(
                 self.nodeurl, dircap, childname, childcap
             )
         )
         if resp.code != 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
         log.debug(
             'Done linking "%s" (%s) into %s',
@@ -674,14 +659,13 @@ class Tahoe:
             dircap_hash,
         )
 
-    @inlineCallbacks
-    def unlink(
+    async def unlink(
         self, dircap: str, childname: str, missing_ok: bool = False
-    ) -> TwistedDeferred[None]:
+    ) -> None:
         dircap_hash = trunchash(dircap)
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
-        yield self.await_ready()
-        resp = yield treq.post(
+        await self.await_ready()
+        resp = await treq.post(
             "{}uri/{}/?t=unlink&name={}".format(
                 self.nodeurl, dircap, childname
             )
@@ -689,35 +673,31 @@ class Tahoe:
         if resp.code == 404 and missing_ok:
             pass
         elif resp.code != 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             raise TahoeWebError(content.decode("utf-8"))
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
-    @inlineCallbacks
-    def get_json(
-        self, cap: str
-    ) -> TwistedDeferred[Optional[Union[dict, list]]]:
+    async def get_json(self, cap: str) -> Optional[Union[dict, list]]:
         if not cap or not self.nodeurl:
             return None
         uri = "{}uri/{}/?t=json".format(self.nodeurl, cap)
         try:
-            resp = yield treq.get(uri)
+            resp = await treq.get(uri)
         except ConnectError:
             return None
         if resp.code == 200:
-            content = yield treq.content(resp)
+            content = await treq.content(resp)
             return json.loads(content.decode("utf-8"))
         return None
 
-    @inlineCallbacks
-    def ls(
+    async def ls(
         self,
         cap: str,
         exclude_dirnodes: bool = False,
         exclude_filenodes: bool = False,
-    ) -> TwistedDeferred[Optional[dict[str, dict]]]:
-        yield self.await_ready()
-        json_output = yield self.get_json(cap)
+    ) -> Optional[dict[str, dict]]:
+        await self.await_ready()
+        json_output = await self.get_json(cap)
         if json_output is None:
             return None
         results = {}
@@ -737,12 +717,11 @@ class Tahoe:
     def get_rootcap(self) -> str:
         return self.rootcap_manager.get_rootcap()
 
-    @inlineCallbacks
-    def scan_storage_plugins(self) -> TwistedDeferred[None]:
+    async def scan_storage_plugins(self) -> None:
         plugins = []
         log.debug("Scanning for known storage plugins...")
         try:
-            version = yield self.zkapauthorizer.get_version()
+            version = await self.zkapauthorizer.get_version()
         except TahoeWebError:
             version = ""
         if version:

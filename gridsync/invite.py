@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from qtpy.QtCore import QObject, Signal
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks
 
 try:
     from wormhole.wordlist import raw_words
@@ -91,7 +91,7 @@ class InviteReceiver(QObject):
         settings = validate_settings(
             settings, self.known_gateways, None, from_wormhole
         )
-        yield self.setup_runner.run(settings)
+        yield Deferred.fromCoroutine(self.setup_runner.run(settings))
 
     @inlineCallbacks
     def receive(
