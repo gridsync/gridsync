@@ -46,15 +46,14 @@ try:
 except AttributeError:  # Not available in Qt6
     pass
 
-app = QApplication(sys.argv)
 
 # qtreactor must be 'installed' after initializing QApplication but
 # before running/importing any other Twisted code.
 # See https://github.com/twisted/qt5reactor/blob/master/README.rst
-from gridsync import qtreactor  # pylint: disable=ungrouped-imports
+# from gridsync import qtreactor  # pylint: disable=ungrouped-imports
 
 # Ignore mypy error 'Module has no attribute "install"'
-qtreactor.install()  # type: ignore
+# qtreactor.install()  # type: ignore
 
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
@@ -78,8 +77,6 @@ from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
 from gridsync.tor import get_tor
 from gridsync.types import TwistedDeferred
-
-app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
 
 class DequeHandler(logging.Handler):
@@ -184,6 +181,7 @@ class Core:
 
     @inlineCallbacks
     def start_gateways(self) -> TwistedDeferred[None]:
+        print ("hey look at me")
         nodedirs = get_nodedirs(config_dir)
         if nodedirs:
             minimize_preference = get_preference("startup", "minimize")
@@ -272,8 +270,14 @@ class Core:
         )
         lock.acquire()
 
+        reactor.run()  # type: ignore
+        lock.release()
+
+    def start_async(self, reactor) -> None:
         logging.debug("Core starting with args: %s", self.args)
         logging.debug("Loaded config.txt settings: %s", settings)
+
+        reactor.qApp.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
         self.show_message()
 
@@ -283,5 +287,3 @@ class Core:
         reactor.addSystemEventTrigger(  # type: ignore
             "before", "shutdown", self.stop_gateways
         )
-        reactor.run()  # type: ignore
-        lock.release()

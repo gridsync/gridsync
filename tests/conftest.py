@@ -73,6 +73,17 @@ async def tahoe_client(tmp_path_factory, tahoe_server):
 def reactor():
     return Mock()
 
+@pytest.fixture()
+def qt_reactor():
+    from twisted.internet import reactor
+    from qt5reactor import QtReactor
+    assert isinstance(reactor, QtReactor)
+    return reactor
+
+# def pytest_configure(config):
+#     import pytest_twisted
+#     import gridsync.qtreactor
+#     pytest_twisted.reactor_installers["gridsync-qtreactor"] = gridsync.qtreactor.install
 
 def _tahoe(tmpdir_factory, reactor):
     client = Tahoe(
