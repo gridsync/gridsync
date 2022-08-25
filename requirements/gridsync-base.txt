@@ -21,6 +21,7 @@ attrs==22.1.0 \
     #   klein
     #   magic-wormhole
     #   service-identity
+    #   tahoe-capabilities
     #   tahoe-lafs
     #   treq
     #   twisted
@@ -37,18 +38,19 @@ automat==20.2.0 \
     #   magic-wormhole
     #   twisted
     #   txtorcon
-bcrypt==3.2.2 \
-    --hash=sha256:2b02d6bfc6336d1094276f3f588aa1225a598e27f8e3388f4db9948cb707b521 \
-    --hash=sha256:433c410c2177057705da2a9f2cd01dd157493b2a7ac14c8593a16b3dab6b6bfb \
-    --hash=sha256:4e029cef560967fb0cf4a802bcf4d562d3d6b4b1bf81de5ec1abbe0f1adb027e \
-    --hash=sha256:61bae49580dce88095d669226d5076d0b9d927754cedbdf76c6c9f5099ad6f26 \
-    --hash=sha256:6d2cb9d969bfca5bc08e45864137276e4c3d3d7de2b162171def3d188bf9d34a \
-    --hash=sha256:7180d98a96f00b1050e93f5b0f556e658605dd9f524d0b0e68ae7944673f525e \
-    --hash=sha256:7d9ba2e41e330d2af4af6b1b6ec9e6128e91343d0b4afb9282e54e5508f31baa \
-    --hash=sha256:7ff2069240c6bbe49109fe84ca80508773a904f5a8cb960e02a977f7f519b129 \
-    --hash=sha256:88273d806ab3a50d06bc6a2fc7c87d737dd669b76ad955f449c43095389bc8fb \
-    --hash=sha256:a2c46100e315c3a5b90fdc53e429c006c5f962529bc27e1dfd656292c20ccc40 \
-    --hash=sha256:cd43303d6b8a165c29ec6756afd169faba9396a9472cdff753fe9f19b96ce2fa
+bcrypt==4.0.0 \
+    --hash=sha256:0b0f0c7141622a31e9734b7f649451147c04ebb5122327ac0bd23744df84be90 \
+    --hash=sha256:1c3334446fac200499e8bc04a530ce3cf0b3d7151e0e4ac5c0dddd3d95e97843 \
+    --hash=sha256:2d0dd19aad87e4ab882ef1d12df505f4c52b28b69666ce83c528f42c07379227 \
+    --hash=sha256:594780b364fb45f2634c46ec8d3e61c1c0f1811c4f2da60e8eb15594ecbf93ed \
+    --hash=sha256:7c7dd6c1f05bf89e65261d97ac3a6520f34c2acb369afb57e3ea4449be6ff8fd \
+    --hash=sha256:845b1daf4df2dd94d2fdbc9454953ca9dd0e12970a0bfc9f3dcc6faea3fa96e4 \
+    --hash=sha256:8780e69f9deec9d60f947b169507d2c9816e4f11548f1f7ebee2af38b9b22ae4 \
+    --hash=sha256:bf413f2a9b0a2950fc750998899013f2e718d20fa4a58b85ca50b6df5ed1bbf9 \
+    --hash=sha256:bfb67f6a6c72dfb0a02f3df51550aa1862708e55128b22543e2b42c74f3620d7 \
+    --hash=sha256:c59c170fc9225faad04dde1ba61d85b413946e8ce2e5f5f5ff30dfd67283f319 \
+    --hash=sha256:dc6ec3dc19b1c193b2f7cf279d3e32e7caf447532fbcb7af0906fe4398900c33 \
+    --hash=sha256:ede0f506554571c8eda80db22b83c139303ec6b595b8f60c4c8157bdd0bdee36
     # via twisted
 boltons==21.0.0 \
     --hash=sha256:65e70a79a731a7fe6e98592ecfb5ccf2115873d01dbc576079874629e5c90f13 \
@@ -154,7 +156,6 @@ cffi==1.15.1 \
     --hash=sha256:fa6693661a4c91757f4412306191b6dc88c1703f780c8234035eac011922bc01 \
     --hash=sha256:fcd131dd944808b5bdb38e6f5b53013c5aa4f334c5cad0c72742f6eba4b73db0
     # via
-    #   bcrypt
     #   cryptography
     #   pynacl
 charset-normalizer==2.1.1 \
@@ -506,6 +507,9 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
+tahoe-capabilities==2022.8.2 \
+    --hash=sha256:37c04d6aee135763658e0e3e28adfb2a8cb0427c12a6a581b8676e49f6d75421
+    # via -r requirements/gridsync.in
 tahoe-lafs==1.17.1 \
     --hash=sha256:2dc7fc103fe0e4f9fc69953934089f55e4428bd5d94670e844e64c210d7c1672 \
     --hash=sha256:329dca7bc9d23b670ac2e513bf7aab7eb948f40ffbc6bf8fc92376cb1cceaf8f
@@ -689,9 +693,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/gridsync.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==65.2.0 \
-    --hash=sha256:7f4bc85450898a09f76ebf28b72fa25bc7111f6c7d665d514a60bba9c75ef2a9 \
-    --hash=sha256:a3ca5857c89f82f5c9410e8508cb32f4872a3bafd4aa7ae122a24ca33bccc750
+setuptools==65.3.0 \
+    --hash=sha256:2e24e0bec025f035a2e72cdd1961119f557d78ad331bb00ff82efb2ab8da8e82 \
+    --hash=sha256:7732871f4f7fa58fb6bdcaeadb0161b2bd046c85905dbaa066bdcbcc81953b57
     # via
     #   autobahn
     #   tahoe-lafs
