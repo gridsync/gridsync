@@ -1,5 +1,12 @@
 from allmydata.uri import UnknownURI
 from allmydata.uri import from_string as uri_from_string
+from tahoe_capabilities import (
+    NotRecognized,
+    capability_from_string,
+    is_read,
+    is_verify,
+    is_write,
+)
 
 
 def is_readonly(cap: str) -> bool:
@@ -18,10 +25,10 @@ def is_readonly(cap: str) -> bool:
 
     """
     try:
-        kind = cap.split(":")[1]
-    except IndexError:
+        c = capability_from_string(cap)
+    except NotRecognized:
         return False
-    return kind.endswith("-RO")
+    return is_read(c) and not is_write(c) and not is_verify(c)
 
 
 def diminish(cap: str) -> str:
