@@ -43,4 +43,5 @@ def diminish(cap: str) -> str:
         raise ValueError(f'Unknown URI type: "{cap}"') from e
     if is_read(c) and not is_write(c) and not is_verify(c):
         return cap
-    return danger_real_capability_string(c.reader)
+    # FIXME mypy warns 'Item [...] has no attribute "reader"'
+    return danger_real_capability_string(c.reader)  # type: ignore
