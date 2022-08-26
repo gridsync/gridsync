@@ -3,6 +3,7 @@ from allmydata.uri import from_string as uri_from_string
 from tahoe_capabilities import (
     NotRecognized,
     capability_from_string,
+    danger_real_capability_string,
     is_read,
     is_verify,
     is_write,
@@ -38,7 +39,10 @@ def diminish(cap: str) -> str:
     If the capability is already a read(only) cap, return it unchanged.
     Raises a ValueError, if the capability type cannot be determined.
     """
-    uri = uri_from_string(cap)
-    if isinstance(uri, UnknownURI):
-        raise ValueError(f'Unknown URI type: "{cap}"')
-    return uri.get_readonly().to_string().decode("ascii")
+    try:
+        c = capability_from_string(cap)
+    except (NotRecognized, KeyError) as e:
+        raise ValueError(f'Unknown URI type: "{cap}"') from e
+    if is_read(c) and not is_write(c) and not is_verify(c):
+        return cap
+    return danger_real_capability_string(c.reader)
