@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
