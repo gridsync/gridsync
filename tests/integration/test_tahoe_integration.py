@@ -46,13 +46,6 @@ def test_tahoe_client_mkdir(tahoe_client):
 
 
 @ensureDeferred
-async def test_diminish(tahoe_client):
-    dircap = await tahoe_client.mkdir()
-    diminished = await tahoe_client.diminish(dircap)
-    assert diminished.startswith("URI:DIR2-RO:")
-
-
-@ensureDeferred
 async def test_upload_convergence_secret_determines_cap(
     tahoe_client, tmp_path
 ):
