@@ -1,5 +1,3 @@
-from allmydata.uri import UnknownURI
-from allmydata.uri import from_string as uri_from_string
 from tahoe_capabilities import (
     NotRecognized,
     capability_from_string,
