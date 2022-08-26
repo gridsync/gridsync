@@ -21,13 +21,13 @@ from gridsync.capabilities import diminish, is_readonly
         ("", False),
         (
             "URI:CHK:5qm4v3trdsrir2q3ojjpjk2qgi:wkf3l4kziur5vwipywwfjaerxo6e62oazjeejazy7cfgiaghizsa:1:1:1024",
-            False,
+            True,
         ),
         (
             "URI:CHK-Verifier:3gskkineg6sibcgryovfcv7k3q:wkf3l4kziur5vwipywwfjaerxo6e62oazjeejazy7cfgiaghizsa:1:1:1024",
             False,
         ),
-        ("URI:LIT:orsxg5ak", False),
+        ("URI:LIT:orsxg5ak", True),
         (
             "URI:DIR2-MDMF:hlnh33k7kuk2lv3u46cc6ipe3e:bt2ck3zo7qyaje7hpgnpsec3vkfb73dyedeihlv3z4ayuo5vsb5q",
             False,
