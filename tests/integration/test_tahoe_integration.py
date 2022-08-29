@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
@@ -171,3 +172,13 @@ async def test_copydir(tahoe_client):
     results = await tahoe_client.ls(dest)
     assert results["Dir1"]["cap"] == dircap_1
     assert results["Dir2"]["cap"] == dircap_2
+
+
+@ensureDeferred
+async def test_copydir_raises_file_not_found_error_if_source_missing(
+    tahoe_client,
+):
+    src = await tahoe_client.mkdir()
+    dest = await tahoe_client.mkdir()
+    with pytest.raises(FileNotFoundError):
+        await tahoe_client.copydir(src + "/Path/Does/Not/Exist", dest)
