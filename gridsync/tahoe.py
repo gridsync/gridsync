@@ -709,6 +709,10 @@ class Tahoe:
 
     async def copydir(self, src_dircap: str, dst_dircap: str) -> None:
         ls_output = await self.ls(src_dircap)
+        if ls_output is None:
+            raise FileNotFoundError(
+                f'Source directory "{src_dircap}" does not exist'
+            )
         for childname, data in ls_output.items():
             await self.link(dst_dircap, childname, data["cap"])
 
