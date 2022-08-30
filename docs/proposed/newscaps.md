@@ -83,7 +83,7 @@ messages to be nested under a "v2/locale/" subdirectory in the future).
 
 Naturally, only the operator would be in possession of the read/write 
 capability needed to add entries to the newscap (and is thus the only party who
-can "push" news/updates) while the user(s) would receive the "diminished" 
+can "push" news/updates) while the user(s) would receive the "diminished"
 read-only capability (and thus be able to view/read -- but not modify -- the 
 contents of messages). All users of the storage grid would presumably 
 receive/store the same (read-only) "newscap" when initially configuring their
