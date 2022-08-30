@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import json
 import os
 from typing import Awaitable, Callable
 from unittest.mock import MagicMock, Mock
