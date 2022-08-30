@@ -161,11 +161,6 @@ class MemoryMode:
         self.observer.start()
 
 
-class LogMode(Enum):
-    stdout = auto()
-    in_memory = auto()
-
-
 def initialize_logger(privacy: LogPrivacy, mode: LogMode) -> None:
     fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
     handler = mode.handler
