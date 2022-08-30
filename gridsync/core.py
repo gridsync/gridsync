@@ -59,7 +59,6 @@ qtreactor.install()  # type: ignore
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
-from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import (
     APP_NAME,
@@ -82,22 +81,6 @@ from gridsync.types import TwistedDeferred
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
 
-class DequeHandler(logging.Handler):
-    def __init__(self, deque: collections.deque) -> None:
-        super().__init__()
-        self.deque = deque
-
-    def emit(self, record: logging.LogRecord) -> None:
-        self.deque.append(self.format(record))
-
-
-class LogFormatter(logging.Formatter):
-    def formatTime(
-        self, record: logging.LogRecord, datefmt: Optional[str] = None
-    ) -> str:
-        return datetime.now(timezone.utc).isoformat()
-
-
 class Core:
     def __init__(self, args: argparse.Namespace) -> None:
         self.args = args
@@ -114,26 +97,29 @@ class Core:
             maxlen=log_deque_maxlen
         )
 
-        self.initialize_logger(self.args.debug)
+        if "log-privacy" in self.args:
+            # Reflect that the user chose something with a command-line
+            # argument.
+            explicit = True
+            private = self.args["log-privacy"]
+        else:
+            # Default to privacy mode out of an abundance of caution, but note
+            # this is not an explicit user choice.
+            explicit = False
+            private = True
+
+        privacy = LogPrivacy(logging.getLogger(), explicit=explicit, private=private)
+
+        if "log-to-stdout" in self.args:
+            mode: LogMode = StdoutMode(stdout)
+        else:
+            mode = MemoryMode(self.log_deque)
+
+        initialize_logger(privacy, mode)
+
         # The `Gui` object must be initialized after initialize_logger,
         # otherwise log messages will be duplicated.
         self.gui = Gui(self)
-
-    def initialize_logger(self, to_stdout: bool = False) -> None:
-        handler: Union[logging.StreamHandler, DequeHandler]
-        if to_stdout:
-            handler = logging.StreamHandler(stream=sys.stdout)
-            startLogging(sys.stdout)
-        else:
-            handler = DequeHandler(self.log_deque)
-            observer = PythonLoggingObserver()
-            observer.start()
-        fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
-        handler.setFormatter(LogFormatter(fmt=fmt))
-        logger = logging.getLogger()
-        logger.addHandler(handler)
-        logger.setLevel(logging.DEBUG)
-        logging.debug("Hello World!")
 
     @inlineCallbacks
     def get_tahoe_version(self) -> TwistedDeferred[None]:
