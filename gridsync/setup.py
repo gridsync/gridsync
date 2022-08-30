@@ -369,7 +369,6 @@ class SetupRunner(QObject):
         zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
-            self.gateway.save_settings(settings)  # XXX Unnecessary?
             if zkapauthz:
                 await self._restore_zkaps()
         elif zkapauthz:

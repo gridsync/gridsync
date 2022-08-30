@@ -581,18 +581,6 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
     yield Deferred.fromCoroutine(sr.join_grid(settings))
 
 
-@inlineCallbacks
-def test_ensure_recovery_write_settings(tmpdir):
-    nodedir = str(tmpdir.mkdir("TestGrid"))
-    os.makedirs(os.path.join(nodedir, "private"))
-    sr = SetupRunner([])
-    sr.gateway = Tahoe(nodedir)
-    settings = {"nickname": "TestGrid", "rootcap": "URI:test"}
-    yield Deferred.fromCoroutine(sr.ensure_recovery(settings))
-    with open(os.path.join(nodedir, "private", "settings.json")) as f:
-        assert json.loads(f.read()) == settings
-
-
 @ensureDeferred
 async def test_ensure_recovery_create_rootcap(monkeypatch, tmpdir):
     nodedir = str(tmpdir.mkdir("TestGrid"))
