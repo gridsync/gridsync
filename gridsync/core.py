@@ -97,18 +97,14 @@ class Core:
             maxlen=log_deque_maxlen
         )
 
-        if "log-privacy" in self.args:
-            # Reflect that the user chose something with a command-line
-            # argument.
-            explicit = True
-            private = self.args["log-privacy"]
-        else:
-            # Default to privacy mode out of an abundance of caution, but note
-            # this is not an explicit user choice.
-            explicit = False
-            private = True
-
-        privacy = LogPrivacy(logging.getLogger(), explicit=explicit, private=private)
+        privacy = LogPrivacy(
+            logging.getLogger(),
+            # Reflect that the user chose something with a command-line argument.
+            explicit="log-privacy" in self.args,
+            # Lacking user choice, default to privacy mode out of an abundance
+            # of caution.
+            private=self.args.get("log-privacy", False),
+        )
 
         if "log-to-stdout" in self.args:
             mode: LogMode = StdoutMode(stdout)
