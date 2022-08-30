@@ -115,6 +115,16 @@ class RootcapManager:
         logging.debug('Base ("%s") dircap successfully created', self.basedir)
         return self._basedircap
 
+    async def import_rootcap(self, source_dircap: str) -> None:
+        src_dirs = await self.gateway.ls(source_dircap, exclude_filenodes=True)
+        if src_dirs is None:
+            raise ValueError("Failed to source directory contents")
+        if self.basedir in src_dirs:
+            src_basedircap = src_dirs[self.basedir]["cap"]
+            basedircap = await self._get_basedircap()
+            await self.gateway.copydir(src_basedircap, basedircap)
+        # TODO: Raise UpgradeRequired?
+
     async def create_backup_cap(self, name: str, basedircap: str = "") -> str:
         if not basedircap:
             basedircap = await self._get_basedircap()
