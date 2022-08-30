@@ -36,7 +36,7 @@ class RootcapManager:
     Recovery Key" flow.
     """
 
-    def __init__(self, gateway: Tahoe, basedir: str = "v0") -> None:
+    def __init__(self, gateway: Tahoe, basedir: str = "v1") -> None:
         self.gateway = gateway
         self.basedir = basedir
         self.lock = DeferredLock()
