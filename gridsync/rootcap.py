@@ -118,7 +118,7 @@ class RootcapManager:
     async def import_rootcap(self, source_dircap: str) -> None:
         src_dirs = await self.gateway.ls(source_dircap, exclude_filenodes=True)
         if src_dirs is None:
-            raise ValueError("Failed to source directory contents")
+            raise ValueError("Failed to list source directory contents")
         if self.basedir in src_dirs:
             src_basedircap = src_dirs[self.basedir]["cap"]
             basedircap = await self._get_basedircap()
