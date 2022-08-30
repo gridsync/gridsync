@@ -57,3 +57,14 @@ async def test_remove_backup_is_idempotent(tahoe_client, rootcap_manager):
     except Exception as exc:
         exception_raised = exc
     assert not exception_raised
+
+
+@ensureDeferred
+async def test_import_rootcap(tahoe_client, rootcap_manager):
+    source_rootcap = await tahoe_client.mkdir()
+    source_basedir = await tahoe_client.mkdir(source_rootcap, "v1")
+    source_backups = await tahoe_client.mkdir(source_basedir, "TestBackups-4")
+    backup_cap = await tahoe_client.mkdir(source_backups, "backup-4")
+    await rootcap_manager.import_rootcap(source_rootcap)
+    cap = await rootcap_manager.get_backup("TestBackups-4", "backup-4")
+    assert cap == backup_cap
