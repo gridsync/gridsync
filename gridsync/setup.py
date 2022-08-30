@@ -338,43 +338,40 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
         await self.gateway.await_ready()
 
+    async def _restore_zkaps(self) -> None:
+        def status_updated(stage: str, failure_reason: str) -> None:
+            # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
+            # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
+            # _zkapauthorizer/recover.py#L35
+            stages = {
+                "started": "ZKAPs recovery started",
+                "inspect_replica": "Inspecting ZKAPs replica",
+                "downloading": "Downloading ZKAPs",
+                "importing": "Importing ZKAPs",
+                "succeeded": "Successfully restored ZKAPs",
+            }
+            if failure_reason is None:
+                humanized_stage = stages.get(stage, stage.title())
+                self.update_progress.emit(humanized_stage)
+            else:
+                self.update_progress.emit(f"Recovery failed: {failure_reason}")
+                error(None, "Error restoring ZKAPs", str(failure_reason))
+
+        snapshot_exists = await self.gateway.zkapauthorizer.snapshot_exists()
+        if snapshot_exists:
+            # `restore_zkaps` will hang forever if no snapshot exists
+            log.debug("Restoring ZKAPs from backup...")
+            await self.gateway.zkapauthorizer.restore_zkaps(status_updated)
+        else:
+            log.warning("No ZKAPs backup found")
+
     async def ensure_recovery(self, settings: dict) -> None:
         zkapauthz, _ = is_zkap_grid(settings)
         if settings.get("rootcap"):
             self.update_progress.emit("Restoring from Recovery Key...")
             self.gateway.save_settings(settings)  # XXX Unnecessary?
             if zkapauthz:
-
-                def status_updated(stage: str, failure_reason: str) -> None:
-                    # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
-                    # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
-                    # _zkapauthorizer/recover.py#L35
-                    stages = {
-                        "started": "ZKAPs recovery started",
-                        "inspect_replica": "Inspecting ZKAPs replica",
-                        "downloading": "Downloading ZKAPs",
-                        "importing": "Importing ZKAPs",
-                        "succeeded": "Successfully restored ZKAPs",
-                    }
-                    if failure_reason is None:
-                        humanized_stage = stages.get(stage, stage.title())
-                        self.update_progress.emit(humanized_stage)
-                    else:
-                        self.update_progress.emit(
-                            f"Recovery failed: {failure_reason}"
-                        )
-                        error(
-                            None, "Error restoring ZKAPs", str(failure_reason)
-                        )
-
-                zkapauthorizer = self.gateway.zkapauthorizer
-                snapshot_exists = await zkapauthorizer.snapshot_exists()
-                if snapshot_exists:
-                    # `restore_zkaps` will hang forever if no snapshot exists
-                    log.debug("Restoring ZKAPs from backup...")
-                    await zkapauthorizer.restore_zkaps(status_updated)
-                else:
-                    log.warning("No ZKAPs backup found")
+                await self._restore_zkaps()
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
