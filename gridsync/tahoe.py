@@ -158,7 +158,11 @@ class Tahoe:
 
         rootcap = settings.get("rootcap")
         if rootcap:
-            self.rootcap_manager.set_rootcap(rootcap, overwrite=True)
+            with atomic_write(
+                str(Path(self.nodedir, "private", "rootcap.imported")),
+                overwrite=True,
+            ) as f:
+                f.write(rootcap)
 
         newscap = settings.get("newscap")
         if newscap:
