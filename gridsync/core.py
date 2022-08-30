@@ -107,7 +107,7 @@ class Core:
         )
 
         if "log-to-stdout" in self.args:
-            mode: LogMode = StdoutMode(stdout)
+            mode: LogMode = FileMode(stdout)
         else:
             mode = MemoryMode(self.log_deque)
 

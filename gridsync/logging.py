@@ -130,18 +130,25 @@ class LogMode(Protocol):
         """
 
 
-class StdoutMode:
-    stdout: IO[str]
+class FileMode:
+    """
+    A logging mode where log records are written to an output file.
+    """
+    outfile: IO[str]
     handler: Handler = field()
 
     @handler.default
     def _handler_default(self) -> StreamHandler:
-        return StreamHandler(stream=self.stdout)
+        return StreamHandler(stream=self.outfile)
 
     def start(self) -> None:
-        startLogging(self.stdout)
+        startLogging(self.outfile)
+
 
 class MemoryMode:
+    """
+    A logging mode where log records are buffered in a bounded deque.
+    """
     logs: deque[LogRecord]
     handler: Handler = field()
     observer: PythonLoggingObserver = Factory(PythonLoggingObserver)
