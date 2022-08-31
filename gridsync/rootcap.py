@@ -118,35 +118,6 @@ class RootcapManager:
         logging.debug('Base ("%s") dircap successfully created', self.basedir)
         return self._basedircap
 
-    async def import_rootcap(self, source_dircap: str) -> None:
-        src_dirs = await self.gateway.ls(source_dircap, exclude_filenodes=True)
-        if src_dirs is None:
-            raise ValueError("Failed to list source directory contents")
-        if self.basedir not in src_dirs:
-            raise UpgradeRequiredError(
-                f'The "{self.basedir}" base directory is missing from the '
-                "imported rootcap. This probably means that your Recovery Key "
-                f"was created with a version of {APP_NAME} that is "
-                "incompatible with the current version of the software."
-            )
-        src_basedircap = src_dirs[self.basedir]["cap"]
-        src_backupdirs = await self.gateway.ls(
-            src_basedircap, exclude_filenodes=True
-        )
-        if not src_backupdirs:
-            logging.warning("No backups found in imported rootcap")
-            return
-        for backupdir_name, backupdir_data in src_backupdirs.items():
-            dir_contents = await self.gateway.ls(backupdir_data["cap"])
-            if not dir_contents:
-                logging.warning(
-                    'Backup directory "%s" is empty; not restoring',
-                    backupdir_name,
-                )
-                continue
-            for name, data in dir_contents.items():
-                await self.add_backup(backupdir_name, name, data["cap"])
-
     async def create_backup_cap(self, name: str, basedircap: str = "") -> str:
         if not basedircap:
             basedircap = await self._get_basedircap()
@@ -213,3 +184,32 @@ class RootcapManager:
             await self.gateway.unlink(backup_cap, name, missing_ok=True)
         finally:
             self.lock.release()
+
+    async def import_rootcap(self, source_dircap: str) -> None:
+        src_dirs = await self.gateway.ls(source_dircap, exclude_filenodes=True)
+        if src_dirs is None:
+            raise ValueError("Failed to list source directory contents")
+        if self.basedir not in src_dirs:
+            raise UpgradeRequiredError(
+                f'The "{self.basedir}" base directory is missing from the '
+                "imported rootcap. This probably means that your Recovery Key "
+                f"was created with a version of {APP_NAME} that is "
+                "incompatible with the current version of the software."
+            )
+        src_basedircap = src_dirs[self.basedir]["cap"]
+        src_backupdirs = await self.gateway.ls(
+            src_basedircap, exclude_filenodes=True
+        )
+        if not src_backupdirs:
+            logging.warning("No backups found in imported rootcap")
+            return
+        for backupdir_name, backupdir_data in src_backupdirs.items():
+            dir_contents = await self.gateway.ls(backupdir_data["cap"])
+            if not dir_contents:
+                logging.warning(
+                    'Backup directory "%s" is empty; not restoring',
+                    backupdir_name,
+                )
+                continue
+            for name, data in dir_contents.items():
+                await self.add_backup(backupdir_name, name, data["cap"])
