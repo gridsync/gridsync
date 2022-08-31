@@ -367,10 +367,12 @@ class SetupRunner(QObject):
 
     async def ensure_recovery(self, settings: dict) -> None:
         zkapauthz, _ = is_zkap_grid(settings)
-        if settings.get("rootcap"):
+        rootcap = settings.get("rootcap")
+        if rootcap:
             self.update_progress.emit("Restoring from Recovery Key...")
             if zkapauthz:
                 await self._restore_zkaps()
+            await self.gateway.rootcap_manager.import_rootcap(rootcap)
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
