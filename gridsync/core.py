@@ -2,12 +2,10 @@
 from __future__ import annotations
 
 import argparse
-import collections
 import logging
 import os
 import sys
-from datetime import datetime, timezone
-from typing import Optional, Union
+from typing import IO
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
@@ -69,9 +67,11 @@ from gridsync import (
     resource,
     settings,
 )
+from gridsync.config import get_log_maxlen, get_startup_warning_message
 from gridsync.desktop import autostart_enable
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
+from gridsync.logging import initialize_logger_from_args
 from gridsync.magic_folder import MagicFolder
 from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
@@ -82,36 +82,15 @@ app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
 
 class Core:
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace, stdout: IO[str]) -> None:
         self.args = args
         self.gateways: list = []
         self.tahoe_version: str = ""
         self.magic_folder_version: str = ""
-        log_deque_maxlen = 100000  # XXX
-        debug_settings = settings.get("debug")
-        if debug_settings:
-            log_maxlen = debug_settings.get("log_maxlen")
-            if log_maxlen is not None:
-                log_deque_maxlen = int(log_maxlen)
-        self.log_deque: collections.deque = collections.deque(
-            maxlen=log_deque_maxlen
+
+        self.log_privacy, self.log_mode = initialize_logger_from_args(
+            args, get_log_maxlen(settings), stdout
         )
-
-        privacy = LogPrivacy(
-            logging.getLogger(),
-            # Reflect that the user chose something with a command-line argument.
-            explicit="log-privacy" in self.args,
-            # Lacking user choice, default to privacy mode out of an abundance
-            # of caution.
-            private=self.args.get("log-privacy", False),
-        )
-
-        if "log-to-stdout" in self.args:
-            mode: LogMode = FileMode(stdout)
-        else:
-            mode = MemoryMode(self.log_deque)
-
-        initialize_logger(privacy, mode)
 
         # The `Gui` object must be initialized after initialize_logger,
         # otherwise log messages will be duplicated.
@@ -201,15 +180,20 @@ class Core:
 
     @staticmethod
     def show_message() -> None:
-        message_settings = settings.get("message")
-        if not message_settings:
-            return
+        """
+        Show the startup-time scary beta-software warning message, maybe.
+        """
         if get_preference("message", "suppress") == "true":
             return
+
+        message_settings = get_startup_warning_message(settings)
+        if message_settings is None:
+            return
+
+        icon_type, title, text = message_settings
         logging.debug("Showing custom message to user...")
         msgbox = QMessageBox()
-        icon_type = message_settings.get("type")
-        if icon_type:
+        if icon_type is not None:
             icon_type = icon_type.lower()
             if icon_type == "information":
                 msgbox.setIcon(QMessageBox.Information)
@@ -218,11 +202,11 @@ class Core:
             elif icon_type == "critical":
                 msgbox.setIcon(QMessageBox.Critical)
         if sys.platform == "darwin":
-            msgbox.setText(message_settings.get("title"))
-            msgbox.setInformativeText(message_settings.get("text"))
+            msgbox.setText(title)
+            msgbox.setInformativeText(text)
         else:
-            msgbox.setWindowTitle(message_settings.get("title"))
-            msgbox.setText(message_settings.get("text"))
+            msgbox.setWindowTitle(title)
+            msgbox.setText(text)
         checkbox = QCheckBox("Do not show this message again")
         checkbox.stateChanged.connect(
             lambda state: set_preference(

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging as log
 import sys
+from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from qtpy.QtCore import QCoreApplication, QEvent, Qt
@@ -29,6 +30,11 @@ from wormhole.errors import (
 
 from gridsync import APP_NAME, load_settings_from_cheatcode, resource
 from gridsync import settings as global_settings
+from gridsync.config import (
+    get_application_description,
+    get_application_icon_resource_name,
+    get_default_connection_code,
+)
 from gridsync.errors import AbortedByUserError, UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
@@ -50,22 +56,18 @@ class WelcomeWidget(QWidget):
         super().__init__(welcome_dialog)
         self.welcome_dialog = welcome_dialog
 
-        application_settings = global_settings["application"]
-        logo_icon = application_settings.get("logo_icon")
-        if logo_icon:
-            icon_file = logo_icon
-            icon_size = 288
-        else:
-            icon_file = application_settings.get("tray_icon")
-            icon_size = 220
+        is_logo, icon_name = get_application_icon_resource_name(
+            global_settings
+        )
+        icon_size = 288 if is_logo else 220
+
+        description = get_application_description(global_settings)
 
         self.icon = QLabel()
-        self.icon.setPixmap(Pixmap(icon_file, icon_size))
+        self.icon.setPixmap(Pixmap(icon_name, icon_size))
         self.icon.setAlignment(Qt.AlignCenter)
 
-        self.slogan = QLabel(
-            "<i>{}</i>".format(application_settings.get("description", ""))
-        )
+        self.slogan = QLabel(f"<i>{description}</i>")
         self.slogan.setFont(Font(12))
         p = self.palette()
         dimmer_grey = BlendedColor(
@@ -73,7 +75,7 @@ class WelcomeWidget(QWidget):
         ).name()
         self.slogan.setStyleSheet("color: {}".format(dimmer_grey))
         self.slogan.setAlignment(Qt.AlignCenter)
-        if logo_icon:
+        if is_logo:
             self.slogan.hide()
 
         self.invite_code_widget = InviteCodeWidget(self)
@@ -81,31 +83,33 @@ class WelcomeWidget(QWidget):
 
         self.connect_button = QPushButton("Connect")
 
-        try:
-            default_code = global_settings["connection"]["default"]
-        except KeyError:
-            default_code = ""
-        grid_settings = load_settings_from_cheatcode(default_code)
-        if grid_settings:
-            self.invite_code_widget.hide()
-            nickname = grid_settings.get("nickname")
-            if nickname:
-                font = Font(11)
-                self.connect_button.setFont(font)
-                self.connect_button.setFixedHeight(32)
-                self.connect_button.setText(f"Connect to {nickname}")
-                self.connect_button.clicked.connect(
-                    lambda: self.welcome_dialog.go(default_code, grid_settings)
-                )
-            primary_color = grid_settings.get("color-1")
-            if primary_color:
-                self.connect_button.setStyleSheet(
-                    f"background: {primary_color}; color: white"
-                )
+        default_code = get_default_connection_code(global_settings)
+        if default_code is not None:
+            grid_settings = load_settings_from_cheatcode(default_code)
+            if grid_settings is not None:
+                self.invite_code_widget.hide()
+                nickname = grid_settings.get("nickname")
+                if nickname:
+                    font = Font(11)
+                    self.connect_button.setFont(font)
+                    self.connect_button.setFixedHeight(32)
+                    self.connect_button.setText(f"Connect to {nickname}")
+                    self.connect_button.clicked.connect(
+                        partial(
+                            self.welcome_dialog.go, default_code, grid_settings
+                        )
+                    )
+                primary_color = grid_settings.get("color-1")
+                if primary_color:
+                    self.connect_button.setStyleSheet(
+                        f"background: {primary_color}; color: white"
+                    )
+                else:
+                    self.connect_button.setStyleSheet(
+                        "background: green; color: white"
+                    )
             else:
-                self.connect_button.setStyleSheet(
-                    "background: green; color: white"
-                )
+                self.connect_button.hide()
         else:
             self.connect_button.hide()
 

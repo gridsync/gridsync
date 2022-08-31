@@ -107,6 +107,7 @@ class LogLoader(QObject):
 
     def load(self) -> None:
         start_time = time.time()
+        logs = self.core.log_mode.logs
         self.content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
@@ -116,7 +117,7 @@ class LogLoader(QObject):
             )
             + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
-            + "\n".join(self.core.log_deque)
+            + "\n".join(logs)
             + "\n----- End of {} debug log -----\n".format(APP_NAME)
         )
         filters = get_filters(self.core)
