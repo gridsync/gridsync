@@ -156,14 +156,6 @@ class Tahoe:
         ) as f:
             f.write(json.dumps(settings))
 
-        rootcap = settings.get("rootcap")
-        if rootcap:
-            with atomic_write(
-                str(Path(self.nodedir, "private", "rootcap.imported")),
-                overwrite=True,
-            ) as f:
-                f.write(rootcap)
-
         newscap = settings.get("newscap")
         if newscap:
             with atomic_write(
