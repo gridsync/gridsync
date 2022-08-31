@@ -376,21 +376,19 @@ class SetupRunner(QObject):
                 recovery_cap = await self.gateway.get_cap(
                     rootcap + "/v1/.zkapauthorizer/recovery-capability"  # XXX
                 )
-                if recovery_cap:
-                    ls_output = await self.gateway.ls(recovery_cap)
-                    if ls_output is not None and "snapshot" in ls_output:
-                        await self._restore_zkaps(recovery_cap)
-                    # `_restore_zkaps` will hang forever if no snapshot exists
-                    else:
-                        raise RestorationError(
-                            "Cannot restore from Recovery Key; no ZKAPs "
-                            "snapshot(s) found in recovery-capability"
-                        )
-                else:
+                if recovery_cap is None:
                     raise RestorationError(
                         "Cannot restore from Recovery Key; no ZKAPs "
                         "recovery-capability found in rootcap"
                     )
+                ls_output = await self.gateway.ls(recovery_cap)
+                if ls_output is None or "snapshot" not in ls_output:
+                    # `_restore_zkaps` will hang forever if no snapshot exists
+                    raise RestorationError(
+                        "Cannot restore from Recovery Key; no ZKAPs "
+                        "snapshot(s) found in recovery-capability"
+                    )
+                await self._restore_zkaps(recovery_cap)
             await self.gateway.rootcap_manager.import_rootcap(rootcap)
             # Force MagicFolderMonitor to detect newly-restored folders
             await self.gateway.magic_folder.monitor.do_check()  # XXX
