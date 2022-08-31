@@ -353,7 +353,7 @@ class SetupRunner(QObject):
                 "inspect_replica": "Inspecting ZKAPs replica",
                 "downloading": "Downloading ZKAPs",
                 "importing": "Importing ZKAPs",
-                "succeeded": "Successfully restored ZKAPs",
+                "succeeded": "Finalizing restoration",
             }
             if failure_reason is None:
                 humanized_stage = stages.get(stage, stage.title())
