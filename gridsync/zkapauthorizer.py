@@ -30,6 +30,7 @@ class ZKAPAuthorizer:
         self.zkap_dircap: str = ""
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2**15
+        self._recovery_capability: str = ""
 
         # XXX/TODO: Move this later?
         gateway.monitor.zkaps_redeemed.connect(lambda _: self.backup_zkaps())
@@ -247,7 +248,18 @@ class ZKAPAuthorizer:
         directory cap under the ``.zkapauthorizer`` backup under name
         ``recovery-capability``.
         """
-        recovery_cap = yield self.replicate()
+        try:
+            recovery_cap = yield self.replicate()
+        except (json.decoder.JSONDecodeError, TahoeWebError):
+            recovery_cap = self._recovery_capability
+        if recovery_cap and recovery_cap != self._recovery_capability:
+            # Cache the recovery capability since the version of
+            # ZKAPAuthorizer that is currently on PyPI (v2022.6.28)
+            # only gives us the capability one time (for HTTP status
+            # 201/"CREATED"). A future version will fix this. See:
+            # https://github.com/PrivateStorageio/ZKAPAuthorizer
+            # /commit/dce40ecc5779a4c8428d83ed8418fd4b178589f1
+            self._recovery_capability = recovery_cap
         try:
             backup_cap = yield Deferred.fromCoroutine(
                 self.gateway.rootcap_manager.get_backup(
