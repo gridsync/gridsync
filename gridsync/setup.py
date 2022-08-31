@@ -383,7 +383,6 @@ class SetupRunner(QObject):
                 settings["rootcap"] = await self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
-            self.gateway.save_settings(settings)
             settings_cap = await self.gateway.upload(
                 os.path.join(self.gateway.nodedir, "private", "settings.json")
             )
