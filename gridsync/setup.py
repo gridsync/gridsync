@@ -18,7 +18,12 @@ from twisted.internet.defer import Deferred
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
-from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
+from gridsync.errors import (
+    AbortedByUserError,
+    RestorationError,
+    TorError,
+    UpgradeRequiredError,
+)
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
@@ -377,9 +382,13 @@ class SetupRunner(QObject):
                         await self._restore_zkaps(recovery_cap)
                     # `_restore_zkaps` will hang forever if no snapshot exists
                     else:
-                        log.warning("No ZKAPs snapshot found in recovery cap")
+                        raise RestorationError(
+                            "No ZKAPs snapshot(s) found in recovery-capability"
+                        )
                 else:
-                    log.warning("No ZKAPs recovery cap found in rootcap")
+                    raise RestorationError(
+                        "No ZKAPs recovery-capability found in rootcap"
+                    )
             await self.gateway.rootcap_manager.import_rootcap(rootcap)
             # Force MagicFolderMonitor to detect newly-restored folders
             await self.gateway.magic_folder.monitor.do_check()  # XXX
