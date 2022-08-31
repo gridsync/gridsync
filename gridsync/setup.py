@@ -377,7 +377,7 @@ class SetupRunner(QObject):
                     #    rootcap + "/v1/.zkapauthorizer/recovery-capability/snapshot"  # XXX
                     # )
                     ls_output = await self.gateway.ls(recovery_cap)
-                    if "snapshot" in ls_output:
+                    if ls_output is not None and "snapshot" in ls_output:
                         await self._restore_zkaps(recovery_cap)
                     # `_restore_zkaps` will hang forever if no snapshot exists
                     else:
