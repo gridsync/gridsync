@@ -378,7 +378,7 @@ class SetupRunner(QObject):
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
-            self.update_progress.emit("Generating Recovery Key...")
+            self.update_progress.emit("Creating Recovery Key...")
             try:
                 settings["rootcap"] = await self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
