@@ -160,25 +160,3 @@ async def test_ls_nonexistent_path(tahoe_client, tmp_path):
     dircap = await tahoe_client.mkdir()
     output = await tahoe_client.ls(dircap + "/Path/Does/Not/Exist")
     assert output is None
-
-
-@ensureDeferred
-async def test_copydir(tahoe_client):
-    src = await tahoe_client.mkdir()
-    dircap_1 = await tahoe_client.mkdir(src, "Dir1")
-    dircap_2 = await tahoe_client.mkdir(src, "Dir2")
-    dest = await tahoe_client.mkdir()
-    await tahoe_client.copydir(src, dest)
-    results = await tahoe_client.ls(dest)
-    assert results["Dir1"]["cap"] == dircap_1
-    assert results["Dir2"]["cap"] == dircap_2
-
-
-@ensureDeferred
-async def test_copydir_raises_file_not_found_error_if_source_missing(
-    tahoe_client,
-):
-    src = await tahoe_client.mkdir()
-    dest = await tahoe_client.mkdir()
-    with pytest.raises(FileNotFoundError):
-        await tahoe_client.copydir(src + "/Path/Does/Not/Exist", dest)
