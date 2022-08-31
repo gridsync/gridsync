@@ -377,9 +377,9 @@ class SetupRunner(QObject):
                         await self._restore_zkaps(recovery_cap)
                     # `_restore_zkaps` will hang forever if no snapshot exists
                     else:
-                        log.warning("No ZKAPs backup found")
+                        log.warning("No ZKAPs snapshot found in recovery cap")
                 else:
-                    log.warning("No ZKAPs backup found")
+                    log.warning("No ZKAPs recovery cap found in rootcap")
             await self.gateway.rootcap_manager.import_rootcap(rootcap)
             # Force MagicFolderMonitor to detect newly-restored folders
             await self.gateway.magic_folder.monitor.do_check()  # XXX
