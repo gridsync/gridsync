@@ -172,6 +172,6 @@ async def test_get_cap(tahoe_client, tmp_path):
 @ensureDeferred
 async def test_get_cap_returns_none_for_missing_path(tahoe_client, tmp_path):
     dircap = await tahoe_client.mkdir()
-    subdircap = await tahoe_client.mkdir(dircap, "TestSubdir")
+    await tahoe_client.mkdir(dircap, "TestSubdir")
     output = await tahoe_client.get_cap(dircap + "/TestNonExistentSubdir")
     assert output is None
