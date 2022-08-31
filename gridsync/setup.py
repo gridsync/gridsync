@@ -383,12 +383,6 @@ class SetupRunner(QObject):
                 settings["rootcap"] = await self.gateway.create_rootcap()
             except OSError:  # XXX Rootcap file already exists
                 pass
-            settings_cap = await self.gateway.upload(
-                os.path.join(self.gateway.nodedir, "private", "settings.json")
-            )
-            await self.gateway.link(
-                self.gateway.get_rootcap(), "settings.json", settings_cap
-            )
 
     async def join_folders(self, folders_data: dict) -> None:
         folders = []
