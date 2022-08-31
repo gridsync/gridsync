@@ -373,19 +373,26 @@ class SetupRunner(QObject):
         if rootcap:
             self.update_progress.emit("Restoring from Recovery Key...")
             if zkapauthz:
+                help_text = (
+                    "\n\nThis may indicate that your Recovery Key was created "
+                    f"with a version of {APP_NAME} that is incompatible with "
+                    "the current version of the software or that the data is "
+                    f'no longer available on "{self.gateway.name}".\n\nPlease '
+                    "contact your storage provider for further assistance."
+                )
                 za = self.gateway.zkapauthorizer
                 recovery_cap = await za.get_recovery_capability(rootcap)
                 if recovery_cap is None:
                     raise RestorationError(
                         "Cannot restore from Recovery Key; no ZKAPs "
-                        "recovery-capability found in rootcap"
+                        f"recovery-capability found in rootcap.{help_text}"
                     )
                 snapshot_exists = await za.snapshot_exists(recovery_cap)
                 if not snapshot_exists:
                     # `_restore_zkaps` will hang forever if no snapshot exists
                     raise RestorationError(
                         "Cannot restore from Recovery Key; no ZKAPs "
-                        "snapshot(s) found in recovery-capability"
+                        f"snapshot(s) found in recovery-capability.{help_text}"
                     )
                 await self._restore_zkaps(recovery_cap)
             await self.gateway.rootcap_manager.import_rootcap(rootcap)
