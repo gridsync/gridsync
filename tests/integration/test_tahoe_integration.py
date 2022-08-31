@@ -2,7 +2,6 @@ import os
 import sys
 from pathlib import Path
 
-import pytest
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
