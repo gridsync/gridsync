@@ -373,6 +373,8 @@ class SetupRunner(QObject):
             if zkapauthz:
                 await self._restore_zkaps()
             await self.gateway.rootcap_manager.import_rootcap(rootcap)
+            # Force MagicFolderMonitor to detect newly-restored folders
+            await self.gateway.magic_folder.monitor.do_check()  # XXX
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
