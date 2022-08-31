@@ -679,6 +679,13 @@ class Tahoe:
             return json.loads(content.decode("utf-8"))
         return None
 
+    async def get_cap(self, path: str) -> Optional[str]:
+        json_output = await self.get_json(path)
+        if not json_output:
+            return None
+        data = json_output[1]
+        return data.get("rw_uri", data.get("ro_uri", data.get("verify_uri")))
+
     async def ls(
         self,
         cap: str,

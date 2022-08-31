@@ -159,3 +159,19 @@ async def test_ls_nonexistent_path(tahoe_client, tmp_path):
     dircap = await tahoe_client.mkdir()
     output = await tahoe_client.ls(dircap + "/Path/Does/Not/Exist")
     assert output is None
+
+
+@ensureDeferred
+async def test_get_cap(tahoe_client, tmp_path):
+    dircap = await tahoe_client.mkdir()
+    subdircap = await tahoe_client.mkdir(dircap, "TestSubdir")
+    output = await tahoe_client.get_cap(dircap + "/TestSubdir")
+    assert output == subdircap
+
+
+@ensureDeferred
+async def test_get_cap_returns_none_for_missing_path(tahoe_client, tmp_path):
+    dircap = await tahoe_client.mkdir()
+    subdircap = await tahoe_client.mkdir(dircap, "TestSubdir")
+    output = await tahoe_client.get_cap(dircap + "/TestNonExistentSubdir")
+    assert output is None
