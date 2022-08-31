@@ -338,7 +338,7 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
         await self.gateway.await_ready()
 
-    async def _restore_zkaps(self) -> None:
+    async def _restore_zkaps(self, recovery_cap: str) -> None:
         def status_updated(stage: str, failure_reason: str) -> None:
             # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
             # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
@@ -357,13 +357,10 @@ class SetupRunner(QObject):
                 self.update_progress.emit(f"Recovery failed: {failure_reason}")
                 error(None, "Error restoring ZKAPs", str(failure_reason))
 
-        snapshot_exists = await self.gateway.zkapauthorizer.snapshot_exists()
-        if snapshot_exists:
-            # `restore_zkaps` will hang forever if no snapshot exists
-            log.debug("Restoring ZKAPs from backup...")
-            await self.gateway.zkapauthorizer.restore_zkaps(status_updated)
-        else:
-            log.warning("No ZKAPs backup found")
+        log.debug("Restoring ZKAPs from backup...")
+        await self.gateway.zkapauthorizer.restore_zkaps(
+            status_updated, recovery_cap=recovery_cap
+        )
 
     async def ensure_recovery(self, settings: dict) -> None:
         zkapauthz, _ = is_zkap_grid(settings)
@@ -371,11 +368,22 @@ class SetupRunner(QObject):
         if rootcap:
             self.update_progress.emit("Restoring from Recovery Key...")
             if zkapauthz:
-                # XXX/FIXME/TODO:
-                # - Get recovery-capability
-                # - Ensure snapshot exists
-                # - Pass recovery-capability to _restore_zkaps
-                await self._restore_zkaps()
+                recovery_cap = await self.gateway.get_cap(
+                    rootcap + "/v1/.zkapauthorizer/recovery-capability"  # XXX
+                )
+                if recovery_cap:
+                    # XXX: why does this `get_cap` return None??
+                    # snapshot = await self.gateway.get_cap(
+                    #    rootcap + "/v1/.zkapauthorizer/recovery-capability/snapshot"  # XXX
+                    # )
+                    ls_output = await self.gateway.ls(recovery_cap)
+                    if "snapshot" in ls_output:
+                        await self._restore_zkaps(recovery_cap)
+                    # `_restore_zkaps` will hang forever if no snapshot exists
+                    else:
+                        log.warning("No ZKAPs backup found")
+                else:
+                    log.warning("No ZKAPs backup found")
             await self.gateway.rootcap_manager.import_rootcap(rootcap)
             # Force MagicFolderMonitor to detect newly-restored folders
             await self.gateway.magic_folder.monitor.do_check()  # XXX
