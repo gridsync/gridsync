@@ -291,7 +291,7 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def restore_zkaps(
-        self, on_status_update: Callable
+        self, on_status_update: Callable, recovery_cap: Optional[str] = None
     ) -> TwistedDeferred[None]:
         """
         Attempt to restore ZKAP state from a previously saved
@@ -299,9 +299,10 @@ class ZKAPAuthorizer:
         ``.zkapauthorizer`` backup, which should be there from a
         previous call to ``backup_zkaps``.
         """
-        cap = yield Deferred.fromCoroutine(
-            self.gateway.rootcap_manager.get_backup(
-                ".zkapauthorizer", "recovery-capability"
+        if recovery_cap is None:
+            recovery_cap = yield Deferred.fromCoroutine(
+                self.gateway.rootcap_manager.get_backup(
+                    ".zkapauthorizer", "recovery-capability"
+                )
             )
-        )
-        yield self.recover(cap, on_status_update)
+        yield self.recover(recovery_cap, on_status_update)
