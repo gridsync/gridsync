@@ -371,6 +371,10 @@ class SetupRunner(QObject):
         if rootcap:
             self.update_progress.emit("Restoring from Recovery Key...")
             if zkapauthz:
+                # XXX/FIXME/TODO:
+                # - Get recovery-capability
+                # - Ensure snapshot exists
+                # - Pass recovery-capability to _restore_zkaps
                 await self._restore_zkaps()
             await self.gateway.rootcap_manager.import_rootcap(rootcap)
             # Force MagicFolderMonitor to detect newly-restored folders
