@@ -379,10 +379,7 @@ class SetupRunner(QObject):
             self.update_progress.emit("Connecting...")
         else:
             self.update_progress.emit("Creating Recovery Key...")
-            try:
-                settings["rootcap"] = await self.gateway.create_rootcap()
-            except OSError:  # XXX Rootcap file already exists
-                pass
+            await self.gateway.create_rootcap()
 
     async def join_folders(self, folders_data: dict) -> None:
         folders = []
