@@ -38,10 +38,6 @@ def fake_upload(result: str) -> Callable[[object, str], Awaitable[str]]:
     return fake_upload
 
 
-def broken_create_rootcap(self) -> Deferred[str]:
-    raise OSError()
-
-
 @pytest.mark.parametrize(
     "settings,result",
     [
@@ -577,30 +573,6 @@ def test_join_grid_storage_servers(monkeypatch, tmpdir):
     sr = SetupRunner([])
     settings = {"nickname": "TestGrid", "storage": {"test": "test"}}
     yield Deferred.fromCoroutine(sr.join_grid(settings))
-
-
-@ensureDeferred
-async def test_ensure_recovery_create_rootcap_pass_on_error(
-    monkeypatch, tmpdir
-):
-    nodedir = str(tmpdir.mkdir("TestGrid"))
-    os.makedirs(os.path.join(nodedir, "private"))
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.create_rootcap",
-        broken_create_rootcap,
-    )
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.upload", fake_upload("URI:2"))
-
-    async def fake_link(_, dircap, name, childcap):
-        assert (dircap, name, childcap) == ("URI", "settings.json", "URI:2")
-        return None
-
-    monkeypatch.setattr("gridsync.tahoe.Tahoe.link", fake_link)
-    sr = SetupRunner([])
-    sr.gateway = Tahoe(nodedir)
-    sr.gateway.rootcap_manager.set_rootcap("URI")
-    settings = {"nickname": "TestGrid"}
-    await sr.ensure_recovery(settings)
 
 
 @ensureDeferred
