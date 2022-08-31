@@ -372,10 +372,6 @@ class SetupRunner(QObject):
                     rootcap + "/v1/.zkapauthorizer/recovery-capability"  # XXX
                 )
                 if recovery_cap:
-                    # XXX: why does this `get_cap` return None??
-                    # snapshot = await self.gateway.get_cap(
-                    #    rootcap + "/v1/.zkapauthorizer/recovery-capability/snapshot"  # XXX
-                    # )
                     ls_output = await self.gateway.ls(recovery_cap)
                     if ls_output is not None and "snapshot" in ls_output:
                         await self._restore_zkaps(recovery_cap)
