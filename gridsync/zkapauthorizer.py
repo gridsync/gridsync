@@ -294,8 +294,9 @@ class ZKAPAuthorizer:
         self, on_status_update: Callable, recovery_cap: Optional[str] = None
     ) -> TwistedDeferred[None]:
         """
-        Attempt to restore ZKAP state from a previously saved
-        replica. Uses the ``recovery-capability`` from the
+        Attempt to restore ZKAP state from a previously saved replica.
+
+        If ``recovery_cap`` is not provided, get it from the
         ``.zkapauthorizer`` backup, which should be there from a
         previous call to ``backup_zkaps``.
         """
