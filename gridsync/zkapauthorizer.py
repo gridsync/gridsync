@@ -268,22 +268,43 @@ class ZKAPAuthorizer:
             )
 
     @inlineCallbacks
-    def snapshot_exists(self) -> TwistedDeferred[bool]:
+    def get_recovery_capability(
+        self, rootcap: Optional[str] = None
+    ) -> TwistedDeferred[Optional[str]]:
+        """
+        Get the ZKAPAuthorizer recovery-capability from RootcapManager.
+
+        If `rootcap` is provided, bypass RootcapManager and instead try
+        to get the recovery-capability by traversing the same path from
+        the given rootcap.
+        """
+        if rootcap:
+            recovery_cap = yield Deferred.fromCoroutine(
+                self.gateway.get_cap(
+                    rootcap + f"/{self.gateway.rootcap_manager.basedir}"
+                    "/.zkapauthorizer/recovery-capability"
+                )
+            )
+        else:
+            try:
+                recovery_cap = yield Deferred.fromCoroutine(
+                    self.gateway.rootcap_manager.get_backup(
+                        ".zkapauthorizer", "recovery-capability"
+                    )
+                )
+            except ValueError:
+                return None
+        return recovery_cap
+
+    @inlineCallbacks
+    def snapshot_exists(self, recovery_cap: str) -> TwistedDeferred[bool]:
         # TODO: Perhaps the ZKAPAuthorizer plugin should provide this?
         """
-        Check whether a snapshot has been stored beneath the
+        Check whether a snapshot has been stored beneath the given
         ZKAPAuthorizer recovery-capability.
 
         :returns: `True` if a snapshot exists, `False` otherwise.
         """
-        try:
-            recovery_cap = yield Deferred.fromCoroutine(
-                self.gateway.rootcap_manager.get_backup(
-                    ".zkapauthorizer", "recovery-capability"
-                )
-            )
-        except ValueError:
-            return False
         ls_output = yield Deferred.fromCoroutine(self.gateway.ls(recovery_cap))
         if ls_output and "snapshot" in ls_output:
             return True
