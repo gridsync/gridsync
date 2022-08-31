@@ -16,12 +16,17 @@ from typing import IO, Literal, Optional, Protocol
 
 from attrs import Factory, define, field, frozen
 from twisted.python.log import PythonLoggingObserver, startLogging
+from gridsync.filter import
 
-
-def redact_private(_: LogRecord) -> None:
+def redact_private(record: LogRecord) -> None:
     """
     Redact private information in the given log record, in-place.
     """
+    if isinstance(record.args, Mapping):
+        for (k, v) in record.args.items():
+            redacted = redact_value(v)
+            if redacted is not None:
+            if isinstance(v,
 
 
 @frozen

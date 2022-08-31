@@ -32,9 +32,7 @@ from gridsync import (
 )
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
-    apply_filters,
     filter_eliot_logs,
-    get_filters,
     get_mask,
     join_eliot_logs,
 )
@@ -107,8 +105,8 @@ class LogLoader(QObject):
 
     def load(self) -> None:
         start_time = time.time()
-        logs = self.core.log_mode.logs
-        self.content = (
+        self_logs = self.core.log_mode.logs
+        self.filtered_content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
             + "Magic-Folder: {}\n".format(self.core.magic_folder_version)
@@ -117,11 +115,12 @@ class LogLoader(QObject):
             )
             + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
-            + "\n".join(logs)
+            # Our own logs already have private information filtered out of
+            # them if the user chose to run in a privacy-preserving
+            # configuration - and not, if not.
+            + "\n".join(self_logs)
             + "\n----- End of {} debug log -----\n".format(APP_NAME)
         )
-        filters = get_filters(self.core)
-        self.filtered_content = apply_filters(self.content, filters)
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
             self.content = self.content + log_fmt(
