@@ -2,6 +2,8 @@ import pytest
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred, DeferredList
 
+from gridsync.errors import UpgradeRequiredError
+
 
 @pytest.fixture()
 def rootcap_manager(tahoe_client):
@@ -68,3 +70,36 @@ async def test_import_rootcap(tahoe_client, rootcap_manager):
     await rootcap_manager.import_rootcap(source_rootcap)
     cap = await rootcap_manager.get_backup("TestBackups-4", "backup-4")
     assert cap == backup_cap
+
+
+@ensureDeferred
+async def test_import_rootcap_raises_upgrade_required_error_for_v0_basedir(
+    tahoe_client, rootcap_manager
+):
+    source_rootcap = await tahoe_client.mkdir()
+    source_basedir = await tahoe_client.mkdir(source_rootcap, "v0")
+    source_backups = await tahoe_client.mkdir(source_basedir, "TestBackups-5")
+    await tahoe_client.mkdir(source_backups, "backup-5")
+    with pytest.raises(UpgradeRequiredError):
+        await rootcap_manager.import_rootcap(source_rootcap)
+
+
+@ensureDeferred
+async def test_import_rootcap_raises_upgrade_required_error_for_v2_basedir(
+    tahoe_client, rootcap_manager
+):
+    source_rootcap = await tahoe_client.mkdir()
+    source_basedir = await tahoe_client.mkdir(source_rootcap, "v2")
+    source_backups = await tahoe_client.mkdir(source_basedir, "TestBackups-6")
+    await tahoe_client.mkdir(source_backups, "backup-6")
+    with pytest.raises(UpgradeRequiredError):
+        await rootcap_manager.import_rootcap(source_rootcap)
+
+
+@ensureDeferred
+async def test_import_rootcap_raises_upgrade_required_error_for_no_basedir(
+    tahoe_client, rootcap_manager
+):
+    source_rootcap = await tahoe_client.mkdir()
+    with pytest.raises(UpgradeRequiredError):
+        await rootcap_manager.import_rootcap(source_rootcap)
