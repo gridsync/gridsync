@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from gridsync.types import JSON
 
 from gridsync import APP_NAME
+from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
@@ -879,7 +880,7 @@ class MagicFolder:
         upload_dircap = data.get("upload_dircap")
         if upload_dircap is None:
             raise ValueError("Upload directory cap missing from folder backup")
-        personal_dmd = await self.gateway.diminish(upload_dircap)
+        personal_dmd = diminish(upload_dircap)
         await self.add_folder(local_path, randstr(8), name=folder_name)  # XXX
         author = f"Restored-{datetime.now().isoformat()}"
         await self.add_participant(folder_name, author, personal_dmd)

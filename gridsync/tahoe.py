@@ -16,6 +16,7 @@ from twisted.internet.interfaces import IReactorTime
 
 from gridsync import APP_NAME
 from gridsync import settings as global_settings
+from gridsync.capabilities import diminish
 from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import TahoeCommandError, TahoeWebError
@@ -155,10 +156,6 @@ class Tahoe:
         ) as f:
             f.write(json.dumps(settings))
 
-        rootcap = settings.get("rootcap")
-        if rootcap:
-            self.rootcap_manager.set_rootcap(rootcap, overwrite=True)
-
         newscap = settings.get("newscap")
         if newscap:
             with atomic_write(
@@ -222,7 +219,7 @@ class Tahoe:
             self.load_settings()
         settings = dict(self.settings)
         if include_secrets:
-            settings["rootcap"] = self.get_rootcap()
+            settings["rootcap"] = diminish(self.get_rootcap())
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
                 .read_text(encoding="utf-8")
@@ -590,14 +587,6 @@ class Tahoe:
             f"Error {resp.code} creating Tahoe-LAFS directory: {content}"
         )
 
-    async def diminish(self, cap: str) -> str:
-        output = await self.get_json(cap)
-        if isinstance(output, list):
-            return output[1]["ro_uri"]
-        raise ValueError(
-            "Unexpected response attempting to diminish capability"
-        )
-
     async def create_rootcap(self) -> str:
         return await self.rootcap_manager.create_rootcap()
 
@@ -689,6 +678,13 @@ class Tahoe:
             content = await treq.content(resp)
             return json.loads(content.decode("utf-8"))
         return None
+
+    async def get_cap(self, path: str) -> Optional[str]:
+        json_output = await self.get_json(path)
+        if not json_output:
+            return None
+        data = json_output[1]
+        return data.get("rw_uri", data.get("ro_uri", data.get("verify_uri")))
 
     async def ls(
         self,

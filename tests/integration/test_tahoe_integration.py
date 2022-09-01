@@ -45,13 +45,6 @@ def test_tahoe_client_mkdir(tahoe_client):
     assert cap.startswith("URI:DIR2:")
 
 
-@inlineCallbacks
-def test_diminish(tahoe_client):
-    dircap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
-    diminished = yield Deferred.fromCoroutine(tahoe_client.diminish(dircap))
-    assert diminished.startswith("URI:DIR2-RO:")
-
-
 @ensureDeferred
 async def test_upload_convergence_secret_determines_cap(
     tahoe_client, tmp_path
@@ -165,4 +158,20 @@ async def test_ls_includes_most_authoritative_cap(tahoe_client, tmp_path):
 async def test_ls_nonexistent_path(tahoe_client, tmp_path):
     dircap = await tahoe_client.mkdir()
     output = await tahoe_client.ls(dircap + "/Path/Does/Not/Exist")
+    assert output is None
+
+
+@ensureDeferred
+async def test_get_cap(tahoe_client, tmp_path):
+    dircap = await tahoe_client.mkdir()
+    subdircap = await tahoe_client.mkdir(dircap, "TestSubdir")
+    output = await tahoe_client.get_cap(dircap + "/TestSubdir")
+    assert output == subdircap
+
+
+@ensureDeferred
+async def test_get_cap_returns_none_for_missing_path(tahoe_client, tmp_path):
+    dircap = await tahoe_client.mkdir()
+    await tahoe_client.mkdir(dircap, "TestSubdir")
+    output = await tahoe_client.get_cap(dircap + "/TestNonExistentSubdir")
     assert output is None

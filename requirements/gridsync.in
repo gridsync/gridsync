@@ -17,6 +17,7 @@ psutil
 pynacl >= 1.2.0
 pyyaml
 qtpy
+tahoe-capabilities
 treq
 # Twisted 21.7.0 adds Deferred type hinting/annotations
 twisted[tls] >= 21.7.0

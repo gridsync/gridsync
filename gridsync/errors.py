@@ -31,3 +31,7 @@ class TahoeWebError(TahoeError):
 
 class TorError(GridsyncError):
     pass
+
+
+class RestorationError(GridsyncError):
+    pass
