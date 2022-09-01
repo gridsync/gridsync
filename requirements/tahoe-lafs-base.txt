@@ -539,8 +539,8 @@ werkzeug==2.2.2 \
     # via
     #   -r requirements/tahoe-lafs.in
     #   klein
-zero-knowledge-access-pass-authorizer==2022.6.28 \
-    --hash=sha256:8dbbe63584ca1b2b0c5b07e5dc605e7572426bd63d25a7708421f7121113b005
+zero-knowledge-access-pass-authorizer==2022.8.20 \
+    --hash=sha256:18bea70a74eb28d4ac3d6e1a4ae284abe23e8ee617e212779d5af7a8f3c65a20
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.7.2 \
     --hash=sha256:01b47b1144940a620393d38d12d381a6f3e6522e96d834d658e095422876fdc8 \

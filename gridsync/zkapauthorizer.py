@@ -30,6 +30,7 @@ class ZKAPAuthorizer:
         self.zkap_dircap: str = ""
         # Default batch-size from zkapauthorizer.resource.NUM_TOKENS
         self.zkap_batch_size: int = 2**15
+        self._recovery_capability: str = ""
 
         # XXX/TODO: Move this later?
         gateway.monitor.zkaps_redeemed.connect(lambda _: self.backup_zkaps())
@@ -247,7 +248,18 @@ class ZKAPAuthorizer:
         directory cap under the ``.zkapauthorizer`` backup under name
         ``recovery-capability``.
         """
-        recovery_cap = yield self.replicate()
+        try:
+            recovery_cap = yield self.replicate()
+        except (json.decoder.JSONDecodeError, TahoeWebError):
+            recovery_cap = self._recovery_capability
+        if recovery_cap and recovery_cap != self._recovery_capability:
+            # Cache the recovery capability since the version of
+            # ZKAPAuthorizer that is currently on PyPI (v2022.6.28)
+            # only gives us the capability one time (for HTTP status
+            # 201/"CREATED"). A future version will fix this. See:
+            # https://github.com/PrivateStorageio/ZKAPAuthorizer
+            # /commit/dce40ecc5779a4c8428d83ed8418fd4b178589f1
+            self._recovery_capability = recovery_cap
         try:
             backup_cap = yield Deferred.fromCoroutine(
                 self.gateway.rootcap_manager.get_backup(
@@ -268,22 +280,43 @@ class ZKAPAuthorizer:
             )
 
     @inlineCallbacks
-    def snapshot_exists(self) -> TwistedDeferred[bool]:
+    def get_recovery_capability(
+        self, rootcap: Optional[str] = None
+    ) -> TwistedDeferred[Optional[str]]:
+        """
+        Get the ZKAPAuthorizer recovery-capability from RootcapManager.
+
+        If `rootcap` is provided, bypass RootcapManager and instead try
+        to get the recovery-capability by traversing the same path from
+        the given rootcap.
+        """
+        if rootcap:
+            recovery_cap = yield Deferred.fromCoroutine(
+                self.gateway.get_cap(
+                    rootcap + f"/{self.gateway.rootcap_manager.basedir}"
+                    "/.zkapauthorizer/recovery-capability"
+                )
+            )
+        else:
+            try:
+                recovery_cap = yield Deferred.fromCoroutine(
+                    self.gateway.rootcap_manager.get_backup(
+                        ".zkapauthorizer", "recovery-capability"
+                    )
+                )
+            except ValueError:
+                return None
+        return recovery_cap
+
+    @inlineCallbacks
+    def snapshot_exists(self, recovery_cap: str) -> TwistedDeferred[bool]:
         # TODO: Perhaps the ZKAPAuthorizer plugin should provide this?
         """
-        Check whether a snapshot has been stored beneath the
+        Check whether a snapshot has been stored beneath the given
         ZKAPAuthorizer recovery-capability.
 
         :returns: `True` if a snapshot exists, `False` otherwise.
         """
-        try:
-            recovery_cap = yield Deferred.fromCoroutine(
-                self.gateway.rootcap_manager.get_backup(
-                    ".zkapauthorizer", "recovery-capability"
-                )
-            )
-        except ValueError:
-            return False
         ls_output = yield Deferred.fromCoroutine(self.gateway.ls(recovery_cap))
         if ls_output and "snapshot" in ls_output:
             return True
@@ -291,17 +324,19 @@ class ZKAPAuthorizer:
 
     @inlineCallbacks
     def restore_zkaps(
-        self, on_status_update: Callable
+        self, on_status_update: Callable, recovery_cap: Optional[str] = None
     ) -> TwistedDeferred[None]:
         """
-        Attempt to restore ZKAP state from a previously saved
-        replica. Uses the ``recovery-capability`` from the
+        Attempt to restore ZKAP state from a previously saved replica.
+
+        If ``recovery_cap`` is not provided, get it from the
         ``.zkapauthorizer`` backup, which should be there from a
         previous call to ``backup_zkaps``.
         """
-        cap = yield Deferred.fromCoroutine(
-            self.gateway.rootcap_manager.get_backup(
-                ".zkapauthorizer", "recovery-capability"
+        if recovery_cap is None:
+            recovery_cap = yield Deferred.fromCoroutine(
+                self.gateway.rootcap_manager.get_backup(
+                    ".zkapauthorizer", "recovery-capability"
+                )
             )
-        )
-        yield self.recover(cap, on_status_update)
+        yield self.recover(recovery_cap, on_status_update)

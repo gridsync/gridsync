@@ -18,7 +18,12 @@ from twisted.internet.defer import Deferred
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
-from gridsync.errors import AbortedByUserError, TorError, UpgradeRequiredError
+from gridsync.errors import (
+    AbortedByUserError,
+    RestorationError,
+    TorError,
+    UpgradeRequiredError,
+)
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
@@ -338,58 +343,74 @@ class SetupRunner(QObject):
         self.update_progress.emit(msg)
         await self.gateway.await_ready()
 
+    async def _restore_zkaps(self, recovery_cap: str) -> None:
+        def status_updated(stage: str, failure_reason: str) -> None:
+            # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
+            # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
+            # _zkapauthorizer/recover.py#L35
+            stages = {
+                "started": "ZKAPs recovery started",
+                "inspect_replica": "Inspecting ZKAPs replica",
+                "downloading": "Downloading ZKAPs",
+                "importing": "Importing ZKAPs",
+                "succeeded": "Finalizing restoration",
+            }
+            if failure_reason is None:
+                humanized_stage = stages.get(stage, stage.title())
+                self.update_progress.emit(humanized_stage + "...")
+            else:
+                self.update_progress.emit(f"Recovery failed: {failure_reason}")
+                error(None, "Error restoring ZKAPs", str(failure_reason))
+
+        log.debug("Restoring ZKAPs from backup...")
+        await self.gateway.zkapauthorizer.restore_zkaps(
+            status_updated, recovery_cap=recovery_cap
+        )
+
     async def ensure_recovery(self, settings: dict) -> None:
         zkapauthz, _ = is_zkap_grid(settings)
-        if settings.get("rootcap"):
+        rootcap = settings.get("rootcap")
+        if rootcap:
             self.update_progress.emit("Restoring from Recovery Key...")
-            self.gateway.save_settings(settings)  # XXX Unnecessary?
             if zkapauthz:
-
-                def status_updated(stage: str, failure_reason: str) -> None:
-                    # From https://github.com/PrivateStorageio/ZKAPAuthorizer/
-                    # blob/129fdf1c1a73089da796032f06320fe17f69d711/src/
-                    # _zkapauthorizer/recover.py#L35
-                    stages = {
-                        "started": "ZKAPs recovery started",
-                        "inspect_replica": "Inspecting ZKAPs replica",
-                        "downloading": "Downloading ZKAPs",
-                        "importing": "Importing ZKAPs",
-                        "succeeded": "Successfully restored ZKAPs",
-                    }
-                    if failure_reason is None:
-                        humanized_stage = stages.get(stage, stage.title())
-                        self.update_progress.emit(humanized_stage)
-                    else:
-                        self.update_progress.emit(
-                            f"Recovery failed: {failure_reason}"
-                        )
-                        error(
-                            None, "Error restoring ZKAPs", str(failure_reason)
-                        )
-
-                zkapauthorizer = self.gateway.zkapauthorizer
-                snapshot_exists = await zkapauthorizer.snapshot_exists()
-                if snapshot_exists:
-                    # `restore_zkaps` will hang forever if no snapshot exists
-                    log.debug("Restoring ZKAPs from backup...")
-                    await zkapauthorizer.restore_zkaps(status_updated)
-                else:
-                    log.warning("No ZKAPs backup found")
+                help_text = (
+                    "\n\nThis may indicate that your Recovery Key was created "
+                    f"with a version of {APP_NAME} that is incompatible with "
+                    "the current version of the software or that the data is "
+                    f'no longer available on "{self.gateway.name}".\n\nPlease '
+                    "contact your storage provider for further assistance."
+                )
+                za = self.gateway.zkapauthorizer
+                recovery_cap = await za.get_recovery_capability(rootcap)
+                if recovery_cap is None:
+                    raise RestorationError(
+                        "Cannot restore from Recovery Key; no ZKAPs "
+                        f"recovery-capability found in rootcap.{help_text}"
+                    )
+                snapshot_exists = await za.snapshot_exists(recovery_cap)
+                if not snapshot_exists:
+                    # `_restore_zkaps` will hang forever if no snapshot exists
+                    raise RestorationError(
+                        "Cannot restore from Recovery Key; no ZKAPs "
+                        f"snapshot(s) found in recovery-capability.{help_text}"
+                    )
+                await self._restore_zkaps(recovery_cap)
+            await self.gateway.rootcap_manager.import_rootcap(rootcap)
+            if zkapauthz:
+                # This must happen *after* the `import_rootcap` call
+                # above, since both `import_rootcap` and `backup_zkaps`
+                # will overwrite the contents of the ".zkapauthorizer"
+                # backup directory inside the new rootcap (and we don't
+                # want the new backup -- from `backup_zkaps` -- to be
+                # overwritten by the old one -- from `import_rootcap`).
+                await self.gateway.zkapauthorizer.backup_zkaps()
+            # Force MagicFolderMonitor to detect newly-restored folders
+            await self.gateway.magic_folder.monitor.do_check()  # XXX
         elif zkapauthz:
             self.update_progress.emit("Connecting...")
         else:
-            self.update_progress.emit("Generating Recovery Key...")
-            try:
-                settings["rootcap"] = await self.gateway.create_rootcap()
-            except OSError:  # XXX Rootcap file already exists
-                pass
-            self.gateway.save_settings(settings)
-            settings_cap = await self.gateway.upload(
-                os.path.join(self.gateway.nodedir, "private", "settings.json")
-            )
-            await self.gateway.link(
-                self.gateway.get_rootcap(), "settings.json", settings_cap
-            )
+            self.update_progress.emit("Creating Recovery Key...")
+            await self.gateway.create_rootcap()
 
     async def join_folders(self, folders_data: dict) -> None:
         folders = []

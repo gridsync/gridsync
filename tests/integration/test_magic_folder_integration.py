@@ -5,10 +5,10 @@ from pathlib import Path
 import pytest
 from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
+from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
 from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
 from gridsync.tahoe import Tahoe
@@ -238,7 +238,7 @@ async def test_add_participant(magic_folder, tmp_path):
 
     author_name = randstr()
     dircap = await magic_folder.gateway.mkdir()
-    personal_dmd = await magic_folder.gateway.diminish(dircap)
+    personal_dmd = diminish(dircap)
     await magic_folder.add_participant(folder_name, author_name, personal_dmd)
     participants = await magic_folder.get_participants(folder_name)
     assert author_name in participants
@@ -523,11 +523,7 @@ async def test_bob_receive_folder(
     await bob_magic_folder.add_folder(bob_path, "Bob", poll_interval=1)
 
     alice_folders = await alice_magic_folder.get_folders()
-    alice_personal_dmd = await Deferred.fromCoroutine(
-        alice_magic_folder.gateway.diminish(
-            alice_folders["ToBob"]["upload_dircap"]
-        )
-    )
+    alice_personal_dmd = diminish(alice_folders["ToBob"]["upload_dircap"])
     await bob_magic_folder.add_participant(
         folder_name, "Alice", alice_personal_dmd
     )
