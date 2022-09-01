@@ -88,7 +88,6 @@ def terminate(
     if idx > 0:
         # the timeout fired (not when_exited())
         logging.debug("Failed to terminate, sending KILL to %i", proc.transport.pid)
-        print("killin' it")
         proc.transport.signalProcess("KILL")
         try:
             yield proc.when_exited()
