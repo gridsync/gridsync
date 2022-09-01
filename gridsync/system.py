@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.defer import Deferred, inlineCallbacks, DeferredList
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
@@ -39,36 +39,21 @@ def which(cmd: str) -> str:
     return path
 
 
-def process_name(pid: int) -> str:
-    try:
-        return Process(pid).name()
-    except NoSuchProcess:
-        return ""
-
-
-def is_running(pid: int) -> bool:
-    try:
-        return Process(pid).is_running()
-    except NoSuchProcess:
-        return False
-
-
 @inlineCallbacks
-def terminate(  # noqa: max-complexity
-    pid: int, kill_after: Optional[Union[int, float]] = None
-) -> TwistedDeferred[None]:
+def terminate_if_matching(pid: int, create_time: float, kill_after: Optional[Union[int, float]] = None) -> TwistedDeferred[None]:
+    """
+    Terminate the process at `pid` only if `create_time` matches its
+    creation time.
+
+    :returns: Deferred that fires when the process has exited or been killed
+    """
     try:
         proc = Process(pid)
-    except NoSuchProcess:
-        return None
-    if kill_after:
-        limit = time.time() + kill_after
-    else:
-        limit = 0
-    try:
         proc.terminate()
     except NoSuchProcess:
         return None
+
+    limit = time.time() + kill_after if kill_after else 0
     while proc.is_running():
         try:
             return proc.wait(timeout=0)
@@ -82,6 +67,32 @@ def terminate(  # noqa: max-complexity
             except NoSuchProcess:
                 return None
         yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
+
+
+@inlineCallbacks
+def terminate(
+        proc: SubprocessProtocol, kill_after: Optional[Union[int, float]] = None
+) -> TwistedDeferred[None]:
+    """
+    Terminate the running process given by its protocol.
+
+    :returns: a Deferred that fires when the process has terminated or been killed.
+    """
+    proc.transport.signalProcess("TERM")
+
+    waiting = [proc.when_exited()]
+    if kill_after:
+        waiting.append(deferLater(reactor, kill_after, lambda: None))
+    result, idx = yield DeferredList(waiting, fireOnOneCallback=True, fireOnOneErrback=True)
+    if idx > 0:
+        # the timeout fired (not when_exited())
+        logging.debug("Failed to terminate, sending KILL to %i", proc.transport.pid)
+        print("killin' it")
+        proc.transport.signalProcess("KILL")
+        try:
+            yield proc.when_exited()
+        except Exception:
+            pass
 
 
 class SubprocessError(Exception):
@@ -104,6 +115,8 @@ class SubprocessProtocol(ProcessProtocol):
         self._on_process_ended = on_process_ended
         self._output = BytesIO()
         self.done: Deferred = Deferred()
+        # becomes None once we've exited
+        self._awaiting_ended: Optional[list[Deferred]] = []
 
     def _check_triggers(self, line: str) -> None:
         if self.callback_triggers:
@@ -135,6 +148,18 @@ class SubprocessProtocol(ProcessProtocol):
             if not self.done.called:
                 self._check_triggers(line)
 
+    def when_exited(self) -> TwistedDeferred[None]:
+        """
+        :returns: a Deferred that fires when this process has exited
+        """
+        d = Deferred()
+        if self._awaiting_ended is None:
+            # already exited
+            d.callback(None)
+        else:
+            self._awaiting_ended.append(d)
+        return d
+
     def processEnded(self, reason: Failure) -> None:
         if not self.done.called:
             output = self._output.getvalue().decode("utf-8").strip()
@@ -144,3 +169,8 @@ class SubprocessProtocol(ProcessProtocol):
                 self.done.errback(SubprocessError(output))
         if self._on_process_ended:
             self._on_process_ended(reason)
+        if self._awaiting_ended:
+            notify = self._awaiting_ended
+            self._awaiting_ended = None
+            for d in notify:
+                d.callback(None)
