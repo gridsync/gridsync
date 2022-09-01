@@ -8,6 +8,7 @@ from atomicwrites import atomic_write
 from psutil import Process
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.interfaces import IProcessTransport
 
 from gridsync.system import (
     SubprocessProtocol,
@@ -43,6 +44,8 @@ class Supervisor:
     def process(self) -> Optional[Process]:
         if self._process is None:
             if self._protocol is not None:
+                assert self._protocol.transport  # appease mypy
+                assert isinstance(self._protocol.transport, IProcessTransport)
                 self._process = Process(self._protocol.transport.pid)
         return self._process
 
@@ -50,6 +53,7 @@ class Supervisor:
     def name(self) -> str:
         if self._protocol is None:
             return ""
+        assert self.process is not None  # appease mypy
         return self.process.name
 
     @inlineCallbacks
@@ -93,11 +97,12 @@ class Supervisor:
         )
         if self._call_before_start:
             self._call_before_start()
-        transport = yield reactor.spawnProcess(  # type: ignore
+        yield reactor.spawnProcess(  # type: ignore
             protocol, self._args[0], args=self._args, env=os.environ
         )
         self._protocol = protocol
-        self._process = None  # lazily re-created
+        self._process = None  # lazily re-created next line
+        assert self.process is not None  # appease mypy
         # note: we need to set self._protocol _before_ anything else
         # async so that stop() can work properly
         self.time_started = time.time()

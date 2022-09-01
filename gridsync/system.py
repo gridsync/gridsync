@@ -54,24 +54,25 @@ def terminate_if_matching(
     """
     try:
         proc = Process(pid)
-        proc.terminate()
     except NoSuchProcess:
         return None
 
+    if proc.pid != pid or proc.create_time() != create_time:
+        return None
+
     limit = time.time() + kill_after if kill_after else 0
-    while proc.is_running():
-        try:
-            return proc.wait(timeout=0)
-        except NoSuchProcess:
-            return None
-        except TimeoutExpired:
-            pass
-        if limit and time.time() >= limit:
+    try:
+        while proc.is_running():
             try:
+                return proc.wait(timeout=0)
+            except TimeoutExpired:
+                pass
+            if limit and time.time() >= limit:
                 proc.kill()
-            except NoSuchProcess:
-                return None
-        yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
+            yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
+
+    except NoSuchProcess:
+        return None
 
 
 @inlineCallbacks
@@ -83,20 +84,20 @@ def terminate(
 
     :returns: a Deferred that fires when the process has terminated or been killed.
     """
-    proc.transport.signalProcess("TERM")
+    proc.transport.signalProcess("TERM")  # type: ignore
 
     waiting = [proc.when_exited()]
     if kill_after:
-        waiting.append(deferLater(reactor, kill_after, lambda: None))
-    result, idx = yield DeferredList(
+        waiting.append(deferLater(reactor, kill_after, lambda: None))  # type: ignore
+    _, idx = yield DeferredList(
         waiting, fireOnOneCallback=True, fireOnOneErrback=True
     )
     if idx > 0:
         # the timeout fired (not when_exited())
         logging.debug(
-            "Failed to terminate, sending KILL to %i", proc.transport.pid
+            "Failed to terminate, sending KILL to %i", proc.transport.pid  # type: ignore
         )
-        proc.transport.signalProcess("KILL")
+        proc.transport.signalProcess("KILL")  # type: ignore
         yield proc.when_exited()
 
 
@@ -153,11 +154,11 @@ class SubprocessProtocol(ProcessProtocol):
             if not self.done.called:
                 self._check_triggers(line)
 
-    def when_exited(self) -> TwistedDeferred[None]:
+    def when_exited(self) -> Deferred[None]:
         """
         :returns: a Deferred that fires when this process has exited
         """
-        d = Deferred()
+        d: Deferred[None] = Deferred()
         if self._awaiting_ended is None:
             # already exited
             d.callback(None)
