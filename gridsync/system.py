@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+import logging
 import shutil
 import time
-import logging
 from io import BytesIO
 from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks, DeferredList
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater

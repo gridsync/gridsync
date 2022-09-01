@@ -4,8 +4,8 @@ import time
 from pathlib import Path
 from typing import Callable, Optional
 
-from psutil import Process
 from atomicwrites import atomic_write
+from psutil import Process
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 

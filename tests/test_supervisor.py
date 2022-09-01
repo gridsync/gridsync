@@ -44,6 +44,7 @@ def test_supervisor_writes_time_to_pidfile_on_start(tmp_path):
     pid, create = pidfile.read_text().split()
     assert int(pid) == og_pid
     import time
+
     assert float(create) <= time.time()
 
 
