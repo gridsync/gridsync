@@ -89,10 +89,7 @@ def terminate(
         # the timeout fired (not when_exited())
         logging.debug("Failed to terminate, sending KILL to %i", proc.transport.pid)
         proc.transport.signalProcess("KILL")
-        try:
-            yield proc.when_exited()
-        except Exception:
-            pass
+        yield proc.when_exited()
 
 
 class SubprocessError(Exception):
