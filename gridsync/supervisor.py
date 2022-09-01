@@ -39,9 +39,6 @@ class Supervisor:
         self._call_after_start: Optional[Callable] = None
         self._on_process_ended: Optional[Callable] = None
 
-    def is_running(self) -> bool:
-        return self.process.is_running() if self.process else False
-
     @property
     def process(self) -> Optional[Process]:
         if self._process is None:
@@ -51,6 +48,8 @@ class Supervisor:
 
     @property
     def name(self):
+        if self._protocol is None:
+            return ""
         return self.process.name
 
     @inlineCallbacks
@@ -82,8 +81,8 @@ class Supervisor:
             self.pidfile.unlink()
             logging.debug("Pidfile removed: %s", str(self.pidfile))
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
-        self.pid = None
-        self._create_time = None
+        self._protocol = None
+        self._process = None
 
     @inlineCallbacks
     def _start_process(self) -> TwistedDeferred[tuple[int, str]]:
