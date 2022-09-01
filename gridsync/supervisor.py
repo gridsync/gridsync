@@ -111,7 +111,10 @@ class Supervisor:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
                 f.write(f"{self.process.pid} {self.process.create_time()}\n")
             logging.debug(
-                'Wrote "%s %s" to pidfile: %s', self.process.pid, self.process.create_time(), str(self.pidfile)
+                'Wrote "%s %s" to pidfile: %s',
+                self.process.pid,
+                self.process.create_time(),
+                str(self.pidfile),
             )
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",

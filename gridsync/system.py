@@ -41,7 +41,11 @@ def which(cmd: str) -> str:
 
 
 @inlineCallbacks
-def terminate_if_matching(pid: int, create_time: float, kill_after: Optional[Union[int, float]] = None) -> TwistedDeferred[None]:
+def terminate_if_matching(
+    pid: int,
+    create_time: float,
+    kill_after: Optional[Union[int, float]] = None,
+) -> TwistedDeferred[None]:
     """
     Terminate the process at `pid` only if `create_time` matches its
     creation time.
@@ -72,7 +76,7 @@ def terminate_if_matching(pid: int, create_time: float, kill_after: Optional[Uni
 
 @inlineCallbacks
 def terminate(
-        proc: SubprocessProtocol, kill_after: Optional[Union[int, float]] = None
+    proc: SubprocessProtocol, kill_after: Optional[Union[int, float]] = None
 ) -> TwistedDeferred[None]:
     """
     Terminate the running process given by its protocol.
@@ -84,10 +88,14 @@ def terminate(
     waiting = [proc.when_exited()]
     if kill_after:
         waiting.append(deferLater(reactor, kill_after, lambda: None))
-    result, idx = yield DeferredList(waiting, fireOnOneCallback=True, fireOnOneErrback=True)
+    result, idx = yield DeferredList(
+        waiting, fireOnOneCallback=True, fireOnOneErrback=True
+    )
     if idx > 0:
         # the timeout fired (not when_exited())
-        logging.debug("Failed to terminate, sending KILL to %i", proc.transport.pid)
+        logging.debug(
+            "Failed to terminate, sending KILL to %i", proc.transport.pid
+        )
         proc.transport.signalProcess("KILL")
         yield proc.when_exited()
 
