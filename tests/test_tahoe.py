@@ -485,7 +485,7 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
 
 @ensureDeferred
 async def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
-    Path(tahoe.pidfile).write_text(str("4194305"), encoding="utf-8")
+    Path(tahoe.pidfile).write_text(str("4194305 1234.5"), encoding="utf-8")
     fake_process = Mock()
     monkeypatch.setattr("gridsync.system.Process", fake_process)
     await tahoe.stop()
