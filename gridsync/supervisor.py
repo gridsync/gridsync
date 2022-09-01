@@ -47,7 +47,7 @@ class Supervisor:
         return self._process
 
     @property
-    def name(self):
+    def name(self) -> str:
         if self._protocol is None:
             return ""
         return self.process.name
