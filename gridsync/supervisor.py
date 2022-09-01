@@ -64,18 +64,16 @@ class Supervisor:
                 pid = int(words[0])
                 pid_create_time = float(words[1])
                 terminate_if_matching(pid, pid_create_time, kill_after=5)
-        else:
-            pid = self._protocol.transport.pid
-            pid_create_time = self.process.create_time()
+
         if self._protocol is None:
             logging.warning(
                 "Tried to stop a supervised process that wasn't running"
             )
             return
+
         logging.debug("Stopping supervised process: %s", " ".join(self._args))
-        if pid_create_time == self.process.create_time():
-            logging.debug(f"actually killing {self.process.pid}")
-            yield terminate(self._protocol, kill_after=5)
+        yield terminate(self._protocol, kill_after=5)
+
         if self.pidfile and self.pidfile.exists():
             logging.debug("Removing pidfile: %s", str(self.pidfile))
             self.pidfile.unlink()
