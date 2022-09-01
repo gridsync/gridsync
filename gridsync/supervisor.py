@@ -4,15 +4,15 @@ import time
 from pathlib import Path
 from typing import Callable, Optional
 
+from psutil import Process
 from atomicwrites import atomic_write
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync.system import (
     SubprocessProtocol,
-    is_running,
-    process_name,
     terminate,
+    terminate_if_matching,
 )
 from gridsync.types import TwistedDeferred
 
@@ -25,9 +25,11 @@ class Supervisor:
     ) -> None:
         self.pidfile = pidfile
         self.restart_delay: int = restart_delay
-        self.pid: Optional[int] = None
-        self.name: str = ""
         self.time_started: Optional[float] = None
+        # _protocol is non-None only when we have a running subprocess
+        self._protocol: Optional[SubprocessProtocol] = None
+        # _process lazily created to match _protocol.pid
+        self._process: Optional[Process] = None
         self._keep_alive: bool = True
         self._args: list[str] = []
         self._started_trigger = ""
@@ -38,33 +40,50 @@ class Supervisor:
         self._on_process_ended: Optional[Callable] = None
 
     def is_running(self) -> bool:
-        if not self.pid:
-            return False
-        return is_running(self.pid)
+        return self.process.is_running() if self.process else False
+
+    @property
+    def process(self) -> Optional[Process]:
+        if self._process is None:
+            if self._protocol is not None:
+                self._process = Process(self._protocol.transport.pid)
+        return self._process
+
+    @property
+    def name(self):
+        return self.process.name
 
     @inlineCallbacks
     def stop(self) -> TwistedDeferred[None]:
         self._keep_alive = False
-        if not self.pid and self.pidfile and self.pidfile.exists():
-            contents = self.pidfile.read_text(encoding="utf-8")
-            words = contents.split()
-            self.pid = int(words[0])
-            self.name = " ".join(words[1:])
-        if not self.pid:
+        if self._protocol is None:
+            # nothing is currently running, but perhaps the PID-file
+            # thinks something is running.
+            if self.pidfile and self.pidfile.exists():
+                contents = self.pidfile.read_text(encoding="utf-8")
+                words = contents.split()
+                pid = int(words[0])
+                pid_create_time = float(words[1])
+                terminate_if_matching(pid, pid_create_time, kill_after=5)
+        else:
+            pid = self._protocol.transport.pid
+            pid_create_time = self.process.create_time()
+        if self._protocol is None:
             logging.warning(
                 "Tried to stop a supervised process that wasn't running"
             )
             return
         logging.debug("Stopping supervised process: %s", " ".join(self._args))
-        if self.name.lower() == process_name(self.pid).lower():
-            yield terminate(self.pid, kill_after=5)
+        if pid_create_time == self.process.create_time():
+            logging.debug(f"actually killing {self.process.pid}")
+            yield terminate(self._protocol, kill_after=5)
         if self.pidfile and self.pidfile.exists():
             logging.debug("Removing pidfile: %s", str(self.pidfile))
             self.pidfile.unlink()
             logging.debug("Pidfile removed: %s", str(self.pidfile))
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
         self.pid = None
-        self.name = ""
+        self._create_time = None
 
     @inlineCallbacks
     def _start_process(self) -> TwistedDeferred[tuple[int, str]]:
@@ -80,30 +99,31 @@ class Supervisor:
         transport = yield reactor.spawnProcess(  # type: ignore
             protocol, self._args[0], args=self._args, env=os.environ
         )
+        self._protocol = protocol
+        self._process = None  # lazily re-created
+        # note: we need to set self._protocol _before_ anything else
+        # async so that stop() can work properly
         self.time_started = time.time()
+
         if self._started_trigger:
             yield protocol.done
         else:
             # To prevent unhandled ProcessTerminated errors
             protocol.done.callback(None)
-        pid = transport.pid
-        name = process_name(pid)
         if self.pidfile:
             with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
-                f.write(f"{pid} {name}")
+                f.write(f"{self.process.pid} {self.process.create_time()}\n")
             logging.debug(
-                'Wrote "%s %s" to pidfile: %s', pid, name, str(self.pidfile)
+                'Wrote "%s %s" to pidfile: %s', self.process.pid, self.process.create_time(), str(self.pidfile)
             )
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
             " ".join(self._args),
-            pid,
+            self.process.pid,
         )
-        self.pid = pid
-        self.name = name
         if self._call_after_start:
             self._call_after_start()
-        return (pid, name)
+        return (self.process.pid, self.name)
 
     def _schedule_restart(self, _) -> None:  # type: ignore
         if self._keep_alive:
