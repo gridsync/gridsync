@@ -1,3 +1,25 @@
+
+Development Setup
+-----------------
+
+Working with a virtualenv you may install various kinds of dependencies via the ``*.txt`` files in the ``./requirements/`` subdirectory.
+For example::
+
+    virtualenv venv
+    ./venv/bin/python -m pip install -r requirements/gridsync.txt
+    ./venv/bin/python -m pip install -r requirements/lint.txt
+
+To run the linter::
+
+    tox -e lint
+
+To fix errors that the linter would discover, run::
+
+    bash scripts/lint-fix.sh
+
+Note that this will edit your working copy (but will not do any git operations).
+
+
 Updating depdencies
 -------------------
 
