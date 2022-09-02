@@ -2,12 +2,10 @@
 from __future__ import annotations
 
 import argparse
-import collections
 import logging
 import os
 import sys
-from datetime import datetime, timezone
-from typing import Optional, Union
+from typing import IO
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
@@ -59,7 +57,6 @@ qtreactor.install()  # type: ignore
 # pylint: disable=wrong-import-order
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
-from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import (
     APP_NAME,
@@ -70,9 +67,11 @@ from gridsync import (
     resource,
     settings,
 )
+from gridsync.config import get_log_maxlen, get_startup_warning_message
 from gridsync.desktop import autostart_enable
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
+from gridsync.logging import initialize_logger_from_args
 from gridsync.magic_folder import MagicFolder
 from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
@@ -82,58 +81,20 @@ from gridsync.types import TwistedDeferred
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
 
-class DequeHandler(logging.Handler):
-    def __init__(self, deque: collections.deque) -> None:
-        super().__init__()
-        self.deque = deque
-
-    def emit(self, record: logging.LogRecord) -> None:
-        self.deque.append(self.format(record))
-
-
-class LogFormatter(logging.Formatter):
-    def formatTime(
-        self, record: logging.LogRecord, datefmt: Optional[str] = None
-    ) -> str:
-        return datetime.now(timezone.utc).isoformat()
-
-
 class Core:
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace, stdout: IO[str]) -> None:
         self.args = args
         self.gateways: list = []
         self.tahoe_version: str = ""
         self.magic_folder_version: str = ""
-        log_deque_maxlen = 100000  # XXX
-        debug_settings = settings.get("debug")
-        if debug_settings:
-            log_maxlen = debug_settings.get("log_maxlen")
-            if log_maxlen is not None:
-                log_deque_maxlen = int(log_maxlen)
-        self.log_deque: collections.deque = collections.deque(
-            maxlen=log_deque_maxlen
+
+        self.log_privacy, self.log_mode = initialize_logger_from_args(
+            args, get_log_maxlen(settings), stdout
         )
 
-        self.initialize_logger(self.args.debug)
         # The `Gui` object must be initialized after initialize_logger,
         # otherwise log messages will be duplicated.
         self.gui = Gui(self)
-
-    def initialize_logger(self, to_stdout: bool = False) -> None:
-        handler: Union[logging.StreamHandler, DequeHandler]
-        if to_stdout:
-            handler = logging.StreamHandler(stream=sys.stdout)
-            startLogging(sys.stdout)
-        else:
-            handler = DequeHandler(self.log_deque)
-            observer = PythonLoggingObserver()
-            observer.start()
-        fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
-        handler.setFormatter(LogFormatter(fmt=fmt))
-        logger = logging.getLogger()
-        logger.addHandler(handler)
-        logger.setLevel(logging.DEBUG)
-        logging.debug("Hello World!")
 
     @inlineCallbacks
     def get_tahoe_version(self) -> TwistedDeferred[None]:
@@ -219,15 +180,20 @@ class Core:
 
     @staticmethod
     def show_message() -> None:
-        message_settings = settings.get("message")
-        if not message_settings:
-            return
+        """
+        Show the startup-time scary beta-software warning message, maybe.
+        """
         if get_preference("message", "suppress") == "true":
             return
+
+        message_settings = get_startup_warning_message(settings)
+        if message_settings is None:
+            return
+
+        icon_type, title, text = message_settings
         logging.debug("Showing custom message to user...")
         msgbox = QMessageBox()
-        icon_type = message_settings.get("type")
-        if icon_type:
+        if icon_type is not None:
             icon_type = icon_type.lower()
             if icon_type == "information":
                 msgbox.setIcon(QMessageBox.Information)
@@ -236,11 +202,11 @@ class Core:
             elif icon_type == "critical":
                 msgbox.setIcon(QMessageBox.Critical)
         if sys.platform == "darwin":
-            msgbox.setText(message_settings.get("title"))
-            msgbox.setInformativeText(message_settings.get("text"))
+            msgbox.setText(title)
+            msgbox.setInformativeText(text)
         else:
-            msgbox.setWindowTitle(message_settings.get("title"))
-            msgbox.setText(message_settings.get("text"))
+            msgbox.setWindowTitle(title)
+            msgbox.setText(text)
         checkbox = QCheckBox("Do not show this message again")
         checkbox.stateChanged.connect(
             lambda state: set_preference(

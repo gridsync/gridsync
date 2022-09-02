@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from collections import deque
 from unittest.mock import Mock
 
 import pytest
@@ -13,6 +12,7 @@ from gridsync.gui.debug import (
     system,
     warning_text,
 )
+from gridsync.logging import MemoryMode
 
 
 def test_system_module_variable_is_not_none():
@@ -31,7 +31,10 @@ def test_warning_text_module_variable_is_not_none():
 def core():
     fake_core = Mock()
     fake_core.tahoe_version = "9.999"
-    fake_core.log_deque = deque(["debug msg 1", "/test/tahoe", "debug msg 3"])
+    fake_core.log_mode = MemoryMode(100)
+    fake_core.log_mode.logs.extend(
+        ["debug msg 1", "/test/tahoe", "debug msg 3"]
+    )
     fake_gateway = Mock()
     fake_gateway.executable = "/test/tahoe"
     fake_gateway.name = "TestGridOne"

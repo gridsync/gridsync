@@ -28,7 +28,21 @@ class TahoeVersion(argparse.Action):
 def main() -> Union[int, str]:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
-        "--debug", action="store_true", help="Print debug messages to STDOUT."
+        "--log-to-stdout",
+        action="store_true",
+        help="Print debug messages to STDOUT.",
+    )
+    parser.add_argument(
+        "--log-privacy",
+        action="store_true",
+        help="Generate privacy-preserving debug logs",
+        dest="log-privacy",
+    )
+    parser.add_argument(
+        "--no-log-privacy",
+        action="store_false",
+        help="Generate privacy-compromising debug logs",
+        dest="log-privacy",
     )
     parser.add_argument(
         "--tahoe-version",
@@ -41,7 +55,7 @@ def main() -> Union[int, str]:
     )
 
     try:
-        Core(parser.parse_args()).start()
+        Core(parser.parse_args(), sys.stdout).start()
     except FilesystemLockError:
         msg.critical(
             "{} already running".format(APP_NAME),

@@ -7,18 +7,15 @@ from typing import TYPE_CHECKING, Optional
 
 from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.crypto import trunchash
+from gridsync.tahoe import Tahoe
 
-if TYPE_CHECKING:
-    from gridsync.core import Core
-
-
-def get_filters(core: Core) -> list:
+def get_filters(gateways: list[Tahoe]) -> list:
     filters = [
         (pkgdir, "PkgDir"),
         (config_dir, "ConfigDir"),
         (autostart_file_path, "AutostartFilePath"),
     ]
-    for i, gateway in enumerate(core.gui.main_window.gateways):  # XXX
+    for i, gateway in enumerate(gateways):  # XXX
         gateway_id = i + 1
         filters.append((gateway.name, "GatewayName:{}".format(gateway_id)))
         filters.append((gateway.newscap, "Newscap:{}".format(gateway_id)))
