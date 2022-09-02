@@ -2,12 +2,14 @@
 Development Setup
 -----------------
 
-Working with a virtualenv you may install various kinds of dependencies via the ``*.txt`` files in the ``./requirements/`` subdirectory.
-For example::
+There are many ways to set up Python development environments; this documents one way using "virtualenv" environments.
+Various kinds of dependencies are specified via the ``*.txt`` files in the ``./requirements/`` subdirectory.
+To set up a development invironment in ``./venv``::
 
     virtualenv venv
-    ./venv/bin/python -m pip install -r requirements/gridsync.txt
-    ./venv/bin/python -m pip install -r requirements/lint.txt
+    source venv/bin/activate
+    python -m pip install -r requirements/gridsync.txt
+    python -m pip install -r requirements/lint.txt
 
 To run the linter::
 
