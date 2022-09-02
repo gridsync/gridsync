@@ -1,3 +1,27 @@
+
+Development Setup
+-----------------
+
+There are many ways to set up Python development environments; this documents one way using "virtualenv" environments.
+Various kinds of dependencies are specified via the ``*.txt`` files in the ``./requirements/`` subdirectory.
+To set up a development invironment in ``./venv``::
+
+    virtualenv venv
+    source venv/bin/activate
+    python -m pip install -r requirements/gridsync.txt
+    python -m pip install -r requirements/lint.txt
+
+To run the linter::
+
+    tox -e lint
+
+To fix errors that the linter would discover, run::
+
+    bash scripts/lint-fix.sh
+
+Note that this will edit your working copy (but will not do any git operations).
+
+
 Updating depdencies
 -------------------
 
