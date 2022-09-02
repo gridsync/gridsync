@@ -44,9 +44,8 @@ class Supervisor:
     def process(self) -> Optional[Process]:
         if self._process is None:
             if self._protocol is not None:
-                assert self._protocol.transport  # appease mypy
-                assert isinstance(self._protocol.transport, IProcessTransport)
-                self._process = Process(self._protocol.transport.pid)
+                if self._protocol.transport:
+                    self._process = Process(self._protocol.transport.pid)  # type: ignore
         return self._process
 
     @property
