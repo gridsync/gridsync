@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-astroid==2.12.5 \
-    --hash=sha256:396c88d0a58d7f8daadf730b2ce90838bf338c6752558db719ec6f99c18ec20e \
-    --hash=sha256:d612609242996c4365aeb0345e61edba34363eaaba55f1c0addf6a98f073bef6
+astroid==2.12.8 \
+    --hash=sha256:92945e6847c57083a0adddbb9428e4d1b89bbacf4cb6c655b62baa4ad2d81ece \
+    --hash=sha256:a72ad3d290ba1fcf778e569301152f21dc9e67344d57589f490215aa1f8bd9c4
     # via pylint
 black==22.8.0 \
     --hash=sha256:0a12e4e1353819af41df998b02c6742643cfef58282915f781d0e4dd7a200411 \
@@ -133,9 +133,9 @@ mypy-zope==0.3.9 \
     --hash=sha256:afba6f694be193c12be466daa0e9bddbcfc93e332552e85724c030b34971025e \
     --hash=sha256:f476f83af95f7355c87ac5efc84b03caffdfd34e0c302f82bd232ac9c4ce501e
     # via -r requirements/lint.in
-pathspec==0.10.0 \
-    --hash=sha256:01eecd304ba0e6eeed188ae5fa568e99ef10265af7fd9ab737d6412b4ee0ab85 \
-    --hash=sha256:aefa80ac32d5bf1f96139dca67cefb69a431beff4e6bf1168468f37d7ab87015
+pathspec==0.10.1 \
+    --hash=sha256:46846318467efc4556ccfd27816e004270a9eeeeb4d062ce5e6fc7a87c573f93 \
+    --hash=sha256:7ace6161b621d31e7902eb6b5ae148d12cfd23f4a249b9ffb6b9fee12084323d
     # via black
 platformdirs==2.5.2 \
     --hash=sha256:027d8e83a2d7de06bbac4e5ef7e023c02b863d7ea5d079477e722bb41ab25788 \
