@@ -75,7 +75,6 @@
 - Removed support for Ubuntu 18.04/"Bionic Beaver" (Issue #538; PR #539)
 
 
-(Issue #316; PR #336)
 ## 0.5.0 - 2021-10-11
 - No significant changes since 0.5.0rc2
 
