@@ -8,7 +8,6 @@ from atomicwrites import atomic_write
 from psutil import Process
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-from twisted.internet.interfaces import IProcessTransport
 
 from gridsync.system import (
     SubprocessProtocol,
