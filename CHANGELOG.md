@@ -47,6 +47,7 @@
   - Recovery Keys will now contain the read-only form of the rootcap capability (rather than the read-write capability)
   - Restoring from a Recovery Key will now always create a new (read-write) rootcap, copying the contents of the old/imported rootcap into it
   - *Note: This change -- along with PR #499 -- breaks compatibility with older Recovery Keys; users updating from an older version will need to re-create a Recovery Key*
+- Websocket messages from the Magic-Folder "status" API will no longer be captured by the Gridsync debug log (Issue #549; PR #552)
 
 ### Fixed
 - Fixed an uncaught `AttributeError` in `filter.py` (Issue #393; PR #394)
