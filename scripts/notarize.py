@@ -155,7 +155,8 @@ if __name__ == "__main__":
 
     username = os.environ.get("NOTARIZATION_USERNAME")  # Apple ID
     password = os.environ.get(
-        "NOTARIZATION_PASSWORD", "@keychain:gridsync-notarization"
+        "NOTARIZATION_PASSWORD",
+        f"@keychain:{application_name.lower()}-notarization",
     )
 
     option = sys.argv[1]
