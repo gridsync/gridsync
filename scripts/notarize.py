@@ -16,7 +16,7 @@ stapler = "/Applications/Xcode.app/Contents/Developer/usr/bin/stapler"
 # 1. Unlock the login keychain:
 #   security unlock-keychain login.keychain
 # 2. Import the codesign ("Developer ID Application") certificate into the login keychain:
-#   security import <CERTIFICATE.p12> -k ~/Library/Keychains/login.keychain-db -P <PASSWORD>
+#   security import <CERTIFICATE.p12> -k ~/Library/Keychains/login.keychain-db -P <PASSWORD> -T /usr/bin/codesign
 # 3. Add an "app-specific password" for notarization to the non-syncable keychain:
 #   altool --store-password-in-keychain-item gridsync-notarization -u <APPLE_ID> -p <APP_SPECIFIC_PASSWORD>
 # (Note: "altool" is provided by XCode: https://developer.apple.com/download/all/)
