@@ -12,12 +12,19 @@ from typing import Optional
 altool = "/Applications/Xcode.app/Contents/Developer/usr/bin/altool"
 stapler = "/Applications/Xcode.app/Contents/Developer/usr/bin/stapler"
 
+# To setup before use, perform the following steps:
+# 1. Unlock the login keychain:
+#   security unlock-keychain login.keychain
+# 2. Import the codesign ("Developer ID Application") certificate into the login keychain:
+#   security import <CERTIFICATE.p12> -k ~/Library/Keychains/login.keychain-db -P <PASSWORD>
+# 3. Add an "app-specific password" for notarization to the non-syncable keychain:
+#   altool --store-password-in-keychain-item gridsync-notarization -u <APPLE_ID> -p <APP_SPECIFIC_PASSWORD>
+# (Note: "altool" is provided by XCode: https://developer.apple.com/download/all/)
+
+# Sources/references:
 # https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
 # https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
 # https://github.com/metabrainz/picard/blob/master/scripts/package/macos-notarize-app.sh
-
-# security unlock-keychain login.keychain
-# altool --store-password-in-keychain-item gridsync-notarization -u $APPLE_ID -p $APP_SPECIFIC_PASSWORD
 
 
 def sha256sum(filepath):
