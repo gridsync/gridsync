@@ -5,7 +5,7 @@ import os
 import sys
 from configparser import RawConfigParser
 from pathlib import Path
-from subprocess import run, CalledProcessError, SubprocessError
+from subprocess import CalledProcessError, SubprocessError, run
 from time import sleep
 from typing import Optional
 
