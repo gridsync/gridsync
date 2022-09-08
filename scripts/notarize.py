@@ -138,7 +138,7 @@ def notarize(
         elif status == "invalid":
             sys.exit(results["Status Message"])
         else:
-            sleep(20)
+            sleep(10)
 
 
 if __name__ == "__main__":
