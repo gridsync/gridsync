@@ -183,7 +183,7 @@ vagrant-build-linux:
 	vagrant provision --provision-with devtools,test,build centos-7
 
 vagrant-build-macos:
-	vagrant up --provision-with devtools,test,build macos-10.14
+	vagrant up --provision-with devtools,test,build macos-11
 
 vagrant-build-windows:
 	vagrant up --provision-with devtools,test,build windows-10

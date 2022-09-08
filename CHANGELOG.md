@@ -2,14 +2,80 @@
 
 ## Unreleased
 ### Added
-- Added preliminary support for the new/standalone "[Magic-Folder]" application (Issue #290; PR #389)
+- Added support for the new/standalone "[Magic-Folder](https://github.com/LeastAuthority/magic-folder)" application (Issue #290; PR #389)
 - Errors contained in Magic-Folder "status" messages will now be surfaced to the user (Issue #390; PR #392)
 - Added support for Tahoe-LAFS 1.16.0 (Issue #397; PR #398)
+- Added "progress" indicators for Magic-Folder upload operations, displaying the number of completed vs. pending upload operations as a percentage (Issue #391; PR #399)
+- Added tooling to facilitate updating/pinning ZKAPAuthorizer and Magic-Folder dependencies from non-release git revisions (PR #400) -- thanks @tomprince
+- Added support for configuring the ZKAPAuthorizer lease crawler via grid JSON/settings (Issue #417; PR #418) -- thanks @exarkun!
+- Configuration values declared by `config.txt` can now be overridden via environment variables (Issue #465; PR #466)
+- Added preliminary support for alternative Qt APIs/libraries (by setting the `QT_API` environment variable to one of `pyqt5`, `pyqt6`, `pyside2`, or `pyside6` at build-time) (PR #467)
+- Added support for Ubuntu 22.04 (PR #475)
+- Added support for backing up and restoring the ZKAPAuthorizer database state via "v2" ZKAPAuthorizer endpoints (Issue #388; PRs #476, #478, #499) -- thanks @meejah!
+- Added support for Python 3.10 (PR #495)
+- Added a Nix-based development shell and related CI (PR #517) -- thanks @exarkun!
+- Added some additional documentation for contributors (`CONTRIBUTING.rst`) (PR #547) -- thanks @meejah!
 
 ### Changed
-- Binary distributions of Gridsync will now ship with Tahoe-LAFS version 1.16.0 (Issue #397; PR #398)
+- Binary distributions of Gridsync will now ship with Tahoe-LAFS version 1.17.1 and Magic-Folder 22.8.0 (PR #519)
+- Added proper PyInstaller hooks for `twisted.plugins`, preventing the need to patch `allmydata.storage_client` at buildtime (PR #403) -- thanks @tomprince
+- The Magic-Folder API port will now be determined by reading the newly-added `api_client_endpoint` file instead of parsing stdout (Issue #412; PR #416)
+- Updated Recovery Key creation behavior/UX slightly (Issue #405; PR #420):
+  - Users of ZKAPAuthorizer-enabled grids will now be prompted to create a Recovery Key immediately after successfully redeeming a batch of ZKAPs and creating a rootcap
+  - Users who have not previously created a Recovery Key will now be prompted to do so (once per session)
+  - Confirmation buttons ("Cancel", "Save...") have been added to the password dialog
+  - Labels pertaining to Recovery Key-related actions have been updated throughout the UI:
+    - "Export Recovery Key" has been updated/renamed to "Create Recovery Key"
+    - "Import Recovery" has been updated/renamed to "Restore from Recovery Key"
+- During start up, a "Loading..." label will now be shown under the Storage-Time view instead of temporarily displaying a storage-time balance of 0 (Issue #423; PR #424) -- thanks @exarkun!
+- Bundled `tahoe` and `magic-folder` executables will now be prepended with the application name (e.g., "Gridsync-tahoe.exe" instead of "tahoe.exe") in order to more clearly distinguish process names managed by Gridsync (Issue #422; PR #426)
+- The Storage-Time view now explicitly states (via a text label) that folders can be added while a voucher is being redeemed (Issue #427; PR #436)
+- On Windows and macOS, the `certifi` package will now be used for TLS verification (Issues #441, #459; PRs #442, #460)
+- The Tahoe-LAFS and Magic-Folder binaries included with Gridsync are now python3-only and utilize PyInstaller's "multipackage bundles" feature, drastically reducing the overall filesize of the Gridsync application bundle (Issue #432; PR #433)
+- Users of ZKAPAuthorizer-enabled storage-grids will now receive a warning/confirmation dialog about lease-renewal upon exiting the application (PR #445)
+- Debug log messages are now timezone-aware (Issue #447; PR #450)
+- A warning/confirmation dialog will now be displayed describing the risks of sharing the same Recovery Key across multiple devices when restoring from a Recovery Key (Issue #448; PR #451)
+- Gridsync will now automatically relaunch `tahoe` and `magic-folder` that were terminated by external factors (Issue #455; PR #470)
+- It is now possible to add Magic-Folders for empty directories (PR #473)
+- Updated the project `Vagrantfile`, adding virtual environments for newly-supported OS versions and removing unsupported ones (PR #485, #514, #515, #525, #533, #546)
+- Refactored some code-paths relating to Recovery Key creation (PR #477) -- thanks @exarkun!
+- Gridsync will now check processes names when making determinations about the staleness of existing processes/pidfiles (PR #492)
+- Added type-annotations throughout the codebase (PR #468, #469, #477, #502)
+- Updated the embedded grid-configuration for Least Authority's "HRO Cloud" (Issue #536; PRs #494, #537) -- thanks @jehadbaeth!
+- Replaced usage of `inlineCallbacks`/`yield` with `async`/`await` syntax in several modules (Issues #520, #522, #523, #527; PRs #521, #524, #526, #529) -- thanks @exarkun!
+- The Recovery Key subsystem has been changed in order to safeguard against simultaneous writers (Issue #449; PR #544):
+  - Recovery Keys will now contain the read-only form of the rootcap capability (rather than the read-write capability)
+  - Restoring from a Recovery Key will now always create a new (read-write) rootcap, copying the contents of the old/imported rootcap into it
+  - *Note: This change -- along with PR #499 -- breaks compatibility with older Recovery Keys; users updating from an older version will need to re-create a Recovery Key*
+- Websocket messages from the Magic-Folder "status" API will no longer be captured by the Gridsync debug log (Issue #549; PR #552)
 
-(Issue #316; PR #336)
+### Fixed
+- Fixed an uncaught `AttributeError` in `filter.py` (Issue #393; PR #394)
+- Fixed an bug in which ZKAPAuthorizer's "allowed-public-keys" were being written to `servers.yaml` instead of `tahoe.cfg` (Issue #406; PR #407)
+- Reduced CPU usage consumed by polling for storage server connections (Issue #414; PR #415) -- thanks @exarkun!
+- Removing a folder will now update both the UI/FoldersView and underlying data-model(s) immediately, preventing the situation in which an error would occur when upon attempting to remove the same folder twice in rapid succession (Issue #437; PR #439)
+- Additional checks are now performed at build-time to identify and prevent dependency-conflicts between Gridsync, Tahoe-LAFS, and Magic-Folder (Issue #434; PR #435)
+- Several UI elements in the Storage-time view have been adjusted to prevent the labels in the chart legend from being truncated (Issue #453; PR #454)
+- Improved error-handling when listing empty or unavailble Tahoe-LAFS directories (PR #464)
+- Improved the efficiency and accuracy of updates to the "Status" column in the Folders view (Issue #461; PR #463)
+- Fixed a crash caused by sending DBus desktop notifications on GNU/Linux systems that lack DBus (PR #474)
+- Fixed an intermittently-failing test for `gridsync.Supervisor`'s restart behavior on Windows (PR #481)
+- Fixed an uncaught `TypeError` caused by a missing positional argument (Issue #489; PR #490) -- thanks @makeworld-the-better-one!
+- Fixed a crash caused by conflicting/incompatible pango libraries on ArchLinux (Issue #487; PR #488) -- thanks @makeworld-the-better-one!
+- Added mitigations for a CPython/importlib bug triggered by `ResourceWarning`s on Windows (Issue #479; PRs #484, #498) -- thanks @exarkun! 
+- Fixed an uncaught `TypeError` caused by a regression introduced by PyQt5 version 5.15.7 (Issue #496; PR #497)
+- Unencrypted Recovery Keys will no longer default to using a ".encrypted" filename suffix (Issue #509; PR #511)
+- Fixed a crash caused by attempting to disable autostart on Windows when the autostart shortcut/file has already been removed (Issue #512; PR #516)
+- Fixed a race condition with a Supervisor restart test (PR #530) -- thanks @exarkun!
+- Fixed an `OverflowError` caused by mixing/converting between Qt's C++ integers and python's `int`s when calculating "days remaining" (Issue #532; PRs #535, #540)
+
+### Removed
+- Removed support for the "magic-folder" Tahoe-LAFS feature removed in Tahoe-LAFS 1.15 (Issue #408; PR #411)
+- Removed Nix expressions for packaging Gridsync with Nix (PR #413)
+- Removed support for macOS 10.15/"Catalina" (Issue #510; PR #518)
+- Removed support for Ubuntu 18.04/"Bionic Beaver" (Issue #538; PR #539)
+
+
 ## 0.5.0 - 2021-10-11
 - No significant changes since 0.5.0rc2
 

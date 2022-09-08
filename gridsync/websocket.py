@@ -25,7 +25,6 @@ class WebSocketReaderProtocol(
             )
             return
         message = payload.decode("utf-8")
-        logging.debug("WebSocket message received: %s", message)
         self.factory.collector(message)  # XXX
 
     def onClose(self, wasClean: bool, code: int, reason: str) -> None:
