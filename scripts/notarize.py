@@ -141,6 +141,19 @@ def notarize(
             sleep(10)
 
 
+def submit(filepath: str, keychain_profile: str) -> None:
+    run(
+        [
+            "xcrun",
+            "notarytool",
+            "--keychain-profile",
+            keychain_profile,
+            "--wait",
+            filepath,
+        ]
+    )
+
+
 if __name__ == "__main__":
     config = RawConfigParser(allow_no_value=True)
     config.read(Path("gridsync", "resources", "config.txt"))
