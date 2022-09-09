@@ -25,7 +25,7 @@ multiple_grids = true
 tor = true
 
 [help]
-docs_url = docs.gridsync.io
+docs_url = https://github.com/gridsync/gridsync/tree/master/docs
 issues_url = https://github.com/gridsync/gridsync/issues
 
 [sign]
