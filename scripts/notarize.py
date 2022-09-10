@@ -141,6 +141,25 @@ def notarize(
             sleep(10)
 
 
+def store_credentials(
+    apple_id: str, password: str, team_id: str, keychain_profile: str
+) -> None:
+    run(
+        [
+            "xcrun",
+            "notarytool",
+            "store-credentials",
+            "--apple-id",
+            apple_id,
+            "--password",
+            password,
+            "--team-id",
+            team_id,
+            keychain_profile,
+        ]
+    )
+
+
 def submit(filepath: str, keychain_profile: str) -> None:
     run(
         [
