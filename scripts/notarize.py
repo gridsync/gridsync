@@ -146,6 +146,7 @@ def submit(filepath: str, keychain_profile: str) -> None:
         [
             "xcrun",
             "notarytool",
+            "submit",
             "--keychain-profile",
             keychain_profile,
             "--wait",
