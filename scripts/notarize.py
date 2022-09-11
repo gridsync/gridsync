@@ -39,9 +39,7 @@ def make_zipfile(src_path: str, dst_path: str) -> None:
 
 
 def staple(path: str) -> None:
-    p = run(["xcrun", "stapler", "staple", path])
-    if p.returncode:
-        raise SubprocessError(f"Error stapling {path}")
+    run(["xcrun", "stapler", "staple", path], check=True)
 
 
 def store_credentials(
