@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-
+# This script assumes/requires credentials stored in a keychain profile.
+# To store credentials in a keychain profile programmatically:
+# xcrun notarytool store-credentials <PROFILE-NAME> [--apple-id <APPLE-ID>] [--team-id <TEAM-ID>] [--password <APP-SPECIFIC-PASSWORD>]
+# Sources/references:
+# https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+# https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
 import hashlib
 import json
 import os
@@ -10,13 +15,6 @@ from secrets import compare_digest
 from subprocess import CalledProcessError, SubprocessError, run
 from time import sleep
 from typing import Optional
-
-# This script assumes/requires credentials stored in a keychain profile.
-# To store credentials in a keychain profile programmatically:
-# xcrun notarytool store-credentials <PROFILE-NAME> [--apple-id <APPLE-ID>] [--team-id <TEAM-ID>] [--password <APP-SPECIFIC-PASSWORD>]
-# Sources/references:
-# https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-# https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
 
 
 def sha256sum(filepath):

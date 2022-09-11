@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-
-from configparser import RawConfigParser
-from pathlib import Path
-from subprocess import run
-import sys
-
 # This script assumes/requires a valid codesign certificate.
 # To add a codesign certificate programmatically:
 # 1. Unlock the login keychain:
@@ -14,6 +8,10 @@ import sys
 # 3. Set the ACL on the keychain:
 #   security set-key-partition-list -S apple-tool:,apple: -s -k <PASSWORD> [KEYCHAIN]
 # Source/reference: https://stackoverflow.com/a/52115968
+import sys
+from configparser import RawConfigParser
+from pathlib import Path
+from subprocess import run
 
 
 def codesign_app(developer_id: str, path: str) -> None:
@@ -30,6 +28,7 @@ def codesign_app(developer_id: str, path: str) -> None:
         ]
     )
 
+
 def codesign_dmg(developer_id: str, path: str) -> None:
     run(
         [
@@ -42,11 +41,14 @@ def codesign_dmg(developer_id: str, path: str) -> None:
         ]
     )
 
+
 def codesign_verify(path: str):
     run(["codesign", "--verify", "--verbose=1", path])
 
+
 def codesign_display(path: str):
     run(["codesign", "--display", "--verbose=4", path])
+
 
 def spctl_assess_app(path: str):
     run(
@@ -58,6 +60,7 @@ def spctl_assess_app(path: str):
             path,
         ]
     )
+
 
 def spctl_assess_dmg(path: str):
     run(
