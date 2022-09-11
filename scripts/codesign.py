@@ -5,7 +5,7 @@ from pathlib import Path
 from subprocess import run
 import sys
 
-# This scripts assumes/requires a valid codesign certificate.
+# This script assumes/requires a valid codesign certificate.
 # To add a codesign certificate programmatically:
 # 1. Unlock the login keychain:
 #   security unlock-keychain login.keychain
