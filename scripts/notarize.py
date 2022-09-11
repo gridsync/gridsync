@@ -239,7 +239,10 @@ def main(path: str, keychain_profile: str) -> None:
 
 if __name__ == "__main__":
     path = sys.argv[1]
-    main(path, "gridsync")
+    try:
+        main(path, "gridsync")
+    except Exception as e:
+        sys.exit(str(e))
     sys.exit()
 
     config = RawConfigParser(allow_no_value=True)
