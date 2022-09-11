@@ -83,14 +83,14 @@ def main(path: str, keychain_profile: str) -> None:
     else:
         submission_path = path
     submitted_hash = sha256sum(submission_path)
-    print(f"Uploading {submission_path} ({submitted_hash})...")
+    print(f"Uploading {submission_path} (SHA-256: {submitted_hash})...")
     submission_id = submit(submission_path, keychain_profile)
-    print("Waiting for result...")
+    print(f"Waiting for result (Submission ID: {submission_id}...")
     status = wait(submission_id, keychain_profile)
     result = log(submission_id, keychain_profile)
     print(json.dumps(result, sort_keys=True, indent=2))
     if status != "Accepted":
-        sys.exit(f'ERROR: Notarization failed; status: "{status}"')
+        sys.exit(f'ERROR: Notarization failed (status: "{status}")')
     notarized_hash = result["sha256"]
     if not compare_digest(submitted_hash, notarized_hash):
         sys.exit(
