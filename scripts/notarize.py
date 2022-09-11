@@ -75,7 +75,7 @@ def log(submission_id: str, keychain_profile: str) -> dict[str, str]:
     return result
 
 
-def main(path: str, keychain_profile: str) -> None:
+def notarize(path: str, keychain_profile: str) -> None:
     if not path.lower().endswith(".dmg") and not path.lower().endswith(".zip"):
         print("Creating ZIP archive...")
         submission_path = path + ".zip"
@@ -105,6 +105,6 @@ def main(path: str, keychain_profile: str) -> None:
 if __name__ == "__main__":
     path = sys.argv[1]
     try:
-        main(path, "gridsync")
+        notarize(path, "gridsync")
     except Exception as e:
         sys.exit(str(e))
