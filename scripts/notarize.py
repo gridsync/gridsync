@@ -93,11 +93,6 @@ def submit(filepath: str, keychain_profile: str) -> str:  # submission-id
     return result["id"]
 
 
-def info(submission_id: str, keychain_profile: str) -> dict[str, str]:
-    result = notarytool("info", [submission_id], keychain_profile)
-    return result
-
-
 def wait(submission_id: str, keychain_profile: str) -> str:
     result = notarytool("wait", [submission_id], keychain_profile)
     return result["status"]
@@ -118,7 +113,6 @@ def main(path: str, keychain_profile: str) -> None:
     submitted_hash = sha256sum(submission_path)
     print(f"Uploading {submission_path} ({submitted_hash})...")
     submission_id = submit(submission_path, keychain_profile)
-    print(info(submission_id, keychain_profile))
     print("Waiting for result...")
     status = wait(submission_id, keychain_profile)
     result = log(submission_id, keychain_profile)
