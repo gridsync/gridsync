@@ -90,10 +90,10 @@ def main(path: str, keychain_profile: str) -> None:
     result = log(submission_id, keychain_profile)
     print(json.dumps(result, sort_keys=True, indent=2))
     if status != "Accepted":
-        sys.exit(f'ERROR: Notarization failed (status: "{status}")')
+        raise Exception(f'ERROR: Notarization failed (status: "{status}")')
     notarized_hash = result["sha256"]
     if not compare_digest(submitted_hash, notarized_hash):
-        sys.exit(
+        raise ValueError(
             "ERROR: SHA-256 hash mismatch\n"
             f"Submitted: {submitted_hash}\n"
             f"Notarized: {submitted_hash}"
