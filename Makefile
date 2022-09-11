@@ -224,9 +224,6 @@ codesign-app:
 codesign-dmg:
 	python3 scripts/codesign.py dmg
 
-codesign-all:
-	$(MAKE) codesign-app dmg codesign-dmg
-
 notarize-app:
 	python3 scripts/notarize.py app
 
