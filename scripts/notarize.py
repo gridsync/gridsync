@@ -7,14 +7,9 @@
 # https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
 import hashlib
 import json
-import os
 import sys
-from configparser import RawConfigParser
-from pathlib import Path
 from secrets import compare_digest
-from subprocess import CalledProcessError, SubprocessError, run
-from time import sleep
-from typing import Optional
+from subprocess import SubprocessError, run
 
 
 def sha256sum(filepath):
