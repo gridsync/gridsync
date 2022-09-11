@@ -33,25 +33,6 @@ def staple(path: str) -> None:
     run(["xcrun", "stapler", "staple", path], check=True)
 
 
-def store_credentials(
-    apple_id: str, password: str, team_id: str, keychain_profile: str
-) -> None:
-    run(
-        [
-            "xcrun",
-            "notarytool",
-            "store-credentials",
-            "--apple-id",
-            apple_id,
-            "--password",
-            password,
-            "--team-id",
-            team_id,
-            keychain_profile,
-        ]
-    )
-
-
 def notarytool(
     subcommand: str, args: list[str], keychain_profile: str
 ) -> dict[str, str]:
