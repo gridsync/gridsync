@@ -81,7 +81,7 @@ def notarize(path: str, keychain_profile: str) -> None:
     submitted_hash = sha256sum(submission_path)
     print(f"Uploading {submission_path} (SHA-256: {submitted_hash})...")
     submission_id = submit(submission_path, keychain_profile)
-    print(f"Waiting for result (Submission ID: {submission_id}...")
+    print(f"Waiting for result (Submission ID: {submission_id})...")
     status = wait(submission_id, keychain_profile)
     result = log(submission_id, keychain_profile)
     print(json.dumps(result, sort_keys=True, indent=2))
