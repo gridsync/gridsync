@@ -65,7 +65,7 @@ def submit(filepath: str, keychain_profile: str) -> str:  # submission-id
     return result["id"]
 
 
-def wait(submission_id: str, keychain_profile: str) -> str:
+def wait(submission_id: str, keychain_profile: str) -> str:  # status
     result = notarytool("wait", [submission_id], keychain_profile)
     return result["status"]
 
