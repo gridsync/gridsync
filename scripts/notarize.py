@@ -9,6 +9,8 @@ import hashlib
 import json
 import os
 import sys
+from configparser import RawConfigParser
+from pathlib import Path
 from secrets import compare_digest
 from subprocess import SubprocessError, run
 
@@ -99,13 +101,34 @@ def notarize(filepath: str, keychain_profile: str) -> None:
     print("Success!")
 
 
+def _get_application_name() -> str:
+    config = RawConfigParser()
+    config.read(Path("gridsync", "resources", "config.txt"))
+    return config.get("application", "name")
+
+
 if __name__ == "__main__":
-    path = sys.argv[1]
-    profile = os.environ.get("NOTARIZATION_PROFILE")
+    try:
+        path = sys.argv[1]
+    except IndexError:
+        path = os.environ.get("NOTARIZATION_PATH", "")
+        if not path:
+            sys.exit(f"Usage {sys.argv[0]} <filepath | app | dmg>")
+    application_name = ""
+    if path in ("app", "dmg"):
+        try:
+            application_name = _get_application_name()
+        except Exception:
+            sys.exit("Error: Could not load application name from config.txt")
+        path = f"dist/{application_name}.{path}"
+    if not Path(path).exists():
+        sys.exit(f"Error: Path {path} does not exist")
+    profile = os.environ.get("NOTARIZATION_PROFILE", application_name)
     if not profile:
         sys.exit(
-            "Keychain profile not found; please set the NOTARIZATION_PROFILE "
-            "environment variable to the desired keychain profile name."
+            "Error: Keychain profile not found; please set the "
+            "NOTARIZATION_PROFILE environment variable to the desired "
+            "keychain profile name and try again."
         )
     try:
         notarize(path, profile)
