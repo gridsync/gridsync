@@ -24,8 +24,8 @@ def make_zipfile(src_path: str, dst_path: str) -> None:
     run(["ditto", "-c", "-k", "--keepParent", src_path, dst_path], check=True)
 
 
-def staple(path: str) -> None:
-    run(["xcrun", "stapler", "staple", path], check=True)
+def staple(filepath: str) -> None:
+    run(["xcrun", "stapler", "staple", filepath], check=True)
 
 
 def notarytool(
@@ -71,13 +71,13 @@ def log(submission_id: str, keychain_profile: str) -> dict[str, str]:
     return result
 
 
-def notarize(path: str, keychain_profile: str) -> None:
+def notarize(filepath: str, keychain_profile: str) -> None:
     if not path.lower().endswith(".dmg") and not path.lower().endswith(".zip"):
         print("Creating ZIP archive...")
-        submission_path = path + ".zip"
-        make_zipfile(path, submission_path)
+        submission_path = filepath + ".zip"
+        make_zipfile(filepath, submission_path)
     else:
-        submission_path = path
+        submission_path = filepath
     submitted_hash = sha256sum(submission_path)
     print(f"Uploading {submission_path} (SHA-256: {submitted_hash})...")
     submission_id = submit(submission_path, keychain_profile)
@@ -94,7 +94,7 @@ def notarize(path: str, keychain_profile: str) -> None:
             f"Submitted: {submitted_hash}\n"
             f"Notarized: {submitted_hash}"
         )
-    staple(path)
+    staple(filepath)
     print("Success!")
 
 
