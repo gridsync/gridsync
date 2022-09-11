@@ -7,6 +7,7 @@
 # https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
 import hashlib
 import json
+import os
 import sys
 from secrets import compare_digest
 from subprocess import SubprocessError, run
@@ -100,7 +101,13 @@ def notarize(filepath: str, keychain_profile: str) -> None:
 
 if __name__ == "__main__":
     path = sys.argv[1]
+    profile = os.environ.get("NOTARIZATION_PROFILE")
+    if not profile:
+        sys.exit(
+            "Keychain profile not found; please set the NOTARIZATION_PROFILE "
+            "environment variable to the desired keychain profile name."
+        )
     try:
-        notarize(path, "gridsync")
+        notarize(path, profile)
     except Exception as e:
         sys.exit(str(e))
