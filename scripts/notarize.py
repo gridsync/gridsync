@@ -21,7 +21,7 @@ def sha256sum(filepath):
 
 
 def make_zipfile(src_path: str, dst_path: str) -> None:
-    run(["ditto", "-c", "-k", "--keepParent", src_path, dst_path])
+    run(["ditto", "-c", "-k", "--keepParent", src_path, dst_path], check=True)
 
 
 def staple(path: str) -> None:
@@ -41,6 +41,7 @@ def notarytool(
         ]
         + args,
         capture_output=True,
+        check=False,
         text=True,
     )
     if proc.returncode:
