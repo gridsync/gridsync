@@ -5,6 +5,16 @@ from pathlib import Path
 from subprocess import run
 import sys
 
+# This scripts assumes/requires a valid codesign certificate.
+# To add a codesign certificate programmatically:
+# 1. Unlock the login keychain:
+#   security unlock-keychain login.keychain
+# 2. Import the codesign ("Developer ID Application") certificate into the login keychain:
+#   security import <CERTIFICATE.p12> -k ~/Library/Keychains/login.keychain-db -P <PASSWORD> -T /usr/bin/codesign
+# 3. Set the ACL on the keychain:
+#   security set-key-partition-list -S apple-tool:,apple: -s -k <PASSWORD> [KEYCHAIN]
+# Source/reference: https://stackoverflow.com/a/52115968
+
 
 def codesign_app(developer_id: str, path: str) -> None:
     run(
