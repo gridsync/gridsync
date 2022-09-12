@@ -32,7 +32,7 @@ def staple(filepath: str) -> None:
 
 
 def notarytool(
-    subcommand: str, args: list[str], keychain_profile: str
+    subcommand: str, argument: str, keychain_profile: str
 ) -> dict[str, str]:
     proc = run(
         [
@@ -41,8 +41,8 @@ def notarytool(
             subcommand,
             f"--keychain-profile={keychain_profile}",
             "--output-format=json",
-        ]
-        + args,
+            argument,
+        ],
         capture_output=True,
         check=False,
         text=True,
@@ -60,17 +60,17 @@ def notarytool(
 
 
 def submit(filepath: str, keychain_profile: str) -> str:  # submission-id
-    result = notarytool("submit", [filepath], keychain_profile)
+    result = notarytool("submit", filepath, keychain_profile)
     return result["id"]
 
 
 def wait(submission_id: str, keychain_profile: str) -> str:  # status
-    result = notarytool("wait", [submission_id], keychain_profile)
+    result = notarytool("wait", submission_id, keychain_profile)
     return result["status"]
 
 
 def log(submission_id: str, keychain_profile: str) -> dict[str, str]:
-    result = notarytool("log", [submission_id], keychain_profile)
+    result = notarytool("log", submission_id, keychain_profile)
     return result
 
 
