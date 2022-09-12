@@ -49,14 +49,7 @@ def notarytool(
     )
     if proc.returncode:
         raise SubprocessError(proc.stderr.strip())
-    if proc.stdout:
-        result = json.loads(proc.stdout.strip())
-    else:
-        return {}
-    message = result.get("message")
-    if message:
-        print("###", message)
-    return result
+    return json.loads(proc.stdout.strip())
 
 
 def submit(filepath: str, keychain_profile: str) -> str:  # submission-id
