@@ -222,6 +222,11 @@ class Tahoe:
             rootcap = self.get_rootcap()
             if rootcap:
                 settings["rootcap"] = diminish(rootcap)
+            else:
+                try:
+                    del settings["rootcap"]
+                except KeyError:
+                    pass
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
                 .read_text(encoding="utf-8")
