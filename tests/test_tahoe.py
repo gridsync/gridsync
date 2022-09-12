@@ -168,7 +168,17 @@ def test_get_settings(tahoe):
     assert (nickname, icon_url) == (tahoe.name, "test_url")
 
 
-def test_get_settings_does_not_include_empty_rootcap(tahoe):
+def test_get_settings_includes_diminished_rootcap(tahoe):
+    tahoe.rootcap_manager.set_rootcap(
+        "URI:DIR2:x6ciqn3dbnkslpvazwz6z7ic2q:"
+        "slkf7invl5apcabpyztxazkcufmptsclx7m3rn6hhiyuiz2hvu6a",
+        overwrite=True,
+    )
+    settings = tahoe.get_settings(include_secrets=True)
+    assert settings["rootcap"].startswith("URI:DIR2-RO:")
+
+
+def test_get_settings_omits_rootcap_if_empty(tahoe):
     tahoe.rootcap_manager.set_rootcap("", overwrite=True)
     settings = tahoe.get_settings(include_secrets=True)
     assert "rootcap" not in settings
@@ -180,6 +190,12 @@ def test_get_settings_includes_convergence_secret(tahoe):
     assert (
         tahoe.get_settings(include_secrets=True).get("convergence") == secret
     )
+
+
+def test_get_settings_omits_convergence_secret_if_file_not_found(tahoe):
+    Path(tahoe.nodedir, "private", "convergence").unlink(missing_ok=True)
+    settings = tahoe.get_settings(include_secrets=True)
+    assert "convergence" not in settings
 
 
 def test_get_settings_exclude_convergence_secret_by_default(tahoe):
