@@ -219,7 +219,9 @@ class Tahoe:
             self.load_settings()
         settings = dict(self.settings)
         if include_secrets:
-            settings["rootcap"] = diminish(self.get_rootcap())
+            rootcap = self.get_rootcap()
+            if rootcap:
+                settings["rootcap"] = diminish(rootcap)
             settings["convergence"] = (
                 Path(self.nodedir, "private", "convergence")
                 .read_text(encoding="utf-8")
