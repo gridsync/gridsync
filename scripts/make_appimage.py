@@ -75,6 +75,10 @@ except OSError:
         'linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
     )
 if returncode:
+    # Sometimes, linuxdeploy terminates with an exit code of -11 (but leaves
+    # no discernible error messages in its output about what this means or
+    # what might be causing this to happen). Running it a second time,
+    # however, typically results in success (i.e., an exit code of 0). :/
     subprocess.call(linuxdeploy_args)
 
 
