@@ -81,8 +81,8 @@ def notarize(filepath: str, keychain_profile: str) -> None:
         make_zipfile(filepath, submission_path)
     else:
         submission_path = filepath
-    submitted_hash = sha256sum(submission_path)
-    print(f"Uploading {submission_path} (SHA-256: {submitted_hash})...")
+    submission_hash = sha256sum(submission_path)
+    print(f"Uploading {submission_path} (SHA-256: {submission_hash})...")
     submission_id = submit(submission_path, keychain_profile)
     print(f"Waiting for result (Submission ID: {submission_id})...")
     status = wait(submission_id, keychain_profile)
@@ -91,10 +91,10 @@ def notarize(filepath: str, keychain_profile: str) -> None:
     if status != "Accepted":
         raise Exception(f'ERROR: Notarization failed (status: "{status}")')
     notarized_hash = result["sha256"]
-    if not compare_digest(submitted_hash, notarized_hash):
+    if not compare_digest(submission_hash, notarized_hash):
         raise ValueError(
             "ERROR: SHA-256 hash digest mismatch\n"
-            f"Submitted: {submitted_hash}\n"
+            f"Submitted: {submission_hash}\n"
             f"Notarized: {notarized_hash}"
         )
     staple(filepath)
