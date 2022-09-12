@@ -79,7 +79,7 @@ if returncode:
     # no discernible error messages in its output about what this means or
     # what might be causing this to happen). Running it a second time,
     # however, typically results in success (i.e., an exit code of 0). :/
-    subprocess.call(linuxdeploy_args)
+    subprocess.run(linuxdeploy_args, check=True)
 
 
 for file in sorted(os.listdir(appdir_bin)):
