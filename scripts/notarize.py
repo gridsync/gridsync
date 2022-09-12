@@ -93,9 +93,9 @@ def notarize(filepath: str, keychain_profile: str) -> None:
     notarized_hash = result["sha256"]
     if not compare_digest(submitted_hash, notarized_hash):
         raise ValueError(
-            "ERROR: SHA-256 hash mismatch\n"
+            "ERROR: SHA-256 hash digest mismatch\n"
             f"Submitted: {submitted_hash}\n"
-            f"Notarized: {submitted_hash}"
+            f"Notarized: {notarized_hash}"
         )
     staple(filepath)
     print("Success!")
