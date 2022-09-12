@@ -75,8 +75,6 @@ except OSError:
         'linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
     )
 if returncode:
-    # XXX Ugly hack/workaround for "ERROR: Strip call failed: /tmp/.mount_linuxdns8a8k/usr/bin/strip: unable to copy file 'build/AppDir/usr/lib/libpython3.7m.so.1.0'; reason: Permission denied" observed on Travis-CI
-    os.chmod(glob.glob('build/AppDir/usr/lib/libpython*.so.*')[0], 0o755)
     subprocess.call(linuxdeploy_args)
 
 
