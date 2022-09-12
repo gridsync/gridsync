@@ -227,11 +227,17 @@ class Tahoe:
                     del settings["rootcap"]
                 except KeyError:
                     pass
-            settings["convergence"] = (
-                Path(self.nodedir, "private", "convergence")
-                .read_text(encoding="utf-8")
-                .strip()
-            )
+            try:
+                settings["convergence"] = (
+                    Path(self.nodedir, "private", "convergence")
+                    .read_text(encoding="utf-8")
+                    .strip()
+                )
+            except FileNotFoundError:
+                try:
+                    del settings["convergence"]
+                except KeyError:
+                    pass
         else:
             try:
                 del settings["rootcap"]
