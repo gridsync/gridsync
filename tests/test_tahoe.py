@@ -168,6 +168,12 @@ def test_get_settings(tahoe):
     assert (nickname, icon_url) == (tahoe.name, "test_url")
 
 
+def test_get_settings_does_not_include_empty_rootcap(tahoe):
+    tahoe.rootcap_manager.set_rootcap("", overwrite=True)
+    settings = tahoe.get_settings()
+    assert "rootcap" not in settings
+
+
 def test_get_settings_includes_convergence_secret(tahoe):
     secret = randstr()
     Path(tahoe.nodedir, "private", "convergence").write_text(secret)
