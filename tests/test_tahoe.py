@@ -170,7 +170,7 @@ def test_get_settings(tahoe):
 
 def test_get_settings_does_not_include_empty_rootcap(tahoe):
     tahoe.rootcap_manager.set_rootcap("", overwrite=True)
-    settings = tahoe.get_settings()
+    settings = tahoe.get_settings(include_secrets=True)
     assert "rootcap" not in settings
 
 
