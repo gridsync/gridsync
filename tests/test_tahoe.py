@@ -107,13 +107,11 @@ def test_has_legacy_magic_folder(tmp_path, contents, result):
     "contents, result",
     [
         (
-            "[client]\n"
-            "storage.plugins = privatestorageio-zkapauthz-v1\n",
+            "[client]\nstorage.plugins = privatestorageio-zkapauthz-v1\n",
             True,
         ),
         (
-            "[client]\n"
-            "storage.plugins = privatestorageio-zkapauthz-v2\n",
+            "[client]\nstorage.plugins = privatestorageio-zkapauthz-v2\n",
             False,
         ),
         (
