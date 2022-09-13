@@ -218,22 +218,30 @@ class Tahoe:
         if not self.settings:
             self.load_settings()
         settings = dict(self.settings)
+
+        def _safe_del(dictionary: dict, key: str) -> None:
+            try:
+                del dictionary[key]
+            except KeyError:
+                pass
+
         if include_secrets:
-            settings["rootcap"] = diminish(self.get_rootcap())
-            settings["convergence"] = (
-                Path(self.nodedir, "private", "convergence")
-                .read_text(encoding="utf-8")
-                .strip()
-            )
+            rootcap = self.get_rootcap()
+            if rootcap:
+                settings["rootcap"] = diminish(rootcap)
+            else:
+                _safe_del(settings, "rootcap")
+            try:
+                settings["convergence"] = (
+                    Path(self.nodedir, "private", "convergence")
+                    .read_text(encoding="utf-8")
+                    .strip()
+                )
+            except FileNotFoundError:
+                _safe_del(settings, "convergence")
         else:
-            try:
-                del settings["rootcap"]
-            except KeyError:
-                pass
-            try:
-                del settings["convergence"]
-            except KeyError:
-                pass
+            _safe_del(settings, "rootcap")
+            _safe_del(settings, "convergence")
         return settings
 
     def export(self, dest: str, include_secrets: bool = False) -> None:
