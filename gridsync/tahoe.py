@@ -39,6 +39,23 @@ def is_valid_furl(furl: str) -> bool:
     return False
 
 
+def has_legacy_magic_folder(nodedir: Path) -> bool:
+    config = Config(str(nodedir / "tahoe.cfg")).load()
+    if "magic_folder" in config:
+        return True
+    return False
+
+
+def has_legacy_zkapauthorizer(nodedir: Path) -> bool:
+    config = Config(str(nodedir / "tahoe.cfg")).load()
+    if "storageclient.plugins.privatestorageio-zkapauthz-v1" in config:
+        return True
+    storage_plugins = config.get("client", {}).get("storage.plugins")
+    if storage_plugins and "privatestorageio-zkapauthz-v1" in storage_plugins:
+        return True
+    return False
+
+
 def get_nodedirs(basedir: str) -> list:
     nodedirs = []
     try:
