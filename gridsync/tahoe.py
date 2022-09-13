@@ -19,7 +19,11 @@ from gridsync import settings as global_settings
 from gridsync.capabilities import diminish
 from gridsync.config import Config
 from gridsync.crypto import trunchash
-from gridsync.errors import TahoeCommandError, TahoeWebError
+from gridsync.errors import (
+    TahoeCommandError,
+    TahoeWebError,
+    UpgradeRequiredError,
+)
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.msg import critical
@@ -491,7 +495,23 @@ class Tahoe:
         # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
+    def _verify_configuration(self) -> None:
+        nodedir = Path(self.nodedir)
+        if has_legacy_magic_folder(nodedir):
+            raise UpgradeRequiredError(
+                f'The Tahoe-LAFS node directory ("{str(nodedir.resolve())}") '
+                'is configured to use the Tahoe-LAFS "magic-folder" feature '
+                "but this feature was removed in Tahoe-LAFS version 1.15."
+            )
+        if has_legacy_zkapauthorizer(nodedir):
+            raise UpgradeRequiredError(
+                f'The Tahoe-LAFS node directory ("{str(nodedir.resolve())}") '
+                "is configured to use an older version of the ZKAPAuthorizer "
+                'plugin ("v1") that is incompatible with the current version.'
+            )
+
     async def start(self) -> None:
+        self._verify_configuration()
         log.debug('Starting "%s" tahoe client...', self.name)
         self.state = Tahoe.STARTING
         self.monitor.start()
