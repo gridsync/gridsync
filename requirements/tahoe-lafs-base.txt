@@ -411,14 +411,12 @@ pyrsistent==0.18.1 \
     # via
     #   eliot
     #   tahoe-lafs
-python-challenge-bypass-ristretto==2021.7.12 \
-    --hash=sha256:0f378a018d8e319b1f3d4e566ab08b944ccbabda9e3def4949d3eab0bed23f15 \
-    --hash=sha256:317bf6e8abfbc693a1ab01f53c1b342cb1983df1bd746284a332fc33aab6b0a7 \
-    --hash=sha256:491ce8336d815d189ded9ee356389e2a099304bfbeeefef5dd78521c2a508285 \
-    --hash=sha256:b5c26132a419f07b9725fffe55f1d341a699124ae4d789cdd797efb4db2d56ea
-    # via
-    #   -r requirements/tahoe-lafs.in
-    #   zero-knowledge-access-pass-authorizer
+python-challenge-bypass-ristretto==2022.6.30 \
+    --hash=sha256:1c28f4eb6fc00896f787df4910bf4b472a41fe230de6e0d9093996547d9c81ef \
+    --hash=sha256:2059e46a01f5ce8b890f4d694a862924c1df19e8a31a54325efc79bab1597ccf \
+    --hash=sha256:67a54ea3ab480b08bdc07ededaf41619f765b4da3d7e45913405c32311ab08fd \
+    --hash=sha256:88ce3693e14a7369fecc9e7dc023b2d07b66a4038d89514d2995c13934720827
+    # via zero-knowledge-access-pass-authorizer
 pyutil==3.3.0 \
     --hash=sha256:8c4d4bf668c559186389bb9bce99e4b1b871c09ba252a756ccaacd2b8f401848
     # via
