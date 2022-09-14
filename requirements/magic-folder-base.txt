@@ -266,9 +266,9 @@ klein==21.8.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-magic-folder==22.8.0 \
-    --hash=sha256:8605df7bd1d084fdf7dd5129e45874542e5699072dc62cee1f39199024f029f5 \
-    --hash=sha256:d5aa0f30d091762dc6388f7a13255eb2e87fdec993b650830cd609c47b961595
+magic-folder==22.9.0 \
+    --hash=sha256:b7da90dfecc32ce77d61cb24dbf8a8bd31d7284ba04ea5b069ea3775257f4a54 \
+    --hash=sha256:becc644e24a245bbb33b5fd7b6fb87decc70f4d7c42f3aaaa72e9a606f4356ad
     # via -r requirements/magic-folder.in
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
