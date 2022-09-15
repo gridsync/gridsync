@@ -48,6 +48,7 @@
   - Restoring from a Recovery Key will now always create a new (read-write) rootcap, copying the contents of the old/imported rootcap into it
   - *Note: This change -- along with PR #499 -- breaks compatibility with older Recovery Keys; users updating from an older version will need to re-create a Recovery Key*
 - Websocket messages from the Magic-Folder "status" API will no longer be captured by the Gridsync debug log (Issue #549; PR #552)
+- An error message will now be displayed when attempting to start Tahoe-LAFS with nodedir that contains incompatible/out-of-date configuration (PR #559)
 
 ### Fixed
 - Fixed an uncaught `AttributeError` in `filter.py` (Issue #393; PR #394)
