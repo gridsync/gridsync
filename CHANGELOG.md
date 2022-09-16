@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.0 - 2022-09-16
+- No functional changes since 0.6.0rc1
+
 ## 0.6.0rc1 - 2022-09-14
 ### Added
 - Added support for the new/standalone "[Magic-Folder](https://github.com/LeastAuthority/magic-folder)" application (Issue #290; PR #389)
