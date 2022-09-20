@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-astroid==2.12.9 \
-    --hash=sha256:0dafbfcf4ebdecd3c8f6d742c9d9c88508229ca823d5c98ab872d964f3321e56 \
-    --hash=sha256:27a22f40e45af6d362498647a0940e8ae9c35f71cb572a1b6f8f810122a11918
+astroid==2.12.10 \
+    --hash=sha256:81f870105d892e73bf535da77a8261aa5bde838fa4ed12bb2f435291a098c581 \
+    --hash=sha256:997e0c735df60d4a4caff27080a3afc51f9bdd693d3572a4a0b7090b645c36c5
     # via pylint
 black==22.8.0 \
     --hash=sha256:0a12e4e1353819af41df998b02c6742643cfef58282915f781d0e4dd7a200411 \
@@ -151,9 +151,9 @@ pyflakes==2.5.0 \
     --hash=sha256:4579f67d887f804e67edb544428f264b7b24f435b263c4614f384135cea553d2 \
     --hash=sha256:491feb020dca48ccc562a8c0cbe8df07ee13078df59813b83959cbdada312ea3
     # via flake8
-pylint==2.15.2 \
-    --hash=sha256:cc3da458ba810c49d330e09013dec7ced5217772dec8f043ccdd34dae648fde8 \
-    --hash=sha256:f63404a2547edb5247da263748771ac9a806ed1de4174cda01293c08ddbc2999
+pylint==2.15.3 \
+    --hash=sha256:5fdfd44af182866999e6123139d265334267339f29961f00c89783155eacc60b \
+    --hash=sha256:7f6aad1d8d50807f7bc64f89ac75256a9baf8e6ed491cc9bc65592bc3f462cf1
     # via -r requirements/lint.in
 pyqt5-stubs==5.15.6.0 \
     --hash=sha256:7fb8177c72489a8911f021b7bd7c33f12c87f6dba92dcef3fdcdb5d9400f0f3f \
@@ -314,9 +314,9 @@ zope-interface==5.4.0 \
     # via
     #   mypy-zope
     #   zope-schema
-zope-schema==6.2.0 \
-    --hash=sha256:03150d8670549590b45109e06b7b964f4e751fa9cb5297ec4985c3bc38641b07 \
-    --hash=sha256:2201aef8ad75ee5a881284d7a6acd384661d6dca7bde5e80a22839a77124595b
+zope-schema==6.2.1 \
+    --hash=sha256:843c6fce13886333f707246f135a832f4408555ca9650f07ed6e4d429302f349 \
+    --hash=sha256:e3b33c8bc8ba9d85a56713ab8f0a3c2615d54a8085f1e415ce0c8dfb5e540be6
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
