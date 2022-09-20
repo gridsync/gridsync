@@ -2,7 +2,7 @@ import collections
 import logging
 import sys
 from datetime import datetime, timezone
-from typing import Optional, Union
+from typing import Optional
 
 from twisted.python.log import PythonLoggingObserver, startLogging
 
