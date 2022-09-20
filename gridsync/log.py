@@ -2,9 +2,13 @@ import collections
 import logging
 import sys
 from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Optional
 
 from twisted.python.log import PythonLoggingObserver, startLogging
+
+from gridsync import APP_NAME, config_dir
 
 
 class LogFormatter(logging.Formatter):
@@ -35,6 +39,14 @@ def initialize_logger(
     deque_handler = DequeHandler(log_deque)
     deque_handler.setFormatter(formatter)
     logger.addHandler(deque_handler)
+
+    log_path = Path(config_dir, "logs", f"{APP_NAME}.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    file_handler = RotatingFileHandler(
+        log_path, maxBytes=10_000_000, backupCount=10
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
     if to_stdout:
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
