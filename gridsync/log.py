@@ -32,8 +32,10 @@ def make_file_logger(
     max_bytes: int = 10_000_000,
     backup_count: int = 10,
     fmt: Optional[str] = "%(asctime)s %(levelname)s %(funcName)s %(message)s",
-):
+) -> logging.Logger:
     logger = logging.getLogger(name)
+    print(logger)
+    print(type(logger))
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
 
