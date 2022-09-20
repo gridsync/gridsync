@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
+from gridsync.log import make_file_logger
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
@@ -503,9 +504,16 @@ class MagicFolder:
             pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
         )
 
-    @staticmethod
-    def on_stdout_line_received(line: str) -> None:
-        logging.debug("[magic-folder:stdout] %s", line)
+        logger_basename = f"{gateway.name}.Magic-Folder"
+        self.stdout_logger = make_file_logger(f"{logger_basename}.stdout")
+        self.stderr_logger = make_file_logger(f"{logger_basename}.stderr")
+        self.eliot_logger = make_file_logger(
+            f"{logger_basename}.eliot", fmt=None
+        )
+
+    def on_stdout_line_received(self, line: str) -> None:
+        # logging.debug("[magic-folder:stdout] %s", line)
+        self.stdout_logger.debug(line)
 
     @staticmethod
     def _is_eliot_log_message(s: str) -> bool:
@@ -523,9 +531,11 @@ class MagicFolder:
 
     def on_stderr_line_received(self, line: str) -> None:
         if self._is_eliot_log_message(line):
-            self._log_buffer.append(line.encode("utf-8"))
+            # self._log_buffer.append(line.encode("utf-8"))
+            self.eliot_logger.debug(line)
         else:
-            logging.error("[magic-folder:stderr] %s", line)
+            # logging.error("[magic-folder:stderr] %s", line)
+            self.stderr_logger.debug(line)
 
     def get_log_messages(self) -> list:
         return list(msg.decode("utf-8") for msg in list(self._log_buffer))
