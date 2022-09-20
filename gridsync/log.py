@@ -29,14 +29,16 @@ def initialize_logger(
     deque_handler = DequeHandler(log_deque)
     observer = PythonLoggingObserver()
     observer.start()
-    fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
-    deque_handler.setFormatter(LogFormatter(fmt=fmt))
+    formatter = LogFormatter(
+        fmt="%(asctime)s %(levelname)s %(funcName)s %(message)s"
+    )
+    deque_handler.setFormatter(formatter)
     logger = logging.getLogger()
     logger.addHandler(deque_handler)
     if to_stdout:
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         startLogging(sys.stdout)
-        stdout_handler.setFormatter(LogFormatter(fmt=fmt))
+        stdout_handler.setFormatter(formatter)
         logger.addHandler(stdout_handler)
     logger.setLevel(logging.DEBUG)
     logging.debug("Hello World!")
