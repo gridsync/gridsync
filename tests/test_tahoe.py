@@ -20,6 +20,8 @@ from gridsync.errors import TahoeCommandError, TahoeError, TahoeWebError
 from gridsync.tahoe import (
     Tahoe,
     get_nodedirs,
+    has_legacy_magic_folder,
+    has_legacy_zkapauthorizer,
     is_valid_furl,
     storage_options_to_config,
 )
@@ -84,6 +86,50 @@ def test_is_valid_furl_invalid_char_in_connection_hint():
 
 def test_is_valid_furl_tub_id_not_base32():
     assert not is_valid_furl("pb://abc123@example.org:12345/introducer")
+
+
+@pytest.mark.parametrize(
+    "contents, result",
+    [
+        ("[magic_folder]\nenabled = True", True),
+        ("[magic_folder]\nenabled = False", True),
+        ("[NOT_magic_folder]\nenabled = True", False),
+        ("", False),
+    ],
+)
+def test_has_legacy_magic_folder(tmp_path, contents, result):
+    tahoe_cfg = tmp_path / "tahoe.cfg"
+    tahoe_cfg.write_text(contents)
+    assert has_legacy_magic_folder(tmp_path) == result
+
+
+@pytest.mark.parametrize(
+    "contents, result",
+    [
+        (
+            "[client]\nstorage.plugins = privatestorageio-zkapauthz-v1\n",
+            True,
+        ),
+        (
+            "[client]\nstorage.plugins = privatestorageio-zkapauthz-v2\n",
+            False,
+        ),
+        (
+            "[storageclient.plugins.privatestorageio-zkapauthz-v1]\n"
+            "redeemer = ristretto",
+            True,
+        ),
+        (
+            "[storageclient.plugins.privatestorageio-zkapauthz-v2]\n"
+            "redeemer = ristretto",
+            False,
+        ),
+    ],
+)
+def test_has_legacy_zkapauthorizer(tmp_path, contents, result):
+    tahoe_cfg = tmp_path / "tahoe.cfg"
+    tahoe_cfg.write_text(contents)
+    assert has_legacy_zkapauthorizer(tmp_path) == result
 
 
 def test_get_nodedirs(tahoe, tmpdir_factory):
@@ -168,12 +214,34 @@ def test_get_settings(tahoe):
     assert (nickname, icon_url) == (tahoe.name, "test_url")
 
 
+def test_get_settings_includes_diminished_rootcap(tahoe):
+    tahoe.rootcap_manager.set_rootcap(
+        "URI:DIR2:x6ciqn3dbnkslpvazwz6z7ic2q:"
+        "slkf7invl5apcabpyztxazkcufmptsclx7m3rn6hhiyuiz2hvu6a",
+        overwrite=True,
+    )
+    settings = tahoe.get_settings(include_secrets=True)
+    assert settings["rootcap"].startswith("URI:DIR2-RO:")
+
+
+def test_get_settings_omits_rootcap_if_empty(tahoe):
+    tahoe.rootcap_manager.set_rootcap("", overwrite=True)
+    settings = tahoe.get_settings(include_secrets=True)
+    assert "rootcap" not in settings
+
+
 def test_get_settings_includes_convergence_secret(tahoe):
     secret = randstr()
     Path(tahoe.nodedir, "private", "convergence").write_text(secret)
     assert (
         tahoe.get_settings(include_secrets=True).get("convergence") == secret
     )
+
+
+def test_get_settings_omits_convergence_secret_if_file_not_found(tahoe):
+    Path(tahoe.nodedir, "private", "convergence").unlink(missing_ok=True)
+    settings = tahoe.get_settings(include_secrets=True)
+    assert "convergence" not in settings
 
 
 def test_get_settings_exclude_convergence_secret_by_default(tahoe):

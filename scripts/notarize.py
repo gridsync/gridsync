@@ -1,23 +1,18 @@
 #!/usr/bin/env python3
-
+# This script assumes/requires credentials stored in a keychain profile.
+# To store credentials in a keychain profile programmatically:
+# xcrun notarytool store-credentials <PROFILE-NAME> [--apple-id <APPLE-ID>] [--team-id <TEAM-ID>] [--password <APP-SPECIFIC-PASSWORD>]
+# Sources/references:
+# https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+# https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
 import hashlib
+import json
 import os
 import sys
 from configparser import RawConfigParser
 from pathlib import Path
-from subprocess import run, CalledProcessError, SubprocessError
-from time import sleep
-from typing import Optional
-
-altool = "/Applications/Xcode.app/Contents/Developer/usr/bin/altool"
-stapler = "/Applications/Xcode.app/Contents/Developer/usr/bin/stapler"
-
-# https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-# https://stackoverflow.com/questions/56890749/macos-notarize-in-script/56890758#56890758
-# https://github.com/metabrainz/picard/blob/master/scripts/package/macos-notarize-app.sh
-
-# security unlock-keychain login.keychain
-# altool --store-password-in-keychain-item gridsync-notarization -u $APPLE_ID -p $APP_SPECIFIC_PASSWORD
+from secrets import compare_digest
+from subprocess import SubprocessError, run
 
 
 def sha256sum(filepath):
@@ -29,148 +24,106 @@ def sha256sum(filepath):
 
 
 def make_zipfile(src_path: str, dst_path: str) -> None:
-    run(["ditto", "-c", "-k", "--keepParent", src_path, dst_path])
+    run(["ditto", "-c", "-k", "--keepParent", src_path, dst_path], check=True)
 
 
-def notarize_app(
-    path: str, bundle_id: str, username: str, password: str
-) -> str:
-    completed_process = run(
+def staple(filepath: str) -> None:
+    run(["xcrun", "stapler", "staple", filepath], check=True)
+
+
+def notarytool(
+    subcommand: str, argument: str, keychain_profile: str
+) -> dict[str, str]:
+    proc = run(
         [
-            altool,
-            "--notarize-app",
-            f"--file={path}",
-            f"--primary-bundle-id={bundle_id}",
-            f"--username={username}",
-            f"--password={password}",
+            "xcrun",
+            "notarytool",
+            subcommand,
+            f"--keychain-profile={keychain_profile}",
+            "--output-format=json",
+            argument,
         ],
         capture_output=True,
+        check=False,
         text=True,
     )
-    stdout = completed_process.stdout.strip()
-    stderr = completed_process.stderr.strip()
-    if completed_process.returncode or stderr:
-        s = "The software asset has already been uploaded. The upload ID is "
-        if s in stderr:
-            print(f"{path} has already been uploaded")
-            start = stderr.index(s) + len(s)
-            uuid = stderr[start : start + 36]
-            return uuid
-        raise SubprocessError(stderr)
-    if stdout.startswith("No errors uploading"):
-        uuid = stdout.split()[-1]
-        return uuid
+    if proc.returncode:
+        raise SubprocessError(proc.stderr.strip())
+    return json.loads(proc.stdout.strip())
 
 
-def notarization_info(uuid: str, username: str, password: str) -> dict:
-    completed_process = run(
-        [
-            altool,
-            "--notarization-info",
-            uuid,
-            f"--username={username}",
-            f"--password={password}",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    stdout = completed_process.stdout.strip()
-    stderr = completed_process.stderr.strip()
-    if completed_process.returncode or stderr:
-        raise SubprocessError(stderr)
-    results = {}
-    for line in stdout.split("\n"):
-        if line:
-            split = line.split(":")
-            key = split[0].strip()
-            value = ":".join(split[1:]).strip()
-            if key and value:
-                results[key] = value
-    return results
+def submit(filepath: str, keychain_profile: str) -> str:  # submission-id
+    result = notarytool("submit", filepath, keychain_profile)
+    return result["id"]
 
 
-def staple(path: str) -> None:
-    p = run([stapler, "staple", path])
-    if p.returncode:
-        raise SubprocessError(f"Error stapling {path}")
+def wait(submission_id: str, keychain_profile: str) -> str:  # status
+    result = notarytool("wait", submission_id, keychain_profile)
+    return result["status"]
 
 
-def notarize(
-    path: str,
-    bundle_id: str,
-    username: str,
-    password: str,
-    sha256_hash: Optional[str] = None,
-) -> str:
-    if sha256_hash:
-        print(f"Uploading {path} ({sha256_hash}) for notarization...")
+def log(submission_id: str, keychain_profile: str) -> dict[str, str]:
+    result = notarytool("log", submission_id, keychain_profile)
+    return result
+
+
+def notarize(filepath: str, keychain_profile: str) -> None:
+    if not path.lower().endswith(".dmg") and not path.lower().endswith(".zip"):
+        print("Creating ZIP archive...")
+        submission_path = filepath + ".zip"
+        make_zipfile(filepath, submission_path)
     else:
-        print(f"Uploading {path} for notarization...")
-    uuid = notarize_app(path, bundle_id, username, password)
-    print(f"UUID is {uuid}")
-    hash_verified = False
-    notarized = False
-    print("Awaiting response...")
-    while not notarized:
-        results = notarization_info(uuid, username, password)
-        print(results)
-        status = results["Status"]
-        if sha256_hash and not hash_verified:
-            remote_hash = results.get("Hash")
-            if remote_hash:
-                if remote_hash == sha256_hash:
-                    hash_verified = True
-                    print("Hashes match.")
-                else:
-                    raise Exception(
-                        f"Hash mismatch! The local SHA256 hash ({sha256_hash})"
-                        f" does not match the remote file ({remote_hash})"
-                    )
-        if status == "success":
-            notarized = True
-        elif status == "invalid":
-            sys.exit(results["Status Message"])
-        else:
-            sleep(20)
+        submission_path = filepath
+    submission_hash = sha256sum(submission_path)
+    print(f"Uploading {submission_path} (SHA-256: {submission_hash})...")
+    submission_id = submit(submission_path, keychain_profile)
+    print(f"Waiting for result (Submission ID: {submission_id})...")
+    status = wait(submission_id, keychain_profile)
+    result = log(submission_id, keychain_profile)
+    print(json.dumps(result, sort_keys=True, indent=2))
+    if status != "Accepted":
+        raise Exception(f'ERROR: Notarization failed (status: "{status}")')
+    notarized_hash = result["sha256"]
+    if not compare_digest(submission_hash, notarized_hash):
+        raise ValueError(
+            "ERROR: SHA-256 hash digest mismatch\n"
+            f"Submitted: {submission_hash}\n"
+            f"Notarized: {notarized_hash}"
+        )
+    staple(filepath)
+    print("Success!")
+
+
+def _get_application_name() -> str:
+    config = RawConfigParser()
+    config.read(Path("gridsync", "resources", "config.txt"))
+    return config.get("application", "name")
 
 
 if __name__ == "__main__":
-    config = RawConfigParser(allow_no_value=True)
-    config.read(Path("gridsync", "resources", "config.txt"))
-    settings = {}
-    for section in config.sections():
-        if section not in settings:
-            settings[section] = {}
-        for option, value in config.items(section):
-            settings[section][option] = value
-    application_name = settings["application"]["name"]
-    bundle_id = settings["build"]["mac_bundle_identifier"]
-
-    username = os.environ.get("NOTARIZATION_USERNAME")  # Apple ID
-    password = os.environ.get(
-        "NOTARIZATION_PASSWORD", "@keychain:gridsync-notarization"
-    )
-
-    option = sys.argv[1]
-    if option == "app":
-        notarize_path = f"dist/{application_name}.zip"
-        staple_path = f"dist/{application_name}.app"
-        print("Creating ZIP archive...")
-        make_zipfile(staple_path, notarize_path)
-    elif option == "dmg":
-        notarize_path = f"dist/{application_name}.dmg"
-        staple_path = f"dist/{application_name}.dmg"
-
-    sha256_hash = sha256sum(notarize_path)
     try:
-        notarize(notarize_path, bundle_id, username, password, sha256_hash)
-    except SubprocessError as err:
-        sys.exit(str(err))
+        path = sys.argv[1]
+    except IndexError:
+        path = os.environ.get("NOTARIZATION_PATH", "")
+        if not path:
+            sys.exit(f"Usage {sys.argv[0]} <filepath | app | dmg>")
+    application_name = ""
+    if path in ("app", "dmg"):
+        try:
+            application_name = _get_application_name()
+        except Exception:
+            sys.exit("Error: Could not load application name from config.txt")
+        path = f"dist/{application_name}.{path}"
+    if not Path(path).exists():
+        sys.exit(f"Error: Path {path} does not exist")
+    profile = os.environ.get("NOTARIZATION_PROFILE", application_name)
+    if not profile:
+        sys.exit(
+            "Error: Keychain profile not found; please set the "
+            "NOTARIZATION_PROFILE environment variable to the desired "
+            "keychain profile name and try again."
+        )
     try:
-        staple(staple_path)
-    except SubprocessError as err:
-        sys.exit(str(err))
-    print("Success!")
-    if option == "dmg":
-        sha256_hash = sha256sum(staple_path)
-        print(f"{sha256_hash}  {staple_path}")
+        notarize(path, profile)
+    except Exception as e:
+        sys.exit(str(e))

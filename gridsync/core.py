@@ -71,6 +71,7 @@ from gridsync import (
     settings,
 )
 from gridsync.desktop import autostart_enable
+from gridsync.errors import UpgradeRequiredError
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
 from gridsync.magic_folder import MagicFolder
@@ -156,6 +157,15 @@ class Core:
     def _start_gateway(gateway: Tahoe) -> TwistedDeferred[None]:
         try:
             yield Deferred.fromCoroutine(gateway.start())
+        except UpgradeRequiredError as error:
+            msg.critical(
+                "Invalid configuration detected",
+                f"{str(error)}\n\nIn order to continue, you will need to "
+                f"either use an older version of {APP_NAME} that is "
+                "compatible with your current configuration (not recommended),"
+                " or move the existing configuration directory (located at "
+                f'"{config_dir}") to a different location and try again.',
+            )
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
                 f"Error starting Tahoe-LAFS gateway for {gateway.name}",

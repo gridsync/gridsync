@@ -19,7 +19,11 @@ from gridsync import settings as global_settings
 from gridsync.capabilities import diminish
 from gridsync.config import Config
 from gridsync.crypto import trunchash
-from gridsync.errors import TahoeCommandError, TahoeWebError
+from gridsync.errors import (
+    TahoeCommandError,
+    TahoeWebError,
+    UpgradeRequiredError,
+)
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.msg import critical
@@ -35,6 +39,23 @@ from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 def is_valid_furl(furl: str) -> bool:
     if re.match(r"^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$", furl):
+        return True
+    return False
+
+
+def has_legacy_magic_folder(nodedir: Path) -> bool:
+    config = Config(str(nodedir / "tahoe.cfg")).load()
+    if "magic_folder" in config:
+        return True
+    return False
+
+
+def has_legacy_zkapauthorizer(nodedir: Path) -> bool:
+    config = Config(str(nodedir / "tahoe.cfg")).load()
+    if "storageclient.plugins.privatestorageio-zkapauthz-v1" in config:
+        return True
+    storage_plugins = config.get("client", {}).get("storage.plugins")
+    if storage_plugins and "privatestorageio-zkapauthz-v1" in storage_plugins:
         return True
     return False
 
@@ -218,22 +239,30 @@ class Tahoe:
         if not self.settings:
             self.load_settings()
         settings = dict(self.settings)
+
+        def _safe_del(dictionary: dict, key: str) -> None:
+            try:
+                del dictionary[key]
+            except KeyError:
+                pass
+
         if include_secrets:
-            settings["rootcap"] = diminish(self.get_rootcap())
-            settings["convergence"] = (
-                Path(self.nodedir, "private", "convergence")
-                .read_text(encoding="utf-8")
-                .strip()
-            )
+            rootcap = self.get_rootcap()
+            if rootcap:
+                settings["rootcap"] = diminish(rootcap)
+            else:
+                _safe_del(settings, "rootcap")
+            try:
+                settings["convergence"] = (
+                    Path(self.nodedir, "private", "convergence")
+                    .read_text(encoding="utf-8")
+                    .strip()
+                )
+            except FileNotFoundError:
+                _safe_del(settings, "convergence")
         else:
-            try:
-                del settings["rootcap"]
-            except KeyError:
-                pass
-            try:
-                del settings["convergence"]
-            except KeyError:
-                pass
+            _safe_del(settings, "rootcap")
+            _safe_del(settings, "convergence")
         return settings
 
     def export(self, dest: str, include_secrets: bool = False) -> None:
@@ -466,7 +495,23 @@ class Tahoe:
         # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
+    def _verify_configuration(self) -> None:
+        nodedir = Path(self.nodedir)
+        if has_legacy_magic_folder(nodedir):
+            raise UpgradeRequiredError(
+                f'The Tahoe-LAFS node directory ("{str(nodedir.resolve())}") '
+                'is configured to use the Tahoe-LAFS "magic-folder" feature '
+                "but this feature was removed in Tahoe-LAFS version 1.15."
+            )
+        if has_legacy_zkapauthorizer(nodedir):
+            raise UpgradeRequiredError(
+                f'The Tahoe-LAFS node directory ("{str(nodedir.resolve())}") '
+                "is configured to use an older version of the ZKAPAuthorizer "
+                'plugin ("v1") that is incompatible with the current version.'
+            )
+
     async def start(self) -> None:
+        self._verify_configuration()
         log.debug('Starting "%s" tahoe client...', self.name)
         self.state = Tahoe.STARTING
         self.monitor.start()
