@@ -35,6 +35,7 @@ def make_file_logger(
 ):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
+    logger.propagate = False
 
     logs_path = Path(config_dir, "logs")
     logs_path.mkdir(mode=0o700, parents=True, exist_ok=True)
