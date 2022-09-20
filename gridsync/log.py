@@ -41,7 +41,7 @@ def initialize_logger(
     logger.addHandler(deque_handler)
 
     log_path = Path(config_dir, "logs", f"{APP_NAME}.log")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     file_handler = RotatingFileHandler(
         log_path, maxBytes=10_000_000, backupCount=10
     )
