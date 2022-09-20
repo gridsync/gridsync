@@ -76,3 +76,35 @@ And then commit the changes to ``flake.nix`` and ``flake.lock``.
 Each other input (see ``nix flake metadata``) can be updated similarly.
 
 One constraint to be aware of is that ``mach-nix`` generally will not run if the pinned ``pypi-deps-db`` input is older than the pinned ``nixpkgs`` input.
+
+
+Vagrant
+-------
+
+There is a Vagrantfile in this repository which can be used to start some virtual machines for testing.
+
+
+Windows 11
+..........
+
+To get a Windows-11 machine working on Debian "bullseye".
+`sudo` is not specified below, but install commands need root.
+
+- `apt install vagrant`
+- install VirtualBox from Oracle (**not Debian**):
+  - https://www.virtualbox.org/wiki/Downloads
+  - Follow the instructions under "Linux distributions"
+  - ultimately, `apt install virtualbox-6.1`
+  - make sure to follow the instructions about groups and log out/in.
+
+Upon a `vagrant up windows-11` in the root directory, I got a long Ruby traceback.
+- `vagrant plugin install winrm`
+- `vagrant plugin install winrm-elevated`
+
+A `vagrant up window-11` now works from the home directory.
+
+Note that these VM images are huge (20+ GiB) and by default use space in your home directory (twice).
+To instuct Vagrant to use a different place, `export VAGRANT_HOME=/windows`
+To instruct virtualbox to put the machine images elsewhere:
+- `vboxmanage setproperty machinefolder /windows/virtualbox-vms`
+(The latter can also be set to "default" which means to use `~/VirtualBox VMs`).
