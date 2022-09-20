@@ -26,17 +26,17 @@ class LogFormatter(logging.Formatter):
 def initialize_logger(
     log_deque: collections.deque, to_stdout: bool = False
 ) -> None:
-    handler: Union[logging.StreamHandler, DequeHandler]
-    if to_stdout:
-        handler = logging.StreamHandler(stream=sys.stdout)
-        startLogging(sys.stdout)
-    else:
-        handler = DequeHandler(log_deque)
-        observer = PythonLoggingObserver()
-        observer.start()
+    deque_handler = DequeHandler(log_deque)
+    observer = PythonLoggingObserver()
+    observer.start()
     fmt = "%(asctime)s %(levelname)s %(funcName)s %(message)s"
-    handler.setFormatter(LogFormatter(fmt=fmt))
+    deque_handler.setFormatter(LogFormatter(fmt=fmt))
     logger = logging.getLogger()
-    logger.addHandler(handler)
+    logger.addHandler(deque_handler)
+    if to_stdout:
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        startLogging(sys.stdout)
+        stdout_handler.setFormatter(LogFormatter(fmt=fmt))
+        logger.addHandler(stdout_handler)
     logger.setLevel(logging.DEBUG)
     logging.debug("Hello World!")
