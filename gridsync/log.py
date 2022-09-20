@@ -27,11 +27,36 @@ class DequeHandler(logging.Handler):
         self.deque.append(self.format(record))
 
 
+def make_file_logger(
+    name: Optional[str] = None,
+    max_bytes: int = 10_000_000,
+    backup_count: int = 10,
+    fmt: Optional[str] = "%(asctime)s %(levelname)s %(funcName)s %(message)s",
+):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    logs_path = Path(config_dir, "logs")
+    logs_path.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+    if not name:
+        name = APP_NAME
+
+    handler = RotatingFileHandler(
+        Path(logs_path, f"{name}.log"),
+        maxBytes=max_bytes,
+        backupCount=backup_count,
+    )
+    if fmt:
+        handler.setFormatter(LogFormatter(fmt=fmt))
+    logger.addHandler(handler)
+    return logger
+
+
 def initialize_logger(
     log_deque: collections.deque, to_stdout: bool = False
 ) -> None:
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger = make_file_logger()
     formatter = LogFormatter(
         fmt="%(asctime)s %(levelname)s %(funcName)s %(message)s"
     )
@@ -39,14 +64,6 @@ def initialize_logger(
     deque_handler = DequeHandler(log_deque)
     deque_handler.setFormatter(formatter)
     logger.addHandler(deque_handler)
-
-    log_path = Path(config_dir, "logs", f"{APP_NAME}.log")
-    log_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    file_handler = RotatingFileHandler(
-        log_path, maxBytes=10_000_000, backupCount=10
-    )
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
 
     if to_stdout:
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
