@@ -369,6 +369,7 @@ class Tahoe:
     def line_received(self, line: str) -> None:
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
+        self.stdout_logger.debug(line)
 
     async def command(self, args: list[str]) -> str:
         if not self.executable:
