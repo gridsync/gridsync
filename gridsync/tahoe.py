@@ -24,6 +24,7 @@ from gridsync.errors import (
     TahoeWebError,
     UpgradeRequiredError,
 )
+from gridsync.log import make_file_logger
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.msg import critical
@@ -150,6 +151,13 @@ class Tahoe:
             return ready
 
         self._ready_poller = Poller(reactor, poll, 0.2)
+
+        logger_basename = f"{self.name}.Tahoe-LAFS"
+        self.stdout_logger = make_file_logger(f"{logger_basename}.stdout")
+        self.stderr_logger = make_file_logger(f"{logger_basename}.stderr")
+        self.eliot_logger = make_file_logger(
+            f"{logger_basename}.eliot", fmt=None
+        )
 
     def load_newscap(self) -> None:
         news_settings = global_settings.get("news:{}".format(self.name))
