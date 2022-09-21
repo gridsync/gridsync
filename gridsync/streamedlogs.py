@@ -7,7 +7,7 @@ node.
 
 import logging
 from collections import deque
-from typing import Optional
+from typing import Callable, Optional
 
 from autobahn.twisted.websocket import (
     WebSocketClientFactory,
@@ -44,7 +44,10 @@ class StreamedLogs(MultiService):
     _started = False
 
     def __init__(
-        self, reactor: IReactorTime, maxlen: Optional[int] = None
+        self,
+        reactor: IReactorTime,
+        maxlen: Optional[int] = None,
+        message_collector: Optional[Callable] = None,
     ) -> None:
         super().__init__()
         self._reactor = reactor
@@ -55,9 +58,12 @@ class StreamedLogs(MultiService):
             # 500 MiB.
             maxlen = 2000000
         self._buffer: deque = deque(maxlen=maxlen)
+        self._message_collector = message_collector
 
     def add_message(self, message: bytes) -> None:
         self._buffer.append(message)
+        if self._message_collector:
+            self._message_collector(message)
 
     def start(self, nodeurl: str, api_token: str) -> None:
         """

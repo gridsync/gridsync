@@ -124,7 +124,6 @@ class Tahoe:
             log_maxlen = debug_settings.get("log_maxlen")
             if log_maxlen is not None:
                 logs_maxlen = int(log_maxlen)
-        self.streamedlogs = StreamedLogs(reactor, logs_maxlen)
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
@@ -157,6 +156,9 @@ class Tahoe:
         self.stderr_logger = make_file_logger(f"{logger_basename}.stderr")
         self.eliot_logger = make_file_logger(
             f"{logger_basename}.eliot", fmt=None
+        )
+        self.streamedlogs = StreamedLogs(
+            reactor, logs_maxlen, self.eliot_logger.debug
         )
 
     def load_newscap(self) -> None:
