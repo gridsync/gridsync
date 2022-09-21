@@ -63,7 +63,7 @@ class StreamedLogs(MultiService):
     def add_message(self, message: bytes) -> None:
         self._buffer.append(message)
         if self._message_collector:
-            self._message_collector(message)
+            self._message_collector(message.decode("utf-8"))
 
     def start(self, nodeurl: str, api_token: str) -> None:
         """
