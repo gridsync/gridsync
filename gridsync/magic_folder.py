@@ -532,7 +532,8 @@ class MagicFolder:
             self.logger.log("stderr", line)
 
     def get_log_messages(self) -> list:
-        return list(msg.decode("utf-8") for msg in list(self._log_buffer))
+        # return list(msg.decode("utf-8") for msg in list(self._log_buffer))
+        return self.logger.read_messages("eliot")
 
     def _base_command_args(self) -> list[str]:
         if not self.executable:
