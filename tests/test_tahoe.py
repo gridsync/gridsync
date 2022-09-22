@@ -909,7 +909,7 @@ async def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
 
 
 @ensureDeferred
-async def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
+async def test_tahoe_starts_websocketreaderservice(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
@@ -926,13 +926,13 @@ async def test_tahoe_starts_streamedlogs(monkeypatch, tahoe_factory):
     tahoe.config_set("client", "shares.total", "10")
     await tahoe.start()
     tahoe._on_started()  # XXX
-    assert tahoe.streamedlogs.running
+    assert tahoe._ws_reader.running
     (host, port, _, _, _) = reactor.tcpClients.pop(0)
     assert (host, port) == ("example.invalid", 12345)
 
 
 @ensureDeferred
-async def test_tahoe_stops_streamedlogs(monkeypatch, tahoe_factory):
+async def test_tahoe_stops_websocketreaderservice(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
