@@ -464,6 +464,9 @@ class Tahoe:
         """
         return self.streamedlogs.get_streamed_log_messages()
 
+    def get_log_messages(self) -> list[str]:
+        return self.logger.read_messages("eliot")
+
     def _on_started(self) -> None:
         self.load_settings()
 
