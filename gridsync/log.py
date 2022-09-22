@@ -82,10 +82,12 @@ class MultiFileLogger:
         self.basename = basename
         self._loggers: dict[str, logging.Logger] = {}
 
-    def log(self, logger_name: str, message: str) -> None:
+    def log(
+        self, logger_name: str, message: str, fmt: Optional[str] = None
+    ) -> None:
         name = f"{self.basename}.{logger_name}"
         logger = self._loggers.get(name)
         if not logger:
-            logger = make_file_logger(name)
+            logger = make_file_logger(name, fmt=fmt)
             self._loggers[name] = logger
         logger.debug(message)
