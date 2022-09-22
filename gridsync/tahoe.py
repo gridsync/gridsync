@@ -165,7 +165,7 @@ class Tahoe:
         self.logger.log("stderr", message)
 
     def _log_eliot_message(self, message: str) -> None:
-        self.logger.log("eliot", message)
+        self.logger.log("eliot", message, omit_fmt=True)
 
     def load_newscap(self) -> None:
         news_settings = global_settings.get("news:{}".format(self.name))
