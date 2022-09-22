@@ -34,6 +34,7 @@ from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
 from gridsync.util import Poller
+from gridsync.websocket import WebSocketReaderService
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
@@ -160,6 +161,7 @@ class Tahoe:
         self.streamedlogs = StreamedLogs(
             reactor, logs_maxlen, self.eliot_logger.debug
         )
+        self._ws_reader: Optional[WebSocketReaderService] = None
 
     def load_newscap(self) -> None:
         news_settings = global_settings.get("news:{}".format(self.name))
@@ -430,6 +432,9 @@ class Tahoe:
     async def stop(self) -> None:
         log.debug('Stopping "%s" tahoe client...', self.name)
         self.state = Tahoe.STOPPING
+        if self._ws_reader:
+            self._ws_reader.stop()
+            self._ws_reader = None
         self.streamedlogs.stop()
         if self.rootcap_manager.lock.locked:
             log.warning(
@@ -477,7 +482,14 @@ class Tahoe:
             ).strip()
 
         self.streamedlogs.stop()
-        self.streamedlogs.start(self.nodeurl, self.api_token)
+        # self.streamedlogs.start(self.nodeurl, self.api_token)
+
+        self._ws_reader = WebSocketReaderService(
+            self.nodeurl.replace("http://", "ws://") + "/private/logs/v1",
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
+            collector=self.eliot_logger.debug,
+        )
+        self._ws_reader.start()
 
         self.state = Tahoe.STARTED
 
