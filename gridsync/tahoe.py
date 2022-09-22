@@ -488,6 +488,7 @@ class Tahoe:
             self.nodeurl.replace("http://", "ws://") + "/private/logs/v1",
             headers={"Authorization": f"tahoe-lafs {self.api_token}"},
             collector=self.eliot_logger.debug,
+            reactor=self._reactor,
         )
         self._ws_reader.start()
 
