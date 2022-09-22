@@ -8,8 +8,8 @@ from autobahn.twisted.websocket import (
 )
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
-from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.interfaces import IReactorTime
 
 
 class WebSocketReaderProtocol(
@@ -39,8 +39,15 @@ class WebSocketReaderService(MultiService):
         url: str,
         headers: Optional[dict],
         collector: Optional[Callable] = logging.debug,
+        reactor: Optional[IReactorTime] = None,
     ) -> None:
         super().__init__()
+        if reactor is None:
+            from twisted.internet import reactor as imported_reactor
+
+            self._reactor = imported_reactor
+        else:
+            self._reactor = reactor
         self.url = url
         self.headers = headers
         self.collector = collector
@@ -49,11 +56,13 @@ class WebSocketReaderService(MultiService):
 
     def _create_client_service(self) -> ClientService:
         parsed = urlparse(self.url)
-        endpoint = TCP4ClientEndpoint(reactor, parsed.hostname, parsed.port)
+        endpoint = TCP4ClientEndpoint(
+            self._reactor, parsed.hostname, parsed.port
+        )
         factory = WebSocketClientFactory(self.url, headers=self.headers)
         factory.protocol = WebSocketReaderProtocol
         factory.collector = self.collector
-        client_service = ClientService(endpoint, factory, clock=reactor)
+        client_service = ClientService(endpoint, factory, clock=self._reactor)
         return client_service
 
     def stop(self) -> None:
