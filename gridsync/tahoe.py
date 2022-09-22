@@ -24,7 +24,7 @@ from gridsync.errors import (
     TahoeWebError,
     UpgradeRequiredError,
 )
-from gridsync.log import make_file_logger
+from gridsync.log import MultiFileLogger, make_file_logger
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.msg import critical
@@ -152,34 +152,20 @@ class Tahoe:
 
         self._ready_poller = Poller(reactor, poll, 0.2)
 
-        self._stdout_logger: Optional[log.Logger] = None
-        self._stderr_logger: Optional[log.Logger] = None
-        self._eliot_logger: Optional[log.Logger] = None
+        self.logger = MultiFileLogger(f"{self.name}.Tahoe-LAFS")
         self.streamedlogs = StreamedLogs(
             reactor, logs_maxlen, self._log_eliot_message
         )
         self._ws_reader: Optional[WebSocketReaderService] = None
 
     def _log_stdout_message(self, message: str) -> None:
-        if self._stdout_logger is None:
-            self._stdout_logger = make_file_logger(
-                f"{self.name}.Tahoe-LAFS.stdout"
-            )
-        self._stdout_logger.debug(message)
+        self.logger.log("stdout", message)
 
     def _log_stderr_message(self, message: str) -> None:
-        if self._stderr_logger is None:
-            self._stderr_logger = make_file_logger(
-                f"{self.name}.Tahoe-LAFS.stderr"
-            )
-        self._stderr_logger.debug(message)
+        self.logger.log("stderr", message)
 
     def _log_eliot_message(self, message: str) -> None:
-        if self._eliot_logger is None:
-            self._eliot_logger = make_file_logger(
-                f"{self.name}.Tahoe-LAFS.eliot"
-            )
-        self._eliot_logger.debug(message)
+        self.logger.log("eliot", message)
 
     def load_newscap(self) -> None:
         news_settings = global_settings.get("news:{}".format(self.name))

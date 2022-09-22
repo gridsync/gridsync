@@ -75,3 +75,17 @@ def initialize_logger(
     observer = PythonLoggingObserver()
     observer.start()
     logging.debug("Hello World!")
+
+
+class MultiFileLogger:
+    def __init__(self, basename: str) -> None:
+        self.basename = basename
+        self._loggers: dict[str, logging.Logger] = {}
+
+    def log(self, logger_name: str, message: str) -> None:
+        name = f"{self.basename}.{logger_name}"
+        logger = self._loggers.get(name)
+        if not logger:
+            logger = make_file_logger(name)
+            self._loggers[name] = logger
+        logger.debug(message)
