@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Optional
+from typing import Callable, Optional, cast
 from urllib.parse import urlparse
 
 from autobahn.twisted.websocket import (
@@ -45,7 +45,8 @@ class WebSocketReaderService(MultiService):
         if reactor is None:
             from twisted.internet import reactor as imported_reactor
 
-            self._reactor = imported_reactor
+            # To avoid mypy "assignment" error ("expression has type Module")
+            self._reactor = cast(IReactorTime, imported_reactor)
         else:
             self._reactor = reactor
         self.url = url
