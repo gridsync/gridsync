@@ -152,16 +152,34 @@ class Tahoe:
 
         self._ready_poller = Poller(reactor, poll, 0.2)
 
-        logger_basename = f"{self.name}.Tahoe-LAFS"
-        self.stdout_logger = make_file_logger(f"{logger_basename}.stdout")
-        self.stderr_logger = make_file_logger(f"{logger_basename}.stderr")
-        self.eliot_logger = make_file_logger(
-            f"{logger_basename}.eliot", fmt=None
-        )
+        self._stdout_logger: Optional[log.Logger] = None
+        self._stderr_logger: Optional[log.Logger] = None
+        self._eliot_logger: Optional[log.Logger] = None
         self.streamedlogs = StreamedLogs(
-            reactor, logs_maxlen, self.eliot_logger.debug
+            reactor, logs_maxlen, self._log_eliot_message
         )
         self._ws_reader: Optional[WebSocketReaderService] = None
+
+    def _log_stdout_message(self, message: str) -> None:
+        if self._stdout_logger is None:
+            self._stdout_logger = make_file_logger(
+                f"{self.name}.Tahoe-LAFS.stdout"
+            )
+        self._stdout_logger.debug(message)
+
+    def _log_stderr_message(self, message: str) -> None:
+        if self._stderr_logger is None:
+            self._stderr_logger = make_file_logger(
+                f"{self.name}.Tahoe-LAFS.stderr"
+            )
+        self._stderr_logger.debug(message)
+
+    def _log_eliot_message(self, message: str) -> None:
+        if self._eliot_logger is None:
+            self._eliot_logger = make_file_logger(
+                f"{self.name}.Tahoe-LAFS.eliot"
+            )
+        self._eliot_logger.debug(message)
 
     def load_newscap(self) -> None:
         news_settings = global_settings.get("news:{}".format(self.name))
@@ -373,7 +391,7 @@ class Tahoe:
     def line_received(self, line: str) -> None:
         # TODO: Connect to Core via Qt signals/slots?
         log.debug("[%s] >>> %s", self.name, line)
-        self.stdout_logger.debug(line)
+        self._log_stdout_message(line)
 
     async def command(self, args: list[str]) -> str:
         if not self.executable:
@@ -487,7 +505,7 @@ class Tahoe:
         self._ws_reader = WebSocketReaderService(
             self.nodeurl.replace("http://", "ws://") + "/private/logs/v1",
             headers={"Authorization": f"tahoe-lafs {self.api_token}"},
-            collector=self.eliot_logger.debug,
+            collector=self._log_eliot_message,
             reactor=self._reactor,
         )
         self._ws_reader.start()
