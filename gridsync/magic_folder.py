@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
-from gridsync.log import MultiFileLogger, make_file_logger
+from gridsync.log import MultiFileLogger
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which

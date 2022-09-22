@@ -24,7 +24,7 @@ from gridsync.errors import (
     TahoeWebError,
     UpgradeRequiredError,
 )
-from gridsync.log import MultiFileLogger, make_file_logger
+from gridsync.log import MultiFileLogger
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.msg import critical
