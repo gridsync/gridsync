@@ -83,7 +83,7 @@ class MultiFileLogger:
         self._loggers: dict[str, logging.Logger] = {}
 
     def log(
-        self, logger_name: str, message: str, omit_fmt: bool = True
+        self, logger_name: str, message: str, omit_fmt: bool = False
     ) -> None:
         name = f"{self.basename}.{logger_name}"
         logger = self._loggers.get(name)
