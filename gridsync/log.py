@@ -94,3 +94,10 @@ class MultiFileLogger:
                 logger = make_file_logger(name)
             self._loggers[name] = logger
         logger.debug(message)
+
+    def read_messages(self, logger_name: str) -> list[str]:
+        p = Path(config_dir, "logs", f"{self.basename}.{logger_name}.log")
+        try:
+            return [line for line in p.read_text("utf-8").split("\n") if line]
+        except FileNotFoundError:
+            return []
