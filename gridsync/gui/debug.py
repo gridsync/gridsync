@@ -48,32 +48,24 @@ if TYPE_CHECKING:
 
 
 if sys.platform == "darwin":
-    system = "macOS {}".format(platform.mac_ver()[0])
+    system = f"macOS {platform.mac_ver()[0]}"
 elif sys.platform == "win32":
-    system = "Windows {}".format(platform.win32_ver()[0])
+    system = f"Windows {platform.win32_ver()[0]}"
 elif sys.platform.startswith("linux"):
     import distro  # pylint: disable=import-error
 
     name, version, _ = distro.linux_distribution()
-    system = "Linux ({} {})".format(name, version)
+    system = f"Linux ({name} {version})"
 else:
     system = platform.system()
 
-header = """Application:  {} {}
-System:       {}
-Python:       {}
-Frozen:       {}
-Qt API:       {} (Qt {})
-""".format(
-    APP_NAME,
-    __version__,
-    system,
-    platform.python_version(),
-    getattr(sys, "frozen", False),
-    QT_API_VERSION,
-    QT_LIB_VERSION,
+header = (
+    f"Application:  {APP_NAME} {__version__}\n"
+    f"System:       {system}\n"
+    f"Python:       {platform.python_version()}\n"
+    f"Frozen:       {getattr(sys, 'frozen', False)}\n"
+    f"Qt API:       {QT_API_VERSION} (Qt {QT_LIB_VERSION}"
 )
-
 
 warning_text = (
     "####################################################################\n"
@@ -117,15 +109,13 @@ class LogLoader(QObject):
             app_log_content = ""
         self.content = (
             header
-            + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
-            + "Magic-Folder: {}\n".format(self.core.magic_folder_version)
-            + "Datetime:     {}\n\n\n".format(
-                datetime.now(timezone.utc).isoformat()
-            )
+            + f"Tahoe-LAFS:   {self.core.tahoe_version}\n"
+            + f"Magic-Folder: {self.core.magic_folder_version}\n"
+            + f"Datetime:     {datetime.now(timezone.utc).isoformat()}\n\n\n"
             + warning_text
-            + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
+            + f"\n----- Beginning of {APP_NAME} debug log -----\n"
             + app_log_content
-            + "\n----- End of {} debug log -----\n".format(APP_NAME)
+            + f"\n----- End of {APP_NAME} debug log -----\n"
         )
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
@@ -168,7 +158,7 @@ class DebugExporter(QDialog):
         self.log_loader_thread.started.connect(self.log_loader.load)
 
         self.setMinimumSize(800, 600)
-        self.setWindowTitle("{} - Debug Information".format(APP_NAME))
+        self.setWindowTitle(f"{APP_NAME} - Debug Information")
 
         self.plaintextedit = QPlainTextEdit(self)
         self.plaintextedit.setPlainText("Loading logs; please wait...")
@@ -191,10 +181,10 @@ class DebugExporter(QDialog):
         self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
 
         self.filter_info_text = (
-            "When enabled, {} will filter some information that could be used "
-            "to identify a user or computer. This feature is not perfect, "
-            "however, nor is it a substitute for manually checking logs for "
-            "sensitive information before sharing.".format(APP_NAME)
+            f"When enabled, {APP_NAME} will filter some information that "
+            "could be used to identify a user or computer. This feature is "
+            "not perfect, however, nor is it a substitute for manually "
+            "checking logs for sensitive information before sharing."
         )
         self.filter_info_button = QPushButton()
         self.filter_info_button.setToolTip(self.filter_info_text)
