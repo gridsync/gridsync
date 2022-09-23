@@ -20,15 +20,6 @@ class LogFormatter(logging.Formatter):
         return datetime.now(timezone.utc).isoformat()
 
 
-class DequeHandler(logging.Handler):
-    def __init__(self, deque: collections.deque) -> None:
-        super().__init__()
-        self.deque = deque
-
-    def emit(self, record: logging.LogRecord) -> None:
-        self.deque.append(self.format(record))
-
-
 def make_file_logger(
     name: Optional[str] = None,
     max_bytes: int = 10_000_000,
@@ -62,10 +53,6 @@ def initialize_logger(
     formatter = LogFormatter(
         fmt="%(asctime)s %(levelname)s %(funcName)s %(message)s"
     )
-
-    deque_handler = DequeHandler(log_deque)
-    deque_handler.setFormatter(formatter)
-    logger.addHandler(deque_handler)
 
     if to_stdout:
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
