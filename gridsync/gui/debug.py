@@ -7,6 +7,7 @@ import platform
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from atomicwrites import atomic_write
@@ -39,6 +40,7 @@ from gridsync.filter import (
     join_eliot_logs,
 )
 from gridsync.gui.widgets import HSpacer
+from gridsync.log import LOGS_PATH
 from gridsync.msg import error
 
 if TYPE_CHECKING:
@@ -107,6 +109,12 @@ class LogLoader(QObject):
 
     def load(self) -> None:
         start_time = time.time()
+        try:
+            app_log_content = Path(LOGS_PATH, f"{APP_NAME}.log").read_text(
+                "utf-8"
+            )
+        except FileNotFoundError:
+            app_log_content = ""
         self.content = (
             header
             + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
@@ -116,7 +124,7 @@ class LogLoader(QObject):
             )
             + warning_text
             + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
-            + "\n".join(self.core.log_deque)
+            + app_log_content
             + "\n----- End of {} debug log -----\n".format(APP_NAME)
         )
         filters = get_filters(self.core)
