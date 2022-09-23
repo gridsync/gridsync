@@ -97,7 +97,7 @@ class Core:
             maxlen=log_deque_maxlen
         )
 
-        initialize_logger(self.log_deque, self.args.debug)
+        initialize_logger(self.args.debug)
         # The `Gui` object must be initialized after initialize_logger,
         # otherwise log messages will be duplicated.
         self.gui = Gui(self)

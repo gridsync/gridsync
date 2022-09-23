@@ -1,4 +1,3 @@
-import collections
 import logging
 import sys
 from datetime import datetime, timezone
@@ -46,9 +45,7 @@ def make_file_logger(
     return logger
 
 
-def initialize_logger(
-    log_deque: collections.deque, to_stdout: bool = False
-) -> None:
+def initialize_logger(to_stdout: bool = False) -> None:
     logger = make_file_logger()
     formatter = LogFormatter(
         fmt="%(asctime)s %(levelname)s %(funcName)s %(message)s"
