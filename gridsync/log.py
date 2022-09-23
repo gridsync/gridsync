@@ -77,6 +77,13 @@ def initialize_logger(
     logging.debug("Hello World!")
 
 
+def read_log_messages(path: Path) -> list[str]:
+    try:
+        return [line for line in path.read_text("utf-8").split("\n") if line]
+    except FileNotFoundError:
+        return []
+
+
 class MultiFileLogger:
     def __init__(self, basename: str) -> None:
         self.basename = basename
@@ -95,9 +102,12 @@ class MultiFileLogger:
             self._loggers[name] = logger
         logger.debug(message)
 
+    def _find_log_files(self, logger_name: str) -> list[Path]:
+        logs_path = Path(config_dir, "logs")
+        return sorted(logs_path.glob(f"{self.basename}.{logger_name}.log*"))
+
     def read_messages(self, logger_name: str) -> list[str]:
-        p = Path(config_dir, "logs", f"{self.basename}.{logger_name}.log")
-        try:
-            return [line for line in p.read_text("utf-8").split("\n") if line]
-        except FileNotFoundError:
-            return []
+        messages = []
+        for p in self._find_log_files(logger_name):
+            messages.extend(read_log_messages(p))
+        return messages
