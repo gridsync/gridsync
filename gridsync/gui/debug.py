@@ -125,17 +125,22 @@ class LogLoader(QObject):
             gateway_id = str(i + 1)
             self.content = self.content + log_fmt(
                 gateway.name,
-                join_eliot_logs(gateway.get_log_messages()),
-                join_eliot_logs(gateway.magic_folder.get_log_messages()),
+                join_eliot_logs(gateway.get_log_messages("eliot")),
+                join_eliot_logs(
+                    gateway.magic_folder.get_log_messages("eliot")
+                ),
             )
             self.filtered_content = self.filtered_content + log_fmt(
                 get_mask(gateway.name, "GatewayName", gateway_id),
                 join_eliot_logs(
-                    filter_eliot_logs(gateway.get_log_messages(), gateway_id)
+                    filter_eliot_logs(
+                        gateway.get_log_messages("eliot"), gateway_id
+                    )
                 ),
                 join_eliot_logs(
                     filter_eliot_logs(
-                        gateway.magic_folder.get_log_messages(), gateway_id
+                        gateway.magic_folder.get_log_messages("eliot"),
+                        gateway_id,
                     )
                 ),
             )

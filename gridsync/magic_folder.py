@@ -531,9 +531,9 @@ class MagicFolder:
             # logging.error("[magic-folder:stderr] %s", line)
             self.logger.log("stderr", line)
 
-    def get_log_messages(self) -> list:
+    def get_log_messages(self, name: str) -> list:
         # return list(msg.decode("utf-8") for msg in list(self._log_buffer))
-        return self.logger.read_messages("eliot")
+        return self.logger.read_messages(name)
 
     def _base_command_args(self) -> list[str]:
         if not self.executable:
