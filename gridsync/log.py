@@ -10,6 +10,8 @@ from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import APP_NAME, config_dir
 
+LOGS_PATH = Path(config_dir, "logs")
+
 
 class LogFormatter(logging.Formatter):
     def formatTime(
@@ -37,14 +39,13 @@ def make_file_logger(
     logger.setLevel(logging.DEBUG)
     logger.propagate = False
 
-    logs_path = Path(config_dir, "logs")
-    logs_path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    LOGS_PATH.mkdir(mode=0o700, parents=True, exist_ok=True)
 
     if not name:
         name = APP_NAME
 
     handler = RotatingFileHandler(
-        Path(logs_path, f"{name}.log"),
+        Path(LOGS_PATH, f"{name}.log"),
         maxBytes=max_bytes,
         backupCount=backup_count,
     )
@@ -103,8 +104,7 @@ class MultiFileLogger:
         logger.debug(message)
 
     def _find_log_files(self, logger_name: str) -> list[Path]:
-        logs_path = Path(config_dir, "logs")
-        return sorted(logs_path.glob(f"{self.basename}.{logger_name}.log*"))
+        return sorted(LOGS_PATH.glob(f"{self.basename}.{logger_name}.log*"))
 
     def read_messages(self, logger_name: str) -> list[str]:
         messages = []
