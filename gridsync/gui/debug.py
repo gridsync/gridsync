@@ -40,7 +40,7 @@ from gridsync.filter import (
     join_eliot_logs,
 )
 from gridsync.gui.widgets import HSpacer
-from gridsync.log import LOGS_PATH
+from gridsync.log import LOGS_PATH, find_log_files
 from gridsync.msg import error
 
 if TYPE_CHECKING:
@@ -84,6 +84,18 @@ Datetime:     {datetime.now(timezone.utc).isoformat()}
 """
 
 
+def _read_logs() -> str:
+    results = []
+    for path in find_log_files():
+        name = path.name.replace(".", " ")
+        results.append(
+            f"---------------- Beginning of {name} ----------------\n"
+            f'{path.read_text("utf-8")}'
+            f"---------------- End of {name} ----------------\n"
+        )
+    return "\n".join(results)
+
+
 def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
     return (
         f"\n------ Beginning of Tahoe-LAFS log for {gateway_name} ------\n"
@@ -107,18 +119,7 @@ class LogLoader(QObject):
 
     def load(self) -> None:
         start_time = time.time()
-        try:
-            app_log_content = Path(LOGS_PATH, f"{APP_NAME}.log").read_text(
-                "utf-8"
-            )
-        except FileNotFoundError:
-            app_log_content = ""
-        self.content = (
-            _make_header(self.core)
-            + f"\n----- Beginning of {APP_NAME} debug log -----\n"
-            + app_log_content
-            + f"\n----- End of {APP_NAME} debug log -----\n"
-        )
+        self.content = _make_header(self.core) + _read_logs()
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
