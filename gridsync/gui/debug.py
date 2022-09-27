@@ -59,23 +59,29 @@ elif sys.platform.startswith("linux"):
 else:
     system = platform.system()
 
-header = (
-    f"Application:  {APP_NAME} {__version__}\n"
-    f"System:       {system}\n"
-    f"Python:       {platform.python_version()}\n"
-    f"Frozen:       {getattr(sys, 'frozen', False)}\n"
-    f"Qt API:       {QT_API_VERSION} (Qt {QT_LIB_VERSION}"
-)
 
-warning_text = (
-    "####################################################################\n"
-    "#                                                                  #\n"
-    "#  WARNING: The following logs may contain sensitive information!  #\n"
-    "#  Please exercise appropriate caution and review them carefully   #\n"
-    "#  before copying, saving, or otherwise sharing with others!       #\n"
-    "#                                                                  #\n"
-    "####################################################################\n\n"
-)
+def _make_header(core: Core) -> str:
+    return f"""\
+Application:  {APP_NAME} {__version__}
+System:       {system}
+Python:       {platform.python_version()}
+Frozen:       {getattr(sys, "frozen", False)}
+Qt API:       {QT_API_VERSION} (Qt {QT_LIB_VERSION})
+Tahoe-LAFS:   {core.tahoe_version}
+Magic-Folder: {core.magic_folder_version}
+Datetime:     {datetime.now(timezone.utc).isoformat()}
+
+
+####################################################################
+#                                                                  #
+#  WARNING: The following logs may contain sensitive information!  #
+#  Please exercise appropriate caution and review them carefully   #
+#  before copying, saving, or otherwise sharing with others!       #
+#                                                                  #
+####################################################################
+
+
+"""
 
 
 def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
@@ -108,11 +114,7 @@ class LogLoader(QObject):
         except FileNotFoundError:
             app_log_content = ""
         self.content = (
-            header
-            + f"Tahoe-LAFS:   {self.core.tahoe_version}\n"
-            + f"Magic-Folder: {self.core.magic_folder_version}\n"
-            + f"Datetime:     {datetime.now(timezone.utc).isoformat()}\n\n\n"
-            + warning_text
+            _make_header(self.core)
             + f"\n----- Beginning of {APP_NAME} debug log -----\n"
             + app_log_content
             + f"\n----- End of {APP_NAME} debug log -----\n"
