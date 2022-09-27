@@ -86,11 +86,11 @@ Datetime:     {datetime.now(timezone.utc).isoformat()}
 def _read_logs() -> str:
     results = []
     for path in find_log_files():
-        name = path.name.replace(".", " ")
+        log_name = path.name.replace(".", " ")
         results.append(
-            f"---------------- Beginning of {name} ----------------\n"
+            f"---------------- Beginning of {log_name} ----------------\n"
             f'{path.read_text("utf-8")}'
-            f"---------------- End of {name} ----------------\n"
+            f"---------------- End of {log_name} ----------------\n"
         )
     return "\n".join(results)
 
