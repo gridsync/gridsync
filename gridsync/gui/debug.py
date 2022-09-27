@@ -7,7 +7,6 @@ import platform
 import sys
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from atomicwrites import atomic_write
@@ -40,7 +39,7 @@ from gridsync.filter import (
     join_eliot_logs,
 )
 from gridsync.gui.widgets import HSpacer
-from gridsync.log import LOGS_PATH, find_log_files
+from gridsync.log import find_log_files
 from gridsync.msg import error
 
 if TYPE_CHECKING:
