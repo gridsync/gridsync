@@ -62,6 +62,10 @@ def initialize_logger(to_stdout: bool = False) -> None:
     logging.debug("Hello World!")
 
 
+def find_log_files(pattern: str = "*.log*") -> list[Path]:
+    return sorted([path for path in LOGS_PATH.glob(pattern) if path.is_file()])
+
+
 def read_log_messages(path: Path) -> list[str]:
     try:
         return [line for line in path.read_text("utf-8").split("\n") if line]
@@ -87,11 +91,8 @@ class MultiFileLogger:
             self._loggers[name] = logger
         logger.debug(message)
 
-    def _find_log_files(self, logger_name: str) -> list[Path]:
-        return sorted(LOGS_PATH.glob(f"{self.basename}.{logger_name}.log*"))
-
     def read_messages(self, logger_name: str) -> list[str]:
         messages = []
-        for p in self._find_log_files(logger_name):
+        for p in find_log_files(f"{self.basename}.{logger_name}.log*"):
             messages.extend(read_log_messages(p))
         return messages
