@@ -6,25 +6,11 @@ from unittest.mock import Mock
 import pytest
 from qtpy.QtCore import Qt
 
-from gridsync.gui.debug import (
-    DebugExporter,
-    LogLoader,
-    header,
-    system,
-    warning_text,
-)
+from gridsync.gui.debug import DebugExporter, LogLoader, system
 
 
 def test_system_module_variable_is_not_none():
     assert system is not None
-
-
-def test_header_module_variable_is_not_none():
-    assert header is not None
-
-
-def test_warning_text_module_variable_is_not_none():
-    assert warning_text is not None
 
 
 @pytest.fixture
@@ -61,18 +47,6 @@ def test_log_loader_load_filtered_content(core):
     log_loader = LogLoader(core)
     log_loader.load()
     assert core.gateways[0].executable not in log_loader.filtered_content
-
-
-def test_log_loader_load_warning_text_in_content(core):
-    log_loader = LogLoader(core)
-    log_loader.load()
-    assert warning_text in log_loader.content
-
-
-def test_log_loader_load_warning_text_in_filtered_content(core):
-    log_loader = LogLoader(core)
-    log_loader.load()
-    assert warning_text in log_loader.filtered_content
 
 
 @pytest.mark.parametrize(
@@ -126,22 +100,6 @@ def test_debug_exporter_load_filtered_content(core, qtbot):
     with qtbot.wait_signal(de.log_loader.done):
         de.load()
     assert core.gateways[0].executable not in de.plaintextedit.toPlainText()
-
-
-def test_debug_exporter_load_warning_text_in_content(core, qtbot):
-    de = DebugExporter(core)
-    de.checkbox.setCheckState(Qt.Unchecked)  # Filter off
-    with qtbot.wait_signal(de.log_loader.done):
-        de.load()
-    assert warning_text in de.plaintextedit.toPlainText()
-
-
-def test_debug_exporter_load_warning_text_in_filtered_content(core, qtbot):
-    de = DebugExporter(core)
-    de.checkbox.setCheckState(Qt.Checked)  # Filter on
-    with qtbot.wait_signal(de.log_loader.done):
-        de.load()
-    assert warning_text in de.plaintextedit.toPlainText()
 
 
 def test_debug_exporter_load_return_early_thread_running(core, qtbot):
