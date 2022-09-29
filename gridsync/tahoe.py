@@ -399,6 +399,11 @@ class Tahoe:
             raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
         return output
 
+    async def version(self) -> str:
+        output = await self.command(["--version"])
+        line = output.split("\n")[0]
+        return line.lstrip("tahoe-lafs :").lstrip("tahoe-lafs/")
+
     async def create_node(self, settings: dict) -> None:
         if os.path.exists(self.nodedir):
             raise FileExistsError(
