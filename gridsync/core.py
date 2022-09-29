@@ -102,17 +102,13 @@ class Core:
         # otherwise log messages will be duplicated.
         self.gui = Gui(self)
 
-    @inlineCallbacks
-    def get_tahoe_version(self) -> TwistedDeferred[None]:
+    async def get_tahoe_version(self) -> None:
         tahoe = Tahoe()
-        self.tahoe_version = yield Deferred.fromCoroutine(tahoe.version())
+        self.tahoe_version = await tahoe.version()
 
-    @inlineCallbacks
-    def get_magic_folder_version(self) -> TwistedDeferred[None]:
+    async def get_magic_folder_version(self) -> None:
         magic_folder = MagicFolder(Tahoe())
-        self.magic_folder_version = yield Deferred.fromCoroutine(
-            magic_folder.version()
-        )
+        self.magic_folder_version = await magic_folder.version()
 
     @staticmethod
     @inlineCallbacks
@@ -140,14 +136,14 @@ class Core:
     @inlineCallbacks
     def _get_executable_versions(self) -> TwistedDeferred[None]:
         try:
-            yield self.get_tahoe_version()
+            yield Deferred.fromCoroutine(self.get_tahoe_version())
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
         try:
-            yield self.get_magic_folder_version()
+            yield Deferred.fromCoroutine(self.get_magic_folder_version())
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
                 "Error getting Magic-Folder version",
