@@ -557,7 +557,7 @@ class MagicFolder:
 
     async def version(self) -> str:
         output = await self._command(["--version"])
-        return output
+        return output.lstrip("Magic Folder version ")
 
     async def stop(self) -> None:
         self.monitor.stop()

@@ -110,9 +110,9 @@ class Core:
     @inlineCallbacks
     def get_magic_folder_version(self) -> TwistedDeferred[None]:
         magic_folder = MagicFolder(Tahoe())
-        version = yield Deferred.fromCoroutine(magic_folder.version())
-        if version:
-            self.magic_folder_version = version.lstrip("Magic Folder version ")
+        self.magic_folder_version = yield Deferred.fromCoroutine(
+            magic_folder.version()
+        )
 
     @staticmethod
     @inlineCallbacks
