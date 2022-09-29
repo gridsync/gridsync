@@ -108,8 +108,10 @@ class Core:
         version = yield Deferred.fromCoroutine(tahoe.command(["--version"]))
         if version:
             self.tahoe_version = version.split("\n")[0]
-            if self.tahoe_version.startswith("tahoe-lafs: "):
-                self.tahoe_version = self.tahoe_version.lstrip("tahoe-lafs: ")
+            if self.tahoe_version.startswith("tahoe-lafs"):
+                self.tahoe_version = self.tahoe_version.lstrip(
+                    "tahoe-lafs: "
+                ).lstrip("tahoe-lafs/")
 
     @inlineCallbacks
     def get_magic_folder_version(self) -> TwistedDeferred[None]:
