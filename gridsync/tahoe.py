@@ -386,7 +386,10 @@ class Tahoe:
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(args))
-        protocol = SubprocessProtocol(stdout_line_collector=self.line_received)
+        protocol = SubprocessProtocol(
+            stdout_line_collector=self._log_stdout_message,
+            stderr_line_collector=self._log_stderr_message,
+        )
         self._reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
