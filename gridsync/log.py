@@ -13,6 +13,15 @@ from gridsync import APP_NAME, config_dir
 LOGS_PATH = Path(config_dir, "logs")
 
 
+class DequeHandler(logging.Handler):
+    def __init__(self, deque: collections.deque) -> None:
+        super().__init__()
+        self.deque = deque
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.deque.append(self.format(record))
+
+
 class LogFormatter(logging.Formatter):
     def formatTime(
         self, record: logging.LogRecord, datefmt: Optional[str] = None
@@ -40,6 +49,25 @@ def make_file_logger(
         maxBytes=max_bytes,
         backupCount=backup_count,
     )
+    if fmt:
+        handler.setFormatter(LogFormatter(fmt=fmt))
+    logger.addHandler(handler)
+    return logger
+
+
+def make_memory_logger(
+    deque: collections.deque,
+    name: Optional[str] = None,
+    fmt: Optional[str] = "%(asctime)s %(levelname)s %(funcName)s %(message)s",
+) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False
+
+    if not name:
+        name = APP_NAME
+
+    handler = DequeHandler(deque)
     if fmt:
         handler.setFormatter(LogFormatter(fmt=fmt))
     logger.addHandler(handler)
@@ -97,34 +125,6 @@ class MultiFileLogger:
         for p in find_log_files(f"{self.basename}.{logger_name}.log*"):
             messages.extend(read_log_messages(p))
         return messages
-
-
-class DequeHandler(logging.Handler):
-    def __init__(self, deque: collections.deque) -> None:
-        super().__init__()
-        self.deque = deque
-
-    def emit(self, record: logging.LogRecord) -> None:
-        self.deque.append(self.format(record))
-
-
-def make_memory_logger(
-    deque: collections.deque,
-    name: Optional[str] = None,
-    fmt: Optional[str] = "%(asctime)s %(levelname)s %(funcName)s %(message)s",
-) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False
-
-    if not name:
-        name = APP_NAME
-
-    handler = DequeHandler(deque)
-    if fmt:
-        handler.setFormatter(LogFormatter(fmt=fmt))
-    logger.addHandler(handler)
-    return logger
 
 
 class MemoryLogger:
