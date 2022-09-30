@@ -27,6 +27,7 @@ from gridsync.log import MemoryLogger, MultiFileLogger
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
+from gridsync.util import to_bool
 from gridsync.watchdog import Watchdog
 from gridsync.websocket import WebSocketReaderService
 
@@ -505,7 +506,9 @@ class MagicFolder:
             pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
         )
         self.logger: Union[MemoryLogger, MultiFileLogger]
-        if use_memory_logger:
+        if use_memory_logger or to_bool(
+            os.environ.get("GRIDSYNC_USE_MEMORY_LOGGER", "0")
+        ):
             self.logger = MemoryLogger(f"{gateway.name}.Magic-Folder")
         else:
             self.logger = MultiFileLogger(f"{gateway.name}.Magic-Folder")

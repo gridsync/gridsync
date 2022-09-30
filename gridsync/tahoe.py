@@ -33,7 +33,7 @@ from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
-from gridsync.util import Poller
+from gridsync.util import Poller, to_bool
 from gridsync.websocket import WebSocketReaderService
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
@@ -154,7 +154,9 @@ class Tahoe:
         self._ready_poller = Poller(reactor, poll, 0.2)
 
         self.logger: Union[MemoryLogger, MultiFileLogger]
-        if use_memory_logger:
+        if use_memory_logger or to_bool(
+            os.environ.get("GRIDSYNC_USE_MEMORY_LOGGER", "0")
+        ):
             self.logger = MemoryLogger(f"{self.name}.Tahoe-LAFS")
         else:
             self.logger = MultiFileLogger(f"{self.name}.Tahoe-LAFS")

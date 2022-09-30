@@ -77,6 +77,7 @@ from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
 from gridsync.tor import get_tor
 from gridsync.types import TwistedDeferred
+from gridsync.util import to_bool
 
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
@@ -96,8 +97,10 @@ class Core:
         self.log_deque: collections.deque = collections.deque(
             maxlen=log_deque_maxlen
         )
-
-        initialize_logger(self.args.debug)
+        if to_bool(os.environ.get("GRIDSYNC_USE_MEMORY_LOGGER", "0")):
+            initialize_logger(self.args.debug, self.log_deque)
+        else:
+            initialize_logger(self.args.debug)
         # The `Gui` object must be initialized after initialize_logger,
         # otherwise log messages will be duplicated.
         self.gui = Gui(self)
