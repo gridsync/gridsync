@@ -8,6 +8,7 @@ from psutil import Process
 from atomicwrites import atomic_write
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
+from filelock import FileLock
 
 from gridsync.system import (
     SubprocessProtocol,
@@ -17,13 +18,34 @@ from gridsync.system import (
 from gridsync.types import TwistedDeferred
 
 
+def parse_pidfile(pidfile: Path):
+    """
+    :param Path pidfile:
+    :returns tuple: 2-tuple of pid, creation-time as int, float
+    :raises ValueError: on error
+    """
+    with pidfile.open("r") as f:
+        content = f.read().strip()
+    try:
+        pid, starttime = content.split()
+        pid = int(pid)
+        starttime = float(starttime)
+    except ValueError:
+        raise ValueError(
+            "found invalid PID file in {}".format(
+                pidfile
+            )
+        )
+    return pid, starttime
+
+
 class Supervisor:
     def __init__(
         self,
-        pidfile: Optional[Path] = None,
+        pidfile: Path,
         restart_delay: int = 1,
     ) -> None:
-        self.pidfile = pidfile
+        self.pidfile: Path = pidfile
         self.restart_delay: int = restart_delay
         self.time_started: Optional[float] = None
         # _protocol is non-None only when we have a running subprocess
@@ -57,33 +79,13 @@ class Supervisor:
     def stop(self) -> TwistedDeferred[None]:
         self._keep_alive = False
         if self._protocol is None:
-            # nothing is currently running, but perhaps the PID-file
-            # thinks something is running.
-            if self.pidfile and self.pidfile.exists():
-                contents = self.pidfile.read_text(encoding="utf-8")
-                words = contents.split()
-                pid = int(words[0])
-                pid_create_time = float(words[1])
-                terminate_if_matching(pid, pid_create_time, kill_after=5)
-        else:
-            pid = self._protocol.transport.pid
-            pid_create_time = self.process.create_time()
-        if self._protocol is None:
             logging.warning(
                 "Tried to stop a supervised process that wasn't running"
             )
             return
         logging.debug("Stopping supervised process: %s", " ".join(self._args))
-        if pid_create_time == self.process.create_time():
-            logging.debug(f"actually killing {self.process.pid}")
-            yield terminate(self._protocol, kill_after=5)
-        if self.pidfile and self.pidfile.exists():
-            logging.debug("Removing pidfile: %s", str(self.pidfile))
-            self.pidfile.unlink()
-            logging.debug("Pidfile removed: %s", str(self.pidfile))
+        yield terminate(self._protocol, kill_after=5)
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
-        self.pid = None
-        self._create_time = None
 
     @inlineCallbacks
     def _start_process(self) -> TwistedDeferred[tuple[int, str]]:
@@ -110,12 +112,6 @@ class Supervisor:
         else:
             # To prevent unhandled ProcessTerminated errors
             protocol.done.callback(None)
-        if self.pidfile:
-            with atomic_write(self.pidfile, mode="w", overwrite=True) as f:
-                f.write(f"{self.process.pid} {self.process.create_time()}\n")
-            logging.debug(
-                'Wrote "%s %s" to pidfile: %s', self.process.pid, self.process.create_time(), str(self.pidfile)
-            )
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
             " ".join(self._args),
@@ -151,8 +147,28 @@ class Supervisor:
         self._call_before_start = call_before_start
         self._call_after_start = call_after_start
 
-        if self.pidfile and self.pidfile.exists():
-            yield self.stop()
+        # examine our process' corresponding pidfile, which means one
+        # of these is true:
+        #  1. there is no pidfile
+        #  2. the pid doesn't exist as a process
+        #  3. the pid is a tahoe (or magic-folder etc) process
+        #  4. the pid is some other process
+
+        lockfile = self.pidfile.with_name(self.pidfile.name + ".lock")
+        with FileLock(lockfile, timeout=2):
+            try:
+                pid, create = parse_pidfile(self.pidfile)
+            except OSError:
+                # 1. no pidfile
+                pass
+            else:
+                # the pidfile exists: if it's a leftover one, kill it
+                # (which is case 3)
+                yield terminate_if_matching(pid, create, kill_after=5)
+                # we're either case 3 or 4 here, and either way want
+                # to remove the file so our subprocess can start
+                self.pidfile.unlink()
+
         logging.debug("Starting supervised process: %s", " ".join(self._args))
         result = yield self._start_process()
         pid, name = result

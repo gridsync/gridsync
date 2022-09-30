@@ -110,7 +110,7 @@ class Tahoe:
             self.nodedir, "private", "servers.yaml"
         )
         self.config = Config(os.path.join(self.nodedir, "tahoe.cfg"))
-        self.pidfile = os.path.join(self.nodedir, f"{APP_NAME}-tahoe.pid")
+        self.pidfile = os.path.join(self.nodedir, "running.process")
         self.nodeurl: str = ""
         self.api_token: str = ""
         self.shares_happy = 0
@@ -137,7 +137,7 @@ class Tahoe:
         self.rootcap_manager = RootcapManager(self)
         self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
 
-        self.supervisor = Supervisor(pidfile=Path(self.pidfile))
+        self.supervisor = Supervisor(Path(self.pidfile))
 
         # TODO: Replace with "readiness" API?
         # https://tahoe-lafs.org/trac/tahoe-lafs/ticket/2844
@@ -542,6 +542,9 @@ class Tahoe:
                 call_after_start=self._on_started,
             )
         except Exception as exc:  # pylint: disable=broad-except
+            print(exc)
+            from twisted.python.failure import Failure
+            print(Failure())
             critical(
                 f"Error starting Tahoe-LAFS gateway for {self.name}",
                 "A critical error occurred when attempting to start the "

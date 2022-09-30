@@ -500,7 +500,7 @@ class MagicFolder:
         self.remote_magic_folders: dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
         self.supervisor: Supervisor = Supervisor(
-            pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
+            Path(self.configdir) / "running.process",
         )
 
     @staticmethod

@@ -45,27 +45,30 @@ def terminate_if_matching(pid: int, create_time: float, kill_after: Optional[Uni
     Terminate the process at `pid` only if `create_time` matches its
     creation time.
 
-    :returns: Deferred that fires when the process has exited or been killed
+    :returns: Deferred that fires when the process has exited or been
+        killed. If it was killed, True is returned; otherwise, False.
     """
     try:
         proc = Process(pid)
         proc.terminate()
     except NoSuchProcess:
-        return None
+        return False
 
     limit = time.time() + kill_after if kill_after else 0
     while proc.is_running():
         try:
-            return proc.wait(timeout=0)
+            if proc.wait(timeout=0) in (None, 0):
+                return False
+            return True
         except NoSuchProcess:
-            return None
+            return False
         except TimeoutExpired:
             pass
         if limit and time.time() >= limit:
             try:
                 proc.kill()
             except NoSuchProcess:
-                return None
+                return False
         yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
 
 
