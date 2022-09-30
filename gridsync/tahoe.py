@@ -24,7 +24,7 @@ from gridsync.errors import (
     TahoeWebError,
     UpgradeRequiredError,
 )
-from gridsync.log import MultiFileLogger
+from gridsync.log import MemoryLogger, MultiFileLogger
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.msg import critical
@@ -96,6 +96,7 @@ class Tahoe:
         nodedir: str = "",
         executable: str = "",
         reactor: Optional[IReactorTime] = None,
+        use_memory_logger: bool = False,
     ) -> None:
         if reactor is None:
             from twisted.internet import reactor as reactor_
@@ -152,7 +153,12 @@ class Tahoe:
 
         self._ready_poller = Poller(reactor, poll, 0.2)
 
-        self.logger = MultiFileLogger(f"{self.name}.Tahoe-LAFS")
+        self.logger: Union[MemoryLogger, MultiFileLogger]
+        if use_memory_logger:
+            self.logger = MemoryLogger(f"{self.name}.Tahoe-LAFS")
+        else:
+            self.logger = MultiFileLogger(f"{self.name}.Tahoe-LAFS")
+
         self.streamedlogs = StreamedLogs(
             reactor, logs_maxlen, self._log_eliot_message
         )
