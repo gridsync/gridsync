@@ -156,6 +156,4 @@ class MemoryLogger:
         logger.debug(message)
 
     def read_messages(self, logger_name: str) -> list[str]:
-        deque = self._deques.get(f"{self.basename}.{logger_name}")
-        if deque:
-            return list(deque)
+        return list(self._deques.get(f"{self.basename}.{logger_name}", []))
