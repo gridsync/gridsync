@@ -74,8 +74,14 @@ def make_memory_logger(
     return logger
 
 
-def initialize_logger(to_stdout: bool = False) -> None:
-    logger = make_file_logger()
+def initialize_logger(
+    to_stdout: bool = False,
+    memory_logger_deque: Optional[collections.deque] = None,
+) -> None:
+    if memory_logger_deque is not None:
+        logger = make_memory_logger(memory_logger_deque)
+    else:
+        logger = make_file_logger()
     formatter = LogFormatter(
         fmt="%(asctime)s %(levelname)s %(funcName)s %(message)s"
     )
