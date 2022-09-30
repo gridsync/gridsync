@@ -102,16 +102,6 @@ class Core:
         # otherwise log messages will be duplicated.
         self.gui = Gui(self)
 
-    async def get_tahoe_version(self) -> None:
-        tahoe = Tahoe(use_memory_logger=True)
-        self.tahoe_version = await tahoe.version()
-
-    async def get_magic_folder_version(self) -> None:
-        magic_folder = MagicFolder(
-            Tahoe(use_memory_logger=True), use_memory_logger=True
-        )
-        self.magic_folder_version = await magic_folder.version()
-
     @staticmethod
     @inlineCallbacks
     def _start_gateway(gateway: Tahoe) -> TwistedDeferred[None]:
@@ -135,17 +125,18 @@ class Core:
                 str(e),
             )
 
-    @inlineCallbacks
-    def _get_executable_versions(self) -> TwistedDeferred[None]:
+    async def _get_executable_versions(self) -> None:
+        tahoe = Tahoe(use_memory_logger=True)
         try:
-            yield Deferred.fromCoroutine(self.get_tahoe_version())
+            self.tahoe_version = await tahoe.version()
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
+        magic_folder = MagicFolder(tahoe, use_memory_logger=True)
         try:
-            yield Deferred.fromCoroutine(self.get_magic_folder_version())
+            self.magic_folder_version = await magic_folder.version()
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
                 "Error getting Magic-Folder version",
@@ -185,7 +176,7 @@ class Core:
             if DEFAULT_AUTOSTART:
                 autostart_enable()
                 self.gui.preferences_window.general_pane.load_preferences()
-        yield self._get_executable_versions()
+        yield Deferred.fromCoroutine(self._get_executable_versions())
 
     @staticmethod
     def show_message() -> None:
