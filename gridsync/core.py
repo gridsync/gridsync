@@ -103,11 +103,13 @@ class Core:
         self.gui = Gui(self)
 
     async def get_tahoe_version(self) -> None:
-        tahoe = Tahoe()
+        tahoe = Tahoe(use_memory_logger=True)
         self.tahoe_version = await tahoe.version()
 
     async def get_magic_folder_version(self) -> None:
-        magic_folder = MagicFolder(Tahoe())
+        magic_folder = MagicFolder(
+            Tahoe(use_memory_logger=True), use_memory_logger=True
+        )
         self.magic_folder_version = await magic_folder.version()
 
     @staticmethod
