@@ -32,7 +32,7 @@ class LogFormatter(logging.Formatter):
 def make_file_logger(
     name: Optional[str] = None,
     max_bytes: int = 10_000_000,
-    backup_count: int = 10,
+    backup_count: int = 1,
     fmt: Optional[str] = "%(asctime)s %(levelname)s %(funcName)s %(message)s",
 ) -> logging.Logger:
     logger = logging.getLogger(name)
