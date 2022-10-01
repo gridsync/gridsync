@@ -129,7 +129,7 @@ class Core:
             )
 
     async def _get_executable_versions(self) -> None:
-        tahoe = Tahoe(use_memory_logger=True)
+        tahoe = Tahoe(enable_logging=False)
         try:
             self.tahoe_version = await tahoe.version()
         except Exception as e:  # pylint: disable=broad-except
@@ -137,7 +137,7 @@ class Core:
                 "Error getting Tahoe-LAFS version",
                 "{}: {}".format(type(e).__name__, str(e)),
             )
-        magic_folder = MagicFolder(tahoe, use_memory_logger=True)
+        magic_folder = MagicFolder(tahoe, enable_logging=False)
         try:
             self.magic_folder_version = await magic_folder.version()
         except Exception as e:  # pylint: disable=broad-except
