@@ -102,3 +102,13 @@ class MultiFileLogger:
         for p in find_log_files(f"{self.basename}.{logger_name}.log*"):
             messages.extend(read_log_messages(p))
         return messages
+
+
+class NullLogger:
+    def log(
+        self, logger_name: str, message: str, omit_fmt: bool = False
+    ) -> None:
+        pass
+
+    def read_messages(self, logger_name: str) -> list:
+        return []
