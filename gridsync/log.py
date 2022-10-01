@@ -8,12 +8,16 @@ from typing import Optional, Union
 from twisted.python.log import PythonLoggingObserver, startLogging
 
 from gridsync import APP_NAME, config_dir, settings
+from gridsync.util import to_bool
 
 _logging_path = settings.get("logging", {}).get("path")
 if _logging_path:
     LOGS_PATH = Path(_logging_path)
 else:
     LOGS_PATH = Path(config_dir, "logs")
+
+
+LOGGING_ENABLED = to_bool(settings.get("logging", {}).get("enabled", "false"))
 
 
 class LogFormatter(logging.Formatter):
@@ -40,7 +44,7 @@ def make_file_logger(
         name = APP_NAME
 
     handler: Union[logging.NullHandler, RotatingFileHandler]
-    if use_null_handler:
+    if use_null_handler or not LOGGING_ENABLED:
         handler = logging.NullHandler()
     else:
         handler = RotatingFileHandler(
@@ -92,6 +96,8 @@ class MultiFileLogger:
     def log(
         self, logger_name: str, message: str, omit_fmt: bool = False
     ) -> None:
+        if not LOGGING_ENABLED:
+            return
         name = f"{self.basename}.{logger_name}"
         logger = self._loggers.get(name)
         if not logger:
