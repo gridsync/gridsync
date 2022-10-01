@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
-from gridsync.log import MemoryLogger, MultiFileLogger
+from gridsync.log import MultiFileLogger, NullLogger
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
@@ -489,7 +489,7 @@ class MagicFolder:
         gateway: Tahoe,
         executable: Optional[str] = "",
         logs_maxlen: Optional[int] = 1000000,
-        use_memory_logger: bool = False,
+        enable_logging: bool = True,
     ) -> None:
         self.gateway = gateway
         self.executable = executable
@@ -505,13 +505,10 @@ class MagicFolder:
         self.supervisor: Supervisor = Supervisor(
             pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
         )
-        self.logger: Union[MemoryLogger, MultiFileLogger]
-        if use_memory_logger or to_bool(
-            os.environ.get("GRIDSYNC_USE_MEMORY_LOGGER", "0")
-        ):
-            self.logger = MemoryLogger(f"{gateway.name}.Magic-Folder")
-        else:
+        if enable_logging:
             self.logger = MultiFileLogger(f"{gateway.name}.Magic-Folder")
+        else:
+            self.logger = NullLogger()
 
     def on_stdout_line_received(self, line: str) -> None:
         # logging.debug("[magic-folder:stdout] %s", line)
