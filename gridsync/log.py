@@ -8,9 +8,13 @@ from typing import Optional
 
 from twisted.python.log import PythonLoggingObserver, startLogging
 
-from gridsync import APP_NAME, config_dir
+from gridsync import APP_NAME, config_dir, settings
 
-LOGS_PATH = Path(config_dir, "logs")
+_logging_path = settings.get("logging", {}).get("path")
+if _logging_path:
+    LOGS_PATH = Path(_logging_path)
+else:
+    LOGS_PATH = Path(config_dir, "logs")
 
 
 class DequeHandler(logging.Handler):
