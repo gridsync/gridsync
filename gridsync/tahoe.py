@@ -33,7 +33,7 @@ from gridsync.rootcap import RootcapManager
 from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
-from gridsync.util import Poller, to_bool
+from gridsync.util import Poller
 from gridsync.websocket import WebSocketReaderService
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer

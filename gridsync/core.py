@@ -77,7 +77,6 @@ from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
 from gridsync.tor import get_tor
 from gridsync.types import TwistedDeferred
-from gridsync.util import to_bool
 
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 

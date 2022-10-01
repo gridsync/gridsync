@@ -27,7 +27,6 @@ from gridsync.log import MultiFileLogger, NullLogger
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
-from gridsync.util import to_bool
 from gridsync.watchdog import Watchdog
 from gridsync.websocket import WebSocketReaderService
 
