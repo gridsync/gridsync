@@ -71,7 +71,7 @@ from gridsync.desktop import autostart_enable
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
-from gridsync.log import initialize_logger
+from gridsync.log import LOGGING_ENABLED, initialize_logger
 from gridsync.magic_folder import MagicFolder
 from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
@@ -97,10 +97,10 @@ class Core:
         self.log_deque: collections.deque = collections.deque(
             maxlen=log_deque_maxlen
         )
-        if to_bool(os.environ.get("GRIDSYNC_USE_MEMORY_LOGGER", "0")):
-            initialize_logger(self.args.debug, self.log_deque)
-        else:
+        if LOGGING_ENABLED:
             initialize_logger(self.args.debug)
+        else:
+            initialize_logger(self.args.debug, use_null_handler=True)
         # The `Gui` object must be initialized after initialize_logger,
         # otherwise log messages will be duplicated.
         self.gui = Gui(self)
