@@ -28,6 +28,9 @@ tor = true
 docs_url = https://github.com/gridsync/gridsync/tree/master/docs
 issues_url = https://github.com/gridsync/gridsync/issues
 
+[logging]
+enabled = true
+
 [sign]
 mac_developer_id = Christopher Wood
 gpg_key = 0xD38A20A62777E1A5
