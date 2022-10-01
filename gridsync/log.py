@@ -3,7 +3,7 @@ import sys
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from twisted.python.log import PythonLoggingObserver, startLogging
 
@@ -28,6 +28,7 @@ def make_file_logger(
     max_bytes: int = 10_000_000,
     backup_count: int = 1,
     fmt: Optional[str] = "%(asctime)s %(levelname)s %(funcName)s %(message)s",
+    use_null_handler: bool = False,
 ) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
@@ -38,11 +39,15 @@ def make_file_logger(
     if not name:
         name = APP_NAME
 
-    handler = RotatingFileHandler(
-        Path(LOGS_PATH, f"{name}.log"),
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-    )
+    handler: Union[logging.NullHandler, RotatingFileHandler]
+    if use_null_handler:
+        handler = logging.NullHandler()
+    else:
+        handler = RotatingFileHandler(
+            Path(LOGS_PATH, f"{name}.log"),
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+        )
     if fmt:
         handler.setFormatter(LogFormatter(fmt=fmt))
     logger.addHandler(handler)
@@ -50,9 +55,9 @@ def make_file_logger(
 
 
 def initialize_logger(
-    to_stdout: bool = False,
+    to_stdout: bool = False, use_null_handler: bool = False
 ) -> None:
-    logger = make_file_logger()
+    logger = make_file_logger(use_null_handler=use_null_handler)
     formatter = LogFormatter(
         fmt="%(asctime)s %(levelname)s %(funcName)s %(message)s"
     )
