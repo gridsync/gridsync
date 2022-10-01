@@ -505,6 +505,8 @@ class MagicFolder:
         self.supervisor: Supervisor = Supervisor(
             pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
         )
+
+        self.logger: Union[MultiFileLogger, NullLogger]
         if enable_logging:
             self.logger = MultiFileLogger(f"{gateway.name}.Magic-Folder")
         else:

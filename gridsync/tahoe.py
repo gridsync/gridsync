@@ -153,6 +153,7 @@ class Tahoe:
 
         self._ready_poller = Poller(reactor, poll, 0.2)
 
+        self.logger: Union[MultiFileLogger, NullLogger]
         if enable_logging:
             self.logger = MultiFileLogger(f"{self.name}.Tahoe-LAFS")
         else:
