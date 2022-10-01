@@ -121,5 +121,7 @@ class NullLogger:
     ) -> None:
         pass
 
-    def read_messages(self, logger_name: str) -> list:
+    def read_messages(  # pylint: disable=unused-argument
+        self, logger_name: str
+    ) -> list:
         return []
