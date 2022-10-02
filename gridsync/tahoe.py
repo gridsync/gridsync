@@ -30,7 +30,6 @@ from gridsync.monitor import Monitor
 from gridsync.msg import critical
 from gridsync.news import NewscapChecker
 from gridsync.rootcap import RootcapManager
-from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
 from gridsync.util import Poller
@@ -159,9 +158,6 @@ class Tahoe:
         else:
             self.logger = NullLogger()
 
-        self.streamedlogs = StreamedLogs(
-            reactor, logs_maxlen, self._log_eliot_message
-        )
         self._ws_reader: Optional[WebSocketReaderService] = None
 
     def _log_stdout_message(self, message: str) -> None:
@@ -453,7 +449,6 @@ class Tahoe:
         if self._ws_reader:
             self._ws_reader.stop()
             self._ws_reader = None
-        self.streamedlogs.stop()
         if self.rootcap_manager.lock.locked:
             log.warning(
                 "Delaying stop operation; "
@@ -467,16 +462,6 @@ class Tahoe:
         await self.supervisor.stop()
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
-
-    def get_streamed_log_messages(self) -> list[str]:
-        """
-        Return a ``list`` containing all buffered log messages.
-
-        :return: A ``list`` where each element is a UTF-8 & JSON encoded
-            ``bytes`` object giving a single log event with older events
-            appearing first.
-        """
-        return self.streamedlogs.get_streamed_log_messages()
 
     def get_log_messages(self, name: str) -> list[str]:
         return self.logger.read_messages(name)
@@ -501,9 +486,6 @@ class Tahoe:
             self.storage_furl = storage_furl_path.read_text(
                 encoding="utf-8"
             ).strip()
-
-        self.streamedlogs.stop()
-        # self.streamedlogs.start(self.nodeurl, self.api_token)
 
         self._ws_reader = WebSocketReaderService(
             self.nodeurl.replace("http://", "ws://") + "/private/logs/v1",
