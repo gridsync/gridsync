@@ -58,7 +58,10 @@ class WebSocketReaderService(MultiService):
     def _create_client_service(self) -> ClientService:
         parsed = urlparse(self.url)
         endpoint = TCP4ClientEndpoint(
-            self._reactor, parsed.hostname, parsed.port
+            self._reactor,
+            # Windows doesn't like to connect to 0.0.0.0.
+            "127.0.0.1" if parsed.hostname == "0.0.0.0" else parsed.hostname,
+            parsed.port,
         )
         factory = WebSocketClientFactory(self.url, headers=self.headers)
         factory.protocol = WebSocketReaderProtocol
