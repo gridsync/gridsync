@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from collections import defaultdict, deque
+from collections import defaultdict
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
+from gridsync.filter import is_eliot_log_message
 from gridsync.log import MultiFileLogger, NullLogger
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
@@ -492,7 +493,6 @@ class MagicFolder:
     ) -> None:
         self.gateway = gateway
         self.executable = executable
-        self._log_buffer: deque[bytes] = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.api_port: int = 0
@@ -514,22 +514,8 @@ class MagicFolder:
     def on_stdout_line_received(self, line: str) -> None:
         self.logger.log("stdout", line)
 
-    @staticmethod
-    def _is_eliot_log_message(s: str) -> bool:
-        try:
-            data = json.loads(s)
-        except json.decoder.JSONDecodeError:
-            return False
-        if (
-            isinstance(data, dict)
-            and "timestamp" in data
-            and "task_uuid" in data
-        ):
-            return True
-        return False
-
     def on_stderr_line_received(self, line: str) -> None:
-        if self._is_eliot_log_message(line):
+        if is_eliot_log_message(line):
             self.logger.log("eliot", line, omit_fmt=True)
         else:
             self.logger.log("stderr", line)

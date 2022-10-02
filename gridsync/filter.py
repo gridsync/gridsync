@@ -12,6 +12,16 @@ if TYPE_CHECKING:
     from gridsync.core import Core
 
 
+def is_eliot_log_message(s: str) -> bool:
+    try:
+        data = json.loads(s)
+    except json.decoder.JSONDecodeError:
+        return False
+    if isinstance(data, dict) and "timestamp" in data and "task_uuid" in data:
+        return True
+    return False
+
+
 def get_filters(core: Core) -> list:
     filters = [
         (pkgdir, "PkgDir"),
