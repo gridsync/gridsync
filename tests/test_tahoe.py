@@ -164,24 +164,6 @@ def test_tahoe_default_nodedir():
     )
 
 
-@pytest.mark.parametrize(
-    "given,expected",
-    [
-        (123456, 123456),
-        (0, 0),
-        (None, 2000000),  # Default specified in gridsync.streamedlogs
-    ],
-)
-def test_tahoe_set_streamedlogs_maxlen_from_config_txt(
-    monkeypatch, given, expected
-):
-    monkeypatch.setattr(
-        "gridsync.tahoe.global_settings", {"debug": {"log_maxlen": given}}
-    )
-    client = Tahoe()
-    assert client.streamedlogs._buffer.maxlen == expected
-
-
 def test_tahoe_load_newscap_from_global_settings(tahoe, monkeypatch):
     global_settings = {
         "news:{}".format(tahoe.name): {"newscap": "URI:NewscapFromSettings"}
@@ -952,7 +934,7 @@ async def test_tahoe_stops_websocketreaderservice(monkeypatch, tahoe_factory):
     await tahoe.start()
     Path(tahoe.pidfile).write_text(str("4194306"), encoding="utf-8")
     await tahoe.stop()
-    assert not tahoe.streamedlogs.running
+    assert tahoe._ws_reader is None
 
 
 @ensureDeferred
