@@ -119,12 +119,6 @@ class Tahoe:
         self.name = os.path.basename(self.nodedir)
         self.use_tor = False
         self.monitor = Monitor(self)
-        logs_maxlen = None
-        debug_settings = global_settings.get("debug")
-        if debug_settings:
-            log_maxlen = debug_settings.get("log_maxlen")
-            if log_maxlen is not None:
-                logs_maxlen = int(log_maxlen)
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
@@ -136,7 +130,7 @@ class Tahoe:
 
         self.storage_furl: str = ""
         self.rootcap_manager = RootcapManager(self)
-        self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
+        self.magic_folder = MagicFolder(self)
 
         self.supervisor = Supervisor(pidfile=Path(self.pidfile))
 
