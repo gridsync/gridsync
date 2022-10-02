@@ -158,6 +158,9 @@ class Supervisor:
         with FileLock(lockfile, timeout=2):
             try:
                 pid, create = parse_pidfile(self.pidfile)
+            except ValueError:
+                logging.warning("Removing invalid pidfile: {}".format(self.pidfile))
+                self.pidfile.unlink()
             except OSError:
                 # 1. no pidfile
                 pass
