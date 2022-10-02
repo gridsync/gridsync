@@ -305,7 +305,9 @@ def _apply_filter_by_message_type(  # noqa: max-complexity
     return msg
 
 
-def filter_eliot_log_message(message: str, identifier: Optional[str]) -> str:
+def filter_eliot_log_message(
+    message: str, identifier: Optional[str] = None
+) -> str:
     msg = json.loads(message)
 
     action_type = msg.get("action_type")
