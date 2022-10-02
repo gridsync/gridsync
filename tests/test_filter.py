@@ -10,8 +10,8 @@ import pytest
 from gridsync import autostart_file_path, config_dir, pkgdir
 from gridsync.filter import (
     apply_filters,
+    filter_eliot_log_message,
     filter_eliot_logs,
-    filter_tahoe_log_message,
     get_filters,
     join_eliot_logs,
 )
@@ -495,7 +495,7 @@ def test_apply_filters_filtered_string_in_result(core, string, filtered):
 def test__apply_filter_by_action_type(msg, keys):
     for key in keys:
         original_value = str(msg.get(key))
-        filtered_msg = filter_tahoe_log_message(json.dumps(msg), "1")
+        filtered_msg = filter_eliot_log_message(json.dumps(msg), "1")
         assert original_value not in filtered_msg
 
 
@@ -630,7 +630,7 @@ def test__apply_filter_by_action_type(msg, keys):
 def test__apply_filter_by_message_type(msg, keys):
     for key in keys:
         original_value = str(msg.get(key))
-        filtered_msg = filter_tahoe_log_message(json.dumps(msg), "1")
+        filtered_msg = filter_eliot_log_message(json.dumps(msg), "1")
         assert original_value not in filtered_msg
 
 

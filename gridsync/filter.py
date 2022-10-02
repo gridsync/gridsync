@@ -305,7 +305,7 @@ def _apply_filter_by_message_type(  # noqa: max-complexity
     return msg
 
 
-def filter_tahoe_log_message(message: str, identifier: Optional[str]) -> str:
+def filter_eliot_log_message(message: str, identifier: Optional[str]) -> str:
     msg = json.loads(message)
 
     action_type = msg.get("action_type")
@@ -324,7 +324,7 @@ def filter_eliot_logs(
 ) -> list[str]:
     filtered = []
     for message in messages:
-        filtered.append(filter_tahoe_log_message(message, identifier))
+        filtered.append(filter_eliot_log_message(message, identifier))
     return filtered
 
 
