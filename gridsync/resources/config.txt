@@ -30,6 +30,8 @@ issues_url = https://github.com/gridsync/gridsync/issues
 
 [logging]
 enabled = true
+max_bytes = 10000000
+backup_count = 1
 
 [sign]
 mac_developer_id = Christopher Wood

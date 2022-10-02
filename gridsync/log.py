@@ -10,14 +10,17 @@ from twisted.python.log import PythonLoggingObserver, startLogging
 from gridsync import APP_NAME, config_dir, settings
 from gridsync.util import to_bool
 
-_logging_path = settings.get("logging", {}).get("path")
+_logging_settings = settings.get("logging", {})
+
+_logging_path = _logging_settings.get("path")
 if _logging_path:
     LOGS_PATH = Path(_logging_path)
 else:
     LOGS_PATH = Path(config_dir, "logs")
 
-
-LOGGING_ENABLED = to_bool(settings.get("logging", {}).get("enabled", "false"))
+LOGGING_ENABLED = to_bool(_logging_settings.get("enabled", "false"))
+LOGGING_MAX_BYTES = int(_logging_settings.get("max_bytes", 10_000_000))
+LOGGING_BACKUP_COUNT = int(_logging_settings.get("backup_count", 1))
 
 
 class LogFormatter(logging.Formatter):
@@ -29,8 +32,8 @@ class LogFormatter(logging.Formatter):
 
 def make_file_logger(
     name: Optional[str] = None,
-    max_bytes: int = 10_000_000,
-    backup_count: int = 1,
+    max_bytes: int = LOGGING_MAX_BYTES,
+    backup_count: int = LOGGING_BACKUP_COUNT,
     fmt: Optional[str] = "%(asctime)s %(levelname)s %(funcName)s %(message)s",
     use_null_handler: bool = False,
 ) -> logging.Logger:
