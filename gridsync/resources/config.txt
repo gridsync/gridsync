@@ -10,9 +10,6 @@ mac_icon = images/gridsync.icns
 win_icon = images/gridsync.ico
 linux_icon = images/gridsync.svg
 
-[debug]
-log_maxlen = 100000
-
 [defaults]
 autostart = false
 
