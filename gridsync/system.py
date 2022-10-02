@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks, DeferredList
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
@@ -40,7 +40,11 @@ def which(cmd: str) -> str:
 
 
 @inlineCallbacks
-def terminate_if_matching(pid: int, create_time: float, kill_after: Optional[Union[int, float]] = None) -> TwistedDeferred[None]:
+def terminate_if_matching(
+    pid: int,
+    create_time: float,
+    kill_after: Optional[Union[int, float]] = None,
+) -> TwistedDeferred[None]:
     """
     Terminate the process at `pid` only if `create_time` matches its
     creation time.
@@ -74,7 +78,7 @@ def terminate_if_matching(pid: int, create_time: float, kill_after: Optional[Uni
 
 @inlineCallbacks
 def terminate(
-        proc: SubprocessProtocol, kill_after: Optional[Union[int, float]] = None
+    proc: SubprocessProtocol, kill_after: Optional[Union[int, float]] = None
 ) -> TwistedDeferred[None]:
     """
     Terminate the running process given by its protocol.
@@ -86,10 +90,14 @@ def terminate(
     waiting = [proc.when_exited()]
     if kill_after:
         waiting.append(deferLater(reactor, kill_after, lambda: None))
-    result, idx = yield DeferredList(waiting, fireOnOneCallback=True, fireOnOneErrback=True)
+    result, idx = yield DeferredList(
+        waiting, fireOnOneCallback=True, fireOnOneErrback=True
+    )
     if idx > 0:
         # the timeout fired (not when_exited())
-        logging.debug("Failed to terminate, sending KILL to %i", proc.transport.pid)
+        logging.debug(
+            "Failed to terminate, sending KILL to %i", proc.transport.pid
+        )
         proc.transport.signalProcess("KILL")
         try:
             yield proc.when_exited()

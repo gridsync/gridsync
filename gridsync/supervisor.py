@@ -4,11 +4,11 @@ import time
 from pathlib import Path
 from typing import Callable, Optional
 
-from psutil import Process
 from atomicwrites import atomic_write
+from filelock import FileLock
+from psutil import Process
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-from filelock import FileLock
 
 from gridsync.system import (
     SubprocessProtocol,
@@ -31,11 +31,7 @@ def parse_pidfile(pidfile: Path):
         pid = int(pid)
         starttime = float(starttime)
     except ValueError:
-        raise ValueError(
-            "found invalid PID file in {}".format(
-                pidfile
-            )
-        )
+        raise ValueError("found invalid PID file in {}".format(pidfile))
     return pid, starttime
 
 
@@ -159,7 +155,9 @@ class Supervisor:
             try:
                 pid, create = parse_pidfile(self.pidfile)
             except ValueError:
-                logging.warning("Removing invalid pidfile: {}".format(self.pidfile))
+                logging.warning(
+                    "Removing invalid pidfile: {}".format(self.pidfile)
+                )
                 self.pidfile.unlink()
             except OSError:
                 # 1. no pidfile
