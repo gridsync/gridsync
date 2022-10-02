@@ -542,9 +542,6 @@ class Tahoe:
                 call_after_start=self._on_started,
             )
         except Exception as exc:  # pylint: disable=broad-except
-            print(exc)
-            from twisted.python.failure import Failure
-            print(Failure())
             critical(
                 f"Error starting Tahoe-LAFS gateway for {self.name}",
                 "A critical error occurred when attempting to start the "
