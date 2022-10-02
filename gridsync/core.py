@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import collections
 import logging
 import os
 import sys
@@ -87,15 +86,7 @@ class Core:
         self.gateways: list = []
         self.tahoe_version: str = ""
         self.magic_folder_version: str = ""
-        log_deque_maxlen = 100000  # XXX
-        debug_settings = settings.get("debug")
-        if debug_settings:
-            log_maxlen = debug_settings.get("log_maxlen")
-            if log_maxlen is not None:
-                log_deque_maxlen = int(log_maxlen)
-        self.log_deque: collections.deque = collections.deque(
-            maxlen=log_deque_maxlen
-        )
+
         if LOGGING_ENABLED:
             initialize_logger(self.args.debug)
         else:

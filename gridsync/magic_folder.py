@@ -512,7 +512,6 @@ class MagicFolder:
             self.logger = NullLogger()
 
     def on_stdout_line_received(self, line: str) -> None:
-        # logging.debug("[magic-folder:stdout] %s", line)
         self.logger.log("stdout", line)
 
     @staticmethod
@@ -531,14 +530,11 @@ class MagicFolder:
 
     def on_stderr_line_received(self, line: str) -> None:
         if self._is_eliot_log_message(line):
-            # self._log_buffer.append(line.encode("utf-8"))
             self.logger.log("eliot", line, omit_fmt=True)
         else:
-            # logging.error("[magic-folder:stderr] %s", line)
             self.logger.log("stderr", line)
 
     def get_log_messages(self, name: str) -> list:
-        # return list(msg.decode("utf-8") for msg in list(self._log_buffer))
         return self.logger.read_messages(name)
 
     def _base_command_args(self) -> list[str]:
