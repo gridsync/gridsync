@@ -34,10 +34,8 @@ from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
     apply_eliot_filters,
     apply_filters,
-    filter_eliot_logs,
     get_filters,
     get_mask,
-    join_eliot_logs,
 )
 from gridsync.gui.widgets import HSpacer
 from gridsync.log import read_log
