@@ -29,8 +29,8 @@ def parse_pidfile(pidfile: Path) -> tuple[int, float]:
         pid_str, starttime_str = content.split()
         pid = int(pid_str)
         starttime = float(starttime_str)
-    except ValueError:
-        raise ValueError("found invalid PID file in {}".format(pidfile))
+    except ValueError as e:
+        raise ValueError("found invalid PID file in {}".format(pidfile)) from e
     return pid, starttime
 
 
