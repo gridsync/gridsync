@@ -157,7 +157,8 @@ class Supervisor:
                 pid, create = parse_pidfile(self.pidfile)
             except ValueError:
                 logging.warning(
-                    "Removing invalid pidfile: {}".format(self.pidfile)
+                    "Removing invalid pidfile: %s",
+                    self.pidfile,
                 )
                 self.pidfile.unlink()
             except OSError:
