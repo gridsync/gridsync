@@ -218,6 +218,10 @@ eliot==1.14.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
+filelock==3.8.0 \
+    --hash=sha256:55447caa666f2198c5b6b13a26d2084d26fa5b115c00d065664b2124680c4edc \
+    --hash=sha256:617eb4e5eedc82fc5f47b6d61e4d11cb837c56cb4544e39081099fa17ad109d4
+    # via magic-folder
 foolscap==21.7.0 \
     --hash=sha256:7520d5a2b6b2ac0b55d1c41c8bc1cdef65a611bbffc48ce0d1adcbd252e81e54 \
     --hash=sha256:e9d18553860d9358e85d7662d9cd8bf3826d51b4ecd480a05dfbf4fc45363f84
@@ -266,9 +270,9 @@ klein==21.8.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-magic-folder==22.9.0 \
-    --hash=sha256:b7da90dfecc32ce77d61cb24dbf8a8bd31d7284ba04ea5b069ea3775257f4a54 \
-    --hash=sha256:becc644e24a245bbb33b5fd7b6fb87decc70f4d7c42f3aaaa72e9a606f4356ad
+magic-folder==22.10.0 \
+    --hash=sha256:577e9934c665a7d815b8ed22409a032a112745db244259230bbc73cc0950d73e \
+    --hash=sha256:763e569b9d60ecef1f9d4fa756d354adb488279242253ac921a6dc4c7381c2f6
     # via -r requirements/magic-folder.in
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
@@ -663,9 +667,9 @@ zope-interface==5.4.0 \
     #   txtorcon
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==65.4.0 \
-    --hash=sha256:a8f6e213b4b0661f590ccf40de95d28a177cd747d098624ad3f69c40287297e9 \
-    --hash=sha256:c2d2709550f15aab6c9110196ea312f468f41cd546bceb24127a1be6fdcaeeb1
+setuptools==65.4.1 \
+    --hash=sha256:1b6bdc6161661409c5f21508763dc63ab20a9ac2f8ba20029aaaa7fdb9118012 \
+    --hash=sha256:3050e338e5871e70c72983072fe34f6032ae1cdeeeb67338199c2f74e083a80e
     # via
     #   autobahn
     #   tahoe-lafs
