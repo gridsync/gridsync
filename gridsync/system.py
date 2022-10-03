@@ -68,7 +68,7 @@ def terminate_if_matching(  # noqa: max-complexity
                 return False
             return True
         except NoSuchProcess:
-            return False
+            break
         except TimeoutExpired:
             pass
         if limit and time.time() >= limit:
@@ -95,7 +95,7 @@ def terminate(
     waiting = [proc.when_exited()]
     if kill_after:
         waiting.append(deferLater(reactor, kill_after, lambda: None))  # type: ignore
-    result, idx = yield DeferredList(
+    _, idx = yield DeferredList(
         waiting, fireOnOneCallback=True, fireOnOneErrback=True
     )
     if idx > 0:
@@ -107,7 +107,7 @@ def terminate(
         proc.transport.signalProcess("KILL")  # type:ignore
         try:
             yield proc.when_exited()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             pass
 
 
