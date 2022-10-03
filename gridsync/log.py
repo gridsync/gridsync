@@ -89,17 +89,6 @@ def read_log(path: Optional[Path] = None) -> str:
         return ""
 
 
-def find_log_files(pattern: str = "*.log*") -> list[Path]:
-    return sorted([path for path in LOGS_PATH.glob(pattern) if path.is_file()])
-
-
-def read_log_messages(path: Path) -> list[str]:
-    try:
-        return [line for line in path.read_text("utf-8").split("\n") if line]
-    except FileNotFoundError:
-        return []
-
-
 class MultiFileLogger:
     def __init__(self, basename: str) -> None:
         self.basename = basename
@@ -123,12 +112,6 @@ class MultiFileLogger:
     def read_log(self, logger_name: str) -> str:
         return read_log(Path(LOGS_PATH, f"{self.basename}.{logger_name}.log"))
 
-    def read_messages(self, logger_name: str) -> list[str]:
-        messages = []
-        for p in find_log_files(f"{self.basename}.{logger_name}.log*"):
-            messages.extend(read_log_messages(p))
-        return messages
-
 
 class NullLogger:
     def log(
@@ -140,8 +123,3 @@ class NullLogger:
         self, logger_name: str
     ) -> str:
         return ""
-
-    def read_messages(  # pylint: disable=unused-argument
-        self, logger_name: str
-    ) -> list:
-        return []
