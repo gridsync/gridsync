@@ -93,9 +93,7 @@ def terminate(
 
     waiting = [proc.when_exited()]
     if kill_after:
-        waiting.append(
-            deferLater(reactor, kill_after, lambda: None)
-        )  # type:ignore
+        waiting.append(deferLater(reactor, kill_after, lambda: None))  # type: ignore
     result, idx = yield DeferredList(
         waiting, fireOnOneCallback=True, fireOnOneErrback=True
     )
