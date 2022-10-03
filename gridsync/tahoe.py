@@ -161,6 +161,11 @@ class Tahoe:
         self.logger.log("stderr", message)
 
     def _log_eliot_message(self, message: str) -> None:
+        try:
+            message = json.dumps(json.loads(message), sort_keys=True)
+        except json.decoder.JSONDecodeError:
+            log.warning("Error decoding JSON message: %s", message)
+            return
         self.logger.log("eliot", message, omit_fmt=True)
 
     def load_newscap(self) -> None:

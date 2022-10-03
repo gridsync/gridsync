@@ -515,6 +515,7 @@ class MagicFolder:
 
     def on_stderr_line_received(self, line: str) -> None:
         if is_eliot_log_message(line):
+            line = json.dumps(json.loads(line), sort_keys=True)
             self.logger.log("eliot", line, omit_fmt=True)
         else:
             self.logger.log("stderr", line)
