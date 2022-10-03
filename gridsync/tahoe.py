@@ -457,6 +457,9 @@ class Tahoe:
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
+    def get_log(self, name: str) -> str:
+        return self.logger.read_log(name)
+
     def get_log_messages(self, name: str) -> list[str]:
         return self.logger.read_messages(name)
 

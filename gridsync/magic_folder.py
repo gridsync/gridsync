@@ -519,6 +519,9 @@ class MagicFolder:
         else:
             self.logger.log("stderr", line)
 
+    def get_log(self, name: str) -> str:
+        return self.logger.read_log(name)
+
     def get_log_messages(self, name: str) -> list:
         return self.logger.read_messages(name)
 
