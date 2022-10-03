@@ -68,7 +68,8 @@ class Supervisor:
 
     @property
     def name(self) -> str:
-        assert self.process is not None
+        if self.process is None:
+            return ""
         return self.process.name
 
     @inlineCallbacks
@@ -81,6 +82,8 @@ class Supervisor:
             return
         logging.debug("Stopping supervised process: %s", " ".join(self._args))
         yield terminate(self._protocol, kill_after=5)
+        self._protocol = None
+        self._process = None
         logging.debug("Supervised process stopped: %s", " ".join(self._args))
 
     @inlineCallbacks
