@@ -55,6 +55,8 @@ def terminate_if_matching(  # noqa: max-complexity
     """
     try:
         proc = Process(pid)
+        if proc.create_time() != create_time:
+            return False
         proc.terminate()
     except NoSuchProcess:
         return False
