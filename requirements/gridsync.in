@@ -25,3 +25,4 @@ twisted[tls] >= 21.7.0
 txtorcon
 watchdog
 zxcvbn
+filelock
