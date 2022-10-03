@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import shutil
+import logging
 import time
 from io import BytesIO
-from typing import TYPE_CHECKING, Callable, Optional, Union
+from typing import TYPE_CHECKING, Callable, Optional, Union, Awaitable, List
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
@@ -11,6 +12,7 @@ from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
+from twisted.internet.interfaces import IProcessTransport
 
 from gridsync import APP_NAME
 from gridsync.types import TwistedDeferred
@@ -44,7 +46,7 @@ def terminate_if_matching(
     pid: int,
     create_time: float,
     kill_after: Optional[Union[int, float]] = None,
-) -> TwistedDeferred[None]:
+) -> TwistedDeferred[bool]:
     """
     Terminate the process at `pid` only if `create_time` matches its
     creation time.
@@ -74,6 +76,7 @@ def terminate_if_matching(
             except NoSuchProcess:
                 return False
         yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
+    return False  # appease mypy; we shouldn't get here
 
 
 @inlineCallbacks
@@ -85,20 +88,21 @@ def terminate(
 
     :returns: a Deferred that fires when the process has terminated or been killed.
     """
-    proc.transport.signalProcess("TERM")
+    # mypy is very confused by zope.interface
+    proc.transport.signalProcess("TERM")  # type:ignore
 
     waiting = [proc.when_exited()]
     if kill_after:
-        waiting.append(deferLater(reactor, kill_after, lambda: None))
+        waiting.append(deferLater(reactor, kill_after, lambda: None))  # type:ignore
     result, idx = yield DeferredList(
         waiting, fireOnOneCallback=True, fireOnOneErrback=True
     )
     if idx > 0:
         # the timeout fired (not when_exited())
         logging.debug(
-            "Failed to terminate, sending KILL to %i", proc.transport.pid
+            "Failed to terminate, sending KILL to %i", proc.transport.pid  # type:ignore
         )
-        proc.transport.signalProcess("KILL")
+        proc.transport.signalProcess("KILL")  # type:ignore
         try:
             yield proc.when_exited()
         except Exception:
@@ -158,11 +162,11 @@ class SubprocessProtocol(ProcessProtocol):
             if not self.done.called:
                 self._check_triggers(line)
 
-    def when_exited(self) -> TwistedDeferred[None]:
+    def when_exited(self) -> Deferred[None]:
         """
         :returns: a Deferred that fires when this process has exited
         """
-        d = Deferred()
+        d: Deferred[None] = Deferred()
         if self._awaiting_ended is None:
             # already exited
             d.callback(None)

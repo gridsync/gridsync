@@ -18,7 +18,7 @@ from gridsync.system import (
 from gridsync.types import TwistedDeferred
 
 
-def parse_pidfile(pidfile: Path):
+def parse_pidfile(pidfile: Path) -> tuple[int, float]:
     """
     :param Path pidfile:
     :returns tuple: 2-tuple of pid, creation-time as int, float
@@ -27,9 +27,9 @@ def parse_pidfile(pidfile: Path):
     with pidfile.open("r") as f:
         content = f.read().strip()
     try:
-        pid, starttime = content.split()
-        pid = int(pid)
-        starttime = float(starttime)
+        pid_str, starttime_str = content.split()
+        pid = int(pid_str)
+        starttime = float(starttime_str)
     except ValueError:
         raise ValueError("found invalid PID file in {}".format(pidfile))
     return pid, starttime
@@ -64,11 +64,12 @@ class Supervisor:
     def process(self) -> Optional[Process]:
         if self._process is None:
             if self._protocol is not None:
-                self._process = Process(self._protocol.transport.pid)
+                self._process = Process(self._protocol.transport.pid)  # type: ignore
         return self._process
 
     @property
-    def name(self):
+    def name(self) -> str:
+        assert self.process is not None
         return self.process.name
 
     @inlineCallbacks
@@ -111,10 +112,11 @@ class Supervisor:
         logging.debug(
             "Supervised process (re)started: %s (PID %i)",
             " ".join(self._args),
-            self.process.pid,
+            self.process.pid,  # type: ignore
         )
         if self._call_after_start:
             self._call_after_start()
+        assert self.process is not None
         return (self.process.pid, self.name)
 
     def _schedule_restart(self, _) -> None:  # type: ignore
