@@ -867,4 +867,4 @@ async def test_monitor_emits_overall_status_changed_signal(
 
 
 def test_eliot_logs_collected(magic_folder):
-    assert len(magic_folder.get_log_messages("eliot")) > 0
+    assert len(magic_folder.get_log("eliot")) > 0
