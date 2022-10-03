@@ -4,13 +4,12 @@ import logging
 import shutil
 import time
 from io import BytesIO
-from typing import TYPE_CHECKING, Awaitable, Callable, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.internet.error import ProcessDone
-from twisted.internet.interfaces import IProcessTransport
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 
@@ -42,7 +41,7 @@ def which(cmd: str) -> str:
 
 
 @inlineCallbacks
-def terminate_if_matching(
+def terminate_if_matching(  # noqa: max-complexity
     pid: int,
     create_time: float,
     kill_after: Optional[Union[int, float]] = None,

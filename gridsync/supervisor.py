@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 from typing import Callable, Optional
 
-from atomicwrites import atomic_write
 from filelock import FileLock
 from psutil import Process
 from twisted.internet import reactor
@@ -95,7 +94,7 @@ class Supervisor:
         )
         if self._call_before_start:
             self._call_before_start()
-        transport = yield reactor.spawnProcess(  # type: ignore
+        yield reactor.spawnProcess(  # type: ignore
             protocol, self._args[0], args=self._args, env=os.environ
         )
         self._protocol = protocol
