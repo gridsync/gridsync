@@ -80,6 +80,15 @@ def initialize_logger(
     logging.debug("Hello World!")
 
 
+def read_log(path: Optional[Path] = None) -> str:
+    if path is None:
+        path = Path(LOGS_PATH, f"{APP_NAME}.log")
+    try:
+        return path.read_text("utf-8")
+    except FileNotFoundError:
+        return ""
+
+
 def find_log_files(pattern: str = "*.log*") -> list[Path]:
     return sorted([path for path in LOGS_PATH.glob(pattern) if path.is_file()])
 
