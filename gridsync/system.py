@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import shutil
 import logging
+import shutil
 import time
 from io import BytesIO
-from typing import TYPE_CHECKING, Callable, Optional, Union, Awaitable, List
+from typing import TYPE_CHECKING, Awaitable, Callable, List, Optional, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.internet.error import ProcessDone
+from twisted.internet.interfaces import IProcessTransport
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
-from twisted.internet.interfaces import IProcessTransport
 
 from gridsync import APP_NAME
 from gridsync.types import TwistedDeferred
@@ -93,14 +93,17 @@ def terminate(
 
     waiting = [proc.when_exited()]
     if kill_after:
-        waiting.append(deferLater(reactor, kill_after, lambda: None))  # type:ignore
+        waiting.append(
+            deferLater(reactor, kill_after, lambda: None)
+        )  # type:ignore
     result, idx = yield DeferredList(
         waiting, fireOnOneCallback=True, fireOnOneErrback=True
     )
     if idx > 0:
         # the timeout fired (not when_exited())
         logging.debug(
-            "Failed to terminate, sending KILL to %i", proc.transport.pid  # type:ignore
+            "Failed to terminate, sending KILL to %i",
+            proc.transport.pid,  # type:ignore
         )
         proc.transport.signalProcess("KILL")  # type:ignore
         try:
