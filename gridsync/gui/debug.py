@@ -39,7 +39,7 @@ from gridsync.filter import (
     join_eliot_logs,
 )
 from gridsync.gui.widgets import HSpacer
-from gridsync.log import find_log_files
+from gridsync.log import find_log_files, read_log
 from gridsync.msg import error
 
 if TYPE_CHECKING:
@@ -91,29 +91,6 @@ def _format_log(log_name: str, content: str) -> str:
     )
 
 
-def _read_logs() -> str:
-    results = []
-    for path in find_log_files():
-        log_name = path.name.replace(".", " ")
-        results.append(
-            f"---------------- Beginning of {log_name} ----------------\n"
-            f'{path.read_text("utf-8")}'
-            f"---------------- End of {log_name} ----------------\n"
-        )
-    return "\n".join(results)
-
-
-def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
-    return (
-        f"\n------ Beginning of Tahoe-LAFS log for {gateway_name} ------\n"
-        f"{tahoe_log}"
-        f"\n------ End of Tahoe-LAFS log for {gateway_name} ------\n"
-        f"\n------ Beginning of Magic-Folder log for {gateway_name} ------\n"
-        f"{magic_folder_log}"
-        f"\n------ End of Magic-Folder log for {gateway_name} ------\n"
-    )
-
-
 class LogLoader(QObject):
 
     done = Signal()
@@ -126,32 +103,71 @@ class LogLoader(QObject):
 
     def load(self) -> None:
         start_time = time.time()
-        self.content = _make_header(self.core) + _read_logs()
+        self.content = _make_header(self.core) + _format_log(
+            f"{APP_NAME} log", read_log()
+        )
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
-            self.content = self.content + log_fmt(
-                gateway.name,
-                join_eliot_logs(gateway.get_log_messages("eliot")),
+            gateway_mask = get_mask(gateway.name, "GatewayName", gateway_id)
+
+            tahoe_stdout = gateway.get_log("stdout")
+            self.content += _format_log(
+                f"{gateway.name} Tahoe-LAFS stdout log", tahoe_stdout
+            )
+            self.filtered_content += _format_log(
+                f"{gateway_mask} Tahoe-LAFS stdout log",
+                apply_filters(tahoe_stdout, filters),
+            )
+            tahoe_stderr = gateway.get_log("stderr")
+            self.content += _format_log(
+                f"{gateway.name} Tahoe-LAFS stderr log", tahoe_stderr
+            )
+            self.filtered_content += _format_log(
+                f"{gateway_mask} Tahoe-LAFS stderr log",
+                apply_filters(tahoe_stderr, filters),
+            )
+            tahoe_eliot = gateway.get_log("eliot")
+            self.content += _format_log(
+                f"{gateway.name} Tahoe-LAFS eliot log", tahoe_eliot
+            )
+            self.filtered_content += _format_log(
+                f"{gateway_mask} Tahoe-LAFS eliot log",
                 join_eliot_logs(
-                    gateway.magic_folder.get_log_messages("eliot")
+                    filter_eliot_logs(tahoe_eliot.split("\n"), gateway_id)
                 ),
             )
-            self.filtered_content = self.filtered_content + log_fmt(
-                get_mask(gateway.name, "GatewayName", gateway_id),
+
+            magic_folder_stdout = gateway.magic_folder.get_log("stdout")
+            self.content += _format_log(
+                f"{gateway.name} Magic-Folder stdout log", magic_folder_stdout
+            )
+            self.filtered_content += _format_log(
+                f"{gateway_mask} Magic-Folder stdout log",
+                apply_filters(magic_folder_stdout, filters),
+            )
+            magic_folder_stderr = gateway.magic_folder.get_log("stderr")
+            self.content += _format_log(
+                f"{gateway.name} Magic-Folder stderr log", magic_folder_stderr
+            )
+            self.filtered_content += _format_log(
+                f"{gateway_mask} Magic-Folder stderr log",
+                apply_filters(magic_folder_stderr, filters),
+            )
+            magic_folder_eliot = gateway.magic_folder.get_log("eliot")
+            self.content += _format_log(
+                f"{gateway.name} Magic-Folder eliot log", magic_folder_eliot
+            )
+            self.filtered_content += _format_log(
+                f"{gateway_mask} Magic-Folder eliot log",
                 join_eliot_logs(
                     filter_eliot_logs(
-                        gateway.get_log_messages("eliot"), gateway_id
-                    )
-                ),
-                join_eliot_logs(
-                    filter_eliot_logs(
-                        gateway.magic_folder.get_log_messages("eliot"),
-                        gateway_id,
+                        magic_folder_eliot.split("\n"), gateway_id
                     )
                 ),
             )
+
         self.done.emit()
         logging.debug("Loaded logs in %f seconds", time.time() - start_time)
 
