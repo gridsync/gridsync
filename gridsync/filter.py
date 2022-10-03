@@ -335,3 +335,8 @@ def join_eliot_logs(messages: list[str]) -> str:
     for message in messages:
         reordered.append(json.dumps(json.loads(message), sort_keys=True))
     return "\n".join(reordered)
+
+
+def apply_eliot_filters(content: str, identifier: Optional[str] = None) -> str:
+    messages = content.split("\n")
+    return join_eliot_logs(filter_eliot_logs(messages, identifier))

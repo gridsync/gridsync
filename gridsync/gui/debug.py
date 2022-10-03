@@ -32,6 +32,7 @@ from gridsync import (
 )
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
+    apply_eliot_filters,
     apply_filters,
     filter_eliot_logs,
     get_filters,
@@ -134,9 +135,7 @@ class LogLoader(QObject):
             )
             self.filtered_content += _format_log(
                 f"{gateway_mask} Tahoe-LAFS eliot log",
-                join_eliot_logs(
-                    filter_eliot_logs(tahoe_eliot.split("\n"), gateway_id)
-                ),
+                apply_eliot_filters(tahoe_eliot, gateway_id),
             )
 
             magic_folder_stdout = gateway.magic_folder.get_log("stdout")
@@ -161,11 +160,7 @@ class LogLoader(QObject):
             )
             self.filtered_content += _format_log(
                 f"{gateway_mask} Magic-Folder eliot log",
-                join_eliot_logs(
-                    filter_eliot_logs(
-                        magic_folder_eliot.split("\n"), gateway_id
-                    )
-                ),
+                apply_eliot_filters(magic_folder_eliot, gateway_id),
             )
 
         self.done.emit()
