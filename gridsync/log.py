@@ -120,7 +120,7 @@ class MultiFileLogger:
             self._loggers[name] = logger
         logger.debug(message)
 
-    def read_log(self, logger_name) -> str:
+    def read_log(self, logger_name: str) -> str:
         return read_log(Path(LOGS_PATH, f"{self.basename}.{logger_name}.log"))
 
     def read_messages(self, logger_name: str) -> list[str]:
