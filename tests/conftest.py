@@ -10,6 +10,7 @@ import pytest
 from pytest_twisted import async_yield_fixture
 
 from gridsync import APP_NAME
+from gridsync.log import initialize_logger
 from gridsync.network import get_free_port
 from gridsync.tahoe import Tahoe
 
@@ -29,6 +30,9 @@ else:
     )
 
 os.environ["PATH"] = application_bundle_path + os.pathsep + os.environ["PATH"]
+
+
+initialize_logger()
 
 
 @async_yield_fixture(scope="module")
