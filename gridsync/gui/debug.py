@@ -39,7 +39,7 @@ from gridsync.filter import (
     join_eliot_logs,
 )
 from gridsync.gui.widgets import HSpacer
-from gridsync.log import find_log_files, read_log
+from gridsync.log import read_log
 from gridsync.msg import error
 
 if TYPE_CHECKING:
