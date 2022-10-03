@@ -120,6 +120,9 @@ class MultiFileLogger:
             self._loggers[name] = logger
         logger.debug(message)
 
+    def read_log(self, logger_name) -> str:
+        return read_log(Path(LOGS_PATH, f"{self.basename}.{logger_name}.log"))
+
     def read_messages(self, logger_name: str) -> list[str]:
         messages = []
         for p in find_log_files(f"{self.basename}.{logger_name}.log*"):
@@ -132,6 +135,11 @@ class NullLogger:
         self, logger_name: str, message: str, omit_fmt: bool = False
     ) -> None:
         pass
+
+    def read_log(  # pylint: disable=unused-argument
+        self, logger_name: str
+    ) -> str:
+        return ""
 
     def read_messages(  # pylint: disable=unused-argument
         self, logger_name: str
