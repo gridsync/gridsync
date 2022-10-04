@@ -326,14 +326,16 @@ def filter_eliot_logs(
 ) -> list[str]:
     filtered = []
     for message in messages:
-        filtered.append(filter_eliot_log_message(message, identifier))
+        if message:
+            filtered.append(filter_eliot_log_message(message, identifier))
     return filtered
 
 
 def join_eliot_logs(messages: list[str]) -> str:
     reordered = []
     for message in messages:
-        reordered.append(json.dumps(json.loads(message), sort_keys=True))
+        if message:
+            reordered.append(json.dumps(json.loads(message), sort_keys=True))
     return "\n".join(reordered)
 
 
