@@ -112,55 +112,62 @@ class LogLoader(QObject):
             gateway_mask = get_mask(gateway.name, "GatewayName", gateway_id)
 
             tahoe_stdout = gateway.get_log("stdout")
-            self.content += _format_log(
-                f"{gateway.name} Tahoe-LAFS stdout log", tahoe_stdout
-            )
-            self.filtered_content += _format_log(
-                f"{gateway_mask} Tahoe-LAFS stdout log",
-                apply_filters(tahoe_stdout, filters),
-            )
+            if tahoe_stdout:
+                self.content += _format_log(
+                    f"{gateway.name} Tahoe-LAFS stdout log", tahoe_stdout
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Tahoe-LAFS stdout log",
+                    apply_filters(tahoe_stdout, filters),
+                )
             tahoe_stderr = gateway.get_log("stderr")
-            self.content += _format_log(
-                f"{gateway.name} Tahoe-LAFS stderr log", tahoe_stderr
-            )
-            self.filtered_content += _format_log(
-                f"{gateway_mask} Tahoe-LAFS stderr log",
-                apply_filters(tahoe_stderr, filters),
-            )
+            if tahoe_stderr:
+                self.content += _format_log(
+                    f"{gateway.name} Tahoe-LAFS stderr log", tahoe_stderr
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Tahoe-LAFS stderr log",
+                    apply_filters(tahoe_stderr, filters),
+                )
             tahoe_eliot = gateway.get_log("eliot")
-            self.content += _format_log(
-                f"{gateway.name} Tahoe-LAFS eliot log", tahoe_eliot
-            )
-            self.filtered_content += _format_log(
-                f"{gateway_mask} Tahoe-LAFS eliot log",
-                apply_eliot_filters(tahoe_eliot, gateway_id),
-            )
-
+            if tahoe_eliot:
+                self.content += _format_log(
+                    f"{gateway.name} Tahoe-LAFS eliot log", tahoe_eliot
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Tahoe-LAFS eliot log",
+                    apply_eliot_filters(tahoe_eliot, gateway_id),
+                )
             magic_folder_stdout = gateway.magic_folder.get_log("stdout")
-            self.content += _format_log(
-                f"{gateway.name} Magic-Folder stdout log", magic_folder_stdout
-            )
-            self.filtered_content += _format_log(
-                f"{gateway_mask} Magic-Folder stdout log",
-                apply_filters(magic_folder_stdout, filters),
-            )
+            if magic_folder_stdout:
+                self.content += _format_log(
+                    f"{gateway.name} Magic-Folder stdout log",
+                    magic_folder_stdout,
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Magic-Folder stdout log",
+                    apply_filters(magic_folder_stdout, filters),
+                )
             magic_folder_stderr = gateway.magic_folder.get_log("stderr")
-            self.content += _format_log(
-                f"{gateway.name} Magic-Folder stderr log", magic_folder_stderr
-            )
-            self.filtered_content += _format_log(
-                f"{gateway_mask} Magic-Folder stderr log",
-                apply_filters(magic_folder_stderr, filters),
-            )
+            if magic_folder_stderr:
+                self.content += _format_log(
+                    f"{gateway.name} Magic-Folder stderr log",
+                    magic_folder_stderr,
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Magic-Folder stderr log",
+                    apply_filters(magic_folder_stderr, filters),
+                )
             magic_folder_eliot = gateway.magic_folder.get_log("eliot")
-            self.content += _format_log(
-                f"{gateway.name} Magic-Folder eliot log", magic_folder_eliot
-            )
-            self.filtered_content += _format_log(
-                f"{gateway_mask} Magic-Folder eliot log",
-                apply_eliot_filters(magic_folder_eliot, gateway_id),
-            )
-
+            if magic_folder_eliot:
+                self.content += _format_log(
+                    f"{gateway.name} Magic-Folder eliot log",
+                    magic_folder_eliot,
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Magic-Folder eliot log",
+                    apply_eliot_filters(magic_folder_eliot, gateway_id),
+                )
         self.done.emit()
         logging.debug("Loaded logs in %f seconds", time.time() - start_time)
 
