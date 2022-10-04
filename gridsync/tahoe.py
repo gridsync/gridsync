@@ -563,7 +563,8 @@ class Tahoe:
             results = await self.supervisor.start(
                 [self.executable, "-d", self.nodedir, "run"],
                 started_trigger="client running",
-                stdout_line_collector=self.line_received,
+                stdout_line_collector=self._log_stdout_message,
+                stderr_line_collector=self._log_stderr_message,
                 call_before_start=self._remove_twistd_pid,
                 call_after_start=self._on_started,
             )
