@@ -69,6 +69,18 @@ for envvar, value in os.environ.items():
             except KeyError:
                 settings[section] = {option: value}
 
+
+_help_settings = settings.get("help", {})
+DOCS_HELP_URL = _help_settings.get(
+    "docs_url",
+    "https://github.com/gridsync/gridsync/tree/master/docs",
+)
+ISSUES_HELP_URL = _help_settings.get(
+    "issues_url",
+    "https://github.com/gridsync/gridsync/issues",
+)
+
+
 try:
     APP_NAME = settings["application"]["name"]
 except KeyError:
