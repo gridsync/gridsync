@@ -83,10 +83,12 @@ Datetime:     {datetime.now(timezone.utc).isoformat()}
 
 
 def _format_log(log_name: str, content: str) -> str:
+    if content and not content.endswith("\n"):
+        content += "\n"
     return (
-        f"---------------- Beginning of {log_name} ----------------\n"
+        f"-------------------- Beginning of {log_name} --------------------\n"
         f"{content}"
-        f"---------------- End of {log_name} ----------------\n"
+        f"-------------------- End of {log_name} --------------------\n\n"
     )
 
 
