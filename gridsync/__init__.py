@@ -83,6 +83,10 @@ RECOVERY_HELP_URL = _help_settings.get(
     "recovery_url",
     "https://github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md",
 )
+ZKAPS_HELP_URL = _help_settings.get(
+    "zkaps_url",
+    "https://github.com/PrivateStorageio/ZKAPAuthorizer",
+)
 
 
 try:
