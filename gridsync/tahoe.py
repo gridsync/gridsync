@@ -375,11 +375,6 @@ class Tahoe:
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
 
-    def line_received(self, line: str) -> None:
-        # TODO: Connect to Core via Qt signals/slots?
-        log.debug("[%s] >>> %s", self.name, line)
-        self._log_stdout_message(line)
-
     async def command(self, args: list[str]) -> str:
         if not self.executable:
             self.executable = which("tahoe")
