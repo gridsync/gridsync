@@ -47,9 +47,7 @@ class Menu(QMenu):
         help_menu = QMenu(self)
         help_menu.setTitle("Help")
         if DOCS_HELP_URL:
-            docs_action = QAction(
-                QIcon(""), "Browse Documentation...", self
-            )
+            docs_action = QAction(QIcon(""), "Browse Documentation...", self)
             docs_action.triggered.connect(
                 lambda: webbrowser.open(DOCS_HELP_URL)
             )
