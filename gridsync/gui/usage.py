@@ -34,8 +34,8 @@ if TYPE_CHECKING:
 
 def make_explainer_label() -> QLabel:
     explainer_label = QLabel(
-        f"The {APP_NAME} app will gradually consume your storage-time to "
-        f"keep your data saved. <a href={ZKAPS_HELP_URL}>Learn more...</a>"
+        f"<br>The {APP_NAME} app will gradually consume your storage-time to "
+        f"keep your data saved.<br><a href={ZKAPS_HELP_URL}>Learn more...</a>"
     )
     font = Font(10)
     font.setItalic(True)
