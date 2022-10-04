@@ -7,7 +7,13 @@ from importlib import reload
 import pytest
 
 import gridsync
-from gridsync import load_settings_from_cheatcode
+from gridsync import (
+    DOCS_HELP_URL,
+    ISSUES_HELP_URL,
+    RECOVERY_HELP_URL,
+    ZKAPS_HELP_URL,
+    load_settings_from_cheatcode,
+)
 
 
 def test_the_approval_of_RMS():  # :)
@@ -125,3 +131,16 @@ def test_load_settings_from_cheatcode_none(tmpdir_factory, monkeypatch):
     pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir-empty")
     monkeypatch.setattr("gridsync.pkgdir", pkgdir)
     assert load_settings_from_cheatcode("test-test") is None
+
+
+@pytest.mark.parametrize(
+    "url, type_",
+    [
+        (DOCS_HELP_URL, str),
+        (ISSUES_HELP_URL, str),
+        (RECOVERY_HELP_URL, str),
+        (ZKAPS_HELP_URL, str),
+    ],
+)
+def test_help_urls_declared_as_expected_type(url, type_):
+    assert isinstance(url, type_)

@@ -16,7 +16,7 @@ from qtpy.QtWidgets import QGridLayout, QGroupBox, QLabel, QPushButton, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import APP_NAME, resource
+from gridsync import APP_NAME, ZKAPS_HELP_URL, resource
 from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.color import BlendedColor
@@ -34,9 +34,10 @@ if TYPE_CHECKING:
 
 def make_explainer_label() -> QLabel:
     explainer_label = QLabel(
-        f"The {APP_NAME} app will gradually consume your storage-time to "
-        "keep your data saved."
+        f"<br>The {APP_NAME} app will gradually consume your storage-time to "
+        f"keep your data saved.<br><a href={ZKAPS_HELP_URL}>Learn more...</a>"
     )
+    explainer_label.linkActivated.connect(webbrowser.open)
     font = Font(10)
     font.setItalic(True)
     explainer_label.setFont(font)
@@ -140,9 +141,11 @@ class UsageView(QWidget):
         else:
             action = "add storage-time using a voucher code"
         zkaps_required_label = QLabel(
-            "You currently have 0 GB-months available.\n\nIn order to store "
+            "You currently have 0 GB-months available.<p>In order to store "
             f"data with {self.gateway.name}, you will need to {action}."
+            f"<p><a href={ZKAPS_HELP_URL}>Learn more...</a>"
         )
+        zkaps_required_label.linkActivated.connect(webbrowser.open)
         zkaps_required_label.setAlignment(Qt.AlignCenter)
         zkaps_required_label.setWordWrap(True)
         zkaps_required_label.hide()
@@ -311,7 +314,7 @@ class UsageView(QWidget):
             error(
                 self,
                 "Error launching browser",
-                "Could not launch webbrower. To complete payment for "
+                "Could not launch webbrowser. To complete payment for "
                 f"{self.gateway.name}, please visit the following URL:"
                 f"<p><a href={payment_url}>{payment_url}</a><br>",
             )

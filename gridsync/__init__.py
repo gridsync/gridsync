@@ -69,6 +69,26 @@ for envvar, value in os.environ.items():
             except KeyError:
                 settings[section] = {option: value}
 
+
+_help_settings = settings.get("help", {})
+DOCS_HELP_URL = _help_settings.get(
+    "docs_url",
+    "https://github.com/gridsync/gridsync/tree/master/docs",
+)
+ISSUES_HELP_URL = _help_settings.get(
+    "issues_url",
+    "https://github.com/gridsync/gridsync/issues",
+)
+RECOVERY_HELP_URL = _help_settings.get(
+    "recovery_url",
+    "https://github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md",
+)
+ZKAPS_HELP_URL = _help_settings.get(
+    "zkaps_url",
+    "https://github.com/PrivateStorageio/ZKAPAuthorizer",
+)
+
+
 try:
     APP_NAME = settings["application"]["name"]
 except KeyError:
