@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-from collections import deque
 from unittest.mock import Mock
 
 import pytest
@@ -17,7 +15,6 @@ def test_system_module_variable_is_not_none():
 def core():
     fake_core = Mock()
     fake_core.tahoe_version = "9.999"
-    fake_core.log_deque = deque(["debug msg 1", "/test/tahoe", "debug msg 3"])
     fake_gateway = Mock()
     fake_gateway.executable = "/test/tahoe"
     fake_gateway.name = "TestGridOne"
@@ -32,16 +29,16 @@ def core():
     return fake_core
 
 
-def _test_log_loader_load_content(core):  # XXX
+def test_log_loader_load_content(core):
     log_loader = LogLoader(core)
     log_loader.load()
-    assert core.gateways[0].executable in log_loader.content
+    assert core.gateways[0].name in log_loader.content
 
 
 def test_log_loader_load_filtered_content(core):
     log_loader = LogLoader(core)
     log_loader.load()
-    assert core.gateways[0].executable not in log_loader.filtered_content
+    assert core.gateways[0].name not in log_loader.filtered_content
 
 
 @pytest.mark.parametrize(
@@ -81,12 +78,12 @@ def test_debug_exporter_on_info_button_clicked(monkeypatch):
     assert fake_msgbox.called
 
 
-def _test_debug_exporter_load_content(core, qtbot):  # XXX
+def test_debug_exporter_load_content(core, qtbot):
     de = DebugExporter(core)
     de.checkbox.setCheckState(Qt.Unchecked)  # Filter off
     with qtbot.wait_signal(de.log_loader.done):
         de.load()
-    assert core.gateways[0].executable in de.plaintextedit.toPlainText()
+    assert core.gateways[0].name in de.plaintextedit.toPlainText()
 
 
 def test_debug_exporter_load_filtered_content(core, qtbot):
@@ -94,7 +91,7 @@ def test_debug_exporter_load_filtered_content(core, qtbot):
     de.checkbox.setCheckState(Qt.Checked)  # Filter on
     with qtbot.wait_signal(de.log_loader.done):
         de.load()
-    assert core.gateways[0].executable not in de.plaintextedit.toPlainText()
+    assert core.gateways[0].name not in de.plaintextedit.toPlainText()
 
 
 def test_debug_exporter_load_return_early_thread_running(core, qtbot):
