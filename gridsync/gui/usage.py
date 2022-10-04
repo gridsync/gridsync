@@ -37,6 +37,7 @@ def make_explainer_label() -> QLabel:
         f"<br>The {APP_NAME} app will gradually consume your storage-time to "
         f"keep your data saved.<br><a href={ZKAPS_HELP_URL}>Learn more...</a>"
     )
+    explainer_label.linkActivated.connect(webbrowser.open)
     font = Font(10)
     font.setItalic(True)
     explainer_label.setFont(font)
@@ -144,6 +145,7 @@ class UsageView(QWidget):
             f"data with {self.gateway.name}, you will need to {action}."
             f"<p><a href={ZKAPS_HELP_URL}>Learn more...</a>"
         )
+        zkaps_required_label.linkActivated.connect(webbrowser.open)
         zkaps_required_label.setAlignment(Qt.AlignCenter)
         zkaps_required_label.setWordWrap(True)
         zkaps_required_label.hide()
