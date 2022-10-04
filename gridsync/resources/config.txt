@@ -24,6 +24,8 @@ tor = true
 [help]
 docs_url = https://github.com/gridsync/gridsync/tree/master/docs
 issues_url = https://github.com/gridsync/gridsync/issues
+recovery_url = https://github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md
+zkaps_url = https://github.com/PrivateStorageio/ZKAPAuthorizer
 
 [logging]
 enabled = true
