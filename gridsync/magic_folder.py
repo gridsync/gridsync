@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 import logging
 import os
-from collections import defaultdict, deque
+from collections import defaultdict
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
+from gridsync.filter import is_eliot_log_message
+from gridsync.log import MultiFileLogger, NullLogger
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
@@ -486,11 +488,10 @@ class MagicFolder:
         self,
         gateway: Tahoe,
         executable: Optional[str] = "",
-        logs_maxlen: Optional[int] = 1000000,
+        enable_logging: bool = True,
     ) -> None:
         self.gateway = gateway
         self.executable = executable
-        self._log_buffer: deque[bytes] = deque(maxlen=logs_maxlen)
 
         self.configdir = Path(gateway.nodedir, "private", "magic-folder")
         self.api_port: int = 0
@@ -503,32 +504,24 @@ class MagicFolder:
             pidfile=Path(self.configdir, f"{APP_NAME}-magic-folder.pid")
         )
 
-    @staticmethod
-    def on_stdout_line_received(line: str) -> None:
-        logging.debug("[magic-folder:stdout] %s", line)
+        self.logger: Union[MultiFileLogger, NullLogger]
+        if enable_logging:
+            self.logger = MultiFileLogger(f"{gateway.name}.Magic-Folder")
+        else:
+            self.logger = NullLogger()
 
-    @staticmethod
-    def _is_eliot_log_message(s: str) -> bool:
-        try:
-            data = json.loads(s)
-        except json.decoder.JSONDecodeError:
-            return False
-        if (
-            isinstance(data, dict)
-            and "timestamp" in data
-            and "task_uuid" in data
-        ):
-            return True
-        return False
+    def on_stdout_line_received(self, line: str) -> None:
+        self.logger.log("stdout", line)
 
     def on_stderr_line_received(self, line: str) -> None:
-        if self._is_eliot_log_message(line):
-            self._log_buffer.append(line.encode("utf-8"))
+        if is_eliot_log_message(line):
+            line = json.dumps(json.loads(line), sort_keys=True)
+            self.logger.log("eliot", line, omit_fmt=True)
         else:
-            logging.error("[magic-folder:stderr] %s", line)
+            self.logger.log("stderr", line)
 
-    def get_log_messages(self) -> list:
-        return list(msg.decode("utf-8") for msg in list(self._log_buffer))
+    def get_log(self, name: str) -> str:
+        return self.logger.read_log(name)
 
     def _base_command_args(self) -> list[str]:
         if not self.executable:
@@ -552,7 +545,7 @@ class MagicFolder:
 
     async def version(self) -> str:
         output = await self._command(["--version"])
-        return output
+        return output.lstrip("Magic Folder version ")
 
     async def stop(self) -> None:
         self.monitor.stop()
