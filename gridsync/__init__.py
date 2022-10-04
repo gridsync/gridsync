@@ -79,6 +79,10 @@ ISSUES_HELP_URL = _help_settings.get(
     "issues_url",
     "https://github.com/gridsync/gridsync/issues",
 )
+RECOVERY_HELP_URL = _help_settings.get(
+    "recovery_url",
+    "https://github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md",
+)
 
 
 try:
