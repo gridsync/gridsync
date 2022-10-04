@@ -16,7 +16,7 @@ from qtpy.QtWidgets import QGridLayout, QGroupBox, QLabel, QPushButton, QWidget
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from gridsync import APP_NAME, resource
+from gridsync import APP_NAME, ZKAPS_HELP_URL, resource
 from gridsync.desktop import get_browser_name
 from gridsync.gui.charts import ZKAPBarChartView
 from gridsync.gui.color import BlendedColor
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 def make_explainer_label() -> QLabel:
     explainer_label = QLabel(
         f"The {APP_NAME} app will gradually consume your storage-time to "
-        "keep your data saved."
+        f"keep your data saved. <a href={ZKAPS_HELP_URL}>Learn more...</a>"
     )
     font = Font(10)
     font.setItalic(True)
@@ -140,8 +140,9 @@ class UsageView(QWidget):
         else:
             action = "add storage-time using a voucher code"
         zkaps_required_label = QLabel(
-            "You currently have 0 GB-months available.\n\nIn order to store "
+            "You currently have 0 GB-months available.<p>In order to store "
             f"data with {self.gateway.name}, you will need to {action}."
+            f"<p><a href={ZKAPS_HELP_URL}>Learn more...</a>"
         )
         zkaps_required_label.setAlignment(Qt.AlignCenter)
         zkaps_required_label.setWordWrap(True)
