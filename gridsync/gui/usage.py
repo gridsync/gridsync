@@ -314,7 +314,7 @@ class UsageView(QWidget):
             error(
                 self,
                 "Error launching browser",
-                "Could not launch webbrower. To complete payment for "
+                "Could not launch webbrowser. To complete payment for "
                 f"{self.gateway.name}, please visit the following URL:"
                 f"<p><a href={payment_url}>{payment_url}</a><br>",
             )
