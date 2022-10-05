@@ -533,15 +533,6 @@ def test_tahoe_create_client_add_storage_servers(tmpdir, monkeypatch):
     assert client.get_storage_servers() == storage_servers
 
 
-@ensureDeferred
-async def test_tahoe_stop_kills_pid_in_pidfile(tahoe, monkeypatch):
-    Path(tahoe.pidfile).write_text(str("4194305"), encoding="utf-8")
-    fake_process = Mock()
-    monkeypatch.setattr("gridsync.system.Process", fake_process)
-    await tahoe.stop()
-    assert fake_process.call_args[0][0] == 4194305
-
-
 @pytest.mark.parametrize("locked,call_count", [(True, 1), (False, 0)])
 @ensureDeferred
 async def test_tahoe_stop_locked(locked, call_count, tahoe, monkeypatch):

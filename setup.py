@@ -33,6 +33,7 @@ requirements = [
     "txtorcon",
     "watchdog",
     "zxcvbn",
+    "filelock",
 ]
 qt_requirements = {
     "pyqt5": ["PyQt5", "PyQtChart"],

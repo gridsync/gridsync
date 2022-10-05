@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import shutil
 import time
 from io import BytesIO
@@ -7,7 +8,7 @@ from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from psutil import NoSuchProcess, Process, TimeoutExpired
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
 from twisted.internet.error import ProcessDone
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
@@ -39,49 +40,75 @@ def which(cmd: str) -> str:
     return path
 
 
-def process_name(pid: int) -> str:
-    try:
-        return Process(pid).name()
-    except NoSuchProcess:
-        return ""
+@inlineCallbacks
+def terminate_if_matching(  # noqa: max-complexity
+    pid: int,
+    create_time: float,
+    kill_after: Optional[Union[int, float]] = None,
+) -> TwistedDeferred[bool]:
+    """
+    Terminate the process at `pid` only if `create_time` matches its
+    creation time.
 
-
-def is_running(pid: int) -> bool:
+    :returns: Deferred that fires when the process has exited or been
+        killed. If it was killed, True is returned; otherwise, False.
+    """
     try:
-        return Process(pid).is_running()
+        proc = Process(pid)
+        if proc.create_time() != create_time:
+            return False
+        proc.terminate()
     except NoSuchProcess:
         return False
 
-
-@inlineCallbacks
-def terminate(  # noqa: max-complexity
-    pid: int, kill_after: Optional[Union[int, float]] = None
-) -> TwistedDeferred[None]:
-    try:
-        proc = Process(pid)
-    except NoSuchProcess:
-        return None
-    if kill_after:
-        limit = time.time() + kill_after
-    else:
-        limit = 0
-    try:
-        proc.terminate()
-    except NoSuchProcess:
-        return None
+    limit = time.time() + kill_after if kill_after else 0
     while proc.is_running():
         try:
-            return proc.wait(timeout=0)
+            if proc.wait(timeout=0) in (None, 0):
+                return False
+            return True
         except NoSuchProcess:
-            return None
+            break
         except TimeoutExpired:
             pass
         if limit and time.time() >= limit:
             try:
                 proc.kill()
             except NoSuchProcess:
-                return None
+                return False
         yield deferLater(reactor, 0.1, lambda: None)  # type: ignore
+    return False  # appease mypy; we shouldn't get here
+
+
+@inlineCallbacks
+def terminate(
+    proc: SubprocessProtocol, kill_after: Optional[Union[int, float]] = None
+) -> TwistedDeferred[None]:
+    """
+    Terminate the running process given by its protocol.
+
+    :returns: a Deferred that fires when the process has terminated or been killed.
+    """
+    # mypy is very confused by zope.interface
+    proc.transport.signalProcess("TERM")  # type:ignore
+
+    waiting = [proc.when_exited()]
+    if kill_after:
+        waiting.append(deferLater(reactor, kill_after, lambda: None))  # type: ignore
+    _, idx = yield DeferredList(
+        waiting, fireOnOneCallback=True, fireOnOneErrback=True
+    )
+    if idx > 0:
+        # the timeout fired (not when_exited())
+        logging.debug(
+            "Failed to terminate, sending KILL to %i",
+            proc.transport.pid,  # type:ignore
+        )
+        proc.transport.signalProcess("KILL")  # type:ignore
+        try:
+            yield proc.when_exited()
+        except Exception:  # pylint: disable=broad-except
+            pass
 
 
 class SubprocessError(Exception):
@@ -104,6 +131,8 @@ class SubprocessProtocol(ProcessProtocol):
         self._on_process_ended = on_process_ended
         self._output = BytesIO()
         self.done: Deferred = Deferred()
+        # becomes None once we've exited
+        self._awaiting_ended: Optional[list[Deferred]] = []
 
     def _check_triggers(self, line: str) -> None:
         if self.callback_triggers:
@@ -135,6 +164,18 @@ class SubprocessProtocol(ProcessProtocol):
             if not self.done.called:
                 self._check_triggers(line)
 
+    def when_exited(self) -> Deferred[None]:
+        """
+        :returns: a Deferred that fires when this process has exited
+        """
+        d: Deferred[None] = Deferred()
+        if self._awaiting_ended is None:
+            # already exited
+            d.callback(None)
+        else:
+            self._awaiting_ended.append(d)
+        return d
+
     def processEnded(self, reason: Failure) -> None:
         if not self.done.called:
             output = self._output.getvalue().decode("utf-8").strip()
@@ -144,3 +185,8 @@ class SubprocessProtocol(ProcessProtocol):
                 self.done.errback(SubprocessError(output))
         if self._on_process_ended:
             self._on_process_ended(reason)
+        if self._awaiting_ended:
+            notify = self._awaiting_ended
+            self._awaiting_ended = None
+            for d in notify:
+                d.callback(None)
