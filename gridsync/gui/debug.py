@@ -32,13 +32,13 @@ from gridsync import (
 )
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.filter import (
+    apply_eliot_filters,
     apply_filters,
-    filter_eliot_logs,
     get_filters,
     get_mask,
-    join_eliot_logs,
 )
 from gridsync.gui.widgets import HSpacer
+from gridsync.log import read_log
 from gridsync.msg import error
 
 if TYPE_CHECKING:
@@ -46,52 +46,49 @@ if TYPE_CHECKING:
 
 
 if sys.platform == "darwin":
-    system = "macOS {}".format(platform.mac_ver()[0])
+    system = f"macOS {platform.mac_ver()[0]}"
 elif sys.platform == "win32":
-    system = "Windows {}".format(platform.win32_ver()[0])
+    system = f"Windows {platform.win32_ver()[0]}"
 elif sys.platform.startswith("linux"):
     import distro  # pylint: disable=import-error
 
     name, version, _ = distro.linux_distribution()
-    system = "Linux ({} {})".format(name, version)
+    system = f"Linux ({name} {version})"
 else:
     system = platform.system()
 
-header = """Application:  {} {}
-System:       {}
-Python:       {}
-Frozen:       {}
-Qt API:       {} (Qt {})
-""".format(
-    APP_NAME,
-    __version__,
-    system,
-    platform.python_version(),
-    getattr(sys, "frozen", False),
-    QT_API_VERSION,
-    QT_LIB_VERSION,
-)
+
+def _make_header(core: Core) -> str:
+    return f"""\
+Application:  {APP_NAME} {__version__}
+System:       {system}
+Python:       {platform.python_version()}
+Frozen:       {getattr(sys, "frozen", False)}
+Qt API:       {QT_API_VERSION} (Qt {QT_LIB_VERSION})
+Tahoe-LAFS:   {core.tahoe_version}
+Magic-Folder: {core.magic_folder_version}
+Datetime:     {datetime.now(timezone.utc).isoformat()}
 
 
-warning_text = (
-    "####################################################################\n"
-    "#                                                                  #\n"
-    "#  WARNING: The following logs may contain sensitive information!  #\n"
-    "#  Please exercise appropriate caution and review them carefully   #\n"
-    "#  before copying, saving, or otherwise sharing with others!       #\n"
-    "#                                                                  #\n"
-    "####################################################################\n\n"
-)
+####################################################################
+#                                                                  #
+#  WARNING: The following logs may contain sensitive information!  #
+#  Please exercise appropriate caution and review them carefully   #
+#  before copying, saving, or otherwise sharing with others!       #
+#                                                                  #
+####################################################################
 
 
-def log_fmt(gateway_name: str, tahoe_log: str, magic_folder_log: str) -> str:
+"""
+
+
+def _format_log(log_name: str, content: str) -> str:
+    if content and not content.endswith("\n"):
+        content += "\n"
     return (
-        f"\n------ Beginning of Tahoe-LAFS log for {gateway_name} ------\n"
-        f"{tahoe_log}"
-        f"\n------ End of Tahoe-LAFS log for {gateway_name} ------\n"
-        f"\n------ Beginning of Magic-Folder log for {gateway_name} ------\n"
-        f"{magic_folder_log}"
-        f"\n------ End of Magic-Folder log for {gateway_name} ------\n"
+        f"-------------------- Beginning of {log_name} --------------------\n"
+        f"{content}"
+        f"-------------------- End of {log_name} --------------------\n\n"
     )
 
 
@@ -107,40 +104,72 @@ class LogLoader(QObject):
 
     def load(self) -> None:
         start_time = time.time()
-        self.content = (
-            header
-            + "Tahoe-LAFS:   {}\n".format(self.core.tahoe_version)
-            + "Magic-Folder: {}\n".format(self.core.magic_folder_version)
-            + "Datetime:     {}\n\n\n".format(
-                datetime.now(timezone.utc).isoformat()
-            )
-            + warning_text
-            + "\n----- Beginning of {} debug log -----\n".format(APP_NAME)
-            + "\n".join(self.core.log_deque)
-            + "\n----- End of {} debug log -----\n".format(APP_NAME)
+        self.content = _make_header(self.core) + _format_log(
+            f"{APP_NAME} log", read_log()
         )
         filters = get_filters(self.core)
         self.filtered_content = apply_filters(self.content, filters)
         for i, gateway in enumerate(self.core.gui.main_window.gateways):
             gateway_id = str(i + 1)
-            self.content = self.content + log_fmt(
-                gateway.name,
-                join_eliot_logs(gateway.get_streamed_log_messages()),
-                join_eliot_logs(gateway.magic_folder.get_log_messages()),
-            )
-            self.filtered_content = self.filtered_content + log_fmt(
-                get_mask(gateway.name, "GatewayName", gateway_id),
-                join_eliot_logs(
-                    filter_eliot_logs(
-                        gateway.get_streamed_log_messages(), gateway_id
-                    )
-                ),
-                join_eliot_logs(
-                    filter_eliot_logs(
-                        gateway.magic_folder.get_log_messages(), gateway_id
-                    )
-                ),
-            )
+            gateway_mask = get_mask(gateway.name, "GatewayName", gateway_id)
+
+            tahoe_stdout = gateway.get_log("stdout")
+            if tahoe_stdout:
+                self.content += _format_log(
+                    f"{gateway.name} Tahoe-LAFS stdout log", tahoe_stdout
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Tahoe-LAFS stdout log",
+                    apply_filters(tahoe_stdout, filters),
+                )
+            tahoe_stderr = gateway.get_log("stderr")
+            if tahoe_stderr:
+                self.content += _format_log(
+                    f"{gateway.name} Tahoe-LAFS stderr log", tahoe_stderr
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Tahoe-LAFS stderr log",
+                    apply_filters(tahoe_stderr, filters),
+                )
+            tahoe_eliot = gateway.get_log("eliot")
+            if tahoe_eliot:
+                self.content += _format_log(
+                    f"{gateway.name} Tahoe-LAFS eliot log", tahoe_eliot
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Tahoe-LAFS eliot log",
+                    apply_eliot_filters(tahoe_eliot, gateway_id),
+                )
+            magic_folder_stdout = gateway.magic_folder.get_log("stdout")
+            if magic_folder_stdout:
+                self.content += _format_log(
+                    f"{gateway.name} Magic-Folder stdout log",
+                    magic_folder_stdout,
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Magic-Folder stdout log",
+                    apply_filters(magic_folder_stdout, filters),
+                )
+            magic_folder_stderr = gateway.magic_folder.get_log("stderr")
+            if magic_folder_stderr:
+                self.content += _format_log(
+                    f"{gateway.name} Magic-Folder stderr log",
+                    magic_folder_stderr,
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Magic-Folder stderr log",
+                    apply_filters(magic_folder_stderr, filters),
+                )
+            magic_folder_eliot = gateway.magic_folder.get_log("eliot")
+            if magic_folder_eliot:
+                self.content += _format_log(
+                    f"{gateway.name} Magic-Folder eliot log",
+                    magic_folder_eliot,
+                )
+                self.filtered_content += _format_log(
+                    f"{gateway_mask} Magic-Folder eliot log",
+                    apply_eliot_filters(magic_folder_eliot, gateway_id),
+                )
         self.done.emit()
         logging.debug("Loaded logs in %f seconds", time.time() - start_time)
 
@@ -157,7 +186,7 @@ class DebugExporter(QDialog):
         self.log_loader_thread.started.connect(self.log_loader.load)
 
         self.setMinimumSize(800, 600)
-        self.setWindowTitle("{} - Debug Information".format(APP_NAME))
+        self.setWindowTitle(f"{APP_NAME} - Debug Information")
 
         self.plaintextedit = QPlainTextEdit(self)
         self.plaintextedit.setPlainText("Loading logs; please wait...")
@@ -180,10 +209,10 @@ class DebugExporter(QDialog):
         self.checkbox.stateChanged.connect(self.on_checkbox_state_changed)
 
         self.filter_info_text = (
-            "When enabled, {} will filter some information that could be used "
-            "to identify a user or computer. This feature is not perfect, "
-            "however, nor is it a substitute for manually checking logs for "
-            "sensitive information before sharing.".format(APP_NAME)
+            f"When enabled, {APP_NAME} will filter some information that "
+            "could be used to identify a user or computer. This feature is "
+            "not perfect, however, nor is it a substitute for manually "
+            "checking logs for sensitive information before sharing."
         )
         self.filter_info_button = QPushButton()
         self.filter_info_button.setToolTip(self.filter_info_text)

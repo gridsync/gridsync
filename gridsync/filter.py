@@ -12,6 +12,16 @@ if TYPE_CHECKING:
     from gridsync.core import Core
 
 
+def is_eliot_log_message(s: str) -> bool:
+    try:
+        data = json.loads(s)
+    except json.decoder.JSONDecodeError:
+        return False
+    if isinstance(data, dict) and "timestamp" in data and "task_uuid" in data:
+        return True
+    return False
+
+
 def get_filters(core: Core) -> list:
     filters = [
         (pkgdir, "PkgDir"),
@@ -295,7 +305,9 @@ def _apply_filter_by_message_type(  # noqa: max-complexity
     return msg
 
 
-def filter_tahoe_log_message(message: str, identifier: Optional[str]) -> str:
+def filter_eliot_log_message(
+    message: str, identifier: Optional[str] = None
+) -> str:
     msg = json.loads(message)
 
     action_type = msg.get("action_type")
@@ -314,12 +326,19 @@ def filter_eliot_logs(
 ) -> list[str]:
     filtered = []
     for message in messages:
-        filtered.append(filter_tahoe_log_message(message, identifier))
+        if message:
+            filtered.append(filter_eliot_log_message(message, identifier))
     return filtered
 
 
 def join_eliot_logs(messages: list[str]) -> str:
     reordered = []
     for message in messages:
-        reordered.append(json.dumps(json.loads(message), sort_keys=True))
+        if message:
+            reordered.append(json.dumps(json.loads(message), sort_keys=True))
     return "\n".join(reordered)
+
+
+def apply_eliot_filters(content: str, identifier: Optional[str] = None) -> str:
+    messages = content.split("\n")
+    return join_eliot_logs(filter_eliot_logs(messages, identifier))

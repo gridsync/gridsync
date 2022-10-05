@@ -7,6 +7,7 @@ clean:
 	rm -rf build/
 	rm -rf dist/
 	rm -rf .eggs/
+	rm -rf .logs/
 	rm -rf .cache/
 	rm -rf .tox/
 	rm -rf htmlcov/

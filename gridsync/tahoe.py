@@ -24,15 +24,16 @@ from gridsync.errors import (
     TahoeWebError,
     UpgradeRequiredError,
 )
+from gridsync.log import MultiFileLogger, NullLogger
 from gridsync.magic_folder import MagicFolder
 from gridsync.monitor import Monitor
 from gridsync.msg import critical
 from gridsync.news import NewscapChecker
 from gridsync.rootcap import RootcapManager
-from gridsync.streamedlogs import StreamedLogs
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
 from gridsync.util import Poller
+from gridsync.websocket import WebSocketReaderService
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
@@ -94,6 +95,7 @@ class Tahoe:
         nodedir: str = "",
         executable: str = "",
         reactor: Optional[IReactorTime] = None,
+        enable_logging: bool = True,
     ) -> None:
         if reactor is None:
             from twisted.internet import reactor as reactor_
@@ -117,13 +119,6 @@ class Tahoe:
         self.name = os.path.basename(self.nodedir)
         self.use_tor = False
         self.monitor = Monitor(self)
-        logs_maxlen = None
-        debug_settings = global_settings.get("debug")
-        if debug_settings:
-            log_maxlen = debug_settings.get("log_maxlen")
-            if log_maxlen is not None:
-                logs_maxlen = int(log_maxlen)
-        self.streamedlogs = StreamedLogs(reactor, logs_maxlen)
         self.state = Tahoe.STOPPED
         self.newscap = ""
         self.newscap_checker = NewscapChecker(self)
@@ -135,7 +130,7 @@ class Tahoe:
 
         self.storage_furl: str = ""
         self.rootcap_manager = RootcapManager(self)
-        self.magic_folder = MagicFolder(self, logs_maxlen=logs_maxlen)
+        self.magic_folder = MagicFolder(self)
 
         self.supervisor = Supervisor(Path(self.pidfile))
 
@@ -150,6 +145,28 @@ class Tahoe:
             return ready
 
         self._ready_poller = Poller(reactor, poll, 0.2)
+
+        self.logger: Union[MultiFileLogger, NullLogger]
+        if enable_logging:
+            self.logger = MultiFileLogger(f"{self.name}.Tahoe-LAFS")
+        else:
+            self.logger = NullLogger()
+
+        self._ws_reader: Optional[WebSocketReaderService] = None
+
+    def _log_stdout_message(self, message: str) -> None:
+        self.logger.log("stdout", message)
+
+    def _log_stderr_message(self, message: str) -> None:
+        self.logger.log("stderr", message)
+
+    def _log_eliot_message(self, message: str) -> None:
+        try:
+            message = json.dumps(json.loads(message), sort_keys=True)
+        except json.decoder.JSONDecodeError:
+            log.warning("Error decoding JSON message: %s", message)
+            return
+        self.logger.log("eliot", message, omit_fmt=True)
 
     def load_newscap(self) -> None:
         news_settings = global_settings.get("news:{}".format(self.name))
@@ -358,10 +375,6 @@ class Tahoe:
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
 
-    def line_received(self, line: str) -> None:
-        # TODO: Connect to Core via Qt signals/slots?
-        log.debug("[%s] >>> %s", self.name, line)
-
     async def command(self, args: list[str]) -> str:
         if not self.executable:
             self.executable = which("tahoe")
@@ -369,7 +382,10 @@ class Tahoe:
         env = os.environ
         env["PYTHONUNBUFFERED"] = "1"
         log.debug("Executing: %s...", " ".join(args))
-        protocol = SubprocessProtocol(stdout_line_collector=self.line_received)
+        protocol = SubprocessProtocol(
+            stdout_line_collector=self._log_stdout_message,
+            stderr_line_collector=self._log_stderr_message,
+        )
         self._reactor.spawnProcess(  # type: ignore
             protocol, self.executable, args=args, env=env
         )
@@ -378,6 +394,11 @@ class Tahoe:
         except Exception as e:  # pylint: disable=broad-except
             raise TahoeCommandError(f"{type(e).__name__}: {str(e)}") from e
         return output
+
+    async def version(self) -> str:
+        output = await self.command(["--version"])
+        line = output.split("\n")[0]
+        return line.lstrip("tahoe-lafs :").lstrip("tahoe-lafs/")
 
     async def create_node(self, settings: dict) -> None:
         if os.path.exists(self.nodedir):
@@ -419,7 +440,9 @@ class Tahoe:
     async def stop(self) -> None:
         log.debug('Stopping "%s" tahoe client...', self.name)
         self.state = Tahoe.STOPPING
-        self.streamedlogs.stop()
+        if self._ws_reader:
+            self._ws_reader.stop()
+            self._ws_reader = None
         if self.rootcap_manager.lock.locked:
             log.warning(
                 "Delaying stop operation; "
@@ -434,15 +457,8 @@ class Tahoe:
         self.state = Tahoe.STOPPED
         log.debug('Finished stopping "%s" tahoe client', self.name)
 
-    def get_streamed_log_messages(self) -> list[str]:
-        """
-        Return a ``list`` containing all buffered log messages.
-
-        :return: A ``list`` where each element is a UTF-8 & JSON encoded
-            ``bytes`` object giving a single log event with older events
-            appearing first.
-        """
-        return self.streamedlogs.get_streamed_log_messages()
+    def get_log(self, name: str) -> str:
+        return self.logger.read_log(name)
 
     def _on_started(self) -> None:
         self.load_settings()
@@ -465,8 +481,13 @@ class Tahoe:
                 encoding="utf-8"
             ).strip()
 
-        self.streamedlogs.stop()
-        self.streamedlogs.start(self.nodeurl, self.api_token)
+        self._ws_reader = WebSocketReaderService(
+            self.nodeurl.replace("http://", "ws://") + "/private/logs/v1",
+            headers={"Authorization": f"tahoe-lafs {self.api_token}"},
+            collector=self._log_eliot_message,
+            reactor=self._reactor,
+        )
+        self._ws_reader.start()
 
         self.state = Tahoe.STARTED
 
@@ -537,7 +558,8 @@ class Tahoe:
             results = await self.supervisor.start(
                 [self.executable, "-d", self.nodedir, "run"],
                 started_trigger="client running",
-                stdout_line_collector=self.line_received,
+                stdout_line_collector=self._log_stdout_message,
+                stderr_line_collector=self._log_stderr_message,
                 call_before_start=self._remove_twistd_pid,
                 call_after_start=self._on_started,
             )

@@ -30,7 +30,13 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks
 from twisted.python.failure import Failure
 
-from gridsync import APP_NAME, CONNECTION_DEFAULT_NICKNAME, features, resource
+from gridsync import (
+    APP_NAME,
+    CONNECTION_DEFAULT_NICKNAME,
+    RECOVERY_HELP_URL,
+    features,
+    resource,
+)
 from gridsync.gui.history import HistoryView
 from gridsync.gui.password import PasswordDialog
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
@@ -477,9 +483,8 @@ class MainWindow(QMainWindow):
             f"{gateway.name} does not have access to your folders, and cannot "
             "restore access to them. But with a Recovery Key, you can restore "
             "access to uploaded folders in case something goes wrong (e.g., "
-            "hardware failure, accidental data-loss).<p><p><a href=https://"
-            "github.com/gridsync/gridsync/blob/master/docs/recovery-keys.md>"
-            "More information...</a>"
+            "hardware failure, accidental data-loss).<p><p>"
+            f"<a href={RECOVERY_HELP_URL}>More information...</a>"
         )
         reply = msg.exec_()
         if reply == QMessageBox.Yes:

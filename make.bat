@@ -23,6 +23,7 @@ goto :eof
 call rmdir /s /q .\build
 call rmdir /s /q .\dist
 call rmdir /s /q .\.eggs
+call rmdir /s /q .\.logs
 call rmdir /s /q .\.cache
 call rmdir /s /q .\.tox
 call rmdir /s /q .\htmlcov
