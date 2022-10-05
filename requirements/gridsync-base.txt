@@ -19,8 +19,8 @@ attrs==22.1.0 \
     #   tahoe-capabilities
     #   treq
     #   twisted
-autobahn[twisted]==22.7.1 \
-    --hash=sha256:8b462ea2e6aad6b4dc0ed45fb800b6cbfeb0325e7fe6983907f122f2be4a1fe9
+autobahn[twisted]==22.3.2 \
+    --hash=sha256:58a887c7a196bb08d8b6624cb3695f493a9e5c9f00fd350d8d6f829b47ff9036
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
