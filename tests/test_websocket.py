@@ -1,7 +1,10 @@
+import os
+import sys
 from errno import EADDRINUSE
 from json import dumps
 from urllib.parse import urlsplit
 
+import pytest
 from autobahn.twisted.websocket import (
     WebSocketServerFactory,
     WebSocketServerProtocol,
@@ -169,6 +172,10 @@ def advance_mock_clock(reactor):
         func(*posargs, **kwargs)
 
 
+@pytest.mark.skipif(
+    "CI" in os.environ and sys.platform == "win32",
+    reason="Fails intermittently on GitHub Actions' Windows runners",
+)
 @inlineCallbacks
 def test_reconnect_to_websocket(reactor):
     """
