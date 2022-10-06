@@ -6,6 +6,15 @@ profile = "black"
 line_length = 79
 multi_line_output = 3
 
+[tool.mypy]
+disallow_untyped_defs = true
+disallow_any_explicit = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+show_column_numbers = true
+pretty = true
+show_error_codes = true
+
 [tool.pylint.messages_control]
 disable = [
     "consider-using-f-string",
@@ -27,7 +36,6 @@ disable = [
     "wrong-import-position",
 ]
 
-
 [tool.pytest.ini_options]
 testpaths = [
     "tests",
@@ -42,12 +50,3 @@ addopts = "-rs -s -m \"not slow\" --ignore=tests/integration --cov-config=tox.in
 filterwarnings = [
     "ignore::ResourceWarning",
 ]
-
-[tool.mypy]
-disallow_untyped_defs = true
-disallow_any_explicit = true
-ignore_missing_imports = true
-warn_unused_ignores = true
-show_column_numbers = true
-pretty = true
-show_error_codes = true
