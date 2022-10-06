@@ -1,3 +1,7 @@
+# type: ignore
+# flake8: noqa
+# pylint: skip-file
+# fmt: off
 
 # This file helps to compute a version number in source trees obtained from
 # git-archive tarball (such as those provided by githubs download-from-tag
