@@ -73,6 +73,10 @@ def test_add_settings_via_environment_variables():
     assert gridsync.settings["test"]["setting_x"] == "123"
 
 
+@pytest.mark.skipif(
+    sys.platform != "win32",
+    reason="Causes Versioneer to call Windows-only functions",
+)
 def test_config_dir_win32(monkeypatch):
     monkeypatch.setattr("sys.platform", "win32")
     monkeypatch.setenv("APPDATA", "C:\\Users\\test\\AppData\\Roaming")
