@@ -183,6 +183,22 @@ def cheatcode_used(cheatcode: str) -> bool:
     return Path(config_dir, s.get("nickname", ""), "tahoe.cfg").exists()
 
 
+def _load_grid_settings() -> dict[str, dict]:
+    results: dict[str, dict] = {}
+    for p in Path(pkgdir, "resources", "providers").glob("*-*.json"):
+        try:
+            s = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.decoder.JSONDecodeError):
+            continue
+        n = s.get("nickname")
+        if n:
+            results[n] = s
+    return results
+
+
+grid_settings = _load_grid_settings()
+
+
 CONNECTION_DEFAULT = settings.get("connection", {}).get("default", "")
 _default_settings = load_settings_from_cheatcode(CONNECTION_DEFAULT)
 if _default_settings:
