@@ -516,6 +516,43 @@ class Tahoe:
         # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
+    def apply_settings(self, settings: dict) -> None:
+        nickname = settings.get("nickname")
+        if nickname:
+            self.config_set("node", "nickname", nickname)
+
+        hide_ip = settings.get("hide-ip")
+        if hide_ip:
+            self.config_set("node", "reveal-ip-address", "false")
+
+        introducer_furl = settings.get("introducer")
+        if introducer_furl:
+            self.config_set("client", "introducer.furl", introducer_furl)
+
+        shares_needed = settings.get("shares-needed", settings.get("needed"))
+        if shares_needed:
+            self.config_set("client", "shares.needed", shares_needed)
+
+        shares_happy = settings.get("shares-happy", settings.get("happy"))
+        if shares_happy:
+            self.config_set("client", "shares.happy", shares_happy)
+
+        shares_total = settings.get("shares-total", settings.get("total"))
+        if shares_total:
+            self.config_set("client", "shares.total", shares_total)
+
+        no_storage = settings.get("no-storage")
+        if no_storage:
+            self.config_set("storage", "enabled", "false")
+
+        # "listen"?
+        # "location"?
+        # "port"?
+
+        storage_servers = settings.get("storage")
+        if storage_servers and isinstance(storage_servers, dict):
+            self.add_storage_servers(storage_servers)
+
     def _verify_configuration(self) -> None:
         nodedir = Path(self.nodedir)
         if has_legacy_magic_folder(nodedir):
