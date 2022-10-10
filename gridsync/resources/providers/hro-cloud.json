@@ -41,12 +41,12 @@
       ],
       "anonymous-storage-FURL": "pb://@tcp:/"
     },
-    "v0-wt2ntsujirdtviujlywrprmqbpzuolterfuxhwe6td3sszufpxbq": {
+    "v0-i6jc2ultzhpm6an6cnpdypqvutiqxzq6fdneta5z5ap54og4h67a": {
       "nickname": "storage003",
       "storage-options": [
         {
           "name": "privatestorageio-zkapauthz-v2",
-          "storage-server-FURL": "pb://vdka3hbufgvqzu4i23qeexndomszioc2@tcp:151.80.28.108:8898/o6mrmo2ivjd4wppujl6jc52a47otnydp",
+          "storage-server-FURL": "pb://53xc2dqxku5tzxfskchefmjofk3ubgeg@tcp:storage003.deerfield.leastauthority.com:8898/mfpli3kd7a2u4bxdg6yzynvtzu22sp32",
           "ristretto-issuer-root-url": "https://payments.deerfield.leastauthority.com/",
           "pass-value": 1000000,
           "default-token-count": 150000,
