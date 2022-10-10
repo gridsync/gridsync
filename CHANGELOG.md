@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+### Added
+- Added support for parsing/handling new Tahoe-LAFS and Magic-Folder "pidfiles" -- thanks @meejah! (PR #569)
+
+### Changed
+- Logs for Gridsync, Tahoe-LAFS, and Magic-Folder will now persist on disk instead of being buffered into memory (Issue #564; PR #570)
+
+
 ## 0.6.0 - 2022-09-16
 - No functional changes since 0.6.0rc1
 
