@@ -4,6 +4,7 @@ import json
 import logging as log
 import os
 import re
+import shutil
 from pathlib import Path
 from typing import Optional, Union, cast
 
@@ -14,7 +15,7 @@ from twisted.internet.defer import Deferred
 from twisted.internet.error import ConnectError
 from twisted.internet.interfaces import IReactorTime
 
-from gridsync import APP_NAME
+from gridsync import APP_NAME, grid_settings
 from gridsync import settings as global_settings
 from gridsync.capabilities import diminish
 from gridsync.config import Config
@@ -291,15 +292,25 @@ class Tahoe:
             f.write(json.dumps(settings))
         log.debug("Exported settings to '%s'", dest)
 
-    def _read_servers_yaml(self) -> dict:
+    def _read_servers_yaml(
+        self,
+        yaml_filepath: Optional[str] = None,
+    ) -> dict:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
         try:
-            with open(self.servers_yaml_path, encoding="utf-8") as f:
+            with open(yaml_filepath, encoding="utf-8") as f:
                 return yaml.safe_load(f)
         except OSError:
             return {}
 
-    def get_storage_servers(self) -> dict:
-        yaml_data = self._read_servers_yaml()
+    def get_storage_servers(
+        self,
+        yaml_filepath: Optional[str] = None,
+    ) -> dict:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
+        yaml_data = self._read_servers_yaml(yaml_filepath)
         if not yaml_data:
             return {}
         storage = yaml_data.get("storage")
@@ -336,15 +347,18 @@ class Tahoe:
             else:
                 self.config.save(config)
 
-    def add_storage_server(
+    def add_storage_server(  # pylint: disable=too-many-arguments
         self,
         server_id: str,
         furl: str,
         nickname: Optional[str] = None,
         storage_options: Optional[list[dict]] = None,
+        yaml_filepath: Optional[str] = None,
     ) -> None:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
         log.debug("Adding storage server: %s...", server_id)
-        yaml_data = self._read_servers_yaml()
+        yaml_data = self._read_servers_yaml(yaml_filepath)
         if not yaml_data or not yaml_data.get("storage"):
             yaml_data["storage"] = {}
         yaml_data["storage"][server_id] = {
@@ -357,20 +371,24 @@ class Tahoe:
                 "storage-options"
             ] = storage_options
             self._configure_storage_plugins(storage_options)
-        with atomic_write(
-            self.servers_yaml_path, mode="w", overwrite=True
-        ) as f:
+        with atomic_write(yaml_filepath, mode="w", overwrite=True) as f:
             f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
         log.debug("Added storage server: %s", server_id)
 
-    def add_storage_servers(self, storage_servers: dict) -> None:
+    def add_storage_servers(
+        self,
+        storage_servers: dict,
+        yaml_filepath: Optional[str] = None,
+    ) -> None:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
         for server_id, data in storage_servers.items():
             nickname = data.get("nickname")
             storage_options = data.get("storage-options")
             furl = data.get("anonymous-storage-FURL")
             if furl:
                 self.add_storage_server(
-                    server_id, furl, nickname, storage_options
+                    server_id, furl, nickname, storage_options, yaml_filepath
                 )
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
@@ -516,6 +534,46 @@ class Tahoe:
         # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
+    def apply_connection_settings(self, settings: dict) -> None:
+        tahoe_cfg = os.path.join(self.nodedir, "tahoe.cfg")
+        tahoe_cfg_tmp = os.path.join(self.nodedir, "tahoe.cfg.tmp")
+        shutil.copy2(tahoe_cfg, tahoe_cfg_tmp)
+
+        config = Config(tahoe_cfg_tmp)
+
+        hide_ip = settings.get("hide-ip")
+        if hide_ip:
+            config.set("node", "reveal-ip-address", "false")
+
+        introducer_furl = settings.get("introducer")
+        if introducer_furl:
+            config.set("client", "introducer.furl", introducer_furl)
+
+        shares_needed = settings.get("shares-needed", settings.get("needed"))
+        if shares_needed:
+            config.set("client", "shares.needed", shares_needed)
+
+        shares_happy = settings.get("shares-happy", settings.get("happy"))
+        if shares_happy:
+            config.set("client", "shares.happy", shares_happy)
+
+        shares_total = settings.get("shares-total", settings.get("total"))
+        if shares_total:
+            config.set("client", "shares.total", shares_total)
+
+        servers_yaml = os.path.join(self.nodedir, "private", "servers.yaml")
+        servers_yaml_tmp = os.path.join(
+            self.nodedir, "private", "servers.yaml.tmp"
+        )
+        Path(servers_yaml_tmp).unlink(missing_ok=True)
+
+        storage_servers = settings.get("storage")
+        if storage_servers and isinstance(storage_servers, dict):
+            self.add_storage_servers(storage_servers, servers_yaml_tmp)
+
+        shutil.move(tahoe_cfg_tmp, tahoe_cfg)
+        shutil.move(servers_yaml_tmp, servers_yaml)
+
     def _verify_configuration(self) -> None:
         nodedir = Path(self.nodedir)
         if has_legacy_magic_folder(nodedir):
@@ -530,6 +588,11 @@ class Tahoe:
                 "is configured to use an older version of the ZKAPAuthorizer "
                 'plugin ("v1") that is incompatible with the current version.'
             )
+        settings = grid_settings.get(self.name)
+        if settings:
+            # XXX/TODO: Perhaps this should only be called if these settings
+            # differ from those that were previously written in the nodedir?
+            self.apply_connection_settings(settings)
 
     async def start(self) -> None:
         self._verify_configuration()
