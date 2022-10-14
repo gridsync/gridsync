@@ -15,7 +15,7 @@ from twisted.internet.defer import Deferred
 from twisted.internet.error import ConnectError
 from twisted.internet.interfaces import IReactorTime
 
-from gridsync import APP_NAME
+from gridsync import APP_NAME, grid_settings
 from gridsync import settings as global_settings
 from gridsync.capabilities import diminish
 from gridsync.config import Config
@@ -588,6 +588,9 @@ class Tahoe:
                 "is configured to use an older version of the ZKAPAuthorizer "
                 'plugin ("v1") that is incompatible with the current version.'
             )
+        settings = grid_settings.get(self.name)
+        if settings:
+            self.apply_connection_settings(settings)
 
     async def start(self) -> None:
         self._verify_configuration()
