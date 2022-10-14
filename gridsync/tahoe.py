@@ -4,6 +4,7 @@ import json
 import logging as log
 import os
 import re
+import shutil
 from pathlib import Path
 from typing import Optional, Union, cast
 
@@ -517,37 +518,41 @@ class Tahoe:
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
     def apply_settings(self, settings: dict) -> None:
+        tahoe_cfg = os.path.join(self.nodedir, "tahoe.cfg")
+        tahoe_cfg_tmp = os.path.join(self.nodedir, "tahoe.cfg.tmp")
+        shutil.copy2(tahoe_cfg, tahoe_cfg_tmp)
+
+        config = Config(tahoe_cfg_tmp)
+
         nickname = settings.get("nickname")
         if nickname:
-            self.config_set("node", "nickname", nickname)
+            config.set("node", "nickname", nickname)
 
         hide_ip = settings.get("hide-ip")
         if hide_ip:
-            self.config_set("node", "reveal-ip-address", "false")
+            config.set("node", "reveal-ip-address", "false")
 
         introducer_furl = settings.get("introducer")
         if introducer_furl:
-            self.config_set("client", "introducer.furl", introducer_furl)
+            config.set("client", "introducer.furl", introducer_furl)
 
         shares_needed = settings.get("shares-needed", settings.get("needed"))
         if shares_needed:
-            self.config_set("client", "shares.needed", shares_needed)
+            config.set("client", "shares.needed", shares_needed)
 
         shares_happy = settings.get("shares-happy", settings.get("happy"))
         if shares_happy:
-            self.config_set("client", "shares.happy", shares_happy)
+            config.set("client", "shares.happy", shares_happy)
 
         shares_total = settings.get("shares-total", settings.get("total"))
         if shares_total:
-            self.config_set("client", "shares.total", shares_total)
+            config.set("client", "shares.total", shares_total)
 
         no_storage = settings.get("no-storage")
         if no_storage:
-            self.config_set("storage", "enabled", "false")
+            config.set("storage", "enabled", "false")
 
-        # "listen"?
-        # "location"?
-        # "port"?
+        shutil.move(tahoe_cfg_tmp, tahoe_cfg)
 
         storage_servers = settings.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
