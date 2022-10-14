@@ -534,16 +534,12 @@ class Tahoe:
         # using the same pid contained in that pidfile. Also, Windows.
         Path(self.nodedir, "twistd.pid").unlink(missing_ok=True)
 
-    def apply_settings(self, settings: dict) -> None:
+    def apply_connection_settings(self, settings: dict) -> None:
         tahoe_cfg = os.path.join(self.nodedir, "tahoe.cfg")
         tahoe_cfg_tmp = os.path.join(self.nodedir, "tahoe.cfg.tmp")
         shutil.copy2(tahoe_cfg, tahoe_cfg_tmp)
 
         config = Config(tahoe_cfg_tmp)
-
-        nickname = settings.get("nickname")
-        if nickname:
-            config.set("node", "nickname", nickname)
 
         hide_ip = settings.get("hide-ip")
         if hide_ip:
@@ -564,10 +560,6 @@ class Tahoe:
         shares_total = settings.get("shares-total", settings.get("total"))
         if shares_total:
             config.set("client", "shares.total", shares_total)
-
-        no_storage = settings.get("no-storage")
-        if no_storage:
-            config.set("storage", "enabled", "false")
 
         shutil.move(tahoe_cfg_tmp, tahoe_cfg)
 
