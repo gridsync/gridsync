@@ -292,15 +292,25 @@ class Tahoe:
             f.write(json.dumps(settings))
         log.debug("Exported settings to '%s'", dest)
 
-    def _read_servers_yaml(self) -> dict:
+    def _read_servers_yaml(
+        self,
+        yaml_filepath: Optional[str] = None,
+    ) -> dict:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
         try:
-            with open(self.servers_yaml_path, encoding="utf-8") as f:
+            with open(yaml_filepath, encoding="utf-8") as f:
                 return yaml.safe_load(f)
         except OSError:
             return {}
 
-    def get_storage_servers(self) -> dict:
-        yaml_data = self._read_servers_yaml()
+    def get_storage_servers(
+        self,
+        yaml_filepath: Optional[str] = None,
+    ) -> dict:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
+        yaml_data = self._read_servers_yaml(yaml_filepath)
         if not yaml_data:
             return {}
         storage = yaml_data.get("storage")
@@ -343,9 +353,12 @@ class Tahoe:
         furl: str,
         nickname: Optional[str] = None,
         storage_options: Optional[list[dict]] = None,
+        yaml_filepath: Optional[str] = None,
     ) -> None:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
         log.debug("Adding storage server: %s...", server_id)
-        yaml_data = self._read_servers_yaml()
+        yaml_data = self._read_servers_yaml(yaml_filepath)
         if not yaml_data or not yaml_data.get("storage"):
             yaml_data["storage"] = {}
         yaml_data["storage"][server_id] = {
@@ -358,20 +371,24 @@ class Tahoe:
                 "storage-options"
             ] = storage_options
             self._configure_storage_plugins(storage_options)
-        with atomic_write(
-            self.servers_yaml_path, mode="w", overwrite=True
-        ) as f:
+        with atomic_write(yaml_filepath, mode="w", overwrite=True) as f:
             f.write(yaml.safe_dump(yaml_data, default_flow_style=False))
         log.debug("Added storage server: %s", server_id)
 
-    def add_storage_servers(self, storage_servers: dict) -> None:
+    def add_storage_servers(
+        self,
+        storage_servers: dict,
+        yaml_filepath: Optional[str] = None,
+    ) -> None:
+        if not yaml_filepath:
+            yaml_filepath = self.servers_yaml_path
         for server_id, data in storage_servers.items():
             nickname = data.get("nickname")
             storage_options = data.get("storage-options")
             furl = data.get("anonymous-storage-FURL")
             if furl:
                 self.add_storage_server(
-                    server_id, furl, nickname, storage_options
+                    server_id, furl, nickname, storage_options, yaml_filepath
                 )
             else:
                 log.warning("No storage fURL provided for %s!", server_id)
