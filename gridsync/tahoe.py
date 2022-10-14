@@ -347,7 +347,7 @@ class Tahoe:
             else:
                 self.config.save(config)
 
-    def add_storage_server(
+    def add_storage_server(  # pylint: disable=too-many-arguments
         self,
         server_id: str,
         furl: str,
