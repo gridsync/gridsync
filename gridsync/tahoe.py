@@ -571,9 +571,17 @@ class Tahoe:
 
         shutil.move(tahoe_cfg_tmp, tahoe_cfg)
 
+        servers_yaml = os.path.join(self.nodedir, "private", "servers.yaml")
+        servers_yaml_tmp = os.path.join(
+            self.nodedir, "private", "servers.yaml.tmp"
+        )
+        Path(servers_yaml_tmp).unlink(missing_ok=True)
+
         storage_servers = settings.get("storage")
         if storage_servers and isinstance(storage_servers, dict):
-            self.add_storage_servers(storage_servers)
+            self.add_storage_servers(storage_servers, servers_yaml_tmp)
+
+        shutil.move(servers_yaml_tmp, servers_yaml)
 
     def _verify_configuration(self) -> None:
         nodedir = Path(self.nodedir)
