@@ -175,3 +175,25 @@ async def test_get_cap_returns_none_for_missing_path(tahoe_client, tmp_path):
     await tahoe_client.mkdir(dircap, "TestSubdir")
     output = await tahoe_client.get_cap(dircap + "/TestNonExistentSubdir")
     assert output is None
+
+
+# XXX Run this test last since it modifies the nodedir that corresponds
+# to the module-scoped `tahoe_client` fixture; we don't want the other
+# tests in this module to be impacted by this shared state-modification
+def test_apply_connection_settings(tahoe_client, tahoe_server):
+    settings = {
+        "shares-needed": "1",
+        "shares-happy": "1",
+        "shares-total": "2",
+        "storage": {
+            "test-grid-storage-server-2": {
+                "nickname": "test-grid-storage-server-1",
+                "anonymous-storage-FURL": tahoe_server.storage_furl,
+            }
+        },
+    }
+    tahoe_client.apply_connection_settings(settings)
+    assert tahoe_client.config_get("client", "shares.total") == "2"
+    storage_servers = tahoe_client.get_storage_servers()
+    assert "test-grid-storage-server-2" in storage_servers
+    assert "test-grid-storage-server-1" not in storage_servers
