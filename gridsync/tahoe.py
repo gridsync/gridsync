@@ -590,6 +590,8 @@ class Tahoe:
             )
         settings = grid_settings.get(self.name)
         if settings:
+            # XXX/TODO: Perhaps this should only be called if these settings
+            # differ from those that were previously written in the nodedir?
             self.apply_connection_settings(settings)
 
     async def start(self) -> None:
