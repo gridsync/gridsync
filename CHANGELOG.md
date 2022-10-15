@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.6.1 - 2022-10-14
 ### Added
 - Added support for parsing/handling new Tahoe-LAFS and Magic-Folder "pidfiles" -- thanks @meejah! (PR #569)
 
