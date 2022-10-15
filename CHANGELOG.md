@@ -6,6 +6,11 @@
 
 ### Changed
 - Logs for Gridsync, Tahoe-LAFS, and Magic-Folder will now persist on disk instead of being buffered into memory (Issue #564; PR #570)
+- PyInstaller has been updated to version 5.5 (Issue #561; PR #575)
+- Gridsync will now apply new connection-related settings for grids that were previously joined via a "cheat code" (e.g., `0-hro-cloud`) during start-up, making it possible for some out-of-date grid-configurations (i.e., Least Authority's "HRO Cloud", as per #576) to be updated in conjunction with Gridsync itself (Issue #504; PR #578)
+
+### Fixed
+- The grid-configuration for Least Authority's "HRO Cloud" has been updated in response to a failing storage node, allowing users of the service to re-connect once again (PR #576)
 
 
 ## 0.6.0 - 2022-09-16
