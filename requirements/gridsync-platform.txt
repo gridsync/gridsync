@@ -1,9 +1,9 @@
-colorama==0.4.5; sys_platform == "win32" \
-    --hash=sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da \
-    --hash=sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4
-distro==1.7.0; sys_platform != "darwin" and sys_platform != "win32" \
-    --hash=sha256:151aeccf60c216402932b52e40ee477a939f8d58898927378a02abbe852c1c39 \
-    --hash=sha256:d596311d707e692c2160c37807f83e3820c5d539d5a83e87cfb6babd8ba3a06b
+colorama==0.4.6; sys_platform == "win32" \
+    --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
+    --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
+distro==1.8.0; sys_platform != "darwin" and sys_platform != "win32" \
+    --hash=sha256:02e111d1dc6a50abb8eed6bf31c3e48ed8b0830d1ea2a1b78c61765c2513fdd8 \
+    --hash=sha256:99522ca3e365cac527b44bde033f64c6945d90eb9f769703caaec52b09bbd3ff
 pywin32==304; sys_platform == "win32" \
     --hash=sha256:25746d841201fd9f96b648a248f731c1dec851c9a08b8e33da8b56148e4c65cc \
     --hash=sha256:30c53d6ce44c12a316a06c153ea74152d3b1342610f1b99d40ba2795e5af0269 \
