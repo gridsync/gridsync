@@ -47,10 +47,14 @@ def is_valid(code: str, checksum_length: int = 2) -> bool:
 
 
 if __name__ == "__main__":
-    for _ in range(100):
+    limit = 100
+    vouchers: set[tuple[str, str]] = set()
+    while len(vouchers) < limit:
         c = generate_code()
         h = hyphenate(c.decode())  # for humans
         m = generate_voucher(c)  # for machines
+        vouchers.add((h, m))
+    for h, m in vouchers:
         print(f"{h},{m}")
 
 # TODO:
