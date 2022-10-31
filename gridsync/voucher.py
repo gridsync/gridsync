@@ -49,7 +49,9 @@ def is_valid(code: str, checksum_length: int = 2) -> bool:
 if __name__ == "__main__":
     for _ in range(100):
         c = generate_code()
-        print("{},{}".format(hyphenate(c.decode()), generate_voucher(c)))
+        h = hyphenate(c.decode())  # for humans
+        m = generate_voucher(c)  # for machines
+        print(f"{h},{m}")
 
 # TODO:
 # Use different alphabet with fewer ambiguous chars?
