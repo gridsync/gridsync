@@ -5,6 +5,7 @@ import pytest
 from gridsync.voucher import (
     dehyphenate,
     generate_code,
+    generate_pair,
     generate_voucher,
     get_checksum,
     hyphenate,
@@ -77,3 +78,13 @@ def test_generate_code():
 )
 def test_is_valid(code, expected):
     assert is_valid(code) == expected
+
+
+def test_generate_pair_returns_valid_code():
+    code, _ = generate_pair()
+    assert is_valid(code) is True
+
+
+def test_generate_pair_derives_string_from_code():
+    code, string = generate_pair()
+    assert generate_voucher(dehyphenate(code).encode()) == string
