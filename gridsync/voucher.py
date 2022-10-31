@@ -71,8 +71,8 @@ if __name__ == "__main__":
     vouchers: set[tuple[str, str]] = set()
     while len(vouchers) < limit:
         vouchers.add(generate_pair())
-    for c, s in vouchers:
-        print(f"{c},{s}")
+    for vc, vs in vouchers:
+        print(f"{vc},{vs}")
 
 # TODO:
 # Use different alphabet with fewer ambiguous chars?
