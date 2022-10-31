@@ -67,7 +67,7 @@ def generate_pair() -> tuple[str, str]:
 
 
 if __name__ == "__main__":
-    limit = 100
+    limit = 3000
     vouchers: set[tuple[str, str]] = set()
     while len(vouchers) < limit:
         vouchers.add(generate_pair())
