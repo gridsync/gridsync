@@ -203,7 +203,7 @@ jobs:
       env:
         PY_PYTHON: 3.10
       run: |
-        py -$PY_PYTHON -m pip install --upgrade setuptools pip tox diffoscope
+        py -${{ env.PY_PYTHON }} -m pip install --upgrade setuptools pip tox diffoscope
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller
