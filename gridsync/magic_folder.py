@@ -711,6 +711,9 @@ class MagicFolder:
             or self.folder_is_remote(folder_name)
         )
 
+    def is_admin(self, folder_name: str) -> bool:
+        return self.magic_folders.get(folder_name, {}).get("is_admin", False)
+
     async def get_snapshots(self) -> dict[str, dict]:
         snapshots = await self._request("GET", "/snapshot")
         if isinstance(snapshots, dict):
