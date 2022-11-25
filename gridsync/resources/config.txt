@@ -17,7 +17,7 @@ autostart = false
 grid_invites = true
 # Disable invites (at least) until new Magic-Folder re-implements them.
 # See/follow https://github.com/LeastAuthority/magic-folder/pull/560
-invites = false
+invites = true
 multiple_grids = true
 tor = true
 
