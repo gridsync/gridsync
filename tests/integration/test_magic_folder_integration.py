@@ -219,6 +219,20 @@ def test_folder_exists_false(magic_folder, tmp_path):
 
 
 @ensureDeferred
+async def test_is_admin_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    await magic_folder.add_folder(path, author)
+    assert magic_folder.is_admin(folder_name) is True
+
+
+def test_is_admin_false(magic_folder, tmp_path):
+    folder_name = randstr() + "_4"
+    assert magic_folder.is_admin(folder_name) is False
+
+
+@ensureDeferred
 async def test_get_participants(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
