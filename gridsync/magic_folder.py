@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import sqlite3
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum, auto
@@ -657,6 +658,26 @@ class MagicFolder:
         raise TypeError(
             f"Expected folders as dict, instead got {type(folders)!r}"
         )
+
+    async def write_collective_dircap(
+        self, folder_name: str, cap: str
+    ) -> None:
+        folders = await self.get_folders()
+        stash_path = folders.get(folder_name, {}).get("stash_path", "")
+        if not stash_path:
+            raise FileNotFoundError(
+                f"Magic-Folder stash path missing for {folder_name}"
+            )
+        state_db = Path(Path(stash_path).parent, "state.sqlite")
+        if not state_db.exists():
+            raise FileNotFoundError(
+                f"Magic-Folder state database not found for {folder_name}"
+            )
+        connection = sqlite3.connect(state_db)
+        cursor = connection.cursor()
+        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+        cursor.execute("UPDATE [config] SET collective_dircap=?", (cap,))
+        connection.commit()
 
     async def add_folder(  # pylint: disable=too-many-arguments
         self,

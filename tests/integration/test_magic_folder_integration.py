@@ -176,6 +176,25 @@ async def test_leave_folder_removes_from_magic_folders_dict(
 
 
 @ensureDeferred
+async def test_write_collective_dircap(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
+    collective_dircap_before = folders[folder_name]["collective_dircap"]
+
+    created_dircap = await magic_folder.gateway.mkdir()
+    await magic_folder.write_collective_dircap(folder_name, created_dircap)
+
+    folders = await magic_folder.get_folders()
+    collective_dircap_after = folders[folder_name]["collective_dircap"]
+
+    assert collective_dircap_after != collective_dircap_before
+    assert collective_dircap_after == created_dircap
+
+
+@ensureDeferred
 async def test_folder_is_local_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
