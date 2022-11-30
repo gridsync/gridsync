@@ -4,12 +4,15 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/dmgbuild.txt requirements/dmgbuild.in
 #
-dmgbuild==1.5.2 \
-    --hash=sha256:65bfb7c267cb9475cb52a32c04779e1cec12dfb9bcb7d02cf2b6bee5faf088f4
+dmgbuild==1.6.0 \
+    --hash=sha256:e1d9c7ab85038fc498e1cbe1ba0d37d8261fdb89e426ab2bee53eb3f96d9f099 \
+    --hash=sha256:f0abf9eaf90bbcb85f4ae7cf94d9ef66164f7c1ba432bb2175b2f6e425d56ca8
     # via -r requirements/dmgbuild.in
-ds-store==1.3.0 \
-    --hash=sha256:e52478f258626600c1f53fc18c1ddcd8542fa0bca41d4bd81d57c04c87aabf24
+ds-store==1.3.1 \
+    --hash=sha256:c27d413caf13c19acb85d75da4752673f1f38267f9eb6ba81b3b5aa99c2d207c \
+    --hash=sha256:fbacbb0bd5193ab3e66e5a47fff63619f15e374ffbec8ae29744251a6c8f05b5
     # via dmgbuild
-mac-alias==2.2.0 \
-    --hash=sha256:0eb84a63f98bf54c2f9fbdc4de956a63e64eb8a4a124143a1c1f5a78326442f0
+mac-alias==2.2.1 \
+    --hash=sha256:655906606461754aa80c7acc5672c74d74a1497c649c8f912cb329ca5c6f4ca6 \
+    --hash=sha256:fb3193b3167b20bb6f738f6d975966c6c2c8fc64cad530f4810af84335c70f46
     # via dmgbuild
