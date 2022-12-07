@@ -52,4 +52,7 @@ pyenv rehash
 pyenv global 3.9.13 3.10.6
 pyenv versions
 
+# Tox 4.0.0 is not passing environment variables down to package/build/install
+# stages, breaking our current handling of environment variables in setup.py.
+# See/follow https://github.com/tox-dev/tox/issues/2543
 python3 -m pip install --upgrade setuptools pip 'tox<4' diffoscope
