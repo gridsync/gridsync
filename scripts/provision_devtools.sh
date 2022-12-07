@@ -52,4 +52,4 @@ pyenv rehash
 pyenv global 3.9.13 3.10.6
 pyenv versions
 
-python3 -m pip install --upgrade setuptools pip tox diffoscope
+python3 -m pip install --upgrade setuptools pip 'tox<4' diffoscope
