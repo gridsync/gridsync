@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, ubuntu-22.04]
-        qt: [pyqt5, pyqt6]
+        qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
@@ -113,7 +113,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-11, macos-12]
-        qt: [pyqt5, pyqt6]
+        qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
@@ -181,7 +181,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, windows-2022]
-        qt: [pyqt5, pyqt6]
+        qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
