@@ -78,7 +78,6 @@ jobs:
     - name: Build
       run: |
         source ~/.bash_profile
-        "echo $QT_API"
         make all
     - name: Verify
       run: |
