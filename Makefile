@@ -156,7 +156,7 @@ pyinstaller-separate:
 	python3 -m tox -e pyinstaller-gridsync
 
 pyinstaller-merged:
-	python3 -m tox -rvv -e pyinstaller
+	python3 -m tox -e pyinstaller
 
 pyinstaller:
 	$(MAKE) pyinstaller-merged
