@@ -1,6 +1,6 @@
-from pytest_twisted import async_yield_fixture, inlineCallbacks
+from pytest_twisted import async_yield_fixture, ensureDeferred, inlineCallbacks
 
-from gridsync.tahoe import Tahoe
+from gridsync.tahoe import Tahoe, TahoeWebError
 from gridsync.zkapauthorizer import PLUGIN_NAME
 
 
@@ -51,3 +51,11 @@ def test_zkapauthorizer_add_and_get_voucher(zkapauthorizer):
 def test_zkapauthorizer_calculate_price(zkapauthorizer):
     output = yield zkapauthorizer.calculate_price([1024, 2048, 3072, 4096])
     assert output["price"] == 4
+
+
+@ensureDeferred
+async def test_no_html_in_server_error(zkapauthorizer):
+    try:
+        await zkapauthorizer.gateway.mkdir()
+    except TahoeWebError as e:
+        assert "<!DOCTYPE html>" not in str(e)
