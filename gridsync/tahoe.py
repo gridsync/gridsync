@@ -688,29 +688,14 @@ class Tahoe:
                         available_space += server["available_space"]
         return servers_connected, servers_known, available_space
 
-    async def get_connected_servers(self) -> Optional[int]:
-        if not self.nodeurl:
-            return None
-        try:
-            resp = await treq.get(self.nodeurl)
-        except ConnectError:
-            return None
-        if resp.code == 200:
-            html = await treq.content(resp)
-            match = re.search(
-                "Connected to <span>(.+?)</span>", html.decode("utf-8")
-            )
-            if match:
-                return int(match.group(1))
-        return None
-
     async def is_ready(self) -> bool:
         if not self.shares_happy:
             return False
-        connected_servers = await self.get_connected_servers()
-        return bool(
-            connected_servers and connected_servers >= self.shares_happy
-        )
+        status = await self.get_grid_status()
+        if status is None:
+            return False
+        num_connected, _, _ = status
+        return bool(num_connected and num_connected >= self.shares_happy)
 
     def await_ready(self) -> Deferred[bool]:
         return self._ready_poller.wait_for_completion()
