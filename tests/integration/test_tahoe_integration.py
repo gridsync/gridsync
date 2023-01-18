@@ -30,13 +30,11 @@ def test_tahoe_start_creates_pidfile(tahoe_client):
     assert Path(tahoe_client.pidfile).exists() is True
 
 
-@inlineCallbacks
-def test_tahoe_client_connected_servers(tahoe_client):
-    yield tahoe_client.await_ready()
-    connected_servers = yield Deferred.fromCoroutine(
-        tahoe_client.get_connected_servers()
-    )
-    assert connected_servers == 1
+@ensureDeferred
+async def test_tahoe_client_is_ready(tahoe_client):
+    await tahoe_client.await_ready()
+    ready = await tahoe_client.is_ready()
+    assert ready is True
 
 
 @inlineCallbacks

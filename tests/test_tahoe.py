@@ -598,21 +598,12 @@ def test_get_grid_status(tahoe, monkeypatch):
             }
         ]
     }"""
-    monkeypatch.setattr("treq.get", fake_get)
+    monkeypatch.setattr("treq.request", fake_get)
     monkeypatch.setattr("treq.content", lambda _: succeed(json_content))
     num_connected, num_known, available_space = yield Deferred.fromCoroutine(
         tahoe.get_grid_status()
     )
     assert (num_connected, num_known, available_space) == (2, 3, 3072)
-
-
-@inlineCallbacks
-def test_get_connected_servers(tahoe, monkeypatch):
-    html = b"Connected to <span>3</span>of <span>10</span>"
-    monkeypatch.setattr("treq.get", fake_get)
-    monkeypatch.setattr("treq.content", lambda _: succeed(html))
-    output = yield Deferred.fromCoroutine(tahoe.get_connected_servers())
-    assert output == 3
 
 
 @inlineCallbacks
@@ -635,7 +626,7 @@ def fake_awaitable_method(value: T) -> Callable[[], Awaitable[T]]:
 def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers",
+        "gridsync.tahoe.Tahoe.get_grid_status",
         fake_awaitable_method(None),
     )
     output = yield Deferred.fromCoroutine(tahoe.is_ready())
@@ -646,8 +637,8 @@ def test_is_ready_false_not_connected_servers(tahoe, monkeypatch):
 def test_is_ready_true(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers",
-        fake_awaitable_method(10),
+        "gridsync.tahoe.Tahoe.get_grid_status",
+        fake_awaitable_method((10, 10, 2048)),
     )
     output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is True
@@ -657,8 +648,8 @@ def test_is_ready_true(tahoe, monkeypatch):
 def test_is_ready_false_connected_less_than_happy(tahoe, monkeypatch):
     tahoe.shares_happy = 7
     monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.get_connected_servers",
-        fake_awaitable_method(3),
+        "gridsync.tahoe.Tahoe.get_grid_status",
+        fake_awaitable_method((3, 10, 2048)),
     )
     output = yield Deferred.fromCoroutine(tahoe.is_ready())
     assert output is False
