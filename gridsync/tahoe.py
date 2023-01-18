@@ -648,6 +648,26 @@ class Tahoe:
         """
         self.nodeurl = nodeurl
 
+    async def _request(
+        self, method: str, path: str = "", **kwargs: object
+    ) -> str:
+        if not self.nodeurl:
+            raise RuntimeError(
+                "Tahoe-LAFS nodeurl has not been set. Is tahoe running?"
+            )
+        if path.startswith("/") and self.nodeurl.endswith("/"):
+            path = path.lstrip("/")
+        url = self.nodeurl + path
+        if "headers" not in kwargs:
+            kwargs["headers"] = {"Accept": "text/plain"}
+        resp = await treq.request(method, url, **kwargs)
+        content = await treq.content(resp)
+        content = content.decode("utf-8")
+        if resp.code in (200, 201):
+            return content
+        else:
+            raise TahoeWebError(content)
+
     async def get_grid_status(
         self,
     ) -> Optional[tuple[int, int, int]]:
@@ -703,21 +723,14 @@ class Tahoe:
 
     async def mkdir(self, parentcap: str = None, childname: str = None) -> str:
         await self.await_ready()
-        url = self.nodeurl + "uri"
-        params = {"t": "mkdir"}
         if parentcap and childname:
-            url += "/" + parentcap
-            params["name"] = childname
-        resp = await treq.post(
-            url, params=params, headers={"Accept": "text/plain"}
-        )
-        content = await treq.content(resp)
-        content = content.decode("utf-8").strip()
-        if resp.code == 200:
-            return content
-        raise TahoeWebError(
-            f"Error {resp.code} creating Tahoe-LAFS directory: {content}"
-        )
+            path = f"/uri/{parentcap}"
+            params = {"t": "mkdir", "name": childname}
+        else:
+            path = "/uri"
+            params = {"t": "mkdir"}
+        cap = await self._request("POST", path, params=params)
+        return cap
 
     async def create_rootcap(self) -> str:
         return await self.rootcap_manager.create_rootcap()
