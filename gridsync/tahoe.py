@@ -708,7 +708,9 @@ class Tahoe:
         if parentcap and childname:
             url += "/" + parentcap
             params["name"] = childname
-        resp = await treq.post(url, params=params)
+        resp = await treq.post(
+            url, params=params, headers={"Accept": "text/plain"}
+        )
         content = await treq.content(resp)
         content = content.decode("utf-8").strip()
         if resp.code == 200:
