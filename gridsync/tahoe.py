@@ -693,6 +693,27 @@ class Tahoe:
             return servers_connected, servers_known, available_space
         return None
 
+    async def get_grid_status(
+        self,
+    ) -> Optional[tuple[int, int, int]]:
+        try:
+            r = await self._request("GET", params={"t": "json"})
+        except (ConnectError, RuntimeError, TahoeWebError):
+            return None
+        content = json.loads(r)
+        servers_connected = 0
+        servers_known = 0
+        available_space = 0
+        if "servers" in content:
+            servers = content["servers"]
+            servers_known = len(servers)
+            for server in servers:
+                if server["connection_status"].startswith("Connected"):
+                    servers_connected += 1
+                    if server["available_space"]:
+                        available_space += server["available_space"]
+        return servers_connected, servers_known, available_space
+
     async def get_connected_servers(self) -> Optional[int]:
         if not self.nodeurl:
             return None
