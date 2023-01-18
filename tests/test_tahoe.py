@@ -734,7 +734,7 @@ def test_tahoe_mkdir(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
-    monkeypatch.setattr("treq.post", fake_post)
+    monkeypatch.setattr("treq.request", fake_post)
     monkeypatch.setattr(
         "treq.content", lambda _: succeed(b"URI:DIR2:abc234:def567")
     )
@@ -747,7 +747,7 @@ def test_tahoe_mkdir_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
-    monkeypatch.setattr("treq.post", fake_post_code_500)
+    monkeypatch.setattr("treq.request", fake_post_code_500)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
         yield Deferred.fromCoroutine(tahoe.mkdir())
