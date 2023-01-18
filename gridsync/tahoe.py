@@ -665,8 +665,7 @@ class Tahoe:
         content = content.decode("utf-8")
         if resp.code in (200, 201):
             return content
-        else:
-            raise TahoeWebError(content)
+        raise TahoeWebError(content)
 
     async def get_grid_status(
         self,
