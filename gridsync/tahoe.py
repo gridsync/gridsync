@@ -734,7 +734,9 @@ class Tahoe:
     async def download(self, cap: str, local_path: str) -> None:
         log.debug("Downloading %s...", local_path)
         await self.await_ready()
-        resp = await treq.get("{}uri/{}".format(self.nodeurl, cap))
+        resp = await treq.get(
+            f"{self.nodeurl}uri/{cap}", headers={"Accept": "text/plain"}
+        )
         if resp.code == 200:
             with atomic_write(local_path, mode="wb", overwrite=True) as f:
                 await treq.collect(resp, f.write)
