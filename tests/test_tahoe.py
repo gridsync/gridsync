@@ -752,7 +752,7 @@ async def test_tahoe_upload(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
-    monkeypatch.setattr("treq.put", fake_put)
+    monkeypatch.setattr("treq.request", fake_put)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test_cap"))
     await tahoe.create_rootcap()
     output = await tahoe.upload(os.path.join(tahoe.nodedir, "tahoe.cfg"))
@@ -767,7 +767,7 @@ async def test_tahoe_upload_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
-    monkeypatch.setattr("treq.put", fake_put_code_500)
+    monkeypatch.setattr("treq.request", fake_put_code_500)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     await tahoe.create_rootcap()
     with pytest.raises(TahoeWebError):

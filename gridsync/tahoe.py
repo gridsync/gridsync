@@ -719,21 +719,17 @@ class Tahoe:
     ) -> str:
         if dircap:
             filename = Path(local_path).name
-            url = f"{self.nodeurl}uri/{dircap}/{filename}"
+            path = f"/uri/{dircap}/{filename}"
         else:
-            url = f"{self.nodeurl}uri"
+            path = "/uri"
         if mutable:
-            url = f"{url}?format=MDMF"
+            path = f"{path}?format=MDMF"
         log.debug("Uploading %s...", local_path)
         await self.await_ready()
         with open(local_path, "rb") as f:
-            resp = await treq.put(url, f)
-        if resp.code in (200, 201):
-            content = await treq.content(resp)
-            log.debug("Successfully uploaded %s", local_path)
-            return content.decode("utf-8")
-        content = await treq.content(resp)
-        raise TahoeWebError(content.decode("utf-8"))
+            cap = await self._request("PUT", path, data=f)
+        log.debug("Successfully uploaded %s", local_path)
+        return cap
 
     async def download(self, cap: str, local_path: str) -> None:
         log.debug("Downloading %s...", local_path)
