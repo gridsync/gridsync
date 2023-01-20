@@ -755,14 +755,9 @@ class Tahoe:
             dircap_hash,
         )
         await self.await_ready()
-        resp = await treq.post(
-            "{}uri/{}/?t=uri&name={}&uri={}".format(
-                self.nodeurl, dircap, childname, childcap
-            )
+        await self._request(
+            "POST", f"/uri/{dircap}/?t=uri&name={childname}&uri={childcap}"
         )
-        if resp.code != 200:
-            content = await treq.content(resp)
-            raise TahoeWebError(content.decode("utf-8"))
         log.debug(
             'Done linking "%s" (%s) into %s',
             childname,

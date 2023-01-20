@@ -808,7 +808,7 @@ async def test_tahoe_link(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
-    monkeypatch.setattr("treq.post", fake_post)
+    monkeypatch.setattr("gridsync.tahoe.Tahoe._request", fake_post)
     await tahoe.link("test_dircap", "test_childname", "test_childcap")
     assert True
 
@@ -818,7 +818,7 @@ async def test_tahoe_link_fail_code_500(tahoe, monkeypatch):
     monkeypatch.setattr(
         "gridsync.tahoe.Tahoe.await_ready", lambda _: succeed(None)
     )
-    monkeypatch.setattr("treq.post", fake_post_code_500)
+    monkeypatch.setattr("treq.request", fake_post_code_500)
     monkeypatch.setattr("treq.content", lambda _: succeed(b"test content"))
     with pytest.raises(TahoeWebError):
         await tahoe.link("test_dircap", "test_childname", "test_childcap")
