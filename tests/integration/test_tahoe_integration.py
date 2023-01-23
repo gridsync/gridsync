@@ -61,6 +61,13 @@ async def test_upload_convergence_secret_determines_cap(
 @ensureDeferred
 async def test_no_html_in_server_error(zkapauthorizer):
     try:
+        # Attempting to create a directory using a `Tahoe` client that
+        # is configured to use ZKAPAuthorizer against a `Tahoe` server
+        # that is *not* configured to use ZKAPAuthorizer will fail with
+        # a status code of 500 (possibly due to the mismatch in plugin
+        # configurations between the client and the server -- or
+        # possibly because the `Tahoe` client has no tokens yet?).
+        # XXX: Maybe there's a better way to trigger a 500 error here?
         await zkapauthorizer.gateway.mkdir()
     except TahoeWebError as e:
         assert "<!DOCTYPE html>" not in str(e)
