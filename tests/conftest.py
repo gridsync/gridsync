@@ -73,6 +73,38 @@ async def tahoe_client(tmp_path_factory, tahoe_server):
     await client.stop()
 
 
+@async_yield_fixture(scope="module")
+async def zkapauthorizer(tmp_path_factory, tahoe_server):
+    from gridsync.zkapauthorizer import PLUGIN_NAME
+
+    client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
+    settings = {
+        "nickname": "ZKAPAuthorizer-enabled Test Grid",
+        "shares-needed": "1",
+        "shares-happy": "1",
+        "shares-total": "1",
+        "storage": {
+            "test-grid-storage-server-1": {
+                "anonymous-storage-FURL": "pb://@tcp:/",
+                "nickname": "test-grid-storage-server-1",
+                "storage-options": [
+                    {
+                        "name": PLUGIN_NAME,
+                        "ristretto-issuer-root-url": "https://example.org/",
+                        "storage-server-FURL": tahoe_server.storage_furl,
+                        "allowed-public-keys": "AAAAAAAAAAAAAAAA",
+                    }
+                ],
+            }
+        },
+    }
+    await client.create_client(settings)
+    client.save_settings(settings)
+    await client.start()
+    yield client.zkapauthorizer
+    await client.stop()
+
+
 @pytest.fixture()
 def reactor():
     return Mock()

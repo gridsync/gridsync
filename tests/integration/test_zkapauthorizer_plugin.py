@@ -1,37 +1,6 @@
-from pytest_twisted import async_yield_fixture, ensureDeferred, inlineCallbacks
+from pytest_twisted import ensureDeferred, inlineCallbacks
 
-from gridsync.tahoe import Tahoe, TahoeWebError
-from gridsync.zkapauthorizer import PLUGIN_NAME
-
-
-@async_yield_fixture(scope="module")
-async def zkapauthorizer(tmp_path_factory, tahoe_server):
-    client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
-    settings = {
-        "nickname": "ZKAPAuthorizer-enabled Test Grid",
-        "shares-needed": "1",
-        "shares-happy": "1",
-        "shares-total": "1",
-        "storage": {
-            "test-grid-storage-server-1": {
-                "anonymous-storage-FURL": "pb://@tcp:/",
-                "nickname": "test-grid-storage-server-1",
-                "storage-options": [
-                    {
-                        "name": PLUGIN_NAME,
-                        "ristretto-issuer-root-url": "https://example.org/",
-                        "storage-server-FURL": tahoe_server.storage_furl,
-                        "allowed-public-keys": "AAAAAAAAAAAAAAAA",
-                    }
-                ],
-            }
-        },
-    }
-    await client.create_client(settings)
-    client.save_settings(settings)
-    await client.start()
-    yield client.zkapauthorizer
-    await client.stop()
+from gridsync.tahoe import TahoeWebError
 
 
 @inlineCallbacks
@@ -41,7 +10,7 @@ def test_zkapauthorizer_version(zkapauthorizer):
 
 
 @inlineCallbacks
-def test_zkapauthorizer_add_and_get_voucher(zkapauthorizer):
+def test_zkapauthorizer_add_and_get_voucher():
     voucher = yield zkapauthorizer.add_voucher()
     output = yield zkapauthorizer.get_voucher(voucher)
     assert output["number"] == voucher
