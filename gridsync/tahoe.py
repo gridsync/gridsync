@@ -665,7 +665,10 @@ class Tahoe:
         content = content.decode("utf-8")
         if resp.code in (200, 201):
             return content
-        raise TahoeWebError(content)
+        raise TahoeWebError(
+            f"Tahoe-LAFS web API responded with status code {resp.code}: "
+            f"{content}"
+        )
 
     async def get_grid_status(
         self,
