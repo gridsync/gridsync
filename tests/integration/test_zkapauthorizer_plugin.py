@@ -1,6 +1,4 @@
-from pytest_twisted import ensureDeferred, inlineCallbacks
-
-from gridsync.tahoe import TahoeWebError
+from pytest_twisted import inlineCallbacks
 
 
 @inlineCallbacks
