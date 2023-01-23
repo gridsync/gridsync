@@ -71,7 +71,7 @@ async def test_no_html_in_server_error(zkapauthorizer):
         # XXX: Maybe there's a better way to trigger a 500 error here?
         await zkapauthorizer.gateway.mkdir()
     except TahoeWebError as e:
-        assert "<!DOCTYPE html>" not in str(e)
+        assert "status code 500:" in str(e) and "<!DOCTYPE html>" not in str(e)
 
 
 @ensureDeferred
