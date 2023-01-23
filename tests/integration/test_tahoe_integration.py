@@ -59,6 +59,14 @@ async def test_upload_convergence_secret_determines_cap(
 
 
 @ensureDeferred
+async def test_no_html_in_server_error(zkapauthorizer):
+    try:
+        await zkapauthorizer.gateway.mkdir()
+    except TahoeWebError as e:
+        assert "<!DOCTYPE html>" not in str(e)
+
+
+@ensureDeferred
 async def test_upload_to_dircap(tahoe_client, tmp_path):
     dircap = await tahoe_client.mkdir()
     p = tmp_path / "TestFile.txt"
