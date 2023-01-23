@@ -772,9 +772,8 @@ class Tahoe:
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         await self.await_ready()
         resp = await treq.post(
-            "{}uri/{}/?t=unlink&name={}".format(
-                self.nodeurl, dircap, childname
-            )
+            f"{self.nodeurl}uri/{dircap}/?t=unlink&name={childname}",
+            headers={"Accept": "text/plain"},
         )
         if resp.code == 404 and missing_ok:
             pass
