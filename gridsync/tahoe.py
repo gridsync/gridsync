@@ -783,17 +783,13 @@ class Tahoe:
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     async def get_json(self, cap: str) -> Optional[Union[dict, list]]:
-        if not cap or not self.nodeurl:
+        if not cap:
             return None
-        uri = "{}uri/{}/?t=json".format(self.nodeurl, cap)
         try:
-            resp = await treq.get(uri)
-        except ConnectError:
+            content = await self._request("GET", f"/uri/{cap}/?t=json")
+        except (ConnectError, RuntimeError, TahoeWebError):
             return None
-        if resp.code == 200:
-            content = await treq.content(resp)
-            return json.loads(content.decode("utf-8"))
-        return None
+        return json.loads(content)
 
     async def get_cap(self, path: str) -> Optional[str]:
         json_output = await self.get_json(path)
