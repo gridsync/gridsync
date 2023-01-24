@@ -2,4 +2,3 @@ pytest
 pytest-cov
 pytest-qt
 pytest-twisted
-pytest-xvfb
