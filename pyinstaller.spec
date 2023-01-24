@@ -115,6 +115,7 @@ def analyze_tahoe():
             "future.backports.misc",
             "itertools",
             "math",
+            "pkg_resources._vendor.platformdirs",
             "re",
             "reprlib",
             "six.moves.html_parser",
@@ -144,7 +145,12 @@ def analyze_magic_folder():
         pathex=[],
         binaries=[],
         datas=[],
-        hiddenimports=["win32com", "win32com.shell", "win32com.shell.shellcon"],
+        hiddenimports=[
+            "pkg_resources._vendor.platformdirs",
+            "win32com",
+            "win32com.shell",
+            "win32com.shell.shellcon"
+        ],
         hookspath=[],
         runtime_hooks=[],
         excludes=["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"],
@@ -192,6 +198,7 @@ def analyze_gridsync():
 	    # version of pyinstaller-hooks-contrib. See/follow:
 	    # https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/534
 	    "charset_normalizer.md__mypyc",
+            "pkg_resources._vendor.platformdirs",
             "win32com",
 	    "win32com.shell",
 	    "win32com.shell.shellcon",
