@@ -626,11 +626,10 @@ service-identity==21.1.0 \
     --hash=sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34 \
     --hash=sha256:f0b0caac3d40627c3c04d7a51b6e06721857a0e10a8775f2d1d7e72901b3a7db
     # via twisted
-setuptools==65.7.0 \
-    --hash=sha256:4d3c92fac8f1118bb77a22181355e29c239cabfe2b9effdaa665c66b711136d7 \
-    --hash=sha256:8ab4f1dbf2b4a65f7eec5ad0c620e84c34111a68d3349833494b9088212214dd
+setuptools==66.1.1 \
+    --hash=sha256:6f590d76b713d5de4e49fe4fbca24474469f53c83632d5d0fd056f7ff7e8112b \
+    --hash=sha256:ac4008d396bc9cd983ea483cb7139c0240a07bbc74ffb6232fceffedc6cf03a8
     # via
-    #   -r requirements/magic-folder.in
     #   autobahn
     #   tahoe-lafs
     #   zope-interface
@@ -679,12 +678,10 @@ twisted[conch,tls]==22.10.0 \
     #   treq
     #   tubes
     #   txtorcon
-txaio==22.2.1 \
-    --hash=sha256:2e4582b70f04b2345908254684a984206c0d9b50e3074a24a4c55aba21d24d01 \
-    --hash=sha256:41223af4a9d5726e645a8ee82480f413e5e300dd257db94bc38ae12ea48fb2e5
-    # via
-    #   -r requirements/magic-folder.in
-    #   autobahn
+txaio==23.1.1 \
+    --hash=sha256:aaea42f8aad50e0ecfb976130ada140797e9dcb85fad2cf72b0f37f8cefcb490 \
+    --hash=sha256:f9a9216e976e5e3246dfd112ad7ad55ca915606b60b84a757ac769bd404ff704
+    # via autobahn
 txtorcon==22.0.0 \
     --hash=sha256:824b5df1977bedabfc1c49c9523b8fa1b7cff11d6fee78015df1ce133685779c \
     --hash=sha256:89a1b65e32a4b369d67e6c166387fbc468cc5d05227448d239a5e7e9718aa053
