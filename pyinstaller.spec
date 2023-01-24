@@ -141,7 +141,7 @@ def analyze_magic_folder():
         pathex=[],
         binaries=[],
         datas=[],
-        hiddenimports=["win32com.shell", "win32com.shell.shellcon"],
+        hiddenimports=["win32com", "win32com.shell", "win32com.shell.shellcon"],
         hookspath=[],
         runtime_hooks=[],
         excludes=["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"],
