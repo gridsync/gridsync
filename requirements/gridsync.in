@@ -26,9 +26,7 @@ tahoe-capabilities
 treq
 # Twisted 21.7.0 adds Deferred type hinting/annotations
 twisted[tls] >= 21.7.0
-txaio==22.2.1
 txtorcon
 watchdog
 zxcvbn
 filelock
-setuptools==65.7.0
