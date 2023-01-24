@@ -678,10 +678,12 @@ twisted[conch,tls]==22.10.0 \
     #   treq
     #   tubes
     #   txtorcon
-txaio==23.1.1 \
-    --hash=sha256:aaea42f8aad50e0ecfb976130ada140797e9dcb85fad2cf72b0f37f8cefcb490 \
-    --hash=sha256:f9a9216e976e5e3246dfd112ad7ad55ca915606b60b84a757ac769bd404ff704
-    # via autobahn
+txaio==22.2.1 \
+    --hash=sha256:2e4582b70f04b2345908254684a984206c0d9b50e3074a24a4c55aba21d24d01 \
+    --hash=sha256:41223af4a9d5726e645a8ee82480f413e5e300dd257db94bc38ae12ea48fb2e5
+    # via
+    #   -r requirements/magic-folder.in
+    #   autobahn
 txtorcon==22.0.0 \
     --hash=sha256:824b5df1977bedabfc1c49c9523b8fa1b7cff11d6fee78015df1ce133685779c \
     --hash=sha256:89a1b65e32a4b369d67e6c166387fbc468cc5d05227448d239a5e7e9718aa053
