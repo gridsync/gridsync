@@ -122,6 +122,9 @@ def analyze_tahoe():
             "twisted.plugins.zkapauthorizer",
             "UserDict",
             "yaml",
+            "win32com",
+	    "win32com.shell",
+	    "win32com.shell.shellcon",
             "zfec",
         ],
         hookspath=["pyinstaller-hooks"],
@@ -189,6 +192,9 @@ def analyze_gridsync():
 	    # version of pyinstaller-hooks-contrib. See/follow:
 	    # https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/534
 	    "charset_normalizer.md__mypyc",
+            "win32com",
+	    "win32com.shell",
+	    "win32com.shell.shellcon",
 	],
         hookspath=["pyinstaller-hooks"],
         runtime_hooks=[],
