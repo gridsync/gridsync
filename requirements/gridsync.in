@@ -31,3 +31,4 @@ txtorcon
 watchdog
 zxcvbn
 filelock
+setuptools==65.7.0

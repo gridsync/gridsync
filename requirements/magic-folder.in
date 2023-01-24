@@ -6,3 +6,4 @@ autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1
 txaio==22.2.1
 # See https://github.com/pallets/werkzeug/issues/2465
 werkzeug != 2.2.0
+setuptools==65.7.0
