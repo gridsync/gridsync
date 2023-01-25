@@ -3,8 +3,5 @@ magic-folder>=22.10.1
 # and can probably go away once autobahn provides a release containing
 # https://github.com/crossbario/autobahn-python/pull/1578
 autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1
-# Tahoe-LAFS requires charset-normalizer < 3; see
-# https://github.com/tahoe-lafs/tahoe-lafs/pull/1248
-charset-normalizer < 3
 # See https://github.com/pallets/werkzeug/issues/2465
 werkzeug != 2.2.0
