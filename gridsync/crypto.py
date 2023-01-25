@@ -4,6 +4,8 @@ import hashlib
 import secrets
 import string
 
+from blake3 import blake3
+from Cryptodome.PublicKey import RSA
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
@@ -11,6 +13,17 @@ from nacl.utils import random
 from qtpy.QtCore import QObject, Signal
 
 from gridsync.util import b58decode, b58encode
+
+
+def derive_rsa_key(seed: bytes, bits: int = 2048) -> bytes:
+    hasher = blake3(seed, derive_key_context="Deterministic RSA PRNG v1")
+
+    def prng_bytes(n: int) -> bytes:
+        hasher.update(hasher.digest())
+        return hasher.digest(length=n)
+
+    rsa_key = RSA.generate(bits, randfunc=prng_bytes, e=65537)
+    return rsa_key.export_key("DER")
 
 
 def randstr(length: int = 32, alphabet: str = "") -> str:

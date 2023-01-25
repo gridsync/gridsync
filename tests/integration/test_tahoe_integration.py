@@ -45,6 +45,30 @@ def test_tahoe_client_mkdir(tahoe_client):
 
 
 @ensureDeferred
+async def test_tahoe_deterministic_mutable(tahoe_client, tmp_path):
+    from base64 import urlsafe_b64encode
+
+    from gridsync.crypto import derive_rsa_key
+
+    private_key = derive_rsa_key(b"test")
+    private_key_encoded = urlsafe_b64encode(private_key).decode("ascii")
+    file_contents = b"testing123"
+
+    cap = await tahoe_client._request(
+        "PUT",
+        f"/uri?format=SDMF&private-key={private_key_encoded}",
+        data=file_contents,
+    )
+    assert cap == (
+        "URI:SSK:axvh3ou27euarlltljwr473ow4:"
+        "cbouboj36mhouf376gm2fo7m4ngpnizylyfbacha5h6vvymbbg6q"
+    )
+    p = tmp_path / "TestFile.txt"
+    await tahoe_client.download(cap, p)
+    assert p.read_bytes() == file_contents
+
+
+@ensureDeferred
 async def test_upload_convergence_secret_determines_cap(
     tahoe_client, tmp_path
 ):
