@@ -22,11 +22,11 @@ pyinstaller==5.7.0 \
     --hash=sha256:dfc12e92fe10ae645dd0dd1fcfa4cd7677b2e96119e3cd4980d742e09bb78925 \
     --hash=sha256:f35f06d48faea0ad738429c009941059beebaa306e9d9ead95f1df4b441de2aa
     # via -r requirements/pyinstaller.in
-pyinstaller-hooks-contrib==2022.14 \
-    --hash=sha256:1a125838a22d7b35a18993c6e56d3c5cc3ad7da00954f95bc5606523939203f2 \
-    --hash=sha256:5ae8da3a92cf20e37b3e00604d0c3468896e7d746e5c1449473597a724331b0b
+pyinstaller-hooks-contrib==2022.15 \
+    --hash=sha256:55c1def8066d0279d06cd67eea30c12ffcdb961a5edeeaf361adac0164baef30 \
+    --hash=sha256:73fd4051dc1620f3ae9643291cd9e2f47bfed582ade2eb05e3247ecab4a4f5f3
     # via pyinstaller
-setuptools==65.7.0 \
-    --hash=sha256:4d3c92fac8f1118bb77a22181355e29c239cabfe2b9effdaa665c66b711136d7 \
-    --hash=sha256:8ab4f1dbf2b4a65f7eec5ad0c620e84c34111a68d3349833494b9088212214dd
+setuptools==66.1.1 \
+    --hash=sha256:6f590d76b713d5de4e49fe4fbca24474469f53c83632d5d0fd056f7ff7e8112b \
+    --hash=sha256:ac4008d396bc9cd983ea483cb7139c0240a07bbc74ffb6232fceffedc6cf03a8
     # via pyinstaller
