@@ -14,6 +14,9 @@ attrs
 # which should be gone by the next tahoe release
 autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1, < 22.4.1
 certifi
+# Tahoe-LAFS requires charset-normalizer < 3; see
+# https://github.com/tahoe-lafs/tahoe-lafs/pull/1248
+charset-normalizer < 3
 humanize
 hyperlink
 magic-wormhole
