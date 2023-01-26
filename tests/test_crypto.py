@@ -5,7 +5,15 @@ from hashlib import sha256
 import nacl
 import pytest
 
-from gridsync.crypto import Crypter, VersionError, decrypt, encrypt, randstr
+from gridsync.crypto import (
+    Crypter,
+    VersionError,
+    decrypt,
+    encrypt,
+    randstr,
+    to_bytes,
+    to_mnemonic,
+)
 
 
 def fast_kdf(*args, **kwargs):
@@ -20,6 +28,45 @@ def ciphertext_with_argon2():
 @pytest.fixture(scope="module")
 def crypter():
     return Crypter(b"data", b"password")
+
+
+def test_to_bytes():
+    assert (
+        to_bytes(
+            [
+                "coral",
+                "light",
+                "army",
+                "gather",
+                "adapt",
+                "blossom",
+                "school",
+                "alcohol",
+                "coral",
+                "light",
+                "army",
+                "giggle",
+            ]
+        )
+        == b"0" * 16
+    )
+
+
+def test_to_mnemonic():
+    assert to_mnemonic(b"0" * 16) == [
+        "coral",
+        "light",
+        "army",
+        "gather",
+        "adapt",
+        "blossom",
+        "school",
+        "alcohol",
+        "coral",
+        "light",
+        "army",
+        "giggle",
+    ]
 
 
 def test_randstr_random():
