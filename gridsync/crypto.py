@@ -6,6 +6,7 @@ import string
 
 from blake3 import blake3
 from Cryptodome.PublicKey import RSA
+from mnemonic import Mnemonic
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
@@ -13,6 +14,14 @@ from nacl.utils import random
 from qtpy.QtCore import QObject, Signal
 
 from gridsync.util import b58decode, b58encode
+
+
+def to_mnemonic(b: bytes) -> list[str]:
+    return Mnemonic(language="english").to_mnemonic(b).split(" ")
+
+
+def to_bytes(mnemonic: list[str]) -> bytes:
+    return bytes(Mnemonic(language="english").to_entropy(mnemonic))
 
 
 def derive_rsa_key(seed: bytes, bits: int = 2048) -> bytes:
