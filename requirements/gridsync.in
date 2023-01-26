@@ -13,11 +13,14 @@ attrs
 # https://github.com/tahoe-lafs/tahoe-lafs/blob/master/setup.py#L117
 # which should be gone by the next tahoe release
 autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1, < 22.4.1
+blake3
 certifi
 humanize
 hyperlink
 magic-wormhole
+mnemonic
 psutil
+pycryptodomex
 # PyNaCl 1.2.0 adds Argon2id KDF
 pynacl >= 1.2.0
 pyyaml
