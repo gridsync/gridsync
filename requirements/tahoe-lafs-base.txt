@@ -348,9 +348,9 @@ hkdf==0.0.3 \
     # via
     #   magic-wormhole
     #   spake2
-humanize==4.4.0 \
-    --hash=sha256:8830ebf2d65d0395c1bd4c79189ad71e023f277c2c7ae00f263124432e6f2ffa \
-    --hash=sha256:efb2584565cc86b7ea87a977a15066de34cdedaf341b11c851cfcfd2b964779c
+humanize==4.5.0 \
+    --hash=sha256:127e333677183070b82e90e0faef9440f9a16dab92143e52f4523afb08ca9290 \
+    --hash=sha256:d6ed00ed4dc59a66df71012e3d69cf655d7d21b02112d435871998969e8aedc8
     # via magic-wormhole
 hyperlink==21.0.0 \
     --hash=sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b \
@@ -637,9 +637,9 @@ service-identity==21.1.0 \
     --hash=sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34 \
     --hash=sha256:f0b0caac3d40627c3c04d7a51b6e06721857a0e10a8775f2d1d7e72901b3a7db
     # via twisted
-setuptools==66.1.1 \
-    --hash=sha256:6f590d76b713d5de4e49fe4fbca24474469f53c83632d5d0fd056f7ff7e8112b \
-    --hash=sha256:ac4008d396bc9cd983ea483cb7139c0240a07bbc74ffb6232fceffedc6cf03a8
+setuptools==67.0.0 \
+    --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
+    --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
     # via
     #   autobahn
     #   tahoe-lafs
