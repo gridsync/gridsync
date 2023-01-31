@@ -176,6 +176,25 @@ async def test_leave_folder_removes_from_magic_folders_dict(
 
 
 @ensureDeferred
+async def test_write_collective_dircap(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
+    collective_dircap_before = folders[folder_name]["collective_dircap"]
+
+    created_dircap = await magic_folder.gateway.mkdir()
+    await magic_folder.write_collective_dircap(folder_name, created_dircap)
+
+    folders = await magic_folder.get_folders()
+    collective_dircap_after = folders[folder_name]["collective_dircap"]
+
+    assert collective_dircap_after != collective_dircap_before
+    assert collective_dircap_after == created_dircap
+
+
+@ensureDeferred
 async def test_folder_is_local_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
@@ -216,6 +235,20 @@ async def test_folder_exists_true(magic_folder, tmp_path):
 def test_folder_exists_false(magic_folder, tmp_path):
     folder_name = randstr() + "_3"
     assert magic_folder.folder_is_local(folder_name) is False
+
+
+@ensureDeferred
+async def test_is_admin_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    await magic_folder.add_folder(path, author)
+    assert magic_folder.is_admin(folder_name) is True
+
+
+def test_is_admin_false(magic_folder, tmp_path):
+    folder_name = randstr() + "_4"
+    assert magic_folder.is_admin(folder_name) is False
 
 
 @ensureDeferred
