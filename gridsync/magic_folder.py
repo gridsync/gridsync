@@ -636,7 +636,7 @@ class MagicFolder:
             raise MagicFolderWebError("API port not found")
         resp = await treq.request(
             method,
-            f"http://127.0.0.1:{self.api_port}/v1{path}",
+            f"http://127.0.0.1:{self.api_port}{path}",
             headers={"Authorization": f"Bearer {self.api_token}"},
             data=body,
         )
@@ -649,7 +649,7 @@ class MagicFolder:
 
     async def get_folders(self) -> dict[str, dict]:
         folders = await self._request(
-            "GET", "/magic-folder?include_secret_information=1"
+            "GET", "/v1/magic-folder?include_secret_information=1"
         )
         if isinstance(folders, dict):
             self.magic_folders = folders
@@ -699,7 +699,7 @@ class MagicFolder:
             "scan_interval": scan_interval,
         }
         await self._request(
-            "POST", "/magic-folder", body=json.dumps(data).encode()
+            "POST", "/v1/magic-folder", body=json.dumps(data).encode()
         )
         await self.create_folder_backup(name)  # XXX
 
@@ -708,7 +708,7 @@ class MagicFolder:
     ) -> None:
         await self._request(
             "DELETE",
-            f"/magic-folder/{folder_name}",
+            f"/v1/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
             error_404_ok=missing_ok,
         )
@@ -736,7 +736,7 @@ class MagicFolder:
         return self.magic_folders.get(folder_name, {}).get("is_admin", False)
 
     async def get_snapshots(self) -> dict[str, dict]:
-        snapshots = await self._request("GET", "/snapshot")
+        snapshots = await self._request("GET", "/v1/snapshot")
         if isinstance(snapshots, dict):
             return snapshots
         raise TypeError(
@@ -752,12 +752,12 @@ class MagicFolder:
         if filepath.startswith(magic_path):
             filepath = filepath[len(magic_path) + len(os.sep) :]
         await self._request(
-            "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
+            "POST", f"/v1/magic-folder/{folder_name}/snapshot?path={filepath}"
         )
 
     async def get_participants(self, folder_name: str) -> dict[str, dict]:
         participants = await self._request(
-            "GET", f"/magic-folder/{folder_name}/participants"
+            "GET", f"/v1/magic-folder/{folder_name}/participants"
         )
         if isinstance(participants, dict):
             return participants
@@ -771,13 +771,13 @@ class MagicFolder:
         data = {"author": {"name": author_name}, "personal_dmd": personal_dmd}
         await self._request(
             "POST",
-            f"/magic-folder/{folder_name}/participants",
+            f"/v1/magic-folder/{folder_name}/participants",
             body=json.dumps(data).encode("utf-8"),
         )
 
     async def get_file_status(self, folder_name: str) -> list[dict]:
         output = await self._request(
-            "GET", f"/magic-folder/{folder_name}/file-status"
+            "GET", f"/v1/magic-folder/{folder_name}/file-status"
         )
         if isinstance(output, list):
             return output
@@ -787,7 +787,7 @@ class MagicFolder:
 
     async def get_object_sizes(self, folder_name: str) -> list[int]:
         sizes = await self._request(
-            "GET", f"/magic-folder/{folder_name}/tahoe-objects"
+            "GET", f"/v1/magic-folder/{folder_name}/tahoe-objects"
         )
         if isinstance(sizes, list):
             # XXX The magic-folder API should most likely return this list as
@@ -808,7 +808,7 @@ class MagicFolder:
     async def scan(self, folder_name: str) -> dict:
         output = await self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/scan-local",
+            f"/v1/magic-folder/{folder_name}/scan-local",
             error_404_ok=True,
         )
         if isinstance(output, dict):
@@ -820,7 +820,7 @@ class MagicFolder:
     async def poll(self, folder_name: str) -> dict:
         output = await self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/poll-remote",
+            f"/v1/magic-folder/{folder_name}/poll-remote",
             error_404_ok=True,
         )
         if isinstance(output, dict):
