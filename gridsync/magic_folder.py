@@ -553,6 +553,12 @@ class MagicFolder:
         await self.supervisor.stop()
 
     def _read_api_token(self) -> str:
+        # TODO / FIXME / XXX "The token value is periodically rotated
+        # so clients must be prepared to receive an Unauthorized
+        # response even when supplying the token. In this case, the
+        # client should re-read the token from the filesystem to
+        # determine if the value held in memory has become stale."
+        # From https://github.com/LeastAuthority/magic-folder/blob/main/docs/interface.rst
         p = Path(self.configdir, "api_token")
         try:
             api_token = p.read_text(encoding="utf-8").strip()
