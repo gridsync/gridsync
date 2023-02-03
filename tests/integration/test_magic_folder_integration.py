@@ -41,7 +41,7 @@ async def magic_folder(tahoe_client):
 
 
 @async_yield_fixture(scope="module")
-async def alice_magic_folder(tmp_path_factory, tahoe_server):
+async def alice_magic_folder(tmp_path_factory, tahoe_server, wormhole_mailbox):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
     settings = {
         "nickname": "Test Grid",
@@ -57,12 +57,14 @@ async def alice_magic_folder(tmp_path_factory, tahoe_server):
     }
     await client.create_client(settings)
     await client.start()
+    await client.magic_folder.await_running()
+    client.magic_folder.wormhole_uri = wormhole_mailbox
     yield client.magic_folder
     await client.stop()
 
 
 @async_yield_fixture(scope="module")
-async def bob_magic_folder(tmp_path_factory, tahoe_server):
+async def bob_magic_folder(tmp_path_factory, tahoe_server, wormhole_mailbox):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
     settings = {
         "nickname": "Test Grid",
@@ -78,6 +80,8 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
     }
     await client.create_client(settings)
     await client.start()
+    await client.magic_folder.await_running()
+    client.magic_folder.wormhole_uri = wormhole_mailbox
     yield client.magic_folder
     await client.stop()
 
@@ -914,18 +918,13 @@ def test_wormhole_uri_setter(magic_folder):
 
 
 @ensureDeferred
-async def test_invites(
-    tmp_path, alice_magic_folder, bob_magic_folder, wormhole_mailbox
-):
+async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
     folder_name = randstr()
 
     alice_path = tmp_path / "Alice" / folder_name
     await alice_magic_folder.add_folder(alice_path, "Alice")
     alice_folders = await alice_magic_folder.get_folders()
     assert folder_name in alice_folders
-
-    alice_magic_folder.wormhole_uri = wormhole_mailbox
-    bob_magic_folder.wormhole_uri = wormhole_mailbox
 
     result = await alice_magic_folder.invite(folder_name, "Bob")
     wormhole_code = result["wormhole-code"]
