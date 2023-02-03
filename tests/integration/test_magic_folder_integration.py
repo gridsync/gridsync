@@ -901,3 +901,21 @@ async def test_monitor_emits_overall_status_changed_signal(
 
 def test_eliot_logs_collected(magic_folder):
     assert len(magic_folder.get_log("eliot")) > 0
+
+
+@ensureDeferred
+async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+    result = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = result["wormhole-code"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    assert result["success"] == True
+    bob_folders = await bob_magic_folder.get_folders()
+    assert folder_name in bob_folders
