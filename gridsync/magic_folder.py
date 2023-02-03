@@ -903,3 +903,41 @@ class MagicFolder:
         await self.add_participant(folder_name, author, personal_dmd)
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
         await self.poll(folder_name)
+
+    async def invite(
+        self, folder_name: str, participant_name: str, mode: str = "read-write"
+    ) -> JSON:
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite",
+            body=json.dumps(
+                {"participant-name": participant_name, "mode": mode}
+            ).encode(),
+        )
+        return result
+
+    async def join(  # pylint: disable=too-many-arguments
+        self,
+        folder_name: str,
+        invite_code: str,
+        local_path: Union[str, Path],
+        author: str = "XXX",  # XXX
+        poll_interval: int = 60,
+        scan_interval: int = 60,
+    ) -> JSON:
+        local_path = Path(local_path).absolute()
+        local_path.mkdir(parents=True, exist_ok=True)
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/join",
+            body=json.dumps(
+                {
+                    "invite-code": invite_code,
+                    "local-directory": str(local_path),
+                    "author": author,
+                    "poll-interval": poll_interval,
+                    "scan-interval": scan_interval,
+                }
+            ).encode(),
+        )
+        return result
