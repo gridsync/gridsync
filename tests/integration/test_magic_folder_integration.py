@@ -914,13 +914,19 @@ def test_wormhole_uri_setter(magic_folder):
 
 
 @ensureDeferred
-async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
+async def test_invites(
+    tmp_path, alice_magic_folder, bob_magic_folder, wormhole_mailbox
+):
     folder_name = randstr()
 
     alice_path = tmp_path / "Alice" / folder_name
     await alice_magic_folder.add_folder(alice_path, "Alice")
     alice_folders = await alice_magic_folder.get_folders()
     assert folder_name in alice_folders
+
+    alice_magic_folder.wormhole_uri = wormhole_mailbox
+    bob_magic_folder.wormhole_uri = wormhole_mailbox
+
     result = await alice_magic_folder.invite(folder_name, "Bob")
     wormhole_code = result["wormhole-code"]
 
