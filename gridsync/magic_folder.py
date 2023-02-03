@@ -685,6 +685,23 @@ class MagicFolder:
         cursor.execute("UPDATE [config] SET collective_dircap=?", (cap,))
         connection.commit()
 
+    @property
+    def wormhole_uri(self) -> str:
+        global_db = Path(self.configdir, "global.sqlite")
+        connection = sqlite3.connect(global_db)
+        cursor = connection.cursor()
+        cursor.execute("SELECT wormhole_uri FROM config")
+        return cursor.fetchone()[0]
+
+    @wormhole_uri.setter
+    def wormhole_uri(self, uri: str) -> None:
+        global_db = Path(self.configdir, "global.sqlite")
+        connection = sqlite3.connect(global_db)
+        cursor = connection.cursor()
+        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+        cursor.execute("UPDATE config SET wormhole_uri=?", (uri, ))
+        connection.commit()
+
     async def add_folder(  # pylint: disable=too-many-arguments
         self,
         path: str,
