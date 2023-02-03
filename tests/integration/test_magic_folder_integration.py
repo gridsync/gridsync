@@ -903,6 +903,16 @@ def test_eliot_logs_collected(magic_folder):
     assert len(magic_folder.get_log("eliot")) > 0
 
 
+def test_wormhole_uri_getter(magic_folder):
+    assert magic_folder.wormhole_uri == "ws://relay.magic-wormhole.io:4000/v1"
+
+
+def test_wormhole_uri_setter(magic_folder):
+    uri = randstr()
+    magic_folder.wormhole_uri = uri
+    assert magic_folder.wormhole_uri == uri
+
+
 @ensureDeferred
 async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
     folder_name = randstr()
