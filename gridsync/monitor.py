@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
 
 class GridChecker(QObject):
-
     connected = Signal()
     disconnected = Signal()
     nodes_updated = Signal(int, int)
@@ -144,7 +143,6 @@ def _parse_vouchers(
 
 
 class ZKAPChecker(QObject):
-
     zkaps_updated = Signal(int, int)  # used, remaining
     zkaps_available = Signal()
     zkaps_redeemed = Signal(str)  # timestamp

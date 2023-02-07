@@ -64,7 +64,6 @@ class InviteCodeCompleter(QCompleter):
 
 
 class InviteCodeLineEdit(QLineEdit):
-
     error = Signal(str)
     go = Signal(str)
 

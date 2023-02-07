@@ -24,7 +24,6 @@ RELAY = settings["wormhole"]["relay"]
 
 
 class Wormhole(QObject):
-
     got_welcome = Signal(dict)
     got_code = Signal(str)
     got_introduction = Signal()

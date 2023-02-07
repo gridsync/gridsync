@@ -215,7 +215,6 @@ def validate_settings(
 
 
 class SetupRunner(QObject):
-
     grid_already_joined = Signal(str)
     update_progress = Signal(str)
     client_started = Signal(object)

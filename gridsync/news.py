@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 
 
 class NewscapChecker(QObject):
-
     message_received = Signal(object, str)
     upgrade_required = Signal(object)
 

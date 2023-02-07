@@ -65,7 +65,6 @@ class ComboBox(QComboBox):
 
 
 class ToolBar(QToolBar):
-
     folder_action_triggered = Signal()
     enter_invite_action_triggered = Signal()
     create_invite_action_triggered = Signal()

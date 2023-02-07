@@ -39,7 +39,6 @@ class CompositePixmap(QPixmap):
 
 
 class BadgedPixmap(QPixmap):
-
     TopLeft = (0, 0)
     TopRight = (1, 0)
     BottomLeft = (0, 1)

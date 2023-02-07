@@ -34,7 +34,6 @@ class HSpacer(QSpacerItem):
 
 
 class ClickableLabel(QLabel):
-
     clicked = Signal()
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
