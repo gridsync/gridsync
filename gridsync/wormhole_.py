@@ -87,7 +87,9 @@ class Wormhole(QObject):
                 ack = {"answer": {"message_ack": "ok"}}
                 self._wormhole.send_message(json.dumps(ack).encode("utf-8"))  # type: ignore
             else:
-                raise Exception("Unknown offer type: {}".format(offer.keys()))
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    "Unknown offer type: {}".format(offer.keys())
+                )
         else:
             logging.debug("Received server introduction: %s", data)
             if "abilities" not in data:

@@ -78,7 +78,9 @@ def prompt_for_leaky_tor(
     title = "WARNING: Possible anonymity-leak ahead!"
     hosts_list = ""
     for host in hosts:
-        hosts_list += f"<p><b>{host}</b>"
+        hosts_list += (  # pylint: disable=consider-using-join
+            f"<p><b>{host}</b>"
+        )
     text = (
         f"The <i>{grid_name}</i> grid requires the use of Zero-Knowledge "
         "Access Passes (ZKAPs), however, the Tahoe-LAFS ZKAPAuthorizer "
