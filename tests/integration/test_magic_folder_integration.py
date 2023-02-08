@@ -2,7 +2,6 @@ import os
 import sys
 from pathlib import Path
 
-import pytest
 from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
@@ -931,6 +930,6 @@ async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
 
     bob_path = tmp_path / "Bob" / folder_name
     result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
-    assert result["success"] == True
+    assert result["success"] is True
     bob_folders = await bob_magic_folder.get_folders()
     assert folder_name in bob_folders
