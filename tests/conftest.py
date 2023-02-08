@@ -108,9 +108,8 @@ async def zkapauthorizer(tmp_path_factory, tahoe_server):
 
 @async_yield_fixture(scope="module")
 async def wormhole_mailbox(tmp_path_factory):
-    supervisor = Supervisor(
-        tmp_path_factory.mktemp("wormhole_mailbox") / "wormhole_mailbox.pid"
-    )
+    mailbox_dirpath = tmp_path_factory.mktemp("wormhole_mailbox")
+    supervisor = Supervisor(mailbox_dirpath / "wormhole_mailbox.pid")
     port = get_free_port()
     await supervisor.start(
         [
@@ -119,6 +118,7 @@ async def wormhole_mailbox(tmp_path_factory):
             "twisted",
             "wormhole-mailbox",
             f"--port=tcp:{port}:interface=localhost",
+            f"--channel-db={str(mailbox_dirpath / 'relay.sqlite')}",
         ],
         started_trigger="Starting reactor...",
         stdout_line_collector=print,
