@@ -121,8 +121,6 @@ async def wormhole_mailbox(tmp_path_factory):
             f"--channel-db={str(mailbox_dirpath / 'relay.sqlite')}",
         ],
         started_trigger="Starting reactor...",
-        stdout_line_collector=print,
-        stderr_line_collector=print,
     )
     yield f"ws://localhost:{port}/v1"
     await supervisor.stop()
