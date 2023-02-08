@@ -58,7 +58,6 @@ class MagicFolderStatus(Enum):
 
 
 class MagicFolderMonitor(QObject):
-
     status_message_received = Signal(dict)
 
     sync_progress_updated = Signal(str, object, object)  # folder, cur, total

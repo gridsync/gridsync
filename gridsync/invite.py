@@ -44,7 +44,6 @@ def is_valid_code(code: str) -> bool:
 
 
 class InviteReceiver(QObject):
-
     # Wormhole
     got_welcome = Signal(dict)
     # got_code = Signal(str)
@@ -110,7 +109,6 @@ class InviteReceiver(QObject):
 
 
 class InviteSender(QObject):
-
     created_invite = Signal()
 
     # Wormhole
