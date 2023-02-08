@@ -23,7 +23,6 @@ class _WatchdogEventHandler(FileSystemEventHandler):
 
 
 class Watchdog(QObject):
-
     path_modified = Signal(str)
 
     def __init__(self) -> None:

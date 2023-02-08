@@ -550,7 +550,7 @@ class View(QTreeView):
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         logging.debug(event)
-        if event.mimeData().hasUrls:
+        if event.mimeData().hasUrls():
             event.accept()
 
     def dragLeaveEvent(self, event: QDragLeaveEvent) -> None:
@@ -558,12 +558,12 @@ class View(QTreeView):
         event.accept()
 
     def dragMoveEvent(self, event: QDragMoveEvent) -> None:
-        if event.mimeData().hasUrls:
+        if event.mimeData().hasUrls():
             event.accept()
 
     def dropEvent(self, event: QDropEvent) -> None:
         logging.debug(event)
-        if event.mimeData().hasUrls:
+        if event.mimeData().hasUrls():
             event.accept()
             paths = []
             for url in event.mimeData().urls():

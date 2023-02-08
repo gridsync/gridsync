@@ -93,7 +93,6 @@ def _format_log(log_name: str, content: str) -> str:
 
 
 class LogLoader(QObject):
-
     done = Signal()
 
     def __init__(self, core: Core) -> None:
