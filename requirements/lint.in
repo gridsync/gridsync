@@ -2,7 +2,6 @@ black
 flake8
 isort
 mypy
-mypy_zope
 pylint
 pyqt5-stubs
 types-attrs
