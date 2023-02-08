@@ -918,7 +918,31 @@ def test_wormhole_uri_setter(magic_folder):
 
 
 @ensureDeferred
-async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
+async def test_invites_join_adds_folder(
+    tmp_path, alice_magic_folder, bob_magic_folder
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    result = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = result["wormhole-code"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    assert result["success"] is True
+
+    bob_folders = await bob_magic_folder.get_folders()
+    assert folder_name in bob_folders
+
+
+@ensureDeferred
+async def test_invites_file_sync(
+    tmp_path, alice_magic_folder, bob_magic_folder
+):
     folder_name = randstr()
 
     alice_path = tmp_path / "Alice" / folder_name
@@ -934,3 +958,16 @@ async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
     assert result["success"] is True
     bob_folders = await bob_magic_folder.get_folders()
     assert folder_name in bob_folders
+
+    file_name = randstr()
+
+    alice_filepath = alice_path / file_name
+    alice_filepath.write_text(randstr() * 10)
+    await alice_magic_folder.scan(folder_name)
+
+    bob_filepath = bob_path / file_name
+    assert bob_filepath.exists() is False
+    await bob_magic_folder.poll(folder_name)
+    await until(bob_filepath.exists)
+
+    assert bob_filepath.read_text() == alice_filepath.read_text()
