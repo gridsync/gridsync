@@ -698,7 +698,7 @@ class MagicFolder:
         connection = sqlite3.connect(global_db)
         cursor = connection.cursor()
         cursor.execute("BEGIN IMMEDIATE TRANSACTION")
-        cursor.execute("UPDATE config SET wormhole_uri=?", (uri, ))
+        cursor.execute("UPDATE config SET wormhole_uri=?", (uri,))
         connection.commit()
 
     async def add_folder(  # pylint: disable=too-many-arguments
