@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
 
 from qtpy.QtCore import QRect, Qt
 from qtpy.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
@@ -19,7 +20,10 @@ class Pixmap(QPixmap):
 
 class CompositePixmap(QPixmap):
     def __init__(
-        self, pixmap: QPixmap, overlay: str = None, grayout: bool = False
+        self,
+        pixmap: QPixmap,
+        overlay: Optional[str] = None,
+        grayout: bool = False,
     ) -> None:
         super().__init__()
         base_pixmap = QPixmap(pixmap)
