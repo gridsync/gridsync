@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
 from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
 from twisted.internet.task import deferLater
