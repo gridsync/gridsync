@@ -468,13 +468,14 @@ class View(QTreeView):
         # )
         # share_menu.addAction(invite_action)
 
-        magic_folder_invite_action = QAction(
-            QIcon(resource("invite.png")), "Create Invite Code..."
-        )
-        magic_folder_invite_action.triggered.connect(
-            lambda: self.open_magic_folder_invite_dialog(selected)
-        )
-        share_menu.addAction(magic_folder_invite_action)
+        if len(selected) == 1:  # XXX
+            magic_folder_invite_action = QAction(
+                QIcon(resource("invite.png")), "Create Invite Code..."
+            )
+            magic_folder_invite_action.triggered.connect(
+                lambda: self.open_magic_folder_invite_dialog(selected[0])
+            )
+            share_menu.addAction(magic_folder_invite_action)
 
         remove_action = QAction(
             QIcon(resource("close.png")), "Remove from Recovery Key..."
