@@ -210,6 +210,7 @@ class View(QTreeView):
         isd.show()
 
     def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
+        logging.debug("Creating Magic-Folder invite for %s...", folder_name)
         dialog = MagicFolderInviteDialog()
         # TODO: Remove on close?
         self.magic_folder_invite_dialogs.add(dialog)
