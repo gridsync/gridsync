@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-astroid==2.14.1 \
-    --hash=sha256:23c718921acab5f08cbbbe9293967f1f8fec40c336d19cd75dc12a9ea31d2eb2 \
-    --hash=sha256:bd1aa4f9915c98e8aaebcd4e71930154d4e8c9aaf05d35ac0a63d1956091ae3f
+astroid==2.14.2 \
+    --hash=sha256:0e0e3709d64fbffd3037e4ff403580550f14471fd3eaae9fa11cc9a5c7901153 \
+    --hash=sha256:a3cf9f02c53dd259144a7e8f3ccd75d67c9a8c716ef183e0c1f291bc5d7bb3cf
     # via pylint
 black==23.1.0 \
     --hash=sha256:0052dba51dec07ed029ed61b18183942043e00008ec65d5028814afaab9a22fd \
@@ -153,9 +153,9 @@ pyflakes==3.0.1 \
     --hash=sha256:ec55bf7fe21fff7f1ad2f7da62363d749e2a470500eab1b555334b67aa1ef8cf \
     --hash=sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd
     # via flake8
-pylint==2.16.1 \
-    --hash=sha256:bad9d7c36037f6043a1e848a43004dfd5ea5ceb05815d713ba56ca4503a9fe37 \
-    --hash=sha256:ffe7fa536bb38ba35006a7c8a6d2efbfdd3d95bbf21199cad31f76b1c50aaf30
+pylint==2.16.2 \
+    --hash=sha256:13b2c805a404a9bf57d002cd5f054ca4d40b0b87542bdaba5e05321ae8262c84 \
+    --hash=sha256:ff22dde9c2128cd257c145cfd51adeff0be7df4d80d669055f24a962b351bbe4
     # via -r requirements/lint.in
 pyqt5-stubs==5.15.6.0 \
     --hash=sha256:7fb8177c72489a8911f021b7bd7c33f12c87f6dba92dcef3fdcdb5d9400f0f3f \
@@ -183,9 +183,9 @@ types-certifi==2021.10.8.3 \
     --hash=sha256:72cf7798d165bc0b76e1c10dd1ea3097c7063c42c21d664523b928e88b554a4f \
     --hash=sha256:b2d1e325e69f71f7c78e5943d410e650b4707bb0ef32e4ddf3da37f54176e88a
     # via -r requirements/lint.in
-types-pyyaml==6.0.12.4 \
-    --hash=sha256:ade6e328a5a3df816c47c912c2e1e946ae2bace90744aa73111ee6834b03a314 \
-    --hash=sha256:de3bacfc4e0772d9b1baf007c37354f3c34c8952e90307d5155b6de0fc183a67
+types-pyyaml==6.0.12.6 \
+    --hash=sha256:24e76b938d58e68645271eeb149af6022d1da99788e481f959bd284b164f39a1 \
+    --hash=sha256:77b74d0874482f2b42dd566b7277b0a220068595e0fb42689d0c0560f3d1ae9e
     # via -r requirements/lint.in
 typing-extensions==4.4.0 \
     --hash=sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa \
