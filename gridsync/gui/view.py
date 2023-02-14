@@ -460,13 +460,13 @@ class View(QTreeView):
         share_menu = QMenu()
         share_menu.setIcon(QIcon(resource("laptop.png")))
         share_menu.setTitle("Sync with device")  # XXX Rephrase?
-        #invite_action = QAction(
+        # invite_action = QAction(
         #    QIcon(resource("invite.png")), "Create Invite Code..."
-        #)
-        #invite_action.triggered.connect(
+        # )
+        # invite_action.triggered.connect(
         #    lambda: self.open_invite_sender_dialog(selected)
-        #)
-        #share_menu.addAction(invite_action)
+        # )
+        # share_menu.addAction(invite_action)
 
         magic_folder_invite_action = QAction(
             QIcon(resource("invite.png")), "Create Invite Code..."
