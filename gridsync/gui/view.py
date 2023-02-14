@@ -50,6 +50,7 @@ from twisted.python.failure import Failure
 from gridsync import APP_NAME, features, resource
 from gridsync.desktop import open_path
 from gridsync.gui.font import Font
+from gridsync.gui.magic_folder import MagicFolderInviteDialog
 from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
@@ -73,6 +74,7 @@ class View(QTreeView):
         self.gateway = gateway
         self.recovery_prompt_shown: bool = False
         self.invite_sender_dialogs: list = []
+        self.magic_folder_invite_dialogs: set = set()
         self._model = Model(self)
         self.setModel(self._model)
         self.setItemDelegate(Delegate(self))
@@ -206,6 +208,12 @@ class View(QTreeView):
         isd = InviteSenderDialog(self.gateway, self.gui, folder_names)
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
+
+    def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
+        dialog = MagicFolderInviteDialog()
+        # TODO: Remove on close?
+        self.magic_folder_invite_dialogs.add(dialog)
+        dialog.show()
 
     @inlineCallbacks
     def download_folder(
@@ -452,13 +460,21 @@ class View(QTreeView):
         share_menu = QMenu()
         share_menu.setIcon(QIcon(resource("laptop.png")))
         share_menu.setTitle("Sync with device")  # XXX Rephrase?
-        invite_action = QAction(
+        #invite_action = QAction(
+        #    QIcon(resource("invite.png")), "Create Invite Code..."
+        #)
+        #invite_action.triggered.connect(
+        #    lambda: self.open_invite_sender_dialog(selected)
+        #)
+        #share_menu.addAction(invite_action)
+
+        magic_folder_invite_action = QAction(
             QIcon(resource("invite.png")), "Create Invite Code..."
         )
-        invite_action.triggered.connect(
-            lambda: self.open_invite_sender_dialog(selected)
+        magic_folder_invite_action.triggered.connect(
+            lambda: self.open_magic_folder_invite_dialog(selected)
         )
-        share_menu.addAction(invite_action)
+        share_menu.addAction(magic_folder_invite_action)
 
         remove_action = QAction(
             QIcon(resource("close.png")), "Remove from Recovery Key..."
