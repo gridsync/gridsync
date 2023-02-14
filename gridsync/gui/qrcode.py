@@ -1,7 +1,7 @@
 from io import BytesIO
 
 import segno
-from PyQt5.QtGui import QImage
+from qtpy.QtGui import QImage
 
 
 class QRCode(QImage):
