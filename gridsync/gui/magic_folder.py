@@ -86,6 +86,8 @@ class _MagicFolderInviteSuccessPage(QWidget):
 
 
 class MagicFolderInviteDialog(QDialog):
+    participant_name_set = Signal(str)
+
     def __init__(self) -> None:
         super().__init__()
         self.setMinimumSize(500, 300)
@@ -103,7 +105,14 @@ class MagicFolderInviteDialog(QDialog):
         layout.addWidget(self._stack)
 
         self._stack.setCurrentWidget(self._participant_page)
-        print("ok")  # XXX
+
+        self._participant_page.button.clicked.connect(
+            self._on_participant_name_set
+        )
+
+    def _on_participant_name_set(self) -> None:
+        participant_name = self._participant_page.lineedit.text()
+        self.participant_name_set.emit(participant_name)
 
     def show_code(self, code: str) -> None:
         self._code_page.set_code(code)
