@@ -8,7 +8,7 @@ from collections import defaultdict
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -928,7 +928,7 @@ class MagicFolder:
 
     async def invite(
         self, folder_name: str, participant_name: str, mode: str = "read-write"
-    ) -> JSON:
+    ) -> dict:
         result = await self._request(
             "POST",
             f"/experimental/magic-folder/{folder_name}/invite",
@@ -936,7 +936,7 @@ class MagicFolder:
                 {"participant-name": participant_name, "mode": mode}
             ).encode(),
         )
-        return result
+        return cast(dict, result)
 
     async def join(  # pylint: disable=too-many-arguments
         self,
