@@ -44,7 +44,12 @@ from qtpy.QtWidgets import (
     QStyleOptionViewItem,
     QTreeView,
 )
-from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
+from twisted.internet.defer import (
+    Deferred,
+    DeferredList,
+    ensureDeferred,
+    inlineCallbacks,
+)
 from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, features, resource
@@ -209,11 +214,26 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
+    async def _do_invite(
+        self,
+        dialog: MagicFolderInviteDialog,
+        folder_name: str,
+        participant_name: str,
+    ) -> None:
+        result = await self.gateway.magic_folder.invite(
+            folder_name, participant_name
+        )
+        logging.debug("Created Magic-Folder invite: %s", result)  # XXX
+        dialog.show_code(result["wormhole-code"])
+
     def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
         logging.debug("Creating Magic-Folder invite for %s...", folder_name)
         dialog = MagicFolderInviteDialog()
         # TODO: Remove on close?
         self.magic_folder_invite_dialogs.add(dialog)
+        dialog.participant_name_set.connect(
+            lambda p: ensureDeferred(self._do_invite(dialog, folder_name, p))
+        )
         dialog.show()
 
     @inlineCallbacks
