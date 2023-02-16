@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Optional
 
 import wormhole.errors
 from qtpy.QtCore import QEvent, QFileInfo, Qt, QTimer, Signal
-from qtpy.QtGui import QCloseEvent, QFont, QIcon, QKeyEvent
+from qtpy.QtGui import QCloseEvent, QFont, QIcon, QKeyEvent, QPixmap
 from qtpy.QtWidgets import (
     QDialog,
     QFileIconProvider,
@@ -33,6 +33,7 @@ from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
+from gridsync.gui.qrcode import QRCode
 from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.preferences import get_preference
@@ -66,12 +67,15 @@ class _MagicFolderInviteCodePage(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
+        self.qrcode_label = QLabel("")
         self.label = QLabel("Code")
 
         layout = QGridLayout(self)
+        layout.addWidget(self.qrcode_label)
         layout.addWidget(self.label)
 
     def set_code(self, code: str) -> None:
+        self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(256, 256)))
         self.label.setText(code)
 
 
