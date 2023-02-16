@@ -50,6 +50,9 @@ class _MagicFolderInviteParticipantPage(QWidget):
         super().__init__()
 
         self.folder_icon = QLabel(self)
+        self.folder_icon.setPixmap(
+            QFileIconProvider().icon(QFileInfo(config_dir)).pixmap(64, 64)
+        )
 
         self.label = QLabel("Participant name:")
 
@@ -58,6 +61,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
         self.button = QPushButton("Create Invite...")
 
         layout = QGridLayout(self)
+        layout.addWidget(self.folder_icon)
         layout.addWidget(self.label)
         layout.addWidget(self.lineedit)
         layout.addWidget(self.button)
