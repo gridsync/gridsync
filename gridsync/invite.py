@@ -13,7 +13,7 @@ except ImportError:  # TODO: Switch to new magic-wormhole completion API?
 
 from gridsync import cheatcodes, load_settings_from_cheatcode
 from gridsync.setup import SetupRunner, validate_settings
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 from gridsync.wormhole_ import Wormhole
 
 if TYPE_CHECKING:

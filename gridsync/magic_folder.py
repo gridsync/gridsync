@@ -18,7 +18,7 @@ from twisted.internet.task import deferLater
 if TYPE_CHECKING:
     from qtpy.QtCore import SignalInstance
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
-    from gridsync.types import JSON
+    from gridsync.types_ import JSON
 
 from gridsync import APP_NAME
 from gridsync.capabilities import diminish

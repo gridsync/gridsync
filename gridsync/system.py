@@ -14,7 +14,7 @@ from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 if TYPE_CHECKING:
     from twisted.python.failure import Failure
