@@ -13,7 +13,7 @@ from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
 from gridsync.errors import TahoeWebError
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe

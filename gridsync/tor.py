@@ -10,7 +10,7 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.internet.interfaces import IReactorCore
 
 from gridsync import features
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 # From https://styleguide.torproject.org/visuals/
 # "The main Tor Project color is Purple. Use Dark Purple as a secondary option"

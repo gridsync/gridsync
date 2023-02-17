@@ -19,7 +19,7 @@ B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 
 if TYPE_CHECKING:
-    from gridsync.types import TwistedDeferred
+    from gridsync.types_ import TwistedDeferred
 
 
 def b58encode(b: bytes) -> str:  # Adapted from python-bitcoinlib
