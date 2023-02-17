@@ -17,7 +17,7 @@ from gridsync import settings
 
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe
-    from gridsync.types import TwistedDeferred
+    from gridsync.types_ import TwistedDeferred
 
 
 class NewscapChecker(QObject):

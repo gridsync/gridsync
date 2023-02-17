@@ -14,7 +14,7 @@ from gridsync.system import (
     terminate,
     terminate_if_matching,
 )
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 
 def parse_pidfile(pidfile: Path) -> tuple[int, float]:
