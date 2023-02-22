@@ -1,48 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import logging
-import os
-import sys
-from datetime import datetime
-from typing import TYPE_CHECKING, Optional
-
-import wormhole.errors
-from qtpy.QtCore import QEvent, QFileInfo, Qt, QTimer, Signal
-from qtpy.QtGui import QCloseEvent, QFont, QIcon, QKeyEvent, QPixmap
+from qtpy.QtCore import QFileInfo, Signal
+from qtpy.QtGui import QPixmap
 from qtpy.QtWidgets import (
     QDialog,
     QFileIconProvider,
     QGridLayout,
-    QGroupBox,
     QLabel,
     QLineEdit,
-    QMessageBox,
-    QProgressBar,
     QPushButton,
     QStackedWidget,
-    QToolButton,
     QWidget,
 )
-from twisted.internet import reactor
-from twisted.internet.defer import CancelledError
-from twisted.python.failure import Failure
 
-from gridsync import config_dir, resource
-from gridsync.desktop import get_clipboard_modes, set_clipboard_text
-from gridsync.gui.font import Font
-from gridsync.gui.invite import InviteCodeWidget, show_failure
-from gridsync.gui.pixmap import Pixmap
+from gridsync import config_dir
 from gridsync.gui.qrcode import QRCode
-from gridsync.gui.widgets import HSpacer, VSpacer
-from gridsync.invite import InviteReceiver, InviteSender
-from gridsync.preferences import get_preference
-from gridsync.tahoe import Tahoe
-from gridsync.tor import TOR_PURPLE
-from gridsync.util import b58encode, humanized_list
-
-if TYPE_CHECKING:
-    from gridsync.gui import AbstractGui
 
 
 class _MagicFolderInviteParticipantPage(QWidget):
