@@ -103,13 +103,89 @@ class MagicFolderInviteDialog(QDialog):
         self._stack.setCurrentWidget(self._success_page)
 
 
+class _MagicFolderJoinCodePage(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.label = QLabel("Code")
+        self.folder_name_lineedit = QLineEdit(self)
+        self.invite_code_lineedit = QLineEdit(self)
+        self.local_path_lineedit = QLineEdit(self)
+        self.button = QPushButton("Go")
+
+        layout = QGridLayout(self)
+        layout.addWidget(self.label)
+        layout.addWidget(self.folder_name_lineedit)
+        layout.addWidget(self.invite_code_lineedit)
+        layout.addWidget(self.local_path_lineedit)
+        layout.addWidget(self.button)
+
+
+class _MagicFolderJoinProgressPage(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.label = QLabel("Progress")
+
+        layout = QGridLayout(self)
+        layout.addWidget(self.label)
+
+
+class _MagicFolderJoinSuccessPage(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.label = QLabel("Success")
+
+        layout = QGridLayout(self)
+        layout.addWidget(self.label)
+
+
+class MagicFolderJoinDialog(QDialog):
+    form_filled = Signal(str, str, str)  # folder_name, invite_code, local_path
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.setMinimumSize(500, 300)
+
+        self._code_page = _MagicFolderJoinCodePage()
+        self._progress_page = _MagicFolderJoinProgressPage()
+        self._success_page = _MagicFolderJoinSuccessPage()
+
+        self._stack = QStackedWidget(self)
+        self._stack.addWidget(self._code_page)
+        self._stack.addWidget(self._progress_page)
+        self._stack.addWidget(self._success_page)
+        self._stack.setCurrentWidget(self._code_page)
+
+        layout = QGridLayout(self)
+        layout.addWidget(self._stack)
+
+        self._code_page.button.clicked.connect(
+            self._on_button_clicked
+        )
+
+    def _on_button_clicked(self) -> None:
+        folder_name = self._code_page.folder_name_lineedit.text()
+        invite_code = self._code_page.invite_code_lineedit.text()
+        local_path = self._code_page.local_path_lineedit.text()
+        print(folder_name, invite_code, local_path)  # XXX
+        self.form_filled.emit(folder_name, invite_code, local_path)
+
+    def show_progress(self) -> None:
+        self._stack.setCurrentWidget(self._progress_page)
+
+    def show_success(self) -> None:
+        self._stack.setCurrentWidget(self._success_page)
+
+
 if __name__ == "__main__":
     from qtpy.QtWidgets import (  # pylint: disable=ungrouped-imports
         QApplication,
     )
 
     app = QApplication([])
-    w = MagicFolderInviteDialog()
+    w = MagicFolderJoinDialog()
     w.show()
     # w.show_code("3-test-test")
     # w.show_success()
