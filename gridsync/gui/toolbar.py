@@ -117,6 +117,33 @@ class ToolBar(QToolBar):
         self.folder_button.setDefaultAction(self.folder_action)
         self.folder_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
+        self.add_from_device_action = QAction(
+            QIcon(), "From Local Device...", self
+        )
+        self.add_from_device_action.setToolTip(
+            "Add Folder from Local Device..."
+        )
+        self.add_from_device_action.triggered.connect(
+            self.folder_action_triggered.emit
+        )
+
+        self.add_from_code_action = QAction(
+            QIcon(), "From Invite Code...", self
+        )
+        self.add_from_code_action.setToolTip("Add Folder from Invite Code...")
+        self.add_from_code_action.triggered.connect(lambda: print("OK"))  # XXX
+
+        folder_menu = QMenu(self)
+        folder_menu.addAction(self.add_from_device_action)
+        folder_menu.addAction(self.add_from_code_action)
+
+        self.folder_button.setMenu(folder_menu)
+        self.folder_button.setFont(font)
+        self.folder_button.setPopupMode(QToolButton.InstantPopup)
+        self.folder_button.setStyleSheet(
+            "QToolButton::menu-indicator { image: none }"
+        )
+
         recovery_action = QAction(
             QIcon(resource("key-outline.png")), "Recovery", self
         )
