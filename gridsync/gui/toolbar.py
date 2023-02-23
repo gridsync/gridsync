@@ -66,6 +66,7 @@ class ComboBox(QComboBox):
 
 class ToolBar(QToolBar):
     folder_action_triggered = Signal()
+    join_folder_action_triggered = Signal()
     enter_invite_action_triggered = Signal()
     create_invite_action_triggered = Signal()
     import_action_triggered = Signal()
@@ -131,7 +132,9 @@ class ToolBar(QToolBar):
             QIcon(), "From Invite Code...", self
         )
         self.add_from_code_action.setToolTip("Add Folder from Invite Code...")
-        self.add_from_code_action.triggered.connect(lambda: print("OK"))  # XXX
+        self.add_from_code_action.triggered.connect(
+            self.join_folder_action_triggered
+        )
 
         folder_menu = QMenu(self)
         folder_menu.addAction(self.add_from_device_action)
