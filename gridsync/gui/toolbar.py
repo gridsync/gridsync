@@ -292,29 +292,27 @@ class ToolBar(QToolBar):
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
+        self.folder_button.add_folder_triggered.connect(  # XXX
+            self.add_folder_triggered
+        )
+        self.folder_button.join_folder_triggered.connect(  # XXX
+            self.join_folder_triggered
+        )
+        self.recovery_button.import_action_triggered.connect(
+            self.import_action_triggered
+        )
+        self.recovery_button.export_action_triggered.connect(
+            self.export_action_triggered
+        )
+
         if QT_LIB_VERSION.startswith("6"):
             # XXX For some currently-unknown reason, methods connected
             # to `QAction.triggered` aren't firing here, under Qt6.
             # Connecting to `QToolButton.clicked`, however, works(?)...
-            self.folder_button.clicked.connect(
-                self.add_folder_triggered.emit
-            )
             self.history_button.clicked.connect(self.on_history_activated)
             self.folders_button.clicked.connect(self.on_folders_activated)
             self.usage_button.clicked.connect(self.on_usage_activated)
         else:
-            self.folder_button.add_folder_triggered.connect(  # XXX
-                self.add_folder_triggered
-            )
-            self.folder_button.join_folder_triggered.connect(  # XXX
-                self.join_folder_triggered
-            )
-            self.recovery_button.import_action_triggered.connect(
-                self.import_action_triggered.emit
-            )
-            self.recovery_button.export_action_triggered.connect(
-                self.export_action_triggered.emit
-            )
             self.history_action.triggered.connect(self.on_history_activated)
             self.folders_action.triggered.connect(self.on_folders_activated)
             self.usage_action.triggered.connect(self.on_usage_activated)
