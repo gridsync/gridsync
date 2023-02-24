@@ -99,6 +99,41 @@ class FolderButton(QToolButton):
         self.setStyleSheet("QToolButton::menu-indicator { image: none }")
 
 
+class RecoveryButton(QToolButton):
+    import_action_triggered = Signal()
+    export_action_triggered = Signal()
+
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        font = Font(8)
+
+        self.action = QAction(
+            QIcon(resource("key-outline.png")), "Recovery", self
+        )
+        self.action.setEnabled(False)
+        self.action.setToolTip("Create or Restore from a Recovery Key")
+        self.action.setFont(font)
+
+        import_action = QAction(QIcon(), "Restore from Recovery Key...", self)
+        import_action.setToolTip("Restore from Recovery Key...")
+        import_action.triggered.connect(self.import_action_triggered.emit)
+
+        export_action = QAction(QIcon(), "Create Recovery Key...", self)
+        export_action.setToolTip("Create Recovery Key...")
+        export_action.triggered.connect(self.export_action_triggered.emit)
+
+        menu = QMenu(self)
+        menu.addAction(import_action)
+        menu.addAction(export_action)
+
+        self.setDefaultAction(self.action)
+        self.setFont(font)
+        self.setMenu(menu)
+        self.setPopupMode(QToolButton.InstantPopup)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+
 class ToolBar(QToolBar):
     folder_action_triggered = Signal()
     join_folder_action_triggered = Signal()
@@ -142,37 +177,7 @@ class ToolBar(QToolBar):
         font = Font(8)
 
         self.folder_button = FolderButton(self)
-
-        recovery_action = QAction(
-            QIcon(resource("key-outline.png")), "Recovery", self
-        )
-        recovery_action.setEnabled(False)
-        recovery_action.setToolTip("Create or Restore from a Recovery Key")
-        recovery_action.setFont(font)
-
-        self.import_action = QAction(
-            QIcon(), "Restore from Recovery Key...", self
-        )
-        self.import_action.setToolTip("Restore from Recovery Key...")
-        self.import_action.triggered.connect(self.import_action_triggered.emit)
-
-        self.export_action = QAction(QIcon(), "Create Recovery Key...", self)
-        self.export_action.setToolTip("Create Recovery Key...")
-        # export_action.setShortcut(QKeySequence.Save)
-        self.export_action.triggered.connect(self.export_action_triggered.emit)
-
-        recovery_menu = QMenu(self)
-        recovery_menu.addAction(self.import_action)
-        recovery_menu.addAction(self.export_action)
-
-        self.recovery_button = QToolButton(self)
-        self.recovery_button.setDefaultAction(recovery_action)
-        self.recovery_button.setMenu(recovery_menu)
-        self.recovery_button.setPopupMode(QToolButton.InstantPopup)
-        self.recovery_button.setStyleSheet(
-            "QToolButton::menu-indicator { image: none }"
-        )
-        self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.recovery_button = RecoveryButton(self)
 
         if features.grid_invites:
             self.invites_action = QAction(
@@ -300,6 +305,12 @@ class ToolBar(QToolBar):
         else:
             self.folder_button.folder_action_triggered.connect(  # XXX
                 self.folder_action_triggered.emit
+            )
+            self.recovery_button.import_action_triggered.connect(
+                self.import_action_triggered.emit
+            )
+            self.recovery_button.export_action_triggered.connect(
+                self.export_action_triggered.emit
             )
             self.history_action.triggered.connect(self.on_history_activated)
             self.folders_action.triggered.connect(self.on_folders_activated)
