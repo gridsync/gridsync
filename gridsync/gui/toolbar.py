@@ -304,18 +304,9 @@ class ToolBar(QToolBar):
         self.recovery_button.export_action_triggered.connect(
             self.export_action_triggered
         )
-
-        if QT_LIB_VERSION.startswith("6"):
-            # XXX For some currently-unknown reason, methods connected
-            # to `QAction.triggered` aren't firing here, under Qt6.
-            # Connecting to `QToolButton.clicked`, however, works(?)...
-            self.history_button.clicked.connect(self.on_history_activated)
-            self.folders_button.clicked.connect(self.on_folders_activated)
-            self.usage_button.clicked.connect(self.on_usage_activated)
-        else:
-            self.history_action.triggered.connect(self.on_history_activated)
-            self.folders_action.triggered.connect(self.on_folders_activated)
-            self.usage_action.triggered.connect(self.on_usage_activated)
+        self.history_button.clicked.connect(self.on_history_activated)
+        self.folders_button.clicked.connect(self.on_folders_activated)
+        self.usage_button.clicked.connect(self.on_usage_activated)
 
     def _update_action_visibility(self) -> None:
         gateway = self.combo_box.currentData()
