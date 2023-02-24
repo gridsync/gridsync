@@ -65,8 +65,8 @@ class ComboBox(QComboBox):
 
 
 class FolderButton(QToolButton):
-    folder_action_triggered = Signal()
-    join_folder_action_triggered = Signal()
+    add_folder_triggered = Signal()
+    join_folder_triggered = Signal()
 
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
@@ -81,11 +81,11 @@ class FolderButton(QToolButton):
 
         from_device_action = QAction(QIcon(), "From Local Device...", self)
         from_device_action.setToolTip("Add Folder from Local Device...")
-        from_device_action.triggered.connect(self.folder_action_triggered.emit)
+        from_device_action.triggered.connect(self.add_folder_triggered)
 
         from_code_action = QAction(QIcon(), "From Invite Code...", self)
         from_code_action.setToolTip("Add Folder from Invite Code...")
-        from_code_action.triggered.connect(self.join_folder_action_triggered)
+        from_code_action.triggered.connect(self.join_folder_triggered)
 
         menu = QMenu(self)
         menu.addAction(from_device_action)
@@ -135,8 +135,8 @@ class RecoveryButton(QToolButton):
 
 
 class ToolBar(QToolBar):
-    folder_action_triggered = Signal()
-    join_folder_action_triggered = Signal()
+    add_folder_triggered = Signal()
+    join_folder_triggered = Signal()
     enter_invite_action_triggered = Signal()
     create_invite_action_triggered = Signal()
     import_action_triggered = Signal()
@@ -297,17 +297,17 @@ class ToolBar(QToolBar):
             # to `QAction.triggered` aren't firing here, under Qt6.
             # Connecting to `QToolButton.clicked`, however, works(?)...
             self.folder_button.clicked.connect(
-                self.folder_action_triggered.emit
+                self.add_folder_triggered.emit
             )
             self.history_button.clicked.connect(self.on_history_activated)
             self.folders_button.clicked.connect(self.on_folders_activated)
             self.usage_button.clicked.connect(self.on_usage_activated)
         else:
-            self.folder_button.folder_action_triggered.connect(  # XXX
-                self.folder_action_triggered.emit
+            self.folder_button.add_folder_triggered.connect(  # XXX
+                self.add_folder_triggered
             )
-            self.folder_button.join_folder_action_triggered.connect(  # XXX
-                self.join_folder_action_triggered.emit
+            self.folder_button.join_folder_triggered.connect(  # XXX
+                self.join_folder_triggered
             )
             self.recovery_button.import_action_triggered.connect(
                 self.import_action_triggered.emit

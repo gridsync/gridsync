@@ -238,7 +238,8 @@ class MainWindow(QMainWindow):
         self.combo_box: ComboBox = self.toolbar.combo_box  # XXX
         self.combo_box.currentIndexChanged.connect(self.on_grid_selected)
 
-        self.toolbar.folder_action_triggered.connect(self.select_folder)
+        self.toolbar.add_folder_triggered.connect(self.select_folder)
+        self.toolbar.join_folder_triggered.connect(lambda: print('OK'))
         self.toolbar.enter_invite_action_triggered.connect(
             self.open_invite_receiver
         )
