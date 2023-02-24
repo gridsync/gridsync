@@ -306,6 +306,9 @@ class ToolBar(QToolBar):
             self.folder_button.folder_action_triggered.connect(  # XXX
                 self.folder_action_triggered.emit
             )
+            self.folder_button.join_folder_action_triggered.connect(  # XXX
+                self.join_folder_action_triggered.emit
+            )
             self.recovery_button.import_action_triggered.connect(
                 self.import_action_triggered.emit
             )
