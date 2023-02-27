@@ -929,6 +929,11 @@ class MagicFolder:
     async def invite(
         self, folder_name: str, participant_name: str, mode: str = "read-write"
     ) -> dict:
+        if mode.lower() not in ("read-write", "read-only"):
+            raise ValueError(
+                f'Invalid Magic-Folder invite mode, "{mode}"; acceptable '
+                'values are: "read-write", "read-only"'
+            )
         result = await self._request(
             "POST",
             f"/experimental/magic-folder/{folder_name}/invite",
