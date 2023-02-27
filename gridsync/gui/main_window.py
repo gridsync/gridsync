@@ -535,6 +535,9 @@ class MainWindow(QMainWindow):
         return False
 
     def confirm_quit(self) -> None:
+        # Tryfix privatestoragedesktop/-/issues/735
+        reactor.stop()  # type: ignore
+
         msg = QMessageBox(self)
         if self._is_folder_syncing():
             msg.setIcon(QMessageBox.Warning)
