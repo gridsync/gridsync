@@ -918,6 +918,12 @@ def test_wormhole_uri_setter(magic_folder):
 
 
 @ensureDeferred
+async def test_invite_raises_value_error(magic_folder, tmp_path):
+    with pytest.raises(ValueError):
+        result = await magic_folder.invite("Folder", "Participant", "asdf")
+
+
+@ensureDeferred
 async def test_invites_join_adds_folder(
     tmp_path, alice_magic_folder, bob_magic_folder
 ):
