@@ -18,7 +18,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from gridsync import QT_LIB_VERSION, features, resource
+from gridsync import features, resource
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 
