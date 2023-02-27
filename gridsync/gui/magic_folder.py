@@ -161,9 +161,7 @@ class MagicFolderJoinDialog(QDialog):
         layout = QGridLayout(self)
         layout.addWidget(self._stack)
 
-        self._code_page.button.clicked.connect(
-            self._on_button_clicked
-        )
+        self._code_page.button.clicked.connect(self._on_button_clicked)
 
     def _on_button_clicked(self) -> None:
         folder_name = self._code_page.folder_name_lineedit.text()
