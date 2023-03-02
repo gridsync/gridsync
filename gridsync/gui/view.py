@@ -243,9 +243,10 @@ class View(QTreeView):
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
-                'Error downloading folder "{}"'.format(folder_name),
-                'An exception was raised when downloading the "{}" folder:\n\n'
-                "{}: {}".format(folder_name, type(e).__name__, str(e)),
+                f"Error inviting {participant_name} to {folder_name}",
+                f'An exception was raised when inviting "{participant_name}" '
+                f'to the "{folder_name}" folder:\n\n'
+                f"{type(e).__name__}: {str(e)}",
             )
 
     def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
