@@ -959,6 +959,13 @@ class MagicFolder:
         )
         return cast(dict, result)
 
+    async def invites(self, folder_name: str) -> list:
+        result = await self._request(
+            "GET",
+            f"/experimental/magic-folder/{folder_name}/invites",
+        )
+        return cast(list, result)
+
     async def join(  # pylint: disable=too-many-arguments
         self,
         folder_name: str,
