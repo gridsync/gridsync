@@ -231,13 +231,30 @@ class View(QTreeView):
         if result["success"] is True:
             dialog.show_success()
 
+    async def _try_invite(
+        self,
+        dialog: MagicFolderInviteDialog,
+        folder_name: str,
+        participant_name: str,
+    ) -> None:
+        try:
+            await self._do_invite(dialog, folder_name, participant_name)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
+            error(
+                self,
+                'Error downloading folder "{}"'.format(folder_name),
+                'An exception was raised when downloading the "{}" folder:\n\n'
+                "{}: {}".format(folder_name, type(e).__name__, str(e)),
+            )
+
     def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
         logging.debug("Creating Magic-Folder invite for %s...", folder_name)
         dialog = MagicFolderInviteDialog()
         # TODO: Remove on close?
         self.magic_folder_invite_dialogs.add(dialog)
         dialog.participant_name_set.connect(
-            lambda p: ensureDeferred(self._do_invite(dialog, folder_name, p))
+            lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
         )
         dialog.show()
 
