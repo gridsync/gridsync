@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
+from twisted.internet.defer import Deferred, DeferredList
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
@@ -943,6 +944,35 @@ async def test_invites_join_adds_folder(
 
     bob_folders = await bob_magic_folder.get_folders()
     assert folder_name in bob_folders
+
+
+@ensureDeferred
+async def test_invite_wait(tmp_path, alice_magic_folder, bob_magic_folder):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    result = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = result["wormhole-code"]
+    id_ = result["id"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+
+    results = await DeferredList(
+        [
+            Deferred.fromCoroutine(
+                bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+            ),
+            Deferred.fromCoroutine(
+                alice_magic_folder.invite_wait(folder_name, id_)
+            ),
+        ]
+    )
+    for success, result in results:
+        assert result["success"] is True
 
 
 @ensureDeferred
