@@ -951,6 +951,14 @@ class MagicFolder:
         )
         return cast(dict, result)
 
+    async def invite_cancel(self, folder_name: str, id_: str) -> dict:
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite-cancel",
+            body=json.dumps({"id": id_}).encode(),
+        )
+        return cast(dict, result)
+
     async def join(  # pylint: disable=too-many-arguments
         self,
         folder_name: str,
