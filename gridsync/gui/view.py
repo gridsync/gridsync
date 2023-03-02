@@ -220,11 +220,16 @@ class View(QTreeView):
         folder_name: str,
         participant_name: str,
     ) -> None:
-        result = await self.gateway.magic_folder.invite(
+        inv = await self.gateway.magic_folder.invite(
             folder_name, participant_name
         )
-        logging.debug("Created Magic-Folder invite: %s", result)  # XXX
-        dialog.show_code(result["wormhole-code"])
+        logging.debug("Created Magic-Folder invite: %s", inv)  # XXX
+        dialog.show_code(inv["wormhole-code"])
+        result = await self.gateway.magic_folder.invite_wait(
+            folder_name, inv["id"]
+        )
+        if result["success"] is True:
+            dialog.show_success()
 
     def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
         logging.debug("Creating Magic-Folder invite for %s...", folder_name)
