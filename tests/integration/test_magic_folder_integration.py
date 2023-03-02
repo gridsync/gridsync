@@ -1001,7 +1001,7 @@ async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
 
     inv = await alice_magic_folder.invite(folder_name, "Bob")
     results = await alice_magic_folder.invites(folder_name)
-    assert inv not in results
+    assert inv in results
 
 
 @ensureDeferred
