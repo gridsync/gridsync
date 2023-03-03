@@ -47,9 +47,12 @@ class _MagicFolderInviteCodePage(QWidget):
         self.qrcode_label = QLabel("")
         self.label = QLabel("Code")
 
+        self.button = QPushButton("Cancel")
+
         layout = QGridLayout(self)
         layout.addWidget(self.qrcode_label)
         layout.addWidget(self.label)
+        layout.addWidget(self.button)
 
     def set_code(self, code: str) -> None:
         self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(256, 256)))
