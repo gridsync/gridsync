@@ -71,6 +71,7 @@ class _MagicFolderInviteSuccessPage(QWidget):
 
 class MagicFolderInviteDialog(QDialog):
     participant_name_set = Signal(str)
+    cancel_requested = Signal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -93,10 +94,14 @@ class MagicFolderInviteDialog(QDialog):
         self._participant_page.button.clicked.connect(
             self._on_participant_name_set
         )
+        self._code_page.button.clicked.connect(self._on_cancel_requested)
 
     def _on_participant_name_set(self) -> None:
         participant_name = self._participant_page.lineedit.text()
         self.participant_name_set.emit(participant_name)
+
+    def _on_cancel_requested(self) -> None:
+        self.cancel_requested.emit()
 
     def show_code(self, code: str) -> None:
         self._code_page.set_code(code)
