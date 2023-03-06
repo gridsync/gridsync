@@ -15,6 +15,7 @@ from qtpy.QtWidgets import (
 )
 
 from gridsync import config_dir
+from gridsync.gui.invite import InviteCodeLineEdit
 from gridsync.gui.qrcode import QRCode
 
 
@@ -117,7 +118,7 @@ class _MagicFolderJoinCodePage(QWidget):
 
         self.label = QLabel("Code")
         self.folder_name_lineedit = QLineEdit(self)
-        self.invite_code_lineedit = QLineEdit(self)
+        self.invite_code_lineedit = InviteCodeLineEdit(self)
         self.local_path_lineedit = QLineEdit(self)
         self.button = QPushButton("Go")
 
