@@ -55,7 +55,10 @@ from twisted.python.failure import Failure
 from gridsync import APP_NAME, features, resource
 from gridsync.desktop import open_path
 from gridsync.gui.font import Font
-from gridsync.gui.magic_folder import MagicFolderInviteDialog
+from gridsync.gui.magic_folder import (
+    MagicFolderInviteDialog,
+    MagicFolderJoinDialog,
+)
 from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
@@ -80,6 +83,7 @@ class View(QTreeView):
         self.recovery_prompt_shown: bool = False
         self.invite_sender_dialogs: list = []
         self.magic_folder_invite_dialogs: set = set()
+        self.magic_folder_join_dialogs: set = set()
         self._model = Model(self)
         self.setModel(self._model)
         self.setItemDelegate(Delegate(self))
@@ -254,6 +258,46 @@ class View(QTreeView):
         dialog = MagicFolderInviteDialog()
         # TODO: Remove on close?
         self.magic_folder_invite_dialogs.add(dialog)
+        dialog.participant_name_set.connect(
+            lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
+        )
+        dialog.show()
+
+    async def _do_join(
+        self,
+        dialog: MagicFolderJoinDialog,
+        folder_name: str,
+        local_path: str,
+    ) -> None:
+        raise  # XXX
+        result = await self.gateway.magic_folder.join(
+            folder_name, invite_code, local_path
+        )
+        if result["success"] is True:
+            dialog.show_success()
+
+    async def _try_join(
+        self,
+        dialog: MagicFolderJoinDialog,
+        folder_name: str,
+        participant_name: str,
+    ) -> None:
+        try:
+            await self._do_join(dialog, folder_name, participant_name)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
+            error(
+                self,
+                f"Error joining {folder_name} as {participant_name}",
+                f'An exception was raised when joining "{folder_name}" '
+                f'as "{participant_name}" folder:\n\n'
+                f"{type(e).__name__}: {str(e)}",
+            )
+
+    def open_magic_folder_join_dialog(self, folder_name: str) -> None:
+        dialog = MagicFolderJoinDialog()
+        # TODO: Remove on close?
+        self.magic_folder_join_dialogs.add(dialog)
         dialog.participant_name_set.connect(
             lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
         )
