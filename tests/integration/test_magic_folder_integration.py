@@ -1004,6 +1004,26 @@ async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
 
 
 @ensureDeferred
+async def test_invite_cancel_removes_invite(
+    tmp_path, alice_magic_folder, bob_magic_folder
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    results_before = await alice_magic_folder.invites(folder_name)
+    assert inv in results_before
+
+    await alice_magic_folder.invite_cancel(folder_name, inv["id"])
+    results_after = await alice_magic_folder.invites(folder_name)
+    assert inv not in results_after
+
+
+@ensureDeferred
 async def test_invites_file_sync(
     tmp_path, alice_magic_folder, bob_magic_folder
 ):
