@@ -976,8 +976,7 @@ async def test_invite_wait(tmp_path, alice_magic_folder, bob_magic_folder):
 
 
 @ensureDeferred
-# XXX: Disabled until the invite-cancel endpoint is released
-async def _test_invite_cancel(tmp_path, alice_magic_folder, bob_magic_folder):
+async def test_invite_cancel(tmp_path, alice_magic_folder, bob_magic_folder):
     folder_name = randstr()
 
     alice_path = tmp_path / "Alice" / folder_name
