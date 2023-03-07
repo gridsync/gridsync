@@ -976,45 +976,37 @@ async def test_invite_wait(tmp_path, alice_magic_folder, bob_magic_folder):
 
 
 @ensureDeferred
-async def test_invite_cancel(tmp_path, alice_magic_folder, bob_magic_folder):
+async def test_invite_cancel_returns_empty_dict(tmp_path, alice_magic_folder):
     folder_name = randstr()
 
-    alice_path = tmp_path / "Alice" / folder_name
-    await alice_magic_folder.add_folder(alice_path, "Alice")
-    alice_folders = await alice_magic_folder.get_folders()
-    assert folder_name in alice_folders
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
 
-    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    inv = await alice_magic_folder.invite(folder_name, randstr())
     result = await alice_magic_folder.invite_cancel(folder_name, inv["id"])
     assert result == {}
 
 
 @ensureDeferred
-async def test_invites(tmp_path, alice_magic_folder, bob_magic_folder):
+async def test_invites(tmp_path, alice_magic_folder):
     folder_name = randstr()
 
-    alice_path = tmp_path / "Alice" / folder_name
-    await alice_magic_folder.add_folder(alice_path, "Alice")
-    alice_folders = await alice_magic_folder.get_folders()
-    assert folder_name in alice_folders
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
 
-    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    inv = await alice_magic_folder.invite(folder_name, randstr())
     results = await alice_magic_folder.invites(folder_name)
     assert inv in results
 
 
 @ensureDeferred
-async def test_invite_cancel_removes_invite(
-    tmp_path, alice_magic_folder, bob_magic_folder
-):
+async def test_invite_cancel_removes_invite(tmp_path, alice_magic_folder):
     folder_name = randstr()
 
-    alice_path = tmp_path / "Alice" / folder_name
-    await alice_magic_folder.add_folder(alice_path, "Alice")
-    alice_folders = await alice_magic_folder.get_folders()
-    assert folder_name in alice_folders
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
 
-    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    inv = await alice_magic_folder.invite(folder_name, randstr())
     results_before = await alice_magic_folder.invites(folder_name)
     assert inv in results_before
 
