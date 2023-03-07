@@ -1,4 +1,5 @@
-magic-folder>=22.10.1
+# Magic-Folder 23.3.0 adds support for cancelling pending invites
+magic-folder>=23.3.0
 # These autobahn constraints are inherited from ZKAPAuthorizer e1debb6
 # and can probably go away once autobahn provides a release containing
 # https://github.com/crossbario/autobahn-python/pull/1578
