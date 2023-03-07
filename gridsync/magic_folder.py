@@ -649,7 +649,7 @@ class MagicFolder:
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
             return json.loads(content)
         raise MagicFolderWebError(
-            f"Error {resp.code} requesting {method} /v1{path}: {content}"
+            f"Error {resp.code} requesting {method} {path}: {content}"
         )
 
     async def get_folders(self) -> dict[str, dict]:
