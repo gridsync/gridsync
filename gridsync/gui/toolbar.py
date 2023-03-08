@@ -336,6 +336,7 @@ class ToolBar(QToolBar):
         self.folder_button.add_folder_triggered.connect(  # XXX
             self.add_folder_triggered
         )
+        self.folder_button.clicked.connect(self.add_folder_triggered)
         try:
             self.folder_button.join_folder_triggered.connect(  # XXX
                 self.join_folder_triggered
