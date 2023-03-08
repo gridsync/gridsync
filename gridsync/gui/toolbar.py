@@ -145,7 +145,7 @@ class EnterCodeButton(QToolButton):
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
-class RecoveryButton(QToolButton):
+class RecoveryMenuButton(QToolButton):
     import_action_triggered = Signal()
     export_action_triggered = Signal()
 
@@ -223,7 +223,7 @@ class ToolBar(QToolBar):
         font = Font(8)
 
         self.folder_button = AddFolderButton(self)
-        self.recovery_button = RecoveryButton(self)
+        self.recovery_button = RecoveryMenuButton(self)
 
         if features.grid_invites:
             self.invites_action = QAction(
