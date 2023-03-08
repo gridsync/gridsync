@@ -122,6 +122,29 @@ class AddFolderButton(QToolButton):
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
+class EnterCodeButton(QToolButton):
+    enter_code_triggered = Signal()
+
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        font = Font(8)
+
+        self.action = QAction(
+            QIcon(resource("invite.png")), "Enter Code", self
+        )
+        self.action.setToolTip("Enter an Invite Code...")
+        self.action.setEnabled(False)
+        self.action.setFont(font)
+        self.action.triggered.connect(lambda: print("OK"))  # XXX
+
+        self.setDefaultAction(self.action)
+        self.setFont(font)
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+
+        self.pressed.connect(lambda: print("PRESSED"))  # XXX
+
+
 class RecoveryButton(QToolButton):
     import_action_triggered = Signal()
     export_action_triggered = Signal()
