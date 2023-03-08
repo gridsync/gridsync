@@ -757,26 +757,6 @@ class MagicFolder:
     def is_admin(self, folder_name: str) -> bool:
         return self.magic_folders.get(folder_name, {}).get("is_admin", False)
 
-    async def get_snapshots(self) -> dict[str, dict]:
-        snapshots = await self._request("GET", "/v1/snapshot")
-        if isinstance(snapshots, dict):
-            return snapshots
-        raise TypeError(
-            f"Expected snapshots as a dict, instead got {type(snapshots)!r}"
-        )
-
-    async def add_snapshot(self, folder_name: str, filepath: str) -> None:
-        try:
-            magic_path = self.magic_folders[folder_name]["magic_path"]
-        except KeyError:
-            await self.get_folders()
-            magic_path = self.magic_folders[folder_name]["magic_path"]
-        if filepath.startswith(magic_path):
-            filepath = filepath[len(magic_path) + len(os.sep) :]
-        await self._request(
-            "POST", f"/v1/magic-folder/{folder_name}/snapshot?path={filepath}"
-        )
-
     async def get_participants(self, folder_name: str) -> dict[str, dict]:
         participants = await self._request(
             "GET", f"/v1/magic-folder/{folder_name}/participants"
