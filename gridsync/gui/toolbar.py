@@ -145,6 +145,43 @@ class EnterCodeButton(QToolButton):
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
+class InvitesMenuButton(QToolButton):
+    enter_invite_action_triggered = Signal()
+    create_invite_action_triggered = Signal()
+
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        font = Font(8)
+
+        self.action = QAction(QIcon(resource("invite.png")), "Invites", self)
+        self.action.setToolTip("Enter or Create an Invite Code")
+        self.action.setFont(font)
+        self.action.setEnabled(False)
+
+        enter_invite_action = QAction(QIcon(), "Enter Invite Code...", self)
+        enter_invite_action.setToolTip("Enter an Invite Code...")
+        enter_invite_action.triggered.connect(
+            self.enter_invite_action_triggered
+        )
+
+        create_invite_action = QAction(QIcon(), "Create Invite Code...", self)
+        create_invite_action.setToolTip("Create on Invite Code...")
+        create_invite_action.triggered.connect(
+            self.create_invite_action_triggered
+        )
+
+        menu = QMenu(self)
+        menu.addAction(enter_invite_action)
+        menu.addAction(create_invite_action)
+
+        self.setDefaultAction(self.action)
+        self.setFont(font)
+        self.setMenu(menu)
+        self.setPopupMode(QToolButton.InstantPopup)
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+
+
 class RecoveryMenuButton(QToolButton):
     import_action_triggered = Signal()
     export_action_triggered = Signal()
@@ -226,51 +263,17 @@ class ToolBar(QToolBar):
         self.recovery_button = RecoveryMenuButton(self)
 
         if features.grid_invites:
-            self.invites_action = QAction(
-                QIcon(resource("invite.png")), "Invites", self
+            self.invites_button = InvitesMenuButton(self)
+            self.invites_button.enter_invite_action_triggered.connect(
+                self.enter_invite_action_triggered
             )
-            self.invites_action.setEnabled(False)
-            self.invites_action.setToolTip("Enter or Create an Invite Code")
-            self.invites_action.setFont(font)
-
-            self.enter_invite_action = QAction(
-                QIcon(), "Enter Invite Code...", self
+            self.invites_button.create_invite_action_triggered.connect(
+                self.create_invite_action_triggered
             )
-            self.enter_invite_action.setToolTip("Enter an Invite Code...")
-            self.enter_invite_action.triggered.connect(
-                self.enter_invite_action_triggered.emit
-            )
-
-            self.create_invite_action = QAction(
-                QIcon(), "Create Invite Code...", self
-            )
-            self.create_invite_action.setToolTip("Create on Invite Code...")
-            self.create_invite_action.triggered.connect(
-                self.create_invite_action_triggered.emit
-            )
-
-            self.invites_menu = QMenu(self)
-            self.invites_menu.addAction(self.enter_invite_action)
-            self.invites_menu.addAction(self.create_invite_action)
-
-            self.invites_button = QToolButton(self)
-            self.invites_button.setDefaultAction(self.invites_action)
-            self.invites_button.setMenu(self.invites_menu)
-            self.invites_button.setPopupMode(QToolButton.InstantPopup)
-            self.invites_button.setStyleSheet(
-                "QToolButton::menu-indicator { image: none }"
-            )
-            self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
         elif features.invites:
-            self.invite_action = QAction(
-                QIcon(resource("invite.png")), "Enter Code", self
-            )
-            self.invite_action.setEnabled(False)
-            self.invite_action.setToolTip("Enter an Invite Code...")
-            self.invite_action.setFont(font)
-            self.invite_action.triggered.connect(
-                self.enter_invite_action_triggered.emit
+            self.invites_button = EnterCodeButton(self)
+            self.invites_button.pressed.connect(
+                self.enter_invite_action_triggered
             )
 
         spacer_left = QWidget()
@@ -325,10 +328,7 @@ class ToolBar(QToolBar):
 
         self.folder_wa = self.addWidget(self.folder_button)
         self.recovery_wa = self.addWidget(self.recovery_button)
-        if features.grid_invites:
-            self.invites_wa = self.addWidget(self.invites_button)
-        elif features.invites:
-            self.invite_wa = self.addAction(self.invite_action)
+        self.invites_wa = self.addWidget(self.invites_button)
 
         self.addWidget(spacer_left)
         self.addWidget(self.combo_box)
@@ -399,7 +399,7 @@ class ToolBar(QToolBar):
                 self.invites_button.setEnabled(False)
             else:
                 try:
-                    self.invite_action.setEnabled(False)
+                    self.invites_button.setEnabled(False)
                 except AttributeError:
                     pass
             if not gateway.magic_folder.magic_folders:
@@ -422,7 +422,7 @@ class ToolBar(QToolBar):
                 self.invites_button.setEnabled(True)
             else:
                 try:
-                    self.invite_action.setEnabled(True)
+                    self.invites_button.setEnabled(True)
                 except AttributeError:
                     pass
 
