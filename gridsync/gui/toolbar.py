@@ -64,20 +64,27 @@ class ComboBox(QComboBox):
                 return
 
 
-class FolderMenuButton(QToolButton):
+class ToolButton(QToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.setFont(Font(8))
+        self.setPopupMode(QToolButton.InstantPopup)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+
+class FolderMenuButton(ToolButton):
     add_folder_triggered = Signal()
     join_folder_triggered = Signal()
 
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(
             QIcon(resource("folder-plus-outline.png")), "Add Folder", self
         )
         self.action.setEnabled(False)
         self.action.setToolTip("Add a Folder...")
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
 
         from_device_action = QAction(QIcon(), "From Local Device...", self)
         from_device_action.setToolTip("Add Folder from Local Device...")
@@ -92,70 +99,54 @@ class FolderMenuButton(QToolButton):
         menu.addAction(from_code_action)
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
         self.setMenu(menu)
-        self.setPopupMode(QToolButton.InstantPopup)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
 
 
-class AddFolderButton(QToolButton):
+class AddFolderButton(ToolButton):
     add_folder_triggered = Signal()
 
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(
             QIcon(resource("folder-plus-outline.png")), "Add Folder", self
         )
         self.action.setEnabled(False)
         self.action.setToolTip("Add a Folder...")
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
         self.action.triggered.connect(lambda: print("OK"))  # XXX
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
 
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
-class EnterCodeButton(QToolButton):
+class EnterCodeButton(ToolButton):
     enter_code_triggered = Signal()
 
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(
             QIcon(resource("invite.png")), "Enter Code", self
         )
         self.action.setToolTip("Enter an Invite Code...")
         self.action.setEnabled(False)
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
         self.action.triggered.connect(lambda: print("OK"))  # XXX
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
 
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
-class InvitesMenuButton(QToolButton):
+class InvitesMenuButton(ToolButton):
     enter_invite_action_triggered = Signal()
     create_invite_action_triggered = Signal()
 
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(QIcon(resource("invite.png")), "Invites", self)
         self.action.setToolTip("Enter or Create an Invite Code")
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
         self.action.setEnabled(False)
 
         enter_invite_action = QAction(QIcon(), "Enter Invite Code...", self)
@@ -175,27 +166,21 @@ class InvitesMenuButton(QToolButton):
         menu.addAction(create_invite_action)
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
         self.setMenu(menu)
-        self.setPopupMode(QToolButton.InstantPopup)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
 
 
-class RecoveryMenuButton(QToolButton):
+class RecoveryMenuButton(ToolButton):
     import_action_triggered = Signal()
     export_action_triggered = Signal()
 
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(
             QIcon(resource("key-outline.png")), "Recovery", self
         )
         self.action.setEnabled(False)
         self.action.setToolTip("Create or Restore from a Recovery Key")
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
 
         import_action = QAction(QIcon(), "Restore from Recovery Key...", self)
         import_action.setToolTip("Restore from Recovery Key...")
@@ -210,74 +195,55 @@ class RecoveryMenuButton(QToolButton):
         menu.addAction(export_action)
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
         self.setMenu(menu)
-        self.setPopupMode(QToolButton.InstantPopup)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
 
-class HistoryToggleButton(QToolButton):
+class HistoryToggleButton(ToolButton):
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(
             QIcon(resource("clock-outline.png")), "History", self
         )
         self.action.setToolTip("Show/Hide History")
         self.action.setEnabled(False)
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
         self.action.triggered.connect(lambda: print("OK"))  # XXX
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
         self.setCheckable(True)
 
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
-class FoldersToggleButton(QToolButton):
+class FoldersToggleButton(ToolButton):
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(
             QIcon(resource("folder-multiple-outline.png")), "Folders", self
         )
         self.action.setToolTip("Show Folders")
         self.action.setEnabled(False)
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
         self.action.triggered.connect(lambda: print("OK"))  # XXX
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
         self.setCheckable(True)
 
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
-class UsageToggleButton(QToolButton):
+class UsageToggleButton(ToolButton):
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
-        font = Font(8)
-
         self.action = QAction(
             QIcon(resource("chart-donut.png")), "Storage-time", self
         )
         self.action.setToolTip("Show Storage-time")
         self.action.setEnabled(False)
-        self.action.setFont(font)
+        self.action.setFont(Font(8))
         self.action.triggered.connect(lambda: print("OK"))  # XXX
 
         self.setDefaultAction(self.action)
-        self.setFont(font)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
         self.setCheckable(True)
 
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
@@ -322,8 +288,6 @@ class ToolBar(QToolBar):
         self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.setIconSize(QSize(24, 24))
         self.setMovable(False)
-
-        font = Font(8)
 
         self.folder_button = AddFolderButton(self)
         self.recovery_button = RecoveryMenuButton(self)
