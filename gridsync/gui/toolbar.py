@@ -64,7 +64,7 @@ class ComboBox(QComboBox):
                 return
 
 
-class FolderButton(QToolButton):
+class FolderMenuButton(QToolButton):
     add_folder_triggered = Signal()
     join_folder_triggered = Signal()
 
@@ -97,6 +97,29 @@ class FolderButton(QToolButton):
         self.setPopupMode(QToolButton.InstantPopup)
         self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+
+
+class AddFolderButton(QToolButton):
+    add_folder_triggered = Signal()
+
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        font = Font(8)
+
+        self.action = QAction(
+            QIcon(resource("folder-plus-outline.png")), "Add Folder", self
+        )
+        self.action.setEnabled(False)
+        self.action.setToolTip("Add a Folder...")
+        self.action.setFont(font)
+        self.action.triggered.connect(lambda: print("OK"))  # XXX
+
+        self.setDefaultAction(self.action)
+        self.setFont(font)
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+
+        self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
 class RecoveryButton(QToolButton):
@@ -176,7 +199,7 @@ class ToolBar(QToolBar):
 
         font = Font(8)
 
-        self.folder_button = FolderButton(self)
+        self.folder_button = AddFolderButton(self)
         self.recovery_button = RecoveryButton(self)
 
         if features.grid_invites:
@@ -295,9 +318,12 @@ class ToolBar(QToolBar):
         self.folder_button.add_folder_triggered.connect(  # XXX
             self.add_folder_triggered
         )
-        self.folder_button.join_folder_triggered.connect(  # XXX
-            self.join_folder_triggered
-        )
+        try:
+            self.folder_button.join_folder_triggered.connect(  # XXX
+                self.join_folder_triggered
+            )
+        except AttributeError:
+            pass
         self.recovery_button.import_action_triggered.connect(
             self.import_action_triggered
         )
