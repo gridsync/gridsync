@@ -283,49 +283,6 @@ async def test_add_participant(magic_folder, tmp_path):
 
 
 @ensureDeferred
-async def test_get_snapshots(magic_folder):
-    folders = await magic_folder.get_folders()
-    snapshots = await magic_folder.get_snapshots()
-    assert sorted(snapshots.keys()) == sorted(folders.keys())
-
-
-@ensureDeferred
-async def test_add_snapshot(magic_folder, tmp_path):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    await magic_folder.add_folder(path, author)
-
-    filename = randstr()
-    filepath = path / filename
-    filepath.write_text(randstr() * 10)
-    await magic_folder.add_snapshot(folder_name, filename)
-    snapshots = await magic_folder.get_snapshots()
-    assert filename in snapshots.get(folder_name)
-
-
-@ensureDeferred
-async def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    await magic_folder.add_folder(path, author, poll_interval=1)
-
-    filename = randstr()
-    filepath = path / filename
-    filepath.write_text(randstr() * 10)
-    await magic_folder.add_snapshot(folder_name, filename)
-
-    folders = await magic_folder.get_folders()
-    upload_dircap = folders[folder_name]["upload_dircap"]
-
-    await deferLater(reactor, 1.5, lambda: None)
-
-    content = await magic_folder.gateway.get_json(upload_dircap)
-    assert filename in content[1]["children"]
-
-
-@ensureDeferred
 async def test_scanner_uploads_to_personal_dmd(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
@@ -548,8 +505,8 @@ async def test_alice_add_folder(alice_magic_folder, tmp_path):
     filepath.write_text(randstr() * 10)
     await alice_magic_folder.scan(folder_name)
 
-    snapshots = await alice_magic_folder.get_snapshots()
-    assert filename in snapshots.get(folder_name)
+    folders = await alice_magic_folder.get_folders()
+    assert folder_name in folders
 
 
 @ensureDeferred
