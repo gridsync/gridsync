@@ -261,6 +261,28 @@ class FoldersToggleButton(QToolButton):
         self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
+class UsageToggleButton(QToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        font = Font(8)
+
+        self.action = QAction(
+            QIcon(resource("chart-donut.png")), "Storage-time", self
+        )
+        self.action.setToolTip("Show Storage-time")
+        self.action.setEnabled(False)
+        self.action.setFont(font)
+        self.action.triggered.connect(lambda: print("OK"))  # XXX
+
+        self.setDefaultAction(self.action)
+        self.setFont(font)
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+        self.setCheckable(True)
+
+        self.pressed.connect(lambda: print("PRESSED"))  # XXX
+
+
 class ToolBar(QToolBar):
     add_folder_triggered = Signal()
     join_folder_triggered = Signal()
@@ -333,19 +355,7 @@ class ToolBar(QToolBar):
 
         self.history_button = HistoryToggleButton(self)
         self.folders_button = FoldersToggleButton(self)
-
-        self.usage_action = QAction(
-            QIcon(resource("chart-donut.png")), "Storage-time", self
-        )
-        self.usage_action.setEnabled(False)
-        self.usage_action.setToolTip("Show Storage-time")
-        self.usage_action.setFont(font)
-        self.usage_action.setCheckable(True)
-
-        self.usage_button = QToolButton(self)
-        self.usage_button.setDefaultAction(self.usage_action)
-        self.usage_button.setCheckable(True)
-        self.usage_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.usage_button = UsageToggleButton(self)
 
         self.folder_wa = self.addWidget(self.folder_button)
         self.recovery_wa = self.addWidget(self.recovery_button)
