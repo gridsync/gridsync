@@ -217,6 +217,28 @@ class RecoveryMenuButton(QToolButton):
         self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
 
+class HistoryToggleButton(QToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        font = Font(8)
+
+        self.action = QAction(
+            QIcon(resource("clock-outline.png")), "History", self
+        )
+        self.action.setToolTip("Show/Hide History")
+        self.action.setEnabled(False)
+        self.action.setFont(font)
+        self.action.triggered.connect(lambda: print("OK"))  # XXX
+
+        self.setDefaultAction(self.action)
+        self.setFont(font)
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+        self.setCheckable(True)
+
+        self.pressed.connect(lambda: print("PRESSED"))  # XXX
+
+
 class ToolBar(QToolBar):
     add_folder_triggered = Signal()
     join_folder_triggered = Signal()
@@ -287,18 +309,8 @@ class ToolBar(QToolBar):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.history_action = QAction(
-            QIcon(resource("clock-outline.png")), "History", self
-        )
-        self.history_action.setEnabled(False)
-        self.history_action.setToolTip("Show/Hide History")
-        self.history_action.setFont(font)
-        self.history_action.setCheckable(True)
+        self.history_button = HistoryToggleButton(self)
 
-        self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(self.history_action)
-        self.history_button.setCheckable(True)
-        self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.folders_action = QAction(
             QIcon(resource("folder-multiple-outline.png")), "Folders", self
         )
