@@ -569,7 +569,7 @@ class View(QTreeView):
             QIcon(resource("close.png")), "Remove from Recovery Key..."
         )
         menu.addAction(open_action)
-        if features.invites:
+        if features.magic_folder_invites:
             menu.addMenu(share_menu)
         menu.addSeparator()
         menu.addAction(remove_action)

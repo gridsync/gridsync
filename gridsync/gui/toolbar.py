@@ -300,7 +300,7 @@ class ToolBar(QToolBar):
             self.invites_button.create_invite_action_triggered.connect(
                 self.create_invite_action_triggered
             )
-        elif features.invites:
+        elif features.magic_folder_invites:
             self.invites_button = EnterCodeButton(self)
             self.invites_button.pressed.connect(
                 self.enter_invite_action_triggered
