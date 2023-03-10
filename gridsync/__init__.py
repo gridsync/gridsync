@@ -107,7 +107,7 @@ if _features:
     _grid_invites = _features.get("grid_invites")
     if _grid_invites and _grid_invites.lower() == "false":
         grid_invites_enabled = False
-    _magic_folder_invites = _features.get("invites")
+    _magic_folder_invites = _features.get("magic_folder_invites")
     if _magic_folder_invites and _magic_folder_invites.lower() == "false":
         magic_folder_invites_enabled = False
     _multiple_grids = _features.get("multiple_grids")
