@@ -103,8 +103,6 @@ class FolderMenuButton(ToolButton):
 
 
 class AddFolderButton(ToolButton):
-    add_folder_triggered = Signal()
-
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
         self.action = QAction(
@@ -113,11 +111,7 @@ class AddFolderButton(ToolButton):
         self.action.setEnabled(False)
         self.action.setToolTip("Add a Folder...")
         self.action.setFont(Font(8))
-        self.action.triggered.connect(lambda: print("OK"))  # XXX
-
         self.setDefaultAction(self.action)
-
-        self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
 class EnterCodeButton(ToolButton):
@@ -333,11 +327,11 @@ class ToolBar(QToolBar):
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
-        self.folder_button.add_folder_triggered.connect(  # XXX
-            self.add_folder_triggered
-        )
         self.folder_button.clicked.connect(self.add_folder_triggered)
         try:
+            self.folder_button.add_folder_triggered.connect(  # XXX
+                self.add_folder_triggered
+            )
             self.folder_button.join_folder_triggered.connect(  # XXX
                 self.join_folder_triggered
             )
