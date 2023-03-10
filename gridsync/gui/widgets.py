@@ -20,7 +20,7 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from gridsync.tor import get_tor
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 
 class VSpacer(QSpacerItem):
@@ -34,7 +34,6 @@ class HSpacer(QSpacerItem):
 
 
 class ClickableLabel(QLabel):
-
     clicked = Signal()
 
     def mousePressEvent(self, event: QMouseEvent) -> None:

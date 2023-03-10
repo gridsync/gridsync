@@ -43,7 +43,7 @@ from gridsync.gui.font import Font
 from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 
 class InviteCodeCompleter(QCompleter):
@@ -64,7 +64,6 @@ class InviteCodeCompleter(QCompleter):
 
 
 class InviteCodeLineEdit(QLineEdit):
-
     error = Signal(str)
     go = Signal(str)
 

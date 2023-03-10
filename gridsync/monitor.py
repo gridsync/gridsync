@@ -13,14 +13,13 @@ from twisted.internet.error import ConnectError
 from twisted.internet.task import LoopingCall
 
 from gridsync.errors import TahoeWebError
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe
 
 
 class GridChecker(QObject):
-
     connected = Signal()
     disconnected = Signal()
     nodes_updated = Signal(int, int)
@@ -144,7 +143,6 @@ def _parse_vouchers(
 
 
 class ZKAPChecker(QObject):
-
     zkaps_updated = Signal(int, int)  # used, remaining
     zkaps_available = Signal()
     zkaps_redeemed = Signal(str)  # timestamp

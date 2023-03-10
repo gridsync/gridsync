@@ -404,7 +404,7 @@ class Tahoe:
             stdout_line_collector=self._log_stdout_message,
             stderr_line_collector=self._log_stderr_message,
         )
-        self._reactor.spawnProcess(  # type: ignore
+        self._reactor.spawnProcess(
             protocol, self.executable, args=args, env=env
         )
         try:
@@ -648,74 +648,73 @@ class Tahoe:
         """
         self.nodeurl = nodeurl
 
+    async def _request(
+        self, method: str, path: str = "", **kwargs: object
+    ) -> str:
+        if not self.nodeurl:
+            raise RuntimeError(
+                "Tahoe-LAFS nodeurl has not been set. Is tahoe running?"
+            )
+        if path.startswith("/") and self.nodeurl.endswith("/"):
+            path = path.lstrip("/")
+        url = self.nodeurl + path
+        if "headers" not in kwargs:
+            kwargs["headers"] = {"Accept": "text/plain"}
+        resp = await treq.request(method, url, **kwargs)
+        content = await treq.content(resp)
+        content = content.decode("utf-8")
+        if resp.code in (200, 201):
+            return content
+        raise TahoeWebError(
+            f"Tahoe-LAFS web API responded with status code {resp.code}: "
+            f"{content}"
+        )
+
     async def get_grid_status(
         self,
     ) -> Optional[tuple[int, int, int]]:
-        if not self.nodeurl:
-            return None
         try:
-            resp = await treq.get(self.nodeurl + "?t=json")
-        except ConnectError:
+            r = await self._request("GET", params={"t": "json"})
+        except (ConnectError, RuntimeError, TahoeWebError):
             return None
-        if resp.code == 200:
-            content = await treq.content(resp)
-            content = json.loads(content.decode("utf-8"))
-            servers_connected = 0
-            servers_known = 0
-            available_space = 0
-            if "servers" in content:
-                servers = content["servers"]
-                servers_known = len(servers)
-                for server in servers:
-                    if server["connection_status"].startswith("Connected"):
-                        servers_connected += 1
-                        if server["available_space"]:
-                            available_space += server["available_space"]
-            return servers_connected, servers_known, available_space
-        return None
-
-    async def get_connected_servers(self) -> Optional[int]:
-        if not self.nodeurl:
-            return None
-        try:
-            resp = await treq.get(self.nodeurl)
-        except ConnectError:
-            return None
-        if resp.code == 200:
-            html = await treq.content(resp)
-            match = re.search(
-                "Connected to <span>(.+?)</span>", html.decode("utf-8")
-            )
-            if match:
-                return int(match.group(1))
-        return None
+        content = json.loads(r)
+        servers_connected = 0
+        servers_known = 0
+        available_space = 0
+        if "servers" in content:
+            servers = content["servers"]
+            servers_known = len(servers)
+            for server in servers:
+                if server["connection_status"].startswith("Connected"):
+                    servers_connected += 1
+                    if server["available_space"]:
+                        available_space += server["available_space"]
+        return servers_connected, servers_known, available_space
 
     async def is_ready(self) -> bool:
         if not self.shares_happy:
             return False
-        connected_servers = await self.get_connected_servers()
-        return bool(
-            connected_servers and connected_servers >= self.shares_happy
-        )
+        status = await self.get_grid_status()
+        if status is None:
+            return False
+        num_connected, _, _ = status
+        return bool(num_connected and num_connected >= self.shares_happy)
 
     def await_ready(self) -> Deferred[bool]:
         return self._ready_poller.wait_for_completion()
 
-    async def mkdir(self, parentcap: str = None, childname: str = None) -> str:
+    async def mkdir(
+        self, parentcap: Optional[str] = None, childname: Optional[str] = None
+    ) -> str:
         await self.await_ready()
-        url = self.nodeurl + "uri"
-        params = {"t": "mkdir"}
         if parentcap and childname:
-            url += "/" + parentcap
-            params["name"] = childname
-        resp = await treq.post(url, params=params)
-        content = await treq.content(resp)
-        content = content.decode("utf-8").strip()
-        if resp.code == 200:
-            return content
-        raise TahoeWebError(
-            f"Error {resp.code} creating Tahoe-LAFS directory: {content}"
-        )
+            path = f"/uri/{parentcap}"
+            params = {"t": "mkdir", "name": childname}
+        else:
+            path = "/uri"
+            params = {"t": "mkdir"}
+        cap = await self._request("POST", path, params=params)
+        return cap
 
     async def create_rootcap(self) -> str:
         return await self.rootcap_manager.create_rootcap()
@@ -725,26 +724,24 @@ class Tahoe:
     ) -> str:
         if dircap:
             filename = Path(local_path).name
-            url = f"{self.nodeurl}uri/{dircap}/{filename}"
+            path = f"/uri/{dircap}/{filename}"
         else:
-            url = f"{self.nodeurl}uri"
+            path = "/uri"
         if mutable:
-            url = f"{url}?format=MDMF"
+            path = f"{path}?format=MDMF"
         log.debug("Uploading %s...", local_path)
         await self.await_ready()
         with open(local_path, "rb") as f:
-            resp = await treq.put(url, f)
-        if resp.code in (200, 201):
-            content = await treq.content(resp)
-            log.debug("Successfully uploaded %s", local_path)
-            return content.decode("utf-8")
-        content = await treq.content(resp)
-        raise TahoeWebError(content.decode("utf-8"))
+            cap = await self._request("PUT", path, data=f)
+        log.debug("Successfully uploaded %s", local_path)
+        return cap
 
     async def download(self, cap: str, local_path: str) -> None:
         log.debug("Downloading %s...", local_path)
         await self.await_ready()
-        resp = await treq.get("{}uri/{}".format(self.nodeurl, cap))
+        resp = await treq.get(
+            f"{self.nodeurl}uri/{cap}", headers={"Accept": "text/plain"}
+        )
         if resp.code == 200:
             with atomic_write(local_path, mode="wb", overwrite=True) as f:
                 await treq.collect(resp, f.write)
@@ -763,14 +760,9 @@ class Tahoe:
             dircap_hash,
         )
         await self.await_ready()
-        resp = await treq.post(
-            "{}uri/{}/?t=uri&name={}&uri={}".format(
-                self.nodeurl, dircap, childname, childcap
-            )
+        await self._request(
+            "POST", f"/uri/{dircap}/?t=uri&name={childname}&uri={childcap}"
         )
-        if resp.code != 200:
-            content = await treq.content(resp)
-            raise TahoeWebError(content.decode("utf-8"))
         log.debug(
             'Done linking "%s" (%s) into %s',
             childname,
@@ -785,9 +777,8 @@ class Tahoe:
         log.debug('Unlinking "%s" from %s...', childname, dircap_hash)
         await self.await_ready()
         resp = await treq.post(
-            "{}uri/{}/?t=unlink&name={}".format(
-                self.nodeurl, dircap, childname
-            )
+            f"{self.nodeurl}uri/{dircap}/?t=unlink&name={childname}",
+            headers={"Accept": "text/plain"},
         )
         if resp.code == 404 and missing_ok:
             pass
@@ -797,17 +788,13 @@ class Tahoe:
         log.debug('Done unlinking "%s" from %s', childname, dircap_hash)
 
     async def get_json(self, cap: str) -> Optional[Union[dict, list]]:
-        if not cap or not self.nodeurl:
+        if not cap:
             return None
-        uri = "{}uri/{}/?t=json".format(self.nodeurl, cap)
         try:
-            resp = await treq.get(uri)
-        except ConnectError:
+            content = await self._request("GET", f"/uri/{cap}/?t=json")
+        except (ConnectError, RuntimeError, TahoeWebError):
             return None
-        if resp.code == 200:
-            content = await treq.content(resp)
-            return json.loads(content.decode("utf-8"))
-        return None
+        return json.loads(content)
 
     async def get_cap(self, path: str) -> Optional[str]:
         json_output = await self.get_json(path)

@@ -24,7 +24,7 @@ from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
 from gridsync.gui.widgets import VSpacer
 from gridsync.msg import error
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 from gridsync.util import future_date
 
 if TYPE_CHECKING:

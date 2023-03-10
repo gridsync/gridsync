@@ -48,7 +48,7 @@ py -m tox -e pyinstaller-gridsync || goto :error
 goto :eof
 
 :pyinstaller-merged
-py -m tox -e pyinstaller || goto :error
+py -m tox -e pyinstaller-windows || goto :error
 goto :eof
 
 :pyinstaller

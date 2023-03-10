@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from qtpy.QtWidgets import QSystemTrayIcon
 
-    from gridsync.types import TwistedDeferred
+    from gridsync.types_ import TwistedDeferred
 
 
 @inlineCallbacks
