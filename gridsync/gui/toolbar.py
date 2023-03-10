@@ -283,8 +283,19 @@ class ToolBar(QToolBar):
         self.setIconSize(QSize(24, 24))
         self.setMovable(False)
 
-        self.folder_button = AddFolderButton(self)
         self.recovery_button = RecoveryMenuButton(self)
+
+        if features.magic_folder_invites and not features.grid_invites:
+            self.folder_button = FolderMenuButton(self)
+            self.folder_button.add_folder_triggered.connect(  # XXX
+                self.add_folder_triggered
+            )
+            self.folder_button.join_folder_triggered.connect(  # XXX
+                self.join_folder_triggered
+            )
+        else:
+            self.folder_button = AddFolderButton(self)
+            self.folder_button.clicked.connect(self.add_folder_triggered)
 
         if features.grid_invites:
             self.invites_button = InvitesMenuButton(self)
@@ -327,16 +338,6 @@ class ToolBar(QToolBar):
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
-        self.folder_button.clicked.connect(self.add_folder_triggered)
-        try:
-            self.folder_button.add_folder_triggered.connect(  # XXX
-                self.add_folder_triggered
-            )
-            self.folder_button.join_folder_triggered.connect(  # XXX
-                self.join_folder_triggered
-            )
-        except AttributeError:
-            pass
         self.recovery_button.import_action_triggered.connect(
             self.import_action_triggered
         )
