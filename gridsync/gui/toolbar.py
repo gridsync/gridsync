@@ -327,8 +327,8 @@ class ToolBar(QToolBar):
         self.usage_button = UsageToggleButton(self)
 
         self.folder_wa = self.addWidget(self.folder_button)
-        self.recovery_wa = self.addWidget(self.recovery_button)
         self.invites_wa = self.addWidget(self.invites_button)
+        self.recovery_wa = self.addWidget(self.recovery_button)
 
         self.addWidget(spacer_left)
         self.addWidget(self.combo_box)
