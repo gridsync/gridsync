@@ -58,8 +58,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -130,8 +130,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
