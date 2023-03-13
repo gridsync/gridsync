@@ -323,9 +323,9 @@ filelock==3.9.0 \
     --hash=sha256:7b319f24340b51f55a2bf7a12ac0755a9b03e718311dac567a0f4f7fabd2f5de \
     --hash=sha256:f58d535af89bb9ad5cd4df046f741f8553a418c01a7856bf0d173bbc9f6bd16d
     # via tahoe-lafs
-foolscap==21.7.0 \
-    --hash=sha256:7520d5a2b6b2ac0b55d1c41c8bc1cdef65a611bbffc48ce0d1adcbd252e81e54 \
-    --hash=sha256:e9d18553860d9358e85d7662d9cd8bf3826d51b4ecd480a05dfbf4fc45363f84
+foolscap==23.3.0 \
+    --hash=sha256:56eee85c2d5baec801c2bdaae7d4c0831f23d401516e2e668d13485994db9145 \
+    --hash=sha256:c125982c80423a6c000fd8fd976972a14db8537f527f29403dacb44c7176a33e
     # via tahoe-lafs
 future==0.18.3 \
     --hash=sha256:34a17436ed1e96697a86f9de3d15a3b0be01d8bc8de9c1dffd59fb8234ed5307
@@ -686,9 +686,9 @@ typing-extensions==4.5.0 \
     --hash=sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb \
     --hash=sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4
     # via twisted
-urllib3==1.26.14 \
-    --hash=sha256:076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72 \
-    --hash=sha256:75edcdc2f7d85b137124a6c3c9fc3933cdeaa12ecb9a6a959f22797a0feca7e1
+urllib3==1.26.15 \
+    --hash=sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305 \
+    --hash=sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42
     # via requests
 werkzeug==2.2.3 \
     --hash=sha256:2e1ccc9417d4da358b9de6f174e3ac094391ea1d4fbef2d667865d819dfd0afe \
@@ -785,9 +785,9 @@ zope-interface==5.5.2 \
     #   zero-knowledge-access-pass-authorizer
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==67.5.1 \
-    --hash=sha256:15136a251127da2d2e77ac7a1bc231eb504654f7e3346d93613a13f2e2787535 \
-    --hash=sha256:1c39d42bda4cb89f7fdcad52b6762e3c309ec8f8715b27c684176b7d71283242
+setuptools==67.6.0 \
+    --hash=sha256:2ee892cd5f29f3373097f5a814697e397cf3ce313616df0af11231e2ad118077 \
+    --hash=sha256:b78aaa36f6b90a074c1fa651168723acbf45d14cb1196b6f02c0fd07f17623b2
     # via
     #   autobahn
     #   tahoe-lafs
