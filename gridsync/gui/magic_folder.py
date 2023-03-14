@@ -103,6 +103,7 @@ class MagicFolderInviteDialog(QDialog):
 
     def _on_cancel_requested(self) -> None:
         self.cancel_requested.emit()
+        self.close()
 
     def show_code(self, code: str) -> None:
         self._code_page.set_code(code)
