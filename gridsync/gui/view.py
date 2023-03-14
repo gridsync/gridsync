@@ -294,13 +294,13 @@ class View(QTreeView):
                 f"{type(e).__name__}: {str(e)}",
             )
 
-    def open_magic_folder_join_dialog(self, folder_name: str) -> None:
+    def open_magic_folder_join_dialog(self) -> None:
         dialog = MagicFolderJoinDialog()
         # TODO: Remove on close?
         self.magic_folder_join_dialogs.add(dialog)
-        dialog.participant_name_set.connect(
-            lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
-        )
+        # dialog.participant_name_set.connect(
+        #     lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
+        # )
         dialog.show()
 
     @inlineCallbacks
