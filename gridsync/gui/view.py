@@ -45,6 +45,7 @@ from qtpy.QtWidgets import (
     QTreeView,
 )
 from twisted.internet.defer import (
+    CancelledError,
     Deferred,
     DeferredList,
     ensureDeferred,
@@ -84,6 +85,7 @@ class View(QTreeView):
         self.invite_sender_dialogs: list = []
         self.magic_folder_invite_dialogs: set = set()
         self.magic_folder_join_dialogs: set = set()
+        self.pending_invites: dict = {}
         self._model = Model(self)
         self.setModel(self._model)
         self.setItemDelegate(Delegate(self))
@@ -220,6 +222,12 @@ class View(QTreeView):
 
     async def _cancel_invite(self, folder_name: str, id_: str) -> None:
         try:
+            d = self.pending_invites.pop(id_)
+        except KeyError:
+            d = None
+        if d is not None:
+            d.cancel()
+        try:
             await self.gateway.magic_folder.invite_cancel(folder_name, id_)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
@@ -246,7 +254,17 @@ class View(QTreeView):
             lambda: ensureDeferred(self._cancel_invite(folder_name, id_))
         )
         dialog.show_code(inv["wormhole-code"])
-        result = await self.gateway.magic_folder.invite_wait(folder_name, id_)
+        d = ensureDeferred(
+            self.gateway.magic_folder.invite_wait(folder_name, id_)
+        )
+        self.pending_invites[id_] = d 
+        try:
+            result = await d
+        except Exception as e:
+            if self.pending_invites.get(id_) is None:
+                # The invite was cancelled
+                return
+            raise e
         if result["success"] is True:
             dialog.show_success()
 
