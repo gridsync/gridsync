@@ -218,6 +218,19 @@ class View(QTreeView):
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
 
+    async def _cancel_invite(self, folder_name: str, id_: str) -> None:
+        try:
+            await self.gateway.magic_folder.invite_cancel(folder_name, id_)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
+            error(
+                self,
+                f"Error cancelling invite",
+                f'An exception was raised when cancelling the invite "{id_}" '
+                f'to the "{folder_name}" folder:\n\n'
+                f"{type(e).__name__}: {str(e)}",
+            )
+
     async def _do_invite(
         self,
         dialog: MagicFolderInviteDialog,
@@ -228,10 +241,12 @@ class View(QTreeView):
             folder_name, participant_name
         )
         logging.debug("Created Magic-Folder invite: %s", inv)  # XXX
-        dialog.show_code(inv["wormhole-code"])
-        result = await self.gateway.magic_folder.invite_wait(
-            folder_name, inv["id"]
+        id_ = inv["id"]
+        dialog.cancel_requested.connect(
+            lambda: ensureDeferred(self._cancel_invite(folder_name, id_))
         )
+        dialog.show_code(inv["wormhole-code"])
+        result = await self.gateway.magic_folder.invite_wait(folder_name, id_)
         if result["success"] is True:
             dialog.show_success()
 
