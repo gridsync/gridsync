@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, cast
 
 from qtpy.QtCore import QFileInfo, Qt, Signal
 from qtpy.QtGui import QPixmap, QStandardItem, QStandardItemModel
@@ -67,7 +67,10 @@ class MagicFolderInvitesModel(QStandardItemModel):
         self._set_data(id_, dialog, slot=self._DIALOG_SLOT)
 
     def get_dialog(self, id_: str) -> Optional[MagicFolderInviteDialog]:
-        return self._get_data(id_, slot=self._DIALOG_SLOT)
+        dialog = self._get_data(id_, slot=self._DIALOG_SLOT)
+        if dialog is None:
+            return None
+        return cast(MagicFolderInviteDialog, dialog)
 
 
 class _MagicFolderInviteParticipantPage(QWidget):
