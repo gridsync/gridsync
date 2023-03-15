@@ -231,7 +231,7 @@ class MagicFolderJoinDialog(QDialog):
 
     def _on_button_clicked(self) -> None:
         folder_name = self._code_page.folder_name_lineedit.text()
-        invite_code = self._code_page.invite_code_widget.lineedit.text()
+        invite_code = self._code_page.invite_code_widget.get_code()
         local_path = self._code_page.local_path_lineedit.text()
         print(folder_name, invite_code, local_path)  # XXX
         self.form_filled.emit(folder_name, invite_code, local_path)

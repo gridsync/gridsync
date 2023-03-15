@@ -385,6 +385,9 @@ class InviteCodeWidget(QWidget):
             msgbox.setText(text)
         msgbox.show()
 
+    def get_code(self) -> str:
+        return self.lineedit.text().lower()
+
 
 def show_failure(failure: Failure, parent: Optional[QWidget] = None) -> None:
     msg = QMessageBox(parent)
