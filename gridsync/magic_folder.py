@@ -156,17 +156,33 @@ class MagicFolderMonitor(QObject):
             1, lambda: self._maybe_do_poll(event_id, folder_name)
         )
 
+    @staticmethod
+    def should_ignore(s: str) -> bool:
+        """Determine whether the given error message should be ignored"""
+        # Should match "Invite of 'test' failed: "
+        # See: https://github.com/LeastAuthority/magic-folder/issues/706
+        return s.startswith("Invite of '") and s.endswith("' failed: ")
+
+    def has_error(self, errors: list[dict]) -> bool:
+        """Determine whether a list of errors contains a legitimate error"""
+        for error in errors:
+            if not self.should_ignore(error.get("summary", "")):
+                return True
+        return False
+
     def _check_errors(self, current_state: dict, previous_state: dict) -> None:
         current_folders = current_state.get("folders", {})
         previous_folders = previous_state.get("folders", {})
         for folder, data in current_folders.items():
             current_errors = data.get("errors", [])
-            if not current_errors:
+            if not self.has_error(current_errors):
                 continue
             prev_errors = previous_folders.get(folder, {}).get("errors", [])
             for error in current_errors:
                 if error not in prev_errors:
                     summary = error.get("summary", "")
+                    if self.should_ignore(summary):
+                        continue
                     timestamp = error.get("timestamp", 0)
                     self.error_occurred.emit(folder, summary, timestamp)
                     error["folder"] = folder
@@ -218,7 +234,7 @@ class MagicFolderMonitor(QObject):
         for folder, data in state.get("folders", {}).items():
             if data.get("uploads") or data.get("downloads"):
                 folder_statuses[folder] = MagicFolderStatus.SYNCING
-            elif data.get("errors"):
+            elif self.has_error(data.get("errors", [])):
                 folder_statuses[folder] = MagicFolderStatus.ERROR
             else:
                 last_poll = data.get("poller", {}).get("last-poll") or 0
