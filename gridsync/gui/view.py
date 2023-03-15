@@ -58,6 +58,7 @@ from gridsync.desktop import open_path
 from gridsync.gui.font import Font
 from gridsync.gui.magic_folder import (
     MagicFolderInviteDialog,
+    MagicFolderInvitesModel,
     MagicFolderJoinDialog,
 )
 from gridsync.gui.model import Model
@@ -86,6 +87,7 @@ class View(QTreeView):
         self.magic_folder_invite_dialogs: set = set()
         self.magic_folder_join_dialogs: set = set()
         self.pending_invites: dict = {}
+        self.magic_folder_invites_model = MagicFolderInvitesModel()
         self._model = Model(self)
         self.setModel(self._model)
         self.setItemDelegate(Delegate(self))
@@ -248,16 +250,18 @@ class View(QTreeView):
         inv = await self.gateway.magic_folder.invite(
             folder_name, participant_name
         )
-        logging.debug("Created Magic-Folder invite: %s", inv)  # XXX
         id_ = inv["id"]
+        wormhole_code = inv["wormhole-code"]
+        self.magic_folder_invites_model.add_invite(id_, wormhole_code)
+        logging.debug("Created Magic-Folder invite: %s", inv)  # XXX
         dialog.cancel_requested.connect(
             lambda: ensureDeferred(self._cancel_invite(folder_name, id_))
         )
-        dialog.show_code(inv["wormhole-code"])
+        dialog.show_code(wormhole_code)
         d = ensureDeferred(
             self.gateway.magic_folder.invite_wait(folder_name, id_)
         )
-        self.pending_invites[id_] = d 
+        self.pending_invites[id_] = d
         try:
             result = await d
         except Exception as e:

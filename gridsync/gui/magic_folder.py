@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+from typing import Optional
+
 from qtpy.QtCore import QFileInfo, Signal
-from qtpy.QtGui import QPixmap
+from qtpy.QtGui import QPixmap, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import (
     QDialog,
     QFileIconProvider,
@@ -17,6 +19,25 @@ from qtpy.QtWidgets import (
 from gridsync import config_dir
 from gridsync.gui.invite import InviteCodeLineEdit
 from gridsync.gui.qrcode import QRCode
+
+
+class MagicFolderInvitesModel(QStandardItemModel):
+    def __init__(self) -> None:
+        super().__init__(0, 2)
+
+    def add_invite(self, id_: str, wormhole_code: str) -> None:
+        self.appendRow(
+            [
+                QStandardItem(id_),
+                QStandardItem(wormhole_code),
+            ]
+        )
+
+    def get_wormhole_code(self, id_: str) -> Optional[str]:
+        items = self.findItems(id_)
+        if items:
+            return self.item(items[0].row(), 1).text()
+        return None
 
 
 class _MagicFolderInviteParticipantPage(QWidget):
