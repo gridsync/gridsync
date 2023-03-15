@@ -19,6 +19,7 @@ from twisted.internet.defer import Deferred
 
 from gridsync import config_dir
 from gridsync.gui.invite import InviteCodeWidget
+from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
 
 
@@ -173,10 +174,16 @@ class _MagicFolderJoinCodePage(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
+        self.mail_open_icon = QLabel()
+        self.mail_open_icon.setAlignment(Qt.AlignCenter)
+        self.mail_open_icon.setPixmap(Pixmap("mail-envelope-open.png", 128))
+
         self.invite_code_widget = InviteCodeWidget(self)
+
         self.button = QPushButton("Go")
 
         layout = QGridLayout(self)
+        layout.addWidget(self.mail_open_icon)
         layout.addWidget(self.invite_code_widget)
         layout.addWidget(self.button)
 
