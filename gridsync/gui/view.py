@@ -86,7 +86,6 @@ class View(QTreeView):
         self.invite_sender_dialogs: list = []
         self.magic_folder_invite_dialogs: set = set()
         self.magic_folder_join_dialogs: set = set()
-        self.pending_invites: dict = {}
         self.magic_folder_invites_model = MagicFolderInvitesModel()
         self._model = Model(self)
         self.setModel(self._model)
@@ -223,11 +222,9 @@ class View(QTreeView):
         isd.show()
 
     async def _cancel_invite(self, folder_name: str, id_: str) -> None:
-        try:
-            d = self.pending_invites.pop(id_)
-        except KeyError:
-            d = None
+        d = self.magic_folder_invites_model.get_invite_wait_deferred(id_)
         if d is not None:
+            self.magic_folder_invites_model.set_invite_wait_deferred(id_, None)
             d.cancel()
         try:
             await self.gateway.magic_folder.invite_cancel(folder_name, id_)
@@ -263,11 +260,13 @@ class View(QTreeView):
             self.gateway.magic_folder.invite_wait(folder_name, id_)
         )
         self.magic_folder_invites_model.set_invite_wait_deferred(id_, d)
-        self.pending_invites[id_] = d
         try:
             result = await d
         except Exception as e:
-            if self.pending_invites.get(id_) is None:
+            if (
+                self.magic_folder_invites_model.get_invite_wait_deferred(id_)
+                is None
+            ):
                 # The invite was cancelled
                 return
             raise e
