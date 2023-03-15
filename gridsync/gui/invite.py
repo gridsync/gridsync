@@ -40,7 +40,7 @@ from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.gui.widgets import HSpacer, VSpacer
+from gridsync.gui.widgets import HSpacer, VSpacer, InfoButton
 from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
 from gridsync.types_ import TwistedDeferred
@@ -164,7 +164,8 @@ class InviteCodeWidget(QWidget):
 
         self.label.setAlignment(Qt.AlignCenter)
 
-        self.code_info_text = (
+        self.code_info_button = InfoButton(
+            "About Invite Codes",
             "An <i>invite code</i> is a short combination of numbers and "
             'words (like "7-guitarist-revenge") that allows two parties with '
             "the same code to establish a one-time secure communication "
@@ -173,19 +174,9 @@ class InviteCodeWidget(QWidget):
             "credentials needed to access resources -- for example, to grant "
             "another device the ability to view and modify a folder<p>"
             "Invite codes can only be used once and expire immediately when "
-            "used or cancelled."
+            "used or cancelled.",
+            self
         )
-        self.code_info_button = QPushButton()
-        self.code_info_button.setFlat(True)
-        self.code_info_button.setIcon(QIcon(resource("question")))
-        self.code_info_button.setIconSize(QSize(13, 13))
-        if sys.platform == "darwin":
-            self.code_info_button.setFixedSize(16, 16)
-        else:
-            self.code_info_button.setFixedSize(13, 13)
-        self.code_info_button.setToolTip(self.code_info_text)
-        self.code_info_button.clicked.connect(self.on_code_info_button_clicked)
-        self.code_info_button.setFocusPolicy(Qt.NoFocus)
 
         label_layout = QGridLayout()
         label_layout.setHorizontalSpacing(6)
@@ -221,32 +212,21 @@ class InviteCodeWidget(QWidget):
         self.tor_checkbox_animation_out.setStartValue(1)
         self.tor_checkbox_animation_out.setEndValue(0)
 
-        self.tor_info_text = (
+        self.tor_info_button = InfoButton(
+            "About Tor",
             "<i>Tor</i> is an anonymizing network that helps defend against "
             "network surveillance and traffic analysis. With this checkbox "
-            "enabled, {} will route all traffic corresponding to this "
-            "connection through the Tor network, concealing your geographical "
-            "location from your storage provider and other parties (such as "
+            f"enabled, {APP_NAME} will route all traffic corresponding to this"
+            " connection through the Tor network, concealing your geographical"
+            " location from your storage provider and other parties (such as "
             "any persons with whom you might share folders).<p>"
             "Using this option requires that Tor already be installed and "
             "running on your computer and may be slower or less reliable than "
             "your normal internet connection.<p>"
             "For more information or to download Tor, please visit "
-            "<a href=https://torproject.org>https://torproject.org</a>".format(
-                APP_NAME
-            )
+            "<a href=https://torproject.org>https://torproject.org</a>",
+            self
         )
-        self.tor_info_button = QPushButton()
-        self.tor_info_button.setFlat(True)
-        self.tor_info_button.setIcon(QIcon(resource("question")))
-        self.tor_info_button.setIconSize(QSize(13, 13))
-        if sys.platform == "darwin":
-            self.tor_info_button.setFixedSize(16, 16)
-        else:
-            self.tor_info_button.setFixedSize(13, 13)
-        self.tor_info_button.setToolTip(self.tor_info_text)
-        self.tor_info_button.clicked.connect(self.on_tor_info_button_clicked)
-        self.tor_info_button.setFocusPolicy(Qt.NoFocus)
         self.tor_info_button_effect = QGraphicsOpacityEffect()
         self.tor_info_button.setGraphicsEffect(self.tor_info_button_effect)
         self.tor_info_button.setAutoFillBackground(True)
@@ -362,32 +342,6 @@ class InviteCodeWidget(QWidget):
             self.lineedit.status_action.setIcon(self.lineedit.blank_icon)
             self.lineedit.status_action.setToolTip("")
             # self.lineedit.setStyleSheet("")
-
-    def on_tor_info_button_clicked(self) -> None:
-        msgbox = QMessageBox(self)
-        msgbox.setIconPixmap(self.lineedit.tor_icon.pixmap(64, 64))
-        if sys.platform == "darwin":
-            msgbox.setText("About Tor")
-            msgbox.setInformativeText(self.tor_info_text)
-        else:
-            msgbox.setWindowTitle("About Tor")
-            msgbox.setText(self.tor_info_text)
-        msgbox.show()
-
-    def on_code_info_button_clicked(self) -> None:
-        msgbox = QMessageBox(self)
-        msgbox.setIcon(QMessageBox.Information)
-        text = (
-            "{}<p><a href=https://github.com/gridsync/gridsync/blob/master/doc"
-            "s/invite-codes.md>Learn more...</a>".format(self.code_info_text)
-        )
-        if sys.platform == "darwin":
-            msgbox.setText("About Invite Codes")
-            msgbox.setInformativeText(text)
-        else:
-            msgbox.setWindowTitle("About Invite Codes")
-            msgbox.setText(text)
-        msgbox.show()
 
     def get_code(self) -> str:
         return self.lineedit.text().lower()
