@@ -18,7 +18,7 @@ from qtpy.QtWidgets import (
 from twisted.internet.defer import Deferred
 
 from gridsync import config_dir
-from gridsync.gui.invite import InviteCodeLineEdit
+from gridsync.gui.invite import InviteCodeWidget
 from gridsync.gui.qrcode import QRCode
 
 
@@ -175,14 +175,14 @@ class _MagicFolderJoinCodePage(QWidget):
 
         self.label = QLabel("Code")
         self.folder_name_lineedit = QLineEdit(self)
-        self.invite_code_lineedit = InviteCodeLineEdit(self)
+        self.invite_code_widget = InviteCodeWidget(self)
         self.local_path_lineedit = QLineEdit(self)
         self.button = QPushButton("Go")
 
         layout = QGridLayout(self)
         layout.addWidget(self.label)
         layout.addWidget(self.folder_name_lineedit)
-        layout.addWidget(self.invite_code_lineedit)
+        layout.addWidget(self.invite_code_widget)
         layout.addWidget(self.local_path_lineedit)
         layout.addWidget(self.button)
 
@@ -231,7 +231,7 @@ class MagicFolderJoinDialog(QDialog):
 
     def _on_button_clicked(self) -> None:
         folder_name = self._code_page.folder_name_lineedit.text()
-        invite_code = self._code_page.invite_code_lineedit.text()
+        invite_code = self._code_page.invite_code_widget.lineedit.text()
         local_path = self._code_page.local_path_lineedit.text()
         print(folder_name, invite_code, local_path)  # XXX
         self.form_filled.emit(folder_name, invite_code, local_path)
