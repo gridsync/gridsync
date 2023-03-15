@@ -166,15 +166,14 @@ class InviteCodeWidget(QWidget):
 
         self.code_info_text = (
             "An <i>invite code</i> is a short combination of numbers and "
-            'words (like "7-guitarist-revenge" or "9-potato-gremlin") that '
-            "allows two parties with the same code to establish a one-time "
-            "secure communication channel with each other. In {}, "
-            "invite codes are used to safely share the credentials needed "
-            "to access resources -- for example, allowing another person or "
-            "device to store files on a grid or granting them the ability to "
-            "view and modify a folder.<p>"
+            'words (like "7-guitarist-revenge") that allows two parties with '
+            "the same code to establish a one-time secure communication "
+            "channel with each other.<p>"
+            f"In {APP_NAME}, invite codes are used to safely exchange the "
+            "credentials needed to access resources -- for example, to grant "
+            "another device the ability to view and modify a folder<p>"
             "Invite codes can only be used once and expire immediately when "
-            "used or cancelled.".format(APP_NAME)
+            "used or cancelled."
         )
         self.code_info_button = QPushButton()
         self.code_info_button.setFlat(True)
