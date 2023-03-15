@@ -253,6 +253,7 @@ class View(QTreeView):
         id_ = inv["id"]
         wormhole_code = inv["wormhole-code"]
         self.magic_folder_invites_model.add_invite(id_, wormhole_code)
+        self.magic_folder_invites_model.set_dialog(id_, dialog)
         logging.debug("Created Magic-Folder invite: %s", inv)  # XXX
         dialog.cancel_requested.connect(
             lambda: ensureDeferred(self._cancel_invite(folder_name, id_))
@@ -261,6 +262,7 @@ class View(QTreeView):
         d = ensureDeferred(
             self.gateway.magic_folder.invite_wait(folder_name, id_)
         )
+        self.magic_folder_invites_model.set_invite_wait_deferred(id_, d)
         self.pending_invites[id_] = d
         try:
             result = await d

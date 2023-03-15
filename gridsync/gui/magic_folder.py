@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from qtpy.QtCore import QFileInfo, Signal
+from qtpy.QtCore import QFileInfo, Qt, Signal
 from qtpy.QtGui import QPixmap, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import (
     QDialog,
@@ -15,6 +15,7 @@ from qtpy.QtWidgets import (
     QStackedWidget,
     QWidget,
 )
+from twisted.internet.defer import Deferred
 
 from gridsync import config_dir
 from gridsync.gui.invite import InviteCodeLineEdit
@@ -22,6 +23,9 @@ from gridsync.gui.qrcode import QRCode
 
 
 class MagicFolderInvitesModel(QStandardItemModel):
+    _INVITE_WAIT_DEFERRED_SLOT: int = 1
+    _DIALOG_SLOT: int = 2
+
     def __init__(self) -> None:
         super().__init__(0, 2)
 
@@ -38,6 +42,32 @@ class MagicFolderInvitesModel(QStandardItemModel):
         if items:
             return self.item(items[0].row(), 1).text()
         return None
+
+    def _set_data(self, id_: str, value: object, slot: int = 0) -> None:
+        items = self.findItems(id_)
+        if not items:
+            return
+        item = self.item(items[0].row(), 0)
+        item.setData(value, role=Qt.UserRole + 1 + slot)
+
+    def _get_data(self, id_: str, slot: int = 0) -> Optional[object]:
+        items = self.findItems(id_)
+        if not items:
+            return None
+        item = self.item(items[0].row(), 0)
+        return item.data(Qt.UserRole + 1 + slot)
+
+    def set_invite_wait_deferred(self, id_: str, d: Deferred) -> None:
+        self._set_data(id_, d, slot=self._INVITE_WAIT_DEFERRED_SLOT)
+
+    def get_invite_wait_deferred(self, id_: str) -> Optional[Deferred]:
+        return self._get_data(id_, slot=self._INVITE_WAIT_DEFERRED_SLOT)
+
+    def set_dialog(self, id_: str, dialog: MagicFolderInviteDialog) -> None:
+        self._set_data(id_, dialog, slot=self._DIALOG_SLOT)
+
+    def get_dialog(self, id_: str) -> Optional[MagicFolderInviteDialog]:
+        return self._get_data(id_, slot=self._DIALOG_SLOT)
 
 
 class _MagicFolderInviteParticipantPage(QWidget):
