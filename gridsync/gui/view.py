@@ -84,7 +84,6 @@ class View(QTreeView):
         self.gateway = gateway
         self.recovery_prompt_shown: bool = False
         self.invite_sender_dialogs: list = []
-        self.magic_folder_invite_dialogs: set = set()
         self.magic_folder_join_dialogs: set = set()
         self.magic_folder_invites_model = MagicFolderInvitesModel()
         self._model = Model(self)
@@ -294,8 +293,6 @@ class View(QTreeView):
     def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
         logging.debug("Creating Magic-Folder invite for %s...", folder_name)
         dialog = MagicFolderInviteDialog()
-        # TODO: Remove on close?
-        self.magic_folder_invite_dialogs.add(dialog)
         dialog.participant_name_set.connect(
             lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
         )
