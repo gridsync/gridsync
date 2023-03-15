@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import sys
+from typing import Optional
 
-from qtpy.QtCore import Signal
-from qtpy.QtGui import QMouseEvent
+from qtpy.QtCore import QSize, Qt, Signal
+from qtpy.QtGui import QIcon, QMouseEvent
 from qtpy.QtWidgets import (
     QComboBox,
     QDialogButtonBox,
@@ -11,6 +13,7 @@ from qtpy.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
+    QPushButton,
     QSizePolicy,
     QSpacerItem,
     QSpinBox,
@@ -19,6 +22,8 @@ from qtpy.QtWidgets import (
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
+from gridsync import resource
+from gridsync.msg import info
 from gridsync.tor import get_tor
 from gridsync.types_ import TwistedDeferred
 
@@ -31,6 +36,23 @@ class VSpacer(QSpacerItem):
 class HSpacer(QSpacerItem):
     def __init__(self) -> None:
         super().__init__(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+
+class InfoButton(QPushButton):
+    def __init__(
+        self, title: str, text: str, parent: Optional[QWidget] = None
+    ) -> None:
+        super().__init__(parent)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.setFlat(True)
+        self.setIcon(QIcon(resource("question")))
+        self.setIconSize(QSize(13, 13))
+        if sys.platform == "darwin":
+            self.setFixedSize(16, 16)
+        else:
+            self.setFixedSize(13, 13)
+        self.setToolTip(text)
+        self.clicked.connect(lambda: info(self, title, text))
 
 
 class ClickableLabel(QLabel):

@@ -24,7 +24,7 @@ from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
-from gridsync.gui.widgets import HSpacer, VSpacer
+from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
 from gridsync.msg import info
 
 
@@ -97,22 +97,11 @@ class _MagicFolderInviteParticipantPage(QWidget):
         self.label.setStyleSheet(f"color: {grey}")
         self.label.setAlignment(Qt.AlignCenter)
 
-        self.device_info_text = (
-            "A label for the device being invited to the folder.<p>"
-            "This name will be visible to all other participants in the folder"
-        )
-        self.device_info_button = QPushButton()
-        self.device_info_button.setFlat(True)
-        self.device_info_button.setIcon(QIcon(resource("question")))
-        self.device_info_button.setIconSize(QSize(13, 13))
-        if sys.platform == "darwin":
-            self.device_info_button.setFixedSize(16, 16)
-        else:
-            self.device_info_button.setFixedSize(13, 13)
-        self.device_info_button.setToolTip(self.device_info_text)
-        self.device_info_button.setFocusPolicy(Qt.NoFocus)
-        self.device_info_button.clicked.connect(
-            lambda: info(self, "About Device Names", self.device_info_text)
+        self.device_info_button = InfoButton(
+            "About Device Names",
+            "A label for the device being invited to the folder.<p>This name "
+            "will be visible to all other participants in the folder.",
+            self,
         )
 
         label_layout = QGridLayout()
