@@ -281,12 +281,17 @@ class InviteCodeWidget(QWidget):
         tor_layout.addWidget(self.tor_info_button, 1, 3, Qt.AlignLeft)
         tor_layout.addItem(HSpacer(), 1, 4)
 
+        self.error_label = QLabel("Error", self)
+        self.error_label.setStyleSheet("color: red")
+        self.error_label.setAlignment(Qt.AlignCenter)
+
         layout = QGridLayout(self)
         layout.addItem(VSpacer(), 1, 1)
         layout.addLayout(label_layout, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
         layout.addLayout(tor_layout, 4, 1)
-        layout.addItem(VSpacer(), 5, 1)
+        layout.addWidget(self.error_label, 5, 1)
+        layout.addItem(VSpacer(), 6, 1)
 
         self.tor_checkbox.toggled.connect(self.toggle_tor_status)
 
@@ -387,6 +392,12 @@ class InviteCodeWidget(QWidget):
 
     def get_code(self) -> str:
         return self.lineedit.text().lower()
+
+    def show_error(self, message: str) -> None:
+        self.error_label.setText(message)
+
+    def clear_error(self) -> None:
+        self.error_label.setText("")
 
 
 def show_failure(failure: Failure, parent: Optional[QWidget] = None) -> None:
