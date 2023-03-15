@@ -40,7 +40,7 @@ from gridsync.desktop import get_clipboard_modes, get_clipboard_text
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.gui.widgets import HSpacer, VSpacer, InfoButton
+from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
 from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
 from gridsync.types_ import TwistedDeferred
@@ -175,7 +175,7 @@ class InviteCodeWidget(QWidget):
             "another device the ability to view and modify a folder<p>"
             "Invite codes can only be used once and expire immediately when "
             "used or cancelled.",
-            self
+            self,
         )
 
         label_layout = QGridLayout()
@@ -225,7 +225,7 @@ class InviteCodeWidget(QWidget):
             "your normal internet connection.<p>"
             "For more information or to download Tor, please visit "
             "<a href=https://torproject.org>https://torproject.org</a>",
-            self
+            self,
         )
         self.tor_info_button_effect = QGraphicsOpacityEffect()
         self.tor_info_button.setGraphicsEffect(self.tor_info_button_effect)
