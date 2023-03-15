@@ -379,10 +379,6 @@ class InviteReceiverDialog(QDialog):
         self.message_label.setStyleSheet("color: grey")
         self.message_label.setAlignment(Qt.AlignCenter)
 
-        self.error_label = QLabel()
-        self.error_label.setStyleSheet("color: red")
-        self.error_label.setAlignment(Qt.AlignCenter)
-
         self.close_button = QPushButton("Close")
         self.close_button.clicked.connect(self.close)
 
@@ -403,7 +399,6 @@ class InviteReceiverDialog(QDialog):
         )
         layout.addWidget(self.progressbar, 3, 2, 1, 3)
         layout.addWidget(self.message_label, 5, 1, 1, 5)
-        layout.addWidget(self.error_label, 5, 2, 1, 3)
         layout.addWidget(self.close_button, 6, 3)
         layout.addItem(VSpacer(), 7, 1)
 
@@ -414,19 +409,17 @@ class InviteReceiverDialog(QDialog):
         self.folder_icon.hide()
         self.mail_closed_icon.show()
         self.progressbar.hide()
-        self.error_label.setText("")
-        self.error_label.hide()
+        self.invite_code_widget.clear_error()
         self.close_button.hide()
         self.tor_label.hide()
         self.checkmark.hide()
         self.progressbar.setStyleSheet("")
 
     def show_error(self, text: str) -> None:
-        self.error_label.setText(text)
+        self.invite_code_widget.show_error(text)
         self.message_label.hide()
-        self.error_label.show()
         # mypy: 'Module has no attribute "callLater"'
-        reactor.callLater(3, self.error_label.hide)  # type: ignore
+        reactor.callLater(3, self.invite_code_widget.clear_error)  # type: ignore
         reactor.callLater(3, self.message_label.show)  # type: ignore
 
     def update_progress(self, message: str) -> None:
