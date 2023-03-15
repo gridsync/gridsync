@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import sys
 from typing import Optional, cast
 
-from qtpy.QtCore import QFileInfo, Qt, Signal
-from qtpy.QtGui import QPixmap, QStandardItem, QStandardItemModel
+from qtpy.QtCore import QFileInfo, QSize, Qt, Signal
+from qtpy.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import (
     QDialog,
     QFileIconProvider,
@@ -17,10 +18,14 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet.defer import Deferred
 
-from gridsync import config_dir
+from gridsync import config_dir, resource
+from gridsync.gui.color import BlendedColor
+from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
+from gridsync.gui.widgets import HSpacer, VSpacer
+from gridsync.msg import info
 
 
 class MagicFolderInvitesModel(QStandardItemModel):
@@ -85,17 +90,50 @@ class _MagicFolderInviteParticipantPage(QWidget):
             QFileIconProvider().icon(QFileInfo(config_dir)).pixmap(64, 64)
         )
 
-        self.label = QLabel("Participant name:")
+        self.label = QLabel("Enter device name:", self)
+        self.label.setFont(Font(14))
+        p = self.palette()
+        grey = BlendedColor(p.windowText().color(), p.window().color()).name()
+        self.label.setStyleSheet(f"color: {grey}")
+        self.label.setAlignment(Qt.AlignCenter)
+
+        self.device_info_text = (
+            "A label for the device being invited to the folder.<p>"
+            "This name will be visible to all other participants in the folder"
+        )
+        self.device_info_button = QPushButton()
+        self.device_info_button.setFlat(True)
+        self.device_info_button.setIcon(QIcon(resource("question")))
+        self.device_info_button.setIconSize(QSize(13, 13))
+        if sys.platform == "darwin":
+            self.device_info_button.setFixedSize(16, 16)
+        else:
+            self.device_info_button.setFixedSize(13, 13)
+        self.device_info_button.setToolTip(self.device_info_text)
+        self.device_info_button.setFocusPolicy(Qt.NoFocus)
+        self.device_info_button.clicked.connect(
+            lambda: info(self, "About Device Names", self.device_info_text)
+        )
+
+        label_layout = QGridLayout()
+        label_layout.setHorizontalSpacing(6)
+        label_layout.addItem(HSpacer(), 1, 1)
+        label_layout.addWidget(self.label, 1, 2, Qt.AlignCenter)
+        label_layout.addWidget(self.device_info_button, 1, 3, Qt.AlignLeft)
+        label_layout.addItem(HSpacer(), 1, 5)
 
         self.lineedit = QLineEdit(self)
+        self.lineedit.setFont(Font(16))
 
         self.button = QPushButton("Create Invite...")
 
         layout = QGridLayout(self)
-        layout.addWidget(self.folder_icon)
-        layout.addWidget(self.label)
-        layout.addWidget(self.lineedit)
-        layout.addWidget(self.button)
+        layout.addItem(VSpacer(), 1, 1)
+        layout.addWidget(self.folder_icon, 2, 1)
+        layout.addLayout(label_layout, 3, 1)
+        layout.addWidget(self.lineedit, 4, 1)
+        layout.addItem(VSpacer(), 5, 1)
+        layout.addWidget(self.button, 6, 1)
 
 
 class _MagicFolderInviteCodePage(QWidget):
