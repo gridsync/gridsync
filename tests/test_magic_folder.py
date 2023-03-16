@@ -143,3 +143,16 @@ def test_magic_folder_monitor__parse_folder_statuses(tmp_path, state, status):
     monitor = magic_folder.monitor
     statuses = monitor._parse_folder_statuses(state)
     assert statuses.get("TestFolder") == status
+
+
+@pytest.mark.parametrize(
+    "errors, has_error",
+    [
+        [[{"summary": "Invite of 'X' failed: "}], False],
+        [[{"summary": "Error!"}], True],
+        [[{"summary": "Invite of 'X' failed: "}, {"summary": "Error!"}], True],
+    ],
+)
+def test_magic_folder_monitor_error_filter(tmp_path, errors, has_error):
+    magic_folder = MagicFolder(Tahoe(tmp_path / "nodedir"))
+    assert magic_folder.monitor.has_error(errors) is has_error
