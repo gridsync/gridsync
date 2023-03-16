@@ -319,9 +319,9 @@ eliot==1.14.0 \
     # via
     #   tahoe-lafs
     #   zero-knowledge-access-pass-authorizer
-filelock==3.9.0 \
-    --hash=sha256:7b319f24340b51f55a2bf7a12ac0755a9b03e718311dac567a0f4f7fabd2f5de \
-    --hash=sha256:f58d535af89bb9ad5cd4df046f741f8553a418c01a7856bf0d173bbc9f6bd16d
+filelock==3.10.0 \
+    --hash=sha256:3199fd0d3faea8b911be52b663dfccceb84c95949dd13179aa21436d1a79c4ce \
+    --hash=sha256:e90b34656470756edf8b19656785c5fea73afa1953f3e1b0d645cef11cab3182
     # via tahoe-lafs
 foolscap==23.3.0 \
     --hash=sha256:56eee85c2d5baec801c2bdaae7d4c0831f23d401516e2e668d13485994db9145 \
