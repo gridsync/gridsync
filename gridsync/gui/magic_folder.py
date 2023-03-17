@@ -8,6 +8,7 @@ from qtpy.QtCore import QFileInfo, QSize, Qt, Signal
 from qtpy.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import (
     QDialog,
+    QDialogButtonBox,
     QFileIconProvider,
     QGridLayout,
     QLabel,
@@ -81,6 +82,22 @@ class MagicFolderInvitesModel(QStandardItemModel):
         return cast(MagicFolderInviteDialog, dialog)
 
 
+class ButtonBox(QDialogButtonBox):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(
+            QDialogButtonBox.Ok
+            | QDialogButtonBox.Cancel
+            | QDialogButtonBox.Reset,
+            parent,
+        )
+        self.ok_button = self.button(QDialogButtonBox.Ok)
+        self.ok_button.setIcon(QIcon())
+        self.cancel_button = self.button(QDialogButtonBox.Cancel)
+        self.cancel_button.setIcon(QIcon())
+        self.reset_button = self.button(QDialogButtonBox.Reset)
+        self.reset_button.setIcon(QIcon())
+
+
 class _MagicFolderInviteParticipantPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
@@ -114,7 +131,8 @@ class _MagicFolderInviteParticipantPage(QWidget):
         self.lineedit = QLineEdit(self)
         self.lineedit.setFont(Font(16))
 
-        self.button = QPushButton("Create Invite...")
+        self.button_box = ButtonBox(self)
+        self.button_box.removeButton(self.button_box.reset_button)
 
         layout = QGridLayout(self)
         layout.addItem(VSpacer(), 1, 1)
@@ -122,7 +140,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
         layout.addLayout(label_layout, 3, 1)
         layout.addWidget(self.lineedit, 4, 1)
         layout.addItem(VSpacer(), 5, 1)
-        layout.addWidget(self.button, 6, 1)
+        layout.addWidget(self.button_box, 6, 1)
 
 
 class _MagicFolderInviteCodePage(QWidget):
@@ -207,12 +225,13 @@ class _MagicFolderJoinCodePage(QWidget):
 
         self.invite_code_widget = InviteCodeWidget(self)
 
-        self.button = QPushButton("Go")
+        self.button_box = ButtonBox(self)
+        self.button_box.removeButton(self.button_box.reset_button)
 
         layout = QGridLayout(self)
         layout.addWidget(self.mail_open_icon)
         layout.addWidget(self.invite_code_widget)
-        layout.addWidget(self.button)
+        layout.addWidget(self.button_box)
 
 
 class _MagicFolderJoinPathPage(QWidget):
@@ -222,13 +241,13 @@ class _MagicFolderJoinPathPage(QWidget):
         self.label = QLabel("Code")
         self.folder_name_lineedit = QLineEdit(self)
         self.local_path_lineedit = QLineEdit(self)
-        self.button = QPushButton("Go")
+        self.button_box = ButtonBox(self)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label)
         layout.addWidget(self.folder_name_lineedit)
         layout.addWidget(self.local_path_lineedit)
-        layout.addWidget(self.button)
+        layout.addWidget(self.button_box)
 
 
 class _MagicFolderJoinProgressPage(QWidget):
@@ -273,7 +292,7 @@ class MagicFolderJoinDialog(QDialog):
         layout = QGridLayout(self)
         layout.addWidget(self._stack)
 
-        self._code_page.button.clicked.connect(self.show_path)
+        self._code_page.button_box.ok_button.clicked.connect(self.show_path)
 
     def _on_button_clicked(self) -> None:
         folder_name = self._path_page.folder_name_lineedit.text()
