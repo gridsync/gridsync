@@ -149,13 +149,12 @@ class _MagicFolderInviteCodePage(QWidget):
 
         self.qrcode_label = QLabel("")
         self.label = QLabel("Code")
-
-        self.button = QPushButton("Cancel")
+        self.button_box = ButtonBox(self)
 
         layout = QGridLayout(self)
         layout.addWidget(self.qrcode_label)
         layout.addWidget(self.label)
-        layout.addWidget(self.button)
+        layout.addWidget(self.button_box)
 
     def set_code(self, code: str) -> None:
         self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(256, 256)))
@@ -197,7 +196,9 @@ class MagicFolderInviteDialog(QDialog):
         self._participant_page.button.clicked.connect(
             self._on_participant_name_set
         )
-        self._code_page.button.clicked.connect(self._on_cancel_requested)
+        self._code_page.button_box.cancel_button.clicked.connect(
+            self._on_cancel_requested
+        )
 
     def _on_participant_name_set(self) -> None:
         participant_name = self._participant_page.lineedit.text()
