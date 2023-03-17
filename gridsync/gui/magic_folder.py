@@ -94,8 +94,9 @@ class ButtonBox(QDialogButtonBox):
         self.ok_button.setIcon(QIcon())
         self.cancel_button = self.button(QDialogButtonBox.Cancel)
         self.cancel_button.setIcon(QIcon())
-        self.reset_button = self.button(QDialogButtonBox.Reset)
-        self.reset_button.setIcon(QIcon())
+        self.back_button = self.button(QDialogButtonBox.Reset)
+        self.back_button.setIcon(QIcon())
+        self.back_button.setText("&Back")
 
 
 class _MagicFolderInviteParticipantPage(QWidget):
@@ -132,7 +133,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
         self.lineedit.setFont(Font(16))
 
         self.button_box = ButtonBox(self)
-        self.button_box.removeButton(self.button_box.reset_button)
+        self.button_box.removeButton(self.button_box.back_button)
 
         layout = QGridLayout(self)
         layout.addItem(VSpacer(), 1, 1)
@@ -227,7 +228,7 @@ class _MagicFolderJoinCodePage(QWidget):
         self.invite_code_widget = InviteCodeWidget(self)
 
         self.button_box = ButtonBox(self)
-        self.button_box.removeButton(self.button_box.reset_button)
+        self.button_box.removeButton(self.button_box.back_button)
 
         layout = QGridLayout(self)
         layout.addWidget(self.mail_open_icon)
