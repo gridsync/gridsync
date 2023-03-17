@@ -293,6 +293,7 @@ class MagicFolderJoinDialog(QDialog):
         layout.addWidget(self._stack)
 
         self._code_page.button_box.ok_button.clicked.connect(self.show_path)
+        self._code_page.button_box.cancel_button.clicked.connect(self.close)
 
     def _on_button_clicked(self) -> None:
         folder_name = self._path_page.folder_name_lineedit.text()
