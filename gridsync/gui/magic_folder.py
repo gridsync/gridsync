@@ -10,6 +10,7 @@ from qtpy.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QFileIconProvider,
+    QFrame,
     QGridLayout,
     QLabel,
     QLineEdit,
@@ -80,6 +81,13 @@ class MagicFolderInvitesModel(QStandardItemModel):
         if dialog is None:
             return None
         return cast(MagicFolderInviteDialog, dialog)
+
+
+class HLine(QFrame):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setFrameShadow(QFrame.Sunken)
+        self.setFrameShape(QFrame.HLine)
 
 
 class ButtonBox(QDialogButtonBox):
@@ -227,12 +235,14 @@ class _MagicFolderJoinCodePage(QWidget):
 
         self.invite_code_widget = InviteCodeWidget(self)
 
+        self.line = HLine(self)
         self.button_box = ButtonBox(self)
         self.button_box.removeButton(self.button_box.back_button)
 
         layout = QGridLayout(self)
         layout.addWidget(self.mail_open_icon)
         layout.addWidget(self.invite_code_widget)
+        layout.addWidget(self.line)
         layout.addWidget(self.button_box)
 
 
