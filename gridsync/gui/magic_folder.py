@@ -235,14 +235,13 @@ class _MagicFolderJoinCodePage(QWidget):
 
         self.invite_code_widget = InviteCodeWidget(self)
 
-        self.line = HLine(self)
         self.button_box = ButtonBox(self)
         self.button_box.removeButton(self.button_box.back_button)
 
         layout = QGridLayout(self)
         layout.addWidget(self.mail_open_icon)
         layout.addWidget(self.invite_code_widget)
-        layout.addWidget(self.line)
+        layout.addWidget(HLine(self))
         layout.addWidget(self.button_box)
 
 
@@ -251,14 +250,15 @@ class _MagicFolderJoinPathPage(QWidget):
         super().__init__()
 
         self.label = QLabel("Code")
-        self.folder_name_lineedit = QLineEdit(self)
-        self.local_path_lineedit = QLineEdit(self)
+        self.folder_name_lineedit = QLineEdit("FolderName", self)  # XXX
+        self.local_path_lineedit = QLineEdit("/home/user/test", self)  # XXX
         self.button_box = ButtonBox(self)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label)
         layout.addWidget(self.folder_name_lineedit)
         layout.addWidget(self.local_path_lineedit)
+        layout.addWidget(HLine(self))
         layout.addWidget(self.button_box)
 
 
@@ -278,8 +278,11 @@ class _MagicFolderJoinSuccessPage(QWidget):
 
         self.label = QLabel("Success")
 
+        self.button = QPushButton("Close", self)
+
         layout = QGridLayout(self)
         layout.addWidget(self.label)
+        layout.addWidget(self.button)
 
 
 class MagicFolderJoinDialog(QDialog):
@@ -308,14 +311,15 @@ class MagicFolderJoinDialog(QDialog):
         self._code_page.button_box.cancel_button.clicked.connect(self.close)
 
         self._path_page.button_box.ok_button.clicked.connect(
-            self.show_progress
+            self._check_inputs
         )
         self._path_page.button_box.cancel_button.clicked.connect(self.close)
         self._path_page.button_box.back_button.clicked.connect(
             lambda: self._stack.setCurrentWidget(self._code_page)
         )
 
-    def _on_button_clicked(self) -> None:
+    def _check_inputs(self) -> None:
+        # XXX Validate
         folder_name = self._path_page.folder_name_lineedit.text()
         invite_code = self._code_page.invite_code_widget.get_code()
         local_path = self._path_page.local_path_lineedit.text()
