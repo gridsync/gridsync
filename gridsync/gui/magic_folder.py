@@ -194,7 +194,7 @@ class MagicFolderInviteDialog(QDialog):
 
         self._stack.setCurrentWidget(self._participant_page)
 
-        self._participant_page.button.clicked.connect(
+        self._participant_page.button_box.ok_button.clicked.connect(
             self._on_participant_name_set
         )
         self._code_page.button_box.cancel_button.clicked.connect(
@@ -296,6 +296,14 @@ class MagicFolderJoinDialog(QDialog):
 
         self._code_page.button_box.ok_button.clicked.connect(self.show_path)
         self._code_page.button_box.cancel_button.clicked.connect(self.close)
+
+        self._path_page.button_box.ok_button.clicked.connect(
+            self.show_progress
+        )
+        self._path_page.button_box.cancel_button.clicked.connect(self.close)
+        self._path_page.button_box.back_button.clicked.connect(
+            lambda: self._stack.setCurrentWidget(self._code_page)
+        )
 
     def _on_button_clicked(self) -> None:
         folder_name = self._path_page.folder_name_lineedit.text()
