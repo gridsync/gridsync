@@ -260,7 +260,7 @@ class InviteCodeWidget(QWidget):
         tor_layout.addWidget(self.tor_info_button, 1, 3, Qt.AlignLeft)
         tor_layout.addItem(HSpacer(), 1, 4)
 
-        self.error_label = QLabel("Error", self)
+        self.error_label = QLabel("", self)
         self.error_label.setStyleSheet("color: red")
         self.error_label.setAlignment(Qt.AlignCenter)
 
