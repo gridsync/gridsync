@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from qtpy.QtCore import QSize, Qt, Signal
 from qtpy.QtGui import QIcon
@@ -265,36 +265,45 @@ class ToolBar(QToolBar):
         self.setIconSize(QSize(24, 24))
         self.setMovable(False)
 
+        self.folder_button: Union[FolderMenuButton, AddFolderButton]
+        self.invites_button: Union[InvitesMenuButton, EnterCodeButton]
+
         if features.magic_folder_invites and features.grid_invites:
-            self.folder_button = FolderMenuButton(self)
-            self.folder_button.add_folder_triggered.connect(  # XXX
+            folder_menu_button = FolderMenuButton(self)
+            folder_menu_button.add_folder_triggered.connect(
                 self.add_folder_triggered
             )
-            self.folder_button.join_folder_triggered.connect(  # XXX
+            folder_menu_button.join_folder_triggered.connect(
                 self.join_folder_triggered
             )
-            self.invites_button = InvitesMenuButton(self)
-            self.invites_button.enter_invite_action_triggered.connect(
+            self.folder_button = folder_menu_button
+            invites_menu_button = InvitesMenuButton(self)
+            invites_menu_button.enter_invite_action_triggered.connect(
                 self.enter_invite_action_triggered
             )
-            self.invites_button.create_invite_action_triggered.connect(
+            invites_menu_button.create_invite_action_triggered.connect(
                 self.create_invite_action_triggered
             )
+            self.invites_button = invites_menu_button
         elif features.magic_folder_invites and not features.grid_invites:
-            self.folder_button = AddFolderButton(self)
-            self.folder_button.clicked.connect(self.add_folder_triggered)
-            self.invites_button = EnterCodeButton(self)
-            self.invites_button.pressed.connect(self.join_folder_triggered)
+            add_folder_button = AddFolderButton(self)
+            add_folder_button.clicked.connect(self.add_folder_triggered)
+            self.folder_button = add_folder_button
+            enter_code_button = EnterCodeButton(self)
+            enter_code_button.pressed.connect(self.join_folder_triggered)
+            self.invites_button = enter_code_button
         else:
-            self.folder_button = AddFolderButton(self)
-            self.folder_button.clicked.connect(self.add_folder_triggered)
-            self.invites_button = InvitesMenuButton(self)
-            self.invites_button.enter_invite_action_triggered.connect(
+            add_folder_button = AddFolderButton(self)
+            add_folder_button.clicked.connect(self.add_folder_triggered)
+            self.folder_button = add_folder_button
+            invites_menu_button = InvitesMenuButton(self)
+            invites_menu_button.enter_invite_action_triggered.connect(
                 self.enter_invite_action_triggered
             )
-            self.invites_button.create_invite_action_triggered.connect(
+            invites_menu_button.create_invite_action_triggered.connect(
                 self.create_invite_action_triggered
             )
+            self.invites_button = invites_menu_button
 
         self.recovery_button = RecoveryMenuButton(self)
 
