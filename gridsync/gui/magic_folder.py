@@ -250,7 +250,7 @@ class _MagicFolderJoinPathPage(QWidget):
         super().__init__()
 
         self.label = QLabel("Code")
-        self.folder_name_lineedit = QLineEdit("FolderName", self)  # XXX
+        self.folder_name_lineedit = QLineEdit("", self)
         self.local_path_lineedit = QLineEdit("", self)
         self.browse_button = QPushButton("Browse...", self)
 
@@ -265,6 +265,9 @@ class _MagicFolderJoinPathPage(QWidget):
         layout.addWidget(HLine(self))
         layout.addWidget(self.button_box)
 
+        self.folder_name_lineedit.textChanged.connect(
+            self._maybe_enable_ok_button
+        )
         self.browse_button.clicked.connect(self._prompt_for_directory)
 
     def _maybe_enable_ok_button(self) -> None:
