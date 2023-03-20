@@ -71,7 +71,10 @@ class MagicFolderInvitesModel(QStandardItemModel):
         self._set_data(id_, d, slot=self._INVITE_WAIT_DEFERRED_SLOT)
 
     def get_invite_wait_deferred(self, id_: str) -> Optional[Deferred]:
-        return self._get_data(id_, slot=self._INVITE_WAIT_DEFERRED_SLOT)
+        d = self._get_data(id_, slot=self._INVITE_WAIT_DEFERRED_SLOT)
+        if isinstance(d, Deferred):
+            return d
+        return None
 
     def set_dialog(self, id_: str, dialog: MagicFolderInviteDialog) -> None:
         self._set_data(id_, dialog, slot=self._DIALOG_SLOT)
