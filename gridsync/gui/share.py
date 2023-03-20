@@ -29,7 +29,7 @@ from twisted.python.failure import Failure
 from gridsync import config_dir, resource
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.gui.font import Font
-from gridsync.gui.invite import InviteCodeWidget, show_failure
+from gridsync.gui.invite import InviteCodeBox, InviteCodeWidget, show_failure
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import InviteReceiver, InviteSender
@@ -103,44 +103,7 @@ class InviteSenderDialog(QDialog):
         self.subtext_label.setWordWrap(True)
         self.subtext_label.setAlignment(Qt.AlignCenter)
 
-        self.noise_label = QLabel()
-        font = Font(16)
-        font.setFamily("Courier")
-        font.setStyleHint(QFont.Monospace)
-        self.noise_label.setFont(font)
-        self.noise_label.setStyleSheet("color: grey")
-
-        self.noise_timer = QTimer()
-        self.noise_timer.timeout.connect(
-            lambda: self.noise_label.setText(b58encode(os.urandom(16)))
-        )
-        self.noise_timer.start(75)
-
-        self.code_label = QLabel()
-        self.code_label.setFont(Font(18))
-        self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.code_label.hide()
-
-        self.box_title = QLabel(self)
-        self.box_title.setAlignment(Qt.AlignCenter)
-        self.box_title.setFont(Font(16))
-
-        self.box = QGroupBox()
-        self.box.setAlignment(Qt.AlignCenter)
-        self.box.setStyleSheet("QGroupBox {font-size: 16px}")
-
-        self.copy_button = QToolButton()
-        self.copy_button.setIcon(QIcon(resource("copy.png")))
-        self.copy_button.setToolTip("Copy to clipboard")
-        self.copy_button.setStyleSheet("border: 0px; padding: 0px;")
-        self.copy_button.hide()
-
-        box_layout = QGridLayout(self.box)
-        box_layout.addItem(HSpacer(), 1, 1)
-        box_layout.addWidget(self.noise_label, 1, 2)
-        box_layout.addWidget(self.code_label, 1, 3)
-        box_layout.addWidget(self.copy_button, 1, 4)
-        box_layout.addItem(HSpacer(), 1, 5)
+        self.code_box = InviteCodeBox(self)
 
         self.close_button = QPushButton("Close and cancel invite")
         self.close_button.setAutoDefault(False)
@@ -171,22 +134,21 @@ class InviteSenderDialog(QDialog):
         layout.addItem(HSpacer(), 1, 5)
         layout.addLayout(header_layout, 1, 3)
         layout.addItem(VSpacer(), 2, 1)
-        layout.addWidget(self.box_title, 3, 2, 1, 3)
         layout.addWidget(self.checkmark, 3, 3)
         layout.addWidget(
             self.tor_label, 4, 1, 1, 1, Qt.AlignRight | Qt.AlignVCenter
         )
-        layout.addWidget(self.box, 4, 2, 1, 3)
+        layout.addWidget(self.code_box, 4, 2, 1, 3)
         layout.addWidget(self.progress_bar, 4, 2, 1, 3)
         layout.addWidget(self.subtext_label, 5, 2, 1, 3)
         layout.addItem(VSpacer(), 6, 1)
         layout.addWidget(self.close_button, 7, 3)
         layout.addItem(VSpacer(), 8, 1)
 
-        self.copy_button.clicked.connect(self.on_copy_button_clicked)
+        self.code_box.copy_button.clicked.connect(self.on_copy_button_clicked)
         self.close_button.clicked.connect(self.close)
 
-        self.set_box_title("Generating invite code...")
+        self.code_box.show_noise()
         self.subtext_label.setText("Creating folder invite(s)...\n\n")
 
         if self.use_tor:
@@ -199,15 +161,8 @@ class InviteSenderDialog(QDialog):
 
         self.go()  # XXX
 
-    def set_box_title(self, text: str) -> None:
-        if sys.platform == "darwin":
-            self.box_title.setText(text)
-            self.box_title.show()
-        else:
-            self.box.setTitle(text)
-
     def on_copy_button_clicked(self) -> None:
-        code = self.code_label.text()
+        code = self.code_box.code_label.text()
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
         self.subtext_label.setText(
@@ -215,12 +170,7 @@ class InviteSenderDialog(QDialog):
         )
 
     def on_got_code(self, code: str) -> None:
-        self.noise_timer.stop()
-        self.noise_label.hide()
-        self.set_box_title("Your invite code is:")
-        self.code_label.setText(code)
-        self.code_label.show()
-        self.copy_button.show()
+        self.code_box.show_code(code)
         if self.folder_names:
             if len(self.folder_names) == 1:
                 abilities = 'download "{}" and modify its contents'.format(
@@ -240,15 +190,13 @@ class InviteSenderDialog(QDialog):
         )
 
     def on_got_introduction(self) -> None:
-        if sys.platform == "darwin":
-            self.box_title.hide()
-        self.box.hide()
+        self.code_box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(1)
         self.subtext_label.setText("Connection established; sending invite...")
 
     def on_send_completed(self) -> None:
-        self.box.hide()
+        self.code_box.hide()
         self.progress_bar.show()
         self.progress_bar.setValue(2)
         self.checkmark.show()
@@ -297,7 +245,7 @@ class InviteSenderDialog(QDialog):
         )
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        if self.code_label.text() and self.progress_bar.value() < 2:
+        if self.code_box.code_label.text() and self.progress_bar.value() < 2:
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Question)
             msg.setWindowTitle("Cancel invitation?")
@@ -308,7 +256,8 @@ class InviteSenderDialog(QDialog):
             )
             msg.setInformativeText(
                 'The invite code "{}" will no longer be valid.'.format(
-                    self.code_label.text()
+                    # self.code_label.text()
+                    self.code_box.code_label.text()
                 )
             )
             msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -321,8 +270,8 @@ class InviteSenderDialog(QDialog):
                 event.ignore()
         else:
             event.accept()
-            if self.noise_timer.isActive():
-                self.noise_timer.stop()
+            if self.code_box.noise_timer.isActive():  # XXX
+                self.code_box.noise_timer.stop()
             self.closed.emit(self)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:

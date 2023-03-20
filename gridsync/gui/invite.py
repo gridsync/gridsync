@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import logging
+import os
 import sys
 from typing import Optional
 
@@ -10,19 +10,22 @@ from qtpy.QtCore import (
     QSize,
     QStringListModel,
     Qt,
+    QTimer,
     Signal,
 )
-from qtpy.QtGui import QIcon, QKeyEvent
+from qtpy.QtGui import QFont, QIcon, QKeyEvent
 from qtpy.QtWidgets import (
     QAction,
     QCheckBox,
     QCompleter,
     QGraphicsOpacityEffect,
     QGridLayout,
+    QGroupBox,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QToolButton,
     QWidget,
 )
 from twisted.internet import reactor
@@ -44,6 +47,7 @@ from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
 from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
 from gridsync.types_ import TwistedDeferred
+from gridsync.util import b58encode
 
 
 class InviteCodeCompleter(QCompleter):
@@ -61,6 +65,79 @@ class InviteCodeCompleter(QCompleter):
 
     def splitPath(self, path: str) -> list[str]:
         return [str(path.split("-")[-1])]
+
+
+class InviteCodeBox(QWidget):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+
+        self.noise_label = QLabel()
+        font = Font(16)
+        font.setFamily("Courier")
+        font.setStyleHint(QFont.Monospace)
+        self.noise_label.setFont(font)
+        self.noise_label.setStyleSheet("color: grey")
+
+        self.noise_timer = QTimer()
+        self.noise_timer.timeout.connect(
+            lambda: self.noise_label.setText(b58encode(os.urandom(16)))
+        )
+
+        self.code_label = QLabel()
+        self.code_label.setFont(Font(18))
+        self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.code_label.hide()
+
+        self.box = QGroupBox()
+        self.box.setAlignment(Qt.AlignCenter)
+        self.box.setStyleSheet("QGroupBox {font-size: 16px}")
+
+        # QGroupBox's built-in title is unavailable on macOS, so
+        # instantiate a QLabel that we can use to simulate one...
+        self.box_title = QLabel(self)
+        self.box_title.setAlignment(Qt.AlignCenter)
+        self.box_title.setFont(Font(16))
+
+        self.copy_button = QToolButton()
+        self.copy_button.setIcon(QIcon(resource("copy.png")))
+        self.copy_button.setToolTip("Copy to clipboard")
+        self.copy_button.setStyleSheet("border: 0px; padding: 0px;")
+        self.copy_button.hide()
+
+        box_layout = QGridLayout(self.box)
+        box_layout.addItem(HSpacer(), 1, 1)
+        box_layout.addWidget(self.noise_label, 1, 2)
+        box_layout.addWidget(self.code_label, 1, 3)
+        box_layout.addWidget(self.copy_button, 1, 4)
+        box_layout.addItem(HSpacer(), 1, 5)
+
+        layout = QGridLayout(self)
+        if sys.platform == "darwin":
+            layout.addWidget(self.box_title)
+        layout.addWidget(self.box)
+
+    def set_title(self, text: str) -> None:
+        if sys.platform == "darwin":
+            self.box_title.setText(text)
+            self.box_title.show()
+        else:
+            self.box.setTitle(text)
+
+    def show_noise(self) -> None:
+        self.code_label.setText("")
+        self.code_label.hide()
+        self.copy_button.hide()
+        self.set_title("Generating invite code...")
+        self.noise_timer.start(75)
+        self.noise_label.show()
+
+    def show_code(self, code: str) -> None:
+        self.noise_timer.stop()
+        self.noise_label.hide()
+        self.set_title("Your invite code is:")
+        self.code_label.setText(code)
+        self.code_label.show()
+        self.copy_button.show()
 
 
 class InviteCodeLineEdit(QLineEdit):
