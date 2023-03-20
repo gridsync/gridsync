@@ -230,7 +230,7 @@ class View(QTreeView):
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
-                f"Error cancelling invite",
+                f'Error cancelling invite to "{folder_name}"',
                 f'An exception was raised when cancelling the invite "{id_}" '
                 f'to the "{folder_name}" folder:\n\n'
                 f"{type(e).__name__}: {str(e)}",
