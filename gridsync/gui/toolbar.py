@@ -115,8 +115,6 @@ class AddFolderButton(ToolButton):
 
 
 class EnterCodeButton(ToolButton):
-    enter_code_triggered = Signal()
-
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
         self.action = QAction(
@@ -125,11 +123,7 @@ class EnterCodeButton(ToolButton):
         self.action.setToolTip("Enter an Invite Code...")
         self.action.setEnabled(False)
         self.action.setFont(Font(8))
-        self.action.triggered.connect(lambda: print("OK"))  # XXX
-
         self.setDefaultAction(self.action)
-
-        self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
 class InvitesMenuButton(ToolButton):
@@ -201,12 +195,8 @@ class HistoryToggleButton(ToolButton):
         self.action.setToolTip("Show/Hide History")
         self.action.setEnabled(False)
         self.action.setFont(Font(8))
-        self.action.triggered.connect(lambda: print("OK"))  # XXX
-
         self.setDefaultAction(self.action)
         self.setCheckable(True)
-
-        self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
 class FoldersToggleButton(ToolButton):
@@ -218,12 +208,8 @@ class FoldersToggleButton(ToolButton):
         self.action.setToolTip("Show Folders")
         self.action.setEnabled(False)
         self.action.setFont(Font(8))
-        self.action.triggered.connect(lambda: print("OK"))  # XXX
-
         self.setDefaultAction(self.action)
         self.setCheckable(True)
-
-        self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
 class UsageToggleButton(ToolButton):
@@ -235,12 +221,8 @@ class UsageToggleButton(ToolButton):
         self.action.setToolTip("Show Storage-time")
         self.action.setEnabled(False)
         self.action.setFont(Font(8))
-        self.action.triggered.connect(lambda: print("OK"))  # XXX
-
         self.setDefaultAction(self.action)
         self.setCheckable(True)
-
-        self.pressed.connect(lambda: print("PRESSED"))  # XXX
 
 
 class ToolBar(QToolBar):
