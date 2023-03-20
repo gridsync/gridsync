@@ -303,9 +303,9 @@ class View(QTreeView):
         self,
         dialog: MagicFolderJoinDialog,
         folder_name: str,
+        invite_code: str,
         local_path: str,
     ) -> None:
-        raise  # XXX
         result = await self.gateway.magic_folder.join(
             folder_name, invite_code, local_path
         )
@@ -316,17 +316,18 @@ class View(QTreeView):
         self,
         dialog: MagicFolderJoinDialog,
         folder_name: str,
-        participant_name: str,
+        invite_code: str,
+        local_path: str,
     ) -> None:
         try:
-            await self._do_join(dialog, folder_name, participant_name)
+            await self._do_join(dialog, folder_name, invite_code, local_path)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
                 self,
-                f"Error joining {folder_name} as {participant_name}",
-                f'An exception was raised when joining "{folder_name}" '
-                f'as "{participant_name}" folder:\n\n'
+                f"Error joining {folder_name}",
+                f'An exception was raised when joining the "{folder_name}" '
+                "folder:\n\n"
                 f"{type(e).__name__}: {str(e)}",
             )
 
@@ -334,9 +335,11 @@ class View(QTreeView):
         dialog = MagicFolderJoinDialog()
         # To prevent the dialog from getting garbage-collected
         self.open_dialogs.add(dialog)  # TODO: Remove on close?
-        # dialog.participant_name_set.connect(
-        #     lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
-        # )
+        dialog.form_filled.connect(
+            lambda folder_name, invite_code, local_path: ensureDeferred(
+                self._try_join(dialog, folder_name, invite_code, local_path)
+            )
+        )
         dialog.show()
 
     @inlineCallbacks
