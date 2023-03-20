@@ -970,7 +970,7 @@ class MagicFolder:
         author: str = "XXX",  # XXX
         poll_interval: int = 60,
         scan_interval: int = 60,
-    ) -> JSON:
+    ) -> dict:
         local_path = Path(local_path).absolute()
         local_path.mkdir(parents=True, exist_ok=True)
         result = await self._request(
@@ -986,4 +986,4 @@ class MagicFolder:
                 }
             ).encode(),
         )
-        return result
+        return cast(dict, result)
