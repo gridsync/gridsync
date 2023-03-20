@@ -45,7 +45,6 @@ from qtpy.QtWidgets import (
     QTreeView,
 )
 from twisted.internet.defer import (
-    CancelledError,
     Deferred,
     DeferredList,
     ensureDeferred,

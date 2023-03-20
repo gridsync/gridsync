@@ -7,7 +7,6 @@ from typing import Optional
 from qtpy.QtCore import (
     QModelIndex,
     QPropertyAnimation,
-    QSize,
     QStringListModel,
     Qt,
     QTimer,
@@ -24,7 +23,6 @@ from qtpy.QtWidgets import (
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPushButton,
     QToolButton,
     QWidget,
 )

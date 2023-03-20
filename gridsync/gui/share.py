@@ -3,23 +3,20 @@ from __future__ import annotations
 
 import logging
 import os
-import sys
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 import wormhole.errors
-from qtpy.QtCore import QEvent, QFileInfo, Qt, QTimer, Signal
-from qtpy.QtGui import QCloseEvent, QFont, QIcon, QKeyEvent
+from qtpy.QtCore import QEvent, QFileInfo, Qt, Signal
+from qtpy.QtGui import QCloseEvent, QIcon, QKeyEvent
 from qtpy.QtWidgets import (
     QDialog,
     QFileIconProvider,
     QGridLayout,
-    QGroupBox,
     QLabel,
     QMessageBox,
     QProgressBar,
     QPushButton,
-    QToolButton,
     QWidget,
 )
 from twisted.internet import reactor
@@ -36,7 +33,7 @@ from gridsync.invite import InviteReceiver, InviteSender
 from gridsync.preferences import get_preference
 from gridsync.tahoe import Tahoe
 from gridsync.tor import TOR_PURPLE
-from gridsync.util import b58encode, humanized_list
+from gridsync.util import humanized_list
 
 if TYPE_CHECKING:
     from gridsync.gui import AbstractGui

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import sys
 from typing import Optional, cast
 
-from qtpy.QtCore import QFileInfo, QSize, Qt, Signal
+from qtpy.QtCore import QFileInfo, Qt, Signal
 from qtpy.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import (
     QDialog,
@@ -20,14 +19,13 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet.defer import Deferred
 
-from gridsync import config_dir, resource
+from gridsync import config_dir
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.invite import InviteCodeWidget
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
 from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
-from gridsync.msg import info
 
 
 class MagicFolderInvitesModel(QStandardItemModel):
