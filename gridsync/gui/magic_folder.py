@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Optional, cast
 
 from qtpy.QtCore import QFileInfo, Qt, Signal
@@ -8,6 +9,7 @@ from qtpy.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import (
     QDialog,
     QDialogButtonBox,
+    QFileDialog,
     QFileIconProvider,
     QFrame,
     QGridLayout,
@@ -249,15 +251,30 @@ class _MagicFolderJoinPathPage(QWidget):
 
         self.label = QLabel("Code")
         self.folder_name_lineedit = QLineEdit("FolderName", self)  # XXX
-        self.local_path_lineedit = QLineEdit("/home/user/test", self)  # XXX
+        self.local_path_lineedit = QLineEdit("", self)
+        self.browse_button = QPushButton("Browse...", self)
         self.button_box = ButtonBox(self)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label)
         layout.addWidget(self.folder_name_lineedit)
         layout.addWidget(self.local_path_lineedit)
+        layout.addWidget(self.browse_button)
         layout.addWidget(HLine(self))
         layout.addWidget(self.button_box)
+
+        self.browse_button.clicked.connect(self._prompt_for_directory)
+
+    def _prompt_for_directory(self) -> None:
+        caption = "Choose a save location"
+        folder_name = self.folder_name_lineedit.text()
+        if folder_name:
+            caption += f" for {folder_name}"
+        directory = QFileDialog.getExistingDirectory(
+            self, caption, str(Path.home().resolve())
+        )
+        if directory:
+            self.local_path_lineedit.setText(str(Path(directory).resolve()))
 
 
 class _MagicFolderJoinProgressPage(QWidget):
