@@ -253,7 +253,9 @@ class _MagicFolderJoinPathPage(QWidget):
         self.folder_name_lineedit = QLineEdit("FolderName", self)  # XXX
         self.local_path_lineedit = QLineEdit("", self)
         self.browse_button = QPushButton("Browse...", self)
+
         self.button_box = ButtonBox(self)
+        self.button_box.ok_button.setEnabled(False)
 
         layout = QGridLayout(self)
         layout.addWidget(self.label)
@@ -265,6 +267,13 @@ class _MagicFolderJoinPathPage(QWidget):
 
         self.browse_button.clicked.connect(self._prompt_for_directory)
 
+    def _maybe_enable_ok_button(self) -> None:
+        if (
+            self.folder_name_lineedit.text()
+            and self.local_path_lineedit.text()
+        ):
+            self.button_box.ok_button.setEnabled(True)
+
     def _prompt_for_directory(self) -> None:
         caption = "Choose a save location"
         folder_name = self.folder_name_lineedit.text()
@@ -275,6 +284,7 @@ class _MagicFolderJoinPathPage(QWidget):
         )
         if directory:
             self.local_path_lineedit.setText(str(Path(directory).resolve()))
+            self._maybe_enable_ok_button()
 
 
 class _MagicFolderJoinProgressPage(QWidget):
