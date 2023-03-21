@@ -291,6 +291,8 @@ class MagicFolderInviteDialog(QDialog):
             self._on_cancel_requested
         )
 
+        self._success_page.close_button.clicked.connect(self.close)
+
     def _on_ok_button_clicked(self) -> None:
         self._participant_name = self._participant_page.lineedit.text()
         if self._participant_page.checkbox.isChecked():
@@ -429,6 +431,8 @@ class MagicFolderJoinDialog(QDialog):
         self._path_page.button_box.back_button.clicked.connect(
             lambda: self._stack.setCurrentWidget(self._code_page)
         )
+
+        self._success_page.close_button.clicked.connect(self.close)
 
     def _check_inputs(self) -> None:
         # XXX Validate
