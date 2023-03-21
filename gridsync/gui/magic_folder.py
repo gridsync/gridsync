@@ -157,6 +157,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
 
         self.lineedit = QLineEdit(self)
         self.lineedit.setFont(Font(16))
+        self.lineedit.setAlignment(Qt.AlignCenter)
 
         self.checkbox = QCheckBox("This device may only read updates")
         self.checkbox.setStyleSheet(f"QCheckBox {{ color: {grey} }}")
