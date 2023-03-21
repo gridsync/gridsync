@@ -145,6 +145,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
 
         self.lineedit = QLineEdit(self)
         self.lineedit.setFont(Font(16))
+        self.lineedit.textChanged.connect(self._on_text_changed)
 
         self.checkbox = QCheckBox("This device may only read updates")
         self.checkbox.setStyleSheet(f"QCheckBox {{ color: {grey} }}")
@@ -152,6 +153,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
         self.button_box = ButtonBox(self)
         self.button_box.removeButton(self.button_box.back_button)
         self.button_box.ok_button.setText("Create Invite...")
+        self.button_box.ok_button.setEnabled(False)
 
         layout = QGridLayout(self)
         # layout.addItem(VSpacer(), 0, 0)
@@ -168,6 +170,12 @@ class _MagicFolderInviteParticipantPage(QWidget):
         layout.addItem(VSpacer(), 7, 1)
         layout.addWidget(HLine(self), 8, 1, 1, 5)
         layout.addWidget(self.button_box, 9, 1, 1, 5)
+
+    def _on_text_changed(self) -> None:
+        if self.lineedit.text():
+            self.button_box.ok_button.setEnabled(True)
+        else:
+            self.button_box.ok_button.setEnabled(False)
 
 
 class _MagicFolderInviteCodePage(QWidget):
