@@ -22,7 +22,7 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet.defer import Deferred
 
-from gridsync import config_dir
+from gridsync import config_dir, resource
 from gridsync.crypto import randstr
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
@@ -217,10 +217,41 @@ class _MagicFolderInviteSuccessPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.label = QLabel("Success")
+        self.title_label = QLabel("Invite complete!", self)
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setFont(Font(16))
+
+        self.checkmark = QLabel(self)
+        self.checkmark.setPixmap(Pixmap(resource("green_checkmark.png"), 96))
+        self.checkmark.setAlignment(Qt.AlignCenter)
+
+        self.text_label = QLabel("", self)
+        self.text_label.setAlignment(Qt.AlignCenter)
+        p = self.palette()
+        grey = BlendedColor(p.windowText().color(), p.window().color()).name()
+        self.text_label.setStyleSheet(f"color: {grey}")
+        self.text_label.setWordWrap(True)
+
+        self.close_button = QPushButton("Close", self)
 
         layout = QGridLayout(self)
-        layout.addWidget(self.label)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
+        layout.addItem(HSpacer(), 1, 3)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
+        layout.addItem(VSpacer(), 2, 1)
+        layout.addWidget(self.title_label, 3, 2, 1, 3)
+        layout.addItem(VSpacer(), 4, 1)
+        layout.addWidget(self.checkmark, 5, 2, 1, 3)
+        layout.addItem(VSpacer(), 6, 1)
+        layout.addWidget(self.text_label, 7, 2, 1, 3)
+        layout.addItem(VSpacer(), 8, 1)
+        layout.addWidget(HLine(self), 9, 1, 1, 5)
+        layout.addWidget(self.close_button, 10, 3, 1, 1)
+
+    def set_text(self, text: str) -> None:
+        self.text_label.setText(text)
 
 
 class MagicFolderInviteDialog(QDialog):
@@ -272,6 +303,9 @@ class MagicFolderInviteDialog(QDialog):
     def set_folder_name(self, folder_name: str) -> None:
         self._participant_page.header.set_text(folder_name)
         self._code_page.header.set_text(folder_name)
+        self._success_page.set_text(
+            f'You have successfully joined the "{folder_name}" folder!'
+        )
         self.setWindowTitle(f"Create Folder Invite: {folder_name}")
 
     def show_code(self, code: str) -> None:
@@ -431,6 +465,8 @@ if __name__ == "__main__":
     # w = MagicFolderJoinDialog()
     w = MagicFolderInviteDialog()
     w.show()
+    w.set_folder_name("Cat Pics")
+    w.show_success()
     # w.show_code("3-test-test")
     # w.show_success()
     app.exec_()
