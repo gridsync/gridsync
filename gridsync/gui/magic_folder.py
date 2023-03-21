@@ -121,7 +121,6 @@ class _MagicFolderInviteParticipantPage(QWidget):
 
         self.header = InviteHeaderWidget(self)
         self.header.set_icon(QFileIconProvider().icon(QFileInfo(config_dir)))
-        self.header.set_text("Test")
 
         self.label = QLabel("Enter device name:", self)
         self.label.setFont(Font(14))
