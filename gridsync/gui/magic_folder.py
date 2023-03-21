@@ -391,19 +391,6 @@ class _MagicFolderJoinProgressPage(QWidget):
         layout.addWidget(self.label)
 
 
-class _MagicFolderJoinSuccessPage(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.label = QLabel("Success")
-
-        self.button = QPushButton("Close", self)
-
-        layout = QGridLayout(self)
-        layout.addWidget(self.label)
-        layout.addWidget(self.button)
-
-
 class MagicFolderJoinDialog(QDialog):
     form_filled = Signal(str, str, str)  # folder_name, invite_code, local_path
 
@@ -415,7 +402,7 @@ class MagicFolderJoinDialog(QDialog):
         self._code_page = _MagicFolderJoinCodePage()
         self._path_page = _MagicFolderJoinPathPage()
         self._progress_page = _MagicFolderJoinProgressPage()
-        self._success_page = _MagicFolderJoinSuccessPage()
+        self._success_page = _MagicFolderInviteSuccessPage()
 
         self._stack = QStackedWidget(self)
         self._stack.addWidget(self._code_page)
@@ -444,6 +431,9 @@ class MagicFolderJoinDialog(QDialog):
         invite_code = self._code_page.invite_code_widget.get_code()
         local_path = self._path_page.local_path_lineedit.text()
         print(folder_name, invite_code, local_path)  # XXX
+        self._success_page.set_text(
+            f'You have successfully joined the "{folder_name}" folder!'
+        )
         self.form_filled.emit(folder_name, invite_code, local_path)
 
     def show_path(self) -> None:
