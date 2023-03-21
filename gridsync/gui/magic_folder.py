@@ -5,7 +5,13 @@ from pathlib import Path
 from typing import Optional, cast
 
 from qtpy.QtCore import QFileInfo, Qt, Signal
-from qtpy.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
+from qtpy.QtGui import (
+    QCloseEvent,
+    QIcon,
+    QPixmap,
+    QStandardItem,
+    QStandardItemModel,
+)
 from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -34,6 +40,7 @@ from gridsync.gui.invite import (
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
 from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
+from gridsync.msg import question
 
 
 class MagicFolderInvitesModel(QStandardItemModel):
@@ -299,9 +306,7 @@ class MagicFolderInviteDialog(QDialog):
             self._on_ok_button_clicked
         )
 
-        self._code_page.cancel_button.clicked.connect(
-            self._on_cancel_requested
-        )
+        self._code_page.cancel_button.clicked.connect(self.close)
 
         self._success_page.close_button.clicked.connect(self.close)
 
@@ -339,6 +344,23 @@ class MagicFolderInviteDialog(QDialog):
             f'"{self._folder_name}" folder!'
         )
         self._stack.setCurrentWidget(self._success_page)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self._stack.currentWidget() == self._code_page:
+            if question(
+                self,
+                "Cancel invite?",
+                f"Are you sure you wish to cancel the invite to "
+                f'"{self._folder_name}?"\n\nThe invite code '
+                f"{self._code_page.code_box.get_code()} will no longer be "
+                "valid.",
+            ):
+                self.cancel_requested.emit()
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
 
 
 class _MagicFolderJoinCodePage(QWidget):
