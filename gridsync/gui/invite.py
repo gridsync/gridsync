@@ -177,6 +177,8 @@ class InviteCodeBox(QWidget):
 class InviteCodeLineEdit(QLineEdit):
     error = Signal(str)
     go = Signal(str)
+    code_cleared = Signal()
+    code_validated = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -220,6 +222,7 @@ class InviteCodeLineEdit(QLineEdit):
         elif is_valid_code(text):
             self.action_button.setIcon(self.go_icon)
             self.action_button.setToolTip("Go")
+            self.code_validated.emit(text)
         else:
             self.action_button.setIcon(self.clear_icon)
             self.action_button.setToolTip("Clear")
@@ -236,6 +239,7 @@ class InviteCodeLineEdit(QLineEdit):
                 self.setText(text)
         elif text and key == Qt.Key_Escape:
             self.setText("")
+            self.code_cleared.emit()
         else:
             return QLineEdit.keyPressEvent(self, event)
         return None
@@ -261,7 +265,9 @@ class InviteCodeLineEdit(QLineEdit):
 
 
 class InviteCodeWidget(QWidget):
+    code_cleared = Signal()
     code_entered = Signal(str)
+    code_validated = Signal(str)
     error_occurred = Signal(str)
 
     def __init__(
