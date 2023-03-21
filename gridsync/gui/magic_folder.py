@@ -148,6 +148,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
 
         self.button_box = ButtonBox(self)
         self.button_box.removeButton(self.button_box.back_button)
+        self.button_box.ok_button.setText("Create Invite...")
 
         layout = QGridLayout(self)
         # layout.addItem(VSpacer(), 0, 0)
