@@ -562,11 +562,10 @@ class MagicFolderJoinDialog(QDialog):
         self._success_page.close_button.clicked.connect(self.close)
 
     def _check_inputs(self) -> None:
-        # XXX Validate
         folder_name = self._path_page.folder_name_lineedit.text()
         invite_code = self._code_page.invite_code_widget.get_code()
         local_path = self._path_page.local_path_lineedit.text()
-        print(folder_name, invite_code, local_path)  # XXX
+        local_path = str(Path(local_path, folder_name))
         self._success_page.set_text(
             f'You have successfully joined the "{folder_name}" folder!'
         )
