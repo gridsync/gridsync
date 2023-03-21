@@ -385,10 +385,19 @@ class _MagicFolderJoinCodePage(QWidget):
         self.button_box.removeButton(self.button_box.back_button)
 
         layout = QGridLayout(self)
-        layout.addWidget(self.mail_open_icon)
-        layout.addWidget(self.invite_code_widget)
-        layout.addWidget(HLine(self))
-        layout.addWidget(self.button_box)
+        # layout.addItem(VSpacer(), 0, 0)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
+        layout.addItem(HSpacer(), 1, 3)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
+        layout.addWidget(self.mail_open_icon, 2, 2, 1, 3)
+        layout.addItem(VSpacer(), 3, 1)
+        layout.addWidget(self.invite_code_widget, 6, 2, 1, 3, Qt.AlignCenter)
+        layout.addItem(VSpacer(), 7, 1)
+        layout.addWidget(HLine(self), 8, 1, 1, 5)
+        layout.addWidget(self.button_box, 9, 1, 1, 5)
+
 
 
 class _MagicFolderJoinPathPage(QWidget):
@@ -513,11 +522,11 @@ if __name__ == "__main__":
     )
 
     app = QApplication([])
-    # w = MagicFolderJoinDialog()
-    w = MagicFolderInviteDialog()
+    w = MagicFolderJoinDialog()
+    # w = MagicFolderInviteDialog()
     w.show()
-    w.set_folder_name("Cat Pics")
-    w.show_success()
+    # w.set_folder_name("Cat Pics")
+    # w.show_success()
     # w.show_code("3-test-test")
     # w.show_success()
     app.exec_()
