@@ -308,6 +308,8 @@ class InviteCodeWidget(QWidget):
         self.lineedit = InviteCodeLineEdit(self)
         self.lineedit.go.connect(self.code_entered)
         self.lineedit.error.connect(self.error_occurred)
+        self.lineedit.code_cleared.connect(self.code_cleared)
+        self.lineedit.code_validated.connect(self.code_validated)
 
         self.tor_checkbox = QCheckBox("Connect over the Tor network")
         if sys.platform == "darwin":
