@@ -44,12 +44,22 @@ from qtpy.QtWidgets import (
     QStyleOptionViewItem,
     QTreeView,
 )
-from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
+from twisted.internet.defer import (
+    Deferred,
+    DeferredList,
+    ensureDeferred,
+    inlineCallbacks,
+)
 from twisted.python.failure import Failure
 
 from gridsync import APP_NAME, features, resource
 from gridsync.desktop import open_path
 from gridsync.gui.font import Font
+from gridsync.gui.magic_folder import (
+    MagicFolderInviteDialog,
+    MagicFolderInvitesModel,
+    MagicFolderJoinDialog,
+)
 from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
@@ -73,6 +83,8 @@ class View(QTreeView):
         self.gateway = gateway
         self.recovery_prompt_shown: bool = False
         self.invite_sender_dialogs: list = []
+        self.open_dialogs: set = set()
+        self.magic_folder_invites_model = MagicFolderInvitesModel()
         self._model = Model(self)
         self.setModel(self._model)
         self.setItemDelegate(Delegate(self))
@@ -206,6 +218,134 @@ class View(QTreeView):
         isd = InviteSenderDialog(self.gateway, self.gui, folder_names)
         self.invite_sender_dialogs.append(isd)  # TODO: Remove on close
         isd.show()
+
+    async def _cancel_invite(self, folder_name: str, id_: str) -> None:
+        d = self.magic_folder_invites_model.get_invite_wait_deferred(id_)
+        if d is not None:
+            self.magic_folder_invites_model.set_invite_wait_deferred(id_, None)
+            d.cancel()
+        try:
+            await self.gateway.magic_folder.invite_cancel(folder_name, id_)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
+            error(
+                self,
+                f'Error cancelling invite to "{folder_name}"',
+                f'An exception was raised when cancelling the invite "{id_}" '
+                f'to the "{folder_name}" folder:\n\n'
+                f"{type(e).__name__}: {str(e)}",
+            )
+
+    async def _do_invite(
+        self,
+        dialog: MagicFolderInviteDialog,
+        folder_name: str,
+        participant_name: str,
+        mode: str,
+    ) -> None:
+        inv = await self.gateway.magic_folder.invite(
+            folder_name, participant_name, mode
+        )
+        id_ = inv["id"]
+        wormhole_code = inv["wormhole-code"]
+        self.magic_folder_invites_model.add_invite(id_, wormhole_code)
+        self.magic_folder_invites_model.set_dialog(id_, dialog)
+        logging.debug("Created Magic-Folder invite: %s", inv)  # XXX
+        dialog.cancel_requested.connect(
+            lambda: ensureDeferred(self._cancel_invite(folder_name, id_))
+        )
+        dialog.show_code(wormhole_code)
+        d = ensureDeferred(
+            self.gateway.magic_folder.invite_wait(folder_name, id_)
+        )
+        self.magic_folder_invites_model.set_invite_wait_deferred(id_, d)
+        try:
+            result = await d
+        except Exception as e:
+            if (
+                self.magic_folder_invites_model.get_invite_wait_deferred(id_)
+                is None
+            ):
+                # The invite was cancelled
+                return
+            raise e
+        if result["success"] is True:
+            dialog.show_success()
+
+    async def _try_invite(
+        self,
+        dialog: MagicFolderInviteDialog,
+        folder_name: str,
+        participant_name: str,
+        mode: str,
+    ) -> None:
+        try:
+            await self._do_invite(dialog, folder_name, participant_name, mode)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
+            error(
+                self,
+                f"Error inviting {participant_name} to {folder_name}",
+                f'An exception was raised when inviting "{participant_name}" '
+                f'to the "{folder_name}" folder:\n\n'
+                f"{type(e).__name__}: {str(e)}",
+            )
+
+    def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
+        logging.debug("Creating Magic-Folder invite for %s...", folder_name)
+        dialog = MagicFolderInviteDialog()
+        # To prevent the dialog from getting garbage-collected
+        self.open_dialogs.add(dialog)  # TODO: Remove on close?
+        dialog.set_folder_name(folder_name)
+        dialog.form_filled.connect(
+            lambda participant_name, mode: ensureDeferred(
+                self._try_invite(dialog, folder_name, participant_name, mode)
+            )
+        )
+        dialog.show()
+
+    async def _do_join(
+        self,
+        dialog: MagicFolderJoinDialog,
+        folder_name: str,
+        invite_code: str,
+        local_path: str,
+    ) -> None:
+        result = await self.gateway.magic_folder.join(
+            folder_name, invite_code, local_path
+        )
+        if result["success"] is True:
+            dialog.show_success()
+
+    async def _try_join(
+        self,
+        dialog: MagicFolderJoinDialog,
+        folder_name: str,
+        invite_code: str,
+        local_path: str,
+    ) -> None:
+        try:
+            await self._do_join(dialog, folder_name, invite_code, local_path)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("%s: %s", type(e).__name__, str(e))
+            error(
+                self,
+                f"Error joining {folder_name}",
+                f'An exception was raised when joining the "{folder_name}" '
+                "folder:\n\n"
+                f"{type(e).__name__}: {str(e)}",
+            )
+
+    def open_magic_folder_join_dialog(self) -> None:
+        dialog = MagicFolderJoinDialog()
+        # To prevent the dialog from getting garbage-collected
+        self.open_dialogs.add(dialog)  # TODO: Remove on close?
+        dialog.form_filled.connect(
+            lambda folder_name, invite_code, local_path: ensureDeferred(
+                self._try_join(dialog, folder_name, invite_code, local_path)
+            )
+        )
+        dialog.show()
 
     @inlineCallbacks
     def download_folder(
@@ -452,19 +592,28 @@ class View(QTreeView):
         share_menu = QMenu()
         share_menu.setIcon(QIcon(resource("laptop.png")))
         share_menu.setTitle("Sync with device")  # XXX Rephrase?
-        invite_action = QAction(
-            QIcon(resource("invite.png")), "Create Invite Code..."
-        )
-        invite_action.triggered.connect(
-            lambda: self.open_invite_sender_dialog(selected)
-        )
-        share_menu.addAction(invite_action)
+        # invite_action = QAction(
+        #    QIcon(resource("invite.png")), "Create Invite Code..."
+        # )
+        # invite_action.triggered.connect(
+        #    lambda: self.open_invite_sender_dialog(selected)
+        # )
+        # share_menu.addAction(invite_action)
+
+        if len(selected) == 1:  # XXX
+            magic_folder_invite_action = QAction(
+                QIcon(resource("invite.png")), "Create Invite Code..."
+            )
+            magic_folder_invite_action.triggered.connect(
+                lambda: self.open_magic_folder_invite_dialog(selected[0])
+            )
+            share_menu.addAction(magic_folder_invite_action)
 
         remove_action = QAction(
             QIcon(resource("close.png")), "Remove from Recovery Key..."
         )
         menu.addAction(open_action)
-        if features.invites:
+        if features.magic_folder_invites:
             menu.addMenu(share_menu)
         menu.addSeparator()
         menu.addAction(remove_action)
@@ -476,10 +625,7 @@ class View(QTreeView):
             )
         else:
             for folder in selected:
-                # XXX/TODO: Remove?
-                if not self.gateway.magic_folder.magic_folders[folder].get(
-                    "admin_dircap"
-                ):
+                if not self.gateway.magic_folder.is_admin(folder):
                     share_menu.setEnabled(False)
                     share_menu.setTitle(
                         "Sync with device (disabled; no admin access)"

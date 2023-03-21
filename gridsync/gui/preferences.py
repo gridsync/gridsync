@@ -98,7 +98,7 @@ class NotificationsPane(QWidget):
         self.checkbox_connection = QCheckBox("Connection status changes")
         self.checkbox_folder = QCheckBox("A folder is updated")
         self.checkbox_invite = QCheckBox("An invite code is used")
-        if not features.invites and not features.grid_invites:
+        if not features.magic_folder_invites and not features.grid_invites:
             self.checkbox_invite.setVisible(False)
 
         notifications_layout = QGridLayout()

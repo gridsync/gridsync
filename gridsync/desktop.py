@@ -147,7 +147,7 @@ def set_clipboard_text(
         return
     clipboard.setText(text, mode)
     logging.debug(
-        "Copied %i bytes to clipboard %i", len(text) if text else 0, mode
+        "Copied %i bytes to clipboard %s", len(text) if text else 0, str(mode)
     )
 
 

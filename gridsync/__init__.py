@@ -98,7 +98,7 @@ DEFAULT_AUTOSTART = to_bool(settings.get("defaults", {}).get("autostart", ""))
 
 
 grid_invites_enabled: bool = True
-invites_enabled: bool = True
+magic_folder_invites_enabled: bool = True
 multiple_grids_enabled: bool = True
 tor_enabled: bool = True
 
@@ -107,9 +107,9 @@ if _features:
     _grid_invites = _features.get("grid_invites")
     if _grid_invites and _grid_invites.lower() == "false":
         grid_invites_enabled = False
-    _invites = _features.get("invites")
-    if _invites and _invites.lower() == "false":
-        invites_enabled = False
+    _magic_folder_invites = _features.get("magic_folder_invites")
+    if _magic_folder_invites and _magic_folder_invites.lower() == "false":
+        magic_folder_invites_enabled = False
     _multiple_grids = _features.get("multiple_grids")
     if _multiple_grids and _multiple_grids.lower() == "false":
         multiple_grids_enabled = False
@@ -117,9 +117,14 @@ if _features:
     if _tor and _tor.lower() == "false":
         tor_enabled = False
 
-Features = namedtuple("Features", "grid_invites invites multiple_grids tor")
+Features = namedtuple(
+    "Features", "grid_invites magic_folder_invites multiple_grids tor"
+)
 features = Features(
-    grid_invites_enabled, invites_enabled, multiple_grids_enabled, tor_enabled
+    grid_invites_enabled,
+    magic_folder_invites_enabled,
+    multiple_grids_enabled,
+    tor_enabled,
 )
 
 
