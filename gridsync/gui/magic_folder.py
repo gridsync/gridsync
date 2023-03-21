@@ -178,6 +178,8 @@ class _MagicFolderInviteCodePage(QWidget):
         self.header.set_icon(QFileIconProvider().icon(QFileInfo(config_dir)))
 
         self.qrcode_label = QLabel("")
+        self.qrcode_label.setAlignment(Qt.AlignCenter)
+
         self.code_box = InviteCodeBox(self)
         self.cancel_button = QPushButton("Close and cancel", self)
 
@@ -195,7 +197,7 @@ class _MagicFolderInviteCodePage(QWidget):
         layout.addWidget(self.cancel_button, 9, 3, 1, 1)
 
     def set_code(self, code: str) -> None:
-        self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(256, 256)))
+        self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(192, 192)))
         self.code_box.show_code(code)
 
 
