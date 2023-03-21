@@ -193,6 +193,14 @@ class _MagicFolderInviteCodePage(QWidget):
         self.qrcode_label.setAlignment(Qt.AlignCenter)
 
         self.code_box = InviteCodeBox(self)
+
+        self.text_label = QLabel("", self)
+        self.text_label.setAlignment(Qt.AlignCenter)
+        p = self.palette()
+        grey = BlendedColor(p.windowText().color(), p.window().color()).name()
+        self.text_label.setStyleSheet(f"color: {grey}")
+        self.text_label.setWordWrap(True)
+
         self.cancel_button = QPushButton("Close and cancel", self)
 
         layout = QGridLayout(self)
@@ -205,6 +213,7 @@ class _MagicFolderInviteCodePage(QWidget):
         layout.addItem(VSpacer(), 3, 1)
         layout.addWidget(self.qrcode_label, 4, 2, 1, 3)
         layout.addWidget(self.code_box, 5, 2, 1, 3)
+        layout.addWidget(self.text_label, 6, 2, 1, 3)
         layout.addWidget(HLine(self), 8, 1, 1, 5)
         layout.addWidget(self.cancel_button, 9, 3, 1, 1)
 
@@ -297,8 +306,15 @@ class MagicFolderInviteDialog(QDialog):
         self._participant_name = self._participant_page.lineedit.text()
         if self._participant_page.checkbox.isChecked():
             mode = "read-only"
+            abilities = "read but not modify"
         else:
             mode = "read-write"
+            abilities = "read and modify"
+        self._code_page.text_label.setText(
+            f"Enter this code on another device to allow it to {abilities} "
+            f'the contents of the "{self._folder_name}" folder.\n'
+            "This code can only be used once."
+        )
         self.form_filled.emit(self._participant_name, mode)
 
     def _on_cancel_requested(self) -> None:
