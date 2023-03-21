@@ -260,6 +260,9 @@ class MagicFolderInviteDialog(QDialog):
 
     def __init__(self) -> None:
         super().__init__()
+        self._folder_name: str = ""
+        self._participant_name: str = ""
+
         self.setMinimumSize(500, 300)
         self.setWindowTitle("Create Folder Invite")
 
@@ -289,12 +292,12 @@ class MagicFolderInviteDialog(QDialog):
         )
 
     def _on_ok_button_clicked(self) -> None:
-        participant_name = self._participant_page.lineedit.text()
+        self._participant_name = self._participant_page.lineedit.text()
         if self._participant_page.checkbox.isChecked():
             mode = "read-only"
         else:
             mode = "read-write"
-        self.form_filled.emit(participant_name, mode)
+        self.form_filled.emit(self._participant_name, mode)
 
     def _on_cancel_requested(self) -> None:
         self.cancel_requested.emit()
@@ -303,16 +306,18 @@ class MagicFolderInviteDialog(QDialog):
     def set_folder_name(self, folder_name: str) -> None:
         self._participant_page.header.set_text(folder_name)
         self._code_page.header.set_text(folder_name)
-        self._success_page.set_text(
-            f'You have successfully joined the "{folder_name}" folder!'
-        )
         self.setWindowTitle(f"Create Folder Invite: {folder_name}")
+        self._folder_name = folder_name
 
     def show_code(self, code: str) -> None:
         self._code_page.set_code(code)
         self._stack.setCurrentWidget(self._code_page)
 
     def show_success(self) -> None:
+        self._success_page.set_text(
+            f"You have successfully invited {self._participant_name} to the "
+            f'"{self._folder_name}" folder!'
+        )
         self._stack.setCurrentWidget(self._success_page)
 
 
