@@ -261,6 +261,9 @@ class InviteCodeLineEdit(QLineEdit):
 
 
 class InviteCodeWidget(QWidget):
+    code_entered = Signal(str)
+    error_occurred = Signal(str)
+
     def __init__(
         self, parent: Optional[QWidget] = None, tor_available: bool = False
     ) -> None:
@@ -297,6 +300,8 @@ class InviteCodeWidget(QWidget):
         label_layout.addItem(HSpacer(), 1, 5)
 
         self.lineedit = InviteCodeLineEdit(self)
+        self.lineedit.go.connect(self.code_entered)
+        self.lineedit.error.connect(self.error_occurred)
 
         self.tor_checkbox = QCheckBox("Connect over the Tor network")
         if sys.platform == "darwin":
