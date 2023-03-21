@@ -179,6 +179,7 @@ class InviteCodeLineEdit(QLineEdit):
     go = Signal(str)
     code_cleared = Signal()
     code_validated = Signal(str)
+    code_invalidated = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -226,6 +227,7 @@ class InviteCodeLineEdit(QLineEdit):
         else:
             self.action_button.setIcon(self.clear_icon)
             self.action_button.setToolTip("Clear")
+            self.code_invalidated.emit(text)
 
     def keyPressEvent(self, event: QKeyEvent) -> Optional[QKeyEvent]:  # type: ignore
         # mypy: 'incompatible with return type "None" in supertype "QLineEdit"'
@@ -268,6 +270,7 @@ class InviteCodeWidget(QWidget):
     code_cleared = Signal()
     code_entered = Signal(str)
     code_validated = Signal(str)
+    code_invalidated = Signal(str)
     error_occurred = Signal(str)
 
     def __init__(
@@ -310,6 +313,7 @@ class InviteCodeWidget(QWidget):
         self.lineedit.error.connect(self.error_occurred)
         self.lineedit.code_cleared.connect(self.code_cleared)
         self.lineedit.code_validated.connect(self.code_validated)
+        self.lineedit.code_invalidated.connect(self.code_invalidated)
 
         self.tor_checkbox = QCheckBox("Connect over the Tor network")
         if sys.platform == "darwin":
