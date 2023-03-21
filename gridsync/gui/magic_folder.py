@@ -246,9 +246,13 @@ class MagicFolderInviteDialog(QDialog):
 
         self._stack.setCurrentWidget(self._participant_page)
 
+        self._participant_page.button_box.cancel_button.clicked.connect(
+            self.close
+        )
         self._participant_page.button_box.ok_button.clicked.connect(
             self._on_ok_button_clicked
         )
+
         self._code_page.cancel_button.clicked.connect(
             self._on_cancel_requested
         )
