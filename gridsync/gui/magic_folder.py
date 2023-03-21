@@ -436,7 +436,7 @@ class _MagicFolderJoinPathPage(QWidget):
         self.location_label.setFont(Font(14))
         self.location_label.setStyleSheet(f"color: {grey}")
 
-        self.local_path_lineedit = QLineEdit("", self)
+        self.local_path_lineedit = QLineEdit(str(Path().home()), self)
         self.local_path_lineedit.setFont(Font(14))
 
         self.browse_button = QPushButton("Browse...", self)
