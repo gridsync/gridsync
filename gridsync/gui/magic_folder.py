@@ -23,6 +23,7 @@ from qtpy.QtWidgets import (
 from twisted.internet.defer import Deferred
 
 from gridsync import config_dir
+from gridsync.crypto import randstr
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 from gridsync.gui.invite import (
@@ -145,7 +146,6 @@ class _MagicFolderInviteParticipantPage(QWidget):
 
         self.lineedit = QLineEdit(self)
         self.lineedit.setFont(Font(16))
-        self.lineedit.textChanged.connect(self._on_text_changed)
 
         self.checkbox = QCheckBox("This device may only read updates")
         self.checkbox.setStyleSheet(f"QCheckBox {{ color: {grey} }}")
@@ -170,6 +170,10 @@ class _MagicFolderInviteParticipantPage(QWidget):
         layout.addItem(VSpacer(), 7, 1)
         layout.addWidget(HLine(self), 8, 1, 1, 5)
         layout.addWidget(self.button_box, 9, 1, 1, 5)
+
+        self.lineedit.textChanged.connect(self._on_text_changed)
+        # Call last, as this depends on the initialization of self.button_box
+        self.lineedit.setText(f"Device-{randstr(6)}")
 
     def _on_text_changed(self) -> None:
         if self.lineedit.text():
