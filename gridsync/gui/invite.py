@@ -65,6 +65,29 @@ class InviteCodeCompleter(QCompleter):
         return [str(path.split("-")[-1])]
 
 
+class InviteHeaderWidget(QWidget):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+
+        self.icon_label = QLabel(self)
+
+        self.text_label = QLabel(self)
+        self.text_label.setFont(Font(18))
+        self.text_label.setAlignment(Qt.AlignCenter)
+
+        layout = QGridLayout(self)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addWidget(self.icon_label, 1, 2)
+        layout.addWidget(self.text_label, 1, 3)
+        layout.addItem(HSpacer(), 1, 4)
+
+    def set_icon(self, icon: QIcon) -> None:
+        self.icon_label.setPixmap(icon.pixmap(50, 50))
+
+    def set_text(self, text: str) -> None:
+        self.text_label.setText(text)
+
+
 class InviteCodeBox(QWidget):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)

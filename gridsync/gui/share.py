@@ -26,7 +26,12 @@ from twisted.python.failure import Failure
 from gridsync import config_dir, resource
 from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.gui.font import Font
-from gridsync.gui.invite import InviteCodeBox, InviteCodeWidget, show_failure
+from gridsync.gui.invite import (
+    InviteCodeBox,
+    InviteCodeWidget,
+    InviteHeaderWidget,
+    show_failure,
+)
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.widgets import HSpacer, VSpacer
 from gridsync.invite import InviteReceiver, InviteSender
@@ -65,7 +70,8 @@ class InviteSenderDialog(QDialog):
 
         self.setMinimumSize(500, 300)
 
-        header_icon = QLabel(self)
+        self.header_widget = InviteHeaderWidget(self)
+
         if self.folder_names:
             icon = QFileIconProvider().icon(
                 QFileInfo(
@@ -78,21 +84,12 @@ class InviteSenderDialog(QDialog):
             icon = QIcon(os.path.join(gateway.nodedir, "icon"))
             if not icon.availableSizes():
                 icon = QIcon(resource("tahoe-lafs.png"))
-        header_icon.setPixmap(icon.pixmap(50, 50))
+        self.header_widget.set_icon(icon)
 
-        header_text = QLabel(self)
         if self.folder_names_humanized:
-            header_text.setText(self.folder_names_humanized)
+            self.header_widget.set_text(self.folder_names_humanized)
         else:
-            header_text.setText(self.gateway.name)
-        header_text.setFont(Font(18))
-        header_text.setAlignment(Qt.AlignCenter)
-
-        header_layout = QGridLayout()
-        header_layout.addItem(HSpacer(), 1, 1)
-        header_layout.addWidget(header_icon, 1, 2)
-        header_layout.addWidget(header_text, 1, 3)
-        header_layout.addItem(HSpacer(), 1, 4)
+            self.header_widget.set_text(self.gateway.name)
 
         self.subtext_label = QLabel(self)
         self.subtext_label.setFont(Font(10))
@@ -129,7 +126,7 @@ class InviteSenderDialog(QDialog):
         layout.addItem(HSpacer(), 1, 3)
         layout.addItem(HSpacer(), 1, 4)
         layout.addItem(HSpacer(), 1, 5)
-        layout.addLayout(header_layout, 1, 3)
+        layout.addWidget(self.header_widget, 1, 3)
         layout.addItem(VSpacer(), 2, 1)
         layout.addWidget(self.checkmark, 3, 3)
         layout.addWidget(
