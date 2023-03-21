@@ -150,13 +150,19 @@ class _MagicFolderInviteParticipantPage(QWidget):
         self.button_box.removeButton(self.button_box.back_button)
 
         layout = QGridLayout(self)
-        layout.addItem(VSpacer(), 1, 1)
-        layout.addWidget(self.header, 2, 1)
-        layout.addLayout(label_layout, 3, 1)
-        layout.addWidget(self.lineedit, 4, 1)
-        layout.addItem(VSpacer(), 5, 1)
-        layout.addWidget(self.button_box, 6, 1)
-
+        # layout.addItem(VSpacer(), 0, 0)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
+        layout.addItem(HSpacer(), 1, 3)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
+        layout.addWidget(self.header, 2, 2, 1, 3)
+        layout.addItem(VSpacer(), 3, 1)
+        layout.addLayout(label_layout, 4, 2, 1, 3)
+        layout.addWidget(self.lineedit, 5, 2, 1, 3)
+        layout.addItem(VSpacer(), 6, 1)
+        layout.addWidget(HLine(self), 7, 1, 1, 5)
+        layout.addWidget(self.button_box, 8, 1, 1, 5)
 
 class _MagicFolderInviteCodePage(QWidget):
     def __init__(self) -> None:
@@ -379,7 +385,8 @@ if __name__ == "__main__":
     )
 
     app = QApplication([])
-    w = MagicFolderJoinDialog()
+    # w = MagicFolderJoinDialog()
+    w = MagicFolderInviteDialog()
     w.show()
     # w.show_code("3-test-test")
     # w.show_success()
