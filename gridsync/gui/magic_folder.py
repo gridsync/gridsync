@@ -487,6 +487,9 @@ class MagicFolderJoinDialog(QDialog):
 
         self._code_page.button_box.ok_button.clicked.connect(self.show_path)
         self._code_page.button_box.cancel_button.clicked.connect(self.close)
+        self._code_page.invite_code_widget.code_entered.connect(
+            lambda _: self.show_path()
+        )
 
         self._path_page.button_box.ok_button.clicked.connect(
             self._check_inputs
