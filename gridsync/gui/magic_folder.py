@@ -24,7 +24,7 @@ from twisted.internet.defer import Deferred
 from gridsync import config_dir
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.gui.invite import InviteCodeWidget
+from gridsync.gui.invite import InviteCodeWidget, InviteCodeBox
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
 from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
@@ -160,17 +160,17 @@ class _MagicFolderInviteCodePage(QWidget):
         super().__init__()
 
         self.qrcode_label = QLabel("")
-        self.label = QLabel("Code")
+        self.code_box = InviteCodeBox(self)
         self.button_box = ButtonBox(self)
 
         layout = QGridLayout(self)
         layout.addWidget(self.qrcode_label)
-        layout.addWidget(self.label)
+        layout.addWidget(self.code_box)
         layout.addWidget(self.button_box)
 
     def set_code(self, code: str) -> None:
         self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(256, 256)))
-        self.label.setText(code)
+        self.code_box.show_code(code)
 
 
 class _MagicFolderInviteSuccessPage(QWidget):
