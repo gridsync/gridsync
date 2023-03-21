@@ -24,7 +24,6 @@ from twisted.internet.defer import CancelledError
 from twisted.python.failure import Failure
 
 from gridsync import config_dir, resource
-from gridsync.desktop import get_clipboard_modes, set_clipboard_text
 from gridsync.gui.font import Font
 from gridsync.gui.invite import (
     InviteCodeBox,
