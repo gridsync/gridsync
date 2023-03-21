@@ -383,6 +383,7 @@ class _MagicFolderJoinCodePage(QWidget):
 
         self.button_box = ButtonBox(self)
         self.button_box.removeButton(self.button_box.back_button)
+        self.button_box.ok_button.setEnabled(False)
 
         layout = QGridLayout(self)
         # layout.addItem(VSpacer(), 0, 0)
@@ -398,6 +399,12 @@ class _MagicFolderJoinCodePage(QWidget):
         layout.addWidget(HLine(self), 8, 1, 1, 5)
         layout.addWidget(self.button_box, 9, 1, 1, 5)
 
+        self.invite_code_widget.code_validated.connect(
+            lambda _: self.button_box.ok_button.setEnabled(True)
+        )
+        self.invite_code_widget.code_invalidated.connect(
+            lambda _: self.button_box.ok_button.setEnabled(False)
+        )
 
 
 class _MagicFolderJoinPathPage(QWidget):
