@@ -157,8 +157,6 @@ class InviteSenderDialog(QDialog):
 
     def on_copy_button_clicked(self) -> None:
         code = self.code_box.code_label.text()
-        for mode in get_clipboard_modes():
-            set_clipboard_text(code, mode)
         self.subtext_label.setText(
             "Copied '{}' to clipboard!\n\n".format(code)
         )

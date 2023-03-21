@@ -37,7 +37,11 @@ from wormhole.errors import (
 )
 
 from gridsync import APP_NAME, resource
-from gridsync.desktop import get_clipboard_modes, get_clipboard_text
+from gridsync.desktop import (
+    get_clipboard_modes,
+    get_clipboard_text,
+    set_clipboard_text,
+)
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
@@ -123,6 +127,7 @@ class InviteCodeBox(QWidget):
         self.copy_button.setIcon(QIcon(resource("copy.png")))
         self.copy_button.setToolTip("Copy to clipboard")
         self.copy_button.setStyleSheet("border: 0px; padding: 0px;")
+        self.copy_button.clicked.connect(self._on_copy_button_clicked)
         self.copy_button.hide()
 
         box_layout = QGridLayout(self.box)
@@ -159,6 +164,11 @@ class InviteCodeBox(QWidget):
         self.code_label.setText(code)
         self.code_label.show()
         self.copy_button.show()
+
+    def _on_copy_button_clicked(self) -> None:
+        code = self.code_label.text()
+        for mode in get_clipboard_modes():
+            set_clipboard_text(code, mode)
 
 
 class InviteCodeLineEdit(QLineEdit):
