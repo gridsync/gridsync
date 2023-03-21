@@ -7,6 +7,7 @@ from typing import Optional, cast
 from qtpy.QtCore import QFileInfo, Qt, Signal
 from qtpy.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from qtpy.QtWidgets import (
+    QCheckBox,
     QDialog,
     QDialogButtonBox,
     QFileDialog,
@@ -146,6 +147,9 @@ class _MagicFolderInviteParticipantPage(QWidget):
         self.lineedit = QLineEdit(self)
         self.lineedit.setFont(Font(16))
 
+        self.checkbox = QCheckBox("This device may only read updates")
+        self.checkbox.setStyleSheet(f"QCheckBox {{ color: {grey} }}")
+
         self.button_box = ButtonBox(self)
         self.button_box.removeButton(self.button_box.back_button)
         self.button_box.ok_button.setText("Create Invite...")
@@ -161,9 +165,11 @@ class _MagicFolderInviteParticipantPage(QWidget):
         layout.addItem(VSpacer(), 3, 1)
         layout.addLayout(label_layout, 4, 2, 1, 3)
         layout.addWidget(self.lineedit, 5, 2, 1, 3)
-        layout.addItem(VSpacer(), 6, 1)
-        layout.addWidget(HLine(self), 7, 1, 1, 5)
-        layout.addWidget(self.button_box, 8, 1, 1, 5)
+        layout.addWidget(self.checkbox, 6, 2, 1, 3, Qt.AlignCenter)
+        layout.addItem(VSpacer(), 7, 1)
+        layout.addWidget(HLine(self), 8, 1, 1, 5)
+        layout.addWidget(self.button_box, 9, 1, 1, 5)
+
 
 class _MagicFolderInviteCodePage(QWidget):
     def __init__(self) -> None:
