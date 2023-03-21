@@ -497,7 +497,6 @@ class _MagicFolderJoinPathPage(QWidget):
 
     def _maybe_enable_ok_button(self) -> None:
         local_path = self.get_local_path()
-        print(local_path)
         if (
             self.folder_name_lineedit.text()
             and local_path
