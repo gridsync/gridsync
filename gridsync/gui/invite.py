@@ -165,8 +165,11 @@ class InviteCodeBox(QWidget):
         self.code_label.show()
         self.copy_button.show()
 
+    def get_code(self) -> str:
+        return self.code_label.text()
+
     def _on_copy_button_clicked(self) -> None:
-        code = self.code_label.text()
+        code = self.get_code()
         for mode in get_clipboard_modes():
             set_clipboard_text(code, mode)
 
