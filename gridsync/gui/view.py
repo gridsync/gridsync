@@ -241,9 +241,10 @@ class View(QTreeView):
         dialog: MagicFolderInviteDialog,
         folder_name: str,
         participant_name: str,
+        mode: str,
     ) -> None:
         inv = await self.gateway.magic_folder.invite(
-            folder_name, participant_name
+            folder_name, participant_name, mode
         )
         id_ = inv["id"]
         wormhole_code = inv["wormhole-code"]
@@ -276,9 +277,10 @@ class View(QTreeView):
         dialog: MagicFolderInviteDialog,
         folder_name: str,
         participant_name: str,
+        mode: str,
     ) -> None:
         try:
-            await self._do_invite(dialog, folder_name, participant_name)
+            await self._do_invite(dialog, folder_name, participant_name, mode)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
@@ -295,8 +297,10 @@ class View(QTreeView):
         # To prevent the dialog from getting garbage-collected
         self.open_dialogs.add(dialog)  # TODO: Remove on close?
         dialog.set_folder_name(folder_name)
-        dialog.participant_name_set.connect(
-            lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
+        dialog.form_filled.connect(
+            lambda participant_name, mode: ensureDeferred(
+                self._try_invite(dialog, folder_name, participant_name, mode)
+            )
         )
         dialog.show()
 

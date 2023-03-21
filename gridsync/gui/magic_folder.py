@@ -200,7 +200,7 @@ class _MagicFolderInviteSuccessPage(QWidget):
 
 
 class MagicFolderInviteDialog(QDialog):
-    participant_name_set = Signal(str)
+    form_filled = Signal(str, str)  # participant_name, mode
     cancel_requested = Signal()
 
     def __init__(self) -> None:
@@ -222,15 +222,19 @@ class MagicFolderInviteDialog(QDialog):
         self._stack.setCurrentWidget(self._participant_page)
 
         self._participant_page.button_box.ok_button.clicked.connect(
-            self._on_participant_name_set
+            self._on_ok_button_clicked
         )
         self._code_page.cancel_button.clicked.connect(
             self._on_cancel_requested
         )
 
-    def _on_participant_name_set(self) -> None:
+    def _on_ok_button_clicked(self) -> None:
         participant_name = self._participant_page.lineedit.text()
-        self.participant_name_set.emit(participant_name)
+        if self._participant_page.checkbox.isChecked():
+            mode = "read-only"
+        else:
+            mode = "read-write"
+        self.form_filled.emit(participant_name, mode)
 
     def _on_cancel_requested(self) -> None:
         self.cancel_requested.emit()
