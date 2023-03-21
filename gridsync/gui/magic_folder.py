@@ -8,6 +8,7 @@ from qtpy.QtCore import QFileInfo, Qt, Signal
 from qtpy.QtGui import (
     QCloseEvent,
     QIcon,
+    QKeyEvent,
     QPixmap,
     QStandardItem,
     QStandardItemModel,
@@ -362,6 +363,10 @@ class MagicFolderInviteDialog(QDialog):
         else:
             event.accept()
 
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key_Escape:
+            self.close()
+
 
 class _MagicFolderJoinCodePage(QWidget):
     def __init__(self) -> None:
@@ -493,6 +498,10 @@ class MagicFolderJoinDialog(QDialog):
 
     def show_success(self) -> None:
         self._stack.setCurrentWidget(self._success_page)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key_Escape:
+            self.close()
 
 
 if __name__ == "__main__":
