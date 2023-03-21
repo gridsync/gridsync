@@ -575,6 +575,11 @@ class MagicFolderJoinDialog(QDialog):
             f'You have successfully joined the "{folder_name}" folder!'
         )
         self.form_filled.emit(folder_name, invite_code, local_path)
+        # Prevent changes after wormhole has been opened
+        self._path_page.button_box.ok_button.setEnabled(False)
+        self._path_page.folder_name_lineedit.setEnabled(False)
+        self._path_page.local_path_lineedit.setEnabled(False)
+        self._path_page.browse_button.setEnabled(False)
 
     def show_path(self) -> None:
         self._stack.setCurrentWidget(self._path_page)
@@ -588,20 +593,3 @@ class MagicFolderJoinDialog(QDialog):
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key_Escape:
             self.close()
-
-
-if __name__ == "__main__":
-    from qtpy.QtWidgets import (  # pylint: disable=ungrouped-imports
-        QApplication,
-    )
-
-    app = QApplication([])
-    w = MagicFolderJoinDialog()
-    # w = MagicFolderInviteDialog()
-    w.show()
-    w.show_path()
-    # w.set_folder_name("Cat Pics")
-    # w.show_success()
-    # w.show_code("3-test-test")
-    # w.show_success()
-    app.exec_()
