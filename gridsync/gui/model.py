@@ -268,7 +268,7 @@ class Model(QStandardItemModel):
             errors = self._magic_folder_errors[name]
             if errors:
                 item.setIcon(self.icon_error)
-                item.setText("Error syncing folder")
+                item.setText("Error(s) occurred")
                 item.setToolTip(self._errors_to_str(errors))
         if status == MagicFolderStatus.SYNCING:
             self.gui.systray.add_operation((self.gateway, name))
