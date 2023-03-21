@@ -967,7 +967,7 @@ class MagicFolder:
         folder_name: str,
         invite_code: str,
         local_path: Union[str, Path],
-        author: str = "XXX",  # XXX
+        author: str = "user",  # XXX Is this even used for anything?
         poll_interval: int = 60,
         scan_interval: int = 60,
     ) -> dict:
