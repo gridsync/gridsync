@@ -24,7 +24,11 @@ from twisted.internet.defer import Deferred
 from gridsync import config_dir
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.gui.invite import InviteCodeBox, InviteCodeWidget
+from gridsync.gui.invite import (
+    InviteCodeBox,
+    InviteCodeWidget,
+    InviteHeaderWidget,
+)
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.qrcode import QRCode
 from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
@@ -114,10 +118,9 @@ class _MagicFolderInviteParticipantPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.folder_icon = QLabel(self)
-        self.folder_icon.setPixmap(
-            QFileIconProvider().icon(QFileInfo(config_dir)).pixmap(64, 64)
-        )
+        self.header = InviteHeaderWidget(self)
+        self.header.set_icon(QFileIconProvider().icon(QFileInfo(config_dir)))
+        self.header.set_text("Test")
 
         self.label = QLabel("Enter device name:", self)
         self.label.setFont(Font(14))
@@ -148,7 +151,7 @@ class _MagicFolderInviteParticipantPage(QWidget):
 
         layout = QGridLayout(self)
         layout.addItem(VSpacer(), 1, 1)
-        layout.addWidget(self.folder_icon, 2, 1)
+        layout.addWidget(self.header, 2, 1)
         layout.addLayout(label_layout, 3, 1)
         layout.addWidget(self.lineedit, 4, 1)
         layout.addItem(VSpacer(), 5, 1)
@@ -219,6 +222,9 @@ class MagicFolderInviteDialog(QDialog):
     def _on_cancel_requested(self) -> None:
         self.cancel_requested.emit()
         self.close()
+
+    def set_folder_name(self, folder_name: str) -> None:
+        self._participant_page.header.set_text(folder_name)
 
     def show_code(self, code: str) -> None:
         self._code_page.set_code(code)

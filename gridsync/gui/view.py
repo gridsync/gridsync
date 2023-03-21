@@ -294,6 +294,7 @@ class View(QTreeView):
         dialog = MagicFolderInviteDialog()
         # To prevent the dialog from getting garbage-collected
         self.open_dialogs.add(dialog)  # TODO: Remove on close?
+        dialog.set_folder_name(folder_name)
         dialog.participant_name_set.connect(
             lambda p: ensureDeferred(self._try_invite(dialog, folder_name, p))
         )
