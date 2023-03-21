@@ -214,6 +214,12 @@ class _MagicFolderInviteCodePage(QWidget):
         layout.addWidget(HLine(self), 8, 1, 1, 5)
         layout.addWidget(self.cancel_button, 9, 3, 1, 1)
 
+        self.code_box.copy_button.clicked.connect(
+            lambda: self.text_label.setText(
+                f"Copied '{self.code_box.get_code()}' to clipboard!\n\n\n"
+            )
+        )
+
     def set_code(self, code: str) -> None:
         self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(128, 128)))
         self.code_box.show_code(code)
