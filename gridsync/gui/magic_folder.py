@@ -216,6 +216,7 @@ class MagicFolderInviteDialog(QDialog):
     def __init__(self) -> None:
         super().__init__()
         self.setMinimumSize(500, 300)
+        self.setWindowTitle("Create Folder Invite")
 
         self._participant_page = _MagicFolderInviteParticipantPage()
         self._code_page = _MagicFolderInviteCodePage()
@@ -253,6 +254,7 @@ class MagicFolderInviteDialog(QDialog):
     def set_folder_name(self, folder_name: str) -> None:
         self._participant_page.header.set_text(folder_name)
         self._code_page.header.set_text(folder_name)
+        self.setWindowTitle(f"Create Folder Invite: {folder_name}")
 
     def show_code(self, code: str) -> None:
         self._code_page.set_code(code)
@@ -356,6 +358,7 @@ class MagicFolderJoinDialog(QDialog):
     def __init__(self) -> None:
         super().__init__()
         self.setMinimumSize(500, 300)
+        self.setWindowTitle("Join Folder")
 
         self._code_page = _MagicFolderJoinCodePage()
         self._path_page = _MagicFolderJoinPathPage()
