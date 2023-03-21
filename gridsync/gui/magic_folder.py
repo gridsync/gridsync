@@ -309,6 +309,9 @@ class MagicFolderInviteDialog(QDialog):
         self._participant_page.button_box.ok_button.clicked.connect(
             self._on_ok_button_clicked
         )
+        self._participant_page.lineedit.returnPressed.connect(
+            self._on_return_pressed
+        )
 
         self._code_page.cancel_button.clicked.connect(self.close)
 
@@ -328,6 +331,10 @@ class MagicFolderInviteDialog(QDialog):
             "This code can only be used once."
         )
         self.form_filled.emit(self._participant_name, mode)
+
+    def _on_return_pressed(self) -> None:
+        if self._participant_page.lineedit.text():
+            self._on_ok_button_clicked()  # XXX
 
     def _on_cancel_requested(self) -> None:
         self.cancel_requested.emit()
