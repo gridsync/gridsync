@@ -484,6 +484,9 @@ class _MagicFolderJoinPathPage(QWidget):
         self.folder_name_lineedit.textChanged.connect(
             self._maybe_enable_ok_button
         )
+        self.local_path_lineedit.textChanged.connect(
+            self._maybe_enable_ok_button
+        )
         self.browse_button.clicked.connect(self._prompt_for_directory)
 
     def get_folder_name(self) -> str:
@@ -493,9 +496,12 @@ class _MagicFolderJoinPathPage(QWidget):
         return self.local_path_lineedit.text()
 
     def _maybe_enable_ok_button(self) -> None:
+        local_path = self.get_local_path()
+        print(local_path)
         if (
             self.folder_name_lineedit.text()
-            and self.local_path_lineedit.text()
+            and local_path
+            and Path(local_path).exists()
         ):
             self.button_box.ok_button.setEnabled(True)
 
