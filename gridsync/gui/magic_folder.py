@@ -419,26 +419,78 @@ class _MagicFolderJoinPathPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.label = QLabel("Code")
+        self.mail_open_icon = QLabel(self)
+        self.mail_open_icon.setAlignment(Qt.AlignCenter)
+        self.mail_open_icon.setPixmap(Pixmap("mail-envelope-open.png", 128))
+
+        self.folder_name_label = QLabel("Folder name:", self)
+        self.folder_name_label.setFont(Font(14))
+        p = self.palette()
+        grey = BlendedColor(p.windowText().color(), p.window().color()).name()
+        self.folder_name_label.setStyleSheet(f"color: {grey}")
+
         self.folder_name_lineedit = QLineEdit("", self)
+        self.folder_name_lineedit.setFont(Font(14))
+
+        self.location_label = QLabel("Location:", self)
+        self.location_label.setFont(Font(14))
+        self.location_label.setStyleSheet(f"color: {grey}")
+
         self.local_path_lineedit = QLineEdit("", self)
+        self.local_path_lineedit.setFont(Font(14))
+
         self.browse_button = QPushButton("Browse...", self)
+
+        self.text_label = QLabel(
+            "Select a folder name and location.\n"
+            "The new folder will be created inside the location you choose.",
+            self,
+        )
+        self.text_label.setAlignment(Qt.AlignCenter)
+        self.text_label.setStyleSheet(f"color: {grey}")
+        self.text_label.setWordWrap(True)
+
+        folder_layout = QGridLayout()
+        folder_layout.setHorizontalSpacing(6)
+        folder_layout.addWidget(self.folder_name_label, 1, 2)
+        folder_layout.addWidget(
+            self.folder_name_lineedit, 1, 4, Qt.AlignLeft
+        )
+
+        folder_layout.addWidget(self.location_label, 2, 2)
+        folder_layout.addWidget(
+            self.local_path_lineedit, 2, 4, Qt.AlignLeft
+        )
+        folder_layout.addWidget(self.browse_button, 2, 5, Qt.AlignLeft)
 
         self.button_box = ButtonBox(self)
         self.button_box.ok_button.setEnabled(False)
 
         layout = QGridLayout(self)
-        layout.addWidget(self.label)
-        layout.addWidget(self.folder_name_lineedit)
-        layout.addWidget(self.local_path_lineedit)
-        layout.addWidget(self.browse_button)
-        layout.addWidget(HLine(self))
-        layout.addWidget(self.button_box)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addItem(HSpacer(), 1, 2)
+        layout.addItem(HSpacer(), 1, 3)
+        layout.addItem(HSpacer(), 1, 4)
+        layout.addItem(HSpacer(), 1, 5)
+        layout.addWidget(self.mail_open_icon, 2, 2, 1, 3)
+        layout.addItem(VSpacer(), 3, 1)
+        layout.addLayout(folder_layout, 4, 2, 1, 3)
+        layout.addItem(VSpacer(), 5, 1)
+        layout.addWidget(self.text_label, 6, 2, 1, 3)
+        layout.addItem(VSpacer(), 7, 1)
+        layout.addWidget(HLine(self), 8, 1, 1, 5)
+        layout.addWidget(self.button_box, 9, 1, 1, 5)
 
         self.folder_name_lineedit.textChanged.connect(
             self._maybe_enable_ok_button
         )
         self.browse_button.clicked.connect(self._prompt_for_directory)
+
+    def get_folder_name(self) -> str:
+        return self.folder_name_lineedit.text()
+
+    def get_local_path(self) -> str:
+        return self.local_path_lineedit.text()
 
     def _maybe_enable_ok_button(self) -> None:
         if (
@@ -543,6 +595,7 @@ if __name__ == "__main__":
     w = MagicFolderJoinDialog()
     # w = MagicFolderInviteDialog()
     w.show()
+    w.show_path()
     # w.set_folder_name("Cat Pics")
     # w.show_success()
     # w.show_code("3-test-test")
