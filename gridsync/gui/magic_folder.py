@@ -117,10 +117,13 @@ class ButtonBox(QDialogButtonBox):
         )
         self.ok_button = self.button(QDialogButtonBox.Ok)
         self.ok_button.setIcon(QIcon())
+        self.ok_button.setFocusPolicy(Qt.NoFocus)
         self.cancel_button = self.button(QDialogButtonBox.Cancel)
         self.cancel_button.setIcon(QIcon())
+        self.cancel_button.setFocusPolicy(Qt.NoFocus)
         self.back_button = self.button(QDialogButtonBox.Reset)
         self.back_button.setIcon(QIcon())
+        self.back_button.setFocusPolicy(Qt.NoFocus)
         self.back_button.setText("&Back")
 
 
