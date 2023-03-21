@@ -186,9 +186,6 @@ class _MagicFolderInviteCodePage(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.header = InviteHeaderWidget(self)
-        self.header.set_icon(QFileIconProvider().icon(QFileInfo(config_dir)))
-
         self.qrcode_label = QLabel("")
         self.qrcode_label.setAlignment(Qt.AlignCenter)
 
@@ -209,16 +206,16 @@ class _MagicFolderInviteCodePage(QWidget):
         layout.addItem(HSpacer(), 1, 3)
         layout.addItem(HSpacer(), 1, 4)
         layout.addItem(HSpacer(), 1, 5)
-        layout.addWidget(self.header, 2, 2, 1, 3)
         layout.addItem(VSpacer(), 3, 1)
         layout.addWidget(self.qrcode_label, 4, 2, 1, 3)
         layout.addWidget(self.code_box, 5, 2, 1, 3)
         layout.addWidget(self.text_label, 6, 2, 1, 3)
+        layout.addItem(VSpacer(), 7, 1)
         layout.addWidget(HLine(self), 8, 1, 1, 5)
         layout.addWidget(self.cancel_button, 9, 3, 1, 1)
 
     def set_code(self, code: str) -> None:
-        self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(192, 192)))
+        self.qrcode_label.setPixmap(QPixmap(QRCode(code).scaled(128, 128)))
         self.code_box.show_code(code)
 
 
@@ -323,7 +320,6 @@ class MagicFolderInviteDialog(QDialog):
 
     def set_folder_name(self, folder_name: str) -> None:
         self._participant_page.header.set_text(folder_name)
-        self._code_page.header.set_text(folder_name)
         self.setWindowTitle(f"Create Folder Invite: {folder_name}")
         self._folder_name = folder_name
 
