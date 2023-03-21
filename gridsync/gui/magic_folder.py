@@ -453,14 +453,10 @@ class _MagicFolderJoinPathPage(QWidget):
         folder_layout = QGridLayout()
         folder_layout.setHorizontalSpacing(6)
         folder_layout.addWidget(self.folder_name_label, 1, 2)
-        folder_layout.addWidget(
-            self.folder_name_lineedit, 1, 4, Qt.AlignLeft
-        )
+        folder_layout.addWidget(self.folder_name_lineedit, 1, 4, Qt.AlignLeft)
 
         folder_layout.addWidget(self.location_label, 2, 2)
-        folder_layout.addWidget(
-            self.local_path_lineedit, 2, 4, Qt.AlignLeft
-        )
+        folder_layout.addWidget(self.local_path_lineedit, 2, 4, Qt.AlignLeft)
         folder_layout.addWidget(self.browse_button, 2, 5, Qt.AlignLeft)
 
         self.button_box = ButtonBox(self)
