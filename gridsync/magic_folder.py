@@ -318,7 +318,7 @@ class MagicFolderMonitor(QObject):
     ) -> None:
         for folder, data in current_folders.items():
             if folder not in previous_folders:
-                self.folder_added.emit(folder)
+                # self.folder_added.emit(folder)
                 magic_path = data.get("magic_path", "")
                 try:
                     self._watchdog.add_watch(magic_path)
@@ -328,7 +328,7 @@ class MagicFolderMonitor(QObject):
                     )
         for folder, data in previous_folders.items():
             if folder not in current_folders:
-                self.folder_removed.emit(folder)
+                # self.folder_removed.emit(folder)
                 magic_path = data.get("magic_path", "")
                 try:
                     self._watchdog.remove_watch(magic_path)
@@ -432,8 +432,19 @@ class MagicFolderMonitor(QObject):
             if not (data.get("poller", {}).get("last-poll") or 0):
                 self._schedule_magic_folder_poll(folder_name)
 
+    def handle_event(self, event: dict) -> None:
+        print("############", event)  # XXX
+        # From https://github.com/meejah/magic-folder/blob/8e2ef86bb482970b44ca723aa1e631e6d38b0215/docs/interface.rst#status-api
+        kind = event.get("kind")
+        if kind == "folder-add":
+            self.folder_added.emit(event.get("folder"))
+        elif kind == "folder-delete":
+            self.folder_removed.emit(event.get("folder"))
+
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
+        for event in data.get("events", []):
+            self.handle_event(event)
         self.status_message_received.emit(data)
         state = data.get("state", {})
         self.compare_states(state, self._prev_state)
