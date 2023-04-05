@@ -440,6 +440,22 @@ class MagicFolderMonitor(QObject):
             self.folder_added.emit(event.get("folder"))
         elif kind == "folder-delete":
             self.folder_removed.emit(event.get("folder"))
+        elif kind == "upload-started":
+            self.upload_started.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
+        elif kind == "upload-finished":
+            self.upload_finished.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
+        elif kind == "download-started":
+            self.download_started.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
+        elif kind == "download-finished":
+            self.download_finished.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
