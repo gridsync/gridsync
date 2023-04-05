@@ -435,7 +435,7 @@ class MagicFolderMonitor(QObject):
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
         self.status_message_received.emit(data)
-        state = data.get("state")
+        state = data.get("state", {})
         self.compare_states(state, self._prev_state)
         self._check_last_polls(state)
         self._prev_state = state
