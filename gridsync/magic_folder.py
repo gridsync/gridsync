@@ -70,8 +70,7 @@ class MagicFolderEventHandler(QObject):
     download_started = Signal(str, str, dict)  # folder_name, relpath, data
     download_finished = Signal(str, str, dict)  # folder_name, relpath, data
 
-    # XXX: This does not provide the folder name?
-    error_occurred = Signal(str, int)  # summary, timestamp
+    error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
     scan_finished = Signal(str, float)  # folder_name, last_scan
     poll_finished = Signal(str, float)  # folder_name, last_poll
@@ -115,9 +114,10 @@ class MagicFolderEventHandler(QObject):
             )
 
         elif kind == "error":
-            # XXX: This does not provide the folder name?
             self.error_occurred.emit(
-                event.get("summary"), event.get("timestamp")
+                event.get("folder"),
+                event.get("summary"),
+                event.get("timestamp"),
             )
 
         elif kind == "scanner":
