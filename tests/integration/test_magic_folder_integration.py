@@ -628,7 +628,7 @@ async def test_monitor_emits_folder_added_signal(
     path = tmp_path / folder_name
     author = randstr()
     await magic_folder.monitor.do_check()
-    with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
+    with qtbot.wait_signal(magic_folder.events.folder_added) as blocker:
         await magic_folder.add_folder(path, author)
         await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
@@ -641,7 +641,7 @@ async def test_monitor_emits_folder_added_signal_via_status_message(
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
+    with qtbot.wait_signal(magic_folder.events.folder_added) as blocker:
         await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
