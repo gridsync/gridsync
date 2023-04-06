@@ -618,6 +618,7 @@ class MagicFolder:
         self.api_port: int = 0
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
+        self.events = self.monitor.event_handler  # XXX
         self.magic_folders: dict[str, dict] = {}
         self.remote_magic_folders: dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
