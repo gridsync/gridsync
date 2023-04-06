@@ -202,7 +202,6 @@ class MagicFolderMonitor(QObject):
 
     error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
-    folder_removed = Signal(str)  # folder_name
     folder_mtime_updated = Signal(str, int)  # folder_name, mtime
     folder_size_updated = Signal(str, object)  # folder_name, size
     folder_status_changed = Signal(str, object)  # folder_name, status
@@ -249,8 +248,6 @@ class MagicFolderMonitor(QObject):
         self.event_handler = MagicFolderEventHandler(self)
 
         # TODO(?): Remove forwarding; connect directly to slots
-        self.event_handler.folder_removed.connect(self.folder_removed)
-
         self.event_handler.upload_started.connect(self.upload_started)
         self.event_handler.upload_finished.connect(self.upload_finished)
 

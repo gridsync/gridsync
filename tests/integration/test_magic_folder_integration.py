@@ -713,7 +713,7 @@ async def test_monitor_emits_folder_removed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     await magic_folder.monitor.do_check()
-    with qtbot.wait_signal(magic_folder.monitor.folder_removed) as blocker:
+    with qtbot.wait_signal(magic_folder.events.folder_removed) as blocker:
         await magic_folder.leave_folder(folder_name)
         await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
