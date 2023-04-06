@@ -62,11 +62,20 @@ class MagicFolderEventHandler(QObject):
     folder_added = Signal(str)  # folder_name
     folder_removed = Signal(str)  # folder_name
 
+    upload_queued = Signal(str, str)  # folder_name, relpath
     upload_started = Signal(str, str, dict)  # folder_name, relpath, data
     upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
 
+    download_queued = Signal(str, str)  # folder_name, relpath
     download_started = Signal(str, str, dict)  # folder_name, relpath, data
     download_finished = Signal(str, str, dict)  # folder_name, relpath, data
+
+    # XXX: This does not provide the folder name?
+    error_occurred = Signal(str, int)  # summary, timestamp
+
+    scan_finished = Signal(str, float)  # folder_name, last_scan
+    poll_finished = Signal(str, float)  # folder_name, last_poll
+    connection_changed = Signal(int, int, bool)  # connected, desired, happy
 
     def __init__(self, magic_folder_monitor: MagicFolderMonitor) -> None:
         super().__init__()
@@ -80,6 +89,9 @@ class MagicFolderEventHandler(QObject):
             self.folder_added.emit(event.get("folder"))
         elif kind == "folder-delete":
             self.folder_removed.emit(event.get("folder"))
+
+        elif kind == "upload-queued":
+            self.upload_queued.emit(event.get("folder"), event.get("relpath"))
         elif kind == "upload-started":
             self.upload_started.emit(
                 event.get("folder"), event.get("relpath"), {}
@@ -87,6 +99,11 @@ class MagicFolderEventHandler(QObject):
         elif kind == "upload-finished":
             self.upload_finished.emit(
                 event.get("folder"), event.get("relpath"), {}
+            )
+
+        elif kind == "download-queued":
+            self.download_queued.emit(
+                event.get("folder"), event.get("relpath")
             )
         elif kind == "download-started":
             self.download_started.emit(
@@ -96,6 +113,24 @@ class MagicFolderEventHandler(QObject):
             self.download_finished.emit(
                 event.get("folder"), event.get("relpath"), {}
             )
+
+        elif kind == "error":
+            # XXX: This does not provide the folder name?
+            self.error_occurred.emit(
+                event.get("summary"), event.get("timestamp"), {}
+            )
+
+        elif kind == "scanner":
+            self.scan_finished.emit(event.get("folder"), event.get("last-scan"))
+        elif kind == "poller":
+            self.poll_finished.emit(event.get("folder"), event.get("last-poll"))
+        elif kind == "tahoe":
+            self.connection_changed.emit(
+                event.get("connected"),
+                event.get("desired"),
+                event.get("happy"),
+            )
+
 
 
 class MagicFolderMonitor(QObject):
