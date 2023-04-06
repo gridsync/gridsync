@@ -136,6 +136,59 @@ class MagicFolderEventHandler(QObject):
             )
 
 
+class MagicFolderScanBufferer:
+    def __init__(self, magic_folder: MagicFolder) -> None:
+        self.magic_folder = magic_folder
+        self._scheduled_scans: defaultdict[str, set] = defaultdict(set)
+
+    # XXX The `_maybe_do_...` functions could probably be refactored to
+    # duplicate less
+    def _maybe_do_scan(self, event_id: str, path: str) -> None:
+        try:
+            self._scheduled_scans[path].remove(event_id)
+        except KeyError:
+            pass
+        if self._scheduled_scans[path]:
+            return
+        for folder_name, data in self.magic_folder.magic_folders.items():
+            magic_path = data.get("magic_path", "")
+            if not magic_path:
+                continue
+            if path == magic_path or path.startswith(magic_path + os.sep):
+                # XXX Something should handle errors
+                Deferred.fromCoroutine(self.magic_folder.scan(folder_name))
+
+    def scan(self, path: str) -> None:
+        event_id = randstr(8)
+        self._scheduled_scans[path].add(event_id)
+        reactor.callLater(  # type: ignore
+            0.25, lambda: self._maybe_do_scan(event_id, path)
+        )
+
+
+class MagicFolderPollBufferer:
+    def __init__(self, magic_folder: MagicFolder) -> None:
+        self.magic_folder = magic_folder
+        self._scheduled_polls: defaultdict[str, set] = defaultdict(set)
+
+    def _maybe_do_poll(self, event_id: str, folder_name: str) -> None:
+        try:
+            self._scheduled_polls[folder_name].remove(event_id)
+        except KeyError:
+            pass
+        if self._scheduled_polls[folder_name]:
+            return
+        # XXX Something should handle errors
+        Deferred.fromCoroutine(self.magic_folder.poll(folder_name))
+
+    def poll(self, folder_name: str) -> None:
+        event_id = randstr(8)
+        self._scheduled_polls[folder_name].add(event_id)
+        reactor.callLater(  # type: ignore
+            1, lambda: self._maybe_do_poll(event_id, folder_name)
+        )
+
+
 class MagicFolderMonitor(QObject):
     status_message_received = Signal(dict)
 
@@ -186,10 +239,11 @@ class MagicFolderMonitor(QObject):
         self._operations_queued: defaultdict[str, set] = defaultdict(set)
         self._operations_completed: defaultdict[str, dict] = defaultdict(dict)
 
+        self.scan_bufferer = MagicFolderScanBufferer(self.magic_folder)
+        self.poll_bufferer = MagicFolderPollBufferer(self.magic_folder)
+
         self._watchdog = Watchdog()
-        self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
-        self._scheduled_scans: defaultdict[str, set] = defaultdict(set)
-        self._scheduled_polls: defaultdict[str, set] = defaultdict(set)
+        self._watchdog.path_modified.connect(self.scan_bufferer.scan)
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
@@ -204,47 +258,6 @@ class MagicFolderMonitor(QObject):
 
         self.event_handler.download_started.connect(self.download_started)
         self.event_handler.download_finished.connect(self.download_finished)
-
-    # XXX The `_maybe_do_...` functions could probably be refactored to
-    # duplicate less
-    def _maybe_do_scan(self, event_id: str, path: str) -> None:
-        try:
-            self._scheduled_scans[path].remove(event_id)
-        except KeyError:
-            pass
-        if self._scheduled_scans[path]:
-            return
-        for folder_name, data in self.magic_folder.magic_folders.items():
-            magic_path = data.get("magic_path", "")
-            if not magic_path:
-                continue
-            if path == magic_path or path.startswith(magic_path + os.sep):
-                # XXX Something should handle errors
-                Deferred.fromCoroutine(self.magic_folder.scan(folder_name))
-
-    def _schedule_magic_folder_scan(self, path: str) -> None:
-        event_id = randstr(8)
-        self._scheduled_scans[path].add(event_id)
-        reactor.callLater(  # type: ignore
-            0.25, lambda: self._maybe_do_scan(event_id, path)
-        )
-
-    def _maybe_do_poll(self, event_id: str, folder_name: str) -> None:
-        try:
-            self._scheduled_polls[folder_name].remove(event_id)
-        except KeyError:
-            pass
-        if self._scheduled_polls[folder_name]:
-            return
-        # XXX Something should handle errors
-        Deferred.fromCoroutine(self.magic_folder.poll(folder_name))
-
-    def _schedule_magic_folder_poll(self, folder_name: str) -> None:
-        event_id = randstr(8)
-        self._scheduled_polls[folder_name].add(event_id)
-        reactor.callLater(  # type: ignore
-            1, lambda: self._maybe_do_poll(event_id, folder_name)
-        )
 
     @staticmethod
     def should_ignore(s: str) -> bool:
@@ -520,7 +533,7 @@ class MagicFolderMonitor(QObject):
     def _check_last_polls(self, state: dict) -> None:
         for folder_name, data in state.get("folders", {}).items():
             if not (data.get("poller", {}).get("last-poll") or 0):
-                self._schedule_magic_folder_poll(folder_name)
+                self.poll_bufferer.poll(folder_name)
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
