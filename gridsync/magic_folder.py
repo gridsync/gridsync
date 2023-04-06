@@ -58,6 +58,46 @@ class MagicFolderStatus(Enum):
     WAITING = auto()
 
 
+class MagicFolderEventHandler(QObject):
+    folder_added = Signal(str)  # folder_name
+    folder_removed = Signal(str)  # folder_name
+
+    upload_started = Signal(str, str, dict)  # folder_name, relpath, data
+    upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
+
+    download_started = Signal(str, str, dict)  # folder_name, relpath, data
+    download_finished = Signal(str, str, dict)  # folder_name, relpath, data
+
+    def __init__(self, magic_folder_monitor: MagicFolderMonitor) -> None:
+        super().__init__()
+        self.magic_folder_monitor = magic_folder_monitor
+
+    def handle(self, event: dict) -> None:
+        print("############", event)  # XXX
+        # From https://github.com/meejah/magic-folder/blob/8e2ef86bb482970b44ca723aa1e631e6d38b0215/docs/interface.rst#status-api
+        kind = event.get("kind")
+        if kind == "folder-add":
+            self.folder_added.emit(event.get("folder"))
+        elif kind == "folder-delete":
+            self.folder_removed.emit(event.get("folder"))
+        elif kind == "upload-started":
+            self.upload_started.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
+        elif kind == "upload-finished":
+            self.upload_finished.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
+        elif kind == "download-started":
+            self.download_started.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
+        elif kind == "download-finished":
+            self.download_finished.emit(
+                event.get("folder"), event.get("relpath"), {}
+            )
+
+
 class MagicFolderMonitor(QObject):
     status_message_received = Signal(dict)
 
@@ -114,6 +154,18 @@ class MagicFolderMonitor(QObject):
         self._scheduled_polls: defaultdict[str, set] = defaultdict(set)
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
+
+        self.event_handler = MagicFolderEventHandler(self)
+
+        # TODO(?): Remove forwarding; connect directly to slots
+        self.event_handler.folder_added.connect(self.folder_added)
+        self.event_handler.folder_removed.connect(self.folder_removed)
+
+        self.event_handler.upload_started.connect(self.upload_started)
+        self.event_handler.upload_finished.connect(self.upload_finished)
+
+        self.event_handler.download_started.connect(self.download_started)
+        self.event_handler.download_finished.connect(self.download_finished)
 
     # XXX The `_maybe_do_...` functions could probably be refactored to
     # duplicate less
@@ -432,35 +484,10 @@ class MagicFolderMonitor(QObject):
             if not (data.get("poller", {}).get("last-poll") or 0):
                 self._schedule_magic_folder_poll(folder_name)
 
-    def handle_event(self, event: dict) -> None:
-        print("############", event)  # XXX
-        # From https://github.com/meejah/magic-folder/blob/8e2ef86bb482970b44ca723aa1e631e6d38b0215/docs/interface.rst#status-api
-        kind = event.get("kind")
-        if kind == "folder-add":
-            self.folder_added.emit(event.get("folder"))
-        elif kind == "folder-delete":
-            self.folder_removed.emit(event.get("folder"))
-        elif kind == "upload-started":
-            self.upload_started.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-        elif kind == "upload-finished":
-            self.upload_finished.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-        elif kind == "download-started":
-            self.download_started.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-        elif kind == "download-finished":
-            self.download_finished.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
         for event in data.get("events", []):
-            self.handle_event(event)
+            self.event_handler.handle(event)
         self.status_message_received.emit(data)
         state = data.get("state", {})
         self.compare_states(state, self._prev_state)
