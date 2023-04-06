@@ -121,16 +121,19 @@ class MagicFolderEventHandler(QObject):
             )
 
         elif kind == "scanner":
-            self.scan_finished.emit(event.get("folder"), event.get("last-scan"))
+            self.scan_finished.emit(
+                event.get("folder"), event.get("last-scan")
+            )
         elif kind == "poller":
-            self.poll_finished.emit(event.get("folder"), event.get("last-poll"))
+            self.poll_finished.emit(
+                event.get("folder"), event.get("last-poll")
+            )
         elif kind == "tahoe":
             self.connection_changed.emit(
                 event.get("connected"),
                 event.get("desired"),
                 event.get("happy"),
             )
-
 
 
 class MagicFolderMonitor(QObject):
