@@ -59,6 +59,7 @@ class MagicFolderStatus(Enum):
 
 
 class MagicFolderEventHandler(QObject):
+    # From https://github.com/meejah/magic-folder/blob/8e2ef86bb482970b44ca723aa1e631e6d38b0215/docs/interface.rst#status-api
     folder_added = Signal(str)  # folder_name
     folder_removed = Signal(str)  # folder_name
 
@@ -81,8 +82,9 @@ class MagicFolderEventHandler(QObject):
         self.magic_folder_monitor = magic_folder_monitor
 
     def handle(self, event: dict) -> None:
-        print("############", event)  # XXX
-        # From https://github.com/meejah/magic-folder/blob/8e2ef86bb482970b44ca723aa1e631e6d38b0215/docs/interface.rst#status-api
+        from pprint import pprint
+
+        pprint(event)  # XXX
         kind = event.get("kind")
         if kind == "folder-add":
             self.folder_added.emit(event.get("folder"))
