@@ -117,7 +117,7 @@ class MagicFolderEventHandler(QObject):
         elif kind == "error":
             # XXX: This does not provide the folder name?
             self.error_occurred.emit(
-                event.get("summary"), event.get("timestamp"), {}
+                event.get("summary"), event.get("timestamp")
             )
 
         elif kind == "scanner":
