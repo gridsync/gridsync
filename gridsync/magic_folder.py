@@ -117,7 +117,7 @@ class MagicFolderEventHandler(QObject):
 
         elif kind == "error":
             self.error_occurred.emit(
-                event.get("folder"),
+                event.get("folder", ""),
                 event.get("summary"),
                 event.get("timestamp"),
             )
