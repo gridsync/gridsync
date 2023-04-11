@@ -557,7 +557,7 @@ async def test_monitor_emits_upload_started_signal(
     author = randstr()
     await magic_folder.add_folder(path, author, poll_interval=1)
 
-    with qtbot.wait_signal(magic_folder.monitor.upload_started) as blocker:
+    with qtbot.wait_signal(magic_folder.events.upload_started) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -575,7 +575,7 @@ async def test_monitor_emits_upload_finished_signal(
     author = randstr()
     await magic_folder.add_folder(path, author, poll_interval=1)
 
-    with qtbot.wait_signal(magic_folder.monitor.upload_finished) as blocker:
+    with qtbot.wait_signal(magic_folder.events.upload_finished) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)

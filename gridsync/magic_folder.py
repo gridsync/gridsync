@@ -196,8 +196,6 @@ class MagicFolderMonitor(QObject):
 
     sync_progress_updated = Signal(str, object, object)  # folder, cur, total
 
-    upload_started = Signal(str, str, dict)  # folder_name, relpath, data
-    upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
     download_started = Signal(str, str, dict)  # folder_name, relpath, data
     download_finished = Signal(str, str, dict)  # folder_name, relpath, data
     files_updated = Signal(str, list)  # folder_name, relpaths
@@ -250,9 +248,6 @@ class MagicFolderMonitor(QObject):
         self.event_handler = MagicFolderEventHandler(self)
 
         # TODO(?): Remove forwarding; connect directly to slots
-        self.event_handler.upload_started.connect(self.upload_started)
-        self.event_handler.upload_finished.connect(self.upload_finished)
-
         self.event_handler.download_started.connect(self.download_started)
         self.event_handler.download_finished.connect(self.download_finished)
 
