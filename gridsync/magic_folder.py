@@ -196,6 +196,8 @@ class MagicFolderMonitor(QObject):
 
     sync_progress_updated = Signal(str, object, object)  # folder, cur, total
 
+    upload_started = Signal(str, str, dict)  # folder_name, relpath, data
+    upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
     download_started = Signal(str, str, dict)  # folder_name, relpath, data
     download_finished = Signal(str, str, dict)  # folder_name, relpath, data
     files_updated = Signal(str, list)  # folder_name, relpaths
