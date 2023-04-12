@@ -4,19 +4,19 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/pyqt6.txt requirements/pyqt6.in
 #
-pyqt6==6.5.0 \
-    --hash=sha256:2b0d9628134811fbfc988d1757111ca8e25cb697f136fa54c969fb1a4d4a61d1 \
-    --hash=sha256:99ea0e68f548509b7ef97cded0feeaf3dca7d1fe719388569407326be3be38c2 \
-    --hash=sha256:b97cb4be9b2c8997904ea668cf3b0a4ae5822196f7792590d05ecde6216a9fbc \
-    --hash=sha256:e3c8289d9a509be897265981b77eb29e64ce29e9d221fdf52545c2c95e819c9b
+pyqt6==6.4.2 \
+    --hash=sha256:18d1daf98d9236d55102cdadafd1056f5802f3c9288fcf7238569937b71a89f0 \
+    --hash=sha256:25bd399b4a95dce65d5f937c1aa85d3c7e14a21745ae2a4ca14c0116cd104290 \
+    --hash=sha256:740244f608fe15ee1d89695c43f31a14caeca41c4f02ac36c86dfba4a5d5813d \
+    --hash=sha256:c128bc0f17833e324593e3db83e99470d451a197dd17ff0333927b946c935bd9
     # via
     #   -r requirements/pyqt6.in
     #   pyqt6-charts
-pyqt6-charts==6.5.0 \
-    --hash=sha256:6ff00f65b2517f99bf106ddd28c76f3ca344f91ecf5ba68191e20a2d90024962 \
-    --hash=sha256:ad197ea5e1b62d6a128f5c23a7eefeb2f17962549c56907338f5b6036e666f97 \
-    --hash=sha256:c2394df4fd5bdc6e4344be9a3caa04f19e7d8fa6f938dc2557609884d0279d83 \
-    --hash=sha256:f63914b9fd3803d9886fe34297ab81e56c946e09759b0ed57e78fd6451e7a794
+pyqt6-charts==6.4.0 \
+    --hash=sha256:1363d0cd40fc77178f03e7717576e654689cf84a132fa5a2aa8f831264d32f3e \
+    --hash=sha256:5a1ac850e3c80d5b28639604429a7e9e848b6da34cfc354e5d1a2e204179d72c \
+    --hash=sha256:b46eb12840516a039c36f70bb3f8423337f98fde266b582cead4049b77b43f64 \
+    --hash=sha256:cbafcae9d536597d0f98800330c9ba1e28bcd33831bbd0732b49aa82031ff766
     # via -r requirements/pyqt6.in
 pyqt6-charts-qt6==6.5.0 \
     --hash=sha256:21d6997fc52fe1b1b05ffb204b18629e02ebd1c3eee02137992a898d0f9eddad \
