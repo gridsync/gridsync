@@ -86,9 +86,9 @@ class MagicFolderEventHandler(QObject):
 
         pprint(event)  # XXX
         kind = event.get("kind")
-        if kind == "folder-add":
+        if kind == "folder-added":
             self.folder_added.emit(event.get("folder"))
-        elif kind == "folder-delete":
+        elif kind == "folder-left":
             self.folder_removed.emit(event.get("folder"))
 
         elif kind == "upload-queued":
@@ -115,22 +115,22 @@ class MagicFolderEventHandler(QObject):
                 event.get("folder"), event.get("relpath"), {}
             )
 
-        elif kind == "error":
+        elif kind == "error-occurred":
             self.error_occurred.emit(
                 event.get("folder", ""),
                 event.get("summary"),
                 event.get("timestamp"),
             )
 
-        elif kind == "scanner":
+        elif kind == "scan-completed":
             self.scan_finished.emit(
-                event.get("folder"), event.get("last-scan")
+                event.get("folder"), event.get("timestamp")
             )
-        elif kind == "poller":
+        elif kind == "poll-completed":
             self.poll_finished.emit(
-                event.get("folder"), event.get("last-poll")
+                event.get("folder"), event.get("timestamp")
             )
-        elif kind == "tahoe":
+        elif kind == "tahoe-connection-changed":
             self.connection_changed.emit(
                 event.get("connected"),
                 event.get("desired"),
