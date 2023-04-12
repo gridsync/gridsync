@@ -301,9 +301,9 @@ eliot==1.14.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-filelock==3.10.7 \
-    --hash=sha256:892be14aa8efc01673b5ed6589dbccb95f9a8596f0507e232626155495c18105 \
-    --hash=sha256:bde48477b15fde2c7e5a0713cbe72721cb5a5ad32ee0b8f419907960b9d75536
+filelock==3.11.0 \
+    --hash=sha256:3618c0da67adcc0506b015fd11ef7faf1b493f0b40d87728e19986b536890c37 \
+    --hash=sha256:f08a52314748335c6460fc8fe40cd5638b85001225db78c2aa01c8c0db83b318
     # via
     #   magic-folder
     #   tahoe-lafs
