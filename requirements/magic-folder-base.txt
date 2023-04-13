@@ -624,9 +624,9 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
-tahoe-lafs==1.18.0 \
-    --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \
-    --hash=sha256:717a470df34edd31ad6b94467dabaa1caedd7f2f5233b04b89d8cfe936e317fe
+# tahoe-lafs==1.18.0 \
+#     --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \
+#     --hash=sha256:717a470df34edd31ad6b94467dabaa1caedd7f2f5233b04b89d8cfe936e317fe
     # via magic-folder
 tqdm==4.65.0 \
     --hash=sha256:1871fb68a86b8fb3b59ca4cdd3dcccbc7e6d613eeed31f4c332531977b89beb5 \
