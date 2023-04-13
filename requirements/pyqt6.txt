@@ -23,13 +23,17 @@ pyqt6-charts-qt6==6.4.3 \
     --hash=sha256:8a9643396617dd1921d1be85325087a59a4cac9b5b33a9b6168bf487a4e66c05 \
     --hash=sha256:94d58aceae25e371bc84aec4f752d37cf8d71d2fde5cdcf3d3a8ad26f89e603b \
     --hash=sha256:fe022a791ae3838bb3b6cc16997bb19fb8099a0018fa35cd42bb2cd9894febf1
-    # via pyqt6-charts
+    # via
+    #   -r requirements/pyqt6.in
+    #   pyqt6-charts
 pyqt6-qt6==6.4.3 \
     --hash=sha256:27cc19976c872ae7111fcab8a9e9eae8c5ec5e55bfb6938a379551148b85f5b0 \
     --hash=sha256:96f30cca49af18f6863c66576b90f2f29987dc35397994d0575b197226c5b328 \
     --hash=sha256:b0151097aa93235676c0f83ce23916ee31ca8584bd1b45923725068404542cc2 \
     --hash=sha256:b133bbc53e1cc05aafd78bfd3a577826481a976021d041c1c57d7dadc7de1c11
-    # via pyqt6
+    # via
+    #   -r requirements/pyqt6.in
+    #   pyqt6
 pyqt6-sip==13.4.1 \
     --hash=sha256:0df998f2b6ceeacfd10de773441572e215be0c9cae566cc7dd36e231bf714a12 \
     --hash=sha256:224575e84805c4317bacd5d1b8e93e0ad5c48685dadbbe1e902d4ebe16f22828 \
@@ -48,5 +52,6 @@ pyqt6-sip==13.4.1 \
     --hash=sha256:fbee0d554e0e98f56dbf6d94b00a28cc32425938ad7ae98fd91f8822c5b24d45 \
     --hash=sha256:fcc6d78314783f4a193f02353f431b7ea4d357f47c3c7a7d0740e723f69c64dc
     # via
+    #   -r requirements/pyqt6.in
     #   pyqt6
     #   pyqt6-charts
