@@ -85,57 +85,41 @@ class MagicFolderEventHandler(QObject):
         from pprint import pprint
 
         pprint(event)  # XXX
-        kind = event.get("kind")
-        if kind == "folder-added":
-            self.folder_added.emit(event.get("folder"))
-        elif kind == "folder-left":
-            self.folder_removed.emit(event.get("folder"))
-
-        elif kind == "upload-queued":
-            self.upload_queued.emit(event.get("folder"), event.get("relpath"))
-        elif kind == "upload-started":
-            self.upload_started.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-        elif kind == "upload-finished":
-            self.upload_finished.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-
-        elif kind == "download-queued":
-            self.download_queued.emit(
-                event.get("folder"), event.get("relpath")
-            )
-        elif kind == "download-started":
-            self.download_started.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-        elif kind == "download-finished":
-            self.download_finished.emit(
-                event.get("folder"), event.get("relpath"), {}
-            )
-
-        elif kind == "error-occurred":
-            self.error_occurred.emit(
-                event.get("folder", ""),
-                event.get("summary"),
-                event.get("timestamp"),
-            )
-
-        elif kind == "scan-completed":
-            self.scan_finished.emit(
-                event.get("folder"), event.get("timestamp")
-            )
-        elif kind == "poll-completed":
-            self.poll_finished.emit(
-                event.get("folder"), event.get("timestamp")
-            )
-        elif kind == "tahoe-connection-changed":
-            self.connection_changed.emit(
-                event.get("connected"),
-                event.get("desired"),
-                event.get("happy"),
-            )
+        folder = event.get("folder", "")
+        match event:
+            case {"kind": "folder-added"}:
+                self.folder_added.emit(folder)
+            case {"kind": "folder-left"}:
+                self.folder_removed.emit(folder)
+            case {"kind": "upload-queued", "relpath": relpath}:
+                self.upload_queued.emit(folder, relpath)
+            case {"kind": "upload-started", "relpath": relpath}:
+                self.upload_started.emit(folder, relpath, {})
+            case {"kind": "upload-finished", "relpath": relpath}:
+                self.upload_finished.emit(folder, relpath, {})
+            case {"kind": "download-queued", "relpath": relpath}:
+                self.download_queued.emit(folder, relpath)
+            case {"kind": "download-started", "relpath": relpath}:
+                self.download_started.emit(folder, relpath, {})
+            case {"kind": "download-finished", "relpath": relpath}:
+                self.download_finished.emit(folder, relpath, {})
+            case {"kind": "scan-completed", "timestamp": timestamp}:
+                self.scan_finished.emit(folder, timestamp)
+            case {"kind": "poll-completed", "timestamp": timestamp}:
+                self.poll_finished.emit(folder, timestamp)
+            case {
+                "kind": "error-occurred",
+                "summary": summary,
+                "timestamp": timestamp,
+            }:
+                self.error_occurred.emit(folder, summary, timestamp)
+            case {
+                "kind": "tahoe-connection-changed",
+                "connected": connected,
+                "desired": desired,
+                "happy": happy,
+            }:
+                self.connection_changed.emit(connected, desired, happy)
 
 
 class MagicFolderScanBufferer:
