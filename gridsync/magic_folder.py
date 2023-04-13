@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 import logging
 import os
+import sqlite3
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 import treq
 from qtpy.QtCore import QObject, Signal
@@ -155,17 +156,33 @@ class MagicFolderMonitor(QObject):
             1, lambda: self._maybe_do_poll(event_id, folder_name)
         )
 
+    @staticmethod
+    def should_ignore(s: str) -> bool:
+        """Determine whether the given error message should be ignored"""
+        # Should match "Invite of 'test' failed: "
+        # See: https://github.com/LeastAuthority/magic-folder/issues/706
+        return s.startswith("Invite of '") and s.endswith("' failed: ")
+
+    def has_error(self, errors: list[dict]) -> bool:
+        """Determine whether a list of errors contains a legitimate error"""
+        for error in errors:
+            if not self.should_ignore(error.get("summary", "")):
+                return True
+        return False
+
     def _check_errors(self, current_state: dict, previous_state: dict) -> None:
         current_folders = current_state.get("folders", {})
         previous_folders = previous_state.get("folders", {})
         for folder, data in current_folders.items():
             current_errors = data.get("errors", [])
-            if not current_errors:
+            if not self.has_error(current_errors):
                 continue
             prev_errors = previous_folders.get(folder, {}).get("errors", [])
             for error in current_errors:
                 if error not in prev_errors:
                     summary = error.get("summary", "")
+                    if self.should_ignore(summary):
+                        continue
                     timestamp = error.get("timestamp", 0)
                     self.error_occurred.emit(folder, summary, timestamp)
                     error["folder"] = folder
@@ -217,7 +234,7 @@ class MagicFolderMonitor(QObject):
         for folder, data in state.get("folders", {}).items():
             if data.get("uploads") or data.get("downloads"):
                 folder_statuses[folder] = MagicFolderStatus.SYNCING
-            elif data.get("errors"):
+            elif self.has_error(data.get("errors", [])):
                 folder_statuses[folder] = MagicFolderStatus.ERROR
             else:
                 last_poll = data.get("poller", {}).get("last-poll") or 0
@@ -551,6 +568,12 @@ class MagicFolder:
         await self.supervisor.stop()
 
     def _read_api_token(self) -> str:
+        # TODO / FIXME / XXX "The token value is periodically rotated
+        # so clients must be prepared to receive an Unauthorized
+        # response even when supplying the token. In this case, the
+        # client should re-read the token from the filesystem to
+        # determine if the value held in memory has become stale."
+        # From https://github.com/LeastAuthority/magic-folder/blob/main/docs/interface.rst
         p = Path(self.configdir, "api_token")
         try:
             api_token = p.read_text(encoding="utf-8").strip()
@@ -634,7 +657,7 @@ class MagicFolder:
             raise MagicFolderWebError("API port not found")
         resp = await treq.request(
             method,
-            f"http://127.0.0.1:{self.api_port}/v1{path}",
+            f"http://127.0.0.1:{self.api_port}{path}",
             headers={"Authorization": f"Bearer {self.api_token}"},
             data=body,
         )
@@ -642,12 +665,12 @@ class MagicFolder:
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
             return json.loads(content)
         raise MagicFolderWebError(
-            f"Error {resp.code} requesting {method} /v1{path}: {content}"
+            f"Error {resp.code} requesting {method} {path}: {content}"
         )
 
     async def get_folders(self) -> dict[str, dict]:
         folders = await self._request(
-            "GET", "/magic-folder?include_secret_information=1"
+            "GET", "/v1/magic-folder?include_secret_information=1"
         )
         if isinstance(folders, dict):
             self.magic_folders = folders
@@ -656,6 +679,43 @@ class MagicFolder:
         raise TypeError(
             f"Expected folders as dict, instead got {type(folders)!r}"
         )
+
+    async def write_collective_dircap(
+        self, folder_name: str, cap: str
+    ) -> None:
+        folders = await self.get_folders()
+        stash_path = folders.get(folder_name, {}).get("stash_path", "")
+        if not stash_path:
+            raise FileNotFoundError(
+                f"Magic-Folder stash path missing for {folder_name}"
+            )
+        state_db = Path(Path(stash_path).parent, "state.sqlite")
+        if not state_db.exists():
+            raise FileNotFoundError(
+                f"Magic-Folder state database not found for {folder_name}"
+            )
+        connection = sqlite3.connect(state_db)
+        cursor = connection.cursor()
+        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+        cursor.execute("UPDATE [config] SET collective_dircap=?", (cap,))
+        connection.commit()
+
+    @property
+    def wormhole_uri(self) -> str:
+        global_db = Path(self.configdir, "global.sqlite")
+        connection = sqlite3.connect(global_db)
+        cursor = connection.cursor()
+        cursor.execute("SELECT wormhole_uri FROM config")
+        return cursor.fetchone()[0]
+
+    @wormhole_uri.setter
+    def wormhole_uri(self, uri: str) -> None:
+        global_db = Path(self.configdir, "global.sqlite")
+        connection = sqlite3.connect(global_db)
+        cursor = connection.cursor()
+        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+        cursor.execute("UPDATE config SET wormhole_uri=?", (uri,))
+        connection.commit()
 
     async def add_folder(  # pylint: disable=too-many-arguments
         self,
@@ -677,7 +737,7 @@ class MagicFolder:
             "scan_interval": scan_interval,
         }
         await self._request(
-            "POST", "/magic-folder", body=json.dumps(data).encode()
+            "POST", "/v1/magic-folder", body=json.dumps(data).encode()
         )
         await self.create_folder_backup(name)  # XXX
 
@@ -686,7 +746,7 @@ class MagicFolder:
     ) -> None:
         await self._request(
             "DELETE",
-            f"/magic-folder/{folder_name}",
+            f"/v1/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
             error_404_ok=missing_ok,
         )
@@ -710,29 +770,12 @@ class MagicFolder:
             or self.folder_is_remote(folder_name)
         )
 
-    async def get_snapshots(self) -> dict[str, dict]:
-        snapshots = await self._request("GET", "/snapshot")
-        if isinstance(snapshots, dict):
-            return snapshots
-        raise TypeError(
-            f"Expected snapshots as a dict, instead got {type(snapshots)!r}"
-        )
-
-    async def add_snapshot(self, folder_name: str, filepath: str) -> None:
-        try:
-            magic_path = self.magic_folders[folder_name]["magic_path"]
-        except KeyError:
-            await self.get_folders()
-            magic_path = self.magic_folders[folder_name]["magic_path"]
-        if filepath.startswith(magic_path):
-            filepath = filepath[len(magic_path) + len(os.sep) :]
-        await self._request(
-            "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
-        )
+    def is_admin(self, folder_name: str) -> bool:
+        return self.magic_folders.get(folder_name, {}).get("is_admin", False)
 
     async def get_participants(self, folder_name: str) -> dict[str, dict]:
         participants = await self._request(
-            "GET", f"/magic-folder/{folder_name}/participants"
+            "GET", f"/v1/magic-folder/{folder_name}/participants"
         )
         if isinstance(participants, dict):
             return participants
@@ -746,13 +789,13 @@ class MagicFolder:
         data = {"author": {"name": author_name}, "personal_dmd": personal_dmd}
         await self._request(
             "POST",
-            f"/magic-folder/{folder_name}/participants",
+            f"/v1/magic-folder/{folder_name}/participants",
             body=json.dumps(data).encode("utf-8"),
         )
 
     async def get_file_status(self, folder_name: str) -> list[dict]:
         output = await self._request(
-            "GET", f"/magic-folder/{folder_name}/file-status"
+            "GET", f"/v1/magic-folder/{folder_name}/file-status"
         )
         if isinstance(output, list):
             return output
@@ -762,7 +805,7 @@ class MagicFolder:
 
     async def get_object_sizes(self, folder_name: str) -> list[int]:
         sizes = await self._request(
-            "GET", f"/magic-folder/{folder_name}/tahoe-objects"
+            "GET", f"/v1/magic-folder/{folder_name}/tahoe-objects"
         )
         if isinstance(sizes, list):
             # XXX The magic-folder API should most likely return this list as
@@ -783,7 +826,7 @@ class MagicFolder:
     async def scan(self, folder_name: str) -> dict:
         output = await self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/scan-local",
+            f"/v1/magic-folder/{folder_name}/scan-local",
             error_404_ok=True,
         )
         if isinstance(output, dict):
@@ -795,7 +838,7 @@ class MagicFolder:
     async def poll(self, folder_name: str) -> dict:
         output = await self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/poll-remote",
+            f"/v1/magic-folder/{folder_name}/poll-remote",
             error_404_ok=True,
         )
         if isinstance(output, dict):
@@ -878,3 +921,69 @@ class MagicFolder:
         await self.add_participant(folder_name, author, personal_dmd)
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
         await self.poll(folder_name)
+
+    async def invite(
+        self, folder_name: str, participant_name: str, mode: str = "read-write"
+    ) -> dict:
+        if mode.lower() not in ("read-write", "read-only"):
+            raise ValueError(
+                f'Invalid Magic-Folder invite mode, "{mode}"; acceptable '
+                'values are: "read-write", "read-only"'
+            )
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite",
+            body=json.dumps(
+                {"participant-name": participant_name, "mode": mode}
+            ).encode(),
+        )
+        return cast(dict, result)
+
+    async def invite_wait(self, folder_name: str, id_: str) -> dict:
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite-wait",
+            body=json.dumps({"id": id_}).encode(),
+        )
+        return cast(dict, result)
+
+    async def invite_cancel(self, folder_name: str, id_: str) -> dict:
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite-cancel",
+            body=json.dumps({"id": id_}).encode(),
+        )
+        return cast(dict, result)
+
+    async def invites(self, folder_name: str) -> list:
+        result = await self._request(
+            "GET",
+            f"/experimental/magic-folder/{folder_name}/invites",
+        )
+        return cast(list, result)
+
+    async def join(  # pylint: disable=too-many-arguments
+        self,
+        folder_name: str,
+        invite_code: str,
+        local_path: Union[str, Path],
+        author: str = "user",  # XXX Is this even used for anything?
+        poll_interval: int = 60,
+        scan_interval: int = 60,
+    ) -> dict:
+        local_path = Path(local_path).absolute()
+        local_path.mkdir(parents=True, exist_ok=True)
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/join",
+            body=json.dumps(
+                {
+                    "invite-code": invite_code,
+                    "local-directory": str(local_path),
+                    "author": author,
+                    "poll-interval": poll_interval,
+                    "scan-interval": scan_interval,
+                }
+            ).encode(),
+        )
+        return cast(dict, result)

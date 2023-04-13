@@ -200,11 +200,17 @@ class Model(QStandardItemModel):
             )
 
     def update_overlay(self, folder_name: str) -> None:
-        members = self.members_dict.get(folder_name)
-        if members and len(members) > 1:
-            self.set_status_shared(folder_name)
-        else:
-            self.set_status_private(folder_name)
+        # members = self.members_dict.get(folder_name)
+        # if members and len(members) > 1:
+        #     self.set_status_shared(folder_name)
+        # else:
+        #     self.set_status_private(folder_name)
+        items = self.findItems(folder_name)
+        if items:
+            items[0].setToolTip(
+                self.gateway.magic_folder.get_directory(folder_name)
+                or folder_name + " (Stored remotely)"
+            )
 
     @Slot(str, list)
     def on_members_updated(self, folder: str, members: list) -> None:
@@ -268,7 +274,7 @@ class Model(QStandardItemModel):
             errors = self._magic_folder_errors[name]
             if errors:
                 item.setIcon(self.icon_error)
-                item.setText("Error syncing folder")
+                item.setText("Error(s) occurred")
                 item.setToolTip(self._errors_to_str(errors))
         if status == MagicFolderStatus.SYNCING:
             self.gui.systray.add_operation((self.gateway, name))

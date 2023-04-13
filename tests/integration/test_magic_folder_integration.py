@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_twisted import async_yield_fixture, ensureDeferred
 from twisted.internet import reactor
+from twisted.internet.defer import Deferred, DeferredList
 from twisted.internet.task import deferLater
 
 from gridsync import APP_NAME
@@ -41,7 +42,7 @@ async def magic_folder(tahoe_client):
 
 
 @async_yield_fixture(scope="module")
-async def alice_magic_folder(tmp_path_factory, tahoe_server):
+async def alice_magic_folder(tmp_path_factory, tahoe_server, wormhole_mailbox):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
     settings = {
         "nickname": "Test Grid",
@@ -57,12 +58,14 @@ async def alice_magic_folder(tmp_path_factory, tahoe_server):
     }
     await client.create_client(settings)
     await client.start()
+    await client.magic_folder.await_running()
+    client.magic_folder.wormhole_uri = wormhole_mailbox
     yield client.magic_folder
     await client.stop()
 
 
 @async_yield_fixture(scope="module")
-async def bob_magic_folder(tmp_path_factory, tahoe_server):
+async def bob_magic_folder(tmp_path_factory, tahoe_server, wormhole_mailbox):
     client = Tahoe(tmp_path_factory.mktemp("tahoe_client") / "nodedir")
     settings = {
         "nickname": "Test Grid",
@@ -78,6 +81,8 @@ async def bob_magic_folder(tmp_path_factory, tahoe_server):
     }
     await client.create_client(settings)
     await client.start()
+    await client.magic_folder.await_running()
+    client.magic_folder.wormhole_uri = wormhole_mailbox
     yield client.magic_folder
     await client.stop()
 
@@ -176,6 +181,25 @@ async def test_leave_folder_removes_from_magic_folders_dict(
 
 
 @ensureDeferred
+async def test_write_collective_dircap(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    await magic_folder.add_folder(path, author)
+    folders = await magic_folder.get_folders()
+    collective_dircap_before = folders[folder_name]["collective_dircap"]
+
+    created_dircap = await magic_folder.gateway.mkdir()
+    await magic_folder.write_collective_dircap(folder_name, created_dircap)
+
+    folders = await magic_folder.get_folders()
+    collective_dircap_after = folders[folder_name]["collective_dircap"]
+
+    assert collective_dircap_after != collective_dircap_before
+    assert collective_dircap_after == created_dircap
+
+
+@ensureDeferred
 async def test_folder_is_local_true(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
@@ -219,6 +243,20 @@ def test_folder_exists_false(magic_folder, tmp_path):
 
 
 @ensureDeferred
+async def test_is_admin_true(magic_folder, tmp_path):
+    folder_name = randstr()
+    path = tmp_path / folder_name
+    author = randstr()
+    await magic_folder.add_folder(path, author)
+    assert magic_folder.is_admin(folder_name) is True
+
+
+def test_is_admin_false(magic_folder, tmp_path):
+    folder_name = randstr() + "_4"
+    assert magic_folder.is_admin(folder_name) is False
+
+
+@ensureDeferred
 async def test_get_participants(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
@@ -242,49 +280,6 @@ async def test_add_participant(magic_folder, tmp_path):
     await magic_folder.add_participant(folder_name, author_name, personal_dmd)
     participants = await magic_folder.get_participants(folder_name)
     assert author_name in participants
-
-
-@ensureDeferred
-async def test_get_snapshots(magic_folder):
-    folders = await magic_folder.get_folders()
-    snapshots = await magic_folder.get_snapshots()
-    assert sorted(snapshots.keys()) == sorted(folders.keys())
-
-
-@ensureDeferred
-async def test_add_snapshot(magic_folder, tmp_path):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    await magic_folder.add_folder(path, author)
-
-    filename = randstr()
-    filepath = path / filename
-    filepath.write_text(randstr() * 10)
-    await magic_folder.add_snapshot(folder_name, filename)
-    snapshots = await magic_folder.get_snapshots()
-    assert filename in snapshots.get(folder_name)
-
-
-@ensureDeferred
-async def test_snapshot_uploads_to_personal_dmd(magic_folder, tmp_path):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    await magic_folder.add_folder(path, author, poll_interval=1)
-
-    filename = randstr()
-    filepath = path / filename
-    filepath.write_text(randstr() * 10)
-    await magic_folder.add_snapshot(folder_name, filename)
-
-    folders = await magic_folder.get_folders()
-    upload_dircap = folders[folder_name]["upload_dircap"]
-
-    await deferLater(reactor, 1.5, lambda: None)
-
-    content = await magic_folder.gateway.get_json(upload_dircap)
-    assert filename in content[1]["children"]
 
 
 @ensureDeferred
@@ -510,8 +505,8 @@ async def test_alice_add_folder(alice_magic_folder, tmp_path):
     filepath.write_text(randstr() * 10)
     await alice_magic_folder.scan(folder_name)
 
-    snapshots = await alice_magic_folder.get_snapshots()
-    assert filename in snapshots.get(folder_name)
+    folders = await alice_magic_folder.get_folders()
+    assert folder_name in folders
 
 
 @ensureDeferred
@@ -868,3 +863,144 @@ async def test_monitor_emits_overall_status_changed_signal(
 
 def test_eliot_logs_collected(magic_folder):
     assert len(magic_folder.get_log("eliot")) > 0
+
+
+def test_wormhole_uri_getter(magic_folder):
+    assert magic_folder.wormhole_uri == "ws://relay.magic-wormhole.io:4000/v1"
+
+
+def test_wormhole_uri_setter(magic_folder):
+    uri = randstr()
+    magic_folder.wormhole_uri = uri
+    assert magic_folder.wormhole_uri == uri
+
+
+@ensureDeferred
+async def test_invite_raises_value_error(magic_folder, tmp_path):
+    with pytest.raises(ValueError):
+        await magic_folder.invite("Folder", "Participant", "asdf")
+
+
+@ensureDeferred
+async def test_invites_join_adds_folder(
+    tmp_path, alice_magic_folder, bob_magic_folder
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    result = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = result["wormhole-code"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    assert result["success"] is True
+
+    bob_folders = await bob_magic_folder.get_folders()
+    assert folder_name in bob_folders
+
+
+@ensureDeferred
+async def test_invite_wait(tmp_path, alice_magic_folder, bob_magic_folder):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    result = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = result["wormhole-code"]
+    id_ = result["id"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+
+    results = await DeferredList(
+        [
+            Deferred.fromCoroutine(
+                bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+            ),
+            Deferred.fromCoroutine(
+                alice_magic_folder.invite_wait(folder_name, id_)
+            ),
+        ]
+    )
+    for success, result in results:
+        assert result["success"] is True
+
+
+@ensureDeferred
+async def test_invite_cancel_returns_empty_dict(tmp_path, alice_magic_folder):
+    folder_name = randstr()
+
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
+
+    inv = await alice_magic_folder.invite(folder_name, randstr())
+    result = await alice_magic_folder.invite_cancel(folder_name, inv["id"])
+    assert result == {}
+
+
+@ensureDeferred
+async def test_invites(tmp_path, alice_magic_folder):
+    folder_name = randstr()
+
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
+
+    inv = await alice_magic_folder.invite(folder_name, randstr())
+    results = await alice_magic_folder.invites(folder_name)
+    assert inv in results
+
+
+@ensureDeferred
+async def test_invite_cancel_removes_invite(tmp_path, alice_magic_folder):
+    folder_name = randstr()
+
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
+
+    inv = await alice_magic_folder.invite(folder_name, randstr())
+    results_before = await alice_magic_folder.invites(folder_name)
+    assert inv in results_before
+
+    await alice_magic_folder.invite_cancel(folder_name, inv["id"])
+    results_after = await alice_magic_folder.invites(folder_name)
+    assert inv not in results_after
+
+
+@ensureDeferred
+async def test_invites_file_sync(
+    tmp_path, alice_magic_folder, bob_magic_folder
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    result = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = result["wormhole-code"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    assert result["success"] is True
+    bob_folders = await bob_magic_folder.get_folders()
+    assert folder_name in bob_folders
+
+    file_name = randstr()
+
+    alice_filepath = alice_path / file_name
+    alice_filepath.write_text(randstr() * 10)
+    await alice_magic_folder.scan(folder_name)
+
+    bob_filepath = bob_path / file_name
+    assert bob_filepath.exists() is False
+    await bob_magic_folder.poll(folder_name)
+    await until(bob_filepath.exists)
+
+    assert bob_filepath.read_text() == alice_filepath.read_text()

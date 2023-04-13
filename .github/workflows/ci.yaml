@@ -4,6 +4,10 @@ on: [push, pull_request]
 
 jobs:
   NixOS:
+    # Disabled because mach-nix/pypi-deps-db is currently missing the
+    # latest version of Magic-Folder (23.3.1) required by Gridsync.
+    # https://github.com/gridsync/gridsync/actions/runs/4475890791/jobs/7865723140#step:4:112
+    if: ${{ false }}
     runs-on: "ubuntu-latest"
     container:
       image: "nixos/nix:2.10.3"
