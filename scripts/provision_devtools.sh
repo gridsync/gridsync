@@ -35,7 +35,7 @@ else
     fi
 fi
 
-git clone --branch v2.3.15 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.3.15
+git clone --branch v2.3.17 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.3.17
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "$SHELLRC"
 echo 'export PATH="$PYENV_ROOT/bin:$HOME/bin:$PATH"' >> "$SHELLRC"
 echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
@@ -46,10 +46,10 @@ if [ "$(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)" = '"CentOS L
     export CPPFLAGS="-I/usr/include/openssl11"
     export LDFLAGS="-L/usr/lib64/openssl11"
 fi
-pyenv install --skip-existing 3.10.10
-pyenv install --skip-existing 3.11.2
+pyenv install --skip-existing 3.10.11
+pyenv install --skip-existing 3.11.3
 pyenv rehash
-pyenv global 3.11.2 3.10.10
+pyenv global 3.11.3 3.10.11
 pyenv versions
 
 python3 -m pip install --upgrade setuptools pip tox diffoscope
