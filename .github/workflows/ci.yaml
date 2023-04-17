@@ -188,7 +188,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
-      PY_PYTHON: "3.11"
+      # Tahoe-LAFS 1.18.0 does not support Python 3.11
+      PY_PYTHON: "3.10"
     steps:
     - name: Checkout
       uses: actions/checkout@v2
