@@ -3,6 +3,7 @@
 
 @echo off
 
+:: Tahoe-LAFS 1.18.0 does not support Python 3.11
 set PY_PYTHON=3.10
 
 if "%1"=="clean" call :clean
