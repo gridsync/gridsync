@@ -1,6 +1,6 @@
 FROM docker.io/library/almalinux:8
 
-RUN yum -y update && yum -y install \
+RUN dnf install -y 'dnf-command(config-manager)' && dnf config-manager --set-enabled powertools && dnf install -y epel-release && yum -y update && yum -y install \
     findutils gtk3 libicu libxkbcommon-x11 mesa-libEGL pcre2-utf16 xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm xcb-util-cursor \
     && yum clean all
 

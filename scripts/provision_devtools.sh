@@ -18,7 +18,7 @@ else
         sudo apt-get -y install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libgl1 libgl1-mesa-dev x11-utils libdbus-1-3 libxcb-xfixes0 uidmap libfuse2 libxcb-cursor0
         SHELLRC=~/.bash_profile
     elif [ -f "/usr/bin/yum" ]; then
-        PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz git xorg-x11-server-Xvfb file"
+        PKGS="which make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz xz-devel git xorg-x11-server-Xvfb file"
         yum -y install $PKGS || sudo yum -y install $PKGS
     else
         echo "Error: Unknown environment"
@@ -35,7 +35,7 @@ else
     fi
 fi
 
-git clone --branch v2.3.3 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.3.3
+git clone --branch v2.3.17 https://github.com/pyenv/pyenv.git ~/.pyenv || git --git-dir=$HOME/.pyenv/.git pull --force --ff origin v2.3.17
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "$SHELLRC"
 echo 'export PATH="$PYENV_ROOT/bin:$HOME/bin:$PATH"' >> "$SHELLRC"
 echo 'eval "$(pyenv init --path)"' >> "$SHELLRC"
@@ -46,9 +46,10 @@ if [ "$(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)" = '"CentOS L
     export CPPFLAGS="-I/usr/include/openssl11"
     export LDFLAGS="-L/usr/lib64/openssl11"
 fi
-pyenv install --skip-existing 3.10.6
+pyenv install --skip-existing 3.10.11
+pyenv install --skip-existing 3.11.3
 pyenv rehash
-pyenv global 3.10.6
+pyenv global 3.11.3 3.10.11
 pyenv versions
 
 python3 -m pip install --upgrade setuptools pip tox diffoscope
