@@ -1,7 +1,2 @@
-pyqt6 < 6.5.0
-pyqt6-charts < 6.5.0
-# XXX These constraints can be removed once our "gridsync-builder-qt6"
-# container image includes the "xcb-util-cursor" package (required by Qt 6.5)
-pyqt6-charts-qt6 < 6.5.0
-pyqt6-qt6 < 6.5.0
-pyqt6-sip < 13.5.0
+pyqt6
+pyqt6-charts
