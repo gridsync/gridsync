@@ -639,9 +639,9 @@ sqlparse==0.4.3 \
     --hash=sha256:0323c0ec29cd52bceabc1b4d9d579e311f3e4961b98d174201d5622a23b85e34 \
     --hash=sha256:69ca804846bb114d2ec380e4360a8a340db83f0ccf3afceeb1404df028f57268
     # via zero-knowledge-access-pass-authorizer
-# tahoe-lafs==1.18.0 \
-#     --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \
-#     --hash=sha256:717a470df34edd31ad6b94467dabaa1caedd7f2f5233b04b89d8cfe936e317fe
+tahoe-lafs==1.18.0 \
+    --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \
+    --hash=sha256:717a470df34edd31ad6b94467dabaa1caedd7f2f5233b04b89d8cfe936e317fe
     # via zero-knowledge-access-pass-authorizer
 tqdm==4.65.0 \
     --hash=sha256:1871fb68a86b8fb3b59ca4cdd3dcccbc7e6d613eeed31f4c332531977b89beb5 \
