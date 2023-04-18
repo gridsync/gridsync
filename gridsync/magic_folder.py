@@ -58,6 +58,50 @@ class MagicFolderStatus(Enum):
     WAITING = auto()
 
 
+class MagicFolderOperationsMonitor:
+    def __init__(self, magic_folder: MagicFolder) -> None:
+        self.magic_folder = magic_folder
+        self._uploads: defaultdict[str, list] = defaultdict(list)
+        self._downloads: defaultdict[str, list] = defaultdict(list)
+        self._errors: defaultdict[str, list] = defaultdict(list)
+        self._statuses: defaultdict[str, MagicFolderStatus] = defaultdict(lambda: MagicFolderStatus.LOADING)
+
+    def _update_status(self, folder: str) -> MagicFolderStatus | None:
+        if self._uploads[folder] or self._downloads[folder]:
+            status = MagicFolderStatus.SYNCING
+        if self._errors[folder]:
+            status = MagicFolderStatus.ERROR
+        else:
+            status = MagicFolderStatus.UP_TO_DATE
+        if self._statuses[folder] != status:
+            self._statuses[folder] = status
+            return status
+
+    def add_upload(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+        self._uploads[folder].append(relpath)
+        return self._update_status(folder)
+
+    def remove_upload(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+        self._uploads[folder].remove(relpath)
+        return self._update_status(folder)
+
+    def add_download(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+        self._downloads[folder].append(relpath)
+        return self._update_status(folder)
+
+    def remove_download(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+        self._downloads[folder].remove(relpath)
+        return self._update_status(folder)
+
+    def add_error(self, folder: str, summary: str) -> MagicFolderStatus | None:
+        self._errors[folder].append(summary)
+        return self._update_status(folder)
+
+    def remove_error(self, folder: str, summary: str) -> MagicFolderStatus | None:
+        self._errors[folder].remove(summary)
+        return self._update_status(folder)
+
+
 class MagicFolderEventHandler(QObject):
     # From https://github.com/meejah/magic-folder/blob/8e2ef86bb482970b44ca723aa1e631e6d38b0215/docs/interface.rst#status-api
     folder_added = Signal(str)  # folder_name
