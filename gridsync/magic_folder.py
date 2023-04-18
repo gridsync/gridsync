@@ -66,6 +66,9 @@ class MagicFolderOperationsMonitor:
         self._downloads: defaultdict[str, list] = defaultdict(list)
         self._errors: defaultdict[str, list] = defaultdict(list)
         self._statuses: defaultdict[str, MagicFolderStatus] = defaultdict(lambda: MagicFolderStatus.LOADING)
+    
+    def get_status(self, folder_name: str) -> MagicFolderStatus:
+        return self._statuses[folder_name]
 
     def _update_status(self, folder: str) -> MagicFolderStatus | None:
         if self._uploads[folder] or self._downloads[folder]:
