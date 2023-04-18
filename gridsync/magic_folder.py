@@ -103,7 +103,6 @@ class MagicFolderOperationsMonitor:
 
 
 class MagicFolderEventHandler(QObject):
-    # From https://github.com/meejah/magic-folder/blob/8e2ef86bb482970b44ca723aa1e631e6d38b0215/docs/interface.rst#status-api
     folder_added = Signal(str)  # folder_name
     folder_removed = Signal(str)  # folder_name
 
