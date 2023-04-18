@@ -1,6 +1,10 @@
 import pytest
 
-from gridsync.magic_folder import MagicFolderEventHandler
+from gridsync.magic_folder import (
+    MagicFolderEventHandler,
+    MagicFolderOperationsMonitor,
+    MagicFolderStatus,
+)
 
 
 def test_magic_folder_event_handler_emits_folder_added_signal(qtbot):
@@ -127,3 +131,55 @@ def test_magic_folder_event_handler_emits_connection_changed_signal(qtbot):
                 "happy": True,
             }
         )
+
+
+def test_magic_folder_operations_monitor_default_loading_status():
+    monitor = MagicFolderOperationsMonitor(MagicFolderEventHandler())
+    assert monitor.get_status("TestFolder") == MagicFolderStatus.LOADING
+
+
+def test_folder_status_changed_signal_syncing(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.folder_status_changed) as blocker:
+        handler.handle(
+            {
+                "kind": "upload-started",
+                "folder": "TestFolder",
+                "relpath": "test.txt",
+            }
+        )
+    assert blocker.args == ["TestFolder", MagicFolderStatus.SYNCING]
+
+
+def test_folder_status_changed_signal_up_to_date(qtbot):
+    handler = MagicFolderEventHandler()
+    handler.handle(
+        {
+            "kind": "upload-started",
+            "folder": "TestFolder",
+            "relpath": "test.txt",
+        }
+    )
+    with qtbot.wait_signal(handler.folder_status_changed) as blocker:
+        handler.handle(
+            {
+                "kind": "upload-finished",
+                "folder": "TestFolder",
+                "relpath": "test.txt",
+            }
+        )
+    assert blocker.args == ["TestFolder", MagicFolderStatus.UP_TO_DATE]
+
+
+def test_folder_status_changed_signal_error(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.folder_status_changed) as blocker:
+        handler.handle(
+            {
+                "kind": "error-occurred",
+                "folder": "TestFolder",
+                "summary": "Test error message",
+                "timestamp": 1,
+            }
+        )
+    assert blocker.args == ["TestFolder", MagicFolderStatus.ERROR]
