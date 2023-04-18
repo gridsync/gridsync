@@ -59,8 +59,9 @@ class MagicFolderStatus(Enum):
 
 
 class MagicFolderOperationsMonitor:
-    def __init__(self, magic_folder: MagicFolder) -> None:
-        self.magic_folder = magic_folder
+    def __init__(self, event_handler: MagicFolderEventHandler) -> None:
+        self.event_handler = event_handler
+
         self._uploads: defaultdict[str, list] = defaultdict(list)
         self._downloads: defaultdict[str, list] = defaultdict(list)
         self._errors: defaultdict[str, list] = defaultdict(list)
@@ -75,6 +76,7 @@ class MagicFolderOperationsMonitor:
             status = MagicFolderStatus.UP_TO_DATE
         if self._statuses[folder] != status:
             self._statuses[folder] = status
+            self.event_handler.folder_status_changed.emit(folder, status)
             return status
 
     def add_upload(self, folder: str, relpath: str) -> MagicFolderStatus | None:
@@ -119,9 +121,18 @@ class MagicFolderEventHandler(QObject):
     scan_completed = Signal(str, float)  # folder_name, last_scan
     poll_completed = Signal(str, float)  # folder_name, last_poll
     connection_changed = Signal(int, int, bool)  # connected, desired, happy
+    #
+    folder_status_changed = Signal(str, object)  # folder, MagicFolderStatus
 
     def __init__(self) -> None:
         super().__init__()
+
+        self._operations_monitor = MagicFolderOperationsMonitor(self)
+        self.upload_started.connect(self._operations_monitor.add_upload)
+        self.upload_finished.connect(self._operations_monitor.remove_upload)
+        self.download_started.connect(self._operations_monitor.add_download)
+        self.download_finished.connect(self._operations_monitor.remove_download)
+        self.error_occurred.connect(self._operations_monitor.add_error)
 
     def handle(self, event: dict) -> None:
         from pprint import pprint
