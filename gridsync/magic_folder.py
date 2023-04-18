@@ -116,8 +116,8 @@ class MagicFolderEventHandler(QObject):
 
     error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
-    scan_finished = Signal(str, float)  # folder_name, last_scan
-    poll_finished = Signal(str, float)  # folder_name, last_poll
+    scan_completed = Signal(str, float)  # folder_name, last_scan
+    poll_completed = Signal(str, float)  # folder_name, last_poll
     connection_changed = Signal(int, int, bool)  # connected, desired, happy
 
     def __init__(self) -> None:
@@ -146,9 +146,9 @@ class MagicFolderEventHandler(QObject):
             case {"kind": "download-finished", "relpath": relpath}:
                 self.download_finished.emit(folder, relpath, {})
             case {"kind": "scan-completed", "timestamp": timestamp}:
-                self.scan_finished.emit(folder, timestamp)
+                self.scan_completed.emit(folder, timestamp)
             case {"kind": "poll-completed", "timestamp": timestamp}:
-                self.poll_finished.emit(folder, timestamp)
+                self.poll_completed.emit(folder, timestamp)
             case {
                 "kind": "error-occurred",
                 "summary": summary,
