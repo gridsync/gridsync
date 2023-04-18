@@ -87,7 +87,10 @@ class MagicFolderOperationsMonitor:
         return self._update_status(folder)
 
     def remove_upload(self, folder: str, relpath: str) -> MagicFolderStatus | None:
-        self._uploads[folder].remove(relpath)
+        try:
+            self._uploads[folder].remove(relpath)
+        except ValueError:
+            pass
         return self._update_status(folder)
 
     def add_download(self, folder: str, relpath: str) -> MagicFolderStatus | None:
@@ -95,7 +98,10 @@ class MagicFolderOperationsMonitor:
         return self._update_status(folder)
 
     def remove_download(self, folder: str, relpath: str) -> MagicFolderStatus | None:
-        self._downloads[folder].remove(relpath)
+        try:
+            self._downloads[folder].remove(relpath)
+        except ValueError:
+            pass
         return self._update_status(folder)
 
     def add_error(self, folder: str, summary: str) -> MagicFolderStatus | None:
@@ -103,7 +109,10 @@ class MagicFolderOperationsMonitor:
         return self._update_status(folder)
 
     def remove_error(self, folder: str, summary: str) -> MagicFolderStatus | None:
-        self._errors[folder].remove(summary)
+        try:
+            self._errors[folder].remove(summary)
+        except ValueError:
+            pass
         return self._update_status(folder)
 
 
