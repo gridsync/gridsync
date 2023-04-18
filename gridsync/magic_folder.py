@@ -69,7 +69,7 @@ class MagicFolderOperationsMonitor:
     def _update_status(self, folder: str) -> MagicFolderStatus | None:
         if self._uploads[folder] or self._downloads[folder]:
             status = MagicFolderStatus.SYNCING
-        if self._errors[folder]:
+        elif self._errors[folder]:
             status = MagicFolderStatus.ERROR
         else:
             status = MagicFolderStatus.UP_TO_DATE
@@ -120,9 +120,8 @@ class MagicFolderEventHandler(QObject):
     poll_finished = Signal(str, float)  # folder_name, last_poll
     connection_changed = Signal(int, int, bool)  # connected, desired, happy
 
-    def __init__(self, magic_folder_monitor: MagicFolderMonitor) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.magic_folder_monitor = magic_folder_monitor
 
     def handle(self, event: dict) -> None:
         from pprint import pprint
@@ -221,7 +220,7 @@ class MagicFolderMonitor(QObject):
 
         self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
-        self.event_handler = MagicFolderEventHandler(self)
+        self.event_handler = MagicFolderEventHandler()
 
         # TODO(?): Remove forwarding; connect directly to slots
         self.event_handler.download_started.connect(self.download_started)
