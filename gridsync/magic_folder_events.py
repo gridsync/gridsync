@@ -54,48 +54,38 @@ class MagicFolderOperationsMonitor:
             self._update_overall_status()
             return status
 
-    def add_upload(
-        self, folder: str, relpath: str
-    ) -> MagicFolderStatus | None:
+    def add_upload(self, folder: str, relpath: str) -> None:
         self._uploads[folder].append(relpath)
-        return self._update_status(folder)
+        self._update_status(folder)
 
-    def remove_upload(
-        self, folder: str, relpath: str
-    ) -> MagicFolderStatus | None:
+    def remove_upload(self, folder: str, relpath: str) -> None:
         try:
             self._uploads[folder].remove(relpath)
         except ValueError:
             pass
-        return self._update_status(folder)
+        self._update_status(folder)
 
-    def add_download(
-        self, folder: str, relpath: str
-    ) -> MagicFolderStatus | None:
+    def add_download(self, folder: str, relpath: str) -> None:
         self._downloads[folder].append(relpath)
-        return self._update_status(folder)
+        self._update_status(folder)
 
-    def remove_download(
-        self, folder: str, relpath: str
-    ) -> MagicFolderStatus | None:
+    def remove_download(self, folder: str, relpath: str) -> None:
         try:
             self._downloads[folder].remove(relpath)
         except ValueError:
             pass
-        return self._update_status(folder)
+        self._update_status(folder)
 
-    def add_error(self, folder: str, summary: str) -> MagicFolderStatus | None:
+    def add_error(self, folder: str, summary: str) -> None:
         self._errors[folder].append(summary)
-        return self._update_status(folder)
+        self._update_status(folder)
 
-    def remove_error(
-        self, folder: str, summary: str
-    ) -> MagicFolderStatus | None:
+    def remove_error(self, folder: str, summary: str) -> None:
         try:
             self._errors[folder].remove(summary)
         except ValueError:
             pass
-        return self._update_status(folder)
+        self._update_status(folder)
 
 
 class MagicFolderEventHandler(QObject):
