@@ -1,6 +1,6 @@
 import pytest
 
-from gridsync.magic_folder import (
+from gridsync.magic_folder_events import (
     MagicFolderEventHandler,
     MagicFolderOperationsMonitor,
     MagicFolderStatus,
