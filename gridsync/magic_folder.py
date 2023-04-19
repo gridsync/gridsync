@@ -65,8 +65,10 @@ class MagicFolderOperationsMonitor:
         self._uploads: defaultdict[str, list] = defaultdict(list)
         self._downloads: defaultdict[str, list] = defaultdict(list)
         self._errors: defaultdict[str, list] = defaultdict(list)
-        self._statuses: defaultdict[str, MagicFolderStatus] = defaultdict(lambda: MagicFolderStatus.LOADING)
-    
+        self._statuses: defaultdict[str, MagicFolderStatus] = defaultdict(
+            lambda: MagicFolderStatus.LOADING
+        )
+
     def get_status(self, folder_name: str) -> MagicFolderStatus:
         return self._statuses[folder_name]
 
@@ -82,22 +84,30 @@ class MagicFolderOperationsMonitor:
             self.event_handler.folder_status_changed.emit(folder, status)
             return status
 
-    def add_upload(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+    def add_upload(
+        self, folder: str, relpath: str
+    ) -> MagicFolderStatus | None:
         self._uploads[folder].append(relpath)
         return self._update_status(folder)
 
-    def remove_upload(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+    def remove_upload(
+        self, folder: str, relpath: str
+    ) -> MagicFolderStatus | None:
         try:
             self._uploads[folder].remove(relpath)
         except ValueError:
             pass
         return self._update_status(folder)
 
-    def add_download(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+    def add_download(
+        self, folder: str, relpath: str
+    ) -> MagicFolderStatus | None:
         self._downloads[folder].append(relpath)
         return self._update_status(folder)
 
-    def remove_download(self, folder: str, relpath: str) -> MagicFolderStatus | None:
+    def remove_download(
+        self, folder: str, relpath: str
+    ) -> MagicFolderStatus | None:
         try:
             self._downloads[folder].remove(relpath)
         except ValueError:
@@ -108,7 +118,9 @@ class MagicFolderOperationsMonitor:
         self._errors[folder].append(summary)
         return self._update_status(folder)
 
-    def remove_error(self, folder: str, summary: str) -> MagicFolderStatus | None:
+    def remove_error(
+        self, folder: str, summary: str
+    ) -> MagicFolderStatus | None:
         try:
             self._errors[folder].remove(summary)
         except ValueError:
@@ -143,7 +155,9 @@ class MagicFolderEventHandler(QObject):
         self.upload_started.connect(self._operations_monitor.add_upload)
         self.upload_finished.connect(self._operations_monitor.remove_upload)
         self.download_started.connect(self._operations_monitor.add_download)
-        self.download_finished.connect(self._operations_monitor.remove_download)
+        self.download_finished.connect(
+            self._operations_monitor.remove_download
+        )
         self.error_occurred.connect(self._operations_monitor.add_error)
 
     def handle(self, event: dict) -> None:
