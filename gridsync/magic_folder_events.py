@@ -153,8 +153,12 @@ class MagicFolderEventHandler(QObject):
 
         self._operations_monitor = MagicFolderOperationsMonitor(self)
         self.upload_started.connect(self._operations_monitor.on_upload_started)
-        self.upload_finished.connect(self._operations_monitor.on_upload_finished)
-        self.download_started.connect(self._operations_monitor.on_download_started)
+        self.upload_finished.connect(
+            self._operations_monitor.on_upload_finished
+        )
+        self.download_started.connect(
+            self._operations_monitor.on_download_started
+        )
         self.download_finished.connect(
             self._operations_monitor.on_download_finished
         )
