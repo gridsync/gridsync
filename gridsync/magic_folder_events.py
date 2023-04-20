@@ -54,29 +54,29 @@ class MagicFolderOperationsMonitor:
             self._update_overall_status()
             return status
 
-    def add_upload(self, folder: str, relpath: str) -> None:
+    def on_upload_started(self, folder: str, relpath: str) -> None:
         self._uploads[folder].append(relpath)
         self._update_status(folder)
 
-    def remove_upload(self, folder: str, relpath: str) -> None:
+    def on_upload_finished(self, folder: str, relpath: str) -> None:
         try:
             self._uploads[folder].remove(relpath)
         except ValueError:
             pass
         self._update_status(folder)
 
-    def add_download(self, folder: str, relpath: str) -> None:
+    def on_download_started(self, folder: str, relpath: str) -> None:
         self._downloads[folder].append(relpath)
         self._update_status(folder)
 
-    def remove_download(self, folder: str, relpath: str) -> None:
+    def on_download_finished(self, folder: str, relpath: str) -> None:
         try:
             self._downloads[folder].remove(relpath)
         except ValueError:
             pass
         self._update_status(folder)
 
-    def add_error(self, folder: str, summary: str) -> None:
+    def on_error_occurred(self, folder: str, summary: str) -> None:
         self._errors[folder].append(summary)
         self._update_status(folder)
 
@@ -152,11 +152,11 @@ class MagicFolderEventHandler(QObject):
         super().__init__()
 
         self._operations_monitor = MagicFolderOperationsMonitor(self)
-        self.upload_started.connect(self._operations_monitor.add_upload)
-        self.upload_finished.connect(self._operations_monitor.remove_upload)
-        self.download_started.connect(self._operations_monitor.add_download)
+        self.upload_started.connect(self._operations_monitor.on_upload_started)
+        self.upload_finished.connect(self._operations_monitor.on_upload_finished)
+        self.download_started.connect(self._operations_monitor.on_download_started)
         self.download_finished.connect(
-            self._operations_monitor.remove_download
+            self._operations_monitor.on_download_finished
         )
         self.error_occurred.connect(self._operations_monitor.add_error)
 
