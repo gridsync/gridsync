@@ -183,3 +183,64 @@ def test_folder_status_changed_signal_error(qtbot):
             }
         )
     assert blocker.args == ["TestFolder", MagicFolderStatus.ERROR]
+
+
+def test_overall_status_changed_signal_syncing(qtbot):
+    handler = MagicFolderEventHandler()
+    handler.handle(
+        {
+            "kind": "upload-queued",
+            "folder": "TestFolder",
+            "relpath": "test.txt",
+        }
+    )
+    with qtbot.wait_signal(handler.overall_status_changed) as blocker:
+        handler.handle(
+            {
+                "kind": "upload-started",
+                "folder": "TestFolder",
+                "relpath": "test.txt",
+            }
+        )
+    assert blocker.args == [MagicFolderStatus.SYNCING]
+
+
+def test_overall_status_changed_signal_error(qtbot):
+    handler = MagicFolderEventHandler()
+    handler.handle(
+        {
+            "kind": "upload-queued",
+            "folder": "TestFolder",
+            "relpath": "test.txt",
+        }
+    )
+    with qtbot.wait_signal(handler.overall_status_changed) as blocker:
+        handler.handle(
+            {
+                "kind": "error-occurred",
+                "folder": "TestFolder",
+                "summary": "Test error message",
+                "timestamp": 1,
+            }
+        )
+    assert blocker.args == [MagicFolderStatus.ERROR]
+
+
+def test_overall_status_changed_signal_up_to_date(qtbot):
+    handler = MagicFolderEventHandler()
+    handler.handle(
+        {
+            "kind": "upload-queued",
+            "folder": "TestFolder",
+            "relpath": "test.txt",
+        }
+    )
+    with qtbot.wait_signal(handler.overall_status_changed) as blocker:
+        handler.handle(
+            {
+                "kind": "upload-finished",
+                "folder": "TestFolder",
+                "relpath": "test.txt",
+            }
+        )
+    assert blocker.args == [MagicFolderStatus.UP_TO_DATE]
