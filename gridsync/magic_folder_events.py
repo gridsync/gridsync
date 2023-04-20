@@ -32,14 +32,17 @@ class MagicFolderOperationsMonitor:
     def _update_overall_status(self) -> None:
         statuses = set(self._statuses.values())
         if MagicFolderStatus.SYNCING in statuses:  # At least one is syncing
-            status = MagicFolderStatus.SYNCING
+            self.event_handler.overall_status_changed.emit(
+                MagicFolderStatus.SYNCING
+            )
         elif MagicFolderStatus.ERROR in statuses:  # At least one has an error
-            status = MagicFolderStatus.ERROR
+            self.event_handler.overall_status_changed.emit(
+                MagicFolderStatus.ERROR
+            )
         elif statuses == {MagicFolderStatus.UP_TO_DATE}:  # All are up-to-date
-            status = MagicFolderStatus.UP_TO_DATE
-        else:
-            status = MagicFolderStatus.WAITING
-        self.event_handler.overall_status_changed.emit(status)
+            self.event_handler.overall_status_changed.emit(
+                MagicFolderStatus.UP_TO_DATE
+            )
 
     def _update_status(self, folder: str) -> MagicFolderStatus | None:
         if self._uploads[folder] or self._downloads[folder]:
