@@ -80,13 +80,6 @@ class MagicFolderOperationsMonitor:
         self._errors[folder].append(summary)
         self._update_status(folder)
 
-    def remove_error(self, folder: str, summary: str) -> None:
-        try:
-            self._errors[folder].remove(summary)
-        except ValueError:
-            pass
-        self._update_status(folder)
-
 
 class MagicFolderProgressMonitor:
     def __init__(self, event_handler: MagicFolderEventHandler) -> None:
