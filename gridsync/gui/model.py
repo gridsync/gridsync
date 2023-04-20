@@ -62,15 +62,15 @@ class Model(QStandardItemModel):
         self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
         self.mf_monitor.folder_size_updated.connect(self.set_size)
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
-        self.mf_monitor.folder_status_changed.connect(self.set_status)
-        self.mf_monitor.sync_progress_updated.connect(
-            self.set_transfer_progress
-        )
 
         self.mf_events = self.gateway.magic_folder.events
         self.mf_events.folder_added.connect(self.add_folder)
         self.mf_events.folder_removed.connect(self.on_folder_removed)
         self.mf_events.error_occurred.connect(self.on_error_occurred)
+        self.mf_events.folder_status_changed.connect(self.set_status)
+        self.mf_events.sync_progress_updated.connect(
+            self.set_transfer_progress
+        )
         self.mf_events.files_updated.connect(self.on_files_updated)
 
     @Slot(str, str, int)
