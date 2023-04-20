@@ -88,6 +88,40 @@ class MagicFolderOperationsMonitor:
         self._update_status(folder)
 
 
+class MagicFolderProgressMonitor:
+    def __init__(self, event_handler: MagicFolderEventHandler) -> None:
+        self.event_handler = event_handler
+
+        self._queued: defaultdict[str, list] = defaultdict(list)
+        self._finished: defaultdict[str, list] = defaultdict(list)
+
+    def _update_progress(self, folder: str) -> None:
+        files = self._finished[folder]
+        current = len(files)
+        total = len(self._queued[folder])
+        self.event_handler.sync_progress_updated.emit(folder, current, total)
+        if total and current == total:  # 100%
+            self._queued[folder] = []
+            self._finished[folder] = []
+            self.event_handler.files_updated.emit(folder, files)
+
+    def on_upload_queued(self, folder: str, relpath: str) -> None:
+        self._queued[folder].append(relpath)
+        self._update_progress(folder)
+
+    def on_upload_finished(self, folder: str, relpath: str) -> None:
+        self._finished[folder].append(relpath)
+        self._update_progress(folder)
+
+    def on_download_queued(self, folder: str, relpath: str) -> None:
+        self._queued[folder].append(relpath)
+        self._update_progress(folder)
+
+    def on_download_finished(self, folder: str, relpath: str) -> None:
+        self._finished[folder].append(relpath)
+        self._update_progress(folder)
+
+
 class MagicFolderEventHandler(QObject):
     folder_added = Signal(str)  # folder_name
     folder_removed = Signal(str)  # folder_name
@@ -105,9 +139,14 @@ class MagicFolderEventHandler(QObject):
     scan_completed = Signal(str, float)  # folder_name, last_scan
     poll_completed = Signal(str, float)  # folder_name, last_poll
     connection_changed = Signal(int, int, bool)  # connected, desired, happy
-    #
+
+    # From MagicFolderOperationsMonitor
     folder_status_changed = Signal(str, object)  # folder, MagicFolderStatus
     overall_status_changed = Signal(object)  # MagicFolderStatus
+
+    # From MagicFolderProgressMonitor
+    sync_progress_updated = Signal(str, object, object)  # folder, cur, total
+    files_updated = Signal(str, list)  # folder, files
 
     def __init__(self) -> None:
         super().__init__()
@@ -120,6 +159,14 @@ class MagicFolderEventHandler(QObject):
             self._operations_monitor.remove_download
         )
         self.error_occurred.connect(self._operations_monitor.add_error)
+
+        self._progress_monitor = MagicFolderProgressMonitor(self)
+        self.upload_queued.connect(self._progress_monitor.on_upload_queued)
+        self.upload_finished.connect(self._progress_monitor.on_upload_finished)
+        self.download_queued.connect(self._progress_monitor.on_download_queued)
+        self.download_finished.connect(
+            self._progress_monitor.on_download_finished
+        )
 
     def handle(self, event: dict) -> None:
         from pprint import pprint
