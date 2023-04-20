@@ -538,7 +538,7 @@ async def test_monitor_emits_sync_progress_updated_signal(
     await magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(
-        magic_folder.monitor.sync_progress_updated
+        magic_folder.events.sync_progress_updated
     ) as blocker:
         filename = randstr()
         filepath = path / filename
