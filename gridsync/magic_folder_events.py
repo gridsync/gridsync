@@ -158,7 +158,7 @@ class MagicFolderEventHandler(QObject):
         self.download_finished.connect(
             self._operations_monitor.on_download_finished
         )
-        self.error_occurred.connect(self._operations_monitor.add_error)
+        self.error_occurred.connect(self._operations_monitor.on_error_occurred)
 
         self._progress_monitor = MagicFolderProgressMonitor(self)
         self.upload_queued.connect(self._progress_monitor.on_upload_queued)
