@@ -593,7 +593,7 @@ async def test_monitor_emits_files_updated_signal(
     author = randstr()
     await magic_folder.add_folder(path, author, poll_interval=1)
 
-    with qtbot.wait_signal(magic_folder.monitor.files_updated) as blocker:
+    with qtbot.wait_signal(magic_folder.events.files_updated) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -832,7 +832,7 @@ async def test_monitor_emits_folder_status_changed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.monitor.folder_status_changed
+        magic_folder.events.folder_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
@@ -851,7 +851,7 @@ async def test_monitor_emits_overall_status_changed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.monitor.overall_status_changed
+        magic_folder.events.overall_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
