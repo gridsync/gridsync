@@ -244,3 +244,64 @@ def test_overall_status_changed_signal_up_to_date(qtbot):
             }
         )
     assert blocker.args == [MagicFolderStatus.UP_TO_DATE]
+
+
+def test_sync_progress_updated_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    handler.handle(
+        {
+            "kind": "upload-queued",
+            "folder": "TestFolder",
+            "relpath": "File1",
+        }
+    )
+    handler.handle(
+        {
+            "kind": "upload-queued",
+            "folder": "TestFolder",
+            "relpath": "File2",
+        }
+    )
+    with qtbot.wait_signal(handler.sync_progress_updated) as blocker:
+        handler.handle(
+            {
+                "kind": "upload-finished",
+                "folder": "TestFolder",
+                "relpath": "File1",
+            }
+        )
+    assert blocker.args == ["TestFolder", 1, 2]  # 1/2 files uploaded
+
+
+def test_files_updated_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    handler.handle(
+        {
+            "kind": "upload-queued",
+            "folder": "TestFolder",
+            "relpath": "File1",
+        }
+    )
+    handler.handle(
+        {
+            "kind": "upload-queued",
+            "folder": "TestFolder",
+            "relpath": "File2",
+        }
+    )
+    with qtbot.wait_signal(handler.files_updated) as blocker:
+        handler.handle(
+            {
+                "kind": "upload-finished",
+                "folder": "TestFolder",
+                "relpath": "File1",
+            }
+        )
+        handler.handle(
+            {
+                "kind": "upload-finished",
+                "folder": "TestFolder",
+                "relpath": "File2",
+            }
+        )
+    assert blocker.args == ["TestFolder", ["File1", "File2"]]
