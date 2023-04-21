@@ -7,7 +7,6 @@ from gridsync.magic_folder import (
     MagicFolder,
     MagicFolderConfigError,
     MagicFolderError,
-    MagicFolderStatus,
 )
 from gridsync.tahoe import Tahoe
 
