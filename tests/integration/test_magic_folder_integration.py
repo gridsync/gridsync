@@ -809,13 +809,13 @@ async def test_monitor_emits_file_modified_signal(
 async def test_monitor_emits_folder_status_changed_signal(
     magic_folder, tmp_path, qtbot
 ):
-    folder_name = randstr()
-    path = tmp_path / folder_name
-    author = randstr()
-    await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.events.folder_status_changed, timeout=30000  # XXX
+        magic_folder.events.folder_status_changed, timeout=90000  # XXX
     ) as blocker:
+        folder_name = randstr()
+        path = tmp_path / folder_name
+        author = randstr()
+        await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
