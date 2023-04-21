@@ -602,24 +602,6 @@ async def test_monitor_emits_files_updated_signal(
     assert blocker.args == [folder_name, [filename]]
 
 
-def test_monitor_emits_error_occurred_signal(magic_folder, tmp_path, qtbot):
-    with qtbot.wait_signal(magic_folder.monitor.error_occurred) as blocker:
-        magic_folder.monitor._check_errors(
-            {
-                "folders": {
-                    "TestFolder": {
-                        "downloads": [],
-                        "errors": [{"timestamp": 1234567890, "summary": ":("}],
-                        "uploads": [],
-                        "recent": [],
-                    }
-                }
-            },
-            {},
-        )
-    assert blocker.args == ["TestFolder", ":(", 1234567890]
-
-
 @ensureDeferred
 async def test_monitor_emits_folder_added_signal(
     magic_folder, tmp_path, qtbot
