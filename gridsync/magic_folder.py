@@ -52,21 +52,8 @@ class MagicFolderWebError(MagicFolderError):
 
 
 class MagicFolderMonitor(QObject):
-    # status_message_received = Signal(dict)
-
-    # sync_progress_updated = Signal(str, object, object)  # folder, cur, total
-
-    # upload_started = Signal(str, str, dict)  # folder_name, relpath, data
-    # upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
-    # download_started = Signal(str, str, dict)  # folder_name, relpath, data
-    # download_finished = Signal(str, str, dict)  # folder_name, relpath, data
-    # files_updated = Signal(str, list)  # folder_name, relpaths
-
-    # error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
-
     folder_mtime_updated = Signal(str, int)  # folder_name, mtime
     folder_size_updated = Signal(str, object)  # folder_name, size
-    # folder_status_changed = Signal(str, object)  # folder_name, status
 
     backup_added = Signal(str)  # folder_name
     backup_removed = Signal(str)  # folder_name
@@ -77,7 +64,6 @@ class MagicFolderMonitor(QObject):
     file_size_updated = Signal(str, dict)  # folder_name, status
     file_modified = Signal(str, dict)  # folder_name, status
 
-    # overall_status_changed = Signal(object)  # MagicFolderStatus
     total_folders_size_updated = Signal(object)  # "object" avoids overflows
 
     def __init__(self, magic_folder: MagicFolder) -> None:
@@ -86,7 +72,6 @@ class MagicFolderMonitor(QObject):
 
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
-        # self.errors: list = []
 
         self._prev_state: dict = {}
         self._known_folders: dict[str, dict] = {}
@@ -95,9 +80,6 @@ class MagicFolderMonitor(QObject):
         self._folder_sizes: dict[str, int] = {}
         self._folder_statuses: dict[str, MagicFolderStatus] = {}
         self._total_folders_size: int = 0
-
-        # self._operations_queued: defaultdict[str, set] = defaultdict(set)
-        # self._operations_completed: defaultdict[str, dict] = defaultdict(dict)
 
         self.scan_bufferer = MagicFolderScanBufferer(self.magic_folder)
         self.poll_bufferer = MagicFolderPollBufferer(self.magic_folder)
@@ -109,146 +91,6 @@ class MagicFolderMonitor(QObject):
 
         self.event_handler = MagicFolderEventHandler()
 
-        # TODO(?): Remove forwarding; connect directly to slots
-        # self.event_handler.download_started.connect(self.download_started)
-        # self.event_handler.download_finished.connect(self.download_finished)
-
-    # def _check_errors(self, current_state: dict, previous_state: dict) -> None:
-    #     current_folders = current_state.get("folders", {})
-    #     previous_folders = previous_state.get("folders", {})
-    #     for folder, data in current_folders.items():
-    #         current_errors = data.get("errors", [])
-    #         prev_errors = previous_folders.get(folder, {}).get("errors", [])
-    #         for error in current_errors:
-    #             if error not in prev_errors:
-    #                 summary = error.get("summary", "")
-    #                 timestamp = error.get("timestamp", 0)
-    #                 self.error_occurred.emit(folder, summary, timestamp)
-    #                 error["folder"] = folder
-    #                 # XXX There is presently no way to "clear" (or
-    #                 # acknowledge the receipt of) Magic-Folder errors
-    #                 # so this will persist indefinitely...
-    #                 self.errors.append(error)
-    #
-    # @staticmethod
-    # def _parse_operations(
-    #     state: dict,
-    # ) -> tuple[defaultdict[str, dict], defaultdict[str, dict]]:
-    #     uploads: defaultdict[str, dict] = defaultdict(dict)
-    #     downloads: defaultdict[str, dict] = defaultdict(dict)
-    #     for folder, data in state.get("folders", {}).items():
-    #         for upload in data.get("uploads", []):
-    #             uploads[folder][upload["relpath"]] = upload
-    #         for download in data.get("downloads", []):
-    #             downloads[folder][download["relpath"]] = download
-    #     return (uploads, downloads)
-    #
-    # def _check_operations_started(
-    #     self,
-    #     current_operations: defaultdict[str, dict],
-    #     previous_operations: defaultdict[str, dict],
-    #     started_signal: SignalInstance,
-    # ) -> None:
-    #     for folder, operation in current_operations.items():
-    #         for relpath, data in operation.items():
-    #             if relpath not in previous_operations[folder]:
-    #                 self._operations_queued[folder].add(relpath)
-    #                 started_signal.emit(folder, relpath, data)
-    #
-    # def _check_operations_finished(
-    #     self,
-    #     current_operations: defaultdict[str, dict],
-    #     previous_operations: defaultdict[str, dict],
-    #     finished_signal: SignalInstance,
-    # ) -> None:
-    #     for folder, operation in previous_operations.items():
-    #         for relpath, data in operation.items():
-    #             if relpath not in current_operations[folder]:
-    #                 # XXX: Confirm in "recent" list?
-    #                 self._operations_completed[folder][relpath] = data
-    #                 finished_signal.emit(folder, relpath, data)
-    #
-    # def _parse_folder_statuses(self, state: dict) -> dict:
-    #     folder_statuses = {}
-    #     for folder, data in state.get("folders", {}).items():
-    #         if data.get("uploads") or data.get("downloads"):
-    #             folder_statuses[folder] = MagicFolderStatus.SYNCING
-    #         elif data.get("errors", []):
-    #             folder_statuses[folder] = MagicFolderStatus.ERROR
-    #         else:
-    #             last_poll = data.get("poller", {}).get("last-poll") or 0
-    #             last_scan = data.get("scanner", {}).get("last-scan") or 0
-    #             time_started = self.magic_folder.supervisor.time_started
-    #             if time_started and min(last_poll, last_scan) >= time_started:
-    #                 folder_statuses[folder] = MagicFolderStatus.UP_TO_DATE
-    #             else:
-    #                 folder_statuses[folder] = MagicFolderStatus.WAITING
-    #     return folder_statuses
-    #
-    # def _check_folder_statuses(self, folder_statuses: dict) -> None:
-    #     for folder, status in folder_statuses.items():
-    #         if status != self._folder_statuses.get(folder):
-    #             self.folder_status_changed.emit(folder, status)
-    #     self._folder_statuses = folder_statuses
-    #
-    # def _check_overall_status(self, folder_statuses: dict) -> None:
-    #     statuses = set(folder_statuses.values())
-    #     if MagicFolderStatus.SYNCING in statuses:  # At least one is syncing
-    #         status = MagicFolderStatus.SYNCING
-    #     elif MagicFolderStatus.ERROR in statuses:  # At least one has an error
-    #         status = MagicFolderStatus.ERROR
-    #     elif statuses == {MagicFolderStatus.UP_TO_DATE}:  # All are up to date
-    #         status = MagicFolderStatus.UP_TO_DATE
-    #     else:
-    #         status = MagicFolderStatus.WAITING
-    #     if status != self._overall_status:
-    #         self._overall_status = status
-    #         self.overall_status_changed.emit(status)
-    #         # XXX Something should wait on the result
-    #         Deferred.fromCoroutine(
-    #             self.do_check()
-    #         )  # Update folder sizes, mtimes
-    #
-    # def compare_states(
-    #     self, current_state: dict, previous_state: dict
-    # ) -> None:
-    # self._check_errors(current_state, previous_state)
-    # current_uploads, current_downloads = self._parse_operations(
-    #     current_state
-    # )
-    # previous_uploads, previous_downloads = self._parse_operations(
-    #     previous_state
-    # )
-    # self._check_operations_started(
-    #     current_uploads, previous_uploads, self.upload_started
-    # )
-    # self._check_operations_started(
-    #     current_downloads, previous_downloads, self.download_started
-    # )
-    # self._check_operations_finished(
-    #     current_uploads, previous_uploads, self.upload_finished
-    # )
-    # self._check_operations_finished(
-    #     current_downloads, previous_downloads, self.download_finished
-    # )
-    # for folder in list(previous_uploads) + list(previous_downloads):
-    #     # current = len(self._operations_completed[folder])
-    #     # total = len(self._operations_queued[folder])
-    #     # self.sync_progress_updated.emit(folder, current, total)
-    #     if not current_uploads[folder] and not current_downloads[folder]:
-    #         # updated_files = list(self._operations_completed[folder])
-    #         try:
-    #             del self._operations_completed[folder]
-    #         except KeyError:
-    #             pass
-    #         try:
-    #             del self._operations_queued[folder]
-    #         except KeyError:
-    #             pass
-    #         # self.files_updated.emit(folder, updated_files)
-    # folder_statuses = self._parse_folder_statuses(current_state)
-    # self._check_folder_statuses(folder_statuses)
-    # self._check_overall_status(folder_statuses)
 
     def compare_folders(
         self,
@@ -375,9 +217,8 @@ class MagicFolderMonitor(QObject):
         data = json.loads(msg)
         for event in data.get("events", []):
             self.event_handler.handle(event)
-        # self.status_message_received.emit(data)
+
         state = data.get("state", {})
-        # self.compare_states(state, self._prev_state)
         self._check_last_polls(state)
         self._prev_state = state
 
