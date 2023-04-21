@@ -44,7 +44,7 @@ class MagicFolderOperationsMonitor:
                 MagicFolderStatus.UP_TO_DATE
             )
 
-    def _update_status(self, folder: str) -> MagicFolderStatus | None:
+    def _update_status(self, folder: str) -> None:
         if self._uploads[folder] or self._downloads[folder]:
             status = MagicFolderStatus.SYNCING
         elif self._errors[folder]:
@@ -55,7 +55,6 @@ class MagicFolderOperationsMonitor:
             self._statuses[folder] = status
             self.event_handler.folder_status_changed.emit(folder, status)
             self._update_overall_status()
-            return status
 
     def on_upload_started(self, folder: str, relpath: str) -> None:
         self._uploads[folder].append(relpath)
