@@ -6,7 +6,6 @@ import os
 import sqlite3
 from collections import defaultdict
 from datetime import datetime
-from enum import Enum, auto
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union, cast
 
