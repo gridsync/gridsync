@@ -833,8 +833,7 @@ async def test_monitor_emits_overall_status_changed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.events.overall_status_changed,
-        timeout=90000
+        magic_folder.events.overall_status_changed, timeout=90000
     ) as blocker:
         filename = randstr()
         filepath = path / filename
