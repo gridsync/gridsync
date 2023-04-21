@@ -91,7 +91,6 @@ class MagicFolderMonitor(QObject):
 
         self.event_handler = MagicFolderEventHandler()
 
-
     def compare_folders(
         self,
         current_folders: dict[str, dict],
