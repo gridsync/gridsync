@@ -168,9 +168,7 @@ class MagicFolderEventHandler(QObject):
         )
 
     def handle(self, event: dict) -> None:
-        from pprint import pprint
-
-        pprint(event)  # XXX
+        print(event)  # XXX
         folder = event.get("folder", "")
         match event:
             case {"kind": "folder-added"}:
