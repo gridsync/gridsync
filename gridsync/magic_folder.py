@@ -73,7 +73,6 @@ class MagicFolderMonitor(QObject):
         self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
 
-        self._prev_state: dict = {}
         self._known_folders: dict[str, dict] = {}
         self._known_backups: list[str] = []
 
@@ -82,12 +81,9 @@ class MagicFolderMonitor(QObject):
         self._total_folders_size: int = 0
 
         self.scan_bufferer = MagicFolderScanBufferer(self.magic_folder)
-        self.poll_bufferer = MagicFolderPollBufferer(self.magic_folder)
 
         self._watchdog = Watchdog()
         self._watchdog.path_modified.connect(self.scan_bufferer.scan)
-
-        self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
 
         self.event_handler = MagicFolderEventHandler()
 
@@ -207,19 +203,10 @@ class MagicFolderMonitor(QObject):
             )
         self._check_total_folders_size()
 
-    def _check_last_polls(self, state: dict) -> None:
-        for folder_name, data in state.get("folders", {}).items():
-            if not (data.get("poller", {}).get("last-poll") or 0):
-                self.poll_bufferer.poll(folder_name)
-
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
         for event in data.get("events", []):
             self.event_handler.handle(event)
-
-        state = data.get("state", {})
-        self._check_last_polls(state)
-        self._prev_state = state
 
     async def _get_file_status(
         self, folder_name: str
@@ -798,27 +785,4 @@ class MagicFolderScanBufferer:
         self._scheduled_scans[path].add(event_id)
         reactor.callLater(  # type: ignore
             0.25, lambda: self._maybe_do_scan(event_id, path)
-        )
-
-
-class MagicFolderPollBufferer:
-    def __init__(self, magic_folder: MagicFolder) -> None:
-        self.magic_folder = magic_folder
-        self._scheduled_polls: defaultdict[str, set] = defaultdict(set)
-
-    def _maybe_do_poll(self, event_id: str, folder_name: str) -> None:
-        try:
-            self._scheduled_polls[folder_name].remove(event_id)
-        except KeyError:
-            pass
-        if self._scheduled_polls[folder_name]:
-            return
-        # XXX Something should handle errors
-        Deferred.fromCoroutine(self.magic_folder.poll(folder_name))
-
-    def poll(self, folder_name: str) -> None:
-        event_id = randstr(8)
-        self._scheduled_polls[folder_name].add(event_id)
-        reactor.callLater(  # type: ignore
-            1, lambda: self._maybe_do_poll(event_id, folder_name)
         )
