@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-astroid==2.15.3 \
-    --hash=sha256:44224ad27c54d770233751315fa7f74c46fa3ee0fab7beef1065f99f09897efe \
-    --hash=sha256:f11e74658da0f2a14a8d19776a8647900870a63de71db83713a8e77a6af52662
+astroid==2.15.4 \
+    --hash=sha256:a1b8543ef9d36ea777194bc9b17f5f8678d2c56ee6a45b2c2f17eec96f242347 \
+    --hash=sha256:c81e1c7fbac615037744d067a9bb5f9aeb655edf59b63ee8b59585475d6f80d8
     # via pylint
 black==23.3.0 \
     --hash=sha256:064101748afa12ad2291c2b91c960be28b817c0c7eaa35bec09cc63aa56493c5 \
