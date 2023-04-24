@@ -205,7 +205,10 @@ class MagicFolderMonitor(QObject):
 
     def on_status_message_received(self, msg: str) -> None:
         data = json.loads(msg)
-        for event in data.get("events", []):
+        events = data.get("events", [])
+        if not events:
+            logging.warning("Received a status message with no events")
+        for event in events:
             self.event_handler.handle(event)
 
     async def _get_file_status(
