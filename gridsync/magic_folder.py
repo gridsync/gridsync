@@ -207,7 +207,9 @@ class MagicFolderMonitor(QObject):
         data = json.loads(msg)
         events = data.get("events", [])
         if not events:
-            logging.warning("Received a status message with no events")
+            logging.warning(
+                'Received status message with no events: "%s"', data
+            )
         for event in events:
             self.event_handler.handle(event)
 
