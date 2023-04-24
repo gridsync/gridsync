@@ -53,10 +53,11 @@ py -m tox -e pyinstaller-windows || goto :error
 goto :eof
 
 :pyinstaller
-:: call :pyinstaller-merged
-py -m tox -e pyinstaller-tahoe-windows || goto :error
-py -m tox -e pyinstaller-magic-folder-windows || goto :error
-py -m tox -e pyinstaller-gridsync-windows || goto :error
+call :pyinstaller-merged
+:: XXX
+:: py -m tox -e pyinstaller-tahoe-windows || goto :error
+:: py -m tox -e pyinstaller-magic-folder-windows || goto :error
+:: py -m tox -e pyinstaller-gridsync-windows || goto :error
 goto :eof
 
 :zip
