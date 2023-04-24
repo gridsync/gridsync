@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from enum import Enum, auto
 
@@ -204,3 +205,5 @@ class MagicFolderEventHandler(QObject):
                 "happy": happy,
             }:
                 self.connection_changed.emit(connected, desired, happy)
+            case _:
+                logging.warning('Received unknown event kind: "%s"', event)
