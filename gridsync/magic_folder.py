@@ -90,7 +90,7 @@ class MagicFolderWatchdog:
     def remove_watch(self, path: str) -> None:
         try:
             self._watchdog.remove_watch(path)
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             logging.warning("Error removing watch for %s: %s", path, str(exc))
 
     def stop(self) -> None:
