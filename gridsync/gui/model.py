@@ -294,7 +294,7 @@ class Model(QStandardItemModel):
         if not items:
             return
         percent_done = int(transferred / total * 100)
-        if percent_done:
+        if percent_done and percent_done != 100:
             item = self.item(items[0].row(), 1)
             item.setText("Syncing ({}%)".format(percent_done))
 
