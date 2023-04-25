@@ -51,6 +51,55 @@ class MagicFolderWebError(MagicFolderError):
     pass
 
 
+class MagicFolderWatchdog:
+    def __init__(self, magic_folder: MagicFolder) -> None:
+        self.magic_folder = magic_folder
+
+        self._scheduled_scans: defaultdict[str, set] = defaultdict(set)
+        self._watchdog = Watchdog()
+        self._watchdog.path_modified.connect(self._schedule_scan)
+
+    def _maybe_do_scan(self, event_id: str, path: str) -> None:
+        try:
+            self._scheduled_scans[path].remove(event_id)
+        except KeyError:
+            pass
+        if self._scheduled_scans[path]:
+            return
+        for folder_name, data in self.magic_folder.magic_folders.items():
+            magic_path = data.get("magic_path", "")
+            if not magic_path:
+                continue
+            if path == magic_path or path.startswith(magic_path + os.sep):
+                # XXX Something should handle errors
+                Deferred.fromCoroutine(self.magic_folder.scan(folder_name))
+
+    def _schedule_scan(self, path: str) -> None:
+        event_id = randstr(16)
+        self._scheduled_scans[path].add(event_id)
+        reactor.callLater(  # type: ignore
+            0.25, lambda: self._maybe_do_scan(event_id, path)
+        )
+
+    def add_watch(self, path: str) -> None:
+        try:
+            self._watchdog.add_watch(path)
+        except Exception as exc:  # pylint: disable=broad-except
+            logging.warning("Error adding watch for %s: %s", path, str(exc))
+
+    def remove_watch(self, path: str) -> None:
+        try:
+            self._watchdog.remove_watch(path)
+        except Exception as exc:
+            logging.warning("Error removing watch for %s: %s", path, str(exc))
+
+    def stop(self) -> None:
+        self._watchdog.stop()
+
+    def start(self) -> None:
+        self._watchdog.start()
+
+
 class MagicFolderMonitor(QObject):
     folder_mtime_updated = Signal(str, int)  # folder_name, mtime
     folder_size_updated = Signal(str, object)  # folder_name, size
@@ -80,10 +129,7 @@ class MagicFolderMonitor(QObject):
         self._folder_statuses: dict[str, MagicFolderStatus] = {}
         self._total_folders_size: int = 0
 
-        self.scan_bufferer = MagicFolderScanBufferer(self.magic_folder)
-
-        self._watchdog = Watchdog()
-        self._watchdog.path_modified.connect(self.scan_bufferer.scan)
+        self._watchdog = MagicFolderWatchdog(self.magic_folder)
 
         self.event_handler = MagicFolderEventHandler()
 
@@ -96,22 +142,12 @@ class MagicFolderMonitor(QObject):
             if folder not in previous_folders:
                 # self.folder_added.emit(folder)
                 magic_path = data.get("magic_path", "")
-                try:
-                    self._watchdog.add_watch(magic_path)
-                except Exception as exc:  # pylint: disable=broad-except
-                    logging.warning(
-                        "Error adding watch for %s: %s", magic_path, str(exc)
-                    )
+                self._watchdog.add_watch(magic_path)
         for folder, data in previous_folders.items():
             if folder not in current_folders:
                 # self.folder_removed.emit(folder)
                 magic_path = data.get("magic_path", "")
-                try:
-                    self._watchdog.remove_watch(magic_path)
-                except Exception as exc:  # pylint: disable=broad-except
-                    logging.warning(
-                        "Error removing watch for %s: %s", magic_path, str(exc)
-                    )
+                self._watchdog.remove_watch(magic_path)
 
     def compare_backups(
         self, current_backups: list[str], previous_backups: list[str]
@@ -761,33 +797,3 @@ class MagicFolder:
             ).encode(),
         )
         return cast(dict, result)
-
-
-class MagicFolderScanBufferer:
-    def __init__(self, magic_folder: MagicFolder) -> None:
-        self.magic_folder = magic_folder
-        self._scheduled_scans: defaultdict[str, set] = defaultdict(set)
-
-    # XXX The `_maybe_do_...` functions could probably be refactored to
-    # duplicate less
-    def _maybe_do_scan(self, event_id: str, path: str) -> None:
-        try:
-            self._scheduled_scans[path].remove(event_id)
-        except KeyError:
-            pass
-        if self._scheduled_scans[path]:
-            return
-        for folder_name, data in self.magic_folder.magic_folders.items():
-            magic_path = data.get("magic_path", "")
-            if not magic_path:
-                continue
-            if path == magic_path or path.startswith(magic_path + os.sep):
-                # XXX Something should handle errors
-                Deferred.fromCoroutine(self.magic_folder.scan(folder_name))
-
-    def scan(self, path: str) -> None:
-        event_id = randstr(8)
-        self._scheduled_scans[path].add(event_id)
-        reactor.callLater(  # type: ignore
-            0.25, lambda: self._maybe_do_scan(event_id, path)
-        )
