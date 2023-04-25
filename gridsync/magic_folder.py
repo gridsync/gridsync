@@ -26,13 +26,13 @@ from gridsync.filter import is_eliot_log_message
 from gridsync.log import MultiFileLogger, NullLogger
 from gridsync.magic_folder_events import (
     MagicFolderEventHandler,
+    MagicFolderEventsMonitor,
     MagicFolderStatus,
 )
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
 from gridsync.watchdog import Watchdog
-from gridsync.websocket import WebSocketReaderService
 
 
 class MagicFolderError(Exception):
@@ -119,7 +119,7 @@ class MagicFolderMonitor(QObject):
         super().__init__()
         self.magic_folder = magic_folder
 
-        self._ws_reader: Optional[WebSocketReaderService] = None
+        # self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
 
         self._known_folders: dict[str, dict] = {}
@@ -132,6 +132,7 @@ class MagicFolderMonitor(QObject):
         self._watchdog = MagicFolderWatchdog(self.magic_folder)
 
         self.event_handler = MagicFolderEventHandler()
+        self.events_monitor = MagicFolderEventsMonitor(self.event_handler)
 
     def compare_folders(
         self,
@@ -239,16 +240,6 @@ class MagicFolderMonitor(QObject):
             )
         self._check_total_folders_size()
 
-    def on_status_message_received(self, msg: str) -> None:
-        data = json.loads(msg)
-        events = data.get("events", [])
-        if not events:
-            logging.warning(
-                'Received status message with no events: "%s"', data
-            )
-        for event in events:
-            self.event_handler.handle(event)
-
     async def _get_file_status(
         self, folder_name: str
     ) -> tuple[str, list[dict]]:
@@ -286,15 +277,9 @@ class MagicFolderMonitor(QObject):
         self._known_folders = current_folders
 
     def start(self) -> None:
-        if self._ws_reader is not None:
-            self._ws_reader.stop()
-            self._ws_reader = None
-        self._ws_reader = WebSocketReaderService(
-            f"ws://127.0.0.1:{self.magic_folder.api_port}/v1/status",
-            headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
-            collector=self.on_status_message_received,
+        self.events_monitor.start(
+            self.magic_folder.api_port, self.magic_folder.api_token
         )
-        self._ws_reader.start()
         self._watchdog.start()
         self.running = True
         # XXX Something should wait on the result
@@ -303,9 +288,7 @@ class MagicFolderMonitor(QObject):
     def stop(self) -> None:
         self.running = False
         self._watchdog.stop()
-        if self._ws_reader:
-            self._ws_reader.stop()
-            self._ws_reader = None
+        self.events_monitor.stop()
 
 
 class MagicFolder:

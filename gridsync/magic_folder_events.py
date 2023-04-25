@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
 import logging
 from collections import defaultdict
 from enum import Enum, auto
 
 from qtpy.QtCore import QObject, Signal
+
+from gridsync.websocket import WebSocketReaderService
 
 
 class MagicFolderStatus(Enum):
@@ -207,3 +210,36 @@ class MagicFolderEventHandler(QObject):
                 self.connection_changed.emit(connected, desired, happy)
             case _:
                 logging.warning('Received unknown event kind: "%s"', event)
+
+
+class MagicFolderEventsMonitor:
+    def __init__(self, event_handler: MagicFolderEventHandler) -> None:
+        self.event_handler = event_handler
+
+        self._ws_reader: WebSocketReaderService | None = None
+
+    def _on_status_message_received(self, message: str) -> None:
+        data = json.loads(message)
+        events = data.get("events", [])
+        if not events:
+            logging.warning(
+                'Received status message with no events: "%s"', data
+            )
+        for event in events:
+            self.event_handler.handle(event)
+
+    def start(self, api_port: int, api_token: str) -> None:
+        if self._ws_reader is not None:
+            self._ws_reader.stop()
+            self._ws_reader = None
+        self._ws_reader = WebSocketReaderService(
+            f"ws://127.0.0.1:{api_port}/v1/status",
+            headers={"Authorization": f"Bearer {api_token}"},
+            collector=self._on_status_message_received,
+        )
+        self._ws_reader.start()
+
+    def stop(self) -> None:
+        if self._ws_reader is not None:
+            self._ws_reader.stop()
+            self._ws_reader = None
