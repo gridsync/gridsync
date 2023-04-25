@@ -296,7 +296,7 @@ class Model(QStandardItemModel):
         percent_done = int(transferred / total * 100)
         if percent_done and percent_done != 100:
             item = self.item(items[0].row(), 1)
-            item.setText("Syncing ({}%)".format(percent_done))
+            item.setText(f"Syncing ({percent_done}%)")
 
     def fade_row(
         self, folder_name: str, overlay_file: Optional[str] = ""
