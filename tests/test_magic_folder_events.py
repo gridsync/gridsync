@@ -303,3 +303,12 @@ def test_files_updated_signal(qtbot):
             }
         )
     assert blocker.args == ["TestFolder", ["File1", "File2"]]
+
+
+def test_log_warning_for_unknown_event_kinds(monkeypatch):
+    handler = MagicFolderEventHandler()
+    warnings = []
+    monkeypatch.setattr("logging.warning", lambda *args: warnings.append(args))
+    event = {"kind": "unknown", "folder": "TestFolder"}
+    handler.handle(event)
+    assert warnings[0][1] == event
