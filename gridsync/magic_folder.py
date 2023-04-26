@@ -60,6 +60,7 @@ class MagicFolderWatchdog:
         self._watchdog.path_modified.connect(self._schedule_scan)
 
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
+        # TODO: Don't scan if sync is in progress?
         try:
             self._scheduled_scans[path].remove(event_id)
         except KeyError:
