@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import os
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
@@ -61,7 +60,7 @@ class HistoryItemWidget(QWidget):
 
         self.setAutoFillBackground(True)
 
-        self.basename = os.path.basename(os.path.normpath(self.path))
+        self.basename = Path(self.path).name
 
         self.setToolTip(
             f"{self.path}\n\n"
