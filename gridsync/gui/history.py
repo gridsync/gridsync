@@ -194,7 +194,7 @@ class HistoryListWidget(QListWidget):
         menu.addAction(open_folder_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
-    def add_history_item(
+    def add_item(
         self, folder: str, action: str, relpath: str, timestamp: float
     ) -> None:
         path = str(
@@ -231,17 +231,17 @@ class HistoryListWidget(QListWidget):
 
     def _on_file_added(self, folder: str, data: dict) -> None:
         # {'relpath': '.test', 'mtime': 1645557513, 'last-updated': 1681834280, 'last-upload-duration': 1.459647488, 'size': 0, 'path': '/home/user/Cat Pics/.test'}
-        self.add_history_item(
+        self.add_item(
             folder, "Added", data["relpath"], data["last-updated"]
         )
 
     def _on_file_modified(self, folder: str, data: dict) -> None:
-        self.add_history_item(
+        self.add_item(
             folder, "Updated", data["relpath"], data["last-updated"]
         )
 
     def _on_file_removed(self, folder: str, data: dict) -> None:
-        self.add_history_item(
+        self.add_item(
             folder, "Deleted", data["relpath"], data["last-updated"]
         )
 
@@ -249,13 +249,13 @@ class HistoryListWidget(QListWidget):
     def _on_upload_finished(
         self, folder: str, relpath: str, timestamp: float
     ) -> None:
-        self.add_history_item(folder, "Uploaded", relpath, int(timestamp))
+        self.add_item(folder, "Uploaded", relpath, int(timestamp))
 
     @Slot(str, str, float)
     def _on_download_finished(
         self, folder: str, relpath: str, timestamp: float
     ) -> None:
-        self.add_history_item(folder, "Downloaded", relpath, int(timestamp))
+        self.add_item(folder, "Downloaded", relpath, int(timestamp))
 
     def update_visible_widgets(self) -> None:
         if not self.isVisible():
