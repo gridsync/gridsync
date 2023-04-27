@@ -35,28 +35,15 @@ if TYPE_CHECKING:
 
 class HistoryItemWidget(QWidget):
     def __init__(
-        # self, gateway: Tahoe, data: dict, parent: HistoryListWidget
         self, path: str, mtime: int, parent: HistoryListWidget
     ) -> None:
         super().__init__(parent)
         # TODO:
         # * Distinguish between file "added", "modified", "deleted"?
         # * Display author/participant info?
-        # self.gateway = gateway
-        # self.data = data
-        self._parent = parent
-
-        # self.path = data.get("path", "Unknown")
-        # self.filesize = data.get("size")
-        # if self.filesize is None:
-        #     self.action = "Deleted"
-        #     self.filesize = 0
-        # else:
-        #     self.action = data.get("action", "Updated")
-        # self.mtime = data.get("last-updated", data.get("mtime", 0))
-
         self.path = path
         self.mtime = mtime
+        self._parent = parent
 
         self.action = "Updated"
         self._thumbnail_loaded = False
@@ -209,34 +196,6 @@ class HistoryListWidget(QListWidget):
         )
         menu.addAction(open_folder_action)
         menu.exec_(self.viewport().mapToGlobal(position))
-
-    def add_item(self, data: dict) -> None:
-        duplicate = None
-        if self.deduplicate:
-            for i in range(self.count()):
-                widget = self.itemWidget(self.item(i))
-                if (
-                    widget
-                    and isinstance(widget, HistoryItemWidget)
-                    and widget.data["path"] == data["path"]
-                    and widget.data.get("member") == data.get("member")  # XXX
-                ):
-                    duplicate = i
-                    break
-        if duplicate is not None:
-            item = self.takeItem(duplicate)
-            if not item:
-                return  # Otherwise, mypy interprets item as an Optional below
-        else:
-            self.takeItem(self.max_items)
-            item = QListWidgetItem()
-        mtime = int(data.get("last-updated", data.get("mtime")))
-        self.insertItem(1 - mtime, item)  # Newest on top
-        custom_widget = HistoryItemWidget(self.gateway, data, self)
-        item.setSizeHint(custom_widget.sizeHint())
-        self.setItemWidget(item, custom_widget)
-        item.setText(str(mtime))
-        self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
     def add_history_item(
         self, folder: str, relpath: str, timestamp: float
