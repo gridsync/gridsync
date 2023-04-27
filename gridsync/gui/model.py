@@ -72,6 +72,8 @@ class Model(QStandardItemModel):
             self.set_transfer_progress
         )
         self.mf_events.files_updated.connect(self.on_files_updated)
+        self.mf_events.download_finished.connect(self._on_operation_finished)
+        self.mf_events.upload_finished.connect(self._on_operation_finished)
 
     @Slot(str, str, int)
     def on_error_occurred(
@@ -339,6 +341,12 @@ class Model(QStandardItemModel):
             item.setData(mtime, Qt.UserRole)
             item.setText(naturaltime(int(time.time() - mtime)))
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
+
+    @Slot(str, str, float)
+    def _on_operation_finished(
+        self, name: str, _: str, timestamp: float
+    ) -> None:
+        self.set_mtime(name, int(timestamp))
 
     @Slot(str, object)
     def set_size(self, name: str, size: int) -> None:
