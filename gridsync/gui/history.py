@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import time
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
 from humanize import naturalsize, naturaltime
@@ -35,21 +36,27 @@ if TYPE_CHECKING:
 
 class HistoryItemWidget(QWidget):
     def __init__(
-        self, gateway: Tahoe, data: dict, parent: HistoryListWidget
+        # self, gateway: Tahoe, data: dict, parent: HistoryListWidget
+        self, path: str, mtime: int, parent: HistoryListWidget
     ) -> None:
         super().__init__(parent)
-        self.gateway = gateway
-        self.data = data
+        # self.gateway = gateway
+        # self.data = data
         self._parent = parent
 
-        self.path = data.get("path", "Unknown")
-        self.filesize = data.get("size")
-        if self.filesize is None:
-            self.action = "Deleted"
-            self.filesize = 0
-        else:
-            self.action = data.get("action", "Updated")
-        self.mtime = data.get("last-updated", data.get("mtime", 0))
+        # self.path = data.get("path", "Unknown")
+        # self.filesize = data.get("size")
+        # if self.filesize is None:
+        #     self.action = "Deleted"
+        #     self.filesize = 0
+        # else:
+        #     self.action = data.get("action", "Updated")
+        # self.mtime = data.get("last-updated", data.get("mtime", 0))
+
+        self.path = path
+        self.mtime = mtime
+
+        self.action = "Updated"
         self._thumbnail_loaded = False
 
         self.setAutoFillBackground(True)
@@ -57,7 +64,8 @@ class HistoryItemWidget(QWidget):
         self.basename = os.path.basename(os.path.normpath(self.path))
 
         self.setToolTip(
-            f"{self.path}\n\nSize: {naturalsize(self.filesize)}\n"
+            f"{self.path}\n\n"
+            # f"Size: {naturalsize(self.filesize)}\n"
             f"{self.action}: {time.ctime(self.mtime)}"
         )
 
@@ -228,17 +236,56 @@ class HistoryListWidget(QListWidget):
         item.setText(str(mtime))
         self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
-    def _on_file_added(self, _: str, data: dict) -> None:
+    def add_history_item(
+        self, folder: str, relpath: str, timestamp: float
+    ) -> None:
+        path = str(
+            Path(self.gateway.magic_folder.get_directory(folder), relpath)
+        )
+        duplicate = None
+        if self.deduplicate:
+            for i in range(self.count()):
+                widget = self.itemWidget(self.item(i))
+                if (
+                    widget
+                    and isinstance(widget, HistoryItemWidget)
+                    and widget.path == path
+                    # and widget.data.get("member") == data.get("member")  # XXX
+                ):
+                    duplicate = i
+                    break
+        if duplicate is not None:
+            item = self.takeItem(duplicate)
+            if not item:
+                return  # Otherwise, mypy interprets item as an Optional below
+        else:
+            self.takeItem(self.max_items)
+            item = QListWidgetItem()
+        # mtime = int(data.get("last-updated", data.get("mtime")))
+        mtime = int(timestamp)
+        self.insertItem(1 - mtime, item)  # Newest on top
+        # custom_widget = HistoryItemWidget(self.gateway, data, self)
+        custom_widget = HistoryItemWidget(path, mtime, self)
+        item.setSizeHint(custom_widget.sizeHint())
+        self.setItemWidget(item, custom_widget)
+        item.setText(str(mtime))
+        self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
+
+    def _on_file_added(self, folder: str, data: dict) -> None:
+        # {'relpath': '.test', 'mtime': 1645557513, 'last-updated': 1681834280, 'last-upload-duration': 1.459647488, 'size': 0, 'path': '/home/user/Cat Pics/.test'}
         # data["action"] = "added"  # XXX
-        self.add_item(data)
+        # self.add_item(data)
+        self.add_history_item(folder, data["relpath"], data["last-updated"])
 
-    def _on_file_modified(self, _: str, data: dict) -> None:
+    def _on_file_modified(self, folder: str, data: dict) -> None:
         # data["action"] = "modified"  # XXX
-        self.add_item(data)
+        # self.add_item(data)
+        self.add_history_item(folder, data["relpath"], data["last-updated"])
 
-    def _on_file_removed(self, _: str, data: dict) -> None:
+    def _on_file_removed(self, folder: str, data: dict) -> None:
         # data["action"] = "removed"  # XXX
-        self.add_item(data)
+        # self.add_item(data)
+        self.add_history_item(folder, data["relpath"], data["last-updated"])
 
     def update_visible_widgets(self) -> None:
         if not self.isVisible():
