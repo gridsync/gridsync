@@ -230,7 +230,6 @@ class HistoryListWidget(QListWidget):
         self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
     def _on_file_added(self, folder: str, data: dict) -> None:
-        # {'relpath': '.test', 'mtime': 1645557513, 'last-updated': 1681834280, 'last-upload-duration': 1.459647488, 'size': 0, 'path': '/home/user/Cat Pics/.test'}
         self.add_item(folder, "Added", data["relpath"], data["last-updated"])
 
     def _on_file_modified(self, folder: str, data: dict) -> None:
