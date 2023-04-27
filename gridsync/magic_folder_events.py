@@ -160,25 +160,25 @@ class MagicFolderEventHandler(QObject):
     def __init__(self) -> None:
         super().__init__()
 
-        self._operations_monitor = MagicFolderOperationsMonitor(self)
-        self.upload_started.connect(self._operations_monitor.on_upload_started)
-        self.upload_finished.connect(
-            self._operations_monitor.on_upload_finished
-        )
+        _om = MagicFolderOperationsMonitor(self)
+        self.upload_started.connect(lambda f, p: _om.on_upload_started(f, p))
+        self.upload_finished.connect(lambda f, p: _om.on_upload_finished(f, p))
         self.download_started.connect(
-            self._operations_monitor.on_download_started
+            lambda f, p: _om.on_download_started(f, p)
         )
         self.download_finished.connect(
-            self._operations_monitor.on_download_finished
+            lambda f, p: _om.on_download_finished(f, p)
         )
-        self.error_occurred.connect(self._operations_monitor.on_error_occurred)
+        self.error_occurred.connect(
+            lambda f, s, t: _om.on_error_occurred(f, s, t)
+        )
 
-        self._progress_monitor = MagicFolderProgressMonitor(self)
-        self.upload_queued.connect(self._progress_monitor.on_upload_queued)
-        self.upload_finished.connect(self._progress_monitor.on_upload_finished)
-        self.download_queued.connect(self._progress_monitor.on_download_queued)
+        _pm = MagicFolderProgressMonitor(self)
+        self.upload_queued.connect(lambda f, p: _pm.on_upload_queued(f, p))
+        self.upload_finished.connect(lambda f, p: _pm.on_upload_finished(f, p))
+        self.download_queued.connect(lambda f, p: _pm.on_download_queued(f, p))
         self.download_finished.connect(
-            self._progress_monitor.on_download_finished
+            lambda f, p: _pm.on_download_finished(f, p)
         )
 
     def handle(self, event: dict) -> None:
