@@ -137,11 +137,11 @@ class MagicFolderEventHandler(QObject):
 
     upload_queued = Signal(str, str)  # folder_name, relpath
     upload_started = Signal(str, str)  # folder_name, relpath
-    upload_finished = Signal(str, str)  # folder_name, relpath
+    upload_finished = Signal(str, str, float)  # folder_name, relpath, time
 
     download_queued = Signal(str, str)  # folder_name, relpath
     download_started = Signal(str, str)  # folder_name, relpath
-    download_finished = Signal(str, str)  # folder_name, relpath
+    download_finished = Signal(str, str, float)  # folder_name, relpath, time
 
     error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
@@ -195,13 +195,13 @@ class MagicFolderEventHandler(QObject):
             case {"kind": "upload-started", "relpath": relpath}:
                 self.upload_started.emit(folder, relpath)
             case {"kind": "upload-finished", "relpath": relpath}:
-                self.upload_finished.emit(folder, relpath)
+                self.upload_finished.emit(folder, relpath, timestamp)
             case {"kind": "download-queued", "relpath": relpath}:
                 self.download_queued.emit(folder, relpath)
             case {"kind": "download-started", "relpath": relpath}:
                 self.download_started.emit(folder, relpath)
             case {"kind": "download-finished", "relpath": relpath}:
-                self.download_finished.emit(folder, relpath)
+                self.download_finished.emit(folder, relpath, timestamp)
             case {"kind": "scan-completed"}:
                 self.scan_completed.emit(folder, timestamp)
             case {"kind": "poll-completed"}:
