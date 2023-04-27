@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
-from humanize import naturalsize, naturaltime
+from humanize import naturaltime
 from qtpy.QtCore import QEvent, QFileInfo, QPoint, Qt, QTimer, Slot
 from qtpy.QtGui import QCursor, QIcon, QPixmap, QShowEvent
 from qtpy.QtWidgets import (
