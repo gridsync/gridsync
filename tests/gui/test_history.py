@@ -19,10 +19,7 @@ def hiw(tmpdir_factory):
     gateway = Mock()
     gateway.magic_folder.get_directory.return_value = dst
     return HistoryItemWidget(
-        "Added",
-        "pixel.png",
-        123456789,
-        HistoryListWidget(gateway),
+        "Added", "pixel.png", 123456789, HistoryListWidget(gateway)
     )
 
 
@@ -77,18 +74,13 @@ def hlw(tmpdir_factory):
 
 
 def test_history_list_widget_on_double_click(hlw, monkeypatch):
-    print("################", hlw.gateway.magic_folder.get_directory())
     m = MagicMock()
     monkeypatch.setattr("gridsync.gui.history.open_enclosing_folder", m)
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryListWidget.itemWidget",
         MagicMock(
             return_value=HistoryItemWidget(
-                # hlw.gateway, {}, HistoryListWidget(hlw.gateway)
-                "Added",
-                "pixel.png",
-                123456789,
-                hlw,
+                "Added", "pixel.png", 123456789, hlw
             )
         ),
     )
