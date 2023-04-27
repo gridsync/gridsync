@@ -6,7 +6,7 @@ import time
 from collections import defaultdict
 from enum import Enum, auto
 
-from qtpy.QtCore import QObject, Signal
+from qtpy.QtCore import QObject, Signal, Slot
 
 from gridsync.websocket import WebSocketReaderService
 
@@ -61,10 +61,12 @@ class MagicFolderOperationsMonitor:
             self.event_handler.folder_status_changed.emit(folder, status)
             self._update_overall_status()
 
+    @Slot(str, str)
     def on_upload_started(self, folder: str, relpath: str) -> None:
         self._uploads[folder].append(relpath)
         self._update_status(folder)
 
+    @Slot(str, str)
     def on_upload_finished(self, folder: str, relpath: str) -> None:
         try:
             self._uploads[folder].remove(relpath)
@@ -72,10 +74,12 @@ class MagicFolderOperationsMonitor:
             pass
         self._update_status(folder)
 
+    @Slot(str, str)
     def on_download_started(self, folder: str, relpath: str) -> None:
         self._downloads[folder].append(relpath)
         self._update_status(folder)
 
+    @Slot(str, str)
     def on_download_finished(self, folder: str, relpath: str) -> None:
         try:
             self._downloads[folder].remove(relpath)
@@ -83,6 +87,7 @@ class MagicFolderOperationsMonitor:
             pass
         self._update_status(folder)
 
+    @Slot(str, str)
     def on_error_occurred(self, folder: str, summary: str) -> None:
         self._errors[folder].append(summary)
         self._update_status(folder)
@@ -105,18 +110,22 @@ class MagicFolderProgressMonitor:
             self._finished[folder] = []
             self.event_handler.files_updated.emit(folder, files)
 
+    @Slot(str, str)
     def on_upload_queued(self, folder: str, relpath: str) -> None:
         self._queued[folder].append(relpath)
         self._update_progress(folder)
 
+    @Slot(str, str)
     def on_upload_finished(self, folder: str, relpath: str) -> None:
         self._finished[folder].append(relpath)
         self._update_progress(folder)
 
+    @Slot(str, str)
     def on_download_queued(self, folder: str, relpath: str) -> None:
         self._queued[folder].append(relpath)
         self._update_progress(folder)
 
+    @Slot(str, str)
     def on_download_finished(self, folder: str, relpath: str) -> None:
         self._finished[folder].append(relpath)
         self._update_progress(folder)
