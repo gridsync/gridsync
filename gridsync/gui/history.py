@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import time
@@ -48,12 +47,8 @@ class HistoryItemWidget(QWidget):
 
         self.setAutoFillBackground(True)
 
-        self.basename = Path(self.path).name
-
         self.setToolTip(
-            f"{self.path}\n\n"
-            # f"Size: {naturalsize(self.filesize)}\n"
-            f"{self.action}: {time.ctime(self.mtime)}"
+            f"{self.path}\n\n{self.action}: {time.ctime(self.mtime)}"
         )
 
         self.icon = QLabel()
@@ -61,7 +56,7 @@ class HistoryItemWidget(QWidget):
             QFileIconProvider().icon(QFileInfo(self.path)).pixmap(48, 48)
         )
 
-        self.basename_label = QLabel(self.basename)
+        self.basename_label = QLabel(Path(self.path).resolve().name)
         self.basename_label.setFont(Font(11))
 
         self.details_label = QLabel()
