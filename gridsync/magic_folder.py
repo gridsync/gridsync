@@ -120,14 +120,12 @@ class MagicFolderMonitor(QObject):
         super().__init__()
         self.magic_folder = magic_folder
 
-        # self._ws_reader: Optional[WebSocketReaderService] = None
         self.running: bool = False
 
         self._known_folders: dict[str, dict] = {}
         self._known_backups: list[str] = []
 
         self._folder_sizes: dict[str, int] = {}
-        self._folder_statuses: dict[str, MagicFolderStatus] = {}
         self._total_folders_size: int = 0
 
         self._watchdog = MagicFolderWatchdog(self.magic_folder)
