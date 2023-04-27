@@ -126,12 +126,12 @@ class MagicFolderEventHandler(QObject):
     folder_removed = Signal(str)  # folder_name
 
     upload_queued = Signal(str, str)  # folder_name, relpath
-    upload_started = Signal(str, str, dict)  # folder_name, relpath, data
-    upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
+    upload_started = Signal(str, str)  # folder_name, relpath
+    upload_finished = Signal(str, str)  # folder_name, relpath
 
     download_queued = Signal(str, str)  # folder_name, relpath
-    download_started = Signal(str, str, dict)  # folder_name, relpath, data
-    download_finished = Signal(str, str, dict)  # folder_name, relpath, data
+    download_started = Signal(str, str)  # folder_name, relpath
+    download_finished = Signal(str, str)  # folder_name, relpath
 
     error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
 
@@ -182,15 +182,15 @@ class MagicFolderEventHandler(QObject):
             case {"kind": "upload-queued", "relpath": relpath}:
                 self.upload_queued.emit(folder, relpath)
             case {"kind": "upload-started", "relpath": relpath}:
-                self.upload_started.emit(folder, relpath, {})
+                self.upload_started.emit(folder, relpath)
             case {"kind": "upload-finished", "relpath": relpath}:
-                self.upload_finished.emit(folder, relpath, {})
+                self.upload_finished.emit(folder, relpath)
             case {"kind": "download-queued", "relpath": relpath}:
                 self.download_queued.emit(folder, relpath)
             case {"kind": "download-started", "relpath": relpath}:
-                self.download_started.emit(folder, relpath, {})
+                self.download_started.emit(folder, relpath)
             case {"kind": "download-finished", "relpath": relpath}:
-                self.download_finished.emit(folder, relpath, {})
+                self.download_finished.emit(folder, relpath)
             case {"kind": "scan-completed", "timestamp": timestamp}:
                 self.scan_completed.emit(folder, timestamp)
             case {"kind": "poll-completed", "timestamp": timestamp}:
