@@ -550,6 +550,9 @@ class MagicFolder:
     def get_directory(self, folder_name: str) -> str:
         return self.magic_folders.get(folder_name, {}).get("magic_path", "")
 
+    def get_status(self, folder_name: str) -> MagicFolderStatus:
+        return self.events.operations_monitor.get_status(folder_name)  # XXX
+
     def folder_is_local(self, folder_name: str) -> bool:
         return bool(folder_name in self.magic_folders)
 

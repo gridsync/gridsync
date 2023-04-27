@@ -172,6 +172,7 @@ class MagicFolderEventHandler(QObject):
         self.error_occurred.connect(
             lambda f, s, t: _om.on_error_occurred(f, s, t)
         )
+        self.operations_monitor = _om
 
         _pm = MagicFolderProgressMonitor(self)
         self.upload_queued.connect(lambda f, p: _pm.on_upload_queued(f, p))
@@ -180,6 +181,7 @@ class MagicFolderEventHandler(QObject):
         self.download_finished.connect(
             lambda f, p: _pm.on_download_finished(f, p)
         )
+        self.progress_monitor = _pm
 
     def handle(self, event: dict) -> None:
         print(event)  # XXX
