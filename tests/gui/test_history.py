@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import os
 import shutil
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 
@@ -18,17 +16,12 @@ def hiw(tmpdir_factory):
     src = os.path.join(os.getcwd(), "gridsync", "resources", "pixel.png")
     dst = str(tmpdir_factory.mktemp("test-magic-folder"))
     shutil.copy(src, dst)
-    gateway = MagicMock()
-    gateway.get_magic_folder_directory.return_value = dst
+    gateway = Mock()
+    gateway.magic_folder.get_directory.return_value = dst
     return HistoryItemWidget(
-        gateway,
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 123456789,
-            "path": "pixel.png",
-            "size": 0,
-        },
+        "Added",
+        "pixel.png",
+        123456789,
         HistoryListWidget(gateway),
     )
 
@@ -79,18 +72,23 @@ def test_history_item_widget_enter_event_pass_runtime_error(hiw):
 def hlw(tmpdir_factory):
     directory = str(tmpdir_factory.mktemp("test-magic-folder"))
     gateway = MagicMock()
-    gateway.get_magic_folder_directory.return_value = directory
+    gateway.magic_folder.get_directory.return_value = directory
     return HistoryListWidget(gateway)
 
 
 def test_history_list_widget_on_double_click(hlw, monkeypatch):
+    print("################", hlw.gateway.magic_folder.get_directory())
     m = MagicMock()
     monkeypatch.setattr("gridsync.gui.history.open_enclosing_folder", m)
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryListWidget.itemWidget",
         MagicMock(
             return_value=HistoryItemWidget(
-                hlw.gateway, {}, HistoryListWidget(hlw.gateway)
+                # hlw.gateway, {}, HistoryListWidget(hlw.gateway)
+                "Added",
+                "pixel.png",
+                123456789,
+                hlw,
             )
         ),
     )
@@ -106,7 +104,7 @@ def test_history_list_widget_on_right_click(hlw, monkeypatch):
         "gridsync.gui.history.HistoryListWidget.itemWidget",
         MagicMock(
             return_value=HistoryItemWidget(
-                hlw.gateway, {}, HistoryListWidget(hlw.gateway)
+                "Added", "pixel.png", 123456789, hlw
             )
         ),
     )
@@ -130,50 +128,18 @@ def test_history_list_widget_on_right_click_no_item_return(hlw, monkeypatch):
 
 
 def test_history_list_widget_add_item(hlw):
-    hlw.add_item(
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 123456789,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
+    hlw.add_item("TestFolder", "Added", "pixel.png", 123456789)
     assert hlw.count() == 1
 
 
 def test_history_list_widget_add_item_deduplicate(hlw):
-    hlw.add_item(
-        {
-            "action": "updated",
-            "member": "admin",
-            "mtime": 123456788,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
-    hlw.add_item(
-        {
-            "action": "updated",
-            "member": "admin",
-            "mtime": 123456789,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
+    hlw.add_item("TestFolder", "Added", "pixel.png", 123456788)
+    hlw.add_item("TestFolder", "Added", "pixel.png", 123456789)
     assert hlw.count() == 1
 
 
 def test_history_list_widget_update_visible_widgets(hlw, monkeypatch):
-    hlw.add_item(
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 99999,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
+    hlw.add_item("TestFolder", "Added", "pixel.png", 99999)
     m = MagicMock()
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryItemWidget.update_text", m
@@ -186,15 +152,7 @@ def test_history_list_widget_update_visible_widgets(hlw, monkeypatch):
 
 
 def test_history_list_widget_update_visible_widgets_return(hlw, monkeypatch):
-    hlw.add_item(
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 99999,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
+    hlw.add_item("TestFolder", "Added", "pixel.png", 99999)
     m = MagicMock()
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryItemWidget.update_text", m
