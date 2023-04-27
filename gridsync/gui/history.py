@@ -39,6 +39,9 @@ class HistoryItemWidget(QWidget):
         self, path: str, mtime: int, parent: HistoryListWidget
     ) -> None:
         super().__init__(parent)
+        # TODO:
+        # * Distinguish between file "added", "modified", "deleted"?
+        # * Display author/participant info?
         # self.gateway = gateway
         # self.data = data
         self._parent = parent
