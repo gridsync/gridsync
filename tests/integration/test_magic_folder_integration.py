@@ -833,7 +833,7 @@ async def test_monitor_emits_overall_status_changed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.events.overall_status_changed, timeout=90000
+        magic_folder.events.overall_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
@@ -969,7 +969,9 @@ async def test_invites_file_sync(
     wormhole_code = result["wormhole-code"]
 
     bob_path = tmp_path / "Bob" / folder_name
-    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    result = await bob_magic_folder.join(
+        folder_name, wormhole_code, bob_path, poll_interval=1, scan_interval=1
+    )
     assert result["success"] is True
     bob_folders = await bob_magic_folder.get_folders()
     assert folder_name in bob_folders
@@ -984,6 +986,6 @@ async def test_invites_file_sync(
     assert bob_filepath.exists() is False
     await bob_magic_folder.poll(folder_name)
     # FIXME; Why isn't the poll picking up this change??
-    await until(bob_filepath.exists, timeout=120)
+    await until(bob_filepath.exists)
 
     assert bob_filepath.read_text() == alice_filepath.read_text()
