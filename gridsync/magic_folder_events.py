@@ -87,8 +87,8 @@ class MagicFolderOperationsMonitor:
             pass
         self._update_status(folder)
 
-    @Slot(str, str)
-    def on_error_occurred(self, folder: str, summary: str) -> None:
+    @Slot(str, str, float)
+    def on_error_occurred(self, folder: str, summary: str, _: float) -> None:
         self._errors[folder].append(summary)
         self._update_status(folder)
 
