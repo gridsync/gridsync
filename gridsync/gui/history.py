@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
 from humanize import naturalsize, naturaltime
-from qtpy.QtCore import QEvent, QFileInfo, QPoint, Qt, QTimer
+from qtpy.QtCore import QEvent, QFileInfo, QPoint, Qt, QTimer, Slot
 from qtpy.QtGui import QCursor, QIcon, QPixmap, QShowEvent
 from qtpy.QtWidgets import (
     QAbstractItemView,
@@ -170,6 +170,10 @@ class HistoryListWidget(QListWidget):
         mf_monitor.file_modified.connect(self._on_file_modified)
         mf_monitor.file_removed.connect(self._on_file_removed)
 
+        mf_events = self.gateway.magic_folder.events
+        mf_events.upload_finished.connect(self._on_upload_finished)
+        mf_events.download_finished.connect(self._on_download_finished)
+
     def on_double_click(self, item: QListWidgetItem) -> None:
         w = self.itemWidget(item)
         if isinstance(w, HistoryItemWidget):
@@ -245,6 +249,18 @@ class HistoryListWidget(QListWidget):
         self.add_history_item(
             folder, "Deleted", data["relpath"], data["last-updated"]
         )
+
+    @Slot(str, str, float)
+    def _on_upload_finished(
+        self, folder: str, relpath: str, timestamp: float
+    ) -> None:
+        self.add_history_item(folder, "Uploaded", relpath, int(timestamp))
+
+    @Slot(str, str, float)
+    def _on_download_finished(
+        self, folder: str, relpath: str, timestamp: float
+    ) -> None:
+        self.add_history_item(folder, "Downloaded", relpath, int(timestamp))
 
     def update_visible_widgets(self) -> None:
         if not self.isVisible():
