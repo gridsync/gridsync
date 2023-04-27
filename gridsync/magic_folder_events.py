@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from collections import defaultdict
 from enum import Enum, auto
 
@@ -174,6 +175,7 @@ class MagicFolderEventHandler(QObject):
     def handle(self, event: dict) -> None:
         print(event)  # XXX
         folder = event.get("folder", "")
+        timestamp = float(event.get("timestamp", time.time()))
         match event:
             case {"kind": "folder-added"}:
                 self.folder_added.emit(folder)
@@ -191,15 +193,11 @@ class MagicFolderEventHandler(QObject):
                 self.download_started.emit(folder, relpath)
             case {"kind": "download-finished", "relpath": relpath}:
                 self.download_finished.emit(folder, relpath)
-            case {"kind": "scan-completed", "timestamp": timestamp}:
+            case {"kind": "scan-completed"}:
                 self.scan_completed.emit(folder, timestamp)
-            case {"kind": "poll-completed", "timestamp": timestamp}:
+            case {"kind": "poll-completed"}:
                 self.poll_completed.emit(folder, timestamp)
-            case {
-                "kind": "error-occurred",
-                "summary": summary,
-                "timestamp": timestamp,
-            }:
+            case {"kind": "error-occurred", "summary": summary}:
                 self.error_occurred.emit(folder, summary, timestamp)
             case {
                 "kind": "tahoe-connection-changed",
