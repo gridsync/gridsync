@@ -34,9 +34,9 @@ def is_valid_code(code: str) -> bool:
         return False
     if not words[0].isdigit():
         return False
-    if not words[1] in wordlist:
+    if words[1] not in wordlist:
         return False
-    if not words[2] in wordlist:
+    if words[2] not in wordlist:
         return False
     if words[0] == "0" and "-".join(words[1:3]) not in cheatcodes:
         return False

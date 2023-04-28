@@ -354,9 +354,9 @@ qtpy==2.3.1 \
     --hash=sha256:5193d20e0b16e4d9d3bc2c642d04d9f4e2c892590bd1b9c92bfe38a95d5a2e12 \
     --hash=sha256:a8c74982d6d172ce124d80cafd39653df78989683f760f2281ba91a6e7b9de8b
     # via -r requirements/gridsync.in
-requests==2.28.2 \
-    --hash=sha256:64299f4909223da747622c030b781c0d7811e359c37124b4bd368fb8c6518baa \
-    --hash=sha256:98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf
+requests==2.29.0 \
+    --hash=sha256:e8f3c9be120d3333921d213eef078af392fba3933ab7ed2d1cba3b56f2568c3b \
+    --hash=sha256:f2e34a75f4749019bb0e3effb66683630e4ffeaf75819fb51bebef1bf5aef059
     # via treq
 segno==1.5.2 \
     --hash=sha256:983424b296e62189d70fc73460cd946cf56dcbe82b9bda18c066fc1b24371cdc \
