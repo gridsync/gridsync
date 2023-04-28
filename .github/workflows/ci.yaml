@@ -205,7 +205,7 @@ jobs:
         key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
-      run: py -m pip install --upgrade setuptools pip tox diffoscope
+      run: py -m pip install --upgrade setuptools pip tox<4.5.0 diffoscope
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller
