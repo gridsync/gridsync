@@ -297,6 +297,7 @@ class Model(QStandardItemModel):
             return
         percent_done = int(transferred / total * 100)
         if percent_done and percent_done != 100:
+            self.set_status(folder_name, MagicFolderStatus.SYNCING)  # XXX
             item = self.item(items[0].row(), 1)
             item.setText(f"Syncing ({percent_done}%)")
 
