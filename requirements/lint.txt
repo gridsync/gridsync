@@ -139,9 +139,9 @@ pathspec==0.11.1 \
     --hash=sha256:2798de800fa92780e33acca925945e9a19a133b715067cf165b8866c15a31687 \
     --hash=sha256:d8af70af76652554bd134c22b3e8a1cc46ed7d91edcdd721ef1a0c51a84a5293
     # via black
-platformdirs==3.2.0 \
-    --hash=sha256:d5b638ca397f25f979350ff789db335903d7ea010ab28903f57b27e1b16c2b08 \
-    --hash=sha256:ebe11c0d7a805086e99506aa331612429a72ca7cd52a1f0d277dc4adc20cb10e
+platformdirs==3.5.0 \
+    --hash=sha256:47692bc24c1958e8b0f13dd727307cff1db103fca36399f457da8e05f222fdc4 \
+    --hash=sha256:7954a68d0ba23558d753f73437c55f89027cf8f5108c19844d4b82e5af396335
     # via
     #   black
     #   pylint
@@ -153,13 +153,32 @@ pyflakes==3.0.1 \
     --hash=sha256:ec55bf7fe21fff7f1ad2f7da62363d749e2a470500eab1b555334b67aa1ef8cf \
     --hash=sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd
     # via flake8
-pylint==2.17.2 \
-    --hash=sha256:001cc91366a7df2970941d7e6bbefcbf98694e00102c1f121c531a814ddc2ea8 \
-    --hash=sha256:1b647da5249e7c279118f657ca28b6aaebb299f86bf92affc632acf199f7adbb
+pylint==2.17.3 \
+    --hash=sha256:761907349e699f8afdcd56c4fe02f3021ab5b3a0fc26d19a9bfdc66c7d0d5cd5 \
+    --hash=sha256:a6cbb4c6e96eab4a3c7de7c6383c512478f58f88d95764507d84c899d656a89a
     # via -r requirements/lint.in
 pyqt5-stubs==5.15.6.0 \
     --hash=sha256:7fb8177c72489a8911f021b7bd7c33f12c87f6dba92dcef3fdcdb5d9400f0f3f \
     --hash=sha256:91270ac23ebf38a1dc04cd97aa852cd08af82dc839100e5395af1447e3e99707
+    # via -r requirements/lint.in
+ruff==0.0.263 \
+    --hash=sha256:04e0b280dd246448564c892bce5607d820ad1f14944f3d535db98692e2a7ac07 \
+    --hash=sha256:1008f211ad8aa1d998517ac5bf3d68fbc68ec516d1da89b6081f25ff2f30b687 \
+    --hash=sha256:15386933dd8e03aafa3186f9e996d6823105492817311338fbcb64d0ecbcd95f \
+    --hash=sha256:3e9fcee3f81129eabc75da005d839235e32d7d374f2d4c0db0c708dad4703d6e \
+    --hash=sha256:4010b156f2e9fa6e74b5581098467f6ff68beac48945599b3a9239481e578ab4 \
+    --hash=sha256:4f75fa1632ea065b8f10678e7b6ae9873f84d5046bdf146990112751e98af42a \
+    --hash=sha256:7890499c2c3dcb1e60de2a8b4c5f5775b2bfcdff7d3e68e38db5cb2d65b12006 \
+    --hash=sha256:82c41f276106017b6f075dd2f2cc68e1a0b434cc75488f816fc98bd41982628d \
+    --hash=sha256:981e3c4d773f7ff52479c4fd74a65e408f1e13fa5f889b72214d400cd1299ce4 \
+    --hash=sha256:9af932f665e177de62e172901704257fd6e5bfabb95893867ff7382a851459d3 \
+    --hash=sha256:bed1d3fba306e3f7e13ce226927b84200350e25abd1e754e06ee361c6d41de15 \
+    --hash=sha256:c2b79919ebd93674b93dfc2c843e264bf8e52fbe737467e9b58521775c85f4ad \
+    --hash=sha256:c3b7d4b365207f3e4c40d235127091478e595b31e35b6cd57d940920cdfae68b \
+    --hash=sha256:ddcee0d91629a4fa4bc9faebf5b94d4615d50d1cd76d1098fa71fbe1c54f4104 \
+    --hash=sha256:ddf4503595b560bfa5fae92fa2e4cb09ec465ee4cf88cc248f10ad2e956deec3 \
+    --hash=sha256:ebc778d95f29c9917e6e7608b2b67815707e6ab8eb5af9341617beda479c3edf \
+    --hash=sha256:ee6c7a77f142c427fa73e1f5f603fc1a39413a36fe6966ed0fc55e97f6921d9c
     # via -r requirements/lint.in
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
@@ -168,9 +187,9 @@ tomli==2.0.1 \
     #   black
     #   mypy
     #   pylint
-tomlkit==0.11.7 \
-    --hash=sha256:5325463a7da2ef0c6bbfefb62a3dc883aebe679984709aee32a317907d0a8d3c \
-    --hash=sha256:f392ef70ad87a672f02519f99967d28a4d3047133e2d1df936511465fbb3791d
+tomlkit==0.11.8 \
+    --hash=sha256:8c726c4c202bdb148667835f68d68780b9a003a9ec34167b6c673b38eff2a171 \
+    --hash=sha256:9330fc7faa1db67b541b28e62018c17d20be733177d290a13b24c62d1614e0c3
     # via pylint
 types-atomicwrites==1.4.5.1 \
     --hash=sha256:2f1febbdc78b55453b189fa5b136dce34bab7d1d82319163d470e404aab55c83 \
