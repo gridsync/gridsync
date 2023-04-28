@@ -1,1 +1,3 @@
 zero-knowledge-access-pass-authorizer >= 2022.8.21
+# Werkzeug 2.3+ breaks Klein. See https://github.com/twisted/klein/issues/574
+werkzeug==2.2.3
