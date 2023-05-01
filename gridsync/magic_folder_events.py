@@ -30,6 +30,8 @@ class MagicFolderOperationsMonitor:
         self._statuses: defaultdict[str, MagicFolderStatus] = defaultdict(
             lambda: MagicFolderStatus.LOADING
         )
+        self._last_scans: defaultdict[str, float] = defaultdict(float)
+        self._last_polls: defaultdict[str, float] = defaultdict(float)
 
     def get_status(self, folder_name: str) -> MagicFolderStatus:
         return self._statuses[folder_name]
@@ -54,6 +56,10 @@ class MagicFolderOperationsMonitor:
             status = MagicFolderStatus.SYNCING
         elif self._errors[folder]:
             status = MagicFolderStatus.ERROR
+        elif not self._last_scans[folder] or not self._last_polls[folder]:
+            # A folder should not be considered "up to date" until it
+            # has completed at least one scan and one poll.
+            return
         else:
             status = MagicFolderStatus.UP_TO_DATE
         if self._statuses[folder] != status:
@@ -90,6 +96,16 @@ class MagicFolderOperationsMonitor:
     @Slot(str, str, float)
     def on_error_occurred(self, folder: str, summary: str, _: float) -> None:
         self._errors[folder].append(summary)
+        self._update_status(folder)
+
+    @Slot(str, float)
+    def on_scan_completed(self, folder: str, timestamp: float) -> None:
+        self._last_scans[folder] = timestamp
+        self._update_status(folder)
+
+    @Slot(str, float)
+    def on_poll_completed(self, folder: str, timestamp: float) -> None:
+        self._last_polls[folder] = timestamp
         self._update_status(folder)
 
 
@@ -172,6 +188,8 @@ class MagicFolderEventHandler(QObject):
         self.error_occurred.connect(
             lambda f, s, t: _om.on_error_occurred(f, s, t)
         )
+        self.scan_completed.connect(lambda f, t: _om.on_scan_completed(f, t))
+        self.poll_completed.connect(lambda f, t: _om.on_poll_completed(f, t))
         self.operations_monitor = _om
 
         _pm = MagicFolderProgressMonitor(self)
