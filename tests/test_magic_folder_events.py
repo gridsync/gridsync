@@ -152,6 +152,12 @@ def test_folder_status_changed_signal_syncing(qtbot):
 def test_folder_status_changed_signal_up_to_date(qtbot):
     handler = MagicFolderEventHandler()
     handler.handle(
+        {"kind": "scan-completed", "folder": "TestFolder", "timestamp": 1.0}
+    )
+    handler.handle(
+        {"kind": "poll-completed", "folder": "TestFolder", "timestamp": 1.0}
+    )
+    handler.handle(
         {
             "kind": "upload-started",
             "folder": "TestFolder",
@@ -226,14 +232,28 @@ def test_overall_status_changed_signal_error(qtbot):
 
 def test_overall_status_changed_signal_up_to_date(qtbot):
     handler = MagicFolderEventHandler()
-    handler.handle(
-        {
-            "kind": "upload-queued",
-            "folder": "TestFolder",
-            "relpath": "test.txt",
-        }
-    )
     with qtbot.wait_signal(handler.overall_status_changed) as blocker:
+        handler.handle(
+            {
+                "kind": "scan-completed",
+                "folder": "TestFolder",
+                "timestamp": 1.0,
+            }
+        )
+        handler.handle(
+            {
+                "kind": "poll-completed",
+                "folder": "TestFolder",
+                "timestamp": 1.0,
+            }
+        )
+        handler.handle(
+            {
+                "kind": "upload-queued",
+                "folder": "TestFolder",
+                "relpath": "test.txt",
+            }
+        )
         handler.handle(
             {
                 "kind": "upload-finished",
