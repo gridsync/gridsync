@@ -1,3 +1,1 @@
 zero-knowledge-access-pass-authorizer >= 2022.8.21
-# Werkzeug 2.3 breaks Klein: https://tahoe-lafs.org/trac/tahoe-lafs/ticket/4020
-werkzeug==2.2.3

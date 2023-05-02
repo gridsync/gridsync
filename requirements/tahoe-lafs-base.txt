@@ -358,9 +358,9 @@ incremental==22.10.0 \
     #   treq
     #   twisted
     #   txtorcon
-klein==21.8.0 \
-    --hash=sha256:5231df96787d13b498fbd75b37d4fb3920f8249364d06159c687ede4b8a2464d \
-    --hash=sha256:901dae754366e0a655d67afa02b4fb6c825de4bb26d7a3784b1634907e6dfed6
+klein==23.5.0 \
+    --hash=sha256:75e484974352783cf19cdc553eb60ff043b8d234d1b3c387cdbb1c53d646f5c3 \
+    --hash=sha256:906912b7ab410d9a7f351202839c3cd73a2ac077bd0071c861c31f0eef760287
     # via tahoe-lafs
 magic-wormhole==0.12.0 \
     --hash=sha256:1b0fd8a334da978f3dd96b620fa9b9348cabedf26a87f74baac7a37052928160 \
@@ -686,11 +686,10 @@ urllib3==1.26.15 \
     --hash=sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305 \
     --hash=sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42
     # via requests
-werkzeug==2.2.3 \
-    --hash=sha256:2e1ccc9417d4da358b9de6f174e3ac094391ea1d4fbef2d667865d819dfd0afe \
-    --hash=sha256:56433961bc1f12533306c624f3be5e744389ac61d722175d543e1751285da612
+werkzeug==2.3.3 \
+    --hash=sha256:4866679a0722de00796a74086238bb3b98d90f423f05de039abb09315487254a \
+    --hash=sha256:a987caf1092edc7523edb139edb20c70571c4a8d5eed02e0b547b4739174d091
     # via
-    #   -r requirements/tahoe-lafs.in
     #   klein
     #   tahoe-lafs
 zero-knowledge-access-pass-authorizer==2022.8.21 \
