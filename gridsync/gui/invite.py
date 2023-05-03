@@ -101,9 +101,10 @@ class InviteCodeBox(QWidget):
         if sys.platform == "darwin":
             # "Courier" was removed from macOS 13
             font.setFamily("Courier New")
+            font.setStyleHint(QFont.TypeWriter)
         else:
             font.setFamily("Courier")
-        font.setStyleHint(QFont.Monospace)
+            font.setStyleHint(QFont.Monospace)
         # XXX
         print("###########", font.styleHint(), font.styleName(), font.family())
         self.noise_label.setFont(font)
