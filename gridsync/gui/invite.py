@@ -106,7 +106,12 @@ class InviteCodeBox(QWidget):
             font.setFamily("Courier")
             font.setStyleHint(QFont.Monospace)
         # XXX
-        print("###########", font.styleHint(), font.styleName(), font.family())
+        print("######################################################")
+        print("styleHint:", font.styleHint())
+        print("styleName:", font.styleName())
+        print("styleStrategy:", font.styleStrategy())
+        print("family:", font.family())
+        print("######################################################")
         self.noise_label.setFont(font)
         self.noise_label.setStyleSheet("color: grey")
 
