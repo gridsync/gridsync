@@ -146,7 +146,6 @@ class MagicFolderMonitor(QObject):
                 self._watchdog.add_watch(magic_path)
         for folder, data in previous_folders.items():
             if folder not in current_folders:
-                self.event_handler.folder_removed.emit(folder)  # XXX
                 magic_path = data.get("magic_path", "")
                 self._watchdog.remove_watch(magic_path)
 
