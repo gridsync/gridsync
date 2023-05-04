@@ -13,6 +13,7 @@ import treq
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList
+from twisted.internet.error import ConnectionRefusedError as ConnectionRefused
 from twisted.internet.task import deferLater
 from twisted.internet.error import ConnectionRefusedError
 
@@ -451,7 +452,7 @@ class MagicFolder:
                 headers={"Authorization": f"Bearer {self.api_token}"},
                 data=body,
             )
-        except ConnectionRefusedError:
+        except (ConnectionRefusedError, ConnectionRefused):
             self.api_port = self._read_api_port()
             resp = await treq.request(
                 method,
