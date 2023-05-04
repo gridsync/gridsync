@@ -12,8 +12,8 @@ from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
 from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
-from gridsync.tahoe import Tahoe
 from gridsync.network import get_free_port
+from gridsync.tahoe import Tahoe
 from gridsync.util import until
 
 if sys.platform == "darwin":

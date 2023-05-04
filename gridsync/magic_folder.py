@@ -15,7 +15,6 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList
 from twisted.internet.error import ConnectionRefusedError as ConnectionRefused
 from twisted.internet.task import deferLater
-from twisted.internet.error import ConnectionRefusedError
 
 if TYPE_CHECKING:
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
