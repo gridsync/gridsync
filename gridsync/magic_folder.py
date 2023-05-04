@@ -360,12 +360,6 @@ class MagicFolder:
         await self.supervisor.stop()
 
     def _read_api_token(self) -> str:
-        # TODO / FIXME / XXX "The token value is periodically rotated
-        # so clients must be prepared to receive an Unauthorized
-        # response even when supplying the token. In this case, the
-        # client should re-read the token from the filesystem to
-        # determine if the value held in memory has become stale."
-        # From https://github.com/LeastAuthority/magic-folder/blob/main/docs/interface.rst
         p = Path(self.configdir, "api_token")
         try:
             api_token = p.read_text(encoding="utf-8").strip()
@@ -453,6 +447,21 @@ class MagicFolder:
             headers={"Authorization": f"Bearer {self.api_token}"},
             data=body,
         )
+        if resp.code == 401:
+            # From https://github.com/LeastAuthority/magic-folder/blob/
+            # main/docs/interface.rst: "The token value is periodically
+            # rotated so clients must be prepared to receive an
+            # Unauthorized response even when supplying the token. In
+            # this case, the client should re-read the token from the
+            # filesystem to determine if the value held in memory has
+            # become stale."
+            self.api_token = self._read_api_token()
+            resp = await treq.request(
+                method,
+                f"http://127.0.0.1:{self.api_port}{path}",
+                headers={"Authorization": f"Bearer {self.api_token}"},
+                data=body,
+            )
         content = await treq.content(resp)
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
             return json.loads(content)
