@@ -109,6 +109,13 @@ async def test_get_folders(magic_folder):
 
 
 @ensureDeferred
+async def test__request_reloads_api_token_if_unauthorized(magic_folder):
+    magic_folder.api_token = "InvalidTokenValue"
+    folders = await magic_folder.get_folders()
+    assert folders == {}
+
+
+@ensureDeferred
 async def test_add_folder(magic_folder, tmp_path):
     folder_name = randstr()
     path = tmp_path / folder_name
