@@ -161,9 +161,12 @@ class HistoryListWidget(QListWidget):
         )
 
         mf_monitor = self.gateway.magic_folder.monitor
-        mf_monitor.file_added.connect(self._on_file_added)
+        # XXX Magic-Folder does not yet send events for different
+        # "kinds" of file-changes (e.g., "added" vs. "modified" vs.
+        # "removed"), so just treat them all as "modified" for now.
+        mf_monitor.file_added.connect(self._on_file_modified)
         mf_monitor.file_modified.connect(self._on_file_modified)
-        mf_monitor.file_removed.connect(self._on_file_removed)
+        mf_monitor.file_removed.connect(self._on_file_modified)
 
         mf_events = self.gateway.magic_folder.events
         mf_events.upload_finished.connect(self._on_upload_finished)
