@@ -135,6 +135,16 @@ class MagicFolderMonitor(QObject):
         self.event_handler = MagicFolderEventHandler()
         self.events_monitor = MagicFolderEventsMonitor(self.event_handler)
 
+        self.event_handler.folder_added.connect(
+            lambda _: Deferred.fromCoroutine(self.do_check())
+        )
+        self.event_handler.folder_removed.connect(
+            lambda _: Deferred.fromCoroutine(self.do_check())
+        )
+        self.event_handler.folder_status_changed.connect(
+            lambda f, s: Deferred.fromCoroutine(self.do_check())
+        )
+
     def compare_folders(
         self,
         current_folders: dict[str, dict],
