@@ -13,6 +13,7 @@ from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
 from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
 from gridsync.tahoe import Tahoe
+from gridsync.network import get_free_port
 from gridsync.util import until
 
 if sys.platform == "darwin":
@@ -104,6 +105,13 @@ async def test_version(magic_folder):
 
 @ensureDeferred
 async def test_get_folders(magic_folder):
+    folders = await magic_folder.get_folders()
+    assert folders == {}
+
+
+@ensureDeferred
+async def test__request_reloads_api_port_if_connection_refused(magic_folder):
+    magic_folder.api_port = get_free_port()
     folders = await magic_folder.get_folders()
     assert folders == {}
 
