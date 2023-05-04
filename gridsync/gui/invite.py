@@ -98,7 +98,11 @@ class InviteCodeBox(QWidget):
 
         self.noise_label = QLabel()
         font = Font(16)
-        font.setFamily("Courier")
+        if sys.platform == "darwin":
+            # "Courier" was removed from macOS 13
+            font.setFamily("Courier New")
+        else:
+            font.setFamily("Courier")
         font.setStyleHint(QFont.Monospace)
         self.noise_label.setFont(font)
         self.noise_label.setStyleSheet("color: grey")
