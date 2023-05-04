@@ -141,6 +141,9 @@ class MagicFolderMonitor(QObject):
     ) -> None:
         for folder, data in current_folders.items():
             if folder not in previous_folders:
+                # Magic-Folder does not send "folder-added" events for
+                # already-existing folders on startup, so manually emit
+                # the signal when we first see a folder.
                 self.event_handler.folder_added.emit(folder)  # XXX
                 magic_path = data.get("magic_path", "")
                 self._watchdog.add_watch(magic_path)
