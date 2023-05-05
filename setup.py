@@ -42,7 +42,7 @@ qt_requirements = {
     "pyside2": ["PySide2"],
     "pyside6": ["PySide6"],
 }
-qt_api = os.environ.get("QT_API", "pyqt5").lower()
+qt_api = os.environ.get("QT_API", "pyqt6").lower()
 if qt_api not in qt_requirements:
     sys.exit(
         f'The requested Qt API "{qt_api}" is invalid; '

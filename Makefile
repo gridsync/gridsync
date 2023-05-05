@@ -191,26 +191,26 @@ vagrant-build-windows:
 
 
 container-image:
-	@if [ -z "${QT_VERSION}" ] ; then export QT_VERSION=5 ; fi ; \
+	@if [ -z "${QT_VERSION}" ] ; then export QT_VERSION=6 ; fi ; \
 	podman build --timestamp 1651072070 \
 		--tag gridsync-builder-qt$${QT_VERSION} \
 		--file Containerfile.qt$${QT_VERSION}
 
 push-container-image:
-	@if [ -z "${QT_VERSION}" ] ; then export QT_VERSION=5 ; fi ; \
+	@if [ -z "${QT_VERSION}" ] ; then export QT_VERSION=6 ; fi ; \
 	podman login docker.io && \
 	podman push --digestfile misc/gridsync-builder-qt$${QT_VERSION}.digest \
 		gridsync-builder-qt$${QT_VERSION} \
 		docker.io/gridsync/gridsync-builder-qt$${QT_VERSION}
 
 in-container:
-	@if [ "${QT_API}" == "pyqt6" ] || [ "${QT_API}" == "pyside6" ] ; then \
+	@if [ "${QT_API}" == "pyqt5" ] || [ "${QT_API}" == "pyside2" ] ; then \
+		export _QT_VERSION=5 ; \
+	elif [ "${QT_API}" == "pyside6" ] ; then \
 		export _QT_VERSION=6 ; \
-	elif [ "${QT_API}" == "pyside2" ] ; then \
-		export _QT_VERSION=5 ; \
 	else \
-		export QT_API=pyqt5 ; \
-		export _QT_VERSION=5 ; \
+		export QT_API=pyqt6 ; \
+		export _QT_VERSION=6 ; \
 	fi && \
 	$${CONTAINER_RUNTIME:-podman} run --rm \
 		--mount type=bind,src=$$(pwd),target=/gridsync \
