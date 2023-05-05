@@ -12,6 +12,7 @@ from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
 from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
+from gridsync.network import get_free_port
 from gridsync.tahoe import Tahoe
 from gridsync.util import until
 
@@ -104,6 +105,20 @@ async def test_version(magic_folder):
 
 @ensureDeferred
 async def test_get_folders(magic_folder):
+    folders = await magic_folder.get_folders()
+    assert folders == {}
+
+
+@ensureDeferred
+async def test__request_reloads_api_port_if_connection_refused(magic_folder):
+    magic_folder.api_port = get_free_port()
+    folders = await magic_folder.get_folders()
+    assert folders == {}
+
+
+@ensureDeferred
+async def test__request_reloads_api_token_if_unauthorized(magic_folder):
+    magic_folder.api_token = "InvalidTokenValue"
     folders = await magic_folder.get_folders()
     assert folders == {}
 
@@ -538,7 +553,7 @@ async def test_monitor_emits_sync_progress_updated_signal(
     await magic_folder.add_folder(path, author, poll_interval=1)
 
     with qtbot.wait_signal(
-        magic_folder.monitor.sync_progress_updated
+        magic_folder.events.sync_progress_updated
     ) as blocker:
         filename = randstr()
         filepath = path / filename
@@ -557,7 +572,7 @@ async def test_monitor_emits_upload_started_signal(
     author = randstr()
     await magic_folder.add_folder(path, author, poll_interval=1)
 
-    with qtbot.wait_signal(magic_folder.monitor.upload_started) as blocker:
+    with qtbot.wait_signal(magic_folder.events.upload_started) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -575,7 +590,7 @@ async def test_monitor_emits_upload_finished_signal(
     author = randstr()
     await magic_folder.add_folder(path, author, poll_interval=1)
 
-    with qtbot.wait_signal(magic_folder.monitor.upload_finished) as blocker:
+    with qtbot.wait_signal(magic_folder.events.upload_finished) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
@@ -593,31 +608,13 @@ async def test_monitor_emits_files_updated_signal(
     author = randstr()
     await magic_folder.add_folder(path, author, poll_interval=1)
 
-    with qtbot.wait_signal(magic_folder.monitor.files_updated) as blocker:
+    with qtbot.wait_signal(magic_folder.events.files_updated) as blocker:
         filename = randstr()
         filepath = path / filename
         filepath.write_text(randstr() * 10)
         await magic_folder.scan(folder_name)
         await deferLater(reactor, 1, lambda: None)
     assert blocker.args == [folder_name, [filename]]
-
-
-def test_monitor_emits_error_occured_signal(magic_folder, tmp_path, qtbot):
-    with qtbot.wait_signal(magic_folder.monitor.error_occurred) as blocker:
-        magic_folder.monitor._check_errors(
-            {
-                "folders": {
-                    "TestFolder": {
-                        "downloads": [],
-                        "errors": [{"timestamp": 1234567890, "summary": ":("}],
-                        "uploads": [],
-                        "recent": [],
-                    }
-                }
-            },
-            {},
-        )
-    assert blocker.args == ["TestFolder", ":(", 1234567890]
 
 
 @ensureDeferred
@@ -628,7 +625,7 @@ async def test_monitor_emits_folder_added_signal(
     path = tmp_path / folder_name
     author = randstr()
     await magic_folder.monitor.do_check()
-    with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
+    with qtbot.wait_signal(magic_folder.events.folder_added) as blocker:
         await magic_folder.add_folder(path, author)
         await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
@@ -641,7 +638,7 @@ async def test_monitor_emits_folder_added_signal_via_status_message(
     folder_name = randstr()
     path = tmp_path / folder_name
     author = randstr()
-    with qtbot.wait_signal(magic_folder.monitor.folder_added) as blocker:
+    with qtbot.wait_signal(magic_folder.events.folder_added) as blocker:
         await magic_folder.add_folder(path, author)
         filename = randstr()
         filepath = path / filename
@@ -713,7 +710,7 @@ async def test_monitor_emits_folder_removed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     await magic_folder.monitor.do_check()
-    with qtbot.wait_signal(magic_folder.monitor.folder_removed) as blocker:
+    with qtbot.wait_signal(magic_folder.events.folder_removed) as blocker:
         await magic_folder.leave_folder(folder_name)
         await magic_folder.monitor.do_check()
     assert blocker.args == [folder_name]
@@ -832,7 +829,7 @@ async def test_monitor_emits_folder_status_changed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.monitor.folder_status_changed
+        magic_folder.events.folder_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
@@ -851,7 +848,7 @@ async def test_monitor_emits_overall_status_changed_signal(
     author = randstr()
     await magic_folder.add_folder(path, author)
     with qtbot.wait_signal(
-        magic_folder.monitor.overall_status_changed
+        magic_folder.events.overall_status_changed
     ) as blocker:
         filename = randstr()
         filepath = path / filename
@@ -987,7 +984,9 @@ async def test_invites_file_sync(
     wormhole_code = result["wormhole-code"]
 
     bob_path = tmp_path / "Bob" / folder_name
-    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    result = await bob_magic_folder.join(
+        folder_name, wormhole_code, bob_path, poll_interval=1, scan_interval=1
+    )
     assert result["success"] is True
     bob_folders = await bob_magic_folder.get_folders()
     assert folder_name in bob_folders

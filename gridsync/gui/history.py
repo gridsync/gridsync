@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import os
 import time
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
-from humanize import naturalsize, naturaltime
-from qtpy.QtCore import QEvent, QFileInfo, QPoint, Qt, QTimer
+from humanize import naturaltime
+from qtpy.QtCore import QEvent, QFileInfo, QPoint, Qt, QTimer, Slot
 from qtpy.QtGui import QCursor, QIcon, QPixmap, QShowEvent
 from qtpy.QtWidgets import (
     QAbstractItemView,
@@ -35,30 +34,21 @@ if TYPE_CHECKING:
 
 class HistoryItemWidget(QWidget):
     def __init__(
-        self, gateway: Tahoe, data: dict, parent: HistoryListWidget
+        self, action: str, path: str, mtime: int, parent: HistoryListWidget
     ) -> None:
         super().__init__(parent)
-        self.gateway = gateway
-        self.data = data
+        # TODO: Display author/participant info?
+        self.action = action
+        self.path = path
+        self.mtime = mtime
         self._parent = parent
 
-        self.path = data.get("path", "Unknown")
-        self.filesize = data.get("size")
-        if self.filesize is None:
-            self.action = "Deleted"
-            self.filesize = 0
-        else:
-            self.action = data.get("action", "Updated")
-        self.mtime = data.get("last-updated", data.get("mtime", 0))
         self._thumbnail_loaded = False
 
         self.setAutoFillBackground(True)
 
-        self.basename = os.path.basename(os.path.normpath(self.path))
-
         self.setToolTip(
-            f"{self.path}\n\nSize: {naturalsize(self.filesize)}\n"
-            f"{self.action}: {time.ctime(self.mtime)}"
+            f"{self.path}\n\n{self.action}: {time.ctime(self.mtime)}"
         )
 
         self.icon = QLabel()
@@ -66,7 +56,7 @@ class HistoryItemWidget(QWidget):
             QFileIconProvider().icon(QFileInfo(self.path)).pixmap(48, 48)
         )
 
-        self.basename_label = QLabel(self.basename)
+        self.basename_label = QLabel(Path(self.path).resolve().name)
         self.basename_label.setFont(Font(11))
 
         self.details_label = QLabel()
@@ -171,9 +161,16 @@ class HistoryListWidget(QListWidget):
         )
 
         mf_monitor = self.gateway.magic_folder.monitor
-        mf_monitor.file_added.connect(self._on_file_added)
+        # XXX Magic-Folder does not yet send events for different
+        # "kinds" of file-changes (e.g., "added" vs. "modified" vs.
+        # "removed"), so just treat them all as "modified" for now.
+        mf_monitor.file_added.connect(self._on_file_modified)
         mf_monitor.file_modified.connect(self._on_file_modified)
-        mf_monitor.file_removed.connect(self._on_file_removed)
+        mf_monitor.file_removed.connect(self._on_file_modified)
+
+        mf_events = self.gateway.magic_folder.events
+        mf_events.upload_finished.connect(self._on_upload_finished)
+        mf_events.download_finished.connect(self._on_download_finished)
 
     def on_double_click(self, item: QListWidgetItem) -> None:
         w = self.itemWidget(item)
@@ -200,7 +197,12 @@ class HistoryListWidget(QListWidget):
         menu.addAction(open_folder_action)
         menu.exec_(self.viewport().mapToGlobal(position))
 
-    def add_item(self, data: dict) -> None:
+    def add_item(
+        self, folder: str, action: str, relpath: str, timestamp: float
+    ) -> None:
+        path = str(
+            Path(self.gateway.magic_folder.get_directory(folder), relpath)
+        )
         duplicate = None
         if self.deduplicate:
             for i in range(self.count()):
@@ -208,8 +210,8 @@ class HistoryListWidget(QListWidget):
                 if (
                     widget
                     and isinstance(widget, HistoryItemWidget)
-                    and widget.data["path"] == data["path"]
-                    and widget.data.get("member") == data.get("member")  # XXX
+                    and widget.path == path
+                    # and widget.data.get("member") == data.get("member")  # XXX
                 ):
                     duplicate = i
                     break
@@ -220,25 +222,34 @@ class HistoryListWidget(QListWidget):
         else:
             self.takeItem(self.max_items)
             item = QListWidgetItem()
-        mtime = int(data.get("last-updated", data.get("mtime")))
+        mtime = int(timestamp)
         self.insertItem(1 - mtime, item)  # Newest on top
-        custom_widget = HistoryItemWidget(self.gateway, data, self)
+        custom_widget = HistoryItemWidget(action, path, mtime, self)
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)
         item.setText(str(mtime))
         self.sortItems(Qt.DescendingOrder)  # Sort by mtime; newest on top
 
-    def _on_file_added(self, _: str, data: dict) -> None:
-        # data["action"] = "added"  # XXX
-        self.add_item(data)
+    def _on_file_added(self, folder: str, data: dict) -> None:
+        self.add_item(folder, "Added", data["relpath"], data["last-updated"])
 
-    def _on_file_modified(self, _: str, data: dict) -> None:
-        # data["action"] = "modified"  # XXX
-        self.add_item(data)
+    def _on_file_modified(self, folder: str, data: dict) -> None:
+        self.add_item(folder, "Updated", data["relpath"], data["last-updated"])
 
-    def _on_file_removed(self, _: str, data: dict) -> None:
-        # data["action"] = "removed"  # XXX
-        self.add_item(data)
+    def _on_file_removed(self, folder: str, data: dict) -> None:
+        self.add_item(folder, "Deleted", data["relpath"], data["last-updated"])
+
+    @Slot(str, str, float)
+    def _on_upload_finished(
+        self, folder: str, relpath: str, timestamp: float
+    ) -> None:
+        self.add_item(folder, "Uploaded", relpath, int(timestamp))
+
+    @Slot(str, str, float)
+    def _on_download_finished(
+        self, folder: str, relpath: str, timestamp: float
+    ) -> None:
+        self.add_item(folder, "Downloaded", relpath, int(timestamp))
 
     def update_visible_widgets(self) -> None:
         if not self.isVisible():
