@@ -222,10 +222,8 @@ class HistoryListWidget(QListWidget):
         else:
             self.takeItem(self.max_items)
             item = QListWidgetItem()
-        # mtime = int(data.get("last-updated", data.get("mtime")))
         mtime = int(timestamp)
         self.insertItem(1 - mtime, item)  # Newest on top
-        # custom_widget = HistoryItemWidget(self.gateway, data, self)
         custom_widget = HistoryItemWidget(action, path, mtime, self)
         item.setSizeHint(custom_widget.sizeHint())
         self.setItemWidget(item, custom_widget)

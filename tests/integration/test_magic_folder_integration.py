@@ -1000,7 +1000,6 @@ async def test_invites_file_sync(
     bob_filepath = bob_path / file_name
     assert bob_filepath.exists() is False
     await bob_magic_folder.poll(folder_name)
-    # FIXME; Why isn't the poll picking up this change??
     await until(bob_filepath.exists)
 
     assert bob_filepath.read_text() == alice_filepath.read_text()
