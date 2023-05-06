@@ -1,12 +1,12 @@
 [project]
 name = "gridsync"
 description = "Synchronize local directories with Tahoe-LAFS storage grids"
-keywords = "gridsync tahoe-lafs tahoe lafs allmydata-tahoe magic-wormhole"
+keywords = ["gridsync", "tahoe-lafs", "tahoe", "lafs", "allmydata-tahoe", "magic-wormhole"]
 readme = "README.rst"
 authors = [
     { name = "Christopher R. Wood", email = "chris@gridsync.io" },
 ]
-license = "GPLv3"
+license = { file = "LICENSE" }
 requires-python = ">=3.10, <3.12"
 dynamic = ["version"]
 dependencies = [
@@ -74,7 +74,7 @@ classifiers = [
     "Topic :: System :: Filesystems",
     "Topic :: System :: Recovery Tools",
     "Topic :: Utilities",
-],
+]
 
 [project.optional-dependencies]
 pyqt5 = ["PyQt5", "PyQtChart"]
