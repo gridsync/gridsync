@@ -1,3 +1,104 @@
+[project]
+name = "gridsync"
+description = "Synchronize local directories with Tahoe-LAFS storage grids"
+keywords = "gridsync tahoe-lafs tahoe lafs allmydata-tahoe magic-wormhole"
+readme = "README.rst"
+authors = [
+    { name = "Christopher R. Wood", email = "chris@gridsync.io" },
+]
+license = "GPLv3"
+requires-python = ">=3.10, <3.12"
+dynamic = ["version"]
+dependencies = [
+    "atomicwrites",
+    "attrs",
+    # These autobahn constraints are inherited from ZKAPAuthorizer e1debb6
+    # and can probably go away once autobahn provides a release containing
+    # https://github.com/crossbario/autobahn-python/pull/1578
+    "autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1",
+    "certifi",
+    'distro ; sys_platform != "darwin" and sys_platform != "win32"',
+    "filelock",
+    "humanize",
+    "hyperlink",
+    "magic-wormhole",
+    "psutil",
+    "PyNaCl >= 1.2.0",  # 1.2.0 adds Argon2id KDF
+    "pyyaml",
+    "qtpy",
+    "segno",
+    "tahoe-capabilities",
+    "treq",
+    "twisted[tls] >= 21.7.0",  # 21.7.0 adds Deferred type hinting/annotations
+    "txdbus ; sys_platform != 'darwin' and sys_platform != 'win32'",
+    "txtorcon",
+    "watchdog",
+    "zxcvbn",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: MacOS X",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: X11 Applications",
+    "Environment :: X11 Applications :: Gnome",
+    "Environment :: X11 Applications :: GTK",
+    "Environment :: X11 Applications :: KDE",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: End Users/Desktop",
+    "License :: DFSG approved",
+    "License :: OSI Approved",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Microsoft :: Windows :: Windows 7",
+    "Operating System :: Microsoft :: Windows :: Windows 8",
+    "Operating System :: Microsoft :: Windows :: Windows 8.1",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Communications :: File Sharing",
+    "Topic :: Desktop Environment",
+    "Topic :: Internet",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Topic :: System :: Archiving",
+    "Topic :: System :: Archiving :: Backup",
+    "Topic :: System :: Archiving :: Mirroring",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: System :: Filesystems",
+    "Topic :: System :: Recovery Tools",
+    "Topic :: Utilities",
+],
+
+[project.optional-dependencies]
+pyqt5 = ["PyQt5", "PyQtChart"]
+pyqt6 = ["PyQt6", "PyQt6-Charts"]
+pyside2 = ["PySide2"]
+pyside6 = ["PySide6"]
+
+[project.urls]
+Source = "https://github.com/gridsync/gridsync"
+
+[project.scripts]
+gridsync = "gridsync.cli:main"
+
+[build-system]
+requires = ["setuptools>=45"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["gridsync", "gridsync.gui"]
+
+[tool.setuptools.package-data]
+gridsync = ["resources/*", "resources/providers/*"]
+
+
 [tool.black]
 line-length = 79
 
