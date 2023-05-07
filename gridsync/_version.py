@@ -1,4 +1,5 @@
 # type: ignore
+# flake8: noqa
 # pylint: skip-file
 # fmt: off
 # isort: skip_file
