@@ -85,7 +85,7 @@ pyside2 = ["PySide2"]
 pyside6 = ["PySide6"]
 
 [project.urls]
-homepage = "http://gridsync.io" 
+homepage = "http://gridsync.io"
 repository = "https://github.com/gridsync/gridsync.git"
 changelog = "https://github.com/gridsync/gridsync/blob/main/CHANGELOG.md"
 
