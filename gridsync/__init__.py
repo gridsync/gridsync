@@ -4,12 +4,12 @@ import json
 import os
 import sys
 from collections import namedtuple
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Optional
 
 from qtpy import API_NAME, PYQT_VERSION, PYSIDE_VERSION, QT_VERSION
 
-from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
 from gridsync.util import to_bool
 
@@ -230,7 +230,10 @@ def get_version() -> str:
         except OSError:
             return "Unknown"
     else:
-        return get_versions()["version"]
+        try:
+            return version("gridsync")
+        except PackageNotFoundError:
+            return "Unknown"
 
 
 __version__ = get_version()
