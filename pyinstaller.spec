@@ -162,9 +162,8 @@ def analyze_magic_folder():
 
 
 def analyze_gridsync():
-    from versioneer import get_versions
-
-    version = settings["build"].get("version", get_versions()["version"])
+    if gridsync_available:
+        from gridsync import __version__ as version
     # When running frozen, Versioneer returns a version string of "0+unknown"
     # so write the real version string to a file that can be read at runtime.
     with open(gridsync_version_file, "w") as f:
