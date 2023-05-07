@@ -93,7 +93,7 @@ changelog = "https://github.com/gridsync/gridsync/blob/main/CHANGELOG.md"
 gridsync = "gridsync.cli:main"
 
 [build-system]
-requires = ["setuptools>=45", "versioneer[toml]", "tomli; python_version < '3.10'"]
+requires = ["setuptools>=45", "versioningit"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -102,13 +102,10 @@ packages = ["gridsync", "gridsync.gui"]
 [tool.setuptools.package-data]
 gridsync = ["resources/*", "resources/providers/*"]
 
-[tool.versioneer]
-VCS = "git"
-style = "pep440"
-versionfile_source = "gridsync/_version.py"
-versionfile_build = "gridsync/_version.py"
-tag_prefix = "v"
-parentdir_prefix = "Gridsync"
+[tool.versioningit.format]
+distance = "{base_version}+{distance}.{rev}"
+dirty = "{base_version}.dirty"
+distance-dirty = "{base_version}+{distance}.{rev}.dirty"
 
 
 [tool.black]
