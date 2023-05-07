@@ -1,7 +1,15 @@
 [project]
 name = "gridsync"
 description = "Synchronize local directories with Tahoe-LAFS storage grids"
-keywords = ["gridsync", "tahoe-lafs", "tahoe", "lafs", "allmydata-tahoe", "magic-wormhole"]
+keywords = [
+    "gridsync",
+    "tahoe-lafs",
+    "tahoe",
+    "lafs",
+    "allmydata-tahoe",
+    "magic-folder",
+    "magic-wormhole",
+]
 readme = "README.rst"
 authors = [
     { name = "Christopher R. Wood", email = "chris@gridsync.io" },
@@ -51,10 +59,8 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
-    "Operating System :: Microsoft :: Windows :: Windows 7",
-    "Operating System :: Microsoft :: Windows :: Windows 8",
-    "Operating System :: Microsoft :: Windows :: Windows 8.1",
     "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
     "Operating System :: POSIX",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
@@ -67,11 +73,7 @@ classifiers = [
     "Topic :: Internet",
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
-    "Topic :: System :: Archiving",
-    "Topic :: System :: Archiving :: Backup",
     "Topic :: System :: Archiving :: Mirroring",
-    "Topic :: System :: Distributed Computing",
-    "Topic :: System :: Filesystems",
     "Topic :: System :: Recovery Tools",
     "Topic :: Utilities",
 ]
@@ -83,7 +85,9 @@ pyside2 = ["PySide2"]
 pyside6 = ["PySide6"]
 
 [project.urls]
-Source = "https://github.com/gridsync/gridsync"
+homepage = "http://gridsync.io" 
+repository = "https://github.com/gridsync/gridsync.git"
+changelog = "https://github.com/gridsync/gridsync/blob/main/CHANGELOG.md"
 
 [project.scripts]
 gridsync = "gridsync.cli:main"
