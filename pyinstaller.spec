@@ -124,8 +124,8 @@ def analyze_tahoe():
             "UserDict",
             "yaml",
             "win32com",
-	    "win32com.shell",
-	    "win32com.shell.shellcon",
+            "win32com.shell",
+            "win32com.shell.shellcon",
             "zfec",
         ],
         hookspath=["pyinstaller-hooks"],
@@ -149,7 +149,7 @@ def analyze_magic_folder():
             "pkg_resources._vendor.platformdirs",
             "win32com",
             "win32com.shell",
-            "win32com.shell.shellcon"
+            "win32com.shell.shellcon",
         ],
         hookspath=[],
         runtime_hooks=[],
@@ -191,17 +191,17 @@ def analyze_gridsync():
             ("gridsync/resources/providers/*", "resources/providers"),
         ],
         hiddenimports=[
-	    "cffi",
-	    "PyQt5.sip",
-	    # Required for charset-normalizer 3.0.1. To be fixed by a future
-	    # version of pyinstaller-hooks-contrib. See/follow:
-	    # https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/534
-	    "charset_normalizer.md__mypyc",
+            "cffi",
+            "PyQt5.sip",
+            # Required for charset-normalizer 3.0.1. To be fixed by a future
+            # version of pyinstaller-hooks-contrib. See/follow:
+            # https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/534
+            "charset_normalizer.md__mypyc",
             "pkg_resources._vendor.platformdirs",
             "win32com",
-	    "win32com.shell",
-	    "win32com.shell.shellcon",
-	],
+            "win32com.shell",
+            "win32com.shell.shellcon",
+        ],
         hookspath=["pyinstaller-hooks"],
         runtime_hooks=[],
         excludes=["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"],
