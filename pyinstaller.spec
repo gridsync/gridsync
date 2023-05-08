@@ -358,7 +358,7 @@ def finalize_gridsync_bundle():
             "libpango-1.0.so.0",  # https://github.com/gridsync/gridsync/issues/487
             "libpangocairo-1.0.so.0",
             "libpangoft2-1.0.so.0",
-            "libwayland-client.so.0",
+            "libwayland-client.so.0",  # https://github.com/gridsync/gridsync/issues/631
         ]
         for lib in bad_libs:
             paths_to_remove.append(Path(dist, lib))
