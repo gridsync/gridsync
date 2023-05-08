@@ -1,3 +1,4 @@
+# vim: filetype=python
 import inspect
 import os
 import shutil
