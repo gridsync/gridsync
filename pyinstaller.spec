@@ -164,6 +164,9 @@ def analyze_magic_folder():
 def analyze_gridsync():
     from gridsync import __version__ as version
 
+    # The script used to generate an Inno Setup installer configuration
+    # currently loads the version from `gridsync/resources/version.txt`
+    # so write it out prior to Analysis; see `scripts/make_installer.py`
     gridsync_version_file.write_text(version)
 
     if sys.platform == "win32":
