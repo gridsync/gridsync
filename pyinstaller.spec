@@ -188,8 +188,8 @@ def analyze_gridsync():
         pathex=paths,
         binaries=None,
         datas=[
-            ("gridsync/resources/*", "resources"),
             ("gridsync/resources/providers/*", "resources/providers"),
+            ("gridsync/resources/*", "resources"),
         ],
         hiddenimports=[
 	    "cffi",
