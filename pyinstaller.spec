@@ -333,6 +333,8 @@ def finalize_gridsync_bundle():
     # in `gridsync/resources/`. I'm not sure why PyInstaller does this.. :/
     for p in Path(dist, "resources").glob("*-*.json"):
         paths_to_move.append((p, Path(dist, "resources", "providers", p.name)))
+    Path(dist, "resources", "providers").mkdir(exist_ok=True)
+
     if sys.platform not in ("darwin", "win32"):
         paths_to_move.append(
             (Path(dist, app_name), Path(dist, app_name.lower()))
