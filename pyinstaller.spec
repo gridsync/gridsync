@@ -329,11 +329,14 @@ def finalize_gridsync_bundle():
             Path(dist, f"{app_name}-{magic_folder_exe}"),
         )
     )
-    # XXX Sometimes .json files from `gridsync/resources/providers/` end up
-    # in `gridsync/resources/`. I'm not sure why PyInstaller does this.. :/
+    # Sometimes PyInstaller fails to recreate the `resources/providers/`
+    # subdirectory in the bundled application, leaving .json files in
+    # `resources/` instead of (the intended) `resources/providers/`. So
+    # create the `providers/` subdir and move any lingering .json files
+    # into it. See https://github.com/gridsync/gridsync/issues/636
+    Path(dist, "resources", "providers").mkdir(exist_ok=True)
     for p in Path(dist, "resources").glob("*-*.json"):
         paths_to_move.append((p, Path(dist, "resources", "providers", p.name)))
-    Path(dist, "resources", "providers").mkdir(exist_ok=True)
 
     if sys.platform not in ("darwin", "win32"):
         paths_to_move.append(
