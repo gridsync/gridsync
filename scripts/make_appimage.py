@@ -107,11 +107,6 @@ for file in sorted(os.listdir(appdir_bin)):
 os.remove('build/AppDir/AppRun')
 with open('build/AppDir/AppRun', 'w') as f:
     f.write('''#!/bin/sh
-# Workaround for https://github.com/gridsync/gridsync/issues/631
-LIBWAYLAND=/usr/lib/x86_64-linux-gnu/libwayland-client.so.0
-if [ -f "$LIBWAYLAND" ]; then
-    export LD_PRELOAD="$LIBWAYLAND"
-fi
 exec "$(dirname "$(readlink -e "$0")")/usr/bin/{}" "$@"
 '''.format(name_lower)
     )
