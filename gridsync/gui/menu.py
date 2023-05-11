@@ -65,6 +65,7 @@ class Menu(QMenu):
         about_action = QAction(QIcon(""), "About {}...".format(APP_NAME), self)
         about_action.triggered.connect(self.about_msg.exec_)
         help_menu.addAction(about_action)
+        self.about_action = about_action  # Make accessible to tests
         self.addMenu(help_menu)
 
         self.addSeparator()
