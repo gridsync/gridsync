@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+### Added
+- Added support for new Magic-Folder "[invites](https://github.com/LeastAuthority/magic-folder/pull/682)" functionality (Issue #598; PR #611)
+- Added support for Python 3.11 (Issue #518; PR #620)
+
+### Changed
+- Use of the `pytest-xvfb` plugin has been replaced with manual `xvfb-run` calls (Issue #591; PR #593) -- thanks @exarkun!
+- HTML/CSS is now stripped from error messages surfaced by the Tahoe-LAFS web API (Issue #572; PR #592)
+- Gridsync now uses the new Magic-Folder "events" API for displaying most (but not all) folders-related information instead of busily polling and comparing state across time (Issue #615; PR #634)
+- Replaced `flake8` with `ruff` in the tox "lint" testenv (PR #624)
+- Binary builds will now default to shipping with PyQt6 instead of PyQt5 (Issue #629; PR #630)
+
+### Fixed
+- Mypy will no longer warn about "types.py" shadowing the "types" library module (Issue #600; PR #601)
+- Improved visibily of Magic-Folder invite-codes on macOS (Issue #626; PR #628)
+- Fixed Wayland compatibility issue with Qt6-based AppImages (Issue #631; PRs #635, #638)
+- Improved collection of "resources" files for PyInstaller bundles (Issue #636; PR #637)
+- Fixed a crash triggered by launching the "About" dialog from the menu on Qt6 (Issue #640; PR #642)
+
+### Removed
+- Removed support for Python 3.9 (Issue #617; PR #618)
+
+
 ## 0.6.1 - 2022-10-14
 ### Added
 - Added support for parsing/handling new Tahoe-LAFS and Magic-Folder "pidfiles" -- thanks @meejah! (PR #569)
