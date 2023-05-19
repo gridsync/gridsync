@@ -166,17 +166,23 @@ class RecoveryMenuButton(ToolButton):
         self.action = QAction(
             QIcon(resource("key-outline.png")), "Recovery", self
         )
-        self.action.setEnabled(False)
+        # The import/restore action must always be accessible to users.
+        # See https://github.com/gridsync/gridsync/issues/645
+        self.action.setEnabled(True)
         self.action.setToolTip("Create or Restore from a Recovery Key")
         self.action.setFont(Font(8))
 
         import_action = QAction(QIcon(), "Restore from Recovery Key...", self)
+        import_action.setEnabled(True)
         import_action.setToolTip("Restore from Recovery Key...")
         import_action.triggered.connect(self.import_action_triggered.emit)
+        self.import_action = import_action
 
         export_action = QAction(QIcon(), "Create Recovery Key...", self)
+        export_action.setEnabled(False)
         export_action.setToolTip("Create Recovery Key...")
         export_action.triggered.connect(self.export_action_triggered.emit)
+        self.export_action = export_action
 
         menu = QMenu(self)
         menu.addAction(import_action)
@@ -378,7 +384,7 @@ class ToolBar(QToolBar):
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
             self.folder_button.setEnabled(False)
-            self.recovery_button.setEnabled(False)
+            self.recovery_button.export_action.setEnabled(False)
             self.history_button.setEnabled(False)
             self.folders_button.setEnabled(False)
             self.usage_button.setEnabled(False)
@@ -401,7 +407,7 @@ class ToolBar(QToolBar):
                 self.folders_button.setChecked(False)
         else:
             self.folder_button.setEnabled(True)
-            self.recovery_button.setEnabled(True)
+            self.recovery_button.export_action.setEnabled(True)
             self.history_button.setEnabled(True)
             self.folders_button.setEnabled(True)
             self.usage_button.setEnabled(True)
