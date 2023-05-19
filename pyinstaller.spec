@@ -74,9 +74,6 @@ print("--------------------------------------------------------------------")
 app_name = settings["application"]["name"]
 
 
-gridsync_version_file = Path("gridsync", "resources", "version.txt")
-
-
 def gridsync_version() -> str:
     from gridsync import __version__
 
@@ -169,11 +166,6 @@ def analyze_magic_folder():
 
 
 def analyze_gridsync():
-    # The script used to generate an Inno Setup installer configuration
-    # currently loads the version from `gridsync/resources/version.txt`
-    # so write it out prior to Analysis; see `scripts/make_installer.py`
-    gridsync_version_file.write_text(gridsync_version())
-
     if sys.platform == "win32":
         kit = Path(
             Path.home().anchor, "Program Files (x86)", "Windows Kits", "10"
@@ -296,6 +288,11 @@ def finalize_gridsync_bundle():
     else:
         dist = Path("dist", app_name)
 
+    # Write the version string to a file inside the dist dir so the
+    # script that creates the Inno Setup installer can read it later.
+    # See `scripts/make_installer.py`.
+    Path(dist, "resources", "version.txt").write_text(gridsync_version())
+
     for bundle in ("Tahoe-LAFS", "magic-folder"):
         bundle_path = Path("dist", bundle)
         if bundle_path.exists() and bundle_path.is_dir():
@@ -350,11 +347,6 @@ def finalize_gridsync_bundle():
             shutil.move(src, dst)
 
     paths_to_remove = []
-    if sys.platform != "win32":
-        # The script used to generate an Inno Setup installer configuration
-        # currently loads the version from `gridsync/resources/version.txt`
-        # so don't delete it on Windows; see `scripts/make_installer.py`
-        paths_to_remove.append(gridsync_version_file)
     # The presence of *.dist-info/RECORD files causes issues with reproducible
     # builds; see: https://github.com/gridsync/gridsync/issues/363
     paths_to_remove.extend([p for p in dist.glob("**/*.dist-info/RECORD")])
