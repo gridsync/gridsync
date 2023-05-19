@@ -356,9 +356,7 @@ def finalize_gridsync_bundle():
     # The presence of *.dist-info/RECORD files causes issues with reproducible
     # builds; see: https://github.com/gridsync/gridsync/issues/363
     paths_to_remove.extend([p for p in dist.glob("**/*.dist-info/RECORD")])
-    paths_to_remove.append(
-        Path(dist, app_name, "gridsync.egg-info", "SOURCES.txt")
-    )
+    paths_to_remove.append(Path(dist, "gridsync.egg-info", "SOURCES.txt"))
     if sys.platform not in ("darwin", "win32"):
         bad_libs = [
             "libX11.so.6",  # https://github.com/gridsync/gridsync/issues/43
