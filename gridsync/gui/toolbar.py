@@ -384,7 +384,7 @@ class ToolBar(QToolBar):
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
             self.folder_button.setEnabled(False)
-            self.recovery_button.setEnabled(False)
+            self.recovery_button.export_action.setEnabled(False)
             self.history_button.setEnabled(False)
             self.folders_button.setEnabled(False)
             self.usage_button.setEnabled(False)
@@ -407,7 +407,7 @@ class ToolBar(QToolBar):
                 self.folders_button.setChecked(False)
         else:
             self.folder_button.setEnabled(True)
-            self.recovery_button.setEnabled(True)
+            self.recovery_button.export_action.setEnabled(True)
             self.history_button.setEnabled(True)
             self.folders_button.setEnabled(True)
             self.usage_button.setEnabled(True)
