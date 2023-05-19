@@ -166,7 +166,8 @@ class RecoveryMenuButton(ToolButton):
         self.action = QAction(
             QIcon(resource("key-outline.png")), "Recovery", self
         )
-        self.action.setEnabled(False)
+        # The import/restore action must always be accessible to users.
+        # See https://github.com/gridsync/gridsync/issues/645
         self.action.setEnabled(True)
         self.action.setToolTip("Create or Restore from a Recovery Key")
         self.action.setFont(Font(8))
