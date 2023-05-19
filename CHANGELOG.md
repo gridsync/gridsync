@@ -11,6 +11,7 @@
 - Gridsync now uses the new Magic-Folder "events" API for displaying most (but not all) folders-related information instead of busily polling and comparing state across time (Issue #615; PR #634)
 - Replaced `flake8` with `ruff` in the tox "lint" testenv (PR #624)
 - Binary builds will now default to shipping with PyQt6 instead of PyQt5 (Issue #629; PR #630)
+- The "Restore from Recovery Key" action is now always enabled/accessible from the main window's "Recovery" button (Issue #645; PR #646)
 
 ### Fixed
 - Mypy will no longer warn about "types.py" shadowing the "types" library module (Issue #600; PR #601)
