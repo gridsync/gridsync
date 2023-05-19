@@ -176,7 +176,6 @@ class RecoveryMenuButton(ToolButton):
         import_action.setEnabled(True)
         import_action.setToolTip("Restore from Recovery Key...")
         import_action.triggered.connect(self.import_action_triggered.emit)
-        self.import_action = import_action
 
         export_action = QAction(QIcon(), "Create Recovery Key...", self)
         export_action.setEnabled(False)
