@@ -77,6 +77,12 @@ app_name = settings["application"]["name"]
 gridsync_version_file = Path("gridsync", "resources", "version.txt")
 
 
+def gridsync_version() -> str:
+    from gridsync import __version__
+
+    return settings["build"].get("version", __version__)
+
+
 def collect_dynamic_libs(package):
     """
     This is a version of :py:`PyInstaller.utils.hooks.collect_dynamic_libs`
@@ -163,13 +169,10 @@ def analyze_magic_folder():
 
 
 def analyze_gridsync():
-    from gridsync import __version__
-
-    version = settings["build"].get("version", __version__)
     # The script used to generate an Inno Setup installer configuration
     # currently loads the version from `gridsync/resources/version.txt`
     # so write it out prior to Analysis; see `scripts/make_installer.py`
-    gridsync_version_file.write_text(version)
+    gridsync_version_file.write_text(gridsync_version())
 
     if sys.platform == "win32":
         kit = Path(
@@ -271,7 +274,6 @@ def bundle_gridsync(files):
     mac_background_only = settings["build"].get("mac_background_only", False)
     if mac_background_only and mac_background_only.lower() != "false":
         mac_background_only = True
-    from gridsync import __version__ as version
 
     BUNDLE(
         COLLECT(*files, strip=False, upx=False, name=app_name),
@@ -279,7 +281,7 @@ def bundle_gridsync(files):
         icon=str(Path(settings["build"]["mac_icon"]).resolve()),
         bundle_identifier=settings["build"]["mac_bundle_identifier"],
         info_plist={
-            "CFBundleShortVersionString": version,
+            "CFBundleShortVersionString": gridsync_version(),
             "LSBackgroundOnly": mac_background_only,
             "LSUIElement": mac_background_only,
             "NSHighResolutionCapable": True,
