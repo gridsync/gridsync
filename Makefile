@@ -13,6 +13,7 @@ clean:
 	rm -rf htmlcov/
 	rm -rf .pytest_cache/
 	rm -rf .mypy_cache/
+	rm -rf .ruff_cache/
 	rm -f .coverage
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +

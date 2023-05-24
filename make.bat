@@ -30,6 +30,7 @@ call rmdir /s /q .\.tox
 call rmdir /s /q .\htmlcov
 call rmdir /s /q .\.pytest_cache
 call rmdir /s /q .\.mypy_cache
+call rmdir /s /q .\.ruff_cache
 for /d /r %%i in (*__pycache__*) do rmdir /s /q "%%i"
 call del .\.coverage
 goto :eof
