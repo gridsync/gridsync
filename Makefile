@@ -252,7 +252,7 @@ gpg-verify:
 	python3 scripts/gpg.py --verify
 
 pypi-release:
-	python -m build
+	SOURCE_DATE_EPOCH=$$(git log -1 --pretty=%ct) python -m build
 	twine upload --verbose dist/gridsync-*.*
 
 uninstall:
