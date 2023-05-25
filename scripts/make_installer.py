@@ -60,7 +60,7 @@ Name: programsicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {
 Name: startupicon; Description: {cm:AutoStartProgram,{#MyAppName}}; GroupDescription: {cm:AutoStartProgramGroupDescription}
 
 [Run]
-Filename: "{app}\{#MyAppName}.exe"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall
+Filename: "{app}\{#MyAppName}.exe"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall nowait
 """ % (
     name,
     version,
