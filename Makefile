@@ -252,7 +252,7 @@ gpg-verify:
 	python3 scripts/gpg.py --verify
 
 pypi-release:
-	python setup.py sdist bdist_wheel
+	python -m build
 	twine upload --verbose dist/gridsync-*.*
 
 uninstall:
