@@ -8,7 +8,6 @@ import sys
 import tempfile
 from configparser import RawConfigParser
 
-
 config = RawConfigParser(allow_no_value=True)
 config.read(os.path.join("gridsync", "resources", "config.txt"))
 name = config.get("application", "name")
@@ -52,5 +51,8 @@ if __name__ == "__main__":
         print("Hashes match; success!")
     else:
         print("Hashes don't match; running diffoscope...")
-        subprocess.call(["diffoscope", zipfile, zipfile1])
+        if sys.platform == "win32":
+            subprocess.call(["py", "-m", "diffoscope.main", zipfile, zipfile1])
+        else:
+            subprocess.call(["diffoscope", zipfile, zipfile1])
         sys.exit(1)

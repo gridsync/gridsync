@@ -13,6 +13,7 @@ clean:
 	rm -rf htmlcov/
 	rm -rf .pytest_cache/
 	rm -rf .mypy_cache/
+	rm -rf .ruff_cache/
 	rm -f .coverage
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
@@ -251,7 +252,7 @@ gpg-verify:
 	python3 scripts/gpg.py --verify
 
 pypi-release:
-	python setup.py sdist bdist_wheel
+	SOURCE_DATE_EPOCH=$$(git log -1 --pretty=%ct) python -m build
 	twine upload --verbose dist/gridsync-*.*
 
 uninstall:

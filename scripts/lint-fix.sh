@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python -m black setup.py gridsync tests
-python -m isort setup.py gridsync tests
+python -m black gridsync tests
+python -m isort gridsync tests

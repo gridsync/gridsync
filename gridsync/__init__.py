@@ -4,12 +4,12 @@ import json
 import os
 import sys
 from collections import namedtuple
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Optional
 
 from qtpy import API_NAME, PYQT_VERSION, PYSIDE_VERSION, QT_VERSION
 
-from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
 from gridsync.util import to_bool
 
@@ -219,18 +219,18 @@ else:
 QT_LIB_VERSION = QT_VERSION or ""
 
 
-# When running frozen, Versioneer returns a version string of "0+unknown"
-# due to the application (typically) being executed out of the source tree
-# so load the version string from a file written at freeze-time instead.
-def get_version() -> str:
-    if getattr(sys, "frozen", False):
+if getattr(sys, "frozen", False):
+    try:
+        __version__ = (
+            Path(resource("version.txt")).read_text(encoding="utf-8").strip()
+        )
+    except OSError:
         try:
-            with open(resource("version.txt"), encoding="utf-8") as f:
-                return f.read()
-        except OSError:
-            return "Unknown"
-    else:
-        return get_versions()["version"]
-
-
-__version__ = get_version()
+            __version__ = version("gridsync")
+        except PackageNotFoundError:
+            __version__ = "Unknown"
+else:
+    try:
+        __version__ = version("gridsync")
+    except PackageNotFoundError:
+        __version__ = "Unknown"

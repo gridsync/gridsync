@@ -206,7 +206,7 @@ jobs:
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       # Pin as workaround for https://github.com/gridsync/gridsync/issues/622
-      run: py -m pip install --upgrade setuptools pip tox<4.5.0 diffoscope
+      run: py -m pip install --upgrade setuptools pip tox<4.5.0 diffoscope windows-curses
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller

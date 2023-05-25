@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 from configparser import RawConfigParser
+from pathlib import Path
 
 config = RawConfigParser(allow_no_value=True)
 config.read(os.path.join("gridsync", "resources", "config.txt"))
@@ -15,10 +16,10 @@ for section in config.sections():
         settings[section][option] = value
 
 name = settings["application"]["name"]
-version = settings["build"].get("version", "")
-if not version:
-    with open(os.path.join("gridsync/resources/version.txt")) as f:
-        version = f.read().strip()
+version = settings["build"].get(
+    "version",
+    Path("dist", name, "resources", "version.txt").read_text().strip(),
+)
 win_icon = settings["build"]["win_icon"].replace("/", "\\")
 
 iss_contents = """#define MyAppName "%s"
