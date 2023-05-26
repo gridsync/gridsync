@@ -495,4 +495,4 @@ class WelcomeDialog(QStackedWidget):
                     self.gui.systray.hide()
                 app = QCoreApplication.instance()
                 if app:
-                    app.quit()
+                    app.exit()
