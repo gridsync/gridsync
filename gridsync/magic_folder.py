@@ -649,6 +649,12 @@ class MagicFolder:
             all_sizes.extend(sizes)
         return all_sizes
 
+    async def get_conflicts(self, folder_name: str) -> dict:
+        output = await self._request(
+            "GET", f"/v1/magic-folder/{folder_name}/conflicts"
+        )
+        return cast(dict, output)
+
     async def scan(self, folder_name: str) -> dict:
         output = await self._request(
             "PUT",
