@@ -1041,6 +1041,45 @@ async def test_magic_folder_creates_conflict_files(
 
 
 @ensureDeferred
+async def test_magic_folder_conflict_in_get_conflicts_output(
+    tmp_path, alice_magic_folder, bob_magic_folder
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(
+        alice_path, "Alice", poll_interval=1, scan_interval=1
+    )
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    result = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = result["wormhole-code"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+    result = await bob_magic_folder.join(
+        folder_name, wormhole_code, bob_path, poll_interval=1, scan_interval=1
+    )
+    assert result["success"] is True
+
+    bob_folders = await bob_magic_folder.get_folders()
+    assert folder_name in bob_folders
+
+    filename = randstr()
+    alice_filepath = alice_path / filename
+    bob_filepath = bob_path / filename
+
+    alice_filepath.write_text(randstr(128))
+    bob_filepath.write_text(randstr(128))
+
+    conflict_file = bob_path / f"{filename}.conflict-Alice"
+    await until(conflict_file.exists)
+
+    conflicts = await bob_magic_folder.get_conflicts(folder_name)
+    assert filename in conflicts
+
+
+@ensureDeferred
 async def test_magic_folder_conflict_emits_upload_started_signal(
     tmp_path, alice_magic_folder, bob_magic_folder, qtbot
 ):
