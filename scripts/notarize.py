@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # This script assumes/requires credentials stored in a keychain profile.
 # To store credentials in a keychain profile programmatically:
 # xcrun notarytool store-credentials <PROFILE-NAME> [--apple-id <APPLE-ID>] [--team-id <TEAM-ID>] [--password <APP-SPECIFIC-PASSWORD>]
