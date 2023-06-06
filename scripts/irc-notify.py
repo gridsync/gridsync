@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Quick and dirty IRC notification script.
 
