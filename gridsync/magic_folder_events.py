@@ -314,7 +314,6 @@ class MagicFolderEventHandler(QObject):
                 self.invite_cancelled.emit(
                     folder, uuid, participant_name, mode
                 )
-
             case _:
                 logging.warning('Received unknown event kind: "%s"', event)
 
