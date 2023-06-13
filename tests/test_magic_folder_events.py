@@ -131,6 +131,86 @@ def test_magic_folder_event_handler_emits_connection_changed_signal(qtbot):
         )
 
 
+def test_magic_folder_event_handler_emits_invite_created_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_created):
+        handler.handle(
+            {
+                "kind": "invite-created",
+                "uuid": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+            }
+        )
+
+
+def test_magic_folder_event_handler_emits_invite_updated_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_updated):
+        handler.handle(
+            {
+                "kind": "invite-updated",
+                "uuid": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+            }
+        )
+
+
+def test_magic_folder_event_handler_emits_invite_success_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_succeeded):
+        handler.handle(
+            {
+                "kind": "invite-succeeded",
+                "uuid": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+            }
+        )
+
+
+def test_magic_folder_event_handler_emits_invite_failed_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_failed):
+        handler.handle(
+            {
+                "kind": "invite-failed",
+                "uuid": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+                "reason": "Something went wrong!",
+            }
+        )
+
+
+def test_magic_folder_event_handler_emits_invite_rejected_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_rejected):
+        handler.handle(
+            {
+                "kind": "invite-rejected",
+                "uuid": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+                "reason": "Rejected!",
+            }
+        )
+
+
+def test_magic_folder_event_handler_emits_invite_cancelled_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_cancelled):
+        handler.handle(
+            {
+                "kind": "invite-cancelled",
+                "uuid": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+            }
+        )
+
+
 def test_magic_folder_operations_monitor_default_loading_status():
     monitor = MagicFolderOperationsMonitor(MagicFolderEventHandler())
     assert monitor.get_status("TestFolder") == MagicFolderStatus.LOADING
