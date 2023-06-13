@@ -179,12 +179,24 @@ class MagicFolderEventHandler(QObject):
 
     # The *invite events* follow an ordered pattern: ``invite-created`` will be followed by 3 ``invite-updated`` events (one each for ``welcome``, ``versions`` and ``code`` as those arrive) and then finalized by one of the "terminal" events (``invite-succeeded``, ``invite-failed``, ``invite-rejected`` or ``invite-cancelled``).
 
-    invite_created = Signal(str, str, str, str)  # folder, uuid, participant-name, mode
-    invite_updated = Signal(str, str, str, str)  # folder, uuid, participant-name, mode
-    invite_succeeded = Signal(str, str, str, str)  # folder, uuid, participant-name, mode
-    invite_failed = Signal(str, str, str, str, str)  # folder, uuid, participant-name, mode, reason
-    invite_rejected = Signal(str, str, str, str, str)  # folder, uuid, participant-name, mode, reason
-    invite_cancelled = Signal(str, str, str, str)  # folder, uuid, participant-name, mode
+    invite_created = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+    invite_updated = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+    invite_succeeded = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+    invite_failed = Signal(
+        str, str, str, str, str
+    )  # folder, uuid, participant-name, mode, reason
+    invite_rejected = Signal(
+        str, str, str, str, str
+    )  # folder, uuid, participant-name, mode, reason
+    invite_cancelled = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
 
     # From MagicFolderOperationsMonitor
     folder_status_changed = Signal(str, object)  # folder, MagicFolderStatus
