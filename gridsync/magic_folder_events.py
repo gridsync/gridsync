@@ -165,20 +165,6 @@ class MagicFolderEventHandler(QObject):
     poll_completed = Signal(str, float)  # folder_name, last_poll
     connection_changed = Signal(int, int, bool)  # connected, desired, happy
 
-    # - ``"invite-created"``: A new invite is created. All invite events also have a ``folder`` indicating which folder they pertain to, a ``uuid``, ``participant-name`` indicating the invitee and ``mode`` (``"read-only"`` or ``"read-write"``).
-    #
-    # - ``"invite-updated"``: An update to an invite has happened; as well as the keys from ``"invite-created"`` there may be one or all of: ``welcome``, the Welcome message from the Magic Wormhole server (you should show users the ``"motd"`` if there is one); a ``versions`` indicating the app-version support of the other side; or a ``code`` indicating the wormhole code.
-    #
-    # - ``"invite-succeeded"``: An invite is successful. All the keys from `"invite-created"`.
-    #
-    # - ``"invite-failed"``: An invite has failed. All the keys from `"invite-created"` plus a ``reason``, a freeform string indicating why.
-    #
-    # - ``"invite-rejected"``: An invite has been rejected by the other side. All the keys from `"invite-created"` plus a ``reason`` if the other side indicated one.
-    #
-    # - ``"invite-cancelled"``: An invite has been cancelled. All the keys from `"invite-created"`.
-
-    # The *invite events* follow an ordered pattern: ``invite-created`` will be followed by 3 ``invite-updated`` events (one each for ``welcome``, ``versions`` and ``code`` as those arrive) and then finalized by one of the "terminal" events (``invite-succeeded``, ``invite-failed``, ``invite-rejected`` or ``invite-cancelled``).
-
     invite_created = Signal(
         str, str, str, str
     )  # folder, uuid, participant-name, mode
