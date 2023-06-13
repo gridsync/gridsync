@@ -970,6 +970,20 @@ async def test_invite_cancel_removes_invite(tmp_path, alice_magic_folder):
 
 
 @ensureDeferred
+async def test_invite_emits_invite_created_signal(
+    tmp_path, alice_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_created
+    ) as blocker:
+        await alice_magic_folder.invite(folder_name, randstr())
+    assert blocker.args[0] == folder_name
+
 async def test_invites_file_sync(
     tmp_path, alice_magic_folder, bob_magic_folder
 ):
