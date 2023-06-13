@@ -255,6 +255,58 @@ class MagicFolderEventHandler(QObject):
                 "happy": happy,
             }:
                 self.connection_changed.emit(connected, desired, happy)
+            case {
+                "kind": "invite-created",
+                "uuid": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_created.emit(folder, uuid, participant_name, mode)
+            case {
+                "kind": "invite-updated",
+                "uuid": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_updated.emit(folder, uuid, participant_name, mode)
+            case {
+                "kind": "invite-succeeded",
+                "uuid": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_succeeded.emit(
+                    folder, uuid, participant_name, mode
+                )
+            case {
+                "kind": "invite-failed",
+                "uuid": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+                "reason": reason,
+            }:
+                self.invite_failed.emit(
+                    folder, uuid, participant_name, mode, reason
+                )
+            case {
+                "kind": "invite-rejected",
+                "uuid": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+                "reason": reason,
+            }:
+                self.invite_rejected.emit(
+                    folder, uuid, participant_name, mode, reason
+                )
+            case {
+                "kind": "invite-cancelled",
+                "uuid": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_cancelled.emit(
+                    folder, uuid, participant_name, mode
+                )
             case _:
                 logging.warning('Received unknown event kind: "%s"', event)
 
