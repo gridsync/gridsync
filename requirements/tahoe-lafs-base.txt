@@ -315,9 +315,9 @@ eliot==1.14.0 \
     # via
     #   tahoe-lafs
     #   zero-knowledge-access-pass-authorizer
-filelock==3.12.0 \
-    --hash=sha256:ad98852315c2ab702aeb628412cbf7e95b7ce8c3bf9565670b4eaecf1db370a9 \
-    --hash=sha256:fc03ae43288c013d2ea83c8597001b1129db351aad9c57fe2409327916b8e718
+filelock==3.12.2 \
+    --hash=sha256:002740518d8aa59a26b0c76e10fb8c6e15eae825d34b6fdf670333fd7b938d81 \
+    --hash=sha256:cbb791cdea2a72f23da6ac5b5269ab0a0d161e9ef0100e653b69049a7706d1ec
     # via tahoe-lafs
 foolscap==23.3.0 \
     --hash=sha256:56eee85c2d5baec801c2bdaae7d4c0831f23d401516e2e668d13485994db9145 \
@@ -481,30 +481,22 @@ pyasn1-modules==0.3.0 \
     --hash=sha256:5bd01446b736eb9d31512a30d46c1ac3395d676c6f3cafa4c03eb54b9925631c \
     --hash=sha256:d3ccd6ed470d9ffbc716be08bd90efbd44d0734bc9303818f7336070984a162d
     # via service-identity
-pycddl==0.4.0 \
-    --hash=sha256:07d4c8d89ba58998fe7bae29f365c7d196de799b8ad6ebd9d318539f5063c5ef \
-    --hash=sha256:29beb3665e4c0e115ead58641f4b7ab4885a74b6084e9522fd64ffb3362731b1 \
-    --hash=sha256:2f6ba8aea040f7e3271dab4fc4d43da6d0c07806d8f62ef7129d37b6feff2f46 \
-    --hash=sha256:37c21e2b2da26f80d923f2a0247028ccbcf3db58664f0e0b0469eac9ad9a1c88 \
-    --hash=sha256:3d15788607051ae91aad3a299a7105713f038a958419e6bfb970dc045f0d982d \
-    --hash=sha256:6ce9660740dba3afcfb181ef45fcf08bd75c6b04d76705d846b42d87faef2140 \
-    --hash=sha256:8400a56183eada9e6f1d079cf258ab17e9cf99f7c79d5a597dd12e93127e49b4 \
-    --hash=sha256:8ddd48dc3fa5543eeef2492ac699009d54a3f170e6924f7d5b281ed59d85f9ee \
-    --hash=sha256:8e4bbd17959acfd42808aaa169f563adeab599de5f62038e7297cba1a4eb6c42 \
-    --hash=sha256:907c36d491655037a9e78d1798b2e22d655df34d0b3370dd31c589d26c55bffa \
-    --hash=sha256:94b84b168d7685930dd204a7320ad3d55d0f4b30ec9f858500aff6bcfee4c9ea \
-    --hash=sha256:99216199b33a4e723d54a953742dab5df4e9d01ac1b5972dafd9cc1a577fa1ce \
-    --hash=sha256:9afb4123cf8801ee1894a189c5a25e7327a62122df8d8f2f2ac006980c4ffe1a \
-    --hash=sha256:a168e71ca42e039eb26600a7e9f6c6863e1cf49b1e9e2eefa0521e44f23dcac9 \
-    --hash=sha256:a4812fd232cdbf1614e48fe0d5e25707da3c1bf5040a318080c3901783287841 \
-    --hash=sha256:a6114a37484d834096949bc76c96d41a26db10e7705b034d0219e431d1f44ee9 \
-    --hash=sha256:ab45c9aeb89cafdd1fb9be0bd2363ae7aadd360230701cca2b3ba938b18a57a9 \
-    --hash=sha256:c340866cf7a25f24bbe07a995f289786f6803146888f9a27c2397d8162808ea6 \
-    --hash=sha256:c67a702d45b5768f4c8881f130cbdbbe22d051aae71773063e5781c14b3fd7b6 \
-    --hash=sha256:d3479d5ca6bcf550f38bb484080d54695fe30fe33d2dfb95d8dad35f1e433f85 \
-    --hash=sha256:e1f6960e00014707cb8119d11572f8e45db29530425f2e3e61acaee917bcffb4 \
-    --hash=sha256:e3cab3427a7a9279288b45736c8e62ce28391dc942fe737a529a2c1a0eacb6c0 \
-    --hash=sha256:e68fd351c8f9bc09128a032328e74b6e00fa6ea7b80d72104de491201b231cdd
+pycddl==0.5.0 \
+    --hash=sha256:000f5fa8ec1e3f36e0cbf6e4d1d144871564d265a3c9657147e3703549f43162 \
+    --hash=sha256:06bd29ad09babcf2098363dd1de098d54421756d96b160180fa365e17f0a4e4a \
+    --hash=sha256:0e9e53afb7e601c9e7a5e29e981161884813eadcf4f781145491dca415114b78 \
+    --hash=sha256:201367c56fc88a462803ddf76b34054332e11ad1daa9e442ade3494fda34d1dd \
+    --hash=sha256:27f51b158d91beb51235cc829b6dc7ff5ed4f0b84ddf64f8b012c34cebd3fcf0 \
+    --hash=sha256:2f67d2d2e5b9f12a82c0bd45877edae74ed92c3dba8ed939bc69da831c25879f \
+    --hash=sha256:4194546c4c28ee70389b1d992685333ef6b113b5dd34b933d8e561c4205a8c47 \
+    --hash=sha256:55b8ae188c0bf5a94f748cfd15911482c70c00f5548ed9b8e16a677e8080ee6b \
+    --hash=sha256:55e5e15b1983ce4c11faf1322c15e616c824168186d9aa218b7b0449a78aa7f6 \
+    --hash=sha256:6e8a1063482b52182f683b91519a8d83209c118b94dd0b99ae5a26c6f296d644 \
+    --hash=sha256:73ca12f187c126d25686b9e0693f70e53085127faa1a4eb6a596509a9f19c0c9 \
+    --hash=sha256:8da7509396e8f698bb571abb87ac20a5726f32186e6a67866c1eee5696f57166 \
+    --hash=sha256:974d66fb0280a1256988b1d6d2ea602c568e5133723647fbdb3767334c369ef6 \
+    --hash=sha256:dea08f5cdcd4b8a6fdb4c464e56bd2fe7c5f194112dc3d65a2223fa5972fc45b \
+    --hash=sha256:dfe753ab28d58b41eeb067d2cf228adf7affbbaa4b17b7f66454d44531a95890
     # via tahoe-lafs
 pycparser==2.21 \
     --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
@@ -616,9 +608,9 @@ requests==2.31.0 \
     --hash=sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f \
     --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1
     # via treq
-service-identity==21.1.0 \
-    --hash=sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34 \
-    --hash=sha256:f0b0caac3d40627c3c04d7a51b6e06721857a0e10a8775f2d1d7e72901b3a7db
+service-identity==23.1.0 \
+    --hash=sha256:87415a691d52fcad954a500cb81f424d0273f8e7e3ee7d766128f4575080f383 \
+    --hash=sha256:ecb33cd96307755041e978ab14f8b14e13b40f1fbd525a4dc78f46d2b986431d
     # via twisted
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
@@ -628,7 +620,6 @@ six==1.16.0 \
     #   eliot
     #   foolscap
     #   magic-wormhole
-    #   service-identity
     #   tahoe-lafs
     #   tubes
 spake2==0.8 \
@@ -682,13 +673,13 @@ typing-extensions==4.6.3 \
     --hash=sha256:88a4153d8505aabbb4e13aacb7c486c2b4a33ca3b3f807914a9b4c844c471c26 \
     --hash=sha256:d91d5919357fe7f681a9f2b5b4cb2a5f1ef0a1e9f59c4d8ff0d3491e05c0ffd5
     # via twisted
-urllib3==2.0.2 \
-    --hash=sha256:61717a1095d7e155cdb737ac7bb2f4324a858a1e2e6466f6d03ff630ca68d3cc \
-    --hash=sha256:d055c2f9d38dc53c808f6fdc8eab7360b6fdbbde02340ed25cfbcd817c62469e
+urllib3==2.0.3 \
+    --hash=sha256:48e7fafa40319d358848e1bc6809b208340fafe2096f1725d05d67443d0483d1 \
+    --hash=sha256:bee28b5e56addb8226c96f7f13ac28cb4c301dd5ea8a6ca179c0b9835e032825
     # via requests
-werkzeug==2.3.4 \
-    --hash=sha256:1d5a58e0377d1fe39d061a5de4469e414e78ccb1e1e59c0f5ad6fa1c36c52b76 \
-    --hash=sha256:48e5e61472fee0ddee27ebad085614ebedb7af41e88f687aaf881afb723a162f
+werkzeug==2.3.6 \
+    --hash=sha256:935539fa1413afbb9195b24880778422ed620c0fc09670945185cce4d91a8890 \
+    --hash=sha256:98c774df2f91b05550078891dee5f0eb0cb797a522c757a2452b9cee5b202330
     # via
     #   klein
     #   tahoe-lafs
@@ -775,9 +766,9 @@ zope-interface==6.0 \
     #   zero-knowledge-access-pass-authorizer
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==67.8.0 \
-    --hash=sha256:5df61bf30bb10c6f756eb19e7c9f3b473051f48db77fddbe06ff2ca307df9a6f \
-    --hash=sha256:62642358adc77ffa87233bc4d2354c4b2682d214048f500964dbe760ccedf102
+setuptools==68.0.0 \
+    --hash=sha256:11e52c67415a381d10d6b462ced9cfb97066179f0e871399e006c4ab101fc85f \
+    --hash=sha256:baf1fdb41c6da4cd2eae722e135500da913332ab3f2f5c7d33af9b492acb5235
     # via
     #   autobahn
     #   tahoe-lafs
