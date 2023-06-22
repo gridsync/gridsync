@@ -255,21 +255,21 @@ class MagicFolderEventHandler(QObject):
                 self.connection_changed.emit(connected, desired, happy)
             case {
                 "kind": "invite-created",
-                "uuid": uuid,
+                "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
             }:
                 self.invite_created.emit(folder, uuid, participant_name, mode)
             case {
                 "kind": "invite-updated",
-                "uuid": uuid,
+                "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
             }:
                 self.invite_updated.emit(folder, uuid, participant_name, mode)
             case {
                 "kind": "invite-succeeded",
-                "uuid": uuid,
+                "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
             }:
@@ -278,7 +278,7 @@ class MagicFolderEventHandler(QObject):
                 )
             case {
                 "kind": "invite-failed",
-                "uuid": uuid,
+                "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
                 "reason": reason,
@@ -288,7 +288,7 @@ class MagicFolderEventHandler(QObject):
                 )
             case {
                 "kind": "invite-rejected",
-                "uuid": uuid,
+                "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
                 "reason": reason,
@@ -298,7 +298,7 @@ class MagicFolderEventHandler(QObject):
                 )
             case {
                 "kind": "invite-cancelled",
-                "uuid": uuid,
+                "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
             }:
@@ -307,7 +307,7 @@ class MagicFolderEventHandler(QObject):
                 )
             case {
                 "kind": "invite-canceled",  # This is a typo in the API
-                "uuid": uuid,
+                "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
             }:
