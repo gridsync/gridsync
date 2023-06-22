@@ -1028,6 +1028,81 @@ async def test_invite_emits_invite_updated_signal(
 
 
 @ensureDeferred
+async def test_invite_emits_invite_welcomed_signal(
+    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = inv["wormhole-code"]
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_welcomed
+    ) as blocker:
+        bob_path = tmp_path / "Bob" / folder_name
+        result = await bob_magic_folder.join(
+            folder_name, wormhole_code, bob_path
+        )
+        assert result["success"] is True
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_invite_code_created_signal(
+    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = inv["wormhole-code"]
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_code_created
+    ) as blocker:
+        bob_path = tmp_path / "Bob" / folder_name
+        result = await bob_magic_folder.join(
+            folder_name, wormhole_code, bob_path
+        )
+        assert result["success"] is True
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_invite_versions_signal(
+    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = inv["wormhole-code"]
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_versions
+    ) as blocker:
+        bob_path = tmp_path / "Bob" / folder_name
+        result = await bob_magic_folder.join(
+            folder_name, wormhole_code, bob_path
+        )
+        assert result["success"] is True
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
 async def test_invite_emits_invite_succeeded_signal(
     tmp_path, alice_magic_folder, bob_magic_folder, qtbot
 ):
