@@ -137,7 +137,7 @@ def test_magic_folder_event_handler_emits_invite_created_signal(qtbot):
         handler.handle(
             {
                 "kind": "invite-created",
-                "uuid": "TestUUID",
+                "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
             }
@@ -150,7 +150,7 @@ def test_magic_folder_event_handler_emits_invite_updated_signal(qtbot):
         handler.handle(
             {
                 "kind": "invite-updated",
-                "uuid": "TestUUID",
+                "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
             }
@@ -163,7 +163,7 @@ def test_magic_folder_event_handler_emits_invite_success_signal(qtbot):
         handler.handle(
             {
                 "kind": "invite-succeeded",
-                "uuid": "TestUUID",
+                "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
             }
@@ -176,7 +176,7 @@ def test_magic_folder_event_handler_emits_invite_failed_signal(qtbot):
         handler.handle(
             {
                 "kind": "invite-failed",
-                "uuid": "TestUUID",
+                "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
                 "reason": "Something went wrong!",
@@ -190,7 +190,7 @@ def test_magic_folder_event_handler_emits_invite_rejected_signal(qtbot):
         handler.handle(
             {
                 "kind": "invite-rejected",
-                "uuid": "TestUUID",
+                "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
                 "reason": "Rejected!",
@@ -204,7 +204,7 @@ def test_magic_folder_event_handler_emits_invite_cancelled_signal(qtbot):
         handler.handle(
             {
                 "kind": "invite-cancelled",
-                "uuid": "TestUUID",
+                "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
             }
