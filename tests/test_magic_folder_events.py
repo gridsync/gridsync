@@ -157,6 +157,45 @@ def test_magic_folder_event_handler_emits_invite_updated_signal(qtbot):
         )
 
 
+def test_magic_folder_event_handler_emits_invite_welcomed_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_welcomed):
+        handler.handle(
+            {
+                "kind": "invite-welcomed",
+                "id": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+            }
+        )
+
+
+def test_magic_folder_event_handler_emits_invite_code_created_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_code_created):
+        handler.handle(
+            {
+                "kind": "invite-code-created",
+                "id": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+            }
+        )
+
+
+def test_magic_folder_event_handler_emits_invite_versions_signal(qtbot):
+    handler = MagicFolderEventHandler()
+    with qtbot.wait_signal(handler.invite_versions):
+        handler.handle(
+            {
+                "kind": "invite-versions",
+                "id": "TestUUID",
+                "participant-name": "TestParticipant",
+                "mode": "read-write",
+            }
+        )
+
+
 def test_magic_folder_event_handler_emits_invite_success_signal(qtbot):
     handler = MagicFolderEventHandler()
     with qtbot.wait_signal(handler.invite_succeeded):
