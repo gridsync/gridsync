@@ -171,6 +171,17 @@ class MagicFolderEventHandler(QObject):
     invite_updated = Signal(
         str, str, str, str
     )  # folder, uuid, participant-name, mode
+
+    invite_welcomed = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+    invite_code_created = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+    invite_versions = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+
     invite_succeeded = Signal(
         str, str, str, str
     )  # folder, uuid, participant-name, mode
@@ -267,6 +278,27 @@ class MagicFolderEventHandler(QObject):
                 "mode": mode,
             }:
                 self.invite_updated.emit(folder, uuid, participant_name, mode)
+            case {
+                "kind": "invite-welcomed",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_welcomed.emit(folder, uuid, participant_name, mode)
+            case {
+                "kind": "invite-code-created",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_code_created.emit(folder, uuid, participant_name, mode)
+            case {
+                "kind": "invite-versions",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_versions.emit(folder, uuid, participant_name, mode)
             case {
                 "kind": "invite-succeeded",
                 "id": uuid,
