@@ -291,7 +291,9 @@ class MagicFolderEventHandler(QObject):
                 "participant-name": participant_name,
                 "mode": mode,
             }:
-                self.invite_code_created.emit(folder, uuid, participant_name, mode)
+                self.invite_code_created.emit(
+                    folder, uuid, participant_name, mode
+                )
             case {
                 "kind": "invite-versions",
                 "id": uuid,
