@@ -1097,7 +1097,7 @@ async def test_invite_emits_invite_succeeded_signal(
 
 @ensureDeferred
 async def test_invite_emits_ordered_invite_update_signals(
-    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+    tmp_path, alice_magic_folder, bob_magic_folder
 ):
     folder_name = randstr()
 
