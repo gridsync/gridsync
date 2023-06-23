@@ -1109,7 +1109,9 @@ async def test_invite_emits_ordered_invite_update_signals(
     message_kinds_received = []
 
     def collect(message: dict):
-        message_kinds_received.append(message["kind"])
+        kind = message["kind"]
+        if kind.startswith("invite-"):
+            message_kinds_received.append(kind)
 
     alice_magic_folder.events.handle = collect
 
