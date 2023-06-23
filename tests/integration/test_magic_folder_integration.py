@@ -1096,6 +1096,40 @@ async def test_invite_emits_invite_succeeded_signal(
 
 
 @ensureDeferred
+async def test_invite_emits_ordered_invite_update_signals(
+    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    message_kinds_received = []
+
+    def collect(message: dict):
+        message_kinds_received.append(message["kind"])
+
+    alice_magic_folder.events.handle = collect
+
+    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = inv["wormhole-code"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    assert result["success"] is True
+
+    assert message_kinds_received == [
+        "invite-created",
+        "invite-welcomed",
+        "invite-code-created",
+        "invite-versions",
+        "invite-succeeded",
+    ]
+
+
+@ensureDeferred
 async def test_invites_file_sync(
     tmp_path, alice_magic_folder, bob_magic_folder
 ):
