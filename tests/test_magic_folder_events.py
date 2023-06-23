@@ -172,12 +172,14 @@ def test_magic_folder_event_handler_emits_invite_code_created_signal(qtbot):
         )
 
 
-def test_magic_folder_event_handler_emits_invite_versions_signal(qtbot):
+def test_magic_folder_event_handler_emits_invite_versions_received_signal(
+    qtbot,
+):
     handler = MagicFolderEventHandler()
-    with qtbot.wait_signal(handler.invite_versions):
+    with qtbot.wait_signal(handler.invite_versions_received):
         handler.handle(
             {
-                "kind": "invite-versions",
+                "kind": "invite-versions-received",
                 "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",

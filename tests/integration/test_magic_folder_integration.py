@@ -1046,7 +1046,7 @@ async def test_invite_emits_invite_code_created_signal(
 
 
 @ensureDeferred
-async def test_invite_emits_invite_versions_signal(
+async def test_invite_emits_invite_versions_received_signal(
     tmp_path, alice_magic_folder, bob_magic_folder, qtbot
 ):
     folder_name = randstr()
@@ -1057,7 +1057,7 @@ async def test_invite_emits_invite_versions_signal(
     assert folder_name in alice_folders
 
     with qtbot.wait_signal(
-        alice_magic_folder.events.invite_versions
+        alice_magic_folder.events.invite_versions_received
     ) as blocker:
         inv = await alice_magic_folder.invite(folder_name, "Bob")
         wormhole_code = inv["wormhole-code"]
@@ -1126,7 +1126,7 @@ async def test_invite_emits_ordered_invite_update_signals(
         "invite-created",
         "invite-welcomed",
         "invite-code-created",
-        "invite-versions",
+        "invite-versions-received",
         "invite-succeeded",
     ]
 
