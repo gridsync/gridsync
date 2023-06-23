@@ -1038,12 +1038,12 @@ async def test_invite_emits_invite_code_created_signal(
     alice_folders = await alice_magic_folder.get_folders()
     assert folder_name in alice_folders
 
-    inv = await alice_magic_folder.invite(folder_name, "Bob")
-    wormhole_code = inv["wormhole-code"]
-
     with qtbot.wait_signal(
         alice_magic_folder.events.invite_code_created
     ) as blocker:
+        inv = await alice_magic_folder.invite(folder_name, "Bob")
+        wormhole_code = inv["wormhole-code"]
+
         bob_path = tmp_path / "Bob" / folder_name
         result = await bob_magic_folder.join(
             folder_name, wormhole_code, bob_path
@@ -1063,12 +1063,12 @@ async def test_invite_emits_invite_versions_signal(
     alice_folders = await alice_magic_folder.get_folders()
     assert folder_name in alice_folders
 
-    inv = await alice_magic_folder.invite(folder_name, "Bob")
-    wormhole_code = inv["wormhole-code"]
-
     with qtbot.wait_signal(
         alice_magic_folder.events.invite_versions
     ) as blocker:
+        inv = await alice_magic_folder.invite(folder_name, "Bob")
+        wormhole_code = inv["wormhole-code"]
+
         bob_path = tmp_path / "Bob" / folder_name
         result = await bob_magic_folder.join(
             folder_name, wormhole_code, bob_path
