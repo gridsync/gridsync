@@ -169,14 +169,14 @@ class MagicFolderEventHandler(QObject):
         str, str, str, str
     )  # folder, uuid, participant-name, mode
     invite_welcomed = Signal(
-        str, str, str, str
-    )  # folder, uuid, participant-name, mode
+        str, str, str, str, dict
+    )  # folder, uuid, participant-name, mode, welcome
     invite_code_created = Signal(
-        str, str, str, str
-    )  # folder, uuid, participant-name, mode
+        str, str, str, str, str
+    )  # folder, uuid, participant-name, mode, code
     invite_versions = Signal(
-        str, str, str, str
-    )  # folder, uuid, participant-name, mode
+        str, str, str, str, dict
+    )  # folder, uuid, participant-name, mode, versions
     invite_succeeded = Signal(
         str, str, str, str
     )  # folder, uuid, participant-name, mode
@@ -229,6 +229,7 @@ class MagicFolderEventHandler(QObject):
     def handle(self, event: dict) -> None:
         folder = event.get("folder", "")
         timestamp = float(event.get("timestamp", time.time()))
+        print(self, event)
         match event:
             case {"kind": "folder-added"}:
                 self.folder_added.emit(folder)
@@ -271,24 +272,31 @@ class MagicFolderEventHandler(QObject):
                 "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
+                "welcome": welcome,
             }:
-                self.invite_welcomed.emit(folder, uuid, participant_name, mode)
+                self.invite_welcomed.emit(
+                    folder, uuid, participant_name, mode, welcome
+                )
             case {
                 "kind": "invite-code-created",
                 "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
+                "code": code,
             }:
                 self.invite_code_created.emit(
-                    folder, uuid, participant_name, mode
+                    folder, uuid, participant_name, mode, code
                 )
             case {
                 "kind": "invite-versions",
                 "id": uuid,
                 "participant-name": participant_name,
                 "mode": mode,
+                "versions": versions,
             }:
-                self.invite_versions.emit(folder, uuid, participant_name, mode)
+                self.invite_versions.emit(
+                    folder, uuid, participant_name, mode, versions
+                )
             case {
                 "kind": "invite-succeeded",
                 "id": uuid,
