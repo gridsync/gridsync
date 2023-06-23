@@ -153,6 +153,7 @@ def test_magic_folder_event_handler_emits_invite_welcomed_signal(qtbot):
                 "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
+                "welcome": {},
             }
         )
 
@@ -166,6 +167,7 @@ def test_magic_folder_event_handler_emits_invite_code_created_signal(qtbot):
                 "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
+                "code": "0-test-code",
             }
         )
 
@@ -179,6 +181,9 @@ def test_magic_folder_event_handler_emits_invite_versions_signal(qtbot):
                 "id": "TestUUID",
                 "participant-name": "TestParticipant",
                 "mode": "read-write",
+                "versions": {
+                    "magic-folder": {"supported-messages": ["invite-v1"]}
+                },
             }
         )
 
