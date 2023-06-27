@@ -64,7 +64,7 @@ from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
 from gridsync.gui.widgets import ClickableLabel, HSpacer, VSpacer
-from gridsync.magic_folder import MagicFolderStatus
+from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.types_ import TwistedDeferred
@@ -281,6 +281,15 @@ class View(QTreeView):
     ) -> None:
         try:
             await self._do_invite(dialog, folder_name, participant_name, mode)
+        except MagicFolderWebError as e:
+            logging.error("%s: %s", type(e).__name__, str(e))
+            error(
+                self,
+                f"Error inviting {participant_name} to {folder_name}",
+                f'An error occurred when inviting "{participant_name}" to '
+                f'the "{folder_name}" folder: {e.reason}',
+                f"{type(e).__name__}: {str(e)}",
+            )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             error(
