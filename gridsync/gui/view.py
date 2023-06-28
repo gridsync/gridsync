@@ -281,22 +281,17 @@ class View(QTreeView):
     ) -> None:
         try:
             await self._do_invite(dialog, folder_name, participant_name, mode)
-        except MagicFolderWebError as e:
+        except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
+            try:
+                reason = str(e.reason)
+            except AttributeError:
+                reason = f"{type(e).__name__}: {str(e)}"
             error(
                 self,
                 f"Error inviting {participant_name} to {folder_name}",
                 f'An error occurred when inviting "{participant_name}" to '
-                f'the "{folder_name}" folder: {e.reason}',
-                f"{type(e).__name__}: {str(e)}",
-            )
-        except Exception as e:  # pylint: disable=broad-except
-            logging.error("%s: %s", type(e).__name__, str(e))
-            error(
-                self,
-                f"Error inviting {participant_name} to {folder_name}",
-                f'An exception was raised when inviting "{participant_name}" '
-                f'to the "{folder_name}" folder:\n\n'
+                f'the "{folder_name}" folder: {reason}',
                 f"{type(e).__name__}: {str(e)}",
             )
 
