@@ -332,13 +332,18 @@ class View(QTreeView):
             await self._do_join(dialog, folder_name, invite_code, local_path)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
+            try:
+                reason = str(e.reason)  # type: ignore[attr-defined]
+            except AttributeError:
+                reason = f"{type(e).__name__}: {str(e)}"
             error(
                 self,
                 f"Error joining {folder_name}",
-                f'An exception was raised when joining the "{folder_name}" '
-                "folder:\n\n"
+                f'An error occurred when joining the "{folder_name}" folder: '
+                f'{reason}',
                 f"{type(e).__name__}: {str(e)}",
             )
+
 
     def open_magic_folder_join_dialog(self) -> None:
         dialog = MagicFolderJoinDialog()
