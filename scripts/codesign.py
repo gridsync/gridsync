@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # This script assumes/requires a valid codesign certificate.
 # To add a codesign certificate programmatically:
 # 1. Unlock the login keychain:

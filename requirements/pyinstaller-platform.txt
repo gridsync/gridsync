@@ -6,6 +6,6 @@ macholib==1.16.2; sys_platform == "darwin" \
 pefile==2023.2.7; sys_platform == "win32" \
     --hash=sha256:82e6114004b3d6911c77c3953e3838654b04511b8b66e8583db70c65998017dc \
     --hash=sha256:da185cd2af68c08a6cd4481f7325ed600a88f6a813bad9dea07ab3ef73d8d8d6
-pywin32-ctypes==0.2.0; sys_platform == "win32" \
-    --hash=sha256:24ffc3b341d457d48e8922352130cf2644024a4ff09762a2261fd34c36ee5942 \
-    --hash=sha256:9dc2d991b3479cc2df15930958b674a48a227d5361d413827a4cfd0b5876fc98
+pywin32-ctypes==0.2.1; sys_platform == "win32" \
+    --hash=sha256:934a2def1e5cbc472b2b6bf80680c0f03cd87df65dfd58bfd1846969de095b03 \
+    --hash=sha256:b9a53ef754c894a525469933ab2a447c74ec1ea6b9d2ef446f40ec50d3dcec9f

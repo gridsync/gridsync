@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import sys
 from configparser import RawConfigParser
 from pathlib import Path
