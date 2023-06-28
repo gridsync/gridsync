@@ -228,11 +228,15 @@ class View(QTreeView):
             await self.gateway.magic_folder.invite_cancel(folder_name, id_)
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
+            try:
+                reason = str(e.reason)  # type: ignore[attr-defined]
+            except AttributeError:
+                reason = f"{type(e).__name__}: {str(e)}"
             error(
                 self,
                 f'Error cancelling invite to "{folder_name}"',
-                f'An exception was raised when cancelling the invite "{id_}" '
-                f'to the "{folder_name}" folder:\n\n'
+                f'An error occurred when cancelling the invite "{id_}" '
+                f'to the "{folder_name}" folder: {reason}',
                 f"{type(e).__name__}: {str(e)}",
             )
 
@@ -368,11 +372,16 @@ class View(QTreeView):
             )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
+            try:
+                reason = str(e.reason)  # type: ignore[attr-defined]
+            except AttributeError:
+                reason = f"{type(e).__name__}: {str(e)}"
             error(
                 self,
-                'Error downloading folder "{}"'.format(folder_name),
-                'An exception was raised when downloading the "{}" folder:\n\n'
-                "{}: {}".format(folder_name, type(e).__name__, str(e)),
+                f'Error downloading "{folder_name}" folder',
+                f'An error occurred when downloading the "{folder_name}" '
+                f'folder: {reason}',
+                f"{type(e).__name__}: {str(e)}",
             )
             return
         logging.debug('Successfully joined folder "%s"', folder_name)
@@ -400,13 +409,16 @@ class View(QTreeView):
             )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
+            try:
+                reason = str(e.reason)  # type: ignore[attr-defined]
+            except AttributeError:
+                reason = f"{type(e).__name__}: {str(e)}"
             error(
                 self,
-                'Error removing "{}" backup'.format(folder_name),
-                'An exception was raised when removing the "{}" backup:\n\n'
-                "{}: {}\n\nPlease try again later.".format(
-                    folder_name, type(e).__name__, str(e)
-                ),
+                f'Error removing "{folder_name}" backup',
+                f'An error occurred when removing the "{folder_name}" backup: '
+                f"{reason}\n\nPlease try again later.",
+                f"{type(e).__name__}: {str(e)}",
             )
             return
         self.get_model().remove_folder(folder_name)
@@ -455,13 +467,16 @@ class View(QTreeView):
             )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
+            try:
+                reason = str(e.reason)  # type: ignore[attr-defined]
+            except AttributeError:
+                reason = f"{type(e).__name__}: {str(e)}"
             error(
                 self,
-                'Error removing folder "{}"'.format(folder_name),
-                'An exception was raised when removing the "{}" folder:\n\n'
-                "{}: {}\n\nPlease try again later.".format(
-                    folder_name, type(e).__name__, str(e)
-                ),
+                f'Error removing "{folder_name}" folder',
+                f'An error occurred when removing the "{folder_name}" folder: '
+                f"{reason}\n\nPlease try again later.",
+                f"{type(e).__name__}: {str(e)}",
             )
             return
         self.get_model().on_folder_removed(folder_name)
@@ -656,13 +671,16 @@ class View(QTreeView):
             )
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
+            try:
+                reason = str(e.reason)  # type: ignore[attr-defined]
+            except AttributeError:
+                reason = f"{type(e).__name__}: {str(e)}"
             error(
                 self,
-                'Error adding folder "{}"'.format(folder_name),
-                'An exception was raised when adding the "{}" folder:\n\n'
-                "{}: {}\n\nPlease try again later.".format(
-                    folder_name, type(e).__name__, str(e)
-                ),
+                f'Error adding "{folder_name}" folder',
+                f'An error occurred when adding the "{folder_name}" folder: '
+                f"{reason}\n\nPlease try again later.",
+                f"{type(e).__name__}: {str(e)}",
             )
             self.get_model().remove_folder(folder_name)
             return
