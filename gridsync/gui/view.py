@@ -344,10 +344,9 @@ class View(QTreeView):
                 self,
                 f"Error joining {folder_name}",
                 f'An error occurred when joining the "{folder_name}" folder: '
-                f'{reason}',
+                f"{reason}",
                 f"{type(e).__name__}: {str(e)}",
             )
-
 
     def open_magic_folder_join_dialog(self) -> None:
         dialog = MagicFolderJoinDialog()
@@ -380,7 +379,7 @@ class View(QTreeView):
                 self,
                 f'Error downloading "{folder_name}" folder',
                 f'An error occurred when downloading the "{folder_name}" '
-                f'folder: {reason}',
+                f"folder: {reason}",
                 f"{type(e).__name__}: {str(e)}",
             )
             return
