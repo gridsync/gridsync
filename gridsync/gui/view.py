@@ -64,7 +64,7 @@ from gridsync.gui.model import Model
 from gridsync.gui.pixmap import Pixmap
 from gridsync.gui.share import InviteSenderDialog
 from gridsync.gui.widgets import ClickableLabel, HSpacer, VSpacer
-from gridsync.magic_folder import MagicFolderStatus, MagicFolderWebError
+from gridsync.magic_folder import MagicFolderStatus
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.types_ import TwistedDeferred
