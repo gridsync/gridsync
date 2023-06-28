@@ -284,7 +284,7 @@ class View(QTreeView):
         except Exception as e:  # pylint: disable=broad-except
             logging.error("%s: %s", type(e).__name__, str(e))
             try:
-                reason = str(e.reason)
+                reason = str(e.reason)  # type: ignore[attr-defined]
             except AttributeError:
                 reason = f"{type(e).__name__}: {str(e)}"
             error(
