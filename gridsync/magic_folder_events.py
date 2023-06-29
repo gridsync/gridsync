@@ -204,6 +204,7 @@ class MagicFolderEventHandler(QObject):
     def handle(self, event: dict) -> None:
         folder = event.get("folder", "")
         timestamp = float(event.get("timestamp", time.time()))
+        print("######", self, event.get("kind", "").upper(), event)  # XXX
         match event:
             case {"kind": "folder-added"}:
                 self.folder_added.emit(folder)
@@ -226,7 +227,6 @@ class MagicFolderEventHandler(QObject):
             case {"kind": "poll-completed"}:
                 self.poll_completed.emit(folder, timestamp)
             case {"kind": "error-occurred", "summary": summary}:
-                print("#################################", event)  # XXX
                 self.error_occurred.emit(folder, summary, timestamp)
             case {
                 "kind": "tahoe-connection-changed",
