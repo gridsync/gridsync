@@ -4,7 +4,6 @@ from __future__ import annotations
 import logging
 import os
 import sys
-import traceback
 from typing import TYPE_CHECKING
 
 from qtpy.QtCore import (
@@ -68,7 +67,7 @@ from gridsync.magic_folder import MagicFolderStatus
 from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.types_ import TwistedDeferred
-from gridsync.util import humanized_list
+from gridsync.util import humanized_list, traceback
 
 if TYPE_CHECKING:
     from gridsync.gui import AbstractGui
@@ -171,11 +170,7 @@ class View(QTreeView):
                 self,
                 "Error creating rootcap",
                 f"Could not create rootcap: {str(exc)}",
-                "".join(
-                    traceback.format_exception(
-                        type(exc), value=exc, tb=exc.__traceback__
-                    )
-                ),
+                traceback(exc),
             )
 
     def maybe_prompt_for_recovery(self) -> None:
@@ -237,7 +232,7 @@ class View(QTreeView):
                 f'Error cancelling invite to "{folder_name}"',
                 f'An error occurred when cancelling the invite "{id_}" '
                 f'to the "{folder_name}" folder: {reason}',
-                f"{type(e).__name__}: {str(e)}",
+                traceback(e),
             )
 
     async def _do_invite(
@@ -296,7 +291,7 @@ class View(QTreeView):
                 f"Error inviting {participant_name} to {folder_name}",
                 f'An error occurred when inviting "{participant_name}" to '
                 f'the "{folder_name}" folder: {reason}',
-                f"{type(e).__name__}: {str(e)}",
+                traceback(e),
             )
 
     def open_magic_folder_invite_dialog(self, folder_name: str) -> None:
@@ -345,7 +340,7 @@ class View(QTreeView):
                 f"Error joining {folder_name}",
                 f'An error occurred when joining the "{folder_name}" folder: '
                 f"{reason}",
-                f"{type(e).__name__}: {str(e)}",
+                traceback(e),
             )
 
     def open_magic_folder_join_dialog(self) -> None:
@@ -380,7 +375,7 @@ class View(QTreeView):
                 f'Error downloading "{folder_name}" folder',
                 f'An error occurred when downloading the "{folder_name}" '
                 f"folder: {reason}",
-                f"{type(e).__name__}: {str(e)}",
+                traceback(e),
             )
             return
         logging.debug('Successfully joined folder "%s"', folder_name)
@@ -417,7 +412,7 @@ class View(QTreeView):
                 f'Error removing "{folder_name}" backup',
                 f'An error occurred when removing the "{folder_name}" backup: '
                 f"{reason}\n\nPlease try again later.",
-                f"{type(e).__name__}: {str(e)}",
+                traceback(e),
             )
             return
         self.get_model().remove_folder(folder_name)
@@ -475,7 +470,7 @@ class View(QTreeView):
                 f'Error removing "{folder_name}" folder',
                 f'An error occurred when removing the "{folder_name}" folder: '
                 f"{reason}\n\nPlease try again later.",
-                f"{type(e).__name__}: {str(e)}",
+                traceback(e),
             )
             return
         self.get_model().on_folder_removed(folder_name)
@@ -679,7 +674,7 @@ class View(QTreeView):
                 f'Error adding "{folder_name}" folder',
                 f'An error occurred when adding the "{folder_name}" folder: '
                 f"{reason}\n\nPlease try again later.",
-                f"{type(e).__name__}: {str(e)}",
+                traceback(e),
             )
             self.get_model().remove_folder(folder_name)
             return
