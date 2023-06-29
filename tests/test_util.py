@@ -11,6 +11,7 @@ from gridsync.util import (
     humanized_list,
     strip_html_tags,
     to_bool,
+    traceback,
 )
 
 # From https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
@@ -111,3 +112,12 @@ def test_future_date_does_not_return_centuries_for_small_int_days():
 )
 def test_strip_html_tags(s, expected):
     assert strip_html_tags(s) == expected
+
+
+def test_traceback():
+    try:
+        raise ValueError("test")
+    except ValueError as exc:
+        tb = traceback(exc)
+    assert isinstance(tb, str)
+    assert "ValueError: test" in tb

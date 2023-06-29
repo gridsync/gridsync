@@ -5,6 +5,7 @@ from binascii import hexlify, unhexlify
 from datetime import datetime, timedelta
 from html.parser import HTMLParser
 from time import time
+from traceback import format_exception
 from typing import TYPE_CHECKING, Callable, Coroutine, Optional, TypeVar, Union
 
 import attr
@@ -20,6 +21,12 @@ B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 if TYPE_CHECKING:
     from gridsync.types_ import TwistedDeferred
+
+
+def traceback(exc: Exception) -> str:
+    return "".join(
+        format_exception(type(exc), value=exc, tb=exc.__traceback__)
+    )
 
 
 def b58encode(b: bytes) -> str:  # Adapted from python-bitcoinlib
