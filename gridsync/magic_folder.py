@@ -49,7 +49,12 @@ class MagicFolderProcessError(MagicFolderError):
 
 
 class MagicFolderWebError(MagicFolderError):
-    pass
+    def __init__(
+        self, message: str, code: int | None = None, reason: str | None = None
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.reason = reason
 
 
 class MagicFolderWatchdog:
@@ -485,10 +490,23 @@ class MagicFolder:
                 data=body,
             )
         content = await treq.content(resp)
+        try:
+            json_content = json.loads(content)
+        except json.JSONDecodeError:
+            json_content = None
+        if json_content is not None:
+            try:
+                reason = json_content.get("reason")
+            except Exception:  # pylint: disable=broad-except
+                reason = None
+        else:
+            reason = None
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
-            return json.loads(content)
+            return json_content
         raise MagicFolderWebError(
-            f"Error {resp.code} requesting {method} {path}: {content}"
+            f"Error {resp.code} requesting {method} {path}: {content}",
+            code=resp.code,
+            reason=reason,
         )
 
     async def get_folders(self) -> dict[str, dict]:
