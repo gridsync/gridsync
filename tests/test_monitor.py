@@ -143,7 +143,7 @@ def test__parse_voucher_contains_redeeming_vouchers(tahoe):
     assert parsed.redeeming_vouchers == ["0MH30nxh9iup727nTi3u51Ir9HcQYIM8"]
 
 
-def test__parse_vouchers_does_not_raise_type_error(tahoe):
+def test__parse_vouchers_does_not_raise_type_error():
     # https://github.com/gridsync/gridsync/issues/659
     vouchers = [
         {
