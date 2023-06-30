@@ -160,7 +160,9 @@ def test__parse_vouchers_does_not_raise_type_error():
     ]
     now = datetime(2021, 12, 21, 13, 23, 50)
     parsed = _parse_vouchers(vouchers, now)
-    assert parsed.unpaid_vouchers == ["qh1ilsrNIXakBP9Ef4hI_MGrPzP4eVm9d1xaoF10PXhF"]
+    assert parsed.unpaid_vouchers == [
+        "qh1ilsrNIXakBP9Ef4hI_MGrPzP4eVm9d1xaoF10PXhF"
+    ]
 
 
 def test__update_redeeming_vouchers_emits_redeeming_vouchers_updated(tahoe):
