@@ -204,7 +204,6 @@ class MagicFolderEventHandler(QObject):
     def handle(self, event: dict) -> None:
         folder = event.get("folder", "")
         timestamp = float(event.get("timestamp", time.time()))
-        print("######", self, event.get("kind", "").upper(), event)  # XXX
         match event:
             case {"kind": "folder-added"}:
                 self.folder_added.emit(folder)
