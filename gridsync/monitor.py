@@ -126,6 +126,7 @@ def _parse_vouchers(
             if created is None:
                 continue
             time_created = datetime.fromisoformat(created)
+            time_started = time_started.astimezone(tz=time_created.tzinfo)
             if time_created > time_started:
                 unpaid_vouchers.add(number)
         elif name == "redeeming" and state.get("counter", 0):
