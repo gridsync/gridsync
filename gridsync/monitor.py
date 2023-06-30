@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
@@ -126,6 +126,7 @@ def _parse_vouchers(
             if created is None:
                 continue
             time_created = datetime.fromisoformat(created)
+            time_started = time_started.astimezone(tz=time_created.tzinfo)
             if time_created > time_started:
                 unpaid_vouchers.add(number)
         elif name == "redeeming" and state.get("counter", 0):
@@ -173,7 +174,7 @@ class ZKAPChecker(QObject):
         # XXX zkaps_last_redeemed starts as "0" which cannot be parsed as an
         # ISO8601 datetime.
         last_redeemed = datetime.fromisoformat(self.zkaps_last_redeemed)
-        now = datetime.now()
+        now = datetime.now(tz=timezone.utc)
         seconds = datetime.timestamp(now) - datetime.timestamp(last_redeemed)
         consumption_rate = zkaps_spent / seconds
         return consumption_rate
@@ -323,7 +324,7 @@ class ZKAPChecker(QObject):
     @inlineCallbacks
     def do_check(self) -> TwistedDeferred[None]:
         if self._time_started is None:
-            self._time_started = datetime.now()
+            self._time_started = datetime.now(tz=timezone.utc)
         if not self.gateway.zkap_auth_required or not self.gateway.nodeurl:
             # Either the node doesn't use ZKAPs or isn't running.
             return
