@@ -25,7 +25,9 @@ def to_bytes(mnemonic: list[str]) -> bytes:
 
 
 def derive_rsa_key(seed: bytes, bits: int = 2048) -> bytes:
-    hasher = blake3(seed, derive_key_context="Deterministic RSA PRNG v1")
+    hasher = blake3(  # pylint: disable=not-callable
+        seed, derive_key_context="Deterministic RSA PRNG v1"
+    )
 
     def prng_bytes(n: int) -> bytes:
         hasher.update(hasher.digest())
