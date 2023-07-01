@@ -11,7 +11,7 @@ from autobahn.twisted.websocket import create_client_agent
 from twisted.internet.defer import Deferred, inlineCallbacks
 
 from gridsync.errors import TahoeWebError
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 from gridsync.voucher import generate_voucher
 
 if TYPE_CHECKING:

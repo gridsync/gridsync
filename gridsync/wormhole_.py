@@ -17,7 +17,7 @@ from wormhole.tor_manager import get_tor
 
 from gridsync import settings
 from gridsync.errors import TorError, UpgradeRequiredError
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 APPID = settings["wormhole"]["appid"]
 RELAY = settings["wormhole"]["relay"]

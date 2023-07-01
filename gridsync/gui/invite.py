@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
-
 import logging
+import os
 import sys
 from typing import Optional
 
 from qtpy.QtCore import (
     QModelIndex,
     QPropertyAnimation,
-    QSize,
     QStringListModel,
     Qt,
+    QTimer,
     Signal,
 )
-from qtpy.QtGui import QIcon, QKeyEvent
+from qtpy.QtGui import QFont, QIcon, QKeyEvent
 from qtpy.QtWidgets import (
     QAction,
     QCheckBox,
     QCompleter,
     QGraphicsOpacityEffect,
     QGridLayout,
+    QGroupBox,
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPushButton,
+    QToolButton,
     QWidget,
 )
 from twisted.internet import reactor
@@ -36,14 +37,19 @@ from wormhole.errors import (
 )
 
 from gridsync import APP_NAME, resource
-from gridsync.desktop import get_clipboard_modes, get_clipboard_text
+from gridsync.desktop import (
+    get_clipboard_modes,
+    get_clipboard_text,
+    set_clipboard_text,
+)
 from gridsync.errors import UpgradeRequiredError
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
-from gridsync.gui.widgets import HSpacer, VSpacer
+from gridsync.gui.widgets import HSpacer, InfoButton, VSpacer
 from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
+from gridsync.util import b58encode
 
 
 class InviteCodeCompleter(QCompleter):
@@ -63,9 +69,121 @@ class InviteCodeCompleter(QCompleter):
         return [str(path.split("-")[-1])]
 
 
+class InviteHeaderWidget(QWidget):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+
+        self.icon_label = QLabel(self)
+
+        self.text_label = QLabel(self)
+        self.text_label.setFont(Font(18))
+        self.text_label.setAlignment(Qt.AlignCenter)
+
+        layout = QGridLayout(self)
+        layout.addItem(HSpacer(), 1, 1)
+        layout.addWidget(self.icon_label, 1, 2)
+        layout.addWidget(self.text_label, 1, 3)
+        layout.addItem(HSpacer(), 1, 4)
+
+    def set_icon(self, icon: QIcon) -> None:
+        self.icon_label.setPixmap(icon.pixmap(50, 50))
+
+    def set_text(self, text: str) -> None:
+        self.text_label.setText(text)
+
+
+class InviteCodeBox(QWidget):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+
+        self.noise_label = QLabel()
+        font = Font(16)
+        if sys.platform == "darwin":
+            # "Courier" was removed from macOS 13
+            font.setFamily("Courier New")
+        else:
+            font.setFamily("Courier")
+        font.setStyleHint(QFont.Monospace)
+        self.noise_label.setFont(font)
+        self.noise_label.setStyleSheet("color: grey")
+
+        self.noise_timer = QTimer()
+        self.noise_timer.timeout.connect(
+            lambda: self.noise_label.setText(b58encode(os.urandom(16)))
+        )
+
+        self.code_label = QLabel()
+        self.code_label.setFont(Font(18))
+        self.code_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.code_label.hide()
+
+        self.box = QGroupBox()
+        self.box.setAlignment(Qt.AlignCenter)
+        self.box.setStyleSheet("QGroupBox {font-size: 16px}")
+
+        # QGroupBox's built-in title is unavailable on macOS, so
+        # instantiate a QLabel that we can use to simulate one...
+        self.box_title = QLabel(self)
+        self.box_title.setAlignment(Qt.AlignCenter)
+        self.box_title.setFont(Font(16))
+
+        self.copy_button = QToolButton()
+        self.copy_button.setIcon(QIcon(resource("copy.png")))
+        self.copy_button.setToolTip("Copy to clipboard")
+        self.copy_button.setStyleSheet("border: 0px; padding: 0px;")
+        self.copy_button.clicked.connect(self._on_copy_button_clicked)
+        self.copy_button.hide()
+
+        box_layout = QGridLayout(self.box)
+        box_layout.addItem(HSpacer(), 1, 1)
+        box_layout.addWidget(self.noise_label, 1, 2)
+        box_layout.addWidget(self.code_label, 1, 3)
+        box_layout.addWidget(self.copy_button, 1, 4)
+        box_layout.addItem(HSpacer(), 1, 5)
+
+        layout = QGridLayout(self)
+        if sys.platform == "darwin":
+            layout.addWidget(self.box_title)
+        layout.addWidget(self.box)
+
+    def set_title(self, text: str) -> None:
+        if sys.platform == "darwin":
+            self.box_title.setText(text)
+            self.box_title.show()
+        else:
+            self.box.setTitle(text)
+
+    def show_noise(self) -> None:
+        self.code_label.setText("")
+        self.code_label.hide()
+        self.copy_button.hide()
+        self.set_title("Generating invite code...")
+        self.noise_timer.start(75)
+        self.noise_label.show()
+
+    def show_code(self, code: str) -> None:
+        self.noise_timer.stop()
+        self.noise_label.hide()
+        self.set_title("Your invite code is:")
+        self.code_label.setText(code)
+        self.code_label.show()
+        self.copy_button.show()
+
+    def get_code(self) -> str:
+        return self.code_label.text()
+
+    def _on_copy_button_clicked(self) -> None:
+        code = self.get_code()
+        for mode in get_clipboard_modes():
+            set_clipboard_text(code, mode)
+
+
 class InviteCodeLineEdit(QLineEdit):
     error = Signal(str)
     go = Signal(str)
+    code_cleared = Signal()
+    code_validated = Signal(str)
+    code_invalidated = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -109,9 +227,11 @@ class InviteCodeLineEdit(QLineEdit):
         elif is_valid_code(text):
             self.action_button.setIcon(self.go_icon)
             self.action_button.setToolTip("Go")
+            self.code_validated.emit(text)
         else:
             self.action_button.setIcon(self.clear_icon)
             self.action_button.setToolTip("Clear")
+            self.code_invalidated.emit(text)
 
     def keyPressEvent(self, event: QKeyEvent) -> Optional[QKeyEvent]:  # type: ignore
         # mypy: 'incompatible with return type "None" in supertype "QLineEdit"'
@@ -125,6 +245,7 @@ class InviteCodeLineEdit(QLineEdit):
                 self.setText(text)
         elif text and key == Qt.Key_Escape:
             self.setText("")
+            self.code_cleared.emit()
         else:
             return QLineEdit.keyPressEvent(self, event)
         return None
@@ -150,6 +271,12 @@ class InviteCodeLineEdit(QLineEdit):
 
 
 class InviteCodeWidget(QWidget):
+    code_cleared = Signal()
+    code_entered = Signal(str)
+    code_validated = Signal(str)
+    code_invalidated = Signal(str)
+    error_occurred = Signal(str)
+
     def __init__(
         self, parent: Optional[QWidget] = None, tor_available: bool = False
     ) -> None:
@@ -164,29 +291,19 @@ class InviteCodeWidget(QWidget):
 
         self.label.setAlignment(Qt.AlignCenter)
 
-        self.code_info_text = (
+        self.code_info_button = InfoButton(
+            "About Invite Codes",
             "An <i>invite code</i> is a short combination of numbers and "
-            'words (like "7-guitarist-revenge" or "9-potato-gremlin") that '
-            "allows two parties with the same code to establish a one-time "
-            "secure communication channel with each other. In {}, "
-            "invite codes are used to safely share the credentials needed "
-            "to access resources -- for example, allowing another person or "
-            "device to store files on a grid or granting them the ability to "
-            "view and modify a folder.<p>"
+            'words (like "7-guitarist-revenge") that allows two parties with '
+            "the same code to establish a one-time secure communication "
+            "channel with each other.<p>"
+            f"In {APP_NAME}, invite codes are used to safely exchange the "
+            "credentials needed to access resources -- for example, to grant "
+            "another device the ability to view and modify a folder<p>"
             "Invite codes can only be used once and expire immediately when "
-            "used or cancelled.".format(APP_NAME)
+            "used or cancelled.",
+            self,
         )
-        self.code_info_button = QPushButton()
-        self.code_info_button.setFlat(True)
-        self.code_info_button.setIcon(QIcon(resource("question")))
-        self.code_info_button.setIconSize(QSize(13, 13))
-        if sys.platform == "darwin":
-            self.code_info_button.setFixedSize(16, 16)
-        else:
-            self.code_info_button.setFixedSize(13, 13)
-        self.code_info_button.setToolTip(self.code_info_text)
-        self.code_info_button.clicked.connect(self.on_code_info_button_clicked)
-        self.code_info_button.setFocusPolicy(Qt.NoFocus)
 
         label_layout = QGridLayout()
         label_layout.setHorizontalSpacing(6)
@@ -196,6 +313,11 @@ class InviteCodeWidget(QWidget):
         label_layout.addItem(HSpacer(), 1, 5)
 
         self.lineedit = InviteCodeLineEdit(self)
+        self.lineedit.go.connect(self.code_entered)
+        self.lineedit.error.connect(self.error_occurred)
+        self.lineedit.code_cleared.connect(self.code_cleared)
+        self.lineedit.code_validated.connect(self.code_validated)
+        self.lineedit.code_invalidated.connect(self.code_invalidated)
 
         self.tor_checkbox = QCheckBox("Connect over the Tor network")
         if sys.platform == "darwin":
@@ -222,32 +344,21 @@ class InviteCodeWidget(QWidget):
         self.tor_checkbox_animation_out.setStartValue(1)
         self.tor_checkbox_animation_out.setEndValue(0)
 
-        self.tor_info_text = (
+        self.tor_info_button = InfoButton(
+            "About Tor",
             "<i>Tor</i> is an anonymizing network that helps defend against "
             "network surveillance and traffic analysis. With this checkbox "
-            "enabled, {} will route all traffic corresponding to this "
-            "connection through the Tor network, concealing your geographical "
-            "location from your storage provider and other parties (such as "
+            f"enabled, {APP_NAME} will route all traffic corresponding to this"
+            " connection through the Tor network, concealing your geographical"
+            " location from your storage provider and other parties (such as "
             "any persons with whom you might share folders).<p>"
             "Using this option requires that Tor already be installed and "
             "running on your computer and may be slower or less reliable than "
             "your normal internet connection.<p>"
             "For more information or to download Tor, please visit "
-            "<a href=https://torproject.org>https://torproject.org</a>".format(
-                APP_NAME
-            )
+            "<a href=https://torproject.org>https://torproject.org</a>",
+            self,
         )
-        self.tor_info_button = QPushButton()
-        self.tor_info_button.setFlat(True)
-        self.tor_info_button.setIcon(QIcon(resource("question")))
-        self.tor_info_button.setIconSize(QSize(13, 13))
-        if sys.platform == "darwin":
-            self.tor_info_button.setFixedSize(16, 16)
-        else:
-            self.tor_info_button.setFixedSize(13, 13)
-        self.tor_info_button.setToolTip(self.tor_info_text)
-        self.tor_info_button.clicked.connect(self.on_tor_info_button_clicked)
-        self.tor_info_button.setFocusPolicy(Qt.NoFocus)
         self.tor_info_button_effect = QGraphicsOpacityEffect()
         self.tor_info_button.setGraphicsEffect(self.tor_info_button_effect)
         self.tor_info_button.setAutoFillBackground(True)
@@ -281,12 +392,17 @@ class InviteCodeWidget(QWidget):
         tor_layout.addWidget(self.tor_info_button, 1, 3, Qt.AlignLeft)
         tor_layout.addItem(HSpacer(), 1, 4)
 
+        self.error_label = QLabel("", self)
+        self.error_label.setStyleSheet("color: red")
+        self.error_label.setAlignment(Qt.AlignCenter)
+
         layout = QGridLayout(self)
         layout.addItem(VSpacer(), 1, 1)
         layout.addLayout(label_layout, 2, 1)
         layout.addWidget(self.lineedit, 3, 1)
         layout.addLayout(tor_layout, 4, 1)
-        layout.addItem(VSpacer(), 5, 1)
+        layout.addWidget(self.error_label, 5, 1)
+        layout.addItem(VSpacer(), 6, 1)
 
         self.tor_checkbox.toggled.connect(self.toggle_tor_status)
 
@@ -359,31 +475,14 @@ class InviteCodeWidget(QWidget):
             self.lineedit.status_action.setToolTip("")
             # self.lineedit.setStyleSheet("")
 
-    def on_tor_info_button_clicked(self) -> None:
-        msgbox = QMessageBox(self)
-        msgbox.setIconPixmap(self.lineedit.tor_icon.pixmap(64, 64))
-        if sys.platform == "darwin":
-            msgbox.setText("About Tor")
-            msgbox.setInformativeText(self.tor_info_text)
-        else:
-            msgbox.setWindowTitle("About Tor")
-            msgbox.setText(self.tor_info_text)
-        msgbox.show()
+    def get_code(self) -> str:
+        return self.lineedit.text().lower()
 
-    def on_code_info_button_clicked(self) -> None:
-        msgbox = QMessageBox(self)
-        msgbox.setIcon(QMessageBox.Information)
-        text = (
-            "{}<p><a href=https://github.com/gridsync/gridsync/blob/master/doc"
-            "s/invite-codes.md>Learn more...</a>".format(self.code_info_text)
-        )
-        if sys.platform == "darwin":
-            msgbox.setText("About Invite Codes")
-            msgbox.setInformativeText(text)
-        else:
-            msgbox.setWindowTitle("About Invite Codes")
-            msgbox.setText(text)
-        msgbox.show()
+    def show_error(self, message: str) -> None:
+        self.error_label.setText(message)
+
+    def clear_error(self) -> None:
+        self.error_label.setText("")
 
 
 def show_failure(failure: Failure, parent: Optional[QWidget] = None) -> None:

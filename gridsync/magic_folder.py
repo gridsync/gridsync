@@ -3,33 +3,37 @@ from __future__ import annotations
 import json
 import logging
 import os
+import sqlite3
 from collections import defaultdict
 from datetime import datetime
-from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 import treq
 from qtpy.QtCore import QObject, Signal
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, DeferredList
+from twisted.internet.error import ConnectionRefusedError as ConnectionRefused
 from twisted.internet.task import deferLater
 
 if TYPE_CHECKING:
-    from qtpy.QtCore import SignalInstance
     from gridsync.tahoe import Tahoe  # pylint: disable=cyclic-import
-    from gridsync.types import JSON
+    from gridsync.types_ import JSON
 
 from gridsync import APP_NAME
 from gridsync.capabilities import diminish
 from gridsync.crypto import randstr
 from gridsync.filter import is_eliot_log_message
 from gridsync.log import MultiFileLogger, NullLogger
+from gridsync.magic_folder_events import (
+    MagicFolderEventHandler,
+    MagicFolderEventsMonitor,
+    MagicFolderStatus,
+)
 from gridsync.msg import critical
 from gridsync.supervisor import Supervisor
 from gridsync.system import SubprocessProtocol, which
 from gridsync.watchdog import Watchdog
-from gridsync.websocket import WebSocketReaderService
 
 
 class MagicFolderError(Exception):
@@ -45,78 +49,24 @@ class MagicFolderProcessError(MagicFolderError):
 
 
 class MagicFolderWebError(MagicFolderError):
-    pass
+    def __init__(
+        self, message: str, code: int | None = None, reason: str | None = None
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.reason = reason
 
 
-class MagicFolderStatus(Enum):
-    LOADING = auto()
-    SYNCING = auto()
-    UP_TO_DATE = auto()
-    ERROR = auto()
-    STORED_REMOTELY = auto()
-    WAITING = auto()
-
-
-class MagicFolderMonitor(QObject):
-    status_message_received = Signal(dict)
-
-    sync_progress_updated = Signal(str, object, object)  # folder, cur, total
-
-    upload_started = Signal(str, str, dict)  # folder_name, relpath, data
-    upload_finished = Signal(str, str, dict)  # folder_name, relpath, data
-    download_started = Signal(str, str, dict)  # folder_name, relpath, data
-    download_finished = Signal(str, str, dict)  # folder_name, relpath, data
-    files_updated = Signal(str, list)  # folder_name, relpaths
-
-    error_occurred = Signal(str, str, int)  # folder_name, summary, timestamp
-
-    folder_added = Signal(str)  # folder_name
-    folder_removed = Signal(str)  # folder_name
-    folder_mtime_updated = Signal(str, int)  # folder_name, mtime
-    folder_size_updated = Signal(str, object)  # folder_name, size
-    folder_status_changed = Signal(str, object)  # folder_name, status
-
-    backup_added = Signal(str)  # folder_name
-    backup_removed = Signal(str)  # folder_name
-
-    file_added = Signal(str, dict)  # folder_name, status
-    file_removed = Signal(str, dict)  # folder_name, status
-    file_mtime_updated = Signal(str, dict)  # folder_name, status
-    file_size_updated = Signal(str, dict)  # folder_name, status
-    file_modified = Signal(str, dict)  # folder_name, status
-
-    overall_status_changed = Signal(object)  # MagicFolderStatus
-    total_folders_size_updated = Signal(object)  # "object" avoids overflows
-
+class MagicFolderWatchdog:
     def __init__(self, magic_folder: MagicFolder) -> None:
-        super().__init__()
         self.magic_folder = magic_folder
 
-        self._ws_reader: Optional[WebSocketReaderService] = None
-        self.running: bool = False
-        self.errors: list = []
-
-        self._prev_state: dict = {}
-        self._known_folders: dict[str, dict] = {}
-        self._known_backups: list[str] = []
-
-        self._folder_sizes: dict[str, int] = {}
-        self._folder_statuses: dict[str, MagicFolderStatus] = {}
-        self._total_folders_size: int = 0
-
-        self._operations_queued: defaultdict[str, set] = defaultdict(set)
-        self._operations_completed: defaultdict[str, dict] = defaultdict(dict)
-
-        self._watchdog = Watchdog()
-        self._watchdog.path_modified.connect(self._schedule_magic_folder_scan)
         self._scheduled_scans: defaultdict[str, set] = defaultdict(set)
-        self._scheduled_polls: defaultdict[str, set] = defaultdict(set)
+        self._watchdog = Watchdog()
+        self._watchdog.path_modified.connect(self._schedule_scan)
 
-        self._overall_status: MagicFolderStatus = MagicFolderStatus.LOADING
-
-    # XXX The `_maybe_do_...` functions could probably be refactored to
-    # duplicate less
     def _maybe_do_scan(self, event_id: str, path: str) -> None:
+        # TODO: Don't scan if sync is in progress?
         try:
             self._scheduled_scans[path].remove(event_id)
         except KeyError:
@@ -131,168 +81,73 @@ class MagicFolderMonitor(QObject):
                 # XXX Something should handle errors
                 Deferred.fromCoroutine(self.magic_folder.scan(folder_name))
 
-    def _schedule_magic_folder_scan(self, path: str) -> None:
-        event_id = randstr(8)
+    def _schedule_scan(self, path: str) -> None:
+        event_id = randstr(16)
         self._scheduled_scans[path].add(event_id)
         reactor.callLater(  # type: ignore
             0.25, lambda: self._maybe_do_scan(event_id, path)
         )
 
-    def _maybe_do_poll(self, event_id: str, folder_name: str) -> None:
+    def add_watch(self, path: str) -> None:
         try:
-            self._scheduled_polls[folder_name].remove(event_id)
-        except KeyError:
-            pass
-        if self._scheduled_polls[folder_name]:
-            return
-        # XXX Something should handle errors
-        Deferred.fromCoroutine(self.magic_folder.poll(folder_name))
+            self._watchdog.add_watch(path)
+        except Exception as exc:  # pylint: disable=broad-except
+            logging.warning("Error adding watch for %s: %s", path, str(exc))
 
-    def _schedule_magic_folder_poll(self, folder_name: str) -> None:
-        event_id = randstr(8)
-        self._scheduled_polls[folder_name].add(event_id)
-        reactor.callLater(  # type: ignore
-            1, lambda: self._maybe_do_poll(event_id, folder_name)
+    def remove_watch(self, path: str) -> None:
+        try:
+            self._watchdog.remove_watch(path)
+        except Exception as exc:  # pylint: disable=broad-except
+            logging.warning("Error removing watch for %s: %s", path, str(exc))
+
+    def stop(self) -> None:
+        self._watchdog.stop()
+
+    def start(self) -> None:
+        self._watchdog.start()
+
+
+class MagicFolderMonitor(QObject):
+    folder_mtime_updated = Signal(str, int)  # folder_name, mtime
+    folder_size_updated = Signal(str, object)  # folder_name, size
+
+    backup_added = Signal(str)  # folder_name
+    backup_removed = Signal(str)  # folder_name
+
+    file_added = Signal(str, dict)  # folder_name, status
+    file_removed = Signal(str, dict)  # folder_name, status
+    file_mtime_updated = Signal(str, dict)  # folder_name, status
+    file_size_updated = Signal(str, dict)  # folder_name, status
+    file_modified = Signal(str, dict)  # folder_name, status
+
+    total_folders_size_updated = Signal(object)  # "object" avoids overflows
+
+    def __init__(self, magic_folder: MagicFolder) -> None:
+        super().__init__()
+        self.magic_folder = magic_folder
+
+        self.running: bool = False
+
+        self._known_folders: dict[str, dict] = {}
+        self._known_backups: list[str] = []
+
+        self._folder_sizes: dict[str, int] = {}
+        self._total_folders_size: int = 0
+
+        self._watchdog = MagicFolderWatchdog(self.magic_folder)
+
+        self.event_handler = MagicFolderEventHandler()
+        self.events_monitor = MagicFolderEventsMonitor(self.event_handler)
+
+        self.event_handler.folder_added.connect(
+            lambda _: Deferred.fromCoroutine(self.do_check())
         )
-
-    def _check_errors(self, current_state: dict, previous_state: dict) -> None:
-        current_folders = current_state.get("folders", {})
-        previous_folders = previous_state.get("folders", {})
-        for folder, data in current_folders.items():
-            current_errors = data.get("errors", [])
-            if not current_errors:
-                continue
-            prev_errors = previous_folders.get(folder, {}).get("errors", [])
-            for error in current_errors:
-                if error not in prev_errors:
-                    summary = error.get("summary", "")
-                    timestamp = error.get("timestamp", 0)
-                    self.error_occurred.emit(folder, summary, timestamp)
-                    error["folder"] = folder
-                    # XXX There is presently no way to "clear" (or
-                    # acknowledge the receipt of) Magic-Folder errors
-                    # so this will persist indefinitely...
-                    self.errors.append(error)
-
-    @staticmethod
-    def _parse_operations(
-        state: dict,
-    ) -> tuple[defaultdict[str, dict], defaultdict[str, dict]]:
-        uploads: defaultdict[str, dict] = defaultdict(dict)
-        downloads: defaultdict[str, dict] = defaultdict(dict)
-        for folder, data in state.get("folders", {}).items():
-            for upload in data.get("uploads", []):
-                uploads[folder][upload["relpath"]] = upload
-            for download in data.get("downloads", []):
-                downloads[folder][download["relpath"]] = download
-        return (uploads, downloads)
-
-    def _check_operations_started(
-        self,
-        current_operations: defaultdict[str, dict],
-        previous_operations: defaultdict[str, dict],
-        started_signal: SignalInstance,
-    ) -> None:
-        for folder, operation in current_operations.items():
-            for relpath, data in operation.items():
-                if relpath not in previous_operations[folder]:
-                    self._operations_queued[folder].add(relpath)
-                    started_signal.emit(folder, relpath, data)
-
-    def _check_operations_finished(
-        self,
-        current_operations: defaultdict[str, dict],
-        previous_operations: defaultdict[str, dict],
-        finished_signal: SignalInstance,
-    ) -> None:
-        for folder, operation in previous_operations.items():
-            for relpath, data in operation.items():
-                if relpath not in current_operations[folder]:
-                    # XXX: Confirm in "recent" list?
-                    self._operations_completed[folder][relpath] = data
-                    finished_signal.emit(folder, relpath, data)
-
-    def _parse_folder_statuses(self, state: dict) -> dict:
-        folder_statuses = {}
-        for folder, data in state.get("folders", {}).items():
-            if data.get("uploads") or data.get("downloads"):
-                folder_statuses[folder] = MagicFolderStatus.SYNCING
-            elif data.get("errors"):
-                folder_statuses[folder] = MagicFolderStatus.ERROR
-            else:
-                last_poll = data.get("poller", {}).get("last-poll") or 0
-                last_scan = data.get("scanner", {}).get("last-scan") or 0
-                time_started = self.magic_folder.supervisor.time_started
-                if time_started and min(last_poll, last_scan) >= time_started:
-                    folder_statuses[folder] = MagicFolderStatus.UP_TO_DATE
-                else:
-                    folder_statuses[folder] = MagicFolderStatus.WAITING
-        return folder_statuses
-
-    def _check_folder_statuses(self, folder_statuses: dict) -> None:
-        for folder, status in folder_statuses.items():
-            if status != self._folder_statuses.get(folder):
-                self.folder_status_changed.emit(folder, status)
-        self._folder_statuses = folder_statuses
-
-    def _check_overall_status(self, folder_statuses: dict) -> None:
-        statuses = set(folder_statuses.values())
-        if MagicFolderStatus.SYNCING in statuses:  # At least one is syncing
-            status = MagicFolderStatus.SYNCING
-        elif MagicFolderStatus.ERROR in statuses:  # At least one has an error
-            status = MagicFolderStatus.ERROR
-        elif statuses == {MagicFolderStatus.UP_TO_DATE}:  # All are up to date
-            status = MagicFolderStatus.UP_TO_DATE
-        else:
-            status = MagicFolderStatus.WAITING
-        if status != self._overall_status:
-            self._overall_status = status
-            self.overall_status_changed.emit(status)
-            # XXX Something should wait on the result
-            Deferred.fromCoroutine(
-                self.do_check()
-            )  # Update folder sizes, mtimes
-
-    def compare_states(
-        self, current_state: dict, previous_state: dict
-    ) -> None:
-        self._check_errors(current_state, previous_state)
-        current_uploads, current_downloads = self._parse_operations(
-            current_state
+        self.event_handler.folder_removed.connect(
+            lambda _: Deferred.fromCoroutine(self.do_check())
         )
-        previous_uploads, previous_downloads = self._parse_operations(
-            previous_state
+        self.event_handler.folder_status_changed.connect(
+            lambda f, s: Deferred.fromCoroutine(self.do_check())
         )
-        self._check_operations_started(
-            current_uploads, previous_uploads, self.upload_started
-        )
-        self._check_operations_started(
-            current_downloads, previous_downloads, self.download_started
-        )
-        self._check_operations_finished(
-            current_uploads, previous_uploads, self.upload_finished
-        )
-        self._check_operations_finished(
-            current_downloads, previous_downloads, self.download_finished
-        )
-        for folder in list(previous_uploads) + list(previous_downloads):
-            current = len(self._operations_completed[folder])
-            total = len(self._operations_queued[folder])
-            self.sync_progress_updated.emit(folder, current, total)
-            if not current_uploads[folder] and not current_downloads[folder]:
-                updated_files = list(self._operations_completed[folder])
-                try:
-                    del self._operations_completed[folder]
-                except KeyError:
-                    pass
-                try:
-                    del self._operations_queued[folder]
-                except KeyError:
-                    pass
-                self.files_updated.emit(folder, updated_files)
-        folder_statuses = self._parse_folder_statuses(current_state)
-        self._check_folder_statuses(folder_statuses)
-        self._check_overall_status(folder_statuses)
 
     def compare_folders(
         self,
@@ -301,24 +156,16 @@ class MagicFolderMonitor(QObject):
     ) -> None:
         for folder, data in current_folders.items():
             if folder not in previous_folders:
-                self.folder_added.emit(folder)
+                # Magic-Folder does not send "folder-added" events for
+                # already-existing folders on startup, so manually emit
+                # the signal when we first see a folder.
+                self.event_handler.folder_added.emit(folder)  # XXX
                 magic_path = data.get("magic_path", "")
-                try:
-                    self._watchdog.add_watch(magic_path)
-                except Exception as exc:  # pylint: disable=broad-except
-                    logging.warning(
-                        "Error adding watch for %s: %s", magic_path, str(exc)
-                    )
+                self._watchdog.add_watch(magic_path)
         for folder, data in previous_folders.items():
             if folder not in current_folders:
-                self.folder_removed.emit(folder)
                 magic_path = data.get("magic_path", "")
-                try:
-                    self._watchdog.remove_watch(magic_path)
-                except Exception as exc:  # pylint: disable=broad-except
-                    logging.warning(
-                        "Error removing watch for %s: %s", magic_path, str(exc)
-                    )
+                self._watchdog.remove_watch(magic_path)
 
     def compare_backups(
         self, current_backups: list[str], previous_backups: list[str]
@@ -410,19 +257,6 @@ class MagicFolderMonitor(QObject):
             )
         self._check_total_folders_size()
 
-    def _check_last_polls(self, state: dict) -> None:
-        for folder_name, data in state.get("folders", {}).items():
-            if not (data.get("poller", {}).get("last-poll") or 0):
-                self._schedule_magic_folder_poll(folder_name)
-
-    def on_status_message_received(self, msg: str) -> None:
-        data = json.loads(msg)
-        self.status_message_received.emit(data)
-        state = data.get("state")
-        self.compare_states(state, self._prev_state)
-        self._check_last_polls(state)
-        self._prev_state = state
-
     async def _get_file_status(
         self, folder_name: str
     ) -> tuple[str, list[dict]]:
@@ -460,15 +294,9 @@ class MagicFolderMonitor(QObject):
         self._known_folders = current_folders
 
     def start(self) -> None:
-        if self._ws_reader is not None:
-            self._ws_reader.stop()
-            self._ws_reader = None
-        self._ws_reader = WebSocketReaderService(
-            f"ws://127.0.0.1:{self.magic_folder.api_port}/v1/status",
-            headers={"Authorization": f"Bearer {self.magic_folder.api_token}"},
-            collector=self.on_status_message_received,
+        self.events_monitor.start(
+            self.magic_folder.api_port, self.magic_folder.api_token
         )
-        self._ws_reader.start()
         self._watchdog.start()
         self.running = True
         # XXX Something should wait on the result
@@ -477,9 +305,7 @@ class MagicFolderMonitor(QObject):
     def stop(self) -> None:
         self.running = False
         self._watchdog.stop()
-        if self._ws_reader:
-            self._ws_reader.stop()
-            self._ws_reader = None
+        self.events_monitor.stop()
 
 
 class MagicFolder:
@@ -496,6 +322,7 @@ class MagicFolder:
         self.api_port: int = 0
         self.api_token: str = ""
         self.monitor = MagicFolderMonitor(self)
+        self.events = self.monitor.event_handler  # XXX
         self.magic_folders: dict[str, dict] = {}
         self.remote_magic_folders: dict[str, dict] = {}
         self.rootcap_manager = gateway.rootcap_manager
@@ -632,22 +459,59 @@ class MagicFolder:
             raise MagicFolderWebError("API token not found")
         if not self.api_port:
             raise MagicFolderWebError("API port not found")
-        resp = await treq.request(
-            method,
-            f"http://127.0.0.1:{self.api_port}/v1{path}",
-            headers={"Authorization": f"Bearer {self.api_token}"},
-            data=body,
-        )
+        try:
+            resp = await treq.request(
+                method,
+                f"http://127.0.0.1:{self.api_port}{path}",
+                headers={"Authorization": f"Bearer {self.api_token}"},
+                data=body,
+            )
+        except (ConnectionRefusedError, ConnectionRefused):
+            self.api_port = self._read_api_port()
+            resp = await treq.request(
+                method,
+                f"http://127.0.0.1:{self.api_port}{path}",
+                headers={"Authorization": f"Bearer {self.api_token}"},
+                data=body,
+            )
+        if resp.code == 401:
+            # From https://github.com/LeastAuthority/magic-folder/blob/
+            # main/docs/interface.rst: "The token value is periodically
+            # rotated so clients must be prepared to receive an
+            # Unauthorized response even when supplying the token. In
+            # this case, the client should re-read the token from the
+            # filesystem to determine if the value held in memory has
+            # become stale."
+            self.api_token = self._read_api_token()
+            resp = await treq.request(
+                method,
+                f"http://127.0.0.1:{self.api_port}{path}",
+                headers={"Authorization": f"Bearer {self.api_token}"},
+                data=body,
+            )
         content = await treq.content(resp)
+        try:
+            json_content = json.loads(content)
+        except json.JSONDecodeError:
+            json_content = None
+        if json_content is not None:
+            try:
+                reason = json_content.get("reason")
+            except Exception:  # pylint: disable=broad-except
+                reason = None
+        else:
+            reason = None
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
-            return json.loads(content)
+            return json_content
         raise MagicFolderWebError(
-            f"Error {resp.code} requesting {method} /v1{path}: {content}"
+            f"Error {resp.code} requesting {method} {path}: {content}",
+            code=resp.code,
+            reason=reason,
         )
 
     async def get_folders(self) -> dict[str, dict]:
         folders = await self._request(
-            "GET", "/magic-folder?include_secret_information=1"
+            "GET", "/v1/magic-folder?include_secret_information=1"
         )
         if isinstance(folders, dict):
             self.magic_folders = folders
@@ -656,6 +520,43 @@ class MagicFolder:
         raise TypeError(
             f"Expected folders as dict, instead got {type(folders)!r}"
         )
+
+    async def write_collective_dircap(
+        self, folder_name: str, cap: str
+    ) -> None:
+        folders = await self.get_folders()
+        stash_path = folders.get(folder_name, {}).get("stash_path", "")
+        if not stash_path:
+            raise FileNotFoundError(
+                f"Magic-Folder stash path missing for {folder_name}"
+            )
+        state_db = Path(Path(stash_path).parent, "state.sqlite")
+        if not state_db.exists():
+            raise FileNotFoundError(
+                f"Magic-Folder state database not found for {folder_name}"
+            )
+        connection = sqlite3.connect(state_db)
+        cursor = connection.cursor()
+        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+        cursor.execute("UPDATE [config] SET collective_dircap=?", (cap,))
+        connection.commit()
+
+    @property
+    def wormhole_uri(self) -> str:
+        global_db = Path(self.configdir, "global.sqlite")
+        connection = sqlite3.connect(global_db)
+        cursor = connection.cursor()
+        cursor.execute("SELECT wormhole_uri FROM config")
+        return cursor.fetchone()[0]
+
+    @wormhole_uri.setter
+    def wormhole_uri(self, uri: str) -> None:
+        global_db = Path(self.configdir, "global.sqlite")
+        connection = sqlite3.connect(global_db)
+        cursor = connection.cursor()
+        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+        cursor.execute("UPDATE config SET wormhole_uri=?", (uri,))
+        connection.commit()
 
     async def add_folder(  # pylint: disable=too-many-arguments
         self,
@@ -677,7 +578,7 @@ class MagicFolder:
             "scan_interval": scan_interval,
         }
         await self._request(
-            "POST", "/magic-folder", body=json.dumps(data).encode()
+            "POST", "/v1/magic-folder", body=json.dumps(data).encode()
         )
         await self.create_folder_backup(name)  # XXX
 
@@ -686,7 +587,7 @@ class MagicFolder:
     ) -> None:
         await self._request(
             "DELETE",
-            f"/magic-folder/{folder_name}",
+            f"/v1/magic-folder/{folder_name}",
             body=json.dumps({"really-delete-write-capability": True}).encode(),
             error_404_ok=missing_ok,
         )
@@ -697,6 +598,9 @@ class MagicFolder:
 
     def get_directory(self, folder_name: str) -> str:
         return self.magic_folders.get(folder_name, {}).get("magic_path", "")
+
+    def get_status(self, folder_name: str) -> MagicFolderStatus:
+        return self.events.operations_monitor.get_status(folder_name)  # XXX
 
     def folder_is_local(self, folder_name: str) -> bool:
         return bool(folder_name in self.magic_folders)
@@ -710,29 +614,12 @@ class MagicFolder:
             or self.folder_is_remote(folder_name)
         )
 
-    async def get_snapshots(self) -> dict[str, dict]:
-        snapshots = await self._request("GET", "/snapshot")
-        if isinstance(snapshots, dict):
-            return snapshots
-        raise TypeError(
-            f"Expected snapshots as a dict, instead got {type(snapshots)!r}"
-        )
-
-    async def add_snapshot(self, folder_name: str, filepath: str) -> None:
-        try:
-            magic_path = self.magic_folders[folder_name]["magic_path"]
-        except KeyError:
-            await self.get_folders()
-            magic_path = self.magic_folders[folder_name]["magic_path"]
-        if filepath.startswith(magic_path):
-            filepath = filepath[len(magic_path) + len(os.sep) :]
-        await self._request(
-            "POST", f"/magic-folder/{folder_name}/snapshot?path={filepath}"
-        )
+    def is_admin(self, folder_name: str) -> bool:
+        return self.magic_folders.get(folder_name, {}).get("is_admin", False)
 
     async def get_participants(self, folder_name: str) -> dict[str, dict]:
         participants = await self._request(
-            "GET", f"/magic-folder/{folder_name}/participants"
+            "GET", f"/v1/magic-folder/{folder_name}/participants"
         )
         if isinstance(participants, dict):
             return participants
@@ -746,13 +633,13 @@ class MagicFolder:
         data = {"author": {"name": author_name}, "personal_dmd": personal_dmd}
         await self._request(
             "POST",
-            f"/magic-folder/{folder_name}/participants",
+            f"/v1/magic-folder/{folder_name}/participants",
             body=json.dumps(data).encode("utf-8"),
         )
 
     async def get_file_status(self, folder_name: str) -> list[dict]:
         output = await self._request(
-            "GET", f"/magic-folder/{folder_name}/file-status"
+            "GET", f"/v1/magic-folder/{folder_name}/file-status"
         )
         if isinstance(output, list):
             return output
@@ -762,7 +649,7 @@ class MagicFolder:
 
     async def get_object_sizes(self, folder_name: str) -> list[int]:
         sizes = await self._request(
-            "GET", f"/magic-folder/{folder_name}/tahoe-objects"
+            "GET", f"/v1/magic-folder/{folder_name}/tahoe-objects"
         )
         if isinstance(sizes, list):
             # XXX The magic-folder API should most likely return this list as
@@ -783,7 +670,7 @@ class MagicFolder:
     async def scan(self, folder_name: str) -> dict:
         output = await self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/scan-local",
+            f"/v1/magic-folder/{folder_name}/scan-local",
             error_404_ok=True,
         )
         if isinstance(output, dict):
@@ -795,7 +682,7 @@ class MagicFolder:
     async def poll(self, folder_name: str) -> dict:
         output = await self._request(
             "PUT",
-            f"/magic-folder/{folder_name}/poll-remote",
+            f"/v1/magic-folder/{folder_name}/poll-remote",
             error_404_ok=True,
         )
         if isinstance(output, dict):
@@ -878,3 +765,69 @@ class MagicFolder:
         await self.add_participant(folder_name, author, personal_dmd)
         logging.debug('Successfully restored "%s" Magic-Folder', folder_name)
         await self.poll(folder_name)
+
+    async def invite(
+        self, folder_name: str, participant_name: str, mode: str = "read-write"
+    ) -> dict:
+        if mode.lower() not in ("read-write", "read-only"):
+            raise ValueError(
+                f'Invalid Magic-Folder invite mode, "{mode}"; acceptable '
+                'values are: "read-write", "read-only"'
+            )
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite",
+            body=json.dumps(
+                {"participant-name": participant_name, "mode": mode}
+            ).encode(),
+        )
+        return cast(dict, result)
+
+    async def invite_wait(self, folder_name: str, id_: str) -> dict:
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite-wait",
+            body=json.dumps({"id": id_}).encode(),
+        )
+        return cast(dict, result)
+
+    async def invite_cancel(self, folder_name: str, id_: str) -> dict:
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/invite-cancel",
+            body=json.dumps({"id": id_}).encode(),
+        )
+        return cast(dict, result)
+
+    async def invites(self, folder_name: str) -> list:
+        result = await self._request(
+            "GET",
+            f"/experimental/magic-folder/{folder_name}/invites",
+        )
+        return cast(list, result)
+
+    async def join(  # pylint: disable=too-many-arguments
+        self,
+        folder_name: str,
+        invite_code: str,
+        local_path: Union[str, Path],
+        author: str = "user",  # XXX Is this even used for anything?
+        poll_interval: int = 60,
+        scan_interval: int = 60,
+    ) -> dict:
+        local_path = Path(local_path).absolute()
+        local_path.mkdir(parents=True, exist_ok=True)
+        result = await self._request(
+            "POST",
+            f"/experimental/magic-folder/{folder_name}/join",
+            body=json.dumps(
+                {
+                    "invite-code": invite_code,
+                    "local-directory": str(local_path),
+                    "author": author,
+                    "poll-interval": poll_interval,
+                    "scan-interval": scan_interval,
+                }
+            ).encode(),
+        )
+        return cast(dict, result)

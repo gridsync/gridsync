@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-import traceback
 import webbrowser
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -24,8 +23,8 @@ from gridsync.gui.font import Font
 from gridsync.gui.voucher import VoucherCodeDialog
 from gridsync.gui.widgets import VSpacer
 from gridsync.msg import error
-from gridsync.types import TwistedDeferred
-from gridsync.util import future_date
+from gridsync.types_ import TwistedDeferred
+from gridsync.util import future_date, traceback
 
 if TYPE_CHECKING:
     from gridsync.gui import AbstractGui  # pylint: disable=cyclic-import
@@ -265,14 +264,6 @@ class UsageView(QWidget):
             )
         return added
 
-    @staticmethod
-    def _traceback(exc: Exception) -> str:
-        return "".join(
-            traceback.format_exception(
-                type(exc), value=exc, tb=exc.__traceback__
-            )
-        )
-
     @Slot()
     @inlineCallbacks
     def on_voucher_link_clicked(self) -> TwistedDeferred[None]:
@@ -285,7 +276,7 @@ class UsageView(QWidget):
             self.status_label.setText("Error adding voucher")
             self.status_label.setStyleSheet("color: red")
             reactor.callLater(5, self._reset_status)  # type: ignore
-            error(self, "Error adding voucher", str(exc), self._traceback(exc))
+            error(self, "Error adding voucher", str(exc), traceback(exc))
             return
         self.status_label.setText(
             "Voucher successfully added; token redemption should begin shortly"
@@ -300,7 +291,7 @@ class UsageView(QWidget):
             self.status_label.setText("Error adding voucher")
             self.status_label.setStyleSheet("color: red")
             reactor.callLater(5, self._reset_status)  # type: ignore
-            error(self, "Error adding voucher", str(exc), self._traceback(exc))
+            error(self, "Error adding voucher", str(exc), traceback(exc))
             return
         payment_url = self.gateway.zkapauthorizer.zkap_payment_url(voucher)
         logging.debug("Opening payment URL %s ...", payment_url)

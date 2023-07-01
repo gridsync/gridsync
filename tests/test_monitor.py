@@ -143,6 +143,28 @@ def test__parse_voucher_contains_redeeming_vouchers(tahoe):
     assert parsed.redeeming_vouchers == ["0MH30nxh9iup727nTi3u51Ir9HcQYIM8"]
 
 
+def test__parse_vouchers_does_not_raise_type_error():
+    # https://github.com/gridsync/gridsync/issues/659
+    vouchers = [
+        {
+            "number": "qh1ilsrNIXakBP9Ef4hI_MGrPzP4eVm9d1xaoF10PXhF",
+            "expected-tokens": 50000,
+            "created": "2023-06-30T17:50:43.537212+00:00",
+            "state": {
+                "name": "unpaid",
+                "started": "2023-06-30T18:16:19.666155+00:00",
+                "counter": 0,
+            },
+            "version": 1,
+        },
+    ]
+    now = datetime(2021, 12, 21, 13, 23, 50)
+    parsed = _parse_vouchers(vouchers, now)
+    assert parsed.unpaid_vouchers == [
+        "qh1ilsrNIXakBP9Ef4hI_MGrPzP4eVm9d1xaoF10PXhF"
+    ]
+
+
 def test__update_redeeming_vouchers_emits_redeeming_vouchers_updated(tahoe):
     vouchers = [
         {

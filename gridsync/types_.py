@@ -1,4 +1,6 @@
 # mypy: allow-any-explicit
+# This module is "types_" and not "types"/"typing" because mypy warns:
+# "A user-defined top-level module with name 'types' is not supported"
 from typing import Any, Generator, TypeVar, Union
 
 from treq.response import _Response

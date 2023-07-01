@@ -4,12 +4,12 @@ import json
 import os
 import sys
 from collections import namedtuple
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Optional
 
 from qtpy import API_NAME, PYQT_VERSION, PYSIDE_VERSION, QT_VERSION
 
-from gridsync._version import get_versions  # type: ignore
 from gridsync.config import Config
 from gridsync.util import to_bool
 
@@ -98,7 +98,7 @@ DEFAULT_AUTOSTART = to_bool(settings.get("defaults", {}).get("autostart", ""))
 
 
 grid_invites_enabled: bool = True
-invites_enabled: bool = True
+magic_folder_invites_enabled: bool = True
 multiple_grids_enabled: bool = True
 tor_enabled: bool = True
 
@@ -107,9 +107,9 @@ if _features:
     _grid_invites = _features.get("grid_invites")
     if _grid_invites and _grid_invites.lower() == "false":
         grid_invites_enabled = False
-    _invites = _features.get("invites")
-    if _invites and _invites.lower() == "false":
-        invites_enabled = False
+    _magic_folder_invites = _features.get("magic_folder_invites")
+    if _magic_folder_invites and _magic_folder_invites.lower() == "false":
+        magic_folder_invites_enabled = False
     _multiple_grids = _features.get("multiple_grids")
     if _multiple_grids and _multiple_grids.lower() == "false":
         multiple_grids_enabled = False
@@ -117,9 +117,14 @@ if _features:
     if _tor and _tor.lower() == "false":
         tor_enabled = False
 
-Features = namedtuple("Features", "grid_invites invites multiple_grids tor")
+Features = namedtuple(
+    "Features", "grid_invites magic_folder_invites multiple_grids tor"
+)
 features = Features(
-    grid_invites_enabled, invites_enabled, multiple_grids_enabled, tor_enabled
+    grid_invites_enabled,
+    magic_folder_invites_enabled,
+    multiple_grids_enabled,
+    tor_enabled,
 )
 
 
@@ -214,18 +219,18 @@ else:
 QT_LIB_VERSION = QT_VERSION or ""
 
 
-# When running frozen, Versioneer returns a version string of "0+unknown"
-# due to the application (typically) being executed out of the source tree
-# so load the version string from a file written at freeze-time instead.
-def get_version() -> str:
-    if getattr(sys, "frozen", False):
+if getattr(sys, "frozen", False):
+    try:
+        __version__ = (
+            Path(resource("version.txt")).read_text(encoding="utf-8").strip()
+        )
+    except OSError:
         try:
-            with open(resource("version.txt"), encoding="utf-8") as f:
-                return f.read()
-        except OSError:
-            return "Unknown"
-    else:
-        return get_versions()["version"]
-
-
-__version__ = get_version()
+            __version__ = version("gridsync")
+        except PackageNotFoundError:
+            __version__ = "Unknown"
+else:
+    try:
+        __version__ = version("gridsync")
+    except PackageNotFoundError:
+        __version__ = "Unknown"

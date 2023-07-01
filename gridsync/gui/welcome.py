@@ -109,11 +109,6 @@ class WelcomeWidget(QWidget):
         else:
             self.connect_button.hide()
 
-        self.message = QLabel()
-        self.message.setStyleSheet("color: red")
-        self.message.setAlignment(Qt.AlignCenter)
-        self.message.hide()
-
         self.restore_link = QLabel()
         self.restore_link.setText("<a href>Restore from Recovery Key...</a>")
         self.restore_link.setFont(Font(9))
@@ -152,7 +147,6 @@ class WelcomeWidget(QWidget):
         layout.addItem(VSpacer(), 3, 1)
         layout.addWidget(self.invite_code_widget, 4, 2, 1, 3)
         layout.addWidget(self.connect_button, 4, 2, 1, 3)
-        layout.addWidget(self.message, 5, 3)
         layout.addItem(HSpacer(), 6, 1)
         layout.addLayout(links_grid, 7, 3)
         layout.addItem(HSpacer(), 8, 1)
@@ -160,10 +154,9 @@ class WelcomeWidget(QWidget):
         layout.addLayout(prefs_layout, 10, 1, 1, 5)
 
     def show_error(self, message: str) -> None:
-        self.message.setText(message)
-        self.message.show()
+        self.invite_code_widget.show_error(message)
         # mypy: 'Module has no attribute "callLater" [attr-defined]'
-        reactor.callLater(3, self.message.hide)  # type: ignore
+        reactor.callLater(3, self.invite_code_widget.clear_error)  # type: ignore
 
     def reset(self) -> None:
         self.lineedit.setText("")
@@ -502,4 +495,4 @@ class WelcomeDialog(QStackedWidget):
                     self.gui.systray.hide()
                 app = QCoreApplication.instance()
                 if app:
-                    app.quit()
+                    app.exit()
