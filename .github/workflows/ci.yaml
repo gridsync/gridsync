@@ -4,6 +4,10 @@ on: [push, pull_request]
 
 jobs:
   NixOS:
+    # Disabled because mach-nix/pypi-deps-db is currently missing the
+    # latest version of Magic-Folder (23.3.1) required by Gridsync.
+    # https://github.com/gridsync/gridsync/actions/runs/4475890791/jobs/7865723140#step:4:112
+    if: ${{ false }}
     runs-on: "ubuntu-latest"
     container:
       image: "nixos/nix:2.10.3"
@@ -58,8 +62,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv--${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv--${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -130,8 +134,8 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv--${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv--${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -184,6 +188,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
+      # Tahoe-LAFS 1.18.0 does not support Python 3.11
       PY_PYTHON: "3.10"
     steps:
     - name: Checkout
@@ -200,7 +205,7 @@ jobs:
         key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
-      run: py -m pip install --upgrade setuptools pip tox diffoscope
+      run: py -m pip install --upgrade setuptools pip tox diffoscope windows-curses
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller

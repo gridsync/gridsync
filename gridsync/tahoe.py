@@ -404,7 +404,7 @@ class Tahoe:
             stdout_line_collector=self._log_stdout_message,
             stderr_line_collector=self._log_stderr_message,
         )
-        self._reactor.spawnProcess(  # type: ignore
+        self._reactor.spawnProcess(
             protocol, self.executable, args=args, env=env
         )
         try:
@@ -703,7 +703,9 @@ class Tahoe:
     def await_ready(self) -> Deferred[bool]:
         return self._ready_poller.wait_for_completion()
 
-    async def mkdir(self, parentcap: str = None, childname: str = None) -> str:
+    async def mkdir(
+        self, parentcap: Optional[str] = None, childname: Optional[str] = None
+    ) -> str:
         await self.await_ready()
         if parentcap and childname:
             path = f"/uri/{parentcap}"

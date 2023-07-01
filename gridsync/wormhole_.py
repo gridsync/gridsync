@@ -17,14 +17,13 @@ from wormhole.tor_manager import get_tor
 
 from gridsync import settings
 from gridsync.errors import TorError, UpgradeRequiredError
-from gridsync.types import TwistedDeferred
+from gridsync.types_ import TwistedDeferred
 
 APPID = settings["wormhole"]["appid"]
 RELAY = settings["wormhole"]["relay"]
 
 
 class Wormhole(QObject):
-
     got_welcome = Signal(dict)
     got_code = Signal(str)
     got_introduction = Signal()
@@ -88,7 +87,9 @@ class Wormhole(QObject):
                 ack = {"answer": {"message_ack": "ok"}}
                 self._wormhole.send_message(json.dumps(ack).encode("utf-8"))  # type: ignore
             else:
-                raise Exception("Unknown offer type: {}".format(offer.keys()))
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    "Unknown offer type: {}".format(offer.keys())
+                )
         else:
             logging.debug("Received server introduction: %s", data)
             if "abilities" not in data:

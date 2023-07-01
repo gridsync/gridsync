@@ -59,17 +59,21 @@ class Model(QStandardItemModel):
         self.monitor.check_finished.connect(self.update_natural_times)
 
         self.mf_monitor = self.gateway.magic_folder.monitor
-        self.mf_monitor.folder_added.connect(self.add_folder)
-        self.mf_monitor.folder_removed.connect(self.on_folder_removed)
         self.mf_monitor.folder_mtime_updated.connect(self.set_mtime)
         self.mf_monitor.folder_size_updated.connect(self.set_size)
         self.mf_monitor.backup_added.connect(self.add_remote_folder)
-        self.mf_monitor.folder_status_changed.connect(self.set_status)
-        self.mf_monitor.error_occurred.connect(self.on_error_occurred)
-        self.mf_monitor.files_updated.connect(self.on_files_updated)
-        self.mf_monitor.sync_progress_updated.connect(
+
+        self.mf_events = self.gateway.magic_folder.events
+        self.mf_events.folder_added.connect(self.add_folder)
+        self.mf_events.folder_removed.connect(self.on_folder_removed)
+        self.mf_events.error_occurred.connect(self.on_error_occurred)
+        self.mf_events.folder_status_changed.connect(self.set_status)
+        self.mf_events.sync_progress_updated.connect(
             self.set_transfer_progress
         )
+        self.mf_events.files_updated.connect(self.on_files_updated)
+        self.mf_events.download_finished.connect(self._on_operation_finished)
+        self.mf_events.upload_finished.connect(self._on_operation_finished)
 
     @Slot(str, str, int)
     def on_error_occurred(
@@ -200,11 +204,17 @@ class Model(QStandardItemModel):
             )
 
     def update_overlay(self, folder_name: str) -> None:
-        members = self.members_dict.get(folder_name)
-        if members and len(members) > 1:
-            self.set_status_shared(folder_name)
-        else:
-            self.set_status_private(folder_name)
+        # members = self.members_dict.get(folder_name)
+        # if members and len(members) > 1:
+        #     self.set_status_shared(folder_name)
+        # else:
+        #     self.set_status_private(folder_name)
+        items = self.findItems(folder_name)
+        if items:
+            items[0].setToolTip(
+                self.gateway.magic_folder.get_directory(folder_name)
+                or folder_name + " (Stored remotely)"
+            )
 
     @Slot(str, list)
     def on_members_updated(self, folder: str, members: list) -> None:
@@ -268,7 +278,7 @@ class Model(QStandardItemModel):
             errors = self._magic_folder_errors[name]
             if errors:
                 item.setIcon(self.icon_error)
-                item.setText("Error syncing folder")
+                item.setText("Error(s) occurred")
                 item.setToolTip(self._errors_to_str(errors))
         if status == MagicFolderStatus.SYNCING:
             self.gui.systray.add_operation((self.gateway, name))
@@ -286,9 +296,10 @@ class Model(QStandardItemModel):
         if not items:
             return
         percent_done = int(transferred / total * 100)
-        if percent_done:
+        if percent_done and percent_done != 100:
+            self.set_status(folder_name, MagicFolderStatus.SYNCING)  # XXX
             item = self.item(items[0].row(), 1)
-            item.setText("Syncing ({}%)".format(percent_done))
+            item.setText(f"Syncing ({percent_done}%)")
 
     def fade_row(
         self, folder_name: str, overlay_file: Optional[str] = ""
@@ -331,6 +342,12 @@ class Model(QStandardItemModel):
             item.setData(mtime, Qt.UserRole)
             item.setText(naturaltime(int(time.time() - mtime)))
             item.setToolTip("Last modified: {}".format(time.ctime(mtime)))
+
+    @Slot(str, str, float)
+    def _on_operation_finished(
+        self, name: str, _: str, timestamp: float
+    ) -> None:
+        self.set_mtime(name, int(timestamp))
 
     @Slot(str, object)
     def set_size(self, name: str, size: int) -> None:

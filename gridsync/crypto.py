@@ -87,7 +87,6 @@ def decrypt(ciphertext: bytes, password: bytes) -> bytes:
 
 
 class Crypter(QObject):
-
     succeeded = Signal(object)
     failed = Signal(str)
 

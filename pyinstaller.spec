@@ -1,3 +1,4 @@
+# vim: filetype=python
 import inspect
 import os
 import shutil
@@ -73,7 +74,10 @@ print("--------------------------------------------------------------------")
 app_name = settings["application"]["name"]
 
 
-gridsync_version_file = Path("gridsync", "resources", "version.txt")
+def gridsync_version() -> str:
+    from gridsync import __version__
+
+    return settings["build"].get("version", __version__)
 
 
 def collect_dynamic_libs(package):
@@ -124,8 +128,8 @@ def analyze_tahoe():
             "UserDict",
             "yaml",
             "win32com",
-	    "win32com.shell",
-	    "win32com.shell.shellcon",
+            "win32com.shell",
+            "win32com.shell.shellcon",
             "zfec",
         ],
         hookspath=["pyinstaller-hooks"],
@@ -149,7 +153,7 @@ def analyze_magic_folder():
             "pkg_resources._vendor.platformdirs",
             "win32com",
             "win32com.shell",
-            "win32com.shell.shellcon"
+            "win32com.shell.shellcon",
         ],
         hookspath=[],
         runtime_hooks=[],
@@ -162,14 +166,6 @@ def analyze_magic_folder():
 
 
 def analyze_gridsync():
-    from versioneer import get_versions
-
-    version = settings["build"].get("version", get_versions()["version"])
-    # When running frozen, Versioneer returns a version string of "0+unknown"
-    # so write the real version string to a file that can be read at runtime.
-    with open(gridsync_version_file, "w") as f:
-        f.write(version)
-
     if sys.platform == "win32":
         kit = Path(
             Path.home().anchor, "Program Files (x86)", "Windows Kits", "10"
@@ -188,21 +184,21 @@ def analyze_gridsync():
         pathex=paths,
         binaries=None,
         datas=[
-            ("gridsync/resources/*", "resources"),
             ("gridsync/resources/providers/*", "resources/providers"),
+            ("gridsync/resources/*", "resources"),
         ],
         hiddenimports=[
-	    "cffi",
-	    "PyQt5.sip",
-	    # Required for charset-normalizer 3.0.1. To be fixed by a future
-	    # version of pyinstaller-hooks-contrib. See/follow:
-	    # https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/534
-	    "charset_normalizer.md__mypyc",
+            "cffi",
+            "PyQt5.sip",
+            # Required for charset-normalizer 3.0.1. To be fixed by a future
+            # version of pyinstaller-hooks-contrib. See/follow:
+            # https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/534
+            "charset_normalizer.md__mypyc",
             "pkg_resources._vendor.platformdirs",
             "win32com",
-	    "win32com.shell",
-	    "win32com.shell.shellcon",
-	],
+            "win32com.shell",
+            "win32com.shell.shellcon",
+        ],
         hookspath=["pyinstaller-hooks"],
         runtime_hooks=[],
         excludes=["FixTk", "tcl", "tk", "_tkinter", "tkinter", "Tkinter"],
@@ -270,7 +266,6 @@ def bundle_gridsync(files):
     mac_background_only = settings["build"].get("mac_background_only", False)
     if mac_background_only and mac_background_only.lower() != "false":
         mac_background_only = True
-    from gridsync import __version__ as version
 
     BUNDLE(
         COLLECT(*files, strip=False, upx=False, name=app_name),
@@ -278,7 +273,7 @@ def bundle_gridsync(files):
         icon=str(Path(settings["build"]["mac_icon"]).resolve()),
         bundle_identifier=settings["build"]["mac_bundle_identifier"],
         info_plist={
-            "CFBundleShortVersionString": version,
+            "CFBundleShortVersionString": gridsync_version(),
             "LSBackgroundOnly": mac_background_only,
             "LSUIElement": mac_background_only,
             "NSHighResolutionCapable": True,
@@ -292,6 +287,11 @@ def finalize_gridsync_bundle():
         dist = Path("dist", f"{app_name}.app", "Contents", "MacOS")
     else:
         dist = Path("dist", app_name)
+
+    # Write the version string to a file inside the dist dir so the
+    # script that creates the Inno Setup installer can read it later.
+    # See `scripts/make_installer.py`.
+    Path(dist, "resources", "version.txt").write_text(gridsync_version())
 
     for bundle in ("Tahoe-LAFS", "magic-folder"):
         bundle_path = Path("dist", bundle)
@@ -328,10 +328,15 @@ def finalize_gridsync_bundle():
             Path(dist, f"{app_name}-{magic_folder_exe}"),
         )
     )
-    # XXX Sometimes .json files from `gridsync/resources/providers/` end up
-    # in `gridsync/resources/`. I'm not sure why PyInstaller does this.. :/
+    # Sometimes PyInstaller fails to recreate the `resources/providers/`
+    # subdirectory in the bundled application, leaving .json files in
+    # `resources/` instead of (the intended) `resources/providers/`. So
+    # create the `providers/` subdir and move any lingering .json files
+    # into it. See https://github.com/gridsync/gridsync/issues/636
+    Path(dist, "resources", "providers").mkdir(exist_ok=True)
     for p in Path(dist, "resources").glob("*-*.json"):
         paths_to_move.append((p, Path(dist, "resources", "providers", p.name)))
+
     if sys.platform not in ("darwin", "win32"):
         paths_to_move.append(
             (Path(dist, app_name), Path(dist, app_name.lower()))
@@ -342,14 +347,10 @@ def finalize_gridsync_bundle():
             shutil.move(src, dst)
 
     paths_to_remove = []
-    if sys.platform != "win32":
-        # The script used to generate an Inno Setup installer configuration
-        # currently loads the version from `gridsync/resources/version.txt`
-        # so don't delete it on Windows; see `scripts/make_installer.py`
-        paths_to_remove.append(gridsync_version_file)
     # The presence of *.dist-info/RECORD files causes issues with reproducible
     # builds; see: https://github.com/gridsync/gridsync/issues/363
     paths_to_remove.extend([p for p in dist.glob("**/*.dist-info/RECORD")])
+    paths_to_remove.append(Path(dist, "gridsync.egg-info", "SOURCES.txt"))
     if sys.platform not in ("darwin", "win32"):
         bad_libs = [
             "libX11.so.6",  # https://github.com/gridsync/gridsync/issues/43
@@ -358,6 +359,7 @@ def finalize_gridsync_bundle():
             "libpango-1.0.so.0",  # https://github.com/gridsync/gridsync/issues/487
             "libpangocairo-1.0.so.0",
             "libpangoft2-1.0.so.0",
+            "libwayland-client.so.0",  # https://github.com/gridsync/gridsync/issues/631
         ]
         for lib in bad_libs:
             paths_to_remove.append(Path(dist, lib))

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from qtpy.QtWidgets import QSystemTrayIcon
 
-    from gridsync.types import TwistedDeferred
+    from gridsync.types_ import TwistedDeferred
 
 
 @inlineCallbacks
@@ -147,7 +147,7 @@ def set_clipboard_text(
         return
     clipboard.setText(text, mode)
     logging.debug(
-        "Copied %i bytes to clipboard %i", len(text) if text else 0, mode
+        "Copied %i bytes to clipboard %s", len(text) if text else 0, str(mode)
     )
 
 

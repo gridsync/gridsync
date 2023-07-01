@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import os
 import shutil
-from unittest.mock import MagicMock, call
+from unittest.mock import Mock, call
 
 import pytest
 
@@ -18,18 +16,10 @@ def hiw(tmpdir_factory):
     src = os.path.join(os.getcwd(), "gridsync", "resources", "pixel.png")
     dst = str(tmpdir_factory.mktemp("test-magic-folder"))
     shutil.copy(src, dst)
-    gateway = MagicMock()
-    gateway.get_magic_folder_directory.return_value = dst
+    gateway = Mock()
+    gateway.magic_folder.get_directory.return_value = dst
     return HistoryItemWidget(
-        gateway,
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 123456789,
-            "path": "pixel.png",
-            "size": 0,
-        },
-        HistoryListWidget(gateway),
+        "Added", "pixel.png", 123456789, HistoryListWidget(gateway)
     )
 
 
@@ -62,15 +52,15 @@ def test_history_item_widget_enter_event(hiw):
 
 
 def test_history_item_widget_enter_event_call_unhighlight(hiw):
-    m = MagicMock()
+    m = Mock()
     hiw.parent().highlighted = m
     hiw.enterEvent(None)
     assert m.method_calls == [call.unhighlight()]
 
 
 def test_history_item_widget_enter_event_pass_runtime_error(hiw):
-    hiw.parent().highlighted = MagicMock()
-    hiw.parent().highlighted.unhighlight = MagicMock(side_effect=RuntimeError)
+    hiw.parent().highlighted = Mock()
+    hiw.parent().highlighted.unhighlight = Mock(side_effect=RuntimeError)
     hiw.enterEvent(None)
     assert hiw.parent().highlighted == hiw
 
@@ -78,19 +68,19 @@ def test_history_item_widget_enter_event_pass_runtime_error(hiw):
 @pytest.fixture(scope="function")
 def hlw(tmpdir_factory):
     directory = str(tmpdir_factory.mktemp("test-magic-folder"))
-    gateway = MagicMock()
-    gateway.get_magic_folder_directory.return_value = directory
+    gateway = Mock()
+    gateway.magic_folder.get_directory.return_value = directory
     return HistoryListWidget(gateway)
 
 
 def test_history_list_widget_on_double_click(hlw, monkeypatch):
-    m = MagicMock()
+    m = Mock()
     monkeypatch.setattr("gridsync.gui.history.open_enclosing_folder", m)
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryListWidget.itemWidget",
-        MagicMock(
+        Mock(
             return_value=HistoryItemWidget(
-                hlw.gateway, {}, HistoryListWidget(hlw.gateway)
+                "Added", "pixel.png", 123456789, hlw
             )
         ),
     )
@@ -100,20 +90,20 @@ def test_history_list_widget_on_double_click(hlw, monkeypatch):
 
 def test_history_list_widget_on_right_click(hlw, monkeypatch):
     monkeypatch.setattr(
-        "gridsync.gui.history.HistoryListWidget.itemAt", MagicMock()
+        "gridsync.gui.history.HistoryListWidget.itemAt", Mock()
     )
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryListWidget.itemWidget",
-        MagicMock(
+        Mock(
             return_value=HistoryItemWidget(
-                hlw.gateway, {}, HistoryListWidget(hlw.gateway)
+                "Added", "pixel.png", 123456789, hlw
             )
         ),
     )
     monkeypatch.setattr(
-        "gridsync.gui.history.HistoryListWidget.viewport", MagicMock()
+        "gridsync.gui.history.HistoryListWidget.viewport", Mock()
     )
-    m = MagicMock()
+    m = Mock()
     monkeypatch.setattr("gridsync.gui.history.QMenu", m)
     hlw.on_right_click(None)
     assert m.mock_calls
@@ -123,58 +113,26 @@ def test_history_list_widget_on_right_click_no_item_return(hlw, monkeypatch):
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryListWidget.itemAt", lambda x, y: None
     )
-    m = MagicMock()
+    m = Mock()
     monkeypatch.setattr("gridsync.gui.history.QMenu", m)
     hlw.on_right_click(None)
     assert m.mock_calls == []
 
 
 def test_history_list_widget_add_item(hlw):
-    hlw.add_item(
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 123456789,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
+    hlw.add_item("TestFolder", "Added", "pixel.png", 123456789)
     assert hlw.count() == 1
 
 
 def test_history_list_widget_add_item_deduplicate(hlw):
-    hlw.add_item(
-        {
-            "action": "updated",
-            "member": "admin",
-            "mtime": 123456788,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
-    hlw.add_item(
-        {
-            "action": "updated",
-            "member": "admin",
-            "mtime": 123456789,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
+    hlw.add_item("TestFolder", "Added", "pixel.png", 123456788)
+    hlw.add_item("TestFolder", "Added", "pixel.png", 123456789)
     assert hlw.count() == 1
 
 
 def test_history_list_widget_update_visible_widgets(hlw, monkeypatch):
-    hlw.add_item(
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 99999,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
-    m = MagicMock()
+    hlw.add_item("TestFolder", "Added", "pixel.png", 99999)
+    m = Mock()
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryItemWidget.update_text", m
     )
@@ -186,16 +144,8 @@ def test_history_list_widget_update_visible_widgets(hlw, monkeypatch):
 
 
 def test_history_list_widget_update_visible_widgets_return(hlw, monkeypatch):
-    hlw.add_item(
-        {
-            "action": "added",
-            "member": "admin",
-            "mtime": 99999,
-            "path": "pixel.png",
-            "size": 0,
-        },
-    )
-    m = MagicMock()
+    hlw.add_item("TestFolder", "Added", "pixel.png", 99999)
+    m = Mock()
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryItemWidget.update_text", m
     )
@@ -209,7 +159,7 @@ def test_history_list_widget_update_visible_widgets_return(hlw, monkeypatch):
 def test_history_list_widget_update_visible_widgets_on_show_event(
     hlw, monkeypatch
 ):
-    m = MagicMock()
+    m = Mock()
     monkeypatch.setattr(
         "gridsync.gui.history.HistoryListWidget.update_visible_widgets", m
     )
@@ -218,7 +168,7 @@ def test_history_list_widget_update_visible_widgets_on_show_event(
 
 
 def test_history_view_init():
-    mock_gateway = MagicMock()
+    mock_gateway = Mock()
     mock_gateway.shares_happy = 1
-    hv = HistoryView(mock_gateway, MagicMock())
+    hv = HistoryView(mock_gateway, Mock())
     assert hv

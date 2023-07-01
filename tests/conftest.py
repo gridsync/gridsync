@@ -12,6 +12,7 @@ from pytest_twisted import async_yield_fixture
 from gridsync import APP_NAME
 from gridsync.log import initialize_logger
 from gridsync.network import get_free_port
+from gridsync.supervisor import Supervisor
 from gridsync.tahoe import Tahoe
 
 if sys.platform == "darwin":
@@ -103,6 +104,26 @@ async def zkapauthorizer(tmp_path_factory, tahoe_server):
     await client.start()
     yield client.zkapauthorizer
     await client.stop()
+
+
+@async_yield_fixture(scope="module")
+async def wormhole_mailbox(tmp_path_factory):
+    mailbox_dirpath = tmp_path_factory.mktemp("wormhole_mailbox")
+    supervisor = Supervisor(mailbox_dirpath / "wormhole_mailbox.pid")
+    port = get_free_port()
+    await supervisor.start(
+        [
+            sys.executable,
+            "-m",
+            "twisted",
+            "wormhole-mailbox",
+            f"--port=tcp:{port}:interface=localhost",
+            f"--channel-db={str(mailbox_dirpath / 'relay.sqlite')}",
+        ],
+        started_trigger="Starting reactor...",
+    )
+    yield f"ws://localhost:{port}/v1"
+    await supervisor.stop()
 
 
 @pytest.fixture()

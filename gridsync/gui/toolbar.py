@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from qtpy.QtCore import QSize, Qt, Signal
 from qtpy.QtGui import QIcon
@@ -18,7 +18,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from gridsync import QT_LIB_VERSION, features, resource
+from gridsync import features, resource
 from gridsync.gui.color import BlendedColor
 from gridsync.gui.font import Font
 
@@ -64,9 +64,176 @@ class ComboBox(QComboBox):
                 return
 
 
-class ToolBar(QToolBar):
+class ToolButton(QToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.setFont(Font(8))
+        self.setPopupMode(QToolButton.InstantPopup)
+        self.setStyleSheet("QToolButton::menu-indicator { image: none }")
+        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-    folder_action_triggered = Signal()
+
+class FolderMenuButton(ToolButton):
+    add_folder_triggered = Signal()
+    join_folder_triggered = Signal()
+
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(
+            QIcon(resource("folder-plus-outline.png")), "Add Folder", self
+        )
+        self.action.setEnabled(False)
+        self.action.setToolTip("Add a Folder...")
+        self.action.setFont(Font(8))
+
+        from_device_action = QAction(QIcon(), "From Local Device...", self)
+        from_device_action.setToolTip("Add Folder from Local Device...")
+        from_device_action.triggered.connect(self.add_folder_triggered)
+
+        from_code_action = QAction(QIcon(), "From Invite Code...", self)
+        from_code_action.setToolTip("Add Folder from Invite Code...")
+        from_code_action.triggered.connect(self.join_folder_triggered)
+
+        menu = QMenu(self)
+        menu.addAction(from_device_action)
+        menu.addAction(from_code_action)
+
+        self.setDefaultAction(self.action)
+        self.setMenu(menu)
+
+
+class AddFolderButton(ToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(
+            QIcon(resource("folder-plus-outline.png")), "Add Folder", self
+        )
+        self.action.setEnabled(False)
+        self.action.setToolTip("Add a Folder...")
+        self.action.setFont(Font(8))
+        self.setDefaultAction(self.action)
+
+
+class EnterCodeButton(ToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(
+            QIcon(resource("invite.png")), "Enter Code", self
+        )
+        self.action.setToolTip("Enter an Invite Code...")
+        self.action.setEnabled(False)
+        self.action.setFont(Font(8))
+        self.setDefaultAction(self.action)
+
+
+class InvitesMenuButton(ToolButton):
+    enter_invite_action_triggered = Signal()
+    create_invite_action_triggered = Signal()
+
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(QIcon(resource("invite.png")), "Invites", self)
+        self.action.setToolTip("Enter or Create an Invite Code")
+        self.action.setFont(Font(8))
+        self.action.setEnabled(False)
+
+        enter_invite_action = QAction(QIcon(), "Enter Invite Code...", self)
+        enter_invite_action.setToolTip("Enter an Invite Code...")
+        enter_invite_action.triggered.connect(
+            self.enter_invite_action_triggered
+        )
+
+        create_invite_action = QAction(QIcon(), "Create Invite Code...", self)
+        create_invite_action.setToolTip("Create on Invite Code...")
+        create_invite_action.triggered.connect(
+            self.create_invite_action_triggered
+        )
+
+        menu = QMenu(self)
+        menu.addAction(enter_invite_action)
+        menu.addAction(create_invite_action)
+
+        self.setDefaultAction(self.action)
+        self.setMenu(menu)
+
+
+class RecoveryMenuButton(ToolButton):
+    import_action_triggered = Signal()
+    export_action_triggered = Signal()
+
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(
+            QIcon(resource("key-outline.png")), "Recovery", self
+        )
+        # The import/restore action must always be accessible to users.
+        # See https://github.com/gridsync/gridsync/issues/645
+        self.action.setEnabled(True)
+        self.action.setToolTip("Create or Restore from a Recovery Key")
+        self.action.setFont(Font(8))
+
+        import_action = QAction(QIcon(), "Restore from Recovery Key...", self)
+        import_action.setEnabled(True)
+        import_action.setToolTip("Restore from Recovery Key...")
+        import_action.triggered.connect(self.import_action_triggered.emit)
+        self.import_action = import_action
+
+        export_action = QAction(QIcon(), "Create Recovery Key...", self)
+        export_action.setEnabled(False)
+        export_action.setToolTip("Create Recovery Key...")
+        export_action.triggered.connect(self.export_action_triggered.emit)
+        self.export_action = export_action
+
+        menu = QMenu(self)
+        menu.addAction(import_action)
+        menu.addAction(export_action)
+
+        self.setDefaultAction(self.action)
+        self.setMenu(menu)
+
+
+class HistoryToggleButton(ToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(
+            QIcon(resource("clock-outline.png")), "History", self
+        )
+        self.action.setToolTip("Show/Hide History")
+        self.action.setEnabled(False)
+        self.action.setFont(Font(8))
+        self.setDefaultAction(self.action)
+        self.setCheckable(True)
+
+
+class FoldersToggleButton(ToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(
+            QIcon(resource("folder-multiple-outline.png")), "Folders", self
+        )
+        self.action.setToolTip("Show Folders")
+        self.action.setEnabled(False)
+        self.action.setFont(Font(8))
+        self.setDefaultAction(self.action)
+        self.setCheckable(True)
+
+
+class UsageToggleButton(ToolButton):
+    def __init__(self, parent: Optional[ToolBar] = None) -> None:
+        super().__init__(parent)
+        self.action = QAction(
+            QIcon(resource("chart-donut.png")), "Storage-time", self
+        )
+        self.action.setToolTip("Show Storage-time")
+        self.action.setEnabled(False)
+        self.action.setFont(Font(8))
+        self.setDefaultAction(self.action)
+        self.setCheckable(True)
+
+
+class ToolBar(QToolBar):
+    add_folder_triggered = Signal()
+    join_folder_triggered = Signal()
     enter_invite_action_triggered = Signal()
     create_invite_action_triggered = Signal()
     import_action_triggered = Signal()
@@ -104,98 +271,47 @@ class ToolBar(QToolBar):
         self.setIconSize(QSize(24, 24))
         self.setMovable(False)
 
-        font = Font(8)
+        self.folder_button: Union[FolderMenuButton, AddFolderButton]
+        self.invites_button: Union[InvitesMenuButton, EnterCodeButton]
 
-        self.folder_action = QAction(
-            QIcon(resource("folder-plus-outline.png")), "Add Folder", self
-        )
-        self.folder_action.setEnabled(False)
-        self.folder_action.setToolTip("Add a Folder...")
-        self.folder_action.setFont(font)
-        # self.folder_action.triggered.connect(self.select_folder)
-
-        self.folder_button = QToolButton(self)
-        self.folder_button.setDefaultAction(self.folder_action)
-        self.folder_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        recovery_action = QAction(
-            QIcon(resource("key-outline.png")), "Recovery", self
-        )
-        recovery_action.setEnabled(False)
-        recovery_action.setToolTip("Create or Restore from a Recovery Key")
-        recovery_action.setFont(font)
-
-        self.import_action = QAction(
-            QIcon(), "Restore from Recovery Key...", self
-        )
-        self.import_action.setToolTip("Restore from Recovery Key...")
-        self.import_action.triggered.connect(self.import_action_triggered.emit)
-
-        self.export_action = QAction(QIcon(), "Create Recovery Key...", self)
-        self.export_action.setToolTip("Create Recovery Key...")
-        # export_action.setShortcut(QKeySequence.Save)
-        self.export_action.triggered.connect(self.export_action_triggered.emit)
-
-        recovery_menu = QMenu(self)
-        recovery_menu.addAction(self.import_action)
-        recovery_menu.addAction(self.export_action)
-
-        self.recovery_button = QToolButton(self)
-        self.recovery_button.setDefaultAction(recovery_action)
-        self.recovery_button.setMenu(recovery_menu)
-        self.recovery_button.setPopupMode(QToolButton.InstantPopup)
-        self.recovery_button.setStyleSheet(
-            "QToolButton::menu-indicator { image: none }"
-        )
-        self.recovery_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        if features.grid_invites:
-            self.invites_action = QAction(
-                QIcon(resource("invite.png")), "Invites", self
+        if features.magic_folder_invites and features.grid_invites:
+            folder_menu_button = FolderMenuButton(self)
+            folder_menu_button.add_folder_triggered.connect(
+                self.add_folder_triggered
             )
-            self.invites_action.setEnabled(False)
-            self.invites_action.setToolTip("Enter or Create an Invite Code")
-            self.invites_action.setFont(font)
+            folder_menu_button.join_folder_triggered.connect(
+                self.join_folder_triggered
+            )
+            self.folder_button = folder_menu_button
+            invites_menu_button = InvitesMenuButton(self)
+            invites_menu_button.enter_invite_action_triggered.connect(
+                self.enter_invite_action_triggered
+            )
+            invites_menu_button.create_invite_action_triggered.connect(
+                self.create_invite_action_triggered
+            )
+            self.invites_button = invites_menu_button
+        elif features.magic_folder_invites and not features.grid_invites:
+            add_folder_button = AddFolderButton(self)
+            add_folder_button.clicked.connect(self.add_folder_triggered)
+            self.folder_button = add_folder_button
+            enter_code_button = EnterCodeButton(self)
+            enter_code_button.pressed.connect(self.join_folder_triggered)
+            self.invites_button = enter_code_button
+        else:
+            add_folder_button = AddFolderButton(self)
+            add_folder_button.clicked.connect(self.add_folder_triggered)
+            self.folder_button = add_folder_button
+            invites_menu_button = InvitesMenuButton(self)
+            invites_menu_button.enter_invite_action_triggered.connect(
+                self.enter_invite_action_triggered
+            )
+            invites_menu_button.create_invite_action_triggered.connect(
+                self.create_invite_action_triggered
+            )
+            self.invites_button = invites_menu_button
 
-            self.enter_invite_action = QAction(
-                QIcon(), "Enter Invite Code...", self
-            )
-            self.enter_invite_action.setToolTip("Enter an Invite Code...")
-            self.enter_invite_action.triggered.connect(
-                self.enter_invite_action_triggered.emit
-            )
-
-            self.create_invite_action = QAction(
-                QIcon(), "Create Invite Code...", self
-            )
-            self.create_invite_action.setToolTip("Create on Invite Code...")
-            self.create_invite_action.triggered.connect(
-                self.create_invite_action_triggered.emit
-            )
-
-            self.invites_menu = QMenu(self)
-            self.invites_menu.addAction(self.enter_invite_action)
-            self.invites_menu.addAction(self.create_invite_action)
-
-            self.invites_button = QToolButton(self)
-            self.invites_button.setDefaultAction(self.invites_action)
-            self.invites_button.setMenu(self.invites_menu)
-            self.invites_button.setPopupMode(QToolButton.InstantPopup)
-            self.invites_button.setStyleSheet(
-                "QToolButton::menu-indicator { image: none }"
-            )
-            self.invites_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        elif features.invites:
-            self.invite_action = QAction(
-                QIcon(resource("invite.png")), "Enter Code", self
-            )
-            self.invite_action.setEnabled(False)
-            self.invite_action.setToolTip("Enter an Invite Code...")
-            self.invite_action.setFont(font)
-            self.invite_action.triggered.connect(
-                self.enter_invite_action_triggered.emit
-            )
+        self.recovery_button = RecoveryMenuButton(self)
 
         spacer_left = QWidget()
         spacer_left.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -208,51 +324,13 @@ class ToolBar(QToolBar):
         spacer_right = QWidget()
         spacer_right.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.history_action = QAction(
-            QIcon(resource("clock-outline.png")), "History", self
-        )
-        self.history_action.setEnabled(False)
-        self.history_action.setToolTip("Show/Hide History")
-        self.history_action.setFont(font)
-        self.history_action.setCheckable(True)
-
-        self.history_button = QToolButton(self)
-        self.history_button.setDefaultAction(self.history_action)
-        self.history_button.setCheckable(True)
-        self.history_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.folders_action = QAction(
-            QIcon(resource("folder-multiple-outline.png")), "Folders", self
-        )
-
-        self.folders_action.setEnabled(False)
-        self.folders_action.setToolTip("Show Folders")
-        self.folders_action.setFont(font)
-        self.folders_action.setCheckable(True)
-
-        self.folders_button = QToolButton(self)
-        self.folders_button.setDefaultAction(self.folders_action)
-        self.folders_button.setCheckable(True)
-        self.folders_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-
-        self.usage_action = QAction(
-            QIcon(resource("chart-donut.png")), "Storage-time", self
-        )
-        self.usage_action.setEnabled(False)
-        self.usage_action.setToolTip("Show Storage-time")
-        self.usage_action.setFont(font)
-        self.usage_action.setCheckable(True)
-
-        self.usage_button = QToolButton(self)
-        self.usage_button.setDefaultAction(self.usage_action)
-        self.usage_button.setCheckable(True)
-        self.usage_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.history_button = HistoryToggleButton(self)
+        self.folders_button = FoldersToggleButton(self)
+        self.usage_button = UsageToggleButton(self)
 
         self.folder_wa = self.addWidget(self.folder_button)
+        self.invites_wa = self.addWidget(self.invites_button)
         self.recovery_wa = self.addWidget(self.recovery_button)
-        if features.grid_invites:
-            self.invites_wa = self.addWidget(self.invites_button)
-        elif features.invites:
-            self.invite_wa = self.addAction(self.invite_action)
 
         self.addWidget(spacer_left)
         self.addWidget(self.combo_box)
@@ -262,23 +340,15 @@ class ToolBar(QToolBar):
         self.usage_wa = self.addWidget(self.usage_button)
         self.history_wa = self.addWidget(self.history_button)
 
-        if QT_LIB_VERSION.startswith("6"):
-            # XXX For some currently-unknown reason, methods connected
-            # to `QAction.triggered` aren't firing here, under Qt6.
-            # Connecting to `QToolButton.clicked`, however, works(?)...
-            self.folder_button.clicked.connect(
-                self.folder_action_triggered.emit
-            )
-            self.history_button.clicked.connect(self.on_history_activated)
-            self.folders_button.clicked.connect(self.on_folders_activated)
-            self.usage_button.clicked.connect(self.on_usage_activated)
-        else:
-            self.folder_action.triggered.connect(
-                self.folder_action_triggered.emit
-            )
-            self.history_action.triggered.connect(self.on_history_activated)
-            self.folders_action.triggered.connect(self.on_folders_activated)
-            self.usage_action.triggered.connect(self.on_usage_activated)
+        self.recovery_button.import_action_triggered.connect(
+            self.import_action_triggered
+        )
+        self.recovery_button.export_action_triggered.connect(
+            self.export_action_triggered
+        )
+        self.history_button.clicked.connect(self.on_history_activated)
+        self.folders_button.clicked.connect(self.on_folders_activated)
+        self.usage_button.clicked.connect(self.on_usage_activated)
 
     def _update_action_visibility(self) -> None:
         gateway = self.combo_box.currentData()
@@ -314,7 +384,7 @@ class ToolBar(QToolBar):
             and not gateway.monitor.zkap_checker.zkaps_remaining
         ):
             self.folder_button.setEnabled(False)
-            self.recovery_button.setEnabled(False)
+            self.recovery_button.export_action.setEnabled(False)
             self.history_button.setEnabled(False)
             self.folders_button.setEnabled(False)
             self.usage_button.setEnabled(False)
@@ -322,7 +392,7 @@ class ToolBar(QToolBar):
                 self.invites_button.setEnabled(False)
             else:
                 try:
-                    self.invite_action.setEnabled(False)
+                    self.invites_button.setEnabled(False)
                 except AttributeError:
                     pass
             if not gateway.magic_folder.magic_folders:
@@ -337,7 +407,7 @@ class ToolBar(QToolBar):
                 self.folders_button.setChecked(False)
         else:
             self.folder_button.setEnabled(True)
-            self.recovery_button.setEnabled(True)
+            self.recovery_button.export_action.setEnabled(True)
             self.history_button.setEnabled(True)
             self.folders_button.setEnabled(True)
             self.usage_button.setEnabled(True)
@@ -345,7 +415,7 @@ class ToolBar(QToolBar):
                 self.invites_button.setEnabled(True)
             else:
                 try:
-                    self.invite_action.setEnabled(True)
+                    self.invites_button.setEnabled(True)
                 except AttributeError:
                     pass
 

@@ -1,2 +1,0 @@
-include versioneer.py
-include gridsync/_version.py

@@ -55,7 +55,6 @@ def export_recovery_key(
 
 
 class RecoveryKeyImporter(QObject):
-
     done = Signal(dict)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:

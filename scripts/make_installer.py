@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
 import io
 import os
 import shutil
 import subprocess
 from configparser import RawConfigParser
+from pathlib import Path
 
 config = RawConfigParser(allow_no_value=True)
 config.read(os.path.join("gridsync", "resources", "config.txt"))
@@ -15,10 +15,10 @@ for section in config.sections():
         settings[section][option] = value
 
 name = settings["application"]["name"]
-version = settings["build"].get("version", "")
-if not version:
-    with open(os.path.join("gridsync/resources/version.txt")) as f:
-        version = f.read().strip()
+version = settings["build"].get(
+    "version",
+    Path("dist", name, "resources", "version.txt").read_text().strip(),
+)
 win_icon = settings["build"]["win_icon"].replace("/", "\\")
 
 iss_contents = """#define MyAppName "%s"
@@ -59,7 +59,7 @@ Name: programsicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {
 Name: startupicon; Description: {cm:AutoStartProgram,{#MyAppName}}; GroupDescription: {cm:AutoStartProgramGroupDescription}
 
 [Run]
-Filename: "{app}\{#MyAppName}.exe"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall
+Filename: "{app}\{#MyAppName}.exe"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall nowait
 """ % (
     name,
     version,

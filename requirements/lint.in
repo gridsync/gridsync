@@ -1,10 +1,9 @@
 black
-flake8
 isort
 mypy
-mypy_zope
 pylint
 pyqt5-stubs
+ruff
 types-attrs
 types-atomicwrites
 types-certifi

@@ -25,6 +25,7 @@ pycryptodomex
 pynacl >= 1.2.0
 pyyaml
 qtpy
+segno
 tahoe-capabilities
 treq
 # Twisted 21.7.0 adds Deferred type hinting/annotations
