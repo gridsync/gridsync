@@ -8,7 +8,7 @@ from gridsync.network import get_free_port, get_local_network_ip
 
 
 def test_get_local_network_ip_returns_str():
-    assert type(get_local_network_ip()) is str
+    assert isinstance(get_local_network_ip(), str)
 
 
 def test_get_local_network_ip_is_ip_address():
@@ -17,7 +17,7 @@ def test_get_local_network_ip_is_ip_address():
 
 
 def test_get_free_port_returns_int():
-    assert type(get_free_port()) is int
+    assert isinstance(get_free_port(), int)
 
 
 def test_get_free_port_is_random():
