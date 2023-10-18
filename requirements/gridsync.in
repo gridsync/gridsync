@@ -15,7 +15,6 @@ attrs
 autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1, < 22.4.1
 certifi
 humanize
-hyperlink
 magic-wormhole
 psutil
 # PyNaCl 1.2.0 adds Argon2id KDF
