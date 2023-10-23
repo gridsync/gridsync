@@ -12,6 +12,10 @@ from gridsync import __version__, msg
 from gridsync.core import Core
 from gridsync.errors import FilesystemLockError
 
+# qtreactor must be 'installed' after initializing QApplication but
+# before running/importing any other Twisted code.
+# See https://github.com/twisted/qt5reactor/blob/master/README.rst
+from gridsync import qtreactor  # pylint: disable=ungrouped-imports
 
 class TahoeVersion(argparse.Action):
     def __call__(
@@ -52,4 +56,6 @@ def main() -> Union[int, str]:
 
 
 if __name__ == "__main__":
+    # Ignore mypy error 'Module has no attribute "install"'
+    qtreactor.install()  # type: ignore
     sys.exit(main())
