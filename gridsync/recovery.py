@@ -33,10 +33,13 @@ def get_recovery_key(
     plaintext = json.dumps(settings).encode("utf-8")
     if password:
         return deferToThreadPool(
-            reactor,
-            # Module has no attribute "getThreadPool"
+            # mypy: 'Argument 1 to "deferToThreadPool" has incompatible'
+            # type Module; expected "IReactorFromThreads"  [arg-type]'
+            reactor,  # type: ignore
+            # mypy: 'Module has no attribute "getThreadPool"'
             reactor.getThreadPool(),  # type: ignore
-            lambda: encrypt(plaintext, password.encode("utf-8")),
+            # mypy: 'Item "None" of "str | None" has no attribute "encode"'
+            lambda: encrypt(plaintext, password.encode("utf-8")),  # type: ignore
         )
     return succeed(plaintext)
 
