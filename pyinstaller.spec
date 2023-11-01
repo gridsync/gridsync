@@ -285,13 +285,14 @@ def bundle_gridsync(files):
 def finalize_gridsync_bundle():
     if sys.platform == "darwin":
         dist = Path("dist", f"{app_name}.app", "Contents", "MacOS")
+        dist_resources = Path(dist, "Resources", "resources")
     else:
         dist = Path("dist", app_name)
-
-    # As of PyInstaller version 6.0.0, everything except the executable
-    # gets moved into an "_internal" subdirectory. See:
-    # https://pyinstaller.org/en/v6.0.0/CHANGES.html#features
-    dist_resources = Path(dist, "_internal", "resources")
+        # As of PyInstaller version 6.0.0, on non-macOS platforms,
+        # everything except the executable gets moved into an
+        # "_internal" subdirectory. See:
+        # https://pyinstaller.org/en/v6.0.0/CHANGES.html#features
+        dist_resources = Path(dist, "_internal", "resources")
 
     # Write the version string to a file inside the dist dir so the
     # script that creates the Inno Setup installer can read it later.
