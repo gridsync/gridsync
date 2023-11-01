@@ -1,3 +1,6 @@
-# PyInstaller version 5.6.1 breaks GNU/Linux builds due to ImportError with libffi.so.6
-# See https://github.com/gridsync/gridsync/issues/579
-pyinstaller >= 5.6.2
+# PyInstaller version 6.0.0 places non-executable/resource files in a
+# different location than prior versions (specifically, under under a
+# new "_internal" subdirectory). To avoid the overhead of having to
+# search both paths at runtime, assume/support only the newer one.
+# See https://pyinstaller.org/en/v6.0.0/CHANGES.html#features
+pyinstaller >= 6.0.0
