@@ -285,7 +285,7 @@ def bundle_gridsync(files):
 def finalize_gridsync_bundle():
     if sys.platform == "darwin":
         dist = Path("dist", f"{app_name}.app", "Contents", "MacOS")
-        dist_resources = Path(dist, "Resources", "resources")
+        dist_resources = Path(dist.parent, "Resources", "resources")
     else:
         dist = Path("dist", app_name)
         # As of PyInstaller version 6.0.0, on non-macOS platforms,
