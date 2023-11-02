@@ -286,6 +286,10 @@ def finalize_gridsync_bundle():
     if sys.platform == "darwin":
         dist = Path("dist", f"{app_name}.app", "Contents", "MacOS")
         dist_resources = Path(dist.parent, "Resources", "resources")
+        print("###################################")
+        print(f"dist: {dist}", dist.exists())
+        print(f"dist_resources: {dist_resources}", dist_resources.exists())
+        print("###################################")
     else:
         dist = Path("dist", app_name)
         # As of PyInstaller version 6.0.0, on non-macOS platforms,
