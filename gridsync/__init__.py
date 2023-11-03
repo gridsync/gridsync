@@ -31,12 +31,6 @@ if sys.platform in ("win32", "darwin"):
 
 if getattr(sys, "frozen", False):
     pkgdir = os.path.dirname(os.path.realpath(sys.executable))
-    if sys.platform == "darwin":
-        pkgdir_resources = str(
-            Path(Path(pkgdir).parent, "Resources", "resources")
-        )
-    else:
-        pkgdir_resources = str(Path(pkgdir, "_internal", "resources"))
     os.environ["PATH"] += os.pathsep + pkgdir
     os.environ["PATH"] += os.pathsep + os.path.join(pkgdir, "Tahoe-LAFS")
     os.environ["PATH"] += os.pathsep + os.path.join(pkgdir, "magic-folder")
@@ -59,9 +53,9 @@ if getattr(sys, "frozen", False):
         os.environ.pop("LD_LIBRARY_PATH", None)
 else:
     pkgdir = os.path.dirname(os.path.realpath(__file__))
-    pkgdir_resources = os.path.join(pkgdir, "resources")
 
-settings = Config(os.path.join(pkgdir_resources, "config.txt")).load()
+
+settings = Config(os.path.join(pkgdir, "resources", "config.txt")).load()
 
 
 for envvar, value in os.environ.items():
@@ -167,19 +161,19 @@ else:
 
 
 def resource(filename: str) -> str:
-    return os.path.join(pkgdir_resources, filename)
+    return os.path.join(pkgdir, "resources", filename)
 
 
 cheatcodes = []
 try:
-    for file in os.listdir(os.path.join(pkgdir_resources, "providers")):
+    for file in os.listdir(os.path.join(pkgdir, "resources", "providers")):
         cheatcodes.append(file.split(".")[0].lower())
 except OSError:
     pass
 
 
 def load_settings_from_cheatcode(cheatcode: str) -> Optional[dict]:
-    path = os.path.join(pkgdir_resources, "providers", cheatcode + ".json")
+    path = os.path.join(pkgdir, "resources", "providers", cheatcode + ".json")
     try:
         with open(path, encoding="utf-8") as f:
             return json.loads(f.read())
@@ -196,7 +190,7 @@ def cheatcode_used(cheatcode: str) -> bool:
 
 def _load_grid_settings() -> dict[str, dict]:
     results: dict[str, dict] = {}
-    for p in Path(pkgdir_resources, "providers").glob("*-*.json"):
+    for p in Path(pkgdir, "resources", "providers").glob("*-*.json"):
         try:
             s = json.loads(p.read_text(encoding="utf-8"))
         except (OSError, json.decoder.JSONDecodeError):

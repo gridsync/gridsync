@@ -122,13 +122,11 @@ def test_resource():
 
 def test_load_settings_from_cheatcode(tmpdir_factory, monkeypatch):
     pkgdir = os.path.join(str(tmpdir_factory.getbasetemp()), "pkgdir")
-    pkgdir_resources = os.path.join(pkgdir, "_internal", "resources")
-    providers_path = os.path.join(pkgdir_resources, "providers")
+    providers_path = os.path.join(pkgdir, "resources", "providers")
     os.makedirs(providers_path)
     with open(os.path.join(providers_path, "test-test.json"), "w") as f:
         f.write('{"introducer": "pb://"}')
     monkeypatch.setattr("gridsync.pkgdir", pkgdir)
-    monkeypatch.setattr("gridsync.pkgdir_resources", pkgdir_resources)
     settings = load_settings_from_cheatcode("test-test")
     assert settings["introducer"] == "pb://"
 
