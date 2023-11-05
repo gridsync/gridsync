@@ -6,15 +6,16 @@ import os
 import shutil
 import sys
 from binascii import Error
-from typing import Optional
+from typing import Optional, cast
 from urllib.parse import urlparse
 
 import treq
 from atomicwrites import atomic_write
 from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QInputDialog, QLineEdit, QMessageBox, QWidget
-from twisted.internet import reactor
+from twisted.internet import reactor as reactor_module
 from twisted.internet.defer import Deferred
+from twisted.internet.interfaces import IReactorCore
 
 from gridsync import APP_NAME, config_dir, resource
 from gridsync.config import Config
@@ -28,6 +29,10 @@ from gridsync.msg import error
 from gridsync.tahoe import Tahoe
 from gridsync.tor import get_tor, get_tor_with_prompt, tor_required
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
+
+# mypy thinks reactor is a module
+# https://github.com/twisted/twisted/issues/9909
+reactor = cast(IReactorCore, reactor_module)
 
 
 def is_onion_grid(settings: dict) -> bool:

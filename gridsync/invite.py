@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Optional
 
 from qtpy.QtCore import QObject, Signal
@@ -105,7 +106,8 @@ class InviteReceiver(QObject):
                 yield self._run_setup(settings, from_wormhole=False)
         else:
             settings = yield self.wormhole.receive(code)
-            yield self._run_setup(settings, from_wormhole=True)
+            if settings:
+                yield self._run_setup(settings, from_wormhole=True)
 
 
 class InviteSender(QObject):
@@ -181,4 +183,4 @@ class InviteSender(QObject):
                 "Magic-Folder invites are not yet implemented"
             )
         self.created_invite.emit()
-        yield self.wormhole.send(settings)
+        yield self.wormhole.send(json.dumps(settings))

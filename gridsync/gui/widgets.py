@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-from typing import Optional
+from typing import Optional, cast
 
 from qtpy.QtCore import QSize, Qt, Signal
 from qtpy.QtGui import QIcon, QMouseEvent
@@ -19,13 +19,18 @@ from qtpy.QtWidgets import (
     QSpinBox,
     QWidget,
 )
-from twisted.internet import reactor
+from twisted.internet import reactor as reactor_module
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.interfaces import IReactorCore
 
 from gridsync import resource
 from gridsync.msg import info
 from gridsync.tor import get_tor
 from gridsync.types_ import TwistedDeferred
+
+# mypy thinks reactor is a module
+# https://github.com/twisted/twisted/issues/9909
+reactor = cast(IReactorCore, reactor_module)
 
 
 class VSpacer(QSpacerItem):

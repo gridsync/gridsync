@@ -96,7 +96,7 @@ def test_open_enclosing_folder(platform, mocked_call, monkeypatch, tmp_path):
     filepath.touch()
     open_enclosing_folder(filepath)
     call_args = m.mock_calls[0][1][0]
-    if type(call_args) != str:
+    if not isinstance(call_args, str):
         call_args = " ".join(call_args)
     assert str(tmp_path) in call_args
 
@@ -125,7 +125,7 @@ def test_open_path(platform, mocked_call, monkeypatch, tmp_path):
     filepath.touch()
     open_path(filepath)
     call_args = m.mock_calls[0][1][0]
-    if type(call_args) != str:
+    if not isinstance(call_args, str):
         call_args = " ".join(call_args)
     assert str(tmp_path) in call_args
 
