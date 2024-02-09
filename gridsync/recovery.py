@@ -38,8 +38,7 @@ def get_recovery_key(
             reactor,  # type: ignore
             # mypy: 'Module has no attribute "getThreadPool"'
             reactor.getThreadPool(),  # type: ignore
-            # mypy: 'Item "None" of "str | None" has no attribute "encode"'
-            lambda: encrypt(plaintext, password.encode("utf-8")),  # type: ignore
+            lambda: encrypt(plaintext, password.encode("utf-8")),
         )
     return succeed(plaintext)
 
