@@ -23,8 +23,8 @@ attrs==23.2.0 \
     #   tahoe-lafs
     #   treq
     #   twisted
-autobahn[twisted]==23.6.2 \
-    --hash=sha256:ec9421c52a2103364d1ef0468036e6019ee84f71721e86b36fe19ad6966c1181
+autobahn[twisted]==22.3.2 \
+    --hash=sha256:58a887c7a196bb08d8b6624cb3695f493a9e5c9f00fd350d8d6f829b47ff9036
     # via
     #   -r requirements/magic-folder.in
     #   magic-folder
@@ -266,9 +266,7 @@ charset-normalizer==3.3.2 \
 click==8.1.7 \
     --hash=sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28 \
     --hash=sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de
-    # via
-    #   magic-wormhole
-    #   tahoe-lafs
+    # via magic-wormhole
 collections-extended==2.0.2 \
     --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
     --hash=sha256:d68ebd1e2208444e392aa0016e5c085bd897f89296f5c1860787de5935994114
@@ -604,7 +602,6 @@ pyopenssl==24.0.0 \
     --hash=sha256:ba07553fb6fd6a7a2259adb9b84e12302a9a8a75c44046e8bb5d3e5ee887e3c3
     # via
     #   foolscap
-    #   tahoe-lafs
     #   twisted
 pyrsistent==0.20.0 \
     --hash=sha256:0724c506cd8b63c69c7f883cc233aac948c1ea946ea95996ad8b1380c25e1d3f \
@@ -722,10 +719,12 @@ spake2==0.8 \
     --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
     --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
     # via magic-wormhole
-tahoe-lafs==1.19.0 \
-    --hash=sha256:8aba5c1a46617691be6416c4b8ceb071de0c1c1089dbce7cb51d37d909da9778 \
-    --hash=sha256:bb48d440965bc3af0b25cfbe407c6100beda318a99280d65eeb24e45f08259ce
-    # via magic-folder
+tahoe-lafs==1.18.0 \
+    --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \
+    --hash=sha256:717a470df34edd31ad6b94467dabaa1caedd7f2f5233b04b89d8cfe936e317fe
+    # via
+    #   -r requirements/magic-folder.in
+    #   magic-folder
 tqdm==4.66.1 \
     --hash=sha256:d302b3c5b53d47bce91fea46679d9c3c6508cf6332229aa1e7d8653723793386 \
     --hash=sha256:d88e651f9db8d8551a62556d3cff9e3034274ca5d66e93197cf2490e2dcb69c7
@@ -886,4 +885,5 @@ setuptools==69.0.3 \
     --hash=sha256:be1af57fc409f93647f2e8e4573a142ed38724b8cdd389706a867bb4efcf1e78
     # via
     #   autobahn
+    #   tahoe-lafs
     #   zope-interface
