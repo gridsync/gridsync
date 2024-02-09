@@ -108,9 +108,7 @@ cbor2==5.6.1 \
     --hash=sha256:f1bed7da33c0d625907687b154e30b1aaf11f4babaeae1268d9bf299c8c6827c \
     --hash=sha256:f4ffee186afe9fbd33305a87e87baae807f0919664460a082675009f5b3d4e99 \
     --hash=sha256:fb9dcc20ca2be813ac8b7b181cdca3156dacd22b1dd8c7f2a729c3c88a594e8a
-    # via
-    #   magic-folder
-    #   tahoe-lafs
+    # via tahoe-lafs
 certifi==2024.2.2 \
     --hash=sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f \
     --hash=sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1
@@ -376,9 +374,9 @@ klein==23.12.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-magic-folder==24.1.0 \
-    --hash=sha256:2ccd856ad4c47b09a58a29bc0b0037dc788bd1d7020464ed53123b4c36f2c0c8 \
-    --hash=sha256:8174c512f804796993bac23b1249d7960ee62c3d025e26a95551654ed309ca03
+magic-folder==23.6.0 \
+    --hash=sha256:c521a11adbf580d4929a8c339f65b7824cc07d90cfb357b0c0a5150980dc2cac \
+    --hash=sha256:cae31681161f82fc80d1ba39cc581a805865267217fa584d0b6410a48bf229b7
     # via -r requirements/magic-folder.in
 magic-wormhole==0.13.0 \
     --hash=sha256:8582dac9fafd6a8edd43e2ffb7f3a565d5493ad74e70564e04c295620b0e348a \
