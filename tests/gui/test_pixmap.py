@@ -1,6 +1,7 @@
 """
 Tests for ``gridsync.gui.pixmap``.
 """
+
 from qtpy.QtGui import QPixmap
 
 from gridsync import resource
