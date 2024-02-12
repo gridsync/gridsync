@@ -2,7 +2,7 @@
 import logging
 import os
 import sys
-from typing import Optional
+from typing import Optional, cast
 
 from qtpy.QtCore import (
     QModelIndex,
@@ -26,8 +26,9 @@ from qtpy.QtWidgets import (
     QToolButton,
     QWidget,
 )
-from twisted.internet import reactor
+from twisted.internet import reactor as reactor_module
 from twisted.internet.defer import CancelledError, inlineCallbacks
+from twisted.internet.interfaces import IReactorCore
 from twisted.python.failure import Failure
 from wormhole.errors import (
     LonelyError,
@@ -50,6 +51,10 @@ from gridsync.invite import is_valid_code, wordlist
 from gridsync.tor import get_tor
 from gridsync.types_ import TwistedDeferred
 from gridsync.util import b58encode
+
+# mypy thinks reactor is a module
+# https://github.com/twisted/twisted/issues/9909
+reactor = cast(IReactorCore, reactor_module)
 
 
 class InviteCodeCompleter(QCompleter):

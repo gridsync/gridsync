@@ -1,9 +1,9 @@
 colorama==0.4.6; sys_platform == "win32" \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
-distro==1.8.0; sys_platform != "darwin" and sys_platform != "win32" \
-    --hash=sha256:02e111d1dc6a50abb8eed6bf31c3e48ed8b0830d1ea2a1b78c61765c2513fdd8 \
-    --hash=sha256:99522ca3e365cac527b44bde033f64c6945d90eb9f769703caaec52b09bbd3ff
+distro==1.9.0; sys_platform != "darwin" and sys_platform != "win32" \
+    --hash=sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed \
+    --hash=sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2
 pywin32==306; sys_platform == "win32" \
     --hash=sha256:06d3420a5155ba65f0b72f2699b5bacf3109f36acbe8923765c22938a69dfc8d \
     --hash=sha256:1c73ea9a0d2283d889001998059f5eaaba3b6238f767c9cf2833b13e6a685f65 \
@@ -19,22 +19,25 @@ pywin32==306; sys_platform == "win32" \
     --hash=sha256:e4c092e2589b5cf0d365849e73e02c391c1349958c5ac3e9d5ccb9a28e017b3a \
     --hash=sha256:e65028133d15b64d2ed8f06dd9fbc268352478d4f9289e69c190ecd6818b6407 \
     --hash=sha256:e8ac1ae3601bee6ca9f7cb4b5363bf1c0badb935ef243c4733ff9a393b1690c0
-twisted-iocpsupport==1.0.3; sys_platform == "win32" \
-    --hash=sha256:1bdccbb22199fc69fd7744d6d2dfd22d073c028c8611d994b41d2d2ad0e0f40d \
-    --hash=sha256:1dbfac706972bf9ec5ce1ddbc735d2ebba406ad363345df8751ffd5252aa1618 \
-    --hash=sha256:1ddfc5fa22ec6f913464b736b3f46e642237f17ac41be47eed6fa9bd52f5d0e0 \
-    --hash=sha256:1ea2c3fbdb739c95cc8b3355305cd593d2c9ec56d709207aa1a05d4d98671e85 \
-    --hash=sha256:3f39c41c0213a81a9ce0961e30d0d7650f371ad80f8d261007d15a2deb6d5be3 \
-    --hash=sha256:4f249d0baac836bb431d6fa0178be063a310136bc489465a831e3abd2d7acafd \
-    --hash=sha256:67bec1716eb8f466ef366bbf262e1467ecc9e20940111207663ac24049785bad \
-    --hash=sha256:6f8c433faaad5d53d30d1da6968d5a3730df415e2efb6864847267a9b51290cd \
-    --hash=sha256:7efcdfafb377f32db90f42bd5fc5bb32cd1e3637ee936cdaf3aff4f4786ab3bf \
-    --hash=sha256:8faceae553cfadc42ad791b1790e7cdecb7751102608c405217f6a26e877e0c5 \
-    --hash=sha256:98a6f16ab215f8c1446e9fc60aaed0ab7c746d566aa2f3492a23cea334e6bebb \
-    --hash=sha256:a379ef56a576c8090889f74441bc3822ca31ac82253cc61e8d50631bcb0c26d0 \
-    --hash=sha256:aaca8f30c3b7c80d27a33fe9fe0d0bac42b1b012ddc60f677175c30e1becc1f3 \
-    --hash=sha256:afb00801fdfbaccf0d0173a722626500023d4a19719ac9f129d1347a32e2fc66 \
-    --hash=sha256:db11c80054b52dbdea44d63d5474a44c9a6531882f0e2960268b15123088641a \
-    --hash=sha256:dff43136c33665c2d117a73706aef6f7d6433e5c4560332a118fe066b16b8695
+twisted-iocpsupport==1.0.4; sys_platform == "win32" \
+    --hash=sha256:0058c963c8957bcd3deda62122e89953c9de1e867a274facc9b15dde1a9f31e8 \
+    --hash=sha256:0c1b5cf37f0b2d96cc3c9bc86fff16613b9f5d0ca565c96cf1f1fb8cfca4b81c \
+    --hash=sha256:196f7c7ccad4ba4d1783b1c4e1d1b22d93c04275cd780bf7498d16c77319ad6e \
+    --hash=sha256:300437af17396a945a58dcfffd77863303a8b6d9e65c6e81f1d2eed55b50d444 \
+    --hash=sha256:391ac4d6002a80e15f35adc4ad6056f4fe1c17ceb0d1f98ba01b0f4f917adfd7 \
+    --hash=sha256:3c5dc11d72519e55f727320e3cee535feedfaee09c0f0765ed1ca7badff1ab3c \
+    --hash=sha256:3d306fc4d88a6bcf61ce9d572c738b918578121bfd72891625fab314549024b5 \
+    --hash=sha256:4574eef1f3bb81501fb02f911298af3c02fe8179c31a33b361dd49180c3e644d \
+    --hash=sha256:4e5f97bcbabdd79cbaa969b63439b89801ea560f11d42b0a387634275c633623 \
+    --hash=sha256:6081bd7c2f4fcf9b383dcdb3b3385d75a26a7c9d2be25b6950c3d8ea652d2d2d \
+    --hash=sha256:76f7e67cec1f1d097d1f4ed7de41be3d74546e1a4ede0c7d56e775c4dce5dfb0 \
+    --hash=sha256:7c66fa0aa4236b27b3c61cb488662d85dae746a6d1c7b0d91cf7aae118445adf \
+    --hash=sha256:858096c0d15e33f15ac157f455d8f86f2f2cdd223963e58c0f682a3af8362d89 \
+    --hash=sha256:872747a3b64e2909aee59c803ccd0bceb9b75bf27915520ebd32d69687040fa2 \
+    --hash=sha256:afa2b630797f9ed2f27f3d9f55e3f72b4244911e45a8c82756f44babbf0b243e \
+    --hash=sha256:c2712b778bacf1db434e3e065adfed3db300754186a29aecac1efae9ef4bcaff \
+    --hash=sha256:c27985e949b9b1a1fb4c20c71d315c10ea0f93fdf3ccdd4a8c158b5926edd8c8 \
+    --hash=sha256:cc86c2ef598c15d824a243c2541c29459881c67fc3c0adb6efe2242f8f0ec3af \
+    --hash=sha256:e311dfcb470696e3c077249615893cada598e62fa7c4e4ca090167bd2b7d331f
 txdbus==1.1.2; sys_platform != "darwin" and sys_platform != "win32" \
     --hash=sha256:8375a5fb68a12054f0def91af800c821fb2232949337756ed975f88d8ea2bc97

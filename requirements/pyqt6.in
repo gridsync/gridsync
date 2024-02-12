@@ -1,4 +1,4 @@
-# (Py)Qt 6.5.1 breaks compatibility with Ubuntu 20.04 and other environments.
+# (Py)Qt versions higher than 6.5.0 segfault with PyInstaller on macOS.
 # See/follow https://github.com/gridsync/gridsync/issues/657
 pyqt6<=6.5.0
 pyqt6-charts<=6.5.0
