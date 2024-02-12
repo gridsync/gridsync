@@ -1,6 +1,4 @@
-# Gridsync's integration tests hang with Magic-Folder 24.1.0
-# See/follow https://github.com/gridsync/gridsync/issues/671
-magic-folder==23.6.0
+magic-folder
 # These autobahn constraints are inherited from ZKAPAuthorizer e1debb6
 # and can probably go away once autobahn provides a release containing
 # https://github.com/crossbario/autobahn-python/pull/1578
