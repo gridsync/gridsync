@@ -5,6 +5,7 @@ import argparse
 import logging
 import os
 import sys
+from typing import cast
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
@@ -54,8 +55,9 @@ from gridsync import qtreactor  # pylint: disable=ungrouped-imports
 qtreactor.install()  # type: ignore
 
 # pylint: disable=wrong-import-order
-from twisted.internet import reactor
+from twisted.internet import reactor as reactor_module
 from twisted.internet.defer import Deferred, DeferredList, inlineCallbacks
+from twisted.internet.interfaces import IReactorCore
 
 from gridsync import (
     APP_NAME,
@@ -76,6 +78,11 @@ from gridsync.preferences import get_preference, set_preference
 from gridsync.tahoe import Tahoe, get_nodedirs
 from gridsync.tor import get_tor
 from gridsync.types_ import TwistedDeferred
+
+# mypy thinks reactor is a module
+# https://github.com/twisted/twisted/issues/9909
+reactor = cast(IReactorCore, reactor_module)
+
 
 app.setWindowIcon(QIcon(resource(settings["application"]["tray_icon"])))
 
@@ -233,9 +240,9 @@ class Core:
 
         self.gui.show_systray()
 
-        reactor.callLater(0, self.start_gateways)  # type: ignore
-        reactor.addSystemEventTrigger(  # type: ignore
-            "before", "shutdown", self.stop_gateways
-        )
+        reactor.callLater(0, self.start_gateways)
+        # mypy: Argument 2 to "addSystemEventTrigger" of "IReactorCore" has
+        # incompatible type "str"; expected "Callable[..., Any]"  [arg-type]
+        reactor.addSystemEventTrigger("before", "shutdown", self.stop_gateways)  # type: ignore
         reactor.run()  # type: ignore
         lock.release()

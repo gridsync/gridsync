@@ -77,7 +77,6 @@ def get_nodedirs(basedir: str) -> list:
 
 
 class Tahoe:
-
     """
     :ivar zkap_auth_required: ``True`` if the node is configured to use
         ZKAPAuthorizer and spend ZKAPs for storage operations, ``False``

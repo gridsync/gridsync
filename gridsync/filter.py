@@ -144,7 +144,7 @@ def apply_filter(
         dictionary[key] = get_mask(value, tag, identifier=identifier)
 
 
-def _apply_filter_by_action_type(  # noqa: max-complexity=30
+def _apply_filter_by_action_type(  # noqa: C901 [max-complexity]
     msg: dict, action_type: str, identifier: Optional[str] = None
 ) -> dict:
     if action_type == "dirnode:add-file":
@@ -239,7 +239,7 @@ def _apply_filter_by_action_type(  # noqa: max-complexity=30
     return msg
 
 
-def _apply_filter_by_message_type(  # noqa: max-complexity
+def _apply_filter_by_message_type(  # noqa: C901 [max-complexity]
     msg: dict, message_type: str
 ) -> dict:
     if message_type == "fni":
