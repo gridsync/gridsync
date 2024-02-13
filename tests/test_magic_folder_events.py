@@ -190,7 +190,7 @@ def test_magic_folder_event_handler_emits_invite_versions_received_signal(
         )
 
 
-def test_magic_folder_event_handler_emits_invite_success_signal(qtbot):
+def test_magic_folder_event_handler_emits_invite_succeeded_signal(qtbot):
     handler = MagicFolderEventHandler()
     with qtbot.wait_signal(handler.invite_succeeded):
         handler.handle(
