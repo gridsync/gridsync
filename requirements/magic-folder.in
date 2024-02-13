@@ -1,4 +1,4 @@
-magic-folder
+magic-folder >= 24.1.0
 # These autobahn constraints are inherited from ZKAPAuthorizer e1debb6
 # and can probably go away once autobahn provides a release containing
 # https://github.com/crossbario/autobahn-python/pull/1578
