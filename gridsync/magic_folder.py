@@ -455,6 +455,12 @@ class MagicFolder:
         error_404_ok: bool = False,
     ) -> JSON:
         await self.await_running()  # XXX
+        print('----------------------------------------')
+        print(f"method: {method}")
+        print(f"path: {path}")
+        print(f"body: {body}")
+        print('----------------------------------------')
+
         if not self.api_token:
             raise MagicFolderWebError("API token not found")
         if not self.api_port:
@@ -827,6 +833,7 @@ class MagicFolder:
                     "author": author,
                     "poll-interval": poll_interval,
                     "scan-interval": scan_interval,
+                    "read-only": None,  # XXX Undocumented??
                 }
             ).encode(),
         )
