@@ -165,6 +165,31 @@ class MagicFolderEventHandler(QObject):
     poll_completed = Signal(str, float)  # folder_name, last_poll
     connection_changed = Signal(int, int, bool)  # connected, desired, happy
 
+    invite_created = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+    invite_welcomed = Signal(
+        str, str, str, str, dict
+    )  # folder, uuid, participant-name, mode, welcome
+    invite_code_created = Signal(
+        str, str, str, str, str
+    )  # folder, uuid, participant-name, mode, code
+    invite_versions_received = Signal(
+        str, str, str, str, dict
+    )  # folder, uuid, participant-name, mode, versions
+    invite_succeeded = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+    invite_failed = Signal(
+        str, str, str, str, str
+    )  # folder, uuid, participant-name, mode, reason
+    invite_rejected = Signal(
+        str, str, str, str, str
+    )  # folder, uuid, participant-name, mode, reason
+    invite_cancelled = Signal(
+        str, str, str, str
+    )  # folder, uuid, participant-name, mode
+
     # From MagicFolderOperationsMonitor
     folder_status_changed = Signal(str, object)  # folder, MagicFolderStatus
     overall_status_changed = Signal(object)  # MagicFolderStatus
@@ -234,6 +259,81 @@ class MagicFolderEventHandler(QObject):
                 "happy": happy,
             }:
                 self.connection_changed.emit(connected, desired, happy)
+            case {
+                "kind": "invite-created",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_created.emit(folder, uuid, participant_name, mode)
+            case {
+                "kind": "invite-welcomed",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+                "welcome": welcome,
+            }:
+                self.invite_welcomed.emit(
+                    folder, uuid, participant_name, mode, welcome
+                )
+            case {
+                "kind": "invite-code-created",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+                "code": code,
+            }:
+                self.invite_code_created.emit(
+                    folder, uuid, participant_name, mode, code
+                )
+            case {
+                "kind": "invite-versions-received",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+                "versions": versions,
+            }:
+                self.invite_versions_received.emit(
+                    folder, uuid, participant_name, mode, versions
+                )
+            case {
+                "kind": "invite-succeeded",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_succeeded.emit(
+                    folder, uuid, participant_name, mode
+                )
+            case {
+                "kind": "invite-failed",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+                "reason": reason,
+            }:
+                self.invite_failed.emit(
+                    folder, uuid, participant_name, mode, reason
+                )
+            case {
+                "kind": "invite-rejected",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+                "reason": reason,
+            }:
+                self.invite_rejected.emit(
+                    folder, uuid, participant_name, mode, reason
+                )
+            case {
+                "kind": "invite-cancelled",
+                "id": uuid,
+                "participant-name": participant_name,
+                "mode": mode,
+            }:
+                self.invite_cancelled.emit(
+                    folder, uuid, participant_name, mode
+                )
             case _:
                 logging.warning('Received unknown event kind: "%s"', event)
 

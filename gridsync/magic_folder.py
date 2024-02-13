@@ -827,6 +827,7 @@ class MagicFolder:
                     "author": author,
                     "poll-interval": poll_interval,
                     "scan-interval": scan_interval,
+                    "read-only": None,  # XXX Undocumented??
                 }
             ).encode(),
         )
