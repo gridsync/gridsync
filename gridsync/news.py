@@ -38,8 +38,7 @@ class NewscapChecker(QObject):
             check_delay_max = newscap_settings.get("check_delay_max")
             if check_delay_max:
                 self.check_delay_max = int(check_delay_max)
-        if self.check_delay_max < self.check_delay_min:
-            self.check_delay_max = self.check_delay_min
+        self.check_delay_max = max(self.check_delay_max, self.check_delay_min)
         self._last_checked_path = os.path.join(
             self.gateway.nodedir, "private", "newscap.last_checked"
         )
