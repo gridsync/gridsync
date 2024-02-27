@@ -18,16 +18,18 @@ attrs==23.2.0 \
     # via
     #   autobahn
     #   automat
+    #   cattrs
     #   klein
     #   magic-wormhole
     #   python-challenge-bypass-ristretto
     #   service-identity
+    #   tahoe-capabilities
     #   tahoe-lafs
     #   treq
     #   twisted
     #   zero-knowledge-access-pass-authorizer
-autobahn[twisted]==22.3.2 \
-    --hash=sha256:58a887c7a196bb08d8b6624cb3695f493a9e5c9f00fd350d8d6f829b47ff9036
+autobahn[twisted]==23.6.2 \
+    --hash=sha256:ec9421c52a2103364d1ef0468036e6019ee84f71721e86b36fe19ad6966c1181
     # via
     #   magic-wormhole
     #   tahoe-lafs
@@ -72,6 +74,10 @@ boltons==23.1.1 \
     --hash=sha256:80a8cd930ff21fbf03545b9863e5799d0c3e7e0e3b2546bdaf2efccd7b3708cc \
     --hash=sha256:d2cb2fa83cf2ebe791be1e284183e8a43a1031355156a968f8e0a333ad2448fc
     # via eliot
+cattrs==23.2.3 \
+    --hash=sha256:0341994d94971052e9ee70662542699a3162ea1e0c62f7ce1b4a57f563685108 \
+    --hash=sha256:a934090d95abaa9e911dac357e3a8699e0b4b14f8529bcc7d2b1ad9d51672b9f
+    # via zero-knowledge-access-pass-authorizer
 cbor2==5.6.2 \
     --hash=sha256:03e5b68867b9d89ff2abd14ef7c6d42fbd991adc3e734a19a294935f22a4d05a \
     --hash=sha256:1b8b504b590367a51fe8c0d9b8cb458a614d782d37b24483097e2b1e93ed0fff \
@@ -269,7 +275,9 @@ charset-normalizer==3.3.2 \
 click==8.1.7 \
     --hash=sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28 \
     --hash=sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de
-    # via magic-wormhole
+    # via
+    #   magic-wormhole
+    #   tahoe-lafs
 collections-extended==2.0.2 \
     --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
     --hash=sha256:d68ebd1e2208444e392aa0016e5c085bd897f89296f5c1860787de5935994114
@@ -338,6 +346,10 @@ eliot==1.15.0 \
     # via
     #   tahoe-lafs
     #   zero-knowledge-access-pass-authorizer
+exceptiongroup==1.2.0 \
+    --hash=sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14 \
+    --hash=sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68
+    # via cattrs
 filelock==3.13.1 \
     --hash=sha256:521f5f56c50f8426f5e03ad3b281b490a87ef15bc6c526f168290f0c7148d44e \
     --hash=sha256:57dbda9b35157b05fb3e58ee91448612eb674172fab98ee235ccb0b5bee19a1c
@@ -606,6 +618,7 @@ pyopenssl==24.0.0 \
     --hash=sha256:ba07553fb6fd6a7a2259adb9b84e12302a9a8a75c44046e8bb5d3e5ee887e3c3
     # via
     #   foolscap
+    #   tahoe-lafs
     #   twisted
 pyrsistent==0.20.0 \
     --hash=sha256:0724c506cd8b63c69c7f883cc233aac948c1ea946ea95996ad8b1380c25e1d3f \
@@ -733,9 +746,13 @@ sqlparse==0.4.4 \
     --hash=sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3 \
     --hash=sha256:d446183e84b8349fa3061f0fe7f06ca94ba65b426946ffebe6e3e8295332420c
     # via zero-knowledge-access-pass-authorizer
-tahoe-lafs==1.18.0 \
-    --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \
-    --hash=sha256:717a470df34edd31ad6b94467dabaa1caedd7f2f5233b04b89d8cfe936e317fe
+tahoe-capabilities==2023.1.5 \
+    --hash=sha256:3dd1c2af39efb223a67724ab24e5c1f467035dfc6a24f3941b4acbffc4bfdc3f \
+    --hash=sha256:d87d6b148049efaba0e6f50ec1d41a12fabd0fe65f972df342d2bd60fbe5ced3
+    # via zero-knowledge-access-pass-authorizer
+tahoe-lafs==1.19.0 \
+    --hash=sha256:8aba5c1a46617691be6416c4b8ceb071de0c1c1089dbce7cb51d37d909da9778 \
+    --hash=sha256:bb48d440965bc3af0b25cfbe407c6100beda318a99280d65eeb24e45f08259ce
     # via zero-knowledge-access-pass-authorizer
 tqdm==4.66.2 \
     --hash=sha256:1ee4f8a893eb9bef51c6e35730cebf234d5d0b6bd112b0271e10ed7c24a02bd9 \
@@ -775,7 +792,9 @@ txtorcon==23.11.0 \
 typing-extensions==4.10.0 \
     --hash=sha256:69b1a937c3a517342112fb4c6df7e72fc39a38e7891a5730ed4985b5214b5475 \
     --hash=sha256:b0abd7c89e8fb96f98db18d86106ff1d90ab692004eb746cf6eda2682f91b3cb
-    # via twisted
+    # via
+    #   cattrs
+    #   twisted
 urllib3==2.2.1 \
     --hash=sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d \
     --hash=sha256:d0570876c61ab9e520d776c38acbbb5b05a776d3f9ff98a5c8fd5162a444cf19
@@ -786,8 +805,8 @@ werkzeug==3.0.1 \
     # via
     #   klein
     #   tahoe-lafs
-zero-knowledge-access-pass-authorizer==2022.8.21 \
-    --hash=sha256:317f376dd5c9aab80f1d9d119b62de56817762c1fd486c6d41ed7337f7b3ce72
+zero-knowledge-access-pass-authorizer @ https://github.com/crwood/ZKAPAuthorizer/archive/tahoe-lafs-1.19.zip \
+    --hash=sha256:61c1e46c284f43b1b6dfbab133aa662d0f2907b65f9ef744daa760fb53f55952
     # via -r requirements/tahoe-lafs.in
 zfec==1.5.7.4 \
     --hash=sha256:0740d89f2260bc85842d44bbb50b39ccc2f7df86f8ffb21a5cc5656cd45c82e9 \
@@ -901,5 +920,4 @@ setuptools==69.1.1 \
     --hash=sha256:5c0806c7d9af348e6dd3777b4f4dbb42c7ad85b190104837488eab9a7c945cf8
     # via
     #   autobahn
-    #   tahoe-lafs
     #   zope-interface
