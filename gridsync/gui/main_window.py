@@ -173,6 +173,7 @@ def _encryption_animation() -> Generator:
     Create and start an animated progress dialog for the encryption process.
     """
     progress = QProgressDialog("Encrypting...", "", 0, 100)
+    progress.setCancelButton(None)
     progress.show()
     animation = QPropertyAnimation(progress, b"value")
     animation.setDuration(6000)  # XXX
