@@ -133,9 +133,9 @@ tomli==2.0.1 \
     #   black
     #   mypy
     #   pylint
-tomlkit==0.12.3 \
-    --hash=sha256:75baf5012d06501f07bee5bf8e801b9f343e7aac5a92581f20f80ce632e6b5a4 \
-    --hash=sha256:b0a645a9156dc7cb5d3a1f0d4bab66db287fcb8e0430bdd4664a095ea16414ba
+tomlkit==0.12.4 \
+    --hash=sha256:5cd82d48a3dd89dee1f9d64420aa20ae65cfbd00668d6f094d7578a78efbb77b \
+    --hash=sha256:7ca1cfc12232806517a8515047ba66a19369e71edf2439d0f5824f91032b6cc3
     # via pylint
 types-atomicwrites==1.4.5.1 \
     --hash=sha256:2f1febbdc78b55453b189fa5b136dce34bab7d1d82319163d470e404aab55c83 \
