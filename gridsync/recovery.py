@@ -107,6 +107,7 @@ class RecoveryKeyImporter(QObject):
             0,
             100,
         )
+        self.progress.setCancelButton(None)
         self.progress.show()
         self.animation = QPropertyAnimation(self.progress, b"value")
         self.animation.setDuration(6000)  # XXX

@@ -194,8 +194,7 @@ class MagicFolderMonitor(QObject):
             size = int(item.get("size") or 0)  # XXX "size" is None if deleted
             sizes.append(size)
             mtime = item.get("last-updated", 0)
-            if mtime > latest_mtime:
-                latest_mtime = mtime
+            latest_mtime = max(latest_mtime, mtime)
         total_size = sum(sizes)
         return files, sizes, total_size, latest_mtime
 
@@ -827,6 +826,7 @@ class MagicFolder:
                     "author": author,
                     "poll-interval": poll_interval,
                     "scan-interval": scan_interval,
+                    "read-only": None,  # XXX Undocumented??
                 }
             ).encode(),
         )

@@ -970,6 +970,168 @@ async def test_invite_cancel_removes_invite(tmp_path, alice_magic_folder):
 
 
 @ensureDeferred
+async def test_invite_emits_invite_created_signal(
+    tmp_path, alice_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_created
+    ) as blocker:
+        await alice_magic_folder.invite(folder_name, randstr())
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_invite_cancelled_signal(
+    tmp_path, alice_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    await alice_magic_folder.add_folder(tmp_path / folder_name, randstr())
+    assert folder_name in (await alice_magic_folder.get_folders())
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_cancelled
+    ) as blocker:
+        inv = await alice_magic_folder.invite(folder_name, randstr())
+        await alice_magic_folder.invite_cancel(folder_name, inv["id"])
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_invite_welcomed_signal(
+    tmp_path, alice_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_welcomed
+    ) as blocker:
+        await alice_magic_folder.invite(folder_name, "Bob")
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_invite_code_created_signal(
+    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_code_created
+    ) as blocker:
+        inv = await alice_magic_folder.invite(folder_name, "Bob")
+        wormhole_code = inv["wormhole-code"]
+
+        bob_path = tmp_path / "Bob" / folder_name
+        result = await bob_magic_folder.join(
+            folder_name, wormhole_code, bob_path
+        )
+        assert result["success"] is True
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_invite_versions_received_signal(
+    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_versions_received
+    ) as blocker:
+        inv = await alice_magic_folder.invite(folder_name, "Bob")
+        wormhole_code = inv["wormhole-code"]
+
+        bob_path = tmp_path / "Bob" / folder_name
+        result = await bob_magic_folder.join(
+            folder_name, wormhole_code, bob_path
+        )
+        assert result["success"] is True
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_invite_succeeded_signal(
+    tmp_path, alice_magic_folder, bob_magic_folder, qtbot
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = inv["wormhole-code"]
+
+    with qtbot.wait_signal(
+        alice_magic_folder.events.invite_succeeded
+    ) as blocker:
+        bob_path = tmp_path / "Bob" / folder_name
+        result = await bob_magic_folder.join(
+            folder_name, wormhole_code, bob_path
+        )
+        assert result["success"] is True
+    assert blocker.args[0] == folder_name
+
+
+@ensureDeferred
+async def test_invite_emits_ordered_invite_update_signals(
+    tmp_path, alice_magic_folder, bob_magic_folder
+):
+    folder_name = randstr()
+
+    alice_path = tmp_path / "Alice" / folder_name
+    await alice_magic_folder.add_folder(alice_path, "Alice")
+    alice_folders = await alice_magic_folder.get_folders()
+    assert folder_name in alice_folders
+
+    message_kinds_received = []
+
+    def collect(message: dict):
+        kind = message["kind"]
+        if kind.startswith("invite-") and message.get("folder") == folder_name:
+            message_kinds_received.append(kind)
+
+    alice_magic_folder.events.handle = collect
+
+    inv = await alice_magic_folder.invite(folder_name, "Bob")
+    wormhole_code = inv["wormhole-code"]
+
+    bob_path = tmp_path / "Bob" / folder_name
+    result = await bob_magic_folder.join(folder_name, wormhole_code, bob_path)
+    assert result["success"] is True
+
+    assert message_kinds_received == [
+        "invite-created",
+        "invite-welcomed",
+        "invite-code-created",
+        "invite-versions-received",
+        "invite-succeeded",
+    ]
+
+
+@ensureDeferred
 async def test_invites_file_sync(
     tmp_path, alice_magic_folder, bob_magic_folder
 ):
