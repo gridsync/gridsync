@@ -740,9 +740,9 @@ tubes==0.2.1 \
     --hash=sha256:28f60dc0be0555a953595f8f1a96a81e96ea6833df7677d77fbe70782605e5b5 \
     --hash=sha256:59b9197f2fa6f7fc6bc3281de55797adc729bb75c9c613b4f6d6c41599f0d78b
     # via klein
-twisted[conch,tls]==23.10.0 \
-    --hash=sha256:4ae8bce12999a35f7fe6443e7f1893e6fe09588c8d2bed9c35cdce8ff2d5b444 \
-    --hash=sha256:987847a0790a2c597197613686e2784fd54167df3a55d0fb17c8412305d76ce5
+twisted[conch,tls]==24.3.0 \
+    --hash=sha256:039f2e6a49ab5108abd94de187fa92377abe5985c7a72d68d0ad266ba19eae63 \
+    --hash=sha256:6b38b6ece7296b5e122c9eb17da2eeab3d98a198f50ca9efd00fb03e5b4fd4ae
     # via
     #   autobahn
     #   foolscap
