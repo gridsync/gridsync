@@ -1,8 +1,2 @@
-# (Py)Qt versions higher than 6.5.0 segfault with PyInstaller on macOS.
-# See/follow https://github.com/gridsync/gridsync/issues/657
-pyqt6<=6.5.0
-pyqt6-charts<=6.5.0
-
-# The version of the Qt libraries below should match the PyQt wrappers above.
-pyqt6-qt6<=6.5.0
-pyqt6-charts-qt6<=6.5.0
+pyqt6
+pyqt6-charts
