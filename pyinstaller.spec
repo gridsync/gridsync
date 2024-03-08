@@ -285,13 +285,19 @@ def bundle_gridsync(files):
 def finalize_gridsync_bundle():
     if sys.platform == "darwin":
         dist = Path("dist", f"{app_name}.app", "Contents", "MacOS")
+        dist_resources = Path(dist.parent, "Resources", "resources")
     else:
         dist = Path("dist", app_name)
+        # As of PyInstaller version 6.0.0, on non-macOS platforms,
+        # everything except the main executable gets moved into an
+        # "_internal" subdirectory. See:
+        # https://pyinstaller.org/en/v6.0.0/CHANGES.html#features
+        dist_resources = Path(dist, "_internal", "resources")
 
     # Write the version string to a file inside the dist dir so the
     # script that creates the Inno Setup installer can read it later.
     # See `scripts/make_installer.py`.
-    Path(dist, "resources", "version.txt").write_text(gridsync_version())
+    Path(dist_resources, "version.txt").write_text(gridsync_version())
 
     for bundle in ("Tahoe-LAFS", "magic-folder"):
         bundle_path = Path("dist", bundle)
@@ -333,9 +339,9 @@ def finalize_gridsync_bundle():
     # `resources/` instead of (the intended) `resources/providers/`. So
     # create the `providers/` subdir and move any lingering .json files
     # into it. See https://github.com/gridsync/gridsync/issues/636
-    Path(dist, "resources", "providers").mkdir(exist_ok=True)
-    for p in Path(dist, "resources").glob("*-*.json"):
-        paths_to_move.append((p, Path(dist, "resources", "providers", p.name)))
+    Path(dist_resources, "providers").mkdir(exist_ok=True)
+    for p in Path(dist_resources).glob("*-*.json"):
+        paths_to_move.append((p, Path(dist_resources, "providers", p.name)))
 
     if sys.platform not in ("darwin", "win32"):
         paths_to_move.append(
