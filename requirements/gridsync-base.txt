@@ -269,9 +269,9 @@ magic-wormhole==0.13.0 \
     --hash=sha256:8582dac9fafd6a8edd43e2ffb7f3a565d5493ad74e70564e04c295620b0e348a \
     --hash=sha256:ac3bd68286270e7f149c06149a8e409e5fa34d7feb0e88844a26d29eed2d1516
     # via -r requirements/gridsync.in
-packaging==23.2 \
-    --hash=sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5 \
-    --hash=sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7
+packaging==24.0 \
+    --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
+    --hash=sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9
     # via qtpy
 psutil==5.9.8 \
     --hash=sha256:02615ed8c5ea222323408ceba16c60e99c3f91639b07da6373fb7e6539abc56d \
@@ -319,9 +319,9 @@ pynacl==1.5.0 \
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
-pyopenssl==24.0.0 \
-    --hash=sha256:6aa33039a93fffa4563e655b61d11364d01264be8ccb49906101e02a334530bf \
-    --hash=sha256:ba07553fb6fd6a7a2259adb9b84e12302a9a8a75c44046e8bb5d3e5ee887e3c3
+pyopenssl==24.1.0 \
+    --hash=sha256:17ed5be5936449c5418d1cd269a1a9e9081bc54c17aed272b45856a3d3dc86ad \
+    --hash=sha256:cabed4bfaa5df9f1a16c0ef64a0cb65318b5cd077a7eda7d6970131ca2f41a6f
     # via twisted
 pyyaml==6.0.1 \
     --hash=sha256:04ac92ad1925b2cff1db0cfebffb6ffc43457495c9b3c39d3fcae417d7125dc5 \
