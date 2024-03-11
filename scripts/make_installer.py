@@ -17,7 +17,9 @@ for section in config.sections():
 name = settings["application"]["name"]
 version = settings["build"].get(
     "version",
-    Path("dist", name, "resources", "version.txt").read_text().strip(),
+    Path("dist", name, "_internal", "resources", "version.txt")
+    .read_text()
+    .strip(),
 )
 win_icon = settings["build"]["win_icon"].replace("/", "\\")
 
