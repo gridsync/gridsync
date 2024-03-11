@@ -31,7 +31,6 @@ if sys.platform in ("win32", "darwin"):
 
 if getattr(sys, "frozen", False):
     pkgdir = os.path.dirname(os.path.realpath(sys.executable))
-    pkgdir_resources = os.path.join(pkgdir, "_internal", "resources")
     if sys.platform == "darwin":
         pkgdir_resources = str(
             Path(Path(pkgdir).parent, "Resources", "resources")
