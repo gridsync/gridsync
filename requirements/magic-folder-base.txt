@@ -378,9 +378,9 @@ klein==23.12.0 \
     # via
     #   magic-folder
     #   tahoe-lafs
-magic-folder==24.1.0 \
-    --hash=sha256:2ccd856ad4c47b09a58a29bc0b0037dc788bd1d7020464ed53123b4c36f2c0c8 \
-    --hash=sha256:8174c512f804796993bac23b1249d7960ee62c3d025e26a95551654ed309ca03
+magic-folder==24.3.0 \
+    --hash=sha256:96f0a7d258bfffb28c07af7b3cea19f8558e9df2919b03b9381941694df9ee4f \
+    --hash=sha256:d59de585d6a9d87f8d051dd63867a7e7d6d647345b27813a88384581c784b187
     # via -r requirements/magic-folder.in
 magic-wormhole==0.13.0 \
     --hash=sha256:8582dac9fafd6a8edd43e2ffb7f3a565d5493ad74e70564e04c295620b0e348a \
@@ -599,9 +599,9 @@ pynacl==1.5.0 \
     --hash=sha256:a422368fc821589c228f4c49438a368831cb5bbc0eab5ebe1d7fac9dded6567b \
     --hash=sha256:e46dae94e34b085175f8abb3b0aaa7da40767865ac82c928eeb9e57e1ea8a543
     # via magic-wormhole
-pyopenssl==24.0.0 \
-    --hash=sha256:6aa33039a93fffa4563e655b61d11364d01264be8ccb49906101e02a334530bf \
-    --hash=sha256:ba07553fb6fd6a7a2259adb9b84e12302a9a8a75c44046e8bb5d3e5ee887e3c3
+pyopenssl==24.1.0 \
+    --hash=sha256:17ed5be5936449c5418d1cd269a1a9e9081bc54c17aed272b45856a3d3dc86ad \
+    --hash=sha256:cabed4bfaa5df9f1a16c0ef64a0cb65318b5cd077a7eda7d6970131ca2f41a6f
     # via
     #   foolscap
     #   tahoe-lafs
@@ -881,9 +881,9 @@ zope-interface==6.2 \
     #   txtorcon
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==69.1.1 \
-    --hash=sha256:02fa291a0471b3a18b2b2481ed902af520c69e8ae0919c13da936542754b4c56 \
-    --hash=sha256:5c0806c7d9af348e6dd3777b4f4dbb42c7ad85b190104837488eab9a7c945cf8
+setuptools==69.2.0 \
+    --hash=sha256:0ff4183f8f42cd8fa3acea16c45205521a4ef28f73c6391d8a25e92893134f2e \
+    --hash=sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c
     # via
     #   autobahn
     #   zope-interface
