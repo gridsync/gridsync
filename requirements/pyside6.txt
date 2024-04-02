@@ -4,31 +4,31 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/pyside6.txt requirements/pyside6.in
 #
-pyside6==6.6.2 \
-    --hash=sha256:3b6266fb29bab66526f2bbab2a6610f9f47a4df42ae6fb3713cd8329f593a561 \
-    --hash=sha256:5bdaa27d1a921c35764d82a2ec86943488c818cb33b9e16b2784d539b45f6171 \
-    --hash=sha256:a8200b2a1f02e42adfd1f41bc60d52d157398778b6ba232d46ad7402bc6f91ec \
-    --hash=sha256:e359ebccd3f90fba85ebd5b93bdeadfa9e5d2fd06b3b5e8985aa5da50ca6243b
+pyside6==6.6.3.1 \
+    --hash=sha256:35936f06257e5c37ae8993da0cb5a528e5db3ea1fc2bb6b12cdf899a11510966 \
+    --hash=sha256:3d2ebb08a7744b59e1270e57f264a9ef5b45fccdc0328a9aeb50d890d6b3f4f2 \
+    --hash=sha256:d993989a10725c856f5b07f25e0664c5059daa92c259549c9df0972b5b0c7935 \
+    --hash=sha256:f7acd26fe8e1a745ef0be66b49ee49ee8ae50c2a2855d9792db262ebc7916d98
     # via -r requirements/pyside6.in
-pyside6-addons==6.6.2 \
-    --hash=sha256:4fb00bc98bc8335177eaa8f6d70ba687ab9bf00b3ee343abbc7156040f3e586d \
-    --hash=sha256:748151fb49d5fe760b7cf6c88c4ec851e68d66a119939567407115948bf8a08f \
-    --hash=sha256:90f20dcf2caf69307e20d3d682cbe2b1a38e7ddb1f50f4f0e3ae4306219f8883 \
-    --hash=sha256:cbdb7393de88a916ed1e9bd8407149f911717d1e06aee04119e26042679d8cce
+pyside6-addons==6.6.3.1 \
+    --hash=sha256:31135adc521ed6e3fdc8203507e7e9d72424d6b9ebd245d1189d991e90669d6a \
+    --hash=sha256:3abdc1e21de0c6763e5392af5ed8b2349291318ce235e7c310d84a2f9d5001a9 \
+    --hash=sha256:7373479565e5bd963b9662857c40c20768bc0b5853334e2076a62cb039e91f74 \
+    --hash=sha256:d8fbcd726dbf3e713e5d5ccc45ff0e1a9edfe336d7190c96cf7e7c7598681239
     # via pyside6
-pyside6-essentials==6.6.2 \
-    --hash=sha256:030a0565ad2d6361ed8be7826f81fe3dbb7a98330837687608e75cbede5f0ca2 \
-    --hash=sha256:11496a322138eab4579c3683d2e3afebb41435412d4109394cb2b9ddaac66fe3 \
-    --hash=sha256:41373f9b8fd17bb39a7dc7da85168508fe288955a17117c2e993339f387b23c1 \
-    --hash=sha256:90be2cf1a404f1c62777ccc6898895c864376f1fd68ae9f82f7622522bce5814
+pyside6-essentials==6.6.3.1 \
+    --hash=sha256:1f41f357ce2384576581e76c9c3df1c4fa5b38e347f0bcd0cae7c5bce42a917c \
+    --hash=sha256:27034525fdbdd21ef21f20fcd7aaf5c2ffe26f2bcf5269a69dd9492dec7e92aa \
+    --hash=sha256:31f7e70ada44d3cdbe6686670b3df036c720cfeb1dced0f7704e5f5a4be6a764 \
+    --hash=sha256:6c16530b63079711783796584b640cc80a347e0b2dc12651aa2877265df7a008
     # via
     #   pyside6
     #   pyside6-addons
-shiboken6==6.6.2 \
-    --hash=sha256:531728324ad3ad4ed7b1d85d2dff548d618182d67024e16e84079f7db104590d \
-    --hash=sha256:60dbad15901ad6fff6e198d8668091bbb2f20b82729412e5fd4d47ac86c97d42 \
-    --hash=sha256:9da86622cee5e7201bafe9c5beee3c06d9168c6b8f3e2fac52c1b7df00956bff \
-    --hash=sha256:d4e99e7d1137a7d2c665a465b80baf820829dfba5fe474549d49b0ef81b0abf2
+shiboken6==6.6.3.1 \
+    --hash=sha256:2a8df586aa9eb629388b368d3157893083c5217ed3eb637bf182d1948c823a0f \
+    --hash=sha256:88494b5e08a1f235efddbe2b0b225a3a66e07d72b6091fcc2fc5448572453649 \
+    --hash=sha256:902d9e126ac57cc3841cdc50ba38d53948b40cf667538172f253c4ae7b2dcb2c \
+    --hash=sha256:b1aeff0d79d84ddbdc9970144c1bbc3a52fcb45618d1b33d17d57f99f1246d45
     # via
     #   pyside6
     #   pyside6-addons
