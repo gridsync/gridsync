@@ -27,7 +27,9 @@ pyqt6-charts-qt6==6.6.3 \
 pyqt6-qt6==6.6.3 \
     --hash=sha256:1674d161ea49a36e9146fd652e789d413a246cc2455ac8bf9c76902b4bd3b986 \
     --hash=sha256:18fe1fbbc709dcff5c513e3cac7b1d7b630fb189e6d32a1601f193d73d326f42 \
+    --hash=sha256:3bcd70529fe97eccd05b3b89867c461e441ed1d8db7bc238e28478aa9bec002d \
     --hash=sha256:6ae465dfcbb819dae5e18e8c96abba735b5bb2f16c066497dda4b7ca17c066ce \
+    --hash=sha256:9e4defa75f50e749f03184f10a49e8830e3096a1157ae821741625e26e516169 \
     --hash=sha256:dbe509eccc579f8818b2b2e8ba93e27986facdd1d4d83ef1c7d9bd47cdf32651
     # via pyqt6
 pyqt6-sip==13.6.0 \
