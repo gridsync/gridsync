@@ -26,6 +26,7 @@ dependencies = [
     "autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1",
     "blake3",
     "certifi",
+    "cryptography",
     "deterministic-keygen",
     'distro ; sys_platform != "darwin" and sys_platform != "win32"',
     "filelock",
