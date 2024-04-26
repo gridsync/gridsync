@@ -6,6 +6,7 @@ import string
 
 from blake3 import blake3
 from Cryptodome.PublicKey import RSA
+from cryptography.hazmat.primitives import serialization
 from mnemonic import Mnemonic
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
@@ -35,6 +36,19 @@ def derive_rsa_key(seed: bytes, bits: int = 2048) -> bytes:
 
     rsa_key = RSA.generate(bits, randfunc=prng_bytes, e=65537)
     return rsa_key.export_key("DER")
+
+
+def pem_to_der(private_key_pem: str) -> bytes:
+    private_key = serialization.load_pem_private_key(
+        private_key_pem.encode(),
+        password=None,
+    )
+    der_bytes = private_key.private_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    return der_bytes
 
 
 def randstr(length: int = 32, alphabet: str = "") -> str:
