@@ -703,7 +703,11 @@ class Tahoe:
         return self._ready_poller.wait_for_completion()
 
     async def mkdir(
-        self, parentcap: Optional[str] = None, childname: Optional[str] = None
+        self,
+        parentcap: Optional[str] = None,
+        childname: Optional[str] = None,
+        *,
+        private_key: Optional[str] = None,
     ) -> str:
         await self.await_ready()
         if parentcap and childname:
@@ -712,6 +716,9 @@ class Tahoe:
         else:
             path = "/uri"
             params = {"t": "mkdir"}
+        if private_key is not None:
+            # TODO: Validate?
+            params["private-key"] = private_key
         cap = await self._request("POST", path, params=params)
         return cap
 
