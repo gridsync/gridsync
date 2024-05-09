@@ -103,6 +103,10 @@ pylint==3.1.0 \
     --hash=sha256:507a5b60953874766d8a366e8e8c7af63e058b26345cfcb5f91f89d987fd6b74 \
     --hash=sha256:6a69beb4a6f63debebaab0a3477ecd0f559aa726af4954fc948c51f7a2549e23
     # via -r requirements/lint.in
+pyqt5-stubs==5.15.6.0 \
+    --hash=sha256:7fb8177c72489a8911f021b7bd7c33f12c87f6dba92dcef3fdcdb5d9400f0f3f \
+    --hash=sha256:91270ac23ebf38a1dc04cd97aa852cd08af82dc839100e5395af1447e3e99707
+    # via -r requirements/lint.in
 ruff==0.4.3 \
     --hash=sha256:08a0d6a22918ab2552ace96adeaca308833873a4d7d1d587bb1d37bae8728eb3 \
     --hash=sha256:0bfc9e955e6dc6359eb6f82ea150c4f4e82b660e5b58d9a20a0e42ec3bb6342b \
