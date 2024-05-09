@@ -78,9 +78,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-pyqt5 = ["PyQt5", "PyQtChart"]
 pyqt6 = ["PyQt6", "PyQt6-Charts"]
-pyside2 = ["PySide2"]
 pyside6 = ["PySide6"]
 
 [project.urls]
