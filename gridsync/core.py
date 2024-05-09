@@ -11,39 +11,12 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QApplication, QCheckBox, QMessageBox
 
-# These Qt attributes must be set *before* initializing a QApplication...
-if os.environ.get("QREXEC_REMOTE_DOMAIN") or os.environ.get(
-    "QUBES_ENV_SOURCED"
-):
-    # On Qubes-OS, setting AA_EnableHighDpiScaling to 'True', *always* doubles
-    # the window-size -- even on lower-resolution (1080p) displays -- but does
-    # not do the same for font-sizes.
-    try:
-        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
-    except AttributeError:  # Not available in Qt6
-        pass
-elif os.environ.get("DESKTOP_SESSION") == "mate":
-    try:
-        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
-    except AttributeError:  # Not available in Qt6
-        pass
-else:
-    try:
-        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    except AttributeError:  # Not available in Qt6
-        pass
-    QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-    )
-try:
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-except AttributeError:  # Not available in Qt6
-    pass
-try:
-    QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
-except AttributeError:  # Not available in Qt6
-    pass
-
+# Global QApplication attributes must be set *before* instantiating
+# a QApplication object.
+# https://doc.qt.io/qt-6/qt.html#HighDpiScaleFactorRoundingPolicy-enum
+QApplication.setHighDpiScaleFactorRoundingPolicy(
+    Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+)
 app = QApplication(sys.argv)
 
 # qtreactor must be 'installed' after initializing QApplication but
