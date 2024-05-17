@@ -28,9 +28,9 @@ pyinstaller==6.6.0 \
     --hash=sha256:d2705efe79f8749526f65c4bce70ae88eea8b6adfb051f123122e86542fe3802 \
     --hash=sha256:e2f55fbbdf8a99ea84b39bc5669a68624473c303486d7eb2cd9063b339f0aa28
     # via -r requirements/pyinstaller.in
-pyinstaller-hooks-contrib==2024.5 \
-    --hash=sha256:0852249b7fb1e9394f8f22af2c22fa5294c2c0366157969f98c96df62410c4c6 \
-    --hash=sha256:aa5dee25ea7ca317ad46fa16b5afc8dba3b0e43f2847e498930138885efd3cab
+pyinstaller-hooks-contrib==2024.6 \
+    --hash=sha256:3c188b3a79f5cd46d96520df3934642556a1b6ce8988ec5bbce820ada424bc2b \
+    --hash=sha256:6cc88dad75261d9e1a7e0c6385139f35dcdbb16640c911a27f6078fe924a38cf
     # via pyinstaller
 
 # The following packages are considered to be unsafe in a requirements file:
