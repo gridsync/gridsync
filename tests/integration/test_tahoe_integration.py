@@ -53,9 +53,9 @@ def test_tahoe_client_mkdir_with_random_private_key(tahoe_client) -> None:
         key_size=2048,
     )
     private_key_pem = private_key.private_bytes(
-       encoding=serialization.Encoding.PEM,
-       format=serialization.PrivateFormat.PKCS8,
-       encryption_algorithm=serialization.NoEncryption(),
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
     ).decode()
     cap = yield Deferred.fromCoroutine(
         tahoe_client.mkdir(private_key=private_key_pem)
