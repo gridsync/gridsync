@@ -2,8 +2,8 @@ import os
 import sys
 from pathlib import Path
 
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
