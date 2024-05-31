@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-astroid==3.2.1 \
-    --hash=sha256:902564b36796ba1eab3ad2c7a694861fbd926f574d5dbb5fa1d86778a2ba2d91 \
-    --hash=sha256:b452064132234819f023b94f4bd045b250ea0009f372b4377cfcd87f10806ca5
+astroid==3.2.2 \
+    --hash=sha256:8ead48e31b92b2e217b6c9733a21afafe479d52d6e164dd25fb1a770c7c3cf94 \
+    --hash=sha256:e8a0083b4bb28fcffb6207a3bfc9e5d0a68be951dd7e336d5dcf639c682388c0
     # via pylint
 black==24.4.2 \
     --hash=sha256:257d724c2c9b1660f353b36c802ccece186a30accc7742c176d29c146df6e474 \
@@ -99,32 +99,32 @@ platformdirs==4.2.2 \
     # via
     #   black
     #   pylint
-pylint==3.2.0 \
-    --hash=sha256:9f20c05398520474dac03d7abb21ab93181f91d4c110e1e0b32bc0d016c34fa4 \
-    --hash=sha256:ad8baf17c8ea5502f23ae38d7c1b7ec78bd865ce34af9a0b986282e2611a8ff2
+pylint==3.2.2 \
+    --hash=sha256:3f8788ab20bb8383e06dd2233e50f8e08949cfd9574804564803441a4946eab4 \
+    --hash=sha256:d068ca1dfd735fb92a07d33cb8f288adc0f6bc1287a139ca2425366f7cbe38f8
     # via -r requirements/lint.in
 pyqt5-stubs==5.15.6.0 \
     --hash=sha256:7fb8177c72489a8911f021b7bd7c33f12c87f6dba92dcef3fdcdb5d9400f0f3f \
     --hash=sha256:91270ac23ebf38a1dc04cd97aa852cd08af82dc839100e5395af1447e3e99707
     # via -r requirements/lint.in
-ruff==0.4.4 \
-    --hash=sha256:1aecced1269481ef2894cc495647392a34b0bf3e28ff53ed95a385b13aa45768 \
-    --hash=sha256:29d44ef5bb6a08e235c8249294fa8d431adc1426bfda99ed493119e6f9ea1bf6 \
-    --hash=sha256:39df0537b47d3b597293edbb95baf54ff5b49589eb7ff41926d8243caa995ea6 \
-    --hash=sha256:424e5b72597482543b684c11def82669cc6b395aa8cc69acc1858b5ef3e5daae \
-    --hash=sha256:4c8e2f1e8fc12d07ab521a9005d68a969e167b589cbcaee354cb61e9d9de9c15 \
-    --hash=sha256:60ed88b636a463214905c002fa3eaab19795679ed55529f91e488db3fe8976ab \
-    --hash=sha256:8e7e6ebc10ef16dcdc77fd5557ee60647512b400e4a60bdc4849468f076f6eef \
-    --hash=sha256:958b4ea5589706a81065e2a776237de2ecc3e763342e5cc8e02a4a4d8a5e6f95 \
-    --hash=sha256:9da73eb616b3241a307b837f32756dc20a0b07e2bcb694fec73699c93d04a69e \
-    --hash=sha256:b1867ee9bf3acc21778dcb293db504692eda5f7a11a6e6cc40890182a9f9e595 \
-    --hash=sha256:b5eb0a4bfd6400b7d07c09a7725e1a98c3b838be557fee229ac0f84d9aa49c36 \
-    --hash=sha256:b90fc5e170fc71c712cc4d9ab0e24ea505c6a9e4ebf346787a67e691dfb72e85 \
-    --hash=sha256:b9ddb2c494fb79fc208cd15ffe08f32b7682519e067413dbaf5f4b01a6087bcd \
-    --hash=sha256:c4efe62b5bbb24178c950732ddd40712b878a9b96b1d02b0ff0b08a090cbd891 \
-    --hash=sha256:c51c928a14f9f0a871082603e25a1588059b7e08a920f2f9fa7157b5bf08cfe9 \
-    --hash=sha256:cb53473849f011bca6e754f2cdf47cafc9c4f4ff4570003a0dad0b9b6890e876 \
-    --hash=sha256:f87ea42d5cdebdc6a69761a9d0bc83ae9b3b30d0ad78952005ba6568d6c022af
+ruff==0.4.6 \
+    --hash=sha256:04a80acfc862e0e1630c8b738e70dcca03f350bad9e106968a8108379e12b31f \
+    --hash=sha256:0cf5cc02d3ae52dfb0c8a946eb7a1d6ffe4d91846ffc8ce388baa8f627e3bd50 \
+    --hash=sha256:1fa8561489fadf483ffbb091ea94b9c39a00ed63efacd426aae2f197a45e67fc \
+    --hash=sha256:1ff930d6e05f444090a0139e4e13e1e2e1f02bd51bb4547734823c760c621e79 \
+    --hash=sha256:3a6a0a4f4b5f54fff7c860010ab3dd81425445e37d35701a965c0248819dde7a \
+    --hash=sha256:3f9ced5cbb7510fd7525448eeb204e0a22cabb6e99a3cb160272262817d49786 \
+    --hash=sha256:4d5b914818d8047270308fe3e85d9d7f4a31ec86c6475c9f418fbd1624d198e0 \
+    --hash=sha256:4f02284335c766678778475e7698b7ab83abaf2f9ff0554a07b6f28df3b5c259 \
+    --hash=sha256:602ebd7ad909eab6e7da65d3c091547781bb06f5f826974a53dbe563d357e53c \
+    --hash=sha256:735a16407a1a8f58e4c5b913ad6102722e80b562dd17acb88887685ff6f20cf6 \
+    --hash=sha256:9018bf59b3aa8ad4fba2b1dc0299a6e4e60a4c3bc62bbeaea222679865453062 \
+    --hash=sha256:a769ae07ac74ff1a019d6bd529426427c3e30d75bdf1e08bb3d46ac8f417326a \
+    --hash=sha256:a797a87da50603f71e6d0765282098245aca6e3b94b7c17473115167d8dfb0b7 \
+    --hash=sha256:be47700ecb004dfa3fd4dcdddf7322d4e632de3c06cd05329d69c45c0280e618 \
+    --hash=sha256:ea3424793c29906407e3cf417f28fc33f689dacbbadfb52b7e9a809dd535dcef \
+    --hash=sha256:ef995583a038cd4a7edf1422c9e19118e2511b8ba0b015861b4abd26ec5367c5 \
+    --hash=sha256:f13410aabd3b5776f9c5699f42b37a3a348d65498c4310589bc6e5c548dc8a2f
     # via -r requirements/lint.in
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
@@ -152,9 +152,9 @@ types-pyyaml==6.0.12.20240311 \
     --hash=sha256:a9e0f0f88dc835739b0c1ca51ee90d04ca2a897a71af79de9aec5f38cb0a5342 \
     --hash=sha256:b845b06a1c7e54b8e5b4c683043de0d9caf205e7434b3edc678ff2411979b8f6
     # via -r requirements/lint.in
-typing-extensions==4.11.0 \
-    --hash=sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0 \
-    --hash=sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a
+typing-extensions==4.12.0 \
+    --hash=sha256:8cbcdc8606ebcb0d95453ad7dc5065e6237b6aa230a31e81d0f440c30fed5fd8 \
+    --hash=sha256:b349c66bea9016ac22978d800cfff206d5f9816951f12a7d0ec5578b0a819594
     # via
     #   astroid
     #   black
