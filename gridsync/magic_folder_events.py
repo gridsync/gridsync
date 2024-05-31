@@ -226,7 +226,7 @@ class MagicFolderEventHandler(QObject):
         )
         self.progress_monitor = _pm
 
-    def handle(self, event: dict) -> None:
+    def handle(self, event: dict) -> None:  # noqa: C901 [max-complexity]
         folder = event.get("folder", "")
         timestamp = float(event.get("timestamp", time.time()))
         match event:
