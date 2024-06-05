@@ -4,6 +4,7 @@ from pathlib import Path
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from deterministic_keygen import derive_rsa_key
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
@@ -65,40 +66,12 @@ def test_tahoe_client_mkdir_with_random_private_key(tahoe_client) -> None:
 
 @inlineCallbacks
 def test_tahoe_client_mkdir_with_known_private_key(tahoe_client) -> None:
-    private_key = """-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQClHWyI+26yYVsh
-B21ra4aPF24EekXlz5UponznP7gzSyZ2oxLEmyPsfLRGGPL1Qmir+ujYm+frAi0B
-RmtW5pwNmLGFyBpeT4RSIjGaAVHYSstp07MRmulJFb/hij27CEzTkHWZ47Qt7m0L
-Q65kU7RzpyHKAm3GaCH5POHfOJiW7p8a/0hWoqHrxuZ+akVjm2+h1P6Jgmo0f29j
-uL/hSxgzJqaDkkaV3+2YEEQPtxiVNBwbLJhZdxX9sZhYlIccX6qIetDOMbqi5V5i
-2vgE/QPQxjcAxMP83L7rXVFmxDZ4+FNLJAPuiW52630g7Z/TwHgZDlyKJJwfU75L
-NSR2J9/rAgMBAAECggEAEQBCmKgq8bsMgw4cuh7MMBedgGCGqe8B0NOmQLlS4hUu
-1LBd0liXDlaYyU7wVUiNNogTSZpj+tKyh5sUmlIMZ2n9fWTpMiTF3x8eNFlGcBrj
-bvYZTgrBUoEmzLZLPOLR5kbNlRbZCpGuMKa7YiEsR2xCEmbFntRCC0O1jiJps8Cb
-nbzXvQhy2PHkxPlX7ZoCgyWpAZlhylsUFPfw7DeuIiloLinaxEsYmli8BpK/JWPi
-xUsaKVoEcBtrzOER3sTP5/h8zGbF/yxKC9PUCvShEFeK/boylC3/cCRReZlNANxV
-Zh04nCwvgYUS/Lzd9/0N5lmA7GYF+z7+cLkz85bswQKBgQDi7NhB0N9HXevfUoTt
-/DVrgx8HDCIzcl7xn02Bvv20i/j4ItGQzl3Fjou4uoxRI+z99CO9gPBUCXCkcQS/
-2Dr8k31LMNTh+dPO55L2rtEN93bu/vakCLwWWQ5w4XLS16TVRaGu2vr6pV5fj3A3
-d9DCHVrjd85OfThzMOHPwQRHMwKBgQC6RTNpseo0t0E92Azp4aJoYcb08CiycYPy
-KB3uTuS+yLt6MVR6XTa0C+UeQGySoPavVMqomYs+AQGGe3vLhXH4SL2bR/HFxQ4s
-/gR7Y4AHQ1vm1veKZBihW7AWKsU5+BNeXWyHZ3F7Ca0df+R+e2KqK19uh2ATnfjv
-J2Oxsw6kaQKBgQCJ+AKMEZiPZZVRlHRp1ZwNIA2vVTs+GF2NfpO7PQo3yZq4E0Nj
-TXVJ9h8RU6qYcsVWqidIwqpcDdlEwcpncep7Qpk9LBVix2h2Nenuvd8xJLJVIQOI
-PB9PXxoem5QaiS4Y1Vs2WsGZvw2gAC/0KY7tVre58U+n/Q5jSucgT3RwbQKBgG7F
-xINwuLVM3dGncFaORoUI0MbNI4arFyqlTNdxt3r16PgL6g8y69s6z7Cj4213p/ww
-0qxdU382HfAZ807fNx3ONGPp7xAL1hhPn965F2Q6XKb05BU63aLn4dns6YlFzE7s
-BCSqEcR3xqmqavoE6nIEhSY3/5zq7yVaKWF9+JExAoGBAIpzIT8VV10PZBcr/+EI
-r4N1D1wu64vejommwIn/p6O8bg8yuJoqRWO2CjgCm/xHiztuUaYjY8E7P1YPBlQB
-HCO87WjVqfwNmf2UssW56KAl2JhbzfPON3Ly8NJb18olcUEIO/hO5EC1GFsjD+hv
-PQsRxG8N63MKqpMr0RNAFnRv
------END PRIVATE KEY-----
-"""
+    private_key_pem = derive_rsa_key(b"0" * 32)
     cap = yield Deferred.fromCoroutine(
-        tahoe_client.mkdir(private_key=private_key)
+        tahoe_client.mkdir(private_key=private_key_pem)
     )
     assert cap == (
-        "URI:DIR2:cfublgatjhvsnssq5wzm3kmqx4:j2fie3fk63jianm52gz6wm3rdbvrd7qx5sy6z4fjjupiod5vqmuq"
+        "URI:DIR2:qipxsqshywakqfgpfs75wr5wgm:xaesekzxu27ziew5n47sckyyjvdczd6kmbt22vldp633qwlrzjwq"
     )
 
 
