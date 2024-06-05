@@ -4,8 +4,6 @@ import hashlib
 import secrets
 import string
 
-from blake3 import blake3
-from Cryptodome.PublicKey import RSA
 from cryptography.hazmat.primitives import serialization
 from mnemonic import Mnemonic
 from nacl.exceptions import CryptoError
