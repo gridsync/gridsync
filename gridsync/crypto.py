@@ -25,19 +25,6 @@ def to_bytes(mnemonic: list[str]) -> bytes:
     return bytes(Mnemonic(language="english").to_entropy(mnemonic))
 
 
-def derive_rsa_key(seed: bytes, bits: int = 2048) -> bytes:
-    hasher = blake3(  # pylint: disable=not-callable
-        seed, derive_key_context="Deterministic RSA PRNG v1"
-    )
-
-    def prng_bytes(n: int) -> bytes:
-        hasher.update(hasher.digest())
-        return hasher.digest(length=n)
-
-    rsa_key = RSA.generate(bits, randfunc=prng_bytes, e=65537)
-    return rsa_key.export_key("DER")
-
-
 def pem_to_der(private_key_pem: str) -> bytes:
     private_key = serialization.load_pem_private_key(
         private_key_pem.encode(),
