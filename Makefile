@@ -22,14 +22,14 @@ clean:
 
 test:
 	@case `uname` in \
-		Darwin)	arch -x86_64 python3 -m tox ;; \
-		*) xvfb-run --auto-servernum python3 -m tox ;; \
+		Darwin)	arch -x86_64 python3 -m tox -vv;; \
+		*) xvfb-run --auto-servernum python3 -m tox -vv;; \
 	esac
 
 test-integration:
 	@case `uname` in \
-		Darwin)	arch -x86_64 python3 -m tox -e integration ;; \
-		*) xvfb-run --auto-servernum python3 -m tox -e integration ;; \
+		Darwin)	arch -x86_64 python3 -m tox -vv -e integration ;; \
+		*) xvfb-run --auto-servernum python3 -m tox -vv -e integration ;; \
 	esac
 
 pngs:
@@ -152,12 +152,12 @@ install:
 
 
 pyinstaller-separate:
-	python3 -m tox -e pyinstaller-tahoe
-	python3 -m tox -e pyinstaller-magic-folder
-	python3 -m tox -e pyinstaller-gridsync
+	python3 -m tox -vv -e pyinstaller-tahoe
+	python3 -m tox -vv -e pyinstaller-magic-folder
+	python3 -m tox -vv -e pyinstaller-gridsync
 
 pyinstaller-merged:
-	python3 -m tox -e pyinstaller
+	python3 -m tox -vv -e pyinstaller
 
 pyinstaller:
 	$(MAKE) pyinstaller-merged
