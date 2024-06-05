@@ -63,9 +63,9 @@ blake3==0.4.1 \
     --hash=sha256:fb98f18bc5e218ff1134acb3b9f0e3588ad5e6f38b7279cce4559c8ae9d780e6 \
     --hash=sha256:fe31163eb08fc3f82a2325e90cea88f2d7ad0265314a03de716f906b2a43be96
     # via -r requirements/gridsync.in
-certifi==2024.2.2 \
-    --hash=sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f \
-    --hash=sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1
+certifi==2024.6.2 \
+    --hash=sha256:3cd43f1c6fa7dedc5899d69d3ad0398fd018ad1a17fba83ddaf78aa46c747516 \
+    --hash=sha256:ddc6c8ce995e6987e7faf5e3f1b02b302836a0e5d98ece18392cb1a36c72ad56
     # via
     #   -r requirements/gridsync.in
     #   requests
@@ -572,9 +572,9 @@ txtorcon==23.11.0 \
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
-typing-extensions==4.12.0 \
-    --hash=sha256:8cbcdc8606ebcb0d95453ad7dc5065e6237b6aa230a31e81d0f440c30fed5fd8 \
-    --hash=sha256:b349c66bea9016ac22978d800cfff206d5f9816951f12a7d0ec5578b0a819594
+typing-extensions==4.12.1 \
+    --hash=sha256:6024b58b69089e5a89c347397254e35f1bf02a907728ec7fee9bf0fe837d203a \
+    --hash=sha256:915f5e35ff76f56588223f15fdd5938f9a1cf9195c0de25130c627e4d597f6d1
     # via twisted
 urllib3==2.2.1 \
     --hash=sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d \
