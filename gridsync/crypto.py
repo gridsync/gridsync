@@ -19,7 +19,7 @@ def to_mnemonic(b: bytes) -> list[str]:
     return Mnemonic(language="english").to_mnemonic(b).split(" ")
 
 
-def to_bytes(mnemonic: list[str]) -> bytes:
+def to_entropy(mnemonic: list[str]) -> bytes:
     return bytes(Mnemonic(language="english").to_entropy(mnemonic))
 
 

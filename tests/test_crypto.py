@@ -11,7 +11,7 @@ from gridsync.crypto import (
     decrypt,
     encrypt,
     randstr,
-    to_bytes,
+    to_entropy,
     to_mnemonic,
 )
 
@@ -32,7 +32,7 @@ def crypter():
 
 def test_to_bytes():
     assert (
-        to_bytes(
+        to_entropy(
             [
                 "coral",
                 "light",
