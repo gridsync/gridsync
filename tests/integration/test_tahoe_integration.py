@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from deterministic_keygen import derive_rsa_key
@@ -64,15 +65,32 @@ def test_tahoe_client_mkdir_with_random_private_key(tahoe_client) -> None:
     assert cap.startswith("URI:DIR2:")
 
 
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        [
+            b"0" * 32,
+            "URI:DIR2:qipxsqshywakqfgpfs75wr5wgm:xaesekzxu27ziew5n47sckyyjvdczd6kmbt22vldp633qwlrzjwq",
+        ],
+        [
+            b"1" * 32,
+            "URI:DIR2:zuyypcedyl6aw2swd7uqmtgmpi:m35xlt7gs5fi7tnuioztn5gtygyhyd3o2ctshucy5qahhbhwnyeq",
+        ],
+        [
+            b"2" * 32,
+            "URI:DIR2:gvbrggubcdghip6gjzzjqhj4yi:sct2pk6sqn2ilpu5netof4xhhm25lrcroag3bjeweeanb4m4o6uq",
+        ],
+    ],
+)
 @inlineCallbacks
-def test_tahoe_client_mkdir_with_known_private_key(tahoe_client) -> None:
-    private_key_pem = derive_rsa_key(b"0" * 32)
+def test_tahoe_client_mkdir_with_known_private_key(
+    tahoe_client, input, expected
+) -> None:
+    private_key_pem = derive_rsa_key(input)
     cap = yield Deferred.fromCoroutine(
         tahoe_client.mkdir(private_key=private_key_pem)
     )
-    assert cap == (
-        "URI:DIR2:qipxsqshywakqfgpfs75wr5wgm:xaesekzxu27ziew5n47sckyyjvdczd6kmbt22vldp633qwlrzjwq"
-    )
+    assert cap == expected
 
 
 @ensureDeferred
