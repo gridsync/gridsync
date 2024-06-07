@@ -1,7 +1,7 @@
 from gridsync.phrase import to_entropy, to_mnemonic
 
 
-def test_to_bytes():
+def test_to_entropy():
     assert (
         to_entropy(
             [
