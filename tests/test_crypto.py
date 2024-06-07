@@ -11,8 +11,6 @@ from gridsync.crypto import (
     decrypt,
     encrypt,
     randstr,
-    to_entropy,
-    to_mnemonic,
 )
 
 
@@ -28,45 +26,6 @@ def ciphertext_with_argon2():
 @pytest.fixture(scope="module")
 def crypter():
     return Crypter(b"data", b"password")
-
-
-def test_to_bytes():
-    assert (
-        to_entropy(
-            [
-                "coral",
-                "light",
-                "army",
-                "gather",
-                "adapt",
-                "blossom",
-                "school",
-                "alcohol",
-                "coral",
-                "light",
-                "army",
-                "giggle",
-            ]
-        )
-        == b"0" * 16
-    )
-
-
-def test_to_mnemonic():
-    assert to_mnemonic(b"0" * 16) == [
-        "coral",
-        "light",
-        "army",
-        "gather",
-        "adapt",
-        "blossom",
-        "school",
-        "alcohol",
-        "coral",
-        "light",
-        "army",
-        "giggle",
-    ]
 
 
 def test_randstr_random():
