@@ -5,7 +5,6 @@ import secrets
 import string
 
 from cryptography.hazmat.primitives import serialization
-from mnemonic import Mnemonic
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
@@ -13,14 +12,6 @@ from nacl.utils import random
 from qtpy.QtCore import QObject, Signal
 
 from gridsync.util import b58decode, b58encode
-
-
-def to_mnemonic(b: bytes) -> list[str]:
-    return Mnemonic(language="english").to_mnemonic(b).split(" ")
-
-
-def to_entropy(mnemonic: list[str]) -> bytes:
-    return bytes(Mnemonic(language="english").to_entropy(mnemonic))
 
 
 def pem_to_der(private_key_pem: str) -> bytes:
