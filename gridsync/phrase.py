@@ -2,7 +2,8 @@ from mnemonic import Mnemonic
 
 
 def to_mnemonic(b: bytes, language: str = "english") -> list[str]:
-    return Mnemonic(language=language).to_mnemonic(b).split(" ")
+    delimiter = "\u3000" if language.lower() == "japanese" else " " 
+    return Mnemonic(language=language).to_mnemonic(b).split(delimiter)
 
 
 def to_entropy(mnemonic: list[str], language: str = "english") -> bytes:
