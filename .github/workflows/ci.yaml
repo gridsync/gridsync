@@ -115,7 +115,7 @@ jobs:
   macOS:
     strategy:
       matrix:
-        os: [macos-12, macos-13, macos-14-large]
+        os: [macos-12, macos-13, macos-14]
         qt: [pyqt6]
       fail-fast: false
     runs-on: ${{ matrix.os }}
