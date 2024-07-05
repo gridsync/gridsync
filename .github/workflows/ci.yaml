@@ -115,7 +115,7 @@ jobs:
   macOS:
     strategy:
       matrix:
-        os: [macos-11, macos-12]
+        os: [macos-12]
         qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
