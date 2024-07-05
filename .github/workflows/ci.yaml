@@ -117,6 +117,7 @@ jobs:
       matrix:
         os: [macos-12, macos-13, macos-14-large]
         qt: [pyqt6]
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
