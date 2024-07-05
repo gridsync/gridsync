@@ -115,7 +115,7 @@ jobs:
   macOS:
     strategy:
       matrix:
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-12, macos-13]
         qt: [pyqt6]
       fail-fast: false
     runs-on: ${{ matrix.os }}
@@ -155,7 +155,7 @@ jobs:
     - name: Make pyinstaller
       run: |
         source ~/.bashrc
-        arch -x86_64 make pyinstaller
+        make pyinstaller
         make zip
     - name: Verify
       run: |
