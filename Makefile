@@ -157,10 +157,7 @@ pyinstaller-separate:
 	python3 -m tox -e pyinstaller-gridsync
 
 pyinstaller-merged:
-	@case `uname` in \
-		Darwin)	arch -x86_64 python3 -m tox -vv -e pyinstaller;; \
-		*) python3 -m tox -vv -e pyinstaller;; \
-	esac
+	python3 -m tox -vv -e pyinstaller
 
 pyinstaller:
 	$(MAKE) pyinstaller-merged
