@@ -43,7 +43,7 @@ jobs:
   Linux:
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04]
+        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
         qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
@@ -115,7 +115,7 @@ jobs:
   macOS:
     strategy:
       matrix:
-        os: [macos-11, macos-12]
+        os: [macos-12, macos-13]
         qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
