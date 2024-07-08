@@ -2,7 +2,7 @@ from mnemonic import Mnemonic
 
 
 def to_mnemonic(b: bytes, language: str = "english") -> list[str]:
-    delimiter = "\u3000" if language.lower() == "japanese" else " " 
+    delimiter = "\u3000" if language.lower() == "japanese" else " "
     return Mnemonic(language=language).to_mnemonic(b).split(delimiter)
 
 

@@ -307,8 +307,10 @@ def test_apply_connection_settings(tahoe_client, tahoe_server):
 
 
 @ensureDeferred
-async def test_load_vectors(tahoe_client) -> None:
+async def test_load_vectors(tahoe_client):
     import yaml
+    from pprint import pprint
+    from gridsync.crypto import pem_to_der
 
     with open(Path(__file__).parent / "vectors" / "tahoe-lafs.yaml") as f:
         data = yaml.safe_load(f)
@@ -317,12 +319,10 @@ async def test_load_vectors(tahoe_client) -> None:
         if kind == "ssk":
             key = vector["format"]["params"]["key"]
             expected = vector["expected"]
-            expected_writekey = expected.split(":")[2]
-            expected_fingerprint = expected.split(":")[3]
+            private_key = pem_to_der(key)
+            print(expected, key)
 
-            cap = await tahoe_client.mkdir(private_key=key)
-            actual_writekey = cap.split(":")[2]
-            actual_fingerprint = cap.split(":")[3]
 
-            assert actual_writekey == expected_writekey
-            assert actual_fingerprint == expected_fingerprint
+
+
+

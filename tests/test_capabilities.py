@@ -119,3 +119,30 @@ def test_diminish_raises_value_error_if_uri_type_is_unknown():
 def test_diminish_returns_cap_if_cap_is_already_readonly():
     cap = "URI:DIR2-RO:cq4zshembnmo4bcaroimldwv4e:ixphgtnlhm3eypfcbadnh3ywzrthua4vxgldywh6nbq2ligddl3q"
     assert diminish(cap) == cap
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        [
+            b"0" * 32,
+            "URI:DIR2:qipxsqshywakqfgpfs75wr5wgm:xaesekzxu27ziew5n47sckyyjvdczd6kmbt22vldp633qwlrzjwq",
+        ],
+        [
+            b"1" * 32,
+            "URI:DIR2:zuyypcedyl6aw2swd7uqmtgmpi:m35xlt7gs5fi7tnuioztn5gtygyhyd3o2ctshucy5qahhbhwnyeq",
+        ],
+        [
+            b"2" * 32,
+            "URI:DIR2:gvbrggubcdghip6gjzzjqhj4yi:sct2pk6sqn2ilpu5netof4xhhm25lrcroag3bjeweeanb4m4o6uq",
+        ],
+    ],
+)
+def test_derive_mutable_cap(input, expected):
+    from deterministic_keygen import derive_rsa_key
+
+    from gridsync.capabilities import derive_mutable_cap
+
+    private_key_pem = derive_rsa_key(input)
+    cap = derive_mutable_cap(private_key_pem)
+    assert cap == expected
