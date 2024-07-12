@@ -1,9 +1,7 @@
 # This autobahn constraint is inherited from Tahoe-LAFS:
 # https://github.com/tahoe-lafs/tahoe-lafs/blob/15c7916e0812e6baa2a931cd54b18f3382a8456e/setup.py#L119
 autobahn < 22.4.1
-# Integration tests hang/timeout with pytest version 8.2.0.
-# See https://github.com/gridsync/gridsync/issues/690
-pytest < 8.2.0
+pytest
 pytest-cov
 pytest-qt
 pytest-twisted
