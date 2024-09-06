@@ -39,7 +39,11 @@ class Watchdog(QObject):
 
     def remove_watch(self, path: str) -> None:
         logging.debug("Unscheduling watch for %s...", path)
-        self._observer.unschedule(self._watches.get(path))
+        watch = self._watches.get(path)
+        if watch is None:
+            logging.warning("No watch found for %s", path)
+            return
+        self._observer.unschedule(watch)
         try:
             del self._watches[path]
         except KeyError:
