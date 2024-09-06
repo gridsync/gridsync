@@ -1,1 +1,7 @@
+# attrs 24.1 removes `attrs.validators.provides` -- which tahoe-lafs 1.18 depends on
+attrs==23.2.0
+# With cryptography 44, mkdir on tahoe 1.18 fails with "builtins.AttributeError:
+# 'cryptography.hazmat.bindings._rust.openssl.ciphers' object attribute
+# '__provides__' is read-only"
+cryptography < 43.0
 zero-knowledge-access-pass-authorizer >= 2022.8.21
