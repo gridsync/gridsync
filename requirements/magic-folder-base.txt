@@ -330,6 +330,7 @@ cryptography==42.0.8 \
     #   magic-wormhole
     #   pyopenssl
     #   service-identity
+    #   spake2
     #   tahoe-lafs
     #   twisted
     #   txtorcon
@@ -356,12 +357,9 @@ future==1.0.0 \
     --hash=sha256:929292d34f5872e70396626ef385ec22355a1fae8ad29e1a734c3e43f9fbc216 \
     --hash=sha256:bd2968309307861edae1458a4f8a4f3598c03be43b97521076aebf5d94c07b05
     # via tahoe-lafs
-hkdf==0.0.3 \
-    --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
-    # via spake2
-humanize==4.10.0 \
-    --hash=sha256:06b6eb0293e4b85e8d385397c5868926820db32b9b654b932f57fa41c23c9978 \
-    --hash=sha256:39e7ccb96923e732b5c2e27aeaa3b10a8dfeeba3eb965ba7b74a3eb0e30040a6
+humanize==4.11.0 \
+    --hash=sha256:b53caaec8532bcb2fff70c8826f904c35943f8cecaca29d272d9df38092736c0 \
+    --hash=sha256:e66f36020a2d5a974c504bd2555cf770621dbdbb6d82f94a6857c0b1ea2608be
     # via
     #   magic-folder
     #   magic-wormhole
@@ -402,9 +400,9 @@ magic-folder==24.3.0 \
     --hash=sha256:96f0a7d258bfffb28c07af7b3cea19f8558e9df2919b03b9381941694df9ee4f \
     --hash=sha256:d59de585d6a9d87f8d051dd63867a7e7d6d647345b27813a88384581c784b187
     # via -r requirements/magic-folder.in
-magic-wormhole==0.15.0 \
-    --hash=sha256:74003825c777d1b9866368126201f2a5090cd2de9302c81bebabe95a1f819704 \
-    --hash=sha256:be2563b5c5547ba333bc6608f048004c8f36d556139bf2ffe3d9f41da2797006
+magic-wormhole==0.16.0 \
+    --hash=sha256:14e6c146898dbda7a6d190262623a69419955363e7e434d64aad2d233d6d94c9 \
+    --hash=sha256:78a025770abc75b2574accc43273fbd02d51501eecc3e1a24605f6416c98019f
     # via tahoe-lafs
 markupsafe==2.1.5 \
     --hash=sha256:00e046b6dd71aa03a41079792f8473dc494d564611a8f89bbbd7cb93295ebdcf \
@@ -748,9 +746,9 @@ six==1.16.0 \
     #   foolscap
     #   tahoe-lafs
     #   tubes
-spake2==0.8 \
-    --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
-    --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
+spake2==0.9 \
+    --hash=sha256:2d7cbe936519c4172866649ddceefdec08e3d9b3ce4c8a75bbf84d6bdd07a2fb \
+    --hash=sha256:421fc4a8d5ac395af7af0206ffd9e6cdf188c105cb1b883d9d683312bb5a9334
     # via magic-wormhole
 tahoe-lafs==1.18.0 \
     --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \

@@ -246,17 +246,15 @@ cryptography==42.0.8 \
     #   magic-wormhole
     #   pyopenssl
     #   service-identity
+    #   spake2
     #   txtorcon
 filelock==3.16.1 \
     --hash=sha256:2082e5703d51fbf98ea75855d9d5527e33d8ff23099bec374a134febee6946b0 \
     --hash=sha256:c249fbfcd5db47e5e2d6d62198e565475ee65e4831e2561c8e313fa7eb961435
     # via -r requirements/gridsync.in
-hkdf==0.0.3 \
-    --hash=sha256:622a31c634bc185581530a4b44ffb731ed208acf4614f9c795bdd70e77991dca
-    # via spake2
-humanize==4.10.0 \
-    --hash=sha256:06b6eb0293e4b85e8d385397c5868926820db32b9b654b932f57fa41c23c9978 \
-    --hash=sha256:39e7ccb96923e732b5c2e27aeaa3b10a8dfeeba3eb965ba7b74a3eb0e30040a6
+humanize==4.11.0 \
+    --hash=sha256:b53caaec8532bcb2fff70c8826f904c35943f8cecaca29d272d9df38092736c0 \
+    --hash=sha256:e66f36020a2d5a974c504bd2555cf770621dbdbb6d82f94a6857c0b1ea2608be
     # via
     #   -r requirements/gridsync.in
     #   magic-wormhole
@@ -284,9 +282,9 @@ iterable-io==1.0.0 \
     --hash=sha256:509b0e54888d7302d67687739d96014a79d54771723e9b0842a0243b467e6294 \
     --hash=sha256:fb9e1b739587a9ba0d5c60a3e1eb71246761583bc9f18b3c35bb112b44b18c3c
     # via magic-wormhole
-magic-wormhole==0.15.0 \
-    --hash=sha256:74003825c777d1b9866368126201f2a5090cd2de9302c81bebabe95a1f819704 \
-    --hash=sha256:be2563b5c5547ba333bc6608f048004c8f36d556139bf2ffe3d9f41da2797006
+magic-wormhole==0.16.0 \
+    --hash=sha256:14e6c146898dbda7a6d190262623a69419955363e7e434d64aad2d233d6d94c9 \
+    --hash=sha256:78a025770abc75b2574accc43273fbd02d51501eecc3e1a24605f6416c98019f
     # via -r requirements/gridsync.in
 packaging==24.1 \
     --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
@@ -414,9 +412,9 @@ service-identity==24.1.0 \
     --hash=sha256:6829c9d62fb832c2e1c435629b0a8c476e1929881f28bee4d20bc24161009221 \
     --hash=sha256:a28caf8130c8a5c1c7a6f5293faaf239bbfb7751e4862436920ee6f2616f568a
     # via twisted
-spake2==0.8 \
-    --hash=sha256:c17a614b29ee4126206e22181f70a406c618d3c6c62ca6d6779bce95e9c926f4 \
-    --hash=sha256:ce80705f8516c54364931f3b2c9a917ba001500d7f2fc76a0e8cf3bcaf0e30f7
+spake2==0.9 \
+    --hash=sha256:2d7cbe936519c4172866649ddceefdec08e3d9b3ce4c8a75bbf84d6bdd07a2fb \
+    --hash=sha256:421fc4a8d5ac395af7af0206ffd9e6cdf188c105cb1b883d9d683312bb5a9334
     # via magic-wormhole
 tahoe-capabilities==2023.1.5 \
     --hash=sha256:3dd1c2af39efb223a67724ab24e5c1f467035dfc6a24f3941b4acbffc4bfdc3f \
