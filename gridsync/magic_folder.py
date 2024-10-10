@@ -503,7 +503,7 @@ class MagicFolder:
         if resp.code in (200, 201) or (resp.code == 404 and error_404_ok):
             return json_content
         raise MagicFolderWebError(
-            f"Error {resp.code} requesting {method} {path}: {content}",
+            f"Error {resp.code} requesting {method} {path}: {str(content)}",
             code=resp.code,
             reason=reason,
         )
