@@ -22,8 +22,8 @@ clean:
 
 test:
 	@case `uname` in \
-		Darwin)	arch -x86_64 python3 -m tox ;; \
-		*) xvfb-run --auto-servernum python3 -m tox ;; \
+		Darwin)	arch -x86_64 python3 -m tox -vvvvv ;; \
+		*) xvfb-run --auto-servernum python3 -m tox -vvvvv ;; \
 	esac
 
 test-integration:
