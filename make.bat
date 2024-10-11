@@ -36,7 +36,7 @@ call del .\.coverage
 goto :eof
 
 :test
-py -m -vvvvv tox || goto :error
+py -m tox -vvvvv || goto :error
 goto :eof
 
 :test-integration
