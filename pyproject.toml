@@ -95,8 +95,16 @@ gridsync = "gridsync.cli:main"
 requires = ["setuptools>=45", "versioningit"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["gridsync"]
+[tool.setuptools]
+packages = [
+    "gridsync",
+    "gridsync.gui",
+    "gridsync.resources",
+    "gridsync.resources.providers"
+]
+
+[tool.setuptools.package-data]
+gridsync = ["resources/*", "resources/providers/*"]
 
 [tool.versioningit.format]
 distance = "{base_version}+{distance}.{rev}"
