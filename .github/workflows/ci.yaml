@@ -205,7 +205,9 @@ jobs:
         key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
-      run: py -m pip install --upgrade setuptools pip tox diffoscope windows-curses
+      run: |
+        choco install -y --no-progress --require-checksums -m python3 --version 3.13.0-rc2 --pre
+        py -m pip install --upgrade setuptools pip tox diffoscope windows-curses
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller
