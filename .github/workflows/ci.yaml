@@ -82,6 +82,10 @@ jobs:
     - name: Build
       run: |
         source ~/.bash_profile
+        which make
+        pwd
+        ls -al
+        cat Makefile
         make all
     - name: Verify
       run: |
