@@ -81,6 +81,7 @@ jobs:
         make test
     - name: Build
       run: |
+        cat ~/.bash_profile
         source ~/.bash_profile
         which make
         pwd
@@ -157,7 +158,12 @@ jobs:
         make test
     - name: Make pyinstaller
       run: |
+        cat ~/.bash_profile
         source ~/.bashrc
+        which make
+        pwd
+        ls -al
+        cat Makefile
         make pyinstaller
         make zip
     - name: Verify
