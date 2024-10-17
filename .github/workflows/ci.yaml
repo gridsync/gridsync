@@ -77,6 +77,7 @@ jobs:
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Test
       run: |
+        cat ~/.bash_profile
         source ~/.bash_profile
         make test
     - name: Build
@@ -154,11 +155,12 @@ jobs:
         scripts/provision_devtools.sh
     - name: Test
       run: |
+        cat ~/.bashrc
         source ~/.bashrc
         make test
     - name: Make pyinstaller
       run: |
-        cat ~/.bash_profile
+        cat ~/.bashrc
         source ~/.bashrc
         which make
         pwd
