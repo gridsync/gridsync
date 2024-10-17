@@ -160,7 +160,7 @@ pyinstaller-merged:
 	python3 -m tox -vv -e pyinstaller
 
 pyinstaller:
-	$(MAKE) pyinstaller-merged
+	$(MAKE) pyinstaller-separate
 
 zip:
 	python3 scripts/update_permissions.py dist
