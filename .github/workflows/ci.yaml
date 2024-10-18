@@ -86,9 +86,8 @@ jobs:
         env
     - name: Test
       run: |
-        echo ${{ env.GITHUB_ENV }}
-        echo ${{ env.GITHUB_PATH }}
-        env
+        env | sort
+        pyenv --version
         cat Makefile
         make test
     - name: Build
