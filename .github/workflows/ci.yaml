@@ -86,6 +86,7 @@ jobs:
         env
     - name: Test
       run: |
+        eval "$(pyenv init -)"
         env | sort
         pyenv --version
         cat Makefile
