@@ -74,8 +74,8 @@ jobs:
     - name: Install dependencies
       run: |
         cat ~/.bashrc
-        cat ~/.bash_profile
-        cat Makefile
+        # cat ~/.bash_profile
+        # cat Makefile
         sudo apt-get install -y podman
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
         cat ~/.bashrc
