@@ -56,14 +56,14 @@ jobs:
         # Checkout head of the branch of the PR, or the exact revision
         # specified for non-PR builds.
         ref: "${{ github.event.pull_request.head.sha || github.sha }}"
-    - name: Restore pyenv cache
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cargo
-          ~/.pyenv
-        key: pyenv-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv-${{ matrix.os }}-${{ matrix.qt }}-
+    # - name: Restore pyenv cache
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: |
+    #       ~/.cargo
+    #       ~/.pyenv
+    #     key: pyenv-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
+    #     restore-keys: pyenv-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
       uses: actions/cache@v2
       with:
@@ -73,8 +73,14 @@ jobs:
         restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
     - name: Install dependencies
       run: |
+        cat ~/.bashrc
+        cat ~/.bash_profile
+        cat Makefile
         sudo apt-get install -y podman
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
+        cat ~/.bashrc
+        cat ~/.bash_profile
+        cat Makefile
     - name: Test
       run: |
         cat Makefile
