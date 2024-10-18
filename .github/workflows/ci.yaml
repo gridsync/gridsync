@@ -81,8 +81,14 @@ jobs:
         cat ~/.bashrc
         cat ~/.bash_profile
         cat Makefile
+        echo "PYENV_ROOT=$HOME/.pyenv" >> $GITHUB_ENV
+        echo "$HOME/.pyenv/bin" >> $GITHUB_PATH
+        env
     - name: Test
       run: |
+        echo ${{ env.GITHUB_ENV }}
+        echo ${{ env.GITHUB_PATH }}
+        env
         cat Makefile
         make test
     - name: Build
