@@ -93,6 +93,7 @@ jobs:
         make test
     - name: Build
       run: |
+        eval "$(pyenv init -)"
         cat Makefile
         make all
     - name: Verify
@@ -103,6 +104,7 @@ jobs:
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test determinism
       run: |
+        eval "$(pyenv init -)"
         make test-determinism
     - name: Build (in container)
       run: |
@@ -113,6 +115,7 @@ jobs:
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test integration
       run: |
+        eval "$(pyenv init -)"
         make test-integration
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
