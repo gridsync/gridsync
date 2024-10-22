@@ -23,6 +23,10 @@ pywin32==308; sys_platform == "win32" \
     --hash=sha256:a5ab5381813b40f264fa3495b98af850098f814a25a63589a8e9eb12560f450c \
     --hash=sha256:ef313c46d4c18dfb82a2431e3051ac8f112ccee1a34f29c263c583c568db63cd \
     --hash=sha256:fd380990e792eaf6827fcb7e187b2b4b1cede0585e3d0c9e84201ec27b9905e4
+# txdbus 1.1.2 requires six; can be removed with the next release of txdbus
+six==1.16.0; sys_platform != "darwin" and sys_platform != "win32" \
+    --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
+    --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
 twisted-iocpsupport==1.0.4; sys_platform == "win32" \
     --hash=sha256:0058c963c8957bcd3deda62122e89953c9de1e867a274facc9b15dde1a9f31e8 \
     --hash=sha256:0c1b5cf37f0b2d96cc3c9bc86fff16613b9f5d0ca565c96cf1f1fb8cfca4b81c \
