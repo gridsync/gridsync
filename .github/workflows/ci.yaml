@@ -84,7 +84,7 @@ jobs:
         echo "PYENV_ROOT=$HOME/.pyenv" >> $GITHUB_ENV
         echo "$HOME/.pyenv/bin" >> $GITHUB_PATH
         echo "$HOME/bin" >> $GITHUB_PATH
-        env
+        cat $GITHUB_ENV
     - name: Test
       run: |
         eval "$(pyenv init -)"
