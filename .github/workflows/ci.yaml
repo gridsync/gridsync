@@ -99,8 +99,10 @@ jobs:
         make all
     - name: Verify
       run: |
-        xvfb-run -a dist/Gridsync/Gridsync-tahoe --version-and-path
-        xvfb-run -a dist/Gridsync/Gridsync-magic-folder --version
+        # xvfb-run -a dist/Gridsync/Gridsync-tahoe --version-and-path
+        # xvfb-run -a dist/Gridsync/Gridsync-magic-folder --version
+        xvfb-run -a dist/Tahoe-LAFS/tahoe --version-and-path
+        xvfb-run -a dist/magic-folder/magic-folder --version
         xvfb-run -a dist/Gridsync/gridsync --version
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test determinism
