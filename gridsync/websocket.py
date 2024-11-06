@@ -9,7 +9,7 @@ from autobahn.twisted.websocket import (
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
 from twisted.internet.endpoints import TCP4ClientEndpoint
-from twisted.internet.interfaces import IReactorTime
+from twisted.internet.interfaces import IReactorTime, IStreamClientEndpoint
 
 
 class WebSocketReaderProtocol(
@@ -66,6 +66,9 @@ class WebSocketReaderService(MultiService):
         factory = WebSocketClientFactory(self.url, headers=self.headers)
         factory.protocol = WebSocketReaderProtocol
         factory.collector = self.collector
+        # mypy 'error: Argument 1 to "ClientService" has incompatible type
+        # "TCP4ClientEndpoint"; expected "IStreamClientEndpoint"  [arg-type]'
+        endpoint = cast(IStreamClientEndpoint, endpoint)
         client_service = ClientService(endpoint, factory, clock=self._reactor)
         return client_service
 
