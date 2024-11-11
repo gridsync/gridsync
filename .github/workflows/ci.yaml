@@ -162,6 +162,8 @@ jobs:
       run: |
         sudo rm -rf /Applications/Python*
         scripts/provision_devtools.sh
+        echo "PYENV_ROOT=$HOME/.pyenv" >> $GITHUB_ENV
+        echo "$HOME/.pyenv/bin" >> $GITHUB_PATH
     - name: Test
       run: |
         eval "$(pyenv init -)"
