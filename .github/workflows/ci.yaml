@@ -177,6 +177,7 @@ jobs:
       run: |
         # dist/Gridsync.app/Contents/MacOS/Gridsync-tahoe --version-and-path
         # dist/Gridsync.app/Contents/MacOS/Gridsync-magic-folder --version
+        ls -al dist/**
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
         dist/Gridsync.app/Contents/MacOS/magic-folder/magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
