@@ -300,13 +300,13 @@ iniconfig==2.0.0 \
     --hash=sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3 \
     --hash=sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374
     # via pytest
-magic-wormhole-mailbox-server==0.4.1 \
-    --hash=sha256:1af10592909caaf519c00e706eac842c5e77f8d4356215fe9c61c7b2258a88fb \
-    --hash=sha256:1bf47755dba25dbfce99335f393b8a157515e098de6b5ed25324f679c3a5350e
+magic-wormhole-mailbox-server==0.5.1 \
+    --hash=sha256:7ec83164aa5269883c66522950dbf5e26214695b447f60b1ee0acacc31f8eb74 \
+    --hash=sha256:a007a03672293204657681dbf502045d6d5817c57f9aae2f2226e6ea1a008ca1
     # via -r requirements/test.in
-packaging==24.1 \
-    --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
-    --hash=sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
+packaging==24.2 \
+    --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
+    --hash=sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f
     # via pytest
 pluggy==1.5.0 \
     --hash=sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1 \
@@ -356,10 +356,6 @@ service-identity==24.2.0 \
     --hash=sha256:6b047fbd8a84fd0bb0d55ebce4031e400562b9196e1e0d3e0fe2b8a59f6d4a85 \
     --hash=sha256:b8683ba13f0d39c6cd5d625d2c5f65421d6d707b013b375c355751557cbe8e09
     # via twisted
-six==1.16.0 \
-    --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
-    --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
-    # via magic-wormhole-mailbox-server
 tomli==2.0.2 \
     --hash=sha256:2ebe24485c53d303f690b0ec092806a085f07af5a5aa1464f3931eec36caaa38 \
     --hash=sha256:d46d457a85337051c36524bc5349dd91b1877838e2979ac5ced3e710ed8a60ed
@@ -430,4 +426,5 @@ setuptools==75.3.0 \
     # via
     #   autobahn
     #   incremental
+    #   magic-wormhole-mailbox-server
     #   zope-interface
