@@ -164,9 +164,11 @@ jobs:
         scripts/provision_devtools.sh
     - name: Test
       run: |
+        eval "$(pyenv init -)"
         make test
     - name: Make pyinstaller
       run: |
+        eval "$(pyenv init -)"
         make pyinstaller
         make zip
     - name: Verify
@@ -176,12 +178,15 @@ jobs:
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test integration
       run: |
+        eval "$(pyenv init -)"
         make test-integration
     - name: Test determinism
       run: |
+        eval "$(pyenv init -)"
         make test-determinism
     - name: Make dmg
       run: |
+        eval "$(pyenv init -)"
         make dmg
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
