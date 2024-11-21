@@ -178,8 +178,8 @@ jobs:
         # dist/Gridsync.app/Contents/MacOS/Gridsync-tahoe --version-and-path
         # dist/Gridsync.app/Contents/MacOS/Gridsync-magic-folder --version
         ls -al dist/**
-        dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/tahoe --version-and-path
-        dist/Gridsync.app/Contents/MacOS/magic-folder/magic-folder --version
+        dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/Gridsync-tahoe --version-and-path
+        dist/Gridsync.app/Contents/MacOS/magic-folder/Gridsync-magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test integration
       run: |
@@ -238,8 +238,8 @@ jobs:
       run: |
         # .\dist\Gridsync\Gridsync-tahoe.exe --version-and-path
         # .\dist\Gridsync\Gridsync-magic-folder.exe --version
-        .\dist\Gridsync\Tahoe-LAFS\tahoe.exe --version-and-path
-        .\dist\Gridsync\Magic-Folder\magic-folder.exe --version
+        .\dist\Gridsync\Tahoe-LAFS\Gridsync-tahoe.exe --version-and-path
+        .\dist\Gridsync\Magic-Folder\Gridsync-magic-folder.exe --version
         .\dist\Gridsync\Gridsync.exe --version
     - name: Test integration
       run: |
