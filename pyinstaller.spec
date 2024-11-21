@@ -294,6 +294,11 @@ def finalize_gridsync_bundle():
         # https://pyinstaller.org/en/v6.0.0/CHANGES.html#features
         dist_resources = Path(dist, "_internal", "resources")
 
+    #####################################
+    print("*** dist", dist)
+    print("*** dist_resources", dist_resources)
+    #####################################
+
     # Write the version string to a file inside the dist dir so the
     # script that creates the Inno Setup installer can read it later.
     # See `scripts/make_installer.py`.
