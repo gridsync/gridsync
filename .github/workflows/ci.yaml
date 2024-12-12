@@ -57,7 +57,7 @@ jobs:
         # specified for non-PR builds.
         ref: "${{ github.event.pull_request.head.sha || github.sha }}"
     - name: Restore pyenv cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo
@@ -65,7 +65,7 @@ jobs:
         key: pyenv--${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
         restore-keys: pyenv--${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/pip
@@ -129,7 +129,7 @@ jobs:
         # specified for non-PR builds.
         ref: "${{ github.event.pull_request.head.sha || github.sha }}"
     - name: Restore pyenv cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo
@@ -137,7 +137,7 @@ jobs:
         key: pyenv--${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
         restore-keys: pyenv--${{ matrix.os }}-${{ matrix.qt }}-
     - name: Restore pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/pip
@@ -199,7 +199,7 @@ jobs:
         # specified for non-PR builds.
         ref: "${{ github.event.pull_request.head.sha || github.sha }}"
     - name: Restore pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: c:\users\runneradmin\appdata\local\pip\cache
         key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
