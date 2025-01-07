@@ -661,12 +661,12 @@ class Tahoe:
             kwargs["headers"] = {"Accept": "text/plain"}
         resp = await treq.request(method, url, **kwargs)
         content = await treq.content(resp)
-        content = content.decode("utf-8")
+        decoded = content.decode("utf-8")
         if resp.code in (200, 201):
-            return content
+            return decoded
         raise TahoeWebError(
             f"Tahoe-LAFS web API responded with status code {resp.code}: "
-            f"{content}"
+            f"{decoded}"
         )
 
     async def get_grid_status(
@@ -743,7 +743,10 @@ class Tahoe:
         )
         if resp.code == 200:
             with atomic_write(local_path, mode="wb", overwrite=True) as f:
-                await treq.collect(resp, f.write)
+                # mypy: 'Argument 2 to "collect" of "treq" has
+                # incompatible type overloaded function; expected
+                # "Callable[[bytes], None]"'
+                await treq.collect(resp, f.write)  # type: ignore
             log.debug("Successfully downloaded %s", local_path)
         else:
             content = await treq.content(resp)
