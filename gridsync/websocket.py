@@ -12,7 +12,7 @@ from twisted.internet.endpoints import (
     IStreamClientEndpoint,
     TCP4ClientEndpoint,
 )
-from twisted.internet.interfaces import IReactorTime, IStreamClientEndpoint
+from twisted.internet.interfaces import IReactorTime
 
 
 class WebSocketReaderProtocol(
