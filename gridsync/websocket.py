@@ -8,7 +8,10 @@ from autobahn.twisted.websocket import (
 )
 from twisted.application.internet import ClientService
 from twisted.application.service import MultiService
-from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.endpoints import (
+    IStreamClientEndpoint,
+    TCP4ClientEndpoint,
+)
 from twisted.internet.interfaces import IReactorTime, IStreamClientEndpoint
 
 
@@ -57,12 +60,12 @@ class WebSocketReaderService(MultiService):
 
     def _create_client_service(self) -> ClientService:
         parsed = urlparse(self.url)
-        endpoint = TCP4ClientEndpoint(
-            self._reactor,
-            # Windows doesn't like to connect to 0.0.0.0.
-            "127.0.0.1" if parsed.hostname == "0.0.0.0" else parsed.hostname,
-            parsed.port,
-        )
+        # Windows doesn't like to connect to 0.0.0.0.
+        host = "127.0.0.1" if parsed.hostname == "0.0.0.0" else parsed.hostname
+        if not isinstance(host, str) or not isinstance(parsed.port, int):
+            raise ValueError(f"Invalid WebSocket URL: {self.url}")
+        endpoint = TCP4ClientEndpoint(self._reactor, host, parsed.port)
+        endpoint = cast(IStreamClientEndpoint, endpoint)
         factory = WebSocketClientFactory(self.url, headers=self.headers)
         factory.protocol = WebSocketReaderProtocol
         factory.collector = self.collector
