@@ -47,12 +47,12 @@ if [ "$(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)" = '"CentOS L
     export LDFLAGS="-L/usr/lib64/openssl11"
 fi
 pyenv install --list
-pyenv install --skip-existing 3.10.15
-pyenv install --skip-existing 3.11.10
-pyenv install --skip-existing 3.12.7
-pyenv install --skip-existing 3.13.0
+pyenv install --skip-existing 3.10.16
+pyenv install --skip-existing 3.11.11
+pyenv install --skip-existing 3.12.8
+pyenv install --skip-existing 3.13.1
 pyenv rehash
-pyenv global 3.12.7 3.13.0 3.11.10 3.10.15
+pyenv global 3.12.8 3.13.1 3.11.11 3.10.16
 pyenv versions
 
 python3 -m pip install --upgrade setuptools pip tox diffoscope
