@@ -398,9 +398,9 @@ pyyaml==6.0.2 \
     --hash=sha256:f753120cb8181e736c57ef7636e83f31b9c0d1722c516f7e86cf15b7aa57ff12 \
     --hash=sha256:ff3824dc5261f50c9b0dfb3be22b4567a6f938ccce4587b38952d85fd9e9afe4
     # via -r requirements/gridsync.in
-qtpy==2.4.2 \
-    --hash=sha256:5a696b1dd7a354cb330657da1d17c20c2190c72d4888ba923f8461da67aa1a1c \
-    --hash=sha256:9d6ec91a587cc1495eaebd23130f7619afa5cdd34a277acb87735b4ad7c65156
+qtpy==2.4.3 \
+    --hash=sha256:72095afe13673e017946cc258b8d5da43314197b741ed2890e563cf384b51aa1 \
+    --hash=sha256:db744f7832e6d3da90568ba6ccbca3ee2b3b4a890c3d6fbbc63142f6e4cdf5bb
     # via -r requirements/gridsync.in
 requests==2.32.3 \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
