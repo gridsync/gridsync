@@ -4,26 +4,6 @@ colorama==0.4.6; sys_platform == "win32" \
 distro==1.9.0; sys_platform != "darwin" and sys_platform != "win32" \
     --hash=sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed \
     --hash=sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2
-twisted-iocpsupport==1.0.4; sys_platform == "win32" \
-    --hash=sha256:0058c963c8957bcd3deda62122e89953c9de1e867a274facc9b15dde1a9f31e8 \
-    --hash=sha256:0c1b5cf37f0b2d96cc3c9bc86fff16613b9f5d0ca565c96cf1f1fb8cfca4b81c \
-    --hash=sha256:196f7c7ccad4ba4d1783b1c4e1d1b22d93c04275cd780bf7498d16c77319ad6e \
-    --hash=sha256:300437af17396a945a58dcfffd77863303a8b6d9e65c6e81f1d2eed55b50d444 \
-    --hash=sha256:391ac4d6002a80e15f35adc4ad6056f4fe1c17ceb0d1f98ba01b0f4f917adfd7 \
-    --hash=sha256:3c5dc11d72519e55f727320e3cee535feedfaee09c0f0765ed1ca7badff1ab3c \
-    --hash=sha256:3d306fc4d88a6bcf61ce9d572c738b918578121bfd72891625fab314549024b5 \
-    --hash=sha256:4574eef1f3bb81501fb02f911298af3c02fe8179c31a33b361dd49180c3e644d \
-    --hash=sha256:4e5f97bcbabdd79cbaa969b63439b89801ea560f11d42b0a387634275c633623 \
-    --hash=sha256:6081bd7c2f4fcf9b383dcdb3b3385d75a26a7c9d2be25b6950c3d8ea652d2d2d \
-    --hash=sha256:76f7e67cec1f1d097d1f4ed7de41be3d74546e1a4ede0c7d56e775c4dce5dfb0 \
-    --hash=sha256:7c66fa0aa4236b27b3c61cb488662d85dae746a6d1c7b0d91cf7aae118445adf \
-    --hash=sha256:858096c0d15e33f15ac157f455d8f86f2f2cdd223963e58c0f682a3af8362d89 \
-    --hash=sha256:872747a3b64e2909aee59c803ccd0bceb9b75bf27915520ebd32d69687040fa2 \
-    --hash=sha256:afa2b630797f9ed2f27f3d9f55e3f72b4244911e45a8c82756f44babbf0b243e \
-    --hash=sha256:c2712b778bacf1db434e3e065adfed3db300754186a29aecac1efae9ef4bcaff \
-    --hash=sha256:c27985e949b9b1a1fb4c20c71d315c10ea0f93fdf3ccdd4a8c158b5926edd8c8 \
-    --hash=sha256:cc86c2ef598c15d824a243c2541c29459881c67fc3c0adb6efe2242f8f0ec3af \
-    --hash=sha256:e311dfcb470696e3c077249615893cada598e62fa7c4e4ca090167bd2b7d331f
 pywin32==309; sys_platform == "win32" \
     --hash=sha256:008bffd4afd6de8ca46c6486085414cc898263a21a63c7f860d54c9d02b45c8d \
     --hash=sha256:0be3071f555480fbfd86a816a1a773880ee655bf186aa2931860dbb44e8424f8 \
