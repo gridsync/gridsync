@@ -177,8 +177,9 @@ jobs:
       run: |
         # dist/Gridsync.app/Contents/MacOS/Gridsync-tahoe --version-and-path
         # dist/Gridsync.app/Contents/MacOS/Gridsync-magic-folder --version
+        otool -L dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/_internal/Python
         du -sh dist/Gridsync.app
-        ls -al dist/**
+        ls -al dist/**/**
         dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/Gridsync-tahoe --version-and-path
         dist/Gridsync.app/Contents/MacOS/magic-folder/Gridsync-magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
