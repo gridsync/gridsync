@@ -171,17 +171,17 @@ jobs:
     - name: Make pyinstaller
       run: |
         eval "$(pyenv init -)"
-        make pyinstaller
+        make pyinstaller-merged
         make zip
     - name: Verify
       run: |
-        # dist/Gridsync.app/Contents/MacOS/Gridsync-tahoe --version-and-path
-        # dist/Gridsync.app/Contents/MacOS/Gridsync-magic-folder --version
-        otool -L dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/_internal/Python
-        du -sh dist/Gridsync.app
-        ls -al dist/**/**
-        DYLD_PRINT_LIBRARIES=1 dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/Gridsync-tahoe --version-and-path
-        dist/Gridsync.app/Contents/MacOS/magic-folder/Gridsync-magic-folder --version
+        dist/Gridsync.app/Contents/MacOS/Gridsync-tahoe --version-and-path
+        dist/Gridsync.app/Contents/MacOS/Gridsync-magic-folder --version
+        # otool -L dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/_internal/Python
+        # du -sh dist/Gridsync.app
+        # ls -al dist/**/**
+        # DYLD_PRINT_LIBRARIES=1 dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/Gridsync-tahoe --version-and-path
+        # dist/Gridsync.app/Contents/MacOS/magic-folder/Gridsync-magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test integration
       run: |
