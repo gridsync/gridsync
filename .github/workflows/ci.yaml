@@ -180,7 +180,7 @@ jobs:
         otool -L dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/_internal/Python
         du -sh dist/Gridsync.app
         ls -al dist/**/**
-        dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/Gridsync-tahoe --version-and-path
+        DYLD_PRINT_LIBRARIES=1 dist/Gridsync.app/Contents/MacOS/Tahoe-LAFS/Gridsync-tahoe --version-and-path
         dist/Gridsync.app/Contents/MacOS/magic-folder/Gridsync-magic-folder --version
         dist/Gridsync.app/Contents/MacOS/Gridsync --version
     - name: Test integration
