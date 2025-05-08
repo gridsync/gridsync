@@ -22,6 +22,7 @@
 
 ### Removed
 - Removed support for Python 3.9 (Issue #617; PR #618)
+- Removed `0-hro-cloud` "[cheat code](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md)" for Least Authority's "HRO Cloud" (Issue #724; PR #725)
 
 
 ## 0.6.1 - 2022-10-14
