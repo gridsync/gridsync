@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/dmgbuild.txt requirements/dmgbuild.in
 #
-dmgbuild==1.6.4 \
-    --hash=sha256:53a2f0a9e65111314fce7ecfb6637d08bc3186fa99e719abc9a5af2b484a7d65 \
-    --hash=sha256:adacada75ee517398d014e3fb250b004a2225f01e54832df52d38b9cd1530b74
+dmgbuild==1.6.5 \
+    --hash=sha256:c5cbeec574bad84a324348aa7c36d4aada04568c99fb104dec18d22ba3259f45 \
+    --hash=sha256:e19ab8c5e8238e6455d9ccb9175817be7fd62b9cdd1eef20f63dd88e0ec469ab
     # via -r requirements/dmgbuild.in
 ds-store==1.3.1 \
     --hash=sha256:c27d413caf13c19acb85d75da4752673f1f38267f9eb6ba81b3b5aa99c2d207c \
