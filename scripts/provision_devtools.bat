@@ -1,8 +1,8 @@
 choco install -y --no-progress --require-checksums git
 choco install -y --no-progress --require-checksums -m python3 --version 3.10.11
 choco install -y --no-progress --require-checksums -m python3 --version 3.11.9
-choco install -y --no-progress --require-checksums -m python3 --version 3.12.8
-choco install -y --no-progress --require-checksums -m python3 --version 3.13.1
+choco install -y --no-progress --require-checksums -m python3 --version 3.12.10
+choco install -y --no-progress --require-checksums -m python3 --version 3.13.3
 choco install -y --no-progress --require-checksums visualcpp-build-tools
 choco install -y --no-progress --require-checksums innosetup
 refreshenv
