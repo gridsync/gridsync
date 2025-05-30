@@ -183,7 +183,7 @@ jobs:
   Windows:
     strategy:
       matrix:
-        os: [windows-2022]
+        os: [windows-2022 windows-2025]
         qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
