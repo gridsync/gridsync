@@ -183,7 +183,9 @@ jobs:
   Windows:
     strategy:
       matrix:
-        os: [windows-2022, windows-2025]
+        # windows-2025 builds are currently failing. See
+        # https://github.com/gridsync/gridsync/issues/729
+        os: [windows-2022]
         qt: [pyqt6]
     runs-on: ${{ matrix.os }}
     env:
