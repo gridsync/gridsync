@@ -72,7 +72,7 @@ def get_filters(core: Core) -> list:
             folder_name, data = items
             filters.append(
                 (
-                    data.get("collective_dircap"),
+                    data.get("collective_dircap", ""),
                     "Folder:{}:{}:CollectiveDircap".format(
                         gateway_id, folder_id
                     ),
@@ -80,13 +80,13 @@ def get_filters(core: Core) -> list:
             )
             filters.append(
                 (
-                    data.get("upload_dircap"),
+                    data.get("upload_dircap", ""),
                     "Folder:{}:{}:UploadDircap".format(gateway_id, folder_id),
                 )
             )
             filters.append(
                 (
-                    data.get("magic_path"),
+                    data.get("magic_path", ""),
                     "Folder:{}:{}:MagicPath".format(gateway_id, folder_id),
                 )
             )
