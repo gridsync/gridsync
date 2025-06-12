@@ -311,9 +311,9 @@ charset-normalizer==3.4.2 \
     --hash=sha256:fcbe676a55d7445b22c10967bceaaf0ee69407fbe0ece4d032b6eb8d4565982a \
     --hash=sha256:fdb20a30fe1175ecabed17cbf7812f7b804b8a315a25f24678bcdf120a90077f
     # via requests
-click==8.1.8 \
-    --hash=sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2 \
-    --hash=sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a
+click==8.2.1 \
+    --hash=sha256:27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202 \
+    --hash=sha256:61a3265b914e850b85317d0b3109c7f8cd35a670f963866005d6ef1d5175a12b
     # via magic-wormhole
 collections-extended==2.0.2 \
     --hash=sha256:bc096dda430b9455f51287943f7f63fbe53a4de78c444cc38c44e996af306ac5 \
@@ -434,9 +434,9 @@ magic-folder==24.3.0 \
     --hash=sha256:96f0a7d258bfffb28c07af7b3cea19f8558e9df2919b03b9381941694df9ee4f \
     --hash=sha256:d59de585d6a9d87f8d051dd63867a7e7d6d647345b27813a88384581c784b187
     # via -r requirements/magic-folder.in
-magic-wormhole==0.18.0 \
-    --hash=sha256:66fdee0861ec63ab494560aa1c68ebe3b21e955d0cabd84eadf93013e332852c \
-    --hash=sha256:8c6a8c788dc3f211557bbd259cd108f5a8dff8a3ccbb7c8a9cb90b85ed4d7e0e
+magic-wormhole==0.19.2 \
+    --hash=sha256:b2b4a78acf09ff4cfc503a238f674394a5e735fa08dcd54519243ffc67f97c71 \
+    --hash=sha256:cfade0eb5e60a14afed4fa323c69cf590cf83db6ed0aac097a78bb5e4afa7ae8
     # via tahoe-lafs
 markupsafe==3.0.2 \
     --hash=sha256:0bff5e0ae4ef2e1ae4fdf2dfd5b76c75e5c2fa4132d05fc1b0dabcd20c7e28c4 \
@@ -501,6 +501,10 @@ markupsafe==3.0.2 \
     --hash=sha256:f8b3d067f2e40fe93e1ccdd6b2e1d16c43140e76f02fb1319a05cf2b79d99430 \
     --hash=sha256:fcabf5ff6eea076f859677f5f0b6b5c1a51e70a376b0579e0eadef8db48c6b50
     # via werkzeug
+multipart==1.2.1 \
+    --hash=sha256:829b909b67bc1ad1c6d4488fcdc6391c2847842b08323addf5200db88dbe9480 \
+    --hash=sha256:c03dc203bc2e67f6b46a599467ae0d87cf71d7530504b2c1ff4a9ea21d8b8c8c
+    # via treq
 netifaces==0.11.0 \
     --hash=sha256:043a79146eb2907edf439899f262b3dfe41717d34124298ed281139a8b93ca32 \
     --hash=sha256:08e3f102a59f9eaef70948340aeb6c89bd09734e0dca0f3b82720305729f63ea \
@@ -631,29 +635,29 @@ pyasn1-modules==0.4.2 \
     --hash=sha256:29253a9207ce32b64c3ac6600edc75368f98473906e8fd1043bd6b5b1de2c14a \
     --hash=sha256:677091de870a80aae844b1ca6134f54652fa2c8c5a52aa396440ac3106e941e6
     # via service-identity
-pycddl==0.6.3 \
-    --hash=sha256:00179a5a7b7d62673a502313d6a2596fc92d162ef45e0c1eba046cde18ac3479 \
-    --hash=sha256:0bd57741be0ae21861cf35e966d66ec077abc604087b4f20139e3e06d2b4a8ab \
-    --hash=sha256:26fe2145492df9b6ea935e7f62d041357d350ece1c4632c7af3726b17dc2be32 \
-    --hash=sha256:33362857d55a5c0f8a58e97d77badf6c6a078081e0c84f82b8c753ddb34267d0 \
-    --hash=sha256:3f1cca5f96870511406a1278cf88804604d67752fb9acabadd61de7b8e3a9354 \
-    --hash=sha256:4df48f5d0fb9023793936c373d8637636479d9328658f6ffb1b03927bb294b0d \
-    --hash=sha256:5ef23c89a9a45d2061a515a6e848cbbeeac7a2ee4ffb7fae7f0b3da3df1ee663 \
-    --hash=sha256:63790a5075bfefcb5f33c62ed7adaedab48fbbe1d1a06f66f1bcadc57eaf8d19 \
-    --hash=sha256:6b0c1dd1c32bc14ff48a40d93c4c695cb296fa8d0fe9307c46963076379a1e33 \
-    --hash=sha256:72adeeb012928fdfb7347758d1bb274310c6613cb0af6cd09713f33e37310f5a \
-    --hash=sha256:80d7b7ef2e01a58d28cea9b7be95a988f1f4b409134e63665fd670c1dae1c646 \
-    --hash=sha256:955c9b4abf90bf27a975365f8938ea53410dbba4d3f3b6595c8102040f27315e \
-    --hash=sha256:a2585867ae003433f597daecc8c27672d558d2975f71b3218d7297feead14083 \
-    --hash=sha256:b08730dd7666acf867326ea67a8350b32820cbad58e55db9679ef41783701ba1 \
-    --hash=sha256:be28d2435ef580f9db1b0b255458c58dc4fc10d8e672d3ea1b8c18172f3b7b7c \
-    --hash=sha256:c04c25a87401775be5368104aa481783acf3d07a8b12dcdb1ca3014d40726d02 \
-    --hash=sha256:c882ea6ae0d2daf145acbac166c020e87617f78110c1cdb66854a25c0f63cf1b \
-    --hash=sha256:d17ffa1e36b81306e3bd21f522c3f89282c581193a3bd98b6d2a1eb1b106177c \
-    --hash=sha256:eab9f26d4036f042273e43e5bb6230a6c8637d2d2d56831dbe4a6ac7acfe07e5 \
-    --hash=sha256:ee065d28dac7224728a8c2fd415b1a83bfe90048fa2af9270d525bf94cf08ac7 \
-    --hash=sha256:f3ea54635a3064d4f2504d3deae81c31ce6c3518081381da1a043be35e7d5865 \
-    --hash=sha256:f8bba18c6cede2bd2f05355605f33a870a4c85eebf284fee8b19a2e15c175bbe
+pycddl==0.6.4 \
+    --hash=sha256:028d425d3ae41682bc606ed839fd93b97d787ce19bd50583c9ffaf542b7e68eb \
+    --hash=sha256:22bc96c3bc261202b7f8652da74d2f8b84a4ba21aeaedb1d40f3d7c2f013d4c9 \
+    --hash=sha256:314ef71197d49ec32e8763d759ab53a6962bea8d029d1b01992ecf3d9388a93b \
+    --hash=sha256:39ca675f341a6a77654f4f6759bcb3ce0d47f1a772cb87e99b4e61d86bcb6053 \
+    --hash=sha256:3c2696412b50381e679085f9c76ae1ccbc1fd6538a5c4c6b6349f9d906893d4b \
+    --hash=sha256:4a114e6a0baa564bf8c81c9c1660a80b7d7acfa8ceaece4656cce797093624e0 \
+    --hash=sha256:4f20c7ad8c2ee8703bb08e9dd071f03589ff7aaeaa27a8fc5072de40f66166e1 \
+    --hash=sha256:5ba650b476a56ba2e0a9db4b70a3a651601f7176a0733aa64a43b45bdccaa85f \
+    --hash=sha256:61d079fff3f29198ed18c5435ed50abc6e98f17f0e0c3805f94ee791577d09e1 \
+    --hash=sha256:6946ba4377b5470bd637434fa9b26d596de8ff2cc9c5473483b81418a525397a \
+    --hash=sha256:84870a702b519826b54b127742e784e745c53bf1373d05e0f96df0a89fc5ceca \
+    --hash=sha256:8809fad90afeff76bf28ad2de9ea157cc0033a2321d80c2e92858c4d0af2384f \
+    --hash=sha256:8a92bbce1de1d48ea8deeee0008eb3a81f0811c80174e3c7169dcf9bd5b2b696 \
+    --hash=sha256:8d6c9708685a2e0f189d8e89f1268b6ad4e1c68251ed39737cc67ed7bd866eec \
+    --hash=sha256:8e2ebc4531889d406ab7cb351cfb6479243d8e12d98694936a4c264694d67775 \
+    --hash=sha256:8e723cb86cb3ce14a57ee369aee28a3e113b290a13905eadc56741ccafbfdbaa \
+    --hash=sha256:91c59bb095a70d8714dc1859e06f29840575fd3edc6a0a871fed850fd524b306 \
+    --hash=sha256:99fd752db751e7c4a1c50ef448d7887610efa6afedcb0fa3dff767a3b4825017 \
+    --hash=sha256:a1ed33d3427507ee274663c9ea0dea2f2cd3c8473ff1c4247970d4b5697ff330 \
+    --hash=sha256:cd2a86b339a013402d90469e28a8b1b03d06c607e8a1e8db52e8d91f76ed859d \
+    --hash=sha256:f2324b81e344d402131447d0bb2a4b1ffaae10a0d2d11c226acbc3b8156f9b37 \
+    --hash=sha256:f46649bfc665f7f1fa06b5c451dd6cd8f18899b12e5a56e5534a24d800bca541
     # via tahoe-lafs
 pycparser==2.22 \
     --hash=sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6 \
@@ -671,9 +675,9 @@ pynacl==1.5.0 \
     --hash=sha256:a422368fc821589c228f4c49438a368831cb5bbc0eab5ebe1d7fac9dded6567b \
     --hash=sha256:e46dae94e34b085175f8abb3b0aaa7da40767865ac82c928eeb9e57e1ea8a543
     # via magic-wormhole
-pyopenssl==25.0.0 \
-    --hash=sha256:424c247065e46e76a37411b9ab1782541c23bb658bf003772c3405fbaa128e90 \
-    --hash=sha256:cd2cef799efa3936bb08e8ccb9433a575722b9dd986023f1cabc4ae64e9dac16
+pyopenssl==25.1.0 \
+    --hash=sha256:2b11f239acc47ac2e5aca04fd7fa829800aeee22a2eb30d744572a157bd8a1ab \
+    --hash=sha256:8d031884482e0c67ee92bf9a4d8cceb08d92aba7136432ffb0703c5280fc205b
     # via
     #   foolscap
     #   twisted
@@ -777,9 +781,9 @@ qrcode==8.2 \
     --hash=sha256:16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f \
     --hash=sha256:35c3f2a4172b33136ab9f6b3ef1c00260dd2f66f858f24d88418a015f446506c
     # via magic-wormhole
-requests==2.32.3 \
-    --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
-    --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
+requests==2.32.4 \
+    --hash=sha256:27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c \
+    --hash=sha256:27d0316682c8a29834d3264820024b62a36942083d52caf2f14c0591336d3422
     # via treq
 service-identity==24.2.0 \
     --hash=sha256:6b047fbd8a84fd0bb0d55ebce4031e400562b9196e1e0d3e0fe2b8a59f6d4a85 \
@@ -840,9 +844,9 @@ tqdm==4.67.1 \
     --hash=sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2 \
     --hash=sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2
     # via magic-wormhole
-treq==24.9.1 \
-    --hash=sha256:15da7fc404f3e4ed59d0abe5f8eef4966fabbe618039a2a23bc7c15305cefea8 \
-    --hash=sha256:eee4756fd9a857c77f180fd5202b52c518f2d3e2826dce28b89066c03bfc45d0
+treq==25.5.0 \
+    --hash=sha256:25dde3a55ae85ec2f2c56332c99aef255ab14f997d0d00552ebff13538a9804a \
+    --hash=sha256:e99d4e66cacaa1f0da82bb60b317d104c29dbd8ac0a75d7f657b348178d830f4
     # via
     #   magic-folder
     #   tahoe-lafs
@@ -850,9 +854,9 @@ tubes==0.2.1 \
     --hash=sha256:28f60dc0be0555a953595f8f1a96a81e96ea6833df7677d77fbe70782605e5b5 \
     --hash=sha256:59b9197f2fa6f7fc6bc3281de55797adc729bb75c9c613b4f6d6c41599f0d78b
     # via klein
-twisted[conch,tls]==24.11.0 \
-    --hash=sha256:695d0556d5ec579dcc464d2856b634880ed1319f45b10d19043f2b57eb0115b5 \
-    --hash=sha256:fe403076c71f04d5d2d789a755b687c5637ec3bcd3b2b8252d76f2ba65f54261
+twisted[conch,tls]==25.5.0 \
+    --hash=sha256:1deb272358cb6be1e3e8fc6f9c8b36f78eb0fa7c2233d2dbe11ec6fee04ea316 \
+    --hash=sha256:8559f654d01a54a8c3efe66d533d43f383531ebf8d81d9f9ab4769d91ca15df7
     # via
     #   autobahn
     #   foolscap
@@ -870,9 +874,9 @@ txtorcon==24.8.0 \
     --hash=sha256:befe19138d9c8c5307b6ee6d4fe446d0c201ffd1cc404aeb265ed90309978ad0 \
     --hash=sha256:d3d0871a19c2ecaaae9e2c13b302a78b169048f5a3c2051069a2ea6ae44232c7
     # via magic-wormhole
-typing-extensions==4.13.2 \
-    --hash=sha256:a439e7c04b49fec3e5d3e2beaa21755cadbbdc391694e28ccdd36ca4a1408f8c \
-    --hash=sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef
+typing-extensions==4.14.0 \
+    --hash=sha256:8676b788e32f02ab42d9e7c61324048ae4c6d844a399eebace3d4979d75ceef4 \
+    --hash=sha256:a1514509136dd0b477638fc68d6a91497af5076466ad0fa6c338e44e359944af
     # via
     #   pyopenssl
     #   treq
@@ -999,9 +1003,9 @@ zope-interface==7.2 \
     #   txtorcon
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==80.3.1 \
-    --hash=sha256:31e2c58dbb67c99c289f51c16d899afedae292b978f8051efaf6262d8212f927 \
-    --hash=sha256:ea8e00d7992054c4c592aeb892f6ad51fe1b4d90cc6947cc45c45717c40ec537
+setuptools==80.9.0 \
+    --hash=sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922 \
+    --hash=sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c
     # via
     #   autobahn
     #   incremental
