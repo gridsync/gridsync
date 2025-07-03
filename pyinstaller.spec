@@ -18,7 +18,8 @@ try:
     # Because Magic-Folder also depends on "allmydata" -- but does not depend
     # on ZKAPAuthorizer. This can be used to indicate whether the requirements
     # declared by `requirements/tahoe-lafs.txt` have been installed directly.
-    import _zkapauthorizer as tahoe_available
+    #import _zkapauthorizer as tahoe_available
+    import allmydata as tahoe_available  # XXX
 except ImportError:
     tahoe_available = False
 
