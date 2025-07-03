@@ -39,7 +39,7 @@ from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
 try:
-    import _zkapauthorizer as ZKAPAUTHORIZER_AVAILABLE
+    import _zkapauthorizer as ZKAPAUTHORIZER_AVAILABLE  # pylint: disable=unused-import
 except ImportError:
     ZKAPAUTHORIZER_AVAILABLE = False
 
