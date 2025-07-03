@@ -38,6 +38,11 @@ from gridsync.websocket import WebSocketReaderService
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
+try:
+    import _zkapauthorizer as ZKAPAUTHORIZER_AVAILABLE
+except ImportError:
+    ZKAPAUTHORIZER_AVAILABLE = False
+
 
 def is_valid_furl(furl: str) -> bool:
     if re.match(r"^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$", furl):
