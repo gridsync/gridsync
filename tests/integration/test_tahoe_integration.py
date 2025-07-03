@@ -2,11 +2,13 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
 from gridsync import APP_NAME
 from gridsync.errors import TahoeWebError
+from gridsync.tahoe import ZKAPAUTHORIZER_AVAILABLE
 
 if sys.platform == "darwin":
     application_bundle_path = str(
@@ -59,6 +61,10 @@ async def test_upload_convergence_secret_determines_cap(
     )
 
 
+@pytest.mark.skipif(
+    not ZKAPAUTHORIZER_AVAILABLE,
+    reason="zkapauthorizer plugin not available",
+)
 @ensureDeferred
 async def test_no_html_in_server_error(zkapauthorizer):
     try:
