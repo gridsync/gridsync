@@ -45,7 +45,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04]
         qt: [pyqt6]
-        requirements_dir: ["", "requirements/zkapauthorizer"]
+        requirements_dir: ["requirements", "requirements/zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
