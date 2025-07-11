@@ -45,9 +45,11 @@ jobs:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04]
         qt: [pyqt6]
+        requirements_dir: ["", "requirements/zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
+      GRIDSYNC_REQUIREMENTS_DIR: ${{ matrix.requirements_dir }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
