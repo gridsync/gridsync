@@ -22,6 +22,7 @@ from gridsync.config import Config
 from gridsync.crypto import trunchash
 from gridsync.errors import (
     TahoeCommandError,
+    TahoePluginError,
     TahoeWebError,
     UpgradeRequiredError,
 )
@@ -612,6 +613,14 @@ class Tahoe:
         ):
             self.zkap_auth_required = True
         if self.zkap_auth_required:
+            if not ZKAPAUTHORIZER_AVAILABLE:
+                raise TahoePluginError(
+                    f'The "{self.name}" storage grid requires zero-knowledge '
+                    "access passes (ZKAPs), however, the ZKAPAuthorizer "
+                    "plugin is not available.\n\nPlease install a version of "
+                    f"{APP_NAME} that includes the ZKAPAuthorizer plugin "
+                    "and try again."
+                )
             default_token_count = self.config_get(
                 f"storageclient.plugins.{ZKAPAUTHZ_PLUGIN_NAME}",
                 "default-token-count",
