@@ -42,7 +42,7 @@ from gridsync import (
     settings,
 )
 from gridsync.desktop import autostart_enable
-from gridsync.errors import UpgradeRequiredError
+from gridsync.errors import TahoePluginError, UpgradeRequiredError
 from gridsync.gui import Gui
 from gridsync.lock import FilesystemLock
 from gridsync.log import LOGGING_ENABLED, initialize_logger
@@ -88,6 +88,10 @@ class Core:
                 "compatible with your current configuration (not recommended),"
                 " or move the existing configuration directory (located at "
                 f'"{config_dir}") to a different location and try again.',
+            )
+        except TahoePluginError as e:
+            msg.critical(
+                f"Error starting Tahoe-LAFS gateway for {gateway.name}", str(e)
             )
         except Exception as e:  # pylint: disable=broad-except
             msg.critical(
