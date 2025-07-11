@@ -45,11 +45,11 @@ jobs:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04]
         qt: [pyqt6]
-        requirements_dir: ["requirements", "requirements/zkapauthorizer"]
+        extras: ["", "zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
       QT_API: ${{ matrix.qt }}
-      GRIDSYNC_REQUIREMENTS_DIR: ${{ matrix.requirements_dir }}
+      GRIDSYNC_EXTRAS: ${{ matrix.extras }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -77,6 +77,11 @@ jobs:
       run: |
         sudo apt-get install -y podman
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
+    - name: Check feature flag
+      run: |
+        if [ "$GRIDSYNC_EXTRAS" = "zkapauthorizer" ]; then
+          echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $GITHUB_ENV
+        fi
     - name: Test
       run: |
         source ~/.bash_profile
