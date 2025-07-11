@@ -118,7 +118,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: dist/Gridsync.AppImage
-        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}-${{ matrix.feature }}.AppImage
+        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}-${{ matrix.extras }}.AppImage
   macOS:
     strategy:
       matrix:
