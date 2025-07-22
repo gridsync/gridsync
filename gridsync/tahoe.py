@@ -649,6 +649,18 @@ class Tahoe:
             )
             return
         pid, _ = results
+        if self.zkap_auth_required:
+            try:
+                version = await self.zkapauthorizer.get_version()
+            except TahoeWebError as e:
+                raise TahoePluginError(
+                    f'The "{self.name}" storage grid requires zero-knowledge '
+                    "access passes (ZKAPs), however, the ZKAPAuthorizer "
+                    "plugin is not available.\n\nPlease install a version of "
+                    f"{APP_NAME} that includes the ZKAPAuthorizer plugin "
+                    "and try again."
+                ) from e
+            log.info("Found ZKAPAuthorizer plugin version: %s", version)
         log.debug(
             'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
         )
