@@ -130,7 +130,7 @@ if _features:
 
 Features = namedtuple(
     "Features",
-    "grid_invites magic_folder_invites multiple_grids tor zkapauthorizer"
+    "grid_invites magic_folder_invites multiple_grids tor zkapauthorizer",
 )
 features = Features(
     grid_invites_enabled,
