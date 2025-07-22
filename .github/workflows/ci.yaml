@@ -80,6 +80,7 @@ jobs:
     - name: Check feature flag
       run: |
         if [ "$GRIDSYNC_EXTRAS" = "zkapauthorizer" ]; then
+          echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $GITHUB_ENV
           echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $GITHUB_ENV
         fi
     - name: Test
