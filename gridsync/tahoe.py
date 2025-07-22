@@ -39,11 +39,6 @@ from gridsync.websocket import WebSocketReaderService
 from gridsync.zkapauthorizer import PLUGIN_NAME as ZKAPAUTHZ_PLUGIN_NAME
 from gridsync.zkapauthorizer import ZKAPAuthorizer
 
-try:
-    import _zkapauthorizer as ZKAPAUTHORIZER_AVAILABLE  # pylint: disable=unused-import
-except ImportError:
-    ZKAPAUTHORIZER_AVAILABLE = False
-
 
 def is_valid_furl(furl: str) -> bool:
     if re.match(r"^pb://[a-z2-7]+@[a-zA-Z0-9\.:,-]+:\d+/[a-z2-7]+$", furl):
@@ -613,14 +608,6 @@ class Tahoe:
         ):
             self.zkap_auth_required = True
         if self.zkap_auth_required:
-            if not ZKAPAUTHORIZER_AVAILABLE:
-                raise TahoePluginError(
-                    f'The "{self.name}" storage grid requires zero-knowledge '
-                    "access passes (ZKAPs), however, the ZKAPAuthorizer "
-                    "plugin is not available.\n\nPlease install a version of "
-                    f"{APP_NAME} that includes the ZKAPAuthorizer plugin "
-                    "and try again."
-                )
             default_token_count = self.config_get(
                 f"storageclient.plugins.{ZKAPAUTHZ_PLUGIN_NAME}",
                 "default-token-count",
