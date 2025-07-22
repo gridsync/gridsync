@@ -18,6 +18,7 @@ grid_invites = true
 magic_folder_invites = true
 multiple_grids = true
 tor = true
+zkapauthorizer = false
 
 [help]
 docs_url = https://github.com/gridsync/gridsync/tree/master/docs
