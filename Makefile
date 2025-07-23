@@ -206,6 +206,8 @@ in-container:
 	$${CONTAINER_RUNTIME:-podman} run --rm \
 		--mount type=bind,src=$$(pwd),target=/gridsync \
 		-w /gridsync --env QT_API="$${QT_API:-pyqt6}" \
+		--env GRIDSYNC_FEATURES_ZKAPAUTHORIZER="$${GRIDSYNC_FEATURES_ZKAPAUTHORIZER}" \
+		--env GRIDSYNC_REQUIREMENTS_DIR="$${GRIDSYNC_REQUIREMENTS_DIR:-requirements}" \
 		docker.io/gridsync/gridsync-builder-qt6@$$(cat misc/gridsync-builder-qt6.digest)
 
 

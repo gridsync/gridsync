@@ -4,4 +4,4 @@ attrs==23.2.0
 # 'cryptography.hazmat.bindings._rust.openssl.ciphers' object attribute
 # '__provides__' is read-only"
 cryptography < 43.0
-tahoe-lafs==1.18.0
+zero-knowledge-access-pass-authorizer >= 2022.8.21

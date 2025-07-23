@@ -1,4 +1,14 @@
+import pytest
 from pytest_twisted import inlineCallbacks
+
+from gridsync import features
+
+# "pytestmark" is a special global variable that can be used to apply marks at
+# the module level. See https://docs.pytest.org/en/stable/example/markers.html
+pytestmark = pytest.mark.skipif(
+    not features.zkapauthorizer,
+    reason="zkapauthorizer plugin not enabled",
+)
 
 
 @inlineCallbacks

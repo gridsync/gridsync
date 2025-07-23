@@ -1,0 +1,2 @@
+-r pyinstaller-base.txt
+-r pyinstaller-platform.txt

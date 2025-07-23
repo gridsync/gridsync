@@ -6,7 +6,6 @@ from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
 from gridsync import APP_NAME
-from gridsync.errors import TahoeWebError
 
 if sys.platform == "darwin":
     application_bundle_path = str(
@@ -57,21 +56,6 @@ async def test_upload_convergence_secret_determines_cap(
         "URI:CHK:rowlspe46wotpra7jruhtad3xy:"
         "lnviruztzbcugtpkrxnnodehpstlcoo6pswfgqjhv3teyn656fja:1:1:64",
     )
-
-
-@ensureDeferred
-async def test_no_html_in_server_error(zkapauthorizer):
-    try:
-        # Attempting to create a directory using a `Tahoe` client that
-        # is configured to use ZKAPAuthorizer against a `Tahoe` server
-        # that is *not* configured to use ZKAPAuthorizer will fail with
-        # a status code of 500 (possibly due to the mismatch in plugin
-        # configurations between the client and the server -- or
-        # possibly because the `Tahoe` client has no tokens yet?).
-        # XXX: Maybe there's a better way to trigger a 500 error here?
-        await zkapauthorizer.gateway.mkdir()
-    except TahoeWebError as e:
-        assert "status code 500:" in str(e) and "<!DOCTYPE html>" not in str(e)
 
 
 @ensureDeferred

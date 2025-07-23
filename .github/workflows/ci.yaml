@@ -44,10 +44,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04]
-        qt: [pyqt6]
+        extras: ["", "zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
-      QT_API: ${{ matrix.qt }}
+      GRIDSYNC_EXTRAS: ${{ matrix.extras }}
+      QT_API: pyqt6
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -62,19 +63,25 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv--${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv--${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv--${{ matrix.os }}-${{ matrix.extras }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv--${{ matrix.os }}-${{ matrix.extras }}-
     - name: Restore pip cache
       uses: actions/cache@v4
       with:
         path: |
           ~/.cache/pip
-        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pip-${{ matrix.os }}-${{ matrix.extras }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.extras }}-
     - name: Install dependencies
       run: |
         sudo apt-get install -y podman
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
+    - name: Set environment variables
+      run: |
+        if [ "$GRIDSYNC_EXTRAS" = "zkapauthorizer" ]; then
+          echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $GITHUB_ENV
+          echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $GITHUB_ENV
+        fi
     - name: Test
       run: |
         source ~/.bash_profile
@@ -111,15 +118,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: dist/Gridsync.AppImage
-        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}.AppImage
+        name: Gridsync-${{ matrix.os }}-${{ matrix.extras }}.AppImage
   macOS:
     strategy:
       matrix:
         os: [macos-13]
-        qt: [pyqt6]
+        extras: ["", "zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
-      QT_API: ${{ matrix.qt }}
+      GRIDSYNC_EXTRAS: ${{ matrix.extras }}
+      QT_API: pyqt6
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -134,19 +142,25 @@ jobs:
         path: |
           ~/.cargo
           ~/.pyenv
-        key: pyenv--${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('scripts/provision_*') }}
-        restore-keys: pyenv--${{ matrix.os }}-${{ matrix.qt }}-
+        key: pyenv--${{ matrix.os }}-${{ matrix.extras }}-${{ hashFiles('scripts/provision_*') }}
+        restore-keys: pyenv--${{ matrix.os }}-${{ matrix.extras }}-
     - name: Restore pip cache
       uses: actions/cache@v4
       with:
         path: |
           ~/.cache/pip
-        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pip-${{ matrix.os }}-${{ matrix.extras }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.extras }}-
     - name: Install dependencies
       run: |
         sudo rm -rf /Applications/Python*
         scripts/provision_devtools.sh
+    - name: Set environment variables
+      run: |
+        if [ "$GRIDSYNC_EXTRAS" = "zkapauthorizer" ]; then
+          echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $GITHUB_ENV
+          echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $GITHUB_ENV
+        fi
     - name: Test
       run: |
         source ~/.bashrc
@@ -179,17 +193,18 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: dist/Gridsync.dmg
-        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}.dmg
+        name: Gridsync-${{ matrix.os }}-${{ matrix.extras }}.dmg
   Windows:
     strategy:
       matrix:
         # windows-2025 builds are currently failing. See
         # https://github.com/gridsync/gridsync/issues/729
         os: [windows-2022]
-        qt: [pyqt6]
+        extras: ["", "zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
-      QT_API: ${{ matrix.qt }}
+      GRIDSYNC_EXTRAS: ${{ matrix.extras }}
+      QT_API: pyqt6
       # Tahoe-LAFS 1.18.0 does not support Python 3.11
       PY_PYTHON: "3.10"
     steps:
@@ -204,10 +219,16 @@ jobs:
       uses: actions/cache@v4
       with:
         path: c:\users\runneradmin\appdata\local\pip\cache
-        key: pip-${{ matrix.os }}-${{ matrix.qt }}-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: pip-${{ matrix.os }}-${{ matrix.qt }}-
+        key: pip-${{ matrix.os }}-${{ matrix.extras }}-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: pip-${{ matrix.os }}-${{ matrix.extras }}-
     - name: Install dependencies
       run: py -m pip install --upgrade setuptools pip tox diffoscope windows-curses
+    - name: Set environment variables
+      run: |
+        if ($env:GRIDSYNC_EXTRAS -eq "zkapauthorizer") {
+          echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $env:GITHUB_ENV
+          echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $env:GITHUB_ENV
+        }
     - name: Test
       run: .\make.bat test
     - name: Make pyinstaller
@@ -240,4 +261,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: .\dist\Gridsync-setup.exe
-        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}-setup.exe
+        name: Gridsync-${{ matrix.os }}-${{ matrix.extras }}-setup.exe

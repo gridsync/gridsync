@@ -1,0 +1,9 @@
+{
+  "owner": "pyinstaller",
+  "branch": "develop",
+  "repo": "pyinstaller",
+  "archive-url-file": "pyinstaller.in",
+  "rev": "fe7a0e33df42db0808454820161016747529e0e7",
+  "archive-url": "https://api.github.com/repos/pyinstaller/pyinstaller/tarball/fe7a0e33df42db0808454820161016747529e0e7",
+  "repo-url": "git+https://github.com/pyinstaller/pyinstaller@develop"
+}
