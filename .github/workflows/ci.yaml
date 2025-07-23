@@ -205,7 +205,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: dist/Gridsync.dmg
-        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}.dmg
+        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}-${{ matrix.extras }}.dmg
   Windows:
     strategy:
       matrix:
@@ -273,4 +273,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: .\dist\Gridsync-setup.exe
-        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}-setup.exe
+        name: Gridsync-${{ matrix.os }}-${{ matrix.qt }}-${{ matrix.extras }}-setup.exe
