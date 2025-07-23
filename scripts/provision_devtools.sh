@@ -27,7 +27,7 @@ else
     export PYTHON_CONFIGURE_OPTS="--enable-shared"
     curl -fsSL --create-dirs -o ~/bin/linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
     chmod +x ~/bin/linuxdeploy
-    curl -fsSL --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+    curl -fsSL --create-dirs -o ~/bin/appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
     chmod +x ~/bin/appimagetool
     if [ -z "${SKIP_DOCKER_INSTALL}" ]; then
         curl -fsSL https://get.docker.com/rootless | sh
