@@ -237,8 +237,8 @@ jobs:
     - name: Check feature flag
       run: |
         if ($env:GRIDSYNC_EXTRAS -eq "zkapauthorizer") {
-          echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $GITHUB_ENV
-          echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $GITHUB_ENV
+          echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $env:GITHUB_ENV
+          echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $env:GITHUB_ENV
         }
     - name: Test
       run: .\make.bat test
