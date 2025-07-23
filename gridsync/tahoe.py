@@ -509,9 +509,6 @@ class Tahoe:
 
         self.state = Tahoe.STARTED
 
-        # XXX Should something wait on this?
-        Deferred.fromCoroutine(self.scan_storage_plugins())
-
         if not self.is_storage_node():
             # XXX Should something wait on this?
             Deferred.fromCoroutine(self.magic_folder.start())
@@ -844,20 +841,6 @@ class Tahoe:
 
     def get_rootcap(self) -> str:
         return self.rootcap_manager.get_rootcap()
-
-    async def scan_storage_plugins(self) -> None:
-        plugins = []
-        log.debug("Scanning for known storage plugins...")
-        try:
-            version = await self.zkapauthorizer.get_version()
-        except TahoeWebError:
-            version = ""
-        if version:
-            plugins.append(("ZKAPAuthorizer", version))
-        if plugins:
-            log.debug("Found storage plugins: %s", plugins)
-        else:
-            log.debug("No storage plugins found")
 
 
 # The names of all of the optional items in a ZKAPAuthorizer configuration

@@ -64,10 +64,6 @@ def fake_post_code_500(*args, **kwargs):
     return succeed(response)
 
 
-async def noop_scan_storage_plugins(self):
-    pass
-
-
 def test_is_valid_furl():
     assert is_valid_furl("pb://abc234@example.org:12345/introducer")
 
@@ -863,11 +859,6 @@ async def test_tahoe_start_use_tor_false(monkeypatch, tmpdir_factory):
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
     )
-
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins",
-        noop_scan_storage_plugins,
-    )
     await client.start()
     assert not client.use_tor
 
@@ -877,10 +868,6 @@ async def test_tahoe_starts_websocketreaderservice(monkeypatch, tahoe_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
-    )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins",
-        noop_scan_storage_plugins,
     )
     reactor = MemoryReactorClock()
     tahoe = tahoe_factory(reactor)
@@ -903,10 +890,6 @@ async def test_tahoe_stops_websocketreaderservice(monkeypatch, tahoe_factory):
     )
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.stop", lambda self: succeed(None)
-    )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins",
-        noop_scan_storage_plugins,
     )
     tahoe = tahoe_factory(MemoryReactorClock())
     tahoe.monitor = Mock()
@@ -937,10 +920,6 @@ async def test_tahoe_start_use_tor_true(monkeypatch, tmpdir_factory):
     monkeypatch.setattr(
         "gridsync.supervisor.Supervisor.start",
         lambda *args, **kwargs: succeed((9999, "tahoe")),
-    )
-    monkeypatch.setattr(
-        "gridsync.tahoe.Tahoe.scan_storage_plugins",
-        noop_scan_storage_plugins,
     )
     await client.start()
     assert client.use_tor
