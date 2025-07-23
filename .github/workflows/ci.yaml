@@ -76,7 +76,7 @@ jobs:
       run: |
         sudo apt-get install -y podman
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
-    - name: Check feature flag
+    - name: Set environment variables
       run: |
         if [ "$GRIDSYNC_EXTRAS" = "zkapauthorizer" ]; then
           echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $GITHUB_ENV
@@ -155,7 +155,7 @@ jobs:
       run: |
         sudo rm -rf /Applications/Python*
         scripts/provision_devtools.sh
-    - name: Check feature flag
+    - name: Set environment variables
       run: |
         if [ "$GRIDSYNC_EXTRAS" = "zkapauthorizer" ]; then
           echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $GITHUB_ENV
@@ -223,7 +223,7 @@ jobs:
         restore-keys: pip-${{ matrix.os }}-${{ matrix.extras }}-
     - name: Install dependencies
       run: py -m pip install --upgrade setuptools pip tox diffoscope windows-curses
-    - name: Check feature flag
+    - name: Set environment variables
       run: |
         if ($env:GRIDSYNC_EXTRAS -eq "zkapauthorizer") {
           echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $env:GITHUB_ENV
