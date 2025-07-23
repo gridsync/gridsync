@@ -47,8 +47,8 @@ jobs:
         extras: ["", "zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
-      QT_API: pyqt6
       GRIDSYNC_EXTRAS: ${{ matrix.extras }}
+      QT_API: pyqt6
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -137,6 +137,7 @@ jobs:
         extras: ["", "zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
+      GRIDSYNC_EXTRAS: ${{ matrix.extras }}
       QT_API: pyqt6
     steps:
     - name: Checkout
@@ -213,6 +214,7 @@ jobs:
         extras: ["", "zkapauthorizer"]
     runs-on: ${{ matrix.os }}
     env:
+      GRIDSYNC_EXTRAS: ${{ matrix.extras }}
       QT_API: pyqt6
       # Tahoe-LAFS 1.18.0 does not support Python 3.11
       PY_PYTHON: "3.10"
