@@ -78,24 +78,18 @@ jobs:
         SKIP_DOCKER_INSTALL=1 scripts/provision_devtools.sh
     - name: Check feature flag
       run: |
-        env | sort
         if [ "$GRIDSYNC_EXTRAS" = "zkapauthorizer" ]; then
           echo "GRIDSYNC_FEATURES_ZKAPAUTHORIZER=true" >> $GITHUB_ENV
           echo "GRIDSYNC_REQUIREMENTS_DIR=requirements/zkapauthorizer" >> $GITHUB_ENV
         fi
-        env | sort
     - name: Test
       run: |
-        env | sort
         source ~/.bash_profile
         make test
-        env | sort
     - name: Build
       run: |
-        env | sort
         source ~/.bash_profile
         make all
-        env | sort
     - name: Verify
       run: |
         xvfb-run -a dist/Gridsync/Gridsync-tahoe --version-and-path
@@ -108,21 +102,16 @@ jobs:
         make test-determinism
     - name: Build (in container)
       run: |
-        env | sort
         source ~/.bash_profile
         make clean in-container
         sudo chown -R runner ~
-        env | sort
     - name: Verify (on host)
       run: |
         xvfb-run -a dist/Gridsync.AppImage --version
     - name: Test integration
       run: |
-        env | sort
         source ~/.bash_profile
-        env | sort
         make test-integration
-        env | sort
     - name: sha256sum
       run: python3 scripts/sha256sum.py dist/*.*
     - name: Upload artifacts
