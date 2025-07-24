@@ -10,6 +10,7 @@ from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
 from gridsync import APP_NAME
+from gridsync.tahoe import TahoeWebError
 
 if sys.platform == "darwin":
     application_bundle_path = str(
