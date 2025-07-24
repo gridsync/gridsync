@@ -247,5 +247,4 @@ class RecoveryPhraseImporter(QDialog):
         if key == Qt.Key_Return:
             self.validate()
             return None
-        else:
-            return QDialog.keyPressEvent(self, event)
+        return QDialog.keyPressEvent(self, event)
