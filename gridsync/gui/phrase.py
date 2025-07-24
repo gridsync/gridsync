@@ -231,7 +231,7 @@ class RecoveryPhraseImporter(QDialog):
     def validate(self) -> None:
         try:
             entropy = self._recovery_box.get_entropy()
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             error(
                 self,
                 "Invalid Recovery Phrase",
