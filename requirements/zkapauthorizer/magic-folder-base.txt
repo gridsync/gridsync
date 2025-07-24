@@ -23,9 +23,10 @@ attrs==23.2.0 \
     #   tahoe-lafs
     #   treq
     #   twisted
-autobahn[twisted]==23.6.2 \
-    --hash=sha256:ec9421c52a2103364d1ef0468036e6019ee84f71721e86b36fe19ad6966c1181
+autobahn[twisted]==22.3.2 \
+    --hash=sha256:58a887c7a196bb08d8b6624cb3695f493a9e5c9f00fd350d8d6f829b47ff9036
     # via
+    #   -r requirements/magic-folder.in
     #   magic-folder
     #   magic-wormhole
     #   tahoe-lafs
@@ -679,7 +680,6 @@ pyopenssl==25.1.0 \
     --hash=sha256:8d031884482e0c67ee92bf9a4d8cceb08d92aba7136432ffb0703c5280fc205b
     # via
     #   foolscap
-    #   tahoe-lafs
     #   twisted
 pyrsistent==0.20.0 \
     --hash=sha256:0724c506cd8b63c69c7f883cc233aac948c1ea946ea95996ad8b1380c25e1d3f \
@@ -800,10 +800,12 @@ spake2==0.9 \
     --hash=sha256:2d7cbe936519c4172866649ddceefdec08e3d9b3ce4c8a75bbf84d6bdd07a2fb \
     --hash=sha256:421fc4a8d5ac395af7af0206ffd9e6cdf188c105cb1b883d9d683312bb5a9334
     # via magic-wormhole
-tahoe-lafs==1.19.0 \
-    --hash=sha256:8aba5c1a46617691be6416c4b8ceb071de0c1c1089dbce7cb51d37d909da9778 \
-    --hash=sha256:bb48d440965bc3af0b25cfbe407c6100beda318a99280d65eeb24e45f08259ce
-    # via magic-folder
+tahoe-lafs==1.18.0 \
+    --hash=sha256:3db9b215602b374bbf8027bdaed1d9853d0a330226ab1ecfdf19b72c87501146 \
+    --hash=sha256:717a470df34edd31ad6b94467dabaa1caedd7f2f5233b04b89d8cfe936e317fe
+    # via
+    #   -r requirements/magic-folder.in
+    #   magic-folder
 tomli==2.2.1 \
     --hash=sha256:023aa114dd824ade0100497eb2318602af309e5a55595f76b626d6d9f3b7b0a6 \
     --hash=sha256:02abe224de6ae62c19f090f68da4e27b10af2b93213d36cf44e6e1c5abd19fdd \

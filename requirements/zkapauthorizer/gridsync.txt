@@ -1,0 +1,2 @@
+-r gridsync-base.txt
+-r gridsync-platform.txt

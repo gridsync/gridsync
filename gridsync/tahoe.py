@@ -23,6 +23,7 @@ from gridsync.config import Config
 from gridsync.crypto import pem_to_der, trunchash
 from gridsync.errors import (
     TahoeCommandError,
+    TahoePluginError,
     TahoeWebError,
     UpgradeRequiredError,
 )
@@ -509,9 +510,6 @@ class Tahoe:
 
         self.state = Tahoe.STARTED
 
-        # XXX Should something wait on this?
-        Deferred.fromCoroutine(self.scan_storage_plugins())
-
         if not self.is_storage_node():
             # XXX Should something wait on this?
             Deferred.fromCoroutine(self.magic_folder.start())
@@ -636,6 +634,18 @@ class Tahoe:
             )
             return
         pid, _ = results
+        if self.zkap_auth_required:
+            try:
+                version = await self.zkapauthorizer.get_version()
+            except TahoeWebError as e:
+                raise TahoePluginError(
+                    f'The "{self.name}" storage grid requires zero-knowledge '
+                    "access passes (ZKAPs), however, the ZKAPAuthorizer "
+                    "plugin is not available.\n\nPlease install a version of "
+                    f"{APP_NAME} that includes the ZKAPAuthorizer plugin "
+                    "and try again."
+                ) from e
+            log.info("Found ZKAPAuthorizer plugin version: %s", version)
         log.debug(
             'Finished starting "%s" tahoe client (pid: %i)', self.name, pid
         )
@@ -662,12 +672,12 @@ class Tahoe:
             kwargs["headers"] = {"Accept": "text/plain"}
         resp = await treq.request(method, url, **kwargs)
         content = await treq.content(resp)
-        content = content.decode("utf-8")
+        decoded = content.decode("utf-8")
         if resp.code in (200, 201):
-            return content
+            return decoded
         raise TahoeWebError(
             f"Tahoe-LAFS web API responded with status code {resp.code}: "
-            f"{content}"
+            f"{decoded}"
         )
 
     async def get_grid_status(
@@ -752,7 +762,10 @@ class Tahoe:
         )
         if resp.code == 200:
             with atomic_write(local_path, mode="wb", overwrite=True) as f:
-                await treq.collect(resp, f.write)
+                # mypy: 'Argument 2 to "collect" of "treq" has
+                # incompatible type overloaded function; expected
+                # "Callable[[bytes], None]"'
+                await treq.collect(resp, f.write)  # type: ignore
             log.debug("Successfully downloaded %s", local_path)
         else:
             content = await treq.content(resp)
@@ -837,20 +850,6 @@ class Tahoe:
 
     def get_rootcap(self) -> str:
         return self.rootcap_manager.get_rootcap()
-
-    async def scan_storage_plugins(self) -> None:
-        plugins = []
-        log.debug("Scanning for known storage plugins...")
-        try:
-            version = await self.zkapauthorizer.get_version()
-        except TahoeWebError:
-            version = ""
-        if version:
-            plugins.append(("ZKAPAuthorizer", version))
-        if plugins:
-            log.debug("Found storage plugins: %s", plugins)
-        else:
-            log.debug("No storage plugins found")
 
 
 # The names of all of the optional items in a ZKAPAuthorizer configuration

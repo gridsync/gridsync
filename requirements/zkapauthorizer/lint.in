@@ -1,0 +1,10 @@
+black
+isort
+mypy
+pylint
+pyqt5-stubs
+ruff
+types-attrs
+types-atomicwrites
+types-certifi
+types-pyyaml

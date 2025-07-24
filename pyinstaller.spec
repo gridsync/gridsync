@@ -15,10 +15,13 @@ from PyInstaller.utils.hooks import (
 )
 
 try:
-    # Because Magic-Folder also depends on "allmydata" -- but does not depend
-    # on ZKAPAuthorizer. This can be used to indicate whether the requirements
-    # declared by `requirements/tahoe-lafs.txt` have been installed directly.
-    import _zkapauthorizer as tahoe_available
+    # XXX: Magic-Folder also depends on "allmydata", so this is not a
+    # reliable means for determining whether a python environment is
+    # *exclusively* a Tahoe-LAFS one. This shouldn't be a problem for
+    # Gridsync's (default) "merged" builds, however (which include
+    # Gridsync, Magic-Folder and Tahoe-LAFS in the same environment).
+    # TODO: A better way to determine "tahoe-but-*not*-magic-folder"?
+    import allmydata as tahoe_available
 except ImportError:
     tahoe_available = False
 

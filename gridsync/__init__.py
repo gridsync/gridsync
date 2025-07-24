@@ -108,6 +108,7 @@ grid_invites_enabled: bool = True
 magic_folder_invites_enabled: bool = True
 multiple_grids_enabled: bool = True
 tor_enabled: bool = True
+zkapauthorizer_enabled: bool = False
 
 _features = settings.get("features")
 if _features:
@@ -123,15 +124,20 @@ if _features:
     _tor = _features.get("tor")
     if _tor and _tor.lower() == "false":
         tor_enabled = False
+    _zkapauthorizer = _features.get("zkapauthorizer")
+    if _zkapauthorizer and _zkapauthorizer.lower() == "true":
+        zkapauthorizer_enabled = True
 
 Features = namedtuple(
-    "Features", "grid_invites magic_folder_invites multiple_grids tor"
+    "Features",
+    "grid_invites magic_folder_invites multiple_grids tor zkapauthorizer",
 )
 features = Features(
     grid_invites_enabled,
     magic_folder_invites_enabled,
     multiple_grids_enabled,
     tor_enabled,
+    zkapauthorizer_enabled,
 )
 
 

@@ -25,6 +25,10 @@ class TahoeCommandError(TahoeError):
     pass
 
 
+class TahoePluginError(TahoeError):
+    pass
+
+
 class TahoeWebError(TahoeError):
     pass
 

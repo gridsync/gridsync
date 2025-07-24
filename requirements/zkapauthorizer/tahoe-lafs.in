@@ -1,15 +1,7 @@
-<<<<<<< HEAD
-# This autobahn constraint is inherited from Tahoe-LAFS:
-# https://github.com/tahoe-lafs/tahoe-lafs/blob/15c7916e0812e6baa2a931cd54b18f3382a8456e/setup.py#L119
-autobahn < 22.4.1
 # attrs 24.1 removes `attrs.validators.provides` -- which tahoe-lafs 1.18 depends on
 attrs==23.2.0
 # With cryptography 44, mkdir on tahoe 1.18 fails with "builtins.AttributeError:
 # 'cryptography.hazmat.bindings._rust.openssl.ciphers' object attribute
 # '__provides__' is read-only"
 cryptography < 43.0
-pytest
-pytest-cov
-pytest-qt
-pytest-twisted
-magic-wormhole-mailbox-server
+zero-knowledge-access-pass-authorizer >= 2022.8.21

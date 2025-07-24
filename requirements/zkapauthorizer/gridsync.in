@@ -9,16 +9,18 @@ attrs==23.2.0
 # These autobahn constraints are inherited from ZKAPAuthorizer e1debb6
 # and can probably go away once autobahn provides a release containing
 # https://github.com/crossbario/autobahn-python/pull/1578
-autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1
+#
+# FIXME: tahoe pins "< 22.4.1" so we have to as well; see
+# https://github.com/tahoe-lafs/tahoe-lafs/blob/master/setup.py#L117
+# which should be gone by the next tahoe release
+autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1, < 22.4.1
 certifi
-deterministic-keygen
 # With cryptography 44, mkdir on tahoe 1.18 fails with "builtins.AttributeError:
 # 'cryptography.hazmat.bindings._rust.openssl.ciphers' object attribute
 # '__provides__' is read-only"
 cryptography < 43.0
 humanize
 magic-wormhole
-mnemonic
 psutil
 # PyNaCl 1.2.0 adds Argon2id KDF
 pynacl >= 1.2.0

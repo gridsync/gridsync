@@ -12,6 +12,7 @@
 - Replaced `flake8` with `ruff` in the tox "lint" testenv (PR #624)
 - Binary builds will now default to shipping with PyQt6 instead of PyQt5 (Issue #629; PR #630)
 - The "Restore from Recovery Key" action is now always enabled/accessible from the main window's "Recovery" button (Issue #645; PR #646)
+- Update the provider configuration for the testgrid after its re-installation (Issue: #726; PR: #727)
 
 ### Fixed
 - Mypy will no longer warn about "types.py" shadowing the "types" library module (Issue #600; PR #601)
@@ -22,6 +23,7 @@
 
 ### Removed
 - Removed support for Python 3.9 (Issue #617; PR #618)
+- Removed `0-hro-cloud` "[cheat code](https://github.com/gridsync/gridsync/blob/master/docs/cheat-codes.md)" for Least Authority's "HRO Cloud" (Issue #724; PR #725)
 
 
 ## 0.6.1 - 2022-10-14
