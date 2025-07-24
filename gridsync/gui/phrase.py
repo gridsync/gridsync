@@ -1,3 +1,5 @@
+# type: ignore
+# TODO: Type hints
 import secrets
 
 from mnemonic import Mnemonic
