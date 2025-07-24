@@ -4,7 +4,6 @@ from mnemonic import Mnemonic
 from qtpy.QtCore import QStringListModel, Qt, Signal
 from qtpy.QtGui import QKeyEvent
 from qtpy.QtWidgets import (
-    QApplication,
     QComboBox,
     QCompleter,
     QDialog,
