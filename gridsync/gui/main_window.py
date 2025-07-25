@@ -102,7 +102,8 @@ class CentralWidget(QStackedWidget):
 
     def _add_usage_view(self, gateway: Tahoe) -> None:
         gateway.load_settings()  # Ensure that zkap_unit_name is read/updated
-        view = UsageView(gateway, self.gui)
+        # mypy: "Missing positional arguments 'zkaps_used', 'zkaps_cost' ..."
+        view = UsageView(gateway, self.gui)  # type: ignore[call-arg]
         widget = QWidget()
         layout = QGridLayout(widget)
         if sys.platform == "darwin":
