@@ -102,10 +102,16 @@ def collect_dynamic_libs(package):
 def analyze_tahoe():
     from allmydata import __main__ as script_module
 
+    try:
+        import challenge_bypass_ristretto
+        binaries = collect_dynamic_libs("challenge_bypass_ristretto")
+    except ImportError:
+        binaries = []
+
     return Analysis(
         [inspect.getsourcefile(script_module)],
         pathex=[],
-        binaries=collect_dynamic_libs("challenge_bypass_ristretto"),
+        binaries=binaries,
         datas=collect_data_files("allmydata.web"),
         hiddenimports=[
             "__builtin__",
