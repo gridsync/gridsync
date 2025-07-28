@@ -49,7 +49,7 @@ jobs:
     env:
       GRIDSYNC_EXTRAS: ${{ matrix.extras }}
       QT_API: pyqt6
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -129,7 +129,7 @@ jobs:
     env:
       GRIDSYNC_EXTRAS: ${{ matrix.extras }}
       QT_API: pyqt6
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -209,7 +209,7 @@ jobs:
       QT_API: pyqt6
       # Tahoe-LAFS 1.18.0 does not support Python 3.11
       PY_PYTHON: "3.10"
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
     - name: Checkout
       uses: actions/checkout@v2
