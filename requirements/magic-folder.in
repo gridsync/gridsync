@@ -1,13 +1,1 @@
 magic-folder >= 24.1.0
-# attrs 24.1 removes `attrs.validators.provides` -- which tahoe-lafs 1.18 depends on
-attrs==23.2.0
-# With cryptography 44, mkdir on tahoe 1.18 fails with "builtins.AttributeError:
-# 'cryptography.hazmat.bindings._rust.openssl.ciphers' object attribute
-# '__provides__' is read-only"
-cryptography < 43.0
-# These autobahn constraints are inherited from ZKAPAuthorizer e1debb6
-# and can probably go away once autobahn provides a release containing
-# https://github.com/crossbario/autobahn-python/pull/1578
-autobahn >= 21.11.1, != 22.5.1, != 22.4.2, != 22.4.1
-# ZKAPAuthorizer 2022.8.21 requires tahoe-lafs >=1.17.1,<1.18.1
-tahoe-lafs < 1.18.1
