@@ -9,6 +9,7 @@ autobahn
 certifi
 deterministic-keygen
 humanize
+lafs
 magic-wormhole
 mnemonic
 psutil
