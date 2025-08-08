@@ -140,9 +140,8 @@ def test_diminish_returns_cap_if_cap_is_already_readonly():
 )
 def test_derive_mutable_cap(input, expected):
     from deterministic_keygen import derive_rsa_key
-
-    from gridsync.capabilities import derive_mutable_cap
+    from lafs import derive_mutable_uri
 
     private_key_pem = derive_rsa_key(input)
-    cap = derive_mutable_cap(private_key_pem)
+    cap = derive_mutable_uri(private_key_pem, "DIR2")
     assert cap == expected
