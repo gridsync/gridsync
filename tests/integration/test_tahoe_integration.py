@@ -3,9 +3,11 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from deterministic_keygen import derive_rsa_key
+from lafs import derive_mutable_uri
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
@@ -292,22 +294,26 @@ def test_apply_connection_settings(tahoe_client, tahoe_server):
 
 
 @ensureDeferred
-async def test_load_vectors(tahoe_client) -> None:
-    import yaml
-
+async def test_mutable_uri_derivation_from_vectors(tahoe_client) -> None:
     with open(Path(__file__).parent / "vectors" / "tahoe-lafs.yaml") as f:
         data = yaml.safe_load(f)
     for vector in data["vector"]:
-        kind = vector["format"]["kind"]
-        if kind == "ssk":
+        if vector["format"]["kind"] == "ssk":
             key = vector["format"]["params"]["key"]
             expected = vector["expected"]
             expected_writekey = expected.split(":")[2]
             expected_fingerprint = expected.split(":")[3]
 
-            cap = await tahoe_client.mkdir(private_key=key)
-            actual_writekey = cap.split(":")[2]
-            actual_fingerprint = cap.split(":")[3]
+            created_uri = await tahoe_client.mkdir(private_key=key)
+            created_writekey = created_uri.split(":")[2]
+            created_fingerprint = created_uri.split(":")[3]
 
-            assert actual_writekey == expected_writekey
-            assert actual_fingerprint == expected_fingerprint
+            assert created_writekey == expected_writekey
+            assert created_fingerprint == expected_fingerprint
+
+            derived_uri = derive_mutable_uri(key)
+            derived_writekey = derived_uri.split(":")[2]
+            derived_fingerprint = derived_uri.split(":")[3]
+
+            assert derived_writekey == expected_writekey
+            assert derived_fingerprint == expected_fingerprint
