@@ -2,6 +2,7 @@ import pytest
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred, DeferredList
 
+from gridsync import features
 from gridsync.errors import UpgradeRequiredError
 
 
@@ -103,3 +104,31 @@ async def test_import_rootcap_raises_upgrade_required_error_for_no_basedir(
     source_rootcap = await tahoe_client.mkdir()
     with pytest.raises(UpgradeRequiredError):
         await rootcap_manager.import_rootcap(source_rootcap)
+
+
+# These tests assume that a rootcap has already been created (which holds true
+# here because we are re-using the same rootcap_manager instance); please ensure
+# that these tests run last -- or at least *after* one that creates a rootcap!
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
+def test_entropy_persisted_to_disk(rootcap_manager):
+    assert rootcap_manager.get_entropy()
+
+
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
+def test_rootcap_derived_from_entropy(rootcap_manager):
+    entropy = rootcap_manager.get_entropy()
+    rootcap = rootcap_manager.get_rootcap()
+
+    from deterministic_keygen import derive_rsa_key
+    from lafs import derive_mutable_uri
+
+    rsa_key = derive_rsa_key(entropy)
+    derived_rootcap = derive_mutable_uri(rsa_key, "DIR2")
+
+    assert rootcap == derived_rootcap

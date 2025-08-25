@@ -728,7 +728,6 @@ class Tahoe:
             path = "/uri"
             params = {"t": "mkdir"}
         if private_key is not None:
-            # TODO: Validate?
             der = pem_to_der(private_key)
             params["private-key"] = urlsafe_b64encode(der).decode("ascii")
         cap = await self._request("POST", path, params=params)

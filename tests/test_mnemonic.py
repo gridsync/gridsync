@@ -47,10 +47,6 @@ def test_to_mnemonic():
 def test_jp() -> None:
     entropy = token_bytes(16)
     mnemonic = Mnemonic("japanese").to_mnemonic(entropy)
-
     phrase = mnemonic.split("\u3000")
-    print(phrase)
-
     entropy2 = Mnemonic("japanese").to_entropy(phrase)
-
     assert entropy == entropy2

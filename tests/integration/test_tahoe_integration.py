@@ -11,7 +11,7 @@ from lafs import derive_mutable_uri
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
-from gridsync import APP_NAME
+from gridsync import APP_NAME, features
 from gridsync.tahoe import TahoeWebError
 
 if sys.platform == "darwin":
@@ -50,6 +50,10 @@ def test_tahoe_client_mkdir(tahoe_client):
     assert cap.startswith("URI:DIR2:")
 
 
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
 @inlineCallbacks
 def test_tahoe_client_mkdir_with_random_private_key(tahoe_client) -> None:
     private_key = rsa.generate_private_key(
@@ -67,6 +71,10 @@ def test_tahoe_client_mkdir_with_random_private_key(tahoe_client) -> None:
     assert cap.startswith("URI:DIR2:")
 
 
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
 @pytest.mark.parametrize(
     "input, expected",
     [
@@ -271,28 +279,10 @@ async def test_get_cap_returns_none_for_missing_path(tahoe_client, tmp_path):
     assert output is None
 
 
-# XXX Run this test last since it modifies the nodedir that corresponds
-# to the module-scoped `tahoe_client` fixture; we don't want the other
-# tests in this module to be impacted by this shared state-modification
-def test_apply_connection_settings(tahoe_client, tahoe_server):
-    settings = {
-        "shares-needed": "1",
-        "shares-happy": "1",
-        "shares-total": "2",
-        "storage": {
-            "test-grid-storage-server-2": {
-                "nickname": "test-grid-storage-server-1",
-                "anonymous-storage-FURL": tahoe_server.storage_furl,
-            }
-        },
-    }
-    tahoe_client.apply_connection_settings(settings)
-    assert tahoe_client.config_get("client", "shares.total") == "2"
-    storage_servers = tahoe_client.get_storage_servers()
-    assert "test-grid-storage-server-2" in storage_servers
-    assert "test-grid-storage-server-1" not in storage_servers
-
-
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
 @ensureDeferred
 async def test_mutable_uri_derivation_from_vectors(tahoe_client) -> None:
     with open(Path(__file__).parent / "vectors" / "tahoe-lafs.yaml") as f:
@@ -317,3 +307,25 @@ async def test_mutable_uri_derivation_from_vectors(tahoe_client) -> None:
 
             assert derived_writekey == expected_writekey
             assert derived_fingerprint == expected_fingerprint
+
+
+# XXX Run this test last since it modifies the nodedir that corresponds
+# to the module-scoped `tahoe_client` fixture; we don't want the other
+# tests in this module to be impacted by this shared state-modification
+def test_apply_connection_settings(tahoe_client, tahoe_server):
+    settings = {
+        "shares-needed": "1",
+        "shares-happy": "1",
+        "shares-total": "2",
+        "storage": {
+            "test-grid-storage-server-2": {
+                "nickname": "test-grid-storage-server-1",
+                "anonymous-storage-FURL": tahoe_server.storage_furl,
+            }
+        },
+    }
+    tahoe_client.apply_connection_settings(settings)
+    assert tahoe_client.config_get("client", "shares.total") == "2"
+    storage_servers = tahoe_client.get_storage_servers()
+    assert "test-grid-storage-server-2" in storage_servers
+    assert "test-grid-storage-server-1" not in storage_servers

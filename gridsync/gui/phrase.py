@@ -4,7 +4,6 @@ import secrets
 
 from mnemonic import Mnemonic
 from qtpy.QtCore import QStringListModel, Qt, Signal
-from qtpy.QtGui import QKeyEvent
 from qtpy.QtWidgets import (
     QComboBox,
     QCompleter,
@@ -13,6 +12,7 @@ from qtpy.QtWidgets import (
     QGroupBox,
     QLabel,
     QLineEdit,
+    QPushButton,
     QWidget,
 )
 
@@ -147,8 +147,11 @@ class RecoveryPhraseGroupBox(QGroupBox):
             # Store the line edit objects in a dictionary for later access:
             self._line_edits[i] = le
 
+    def set_language(self, language: str) -> None:
+        self._language = language
+        self.completer.set_language(language)
+
     def load(self, entropy: bytes, language: str = "english") -> None:
-        print("load", entropy, language)
         if not entropy:
             raise ValueError("Entropy must be non-empty")
         self._entropy = entropy
@@ -161,8 +164,7 @@ class RecoveryPhraseGroupBox(QGroupBox):
         for i, word in enumerate(phrase, 1):
             self._line_edits[i].setText(word)
 
-        self._language = language
-        self.completer.set_language(language)
+        self.set_language(language)
 
     def get_phrase(self) -> str:
         return " ".join([self._line_edits[i].text() for i in range(1, 13)])
@@ -181,16 +183,41 @@ class RecoveryPhraseExporter(QDialog):
         )
         self._language_selector = LanguageSelector()
 
+        self._close_button = QPushButton("Close", self)
+
+        self.info_label = QLabel(self)
+        self.info_label.setFont(Font(10))
+        self.info_label.setStyleSheet("color: grey")
+        self.info_label.setWordWrap(True)
+        self.info_label.setAlignment(Qt.AlignCenter)
+        self.info_label.setText(
+            "This is your Recovery Phrase. "
+            "Write it down and keep it in a safe place. "
+            "You can enter it later to restore your folders."
+        )
+
         self._layout = QGridLayout(self)
         self._layout.addItem(VSpacer(), 0, 0)
         self._layout.addItem(HSpacer(), 0, 0)
         self._layout.addWidget(self._recovery_box, 1, 1, 1, 5)
+        self._layout.addWidget(self.info_label, 10, 1, 1, 5)
         self._layout.addWidget(self._language_selector, 20, 1, 1, 1)
+        self._layout.addWidget(self._close_button, 20, 5, 1, 1)
         self._layout.addItem(HSpacer(), 99, 99)
         self._layout.addItem(VSpacer(), 99, 99)
 
         self._language_selector.language_changed.connect(
             lambda language: self.load(self._entropy, language)
+        )
+        self._close_button.clicked.connect(self.close)
+
+    def set_grid_name(self, name: str) -> None:
+        self.setWindowTitle(f"{name} Recovery Phrase")
+        self._recovery_box.setTitle(f"{name} Recovery Phrase:")
+        self.info_label.setText(
+            f"This is your Recovery Phrase for {name}. "
+            "Write it down and keep it in a safe place. "
+            f"You can enter it later to restore your folders on {name}."
         )
 
     def load(self, entropy: bytes, language: str = "english") -> None:
@@ -211,17 +238,29 @@ class RecoveryPhraseImporter(QDialog):
         )
         self._language_selector = LanguageSelector()
 
+        self._restore_button = QPushButton("Restore...", self)
+
         self._layout = QGridLayout(self)
         self._layout.addItem(VSpacer(), 0, 0)
         self._layout.addItem(HSpacer(), 0, 0)
         self._layout.addWidget(self._recovery_box, 1, 1, 1, 5)
         self._layout.addWidget(self._language_selector, 20, 1, 1, 1)
+        self._layout.addWidget(self._restore_button, 20, 5, 1, 1)
         self._layout.addItem(HSpacer(), 99, 99)
         self._layout.addItem(VSpacer(), 99, 99)
 
         self._language_selector.language_changed.connect(
-            lambda language: self.load(self._entropy, language)
+            lambda language: self.set_language(language)
         )
+        self._restore_button.clicked.connect(self.validate)
+
+    def set_language(self, language: str) -> None:
+        self._language = language
+        self._recovery_box.set_language(language)
+
+    def set_grid_name(self, name: str) -> None:
+        self.setWindowTitle(f"{name} Recovery Phrase")
+        self._recovery_box.setTitle(f"Enter your {name} Recovery Phrase:")
 
     def load(self, entropy: bytes, language: str = "english") -> None:
         self._entropy = entropy
@@ -242,9 +281,9 @@ class RecoveryPhraseImporter(QDialog):
             return
         self.completed.emit(entropy)
 
-    def keyPressEvent(self, event: QKeyEvent) -> QKeyEvent | None:
-        key = event.key()
-        if key == Qt.Key_Return:
-            self.validate()
-            return None
-        return QDialog.keyPressEvent(self, event)
+    # def keyPressEvent(self, event: QKeyEvent) -> QKeyEvent | None:
+    #     key = event.key()
+    #     if key == Qt.Key_Return:
+    #         self.validate()
+    #         return None
+    #     return QDialog.keyPressEvent(self, event)
