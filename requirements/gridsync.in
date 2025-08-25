@@ -7,8 +7,11 @@ atomicwrites
 attrs
 autobahn
 certifi
+deterministic-keygen
 humanize
+lafs
 magic-wormhole
+mnemonic
 psutil
 # PyNaCl 1.2.0 adds Argon2id KDF
 pynacl >= 1.2.0

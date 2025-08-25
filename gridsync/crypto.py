@@ -4,6 +4,7 @@ import hashlib
 import secrets
 import string
 
+from cryptography.hazmat.primitives import serialization
 from nacl.exceptions import CryptoError
 from nacl.pwhash import argon2id
 from nacl.secret import SecretBox
@@ -11,6 +12,19 @@ from nacl.utils import random
 from qtpy.QtCore import QObject, Signal
 
 from gridsync.util import b58decode, b58encode
+
+
+def pem_to_der(private_key_pem: str) -> bytes:
+    private_key = serialization.load_pem_private_key(
+        private_key_pem.encode(),
+        password=None,
+    )
+    der_bytes = private_key.private_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    return der_bytes
 
 
 def randstr(length: int = 32, alphabet: str = "") -> str:

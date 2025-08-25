@@ -5,6 +5,7 @@ import logging as log
 import os
 import re
 import shutil
+from base64 import urlsafe_b64encode
 from pathlib import Path
 from typing import Optional, Union, cast
 
@@ -19,7 +20,7 @@ from gridsync import APP_NAME, grid_settings
 from gridsync import settings as global_settings
 from gridsync.capabilities import diminish
 from gridsync.config import Config
-from gridsync.crypto import trunchash
+from gridsync.crypto import pem_to_der, trunchash
 from gridsync.errors import (
     TahoeCommandError,
     TahoePluginError,
@@ -713,7 +714,11 @@ class Tahoe:
         return self._ready_poller.wait_for_completion()
 
     async def mkdir(
-        self, parentcap: Optional[str] = None, childname: Optional[str] = None
+        self,
+        parentcap: Optional[str] = None,
+        childname: Optional[str] = None,
+        *,
+        private_key: Optional[str] = None,
     ) -> str:
         await self.await_ready()
         if parentcap and childname:
@@ -722,6 +727,9 @@ class Tahoe:
         else:
             path = "/uri"
             params = {"t": "mkdir"}
+        if private_key is not None:
+            der = pem_to_der(private_key)
+            params["private-key"] = urlsafe_b64encode(der).decode("ascii")
         cap = await self._request("POST", path, params=params)
         return cap
 

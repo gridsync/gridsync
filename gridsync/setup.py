@@ -416,6 +416,7 @@ class SetupRunner(QObject):
             self.update_progress.emit("Connecting...")
         else:
             self.update_progress.emit("Creating Recovery Key...")
+            await self.gateway.await_ready()
             await self.gateway.create_rootcap()
 
     async def join_folders(self, folders_data: dict) -> None:

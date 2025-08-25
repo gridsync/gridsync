@@ -28,6 +28,7 @@ from qtpy.QtWidgets import (
 )
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.threads import deferToThread
 from twisted.python.failure import Failure
 
 from gridsync import (
@@ -39,13 +40,17 @@ from gridsync import (
 )
 from gridsync.gui.history import HistoryView
 from gridsync.gui.password import PasswordDialog
+from gridsync.gui.phrase import (  # type: ignore
+    RecoveryPhraseExporter,
+    RecoveryPhraseImporter,
+)
 from gridsync.gui.share import InviteReceiverDialog, InviteSenderDialog
 from gridsync.gui.status import StatusPanel
 from gridsync.gui.toolbar import ComboBox, ToolBar
 from gridsync.gui.usage import UsageView
 from gridsync.gui.view import View
 from gridsync.gui.welcome import WelcomeDialog
-from gridsync.msg import error, info
+from gridsync.msg import error, info, question
 from gridsync.recovery import export_recovery_key, get_recovery_key
 from gridsync.tahoe import Tahoe
 from gridsync.util import strip_html_tags
@@ -201,6 +206,8 @@ class MainWindow(QMainWindow):
         self.pending_news_message: Union[
             tuple[()], tuple[Tahoe, str, str]
         ] = ()
+        self.recovery_phrase_exporter = RecoveryPhraseExporter(self)
+        self.recovery_phrase_importer = RecoveryPhraseImporter(self)
 
         self.setWindowTitle(APP_NAME)
         self.setMinimumSize(QSize(755, 470))
@@ -252,6 +259,12 @@ class MainWindow(QMainWindow):
         )
         self.toolbar.import_action_triggered.connect(self.import_recovery_key)
         self.toolbar.export_action_triggered.connect(self.export_recovery_key)
+        self.toolbar.import_phrase_action_triggered.connect(
+            self.import_recovery_phrase
+        )
+        self.toolbar.export_phrase_action_triggered.connect(
+            self.export_recovery_phrase
+        )
         self.toolbar.folders_action_triggered.connect(self.show_folders_view)
         self.toolbar.history_action_triggered.connect(self.show_history_view)
         self.toolbar.usage_action_triggered.connect(self.show_usage_view)
@@ -494,6 +507,74 @@ class MainWindow(QMainWindow):
         reply = msg.exec_()
         if reply == QMessageBox.Yes:
             self.export_recovery_key(gateway)
+
+    def export_recovery_phrase(self) -> None:
+        gateway = self.combo_box.currentData()
+        if not gateway:
+            return
+        self.recovery_phrase_exporter.set_grid_name(gateway.name)
+        p = Path(gateway.nodedir, "private", "entropy")
+        try:
+            entropy = p.read_bytes()
+        except Exception as e:  # pylint: disable=broad-except
+            error(
+                self,
+                "Error reading entropy bytes",
+                f"Could not read entropy bytes from {p}: {e}",
+            )
+            return
+        self.recovery_phrase_exporter.load(entropy)
+        self.recovery_phrase_exporter.show()
+        self.recovery_phrase_exporter.raise_()
+
+    def import_recovery_phrase(self) -> None:
+        gateway = self.combo_box.currentData()
+        if not gateway:
+            return
+        self.recovery_phrase_importer.completed.connect(
+            lambda entropy: run_coroutine(
+                self, self._restore_from_entropy(gateway, entropy)
+            )
+        )
+        self.recovery_phrase_importer.set_grid_name(gateway.name)
+        self.recovery_phrase_importer.show()
+        self.recovery_phrase_importer.raise_()
+
+    async def _restore_from_entropy(
+        self, gateway: Tahoe, entropy: bytes
+    ) -> None:
+        from deterministic_keygen import derive_rsa_key
+        from lafs import derive_mutable_uri
+
+        if not question(
+            self,
+            "Restore from Recovery Phrase?",
+            "By restoring from a Recovery Phrase, the configuration on this "
+            "device will be <i>replaced</i> with the configuration of the "
+            "original device and <i>access to any current folders on this "
+            "device will be lost</i>.<br><br>"
+            f"Once this process has completed, continuing to run {APP_NAME} "
+            "on the original device can, in some circumstances, lead to "
+            "data-loss. As a result, you should only restore from a "
+            "Recovery Phrase in the event that you no longer require access "
+            "to any current folders on this device, and that the original "
+            f"device is no longer running {APP_NAME}.<br><br>"
+            "Are you sure you wish to continue?",
+        ):
+            return
+        self.recovery_phrase_importer.close()
+        private_key_pem = await deferToThread(derive_rsa_key, entropy)
+        rootcap = derive_mutable_uri(private_key_pem, "DIR2")
+        await gateway.stop()
+        gateway.rootcap_manager.set_entropy(entropy, overwrite=True)
+        gateway.rootcap_manager.set_rootcap(rootcap, overwrite=True)
+        info(
+            self,
+            "Restoration Successful",
+            f"Restoration complete. {APP_NAME} will now exit.\n\n"
+            "Please relaunch the application to re-download any folders.",
+        )
+        reactor.stop()  # type: ignore
 
     def on_invite_received(self, gateway: Tahoe) -> None:
         self.populate([gateway])

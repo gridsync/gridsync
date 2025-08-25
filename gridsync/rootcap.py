@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import logging
+import secrets
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from atomicwrites import atomic_write
 from twisted.internet.defer import DeferredLock
+from twisted.internet.threads import deferToThread
 
-from gridsync import APP_NAME
+from gridsync import APP_NAME, features
 from gridsync.errors import UpgradeRequiredError
 
 if TYPE_CHECKING:
@@ -43,10 +45,31 @@ class RootcapManager:
         self.gateway = gateway
         self.basedir = basedir
         self.lock = DeferredLock()
+        self._entropy_path = Path(gateway.nodedir, "private", "entropy")
+        self._entropy: bytes = b""
         self._rootcap_path = Path(gateway.nodedir, "private", "rootcap")
         self._rootcap: str = ""
         self._basedircap = ""
         self._backup_caps: dict = {}
+
+    def get_entropy(self) -> bytes:
+        if self._entropy:
+            return self._entropy
+        try:
+            self._entropy = self._entropy_path.read_bytes()
+        except FileNotFoundError:
+            return b""
+        return self._entropy
+
+    def set_entropy(self, entropy: bytes, overwrite: bool = False) -> None:
+        with atomic_write(
+            str(self._entropy_path),
+            mode="wb",
+            overwrite=overwrite,
+        ) as f:
+            f.write(entropy)
+        logging.debug("Entropy saved to file: %s", self._entropy_path)
+        self._entropy = entropy
 
     def get_rootcap(self) -> str:
         if self._rootcap:
@@ -73,10 +96,40 @@ class RootcapManager:
             )
             return self.get_rootcap()
         await self.lock.acquire()
+        if features.zkapauthorizer:
+            # XXX Tahoe-LAFS 1.20.0 is required to pass a user-supplied
+            # key to mkdir but ZKAPAuthorizer currently requires 1.18.
+            # Setting these to None creates a rootcap with a random key.
+            entropy = None
+            rsa_key = None
+        else:
+            from deterministic_keygen import derive_rsa_key
+
+            entropy = secrets.token_bytes(16)
+            try:
+                rsa_key = await deferToThread(derive_rsa_key, entropy)
+            except Exception as e:  # pylint: disable=broad-except
+                logging.error("Failed to derive RSA key from entropy: %s", e)
+                self.lock.release()
+                raise
         try:
-            rootcap = await self.gateway.mkdir()
+            rootcap = await self.gateway.mkdir(private_key=rsa_key)
         finally:
             self.lock.release()
+        if entropy and rsa_key:
+            from lafs import derive_mutable_uri
+
+            try:
+                expected_rootcap = await deferToThread(
+                    derive_mutable_uri, rsa_key, "DIR2"
+                )
+            except Exception as e:  # pylint: disable=broad-except
+                logging.error("Failed to derive rootcap from RSA key: %s", e)
+                raise
+            if expected_rootcap != rootcap:
+                raise ValueError(
+                    "Derived rootcap does not match expected value"
+                )
         await self.lock.acquire()
         if self._rootcap:
             logging.warning("Rootcap already exists")
@@ -91,6 +144,8 @@ class RootcapManager:
             return self.get_rootcap()
         finally:
             self.lock.release()
+        if entropy is not None:
+            self.set_entropy(entropy)
         logging.debug("Rootcap successfully created")
         return self._rootcap
 

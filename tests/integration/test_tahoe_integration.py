@@ -2,10 +2,17 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+import yaml
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from deterministic_keygen import derive_rsa_key
+from lafs import derive_mutable_uri
 from pytest_twisted import ensureDeferred, inlineCallbacks
 from twisted.internet.defer import Deferred
 
-from gridsync import APP_NAME
+from gridsync import APP_NAME, features
+from gridsync.tahoe import TahoeWebError
 
 if sys.platform == "darwin":
     application_bundle_path = str(
@@ -41,6 +48,103 @@ async def test_tahoe_client_is_ready(tahoe_client):
 def test_tahoe_client_mkdir(tahoe_client):
     cap = yield Deferred.fromCoroutine(tahoe_client.mkdir())
     assert cap.startswith("URI:DIR2:")
+
+
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
+@inlineCallbacks
+def test_tahoe_client_mkdir_with_random_private_key(tahoe_client) -> None:
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    private_key_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    ).decode()
+    cap = yield Deferred.fromCoroutine(
+        tahoe_client.mkdir(private_key=private_key_pem)
+    )
+    assert cap.startswith("URI:DIR2:")
+
+
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        [
+            b"0" * 32,
+            "URI:DIR2:qipxsqshywakqfgpfs75wr5wgm:xaesekzxu27ziew5n47sckyyjvdczd6kmbt22vldp633qwlrzjwq",
+        ],
+        [
+            b"1" * 32,
+            "URI:DIR2:zuyypcedyl6aw2swd7uqmtgmpi:m35xlt7gs5fi7tnuioztn5gtygyhyd3o2ctshucy5qahhbhwnyeq",
+        ],
+        [
+            b"2" * 32,
+            "URI:DIR2:gvbrggubcdghip6gjzzjqhj4yi:sct2pk6sqn2ilpu5netof4xhhm25lrcroag3bjeweeanb4m4o6uq",
+        ],
+    ],
+)
+@inlineCallbacks
+def test_tahoe_client_mkdir_with_known_private_key(
+    tahoe_client, input, expected
+) -> None:
+    private_key_pem = derive_rsa_key(input)
+    cap = yield Deferred.fromCoroutine(
+        tahoe_client.mkdir(private_key=private_key_pem)
+    )
+    assert cap == expected
+
+
+@ensureDeferred
+async def test_tahoe_client_mkdir_with_uncoordinated_write_error(
+    tahoe_client, tmp_path
+) -> None:
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    private_key_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    ).decode()
+
+    # Creat a dircap using the given private key
+    dircap = await Deferred.fromCoroutine(
+        tahoe_client.mkdir(private_key=private_key_pem)
+    )
+    assert dircap.startswith("URI:DIR2:")
+
+    # Upload a file beneath the dircap
+    p = tmp_path / "TestFile.txt"
+    p.write_bytes(b"test" * 64)
+    filecap = await tahoe_client.upload(p.resolve(), dircap=dircap)
+
+    # Get the directory contents
+    contents_before = await tahoe_client.ls(dircap)
+    assert "TestFile.txt" in contents_before
+    assert contents_before["TestFile.txt"]["cap"] == filecap
+
+    # This should fail with an UncoordinatedWriteError
+    try:
+        await Deferred.fromCoroutine(
+            tahoe_client.mkdir(private_key=private_key_pem)
+        )
+    except TahoeWebError as e:  # UncoordinatedWriteError
+        print(e)
+        assert "allmydata.mutable.common.UncoordinatedWriteError" in str(e)
+
+    contents2 = await tahoe_client.ls(dircap)
+    assert "TestFile.txt" in contents2
+    assert contents2["TestFile.txt"]["cap"] == filecap
 
 
 @ensureDeferred
@@ -173,6 +277,36 @@ async def test_get_cap_returns_none_for_missing_path(tahoe_client, tmp_path):
     await tahoe_client.mkdir(dircap, "TestSubdir")
     output = await tahoe_client.get_cap(dircap + "/TestNonExistentSubdir")
     assert output is None
+
+
+@pytest.mark.skipif(
+    features.zkapauthorizer,
+    reason="Requires Tahoe-LAFS 1.20.0 or later",
+)
+@ensureDeferred
+async def test_mutable_uri_derivation_from_vectors(tahoe_client) -> None:
+    with open(Path(__file__).parent / "vectors" / "tahoe-lafs.yaml") as f:
+        data = yaml.safe_load(f)
+    for vector in data["vector"]:
+        if vector["format"]["kind"] == "ssk":
+            key = vector["format"]["params"]["key"]
+            expected = vector["expected"]
+            expected_writekey = expected.split(":")[2]
+            expected_fingerprint = expected.split(":")[3]
+
+            created_uri = await tahoe_client.mkdir(private_key=key)
+            created_writekey = created_uri.split(":")[2]
+            created_fingerprint = created_uri.split(":")[3]
+
+            assert created_writekey == expected_writekey
+            assert created_fingerprint == expected_fingerprint
+
+            derived_uri = derive_mutable_uri(key)
+            derived_writekey = derived_uri.split(":")[2]
+            derived_fingerprint = derived_uri.split(":")[3]
+
+            assert derived_writekey == expected_writekey
+            assert derived_fingerprint == expected_fingerprint
 
 
 # XXX Run this test last since it modifies the nodedir that corresponds

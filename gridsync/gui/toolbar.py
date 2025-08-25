@@ -160,6 +160,8 @@ class InvitesMenuButton(ToolButton):
 class RecoveryMenuButton(ToolButton):
     import_action_triggered = Signal()
     export_action_triggered = Signal()
+    import_phrase_action_triggered = Signal()
+    export_phrase_action_triggered = Signal()
 
     def __init__(self, parent: Optional[ToolBar] = None) -> None:
         super().__init__(parent)
@@ -169,14 +171,10 @@ class RecoveryMenuButton(ToolButton):
         # The import/restore action must always be accessible to users.
         # See https://github.com/gridsync/gridsync/issues/645
         self.action.setEnabled(True)
-        self.action.setToolTip("Create or Restore from a Recovery Key")
+        self.action.setToolTip(
+            "Create or Restore from a Recovery Key or Recovery Phrase"
+        )
         self.action.setFont(Font(8))
-
-        import_action = QAction(QIcon(), "Restore from Recovery Key...", self)
-        import_action.setEnabled(True)
-        import_action.setToolTip("Restore from Recovery Key...")
-        import_action.triggered.connect(self.import_action_triggered.emit)
-        self.import_action = import_action
 
         export_action = QAction(QIcon(), "Create Recovery Key...", self)
         export_action.setEnabled(False)
@@ -184,9 +182,42 @@ class RecoveryMenuButton(ToolButton):
         export_action.triggered.connect(self.export_action_triggered.emit)
         self.export_action = export_action
 
+        import_action = QAction(QIcon(), "Restore from Recovery Key...", self)
+        import_action.setEnabled(True)
+        import_action.setToolTip("Restore from Recovery Key...")
+        import_action.triggered.connect(self.import_action_triggered.emit)
+        self.import_action = import_action
+
+        export_phrase_action = QAction(
+            QIcon(), "View Recovery Phrase...", self
+        )
+        export_phrase_action.setEnabled(True)  # XXX
+        export_phrase_action.setToolTip("View Recovery Phrase...")
+        export_phrase_action.triggered.connect(
+            self.export_phrase_action_triggered.emit
+        )
+        self.export_phrase_action = export_phrase_action
+
+        import_phrase_action = QAction(
+            QIcon(), "Restore from Recovery Phrase...", self
+        )
+        import_phrase_action.setEnabled(True)  # XXX
+        import_phrase_action.setToolTip("Restore from Recovery Phrase...")
+        import_phrase_action.triggered.connect(
+            self.import_phrase_action_triggered.emit
+        )
+        self.import_phrase_action = export_phrase_action
+
         menu = QMenu(self)
-        menu.addAction(import_action)
         menu.addAction(export_action)
+        menu.addAction(import_action)
+
+        if not features.zkapauthorizer and features.recovery_phrases:
+            # XXX Recovery Phrases require Tahoe-LAFS 1.20 or later but
+            # ZKAPAuthorizer currently only supports up to 1.18.
+            menu.addSeparator()
+            menu.addAction(export_phrase_action)
+            menu.addAction(import_phrase_action)
 
         self.setDefaultAction(self.action)
         self.setMenu(menu)
@@ -238,6 +269,8 @@ class ToolBar(QToolBar):
     create_invite_action_triggered = Signal()
     import_action_triggered = Signal()
     export_action_triggered = Signal()
+    import_phrase_action_triggered = Signal()
+    export_phrase_action_triggered = Signal()
     folders_action_triggered = Signal()
     history_action_triggered = Signal()
     usage_action_triggered = Signal()
@@ -345,6 +378,12 @@ class ToolBar(QToolBar):
         )
         self.recovery_button.export_action_triggered.connect(
             self.export_action_triggered
+        )
+        self.recovery_button.import_phrase_action_triggered.connect(
+            self.import_phrase_action_triggered
+        )
+        self.recovery_button.export_phrase_action_triggered.connect(
+            self.export_phrase_action_triggered
         )
         self.history_button.clicked.connect(self.on_history_activated)
         self.folders_button.clicked.connect(self.on_folders_activated)

@@ -109,6 +109,7 @@ magic_folder_invites_enabled: bool = True
 multiple_grids_enabled: bool = True
 tor_enabled: bool = True
 zkapauthorizer_enabled: bool = False
+recovery_phrases_enabled: bool = False
 
 _features = settings.get("features")
 if _features:
@@ -127,10 +128,16 @@ if _features:
     _zkapauthorizer = _features.get("zkapauthorizer")
     if _zkapauthorizer and _zkapauthorizer.lower() == "true":
         zkapauthorizer_enabled = True
+    _recovery_phrases = _features.get("recovery_phrases")
+    if _recovery_phrases and _recovery_phrases.lower() == "true":
+        recovery_phrases_enabled = True
 
 Features = namedtuple(
     "Features",
-    "grid_invites magic_folder_invites multiple_grids tor zkapauthorizer",
+    (
+        "grid_invites magic_folder_invites multiple_grids tor zkapauthorizer "
+        "recovery_phrases"
+    ),
 )
 features = Features(
     grid_invites_enabled,
@@ -138,6 +145,7 @@ features = Features(
     multiple_grids_enabled,
     tor_enabled,
     zkapauthorizer_enabled,
+    recovery_phrases_enabled,
 )
 
 
